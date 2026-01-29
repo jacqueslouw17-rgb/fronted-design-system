@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -766,6 +766,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   // Receipt view state
   const [showReceiptView, setShowReceiptView] = useState(false);
   
+  // Admin add adjustment mode
+  const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
+  
   // Handle admin adding adjustment on behalf of worker
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments(prev => ({
@@ -1265,8 +1268,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   </div>
                 </SheetHeader>
 
-                {/* Content with collapsible sections */}
+                {/* Content with collapsible sections - hidden when adding adjustment */}
                 <div className="px-5 py-3 space-y-1" onClick={() => setExpandedItemId(null)}>
+                  
+                  {/* Add Adjustment Form - Takes over the view when active */}
+                  {isAddingAdjustment && (
+                    <CA3_AdminAddAdjustment
+                      workerType={selectedSubmission.workerType}
+                      workerName={selectedSubmission.workerName}
+                      currency={currency}
+                      dailyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 22 : 100}
+                      hourlyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 176 : 15}
+                      isOpen={isAddingAdjustment}
+                      onOpenChange={setIsAddingAdjustment}
+                      onAddAdjustment={(adjustment) => handleAdminAddAdjustment(selectedSubmission.id, adjustment)}
+                    />
+                  )}
+                  
+                  {/* Breakdown sections - hidden when adding adjustment */}
+                  {!isAddingAdjustment && (
+                    <>
                   
                   {/* EARNINGS Section - Collapsed by default, auto-expand when filtering */}
                   {(!showPendingOnly || earningAdjCounts.pending > 0) && (
@@ -1322,6 +1343,28 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           />
                         );
                       })}
+                    {/* Admin-added expenses */}
+                    {!showPendingOnly && workerAdminAdjustments
+                      .filter(a => a.type === 'expense')
+                      .map((adj) => (
+                        <div key={adj.id} className="flex items-center justify-between py-2 group">
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-sm text-foreground">{adj.description || 'Expense'}</span>
+                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm tabular-nums font-mono text-foreground">
+                              +{formatCurrency(adj.amount || 0, currency)}
+                            </span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
+                              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 transition-all"
+                            >
+                              <X className="h-3 w-3 text-destructive" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     {/* Total Earnings */}
                     {!showPendingOnly && (
                       <BreakdownRow
@@ -1362,13 +1405,13 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
 
                   {/* OVERTIME Section - Collapsed by default, auto-expand when filtering */}
-                  {overtimeCounts.total > 0 && (!showPendingOnly || overtimeCounts.pending > 0) && (
+                  {((overtimeCounts.total > 0 || workerAdminAdjustments.some(a => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0)) && (
                     <CollapsibleSection
                       title="Overtime"
                       defaultOpen={false}
                       forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : false}
                       pendingCount={overtimeCounts.pending}
-                      approvedCount={overtimeCounts.approved}
+                      approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter(a => a.type === 'overtime').length}
                     >
                       {allAdjustments
                         .map((adj, originalIdx) => ({ adj, originalIdx }))
@@ -1401,17 +1444,39 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             />
                           );
                         })}
+                    {/* Admin-added overtime */}
+                    {!showPendingOnly && workerAdminAdjustments
+                      .filter(a => a.type === 'overtime')
+                      .map((adj) => (
+                        <div key={adj.id} className="flex items-center justify-between py-2 group">
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-sm text-foreground">{adj.description || `${adj.hours}h overtime`}</span>
+                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm tabular-nums font-mono text-foreground">
+                              +{formatCurrency(adj.amount || 0, currency)}
+                            </span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
+                              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 transition-all"
+                            >
+                              <X className="h-3 w-3 text-destructive" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </CollapsibleSection>
                   )}
 
                   {/* LEAVE Section - Collapsed by default, auto-expand when filtering */}
-                  {hasLeaves && (!showPendingOnly || leaveCounts.pending > 0) && (
+                  {((hasLeaves || workerAdminAdjustments.some(a => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0)) && (
                     <CollapsibleSection
                       title="Leave"
                       defaultOpen={false}
                       forceOpen={showPendingOnly ? leaveCounts.pending > 0 : false}
                       pendingCount={leaveCounts.pending}
-                      approvedCount={leaveCounts.approved}
+                      approvedCount={leaveCounts.approved + workerAdminAdjustments.filter(a => a.type === 'unpaid_leave').length}
                     >
                       {pendingLeaves
                         .filter((leave) => {
@@ -1443,64 +1508,49 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             />
                           );
                         })}
-                    </CollapsibleSection>
-                  )}
-
-                  {/* ADMIN-ADDED Section - Show if there are any admin adjustments */}
-                  {hasAdminAdjustments && !showPendingOnly && (
-                    <CollapsibleSection
-                      title="Admin Added"
-                      defaultOpen={true}
-                      approvedCount={workerAdminAdjustments.length}
-                    >
-                      {workerAdminAdjustments.map((adj) => {
-                        const isDeduction = adj.type === 'unpaid_leave';
-                        const typeLabels: Record<string, string> = {
-                          unpaid_leave: 'Unpaid Leave',
-                          overtime: 'Overtime',
-                          expense: 'Expense',
-                        };
-                        return (
-                          <div key={adj.id} className="flex items-center justify-between py-2 group">
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="text-sm text-foreground">
-                                {adj.description || typeLabels[adj.type]}
-                              </span>
-                              <span className="text-[10px] text-muted-foreground/70">
-                                {typeLabels[adj.type]} · Added by admin
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className={cn(
-                                "text-sm tabular-nums font-mono",
-                                isDeduction ? "text-muted-foreground" : "text-foreground"
-                              )}>
-                                {isDeduction ? '−' : '+'}{formatCurrency(adj.amount || 0, currency)}
-                              </span>
-                              <button
-                                onClick={() => handleRemoveAdminAdjustment(selectedSubmission.id, adj.id)}
-                                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 transition-all"
-                              >
-                                <X className="h-3 w-3 text-destructive" />
-                              </button>
-                            </div>
+                    {/* Admin-added unpaid leave */}
+                    {!showPendingOnly && workerAdminAdjustments
+                      .filter(a => a.type === 'unpaid_leave')
+                      .map((adj) => (
+                        <div key={adj.id} className="flex items-center justify-between py-2 group">
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-sm text-foreground">{adj.description || `${adj.days}d unpaid leave`}</span>
+                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
                           </div>
-                        );
-                      })}
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm tabular-nums font-mono text-muted-foreground">
+                              −{formatCurrency(adj.amount || 0, currency)}
+                            </span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
+                              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 transition-all"
+                            >
+                              <X className="h-3 w-3 text-destructive" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </CollapsibleSection>
                   )}
+                  </>
+                  )}
 
-                  {/* Add Adjustment Button - Always visible when not filtering */}
-                  {!showPendingOnly && (
+                  {/* Add Adjustment Button - shows dashed button when not in add mode */}
+                  {!showPendingOnly && !isAddingAdjustment && (
                     <div className="pt-2">
-                      <CA3_AdminAddAdjustment
-                        workerType={selectedSubmission.workerType}
-                        workerName={selectedSubmission.workerName}
-                        currency={currency}
-                        dailyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 22 : 100}
-                        hourlyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 176 : 15}
-                        onAddAdjustment={(adjustment) => handleAdminAddAdjustment(selectedSubmission.id, adjustment)}
-                      />
+                      <button
+                        onClick={() => setIsAddingAdjustment(true)}
+                        className={cn(
+                          "w-full flex items-center justify-center gap-1.5 py-2.5 px-3",
+                          "border border-dashed border-border/60 rounded-md",
+                          "text-xs text-muted-foreground",
+                          "hover:border-primary/40 hover:text-primary hover:bg-primary/5",
+                          "transition-colors cursor-pointer"
+                        )}
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Add adjustment</span>
+                      </button>
                     </div>
                   )}
 
