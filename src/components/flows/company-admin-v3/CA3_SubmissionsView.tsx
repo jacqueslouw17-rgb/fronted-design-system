@@ -771,7 +771,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   
   // Track newly added adjustment for animation + auto-expand
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
-  const [expandedSection, setExpandedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   
   // Handle admin adding adjustment on behalf of worker
@@ -786,10 +785,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     // Set which section to auto-expand and which item to highlight
     const section = adjustment.type === 'expense' ? 'earnings' : adjustment.type === 'overtime' ? 'overtime' : 'leave';
     setNewlyAddedSection(section);
-    setExpandedSection(section); // Keep section expanded permanently
     setNewlyAddedId(adjustment.id);
     
-    // Clear highlight after animation, but keep section expanded
+    // Clear highlight and collapse after animation
     setTimeout(() => {
       setNewlyAddedId(null);
       setNewlyAddedSection(null);
@@ -1347,12 +1345,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   {!isAddingAdjustment && (
                     <>
                   
-                  {/* EARNINGS Section - Collapsed by default, auto-expand when filtering */}
+                  {/* EARNINGS Section - Collapsed by default, only force open when pending filter or newly added */}
                   {(!showPendingOnly || earningAdjCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Earnings"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || expandedSection === 'earnings')}
+                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                     >
@@ -1475,12 +1473,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </CollapsibleSection>
                   )}
 
-                  {/* OVERTIME Section - Collapsed by default, auto-expand when filtering */}
+                  {/* OVERTIME Section - Collapsed by default, only force open when pending filter or newly added */}
                   {((overtimeCounts.total > 0 || workerAdminAdjustments.some(a => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0)) && (
                     <CollapsibleSection
                       title="Overtime"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : (newlyAddedSection === 'overtime' || expandedSection === 'overtime')}
+                      forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : newlyAddedSection === 'overtime'}
                       pendingCount={overtimeCounts.pending}
                       approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter(a => a.type === 'overtime').length}
                     >
@@ -1553,12 +1551,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </CollapsibleSection>
                   )}
 
-                  {/* LEAVE Section - Collapsed by default, auto-expand when filtering */}
+                  {/* LEAVE Section - Collapsed by default, only force open when pending filter or newly added */}
                   {((hasLeaves || workerAdminAdjustments.some(a => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0)) && (
                     <CollapsibleSection
                       title="Leave"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? leaveCounts.pending > 0 : (newlyAddedSection === 'leave' || expandedSection === 'leave')}
+                      forceOpen={showPendingOnly ? leaveCounts.pending > 0 : newlyAddedSection === 'leave'}
                       pendingCount={leaveCounts.pending}
                       approvedCount={leaveCounts.approved + workerAdminAdjustments.filter(a => a.type === 'unpaid_leave').length}
                     >
