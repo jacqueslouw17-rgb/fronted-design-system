@@ -1674,8 +1674,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </div>
 
-                {/* Footer - Only show when pending items exist */}
-                {!isAddingAdjustment && currentPendingCount > 0 && (
+                {/* Footer - Only show when pending items exist and no item is expanded */}
+                {!isAddingAdjustment && currentPendingCount > 0 && !expandedItemId && (
                 <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
                   <div className="flex items-center gap-2">
                     <Button 
