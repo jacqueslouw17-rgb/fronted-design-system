@@ -19,6 +19,7 @@ import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v4_SubmissionsView";
 import { F1v4_ExceptionsStep, WorkerException } from "./F1v4_ExceptionsStep";
 import { F1v4_ApproveStep } from "./F1v4_ApproveStep";
 import { F1v4_TrackStep } from "./F1v4_TrackStep";
+import { F1v4_ApproveConfirmationModal } from "./F1v4_ApproveConfirmationModal";
 import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v4_PeriodDropdown";
 import { F1v4_PayrollStepper, F1v4_PayrollStep as StepperStep } from "./F1v4_PayrollStepper";
 import { F1v4_HistoricalTrackingView } from "./F1v4_HistoricalTrackingView";
@@ -260,6 +261,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   
   // Submit/Approved state
   const [isApproved, setIsApproved] = useState(false);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
 
   const employees = submissions.filter(w => w.workerType === "employee");
   const contractors = submissions.filter(w => w.workerType === "contractor");
@@ -547,11 +549,20 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <div className="flex items-center gap-3">
                   <Button 
                     size="sm" 
-                    onClick={goToTrack}
+                    onClick={() => setIsApproveModalOpen(true)}
                     className="h-9 text-xs"
                   >
                     Approve & Lock
                   </Button>
+                  <F1v4_ApproveConfirmationModal
+                    open={isApproveModalOpen}
+                    onOpenChange={setIsApproveModalOpen}
+                    onConfirm={goToTrack}
+                    companyName={company.name}
+                    employeeCount={employees.length}
+                    contractorCount={contractors.length}
+                    totalAmount={`$${(company.totalCost / 1000).toFixed(1)}K`}
+                  />
                   <Button
                     size="sm"
                     variant="secondary"
