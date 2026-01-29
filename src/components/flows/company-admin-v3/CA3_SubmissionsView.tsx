@@ -1230,7 +1230,21 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             
             return (
               <>
-                {/* Compact header */}
+                {/* Add Adjustment takes over entire drawer when active */}
+                {isAddingAdjustment ? (
+                  <CA3_AdminAddAdjustment
+                    workerType={selectedSubmission.workerType}
+                    workerName={selectedSubmission.workerName}
+                    currency={currency}
+                    dailyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 22 : 100}
+                    hourlyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 176 : 15}
+                    isOpen={isAddingAdjustment}
+                    onOpenChange={setIsAddingAdjustment}
+                    onAddAdjustment={(adjustment) => handleAdminAddAdjustment(selectedSubmission.id, adjustment)}
+                  />
+                ) : (
+                <>
+                {/* Compact header - only shown when NOT adding adjustment */}
                 <SheetHeader className="px-5 pt-5 pb-3 border-b border-border/30">
                   <div className="flex items-center gap-2 mb-2">
                     <SheetTitle className="text-base font-semibold">Pay breakdown</SheetTitle>
@@ -1254,8 +1268,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       </p>
                     </div>
                     
-                    {/* Inline pending toggle - hidden when adding adjustment */}
-                    {currentPendingCount > 0 && !isAddingAdjustment && (
+                    {/* Inline pending toggle */}
+                    {currentPendingCount > 0 && (
                       <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
                         <span className="text-[10px] text-muted-foreground/60">Pending</span>
                         <Switch
@@ -1268,22 +1282,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   </div>
                 </SheetHeader>
 
-                {/* Content with collapsible sections - hidden when adding adjustment */}
+                {/* Content with collapsible sections */}
                 <div className="px-5 py-3 space-y-1" onClick={() => setExpandedItemId(null)}>
-                  
-                  {/* Add Adjustment Form - Takes over the view when active */}
-                  {isAddingAdjustment && (
-                    <CA3_AdminAddAdjustment
-                      workerType={selectedSubmission.workerType}
-                      workerName={selectedSubmission.workerName}
-                      currency={currency}
-                      dailyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 22 : 100}
-                      hourlyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 176 : 15}
-                      isOpen={isAddingAdjustment}
-                      onOpenChange={setIsAddingAdjustment}
-                      onAddAdjustment={(adjustment) => handleAdminAddAdjustment(selectedSubmission.id, adjustment)}
-                    />
-                  )}
                   
                   {/* Breakdown sections - hidden when adding adjustment */}
                   {!isAddingAdjustment && (
@@ -1659,6 +1659,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </Button>
                   )}
                 </div>
+                )}
+                </>
                 )}
                 
                 {/* Bulk action dialogs */}
