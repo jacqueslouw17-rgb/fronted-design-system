@@ -2,11 +2,12 @@
  * F1v4_SubmissionsView - Exact clone of CA3_SubmissionsView for Fronted Admin
  * 
  * Reuses all patterns from Flow 6 v3:
- * - Worker rows with pending/rejected counts
- * - "1 day to resubmit" indicator for rejected items
+ * - 2-Step Review Flow: Approve/Reject (reversible with Undo) -> Mark as Ready (finalization)
+ * - Worker rows with pending/reviewed/ready status
  * - Full drawer with pay breakdown, AdjustmentRow, LeaveRow
- * - Approve/Reject actions with confirmation dialogs
+ * - Direct approve/reject actions (no confirmation dialogs, reversible)
  * - Bulk approve/reject with footer actions
+ * - Mark as Ready dialog for finalization
  * - CA3_AdminAddAdjustment for adding adjustments
  */
 
@@ -15,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, 
   ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, 
-  ArrowLeft, Download, Plus 
+  ArrowLeft, Download, Plus, Undo2, XCircle, Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,13 +32,14 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
+import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "@/components/flows/company-admin-v3/CA3_AdminAddAdjustment";
 
 // Types - matching CA3_SubmissionsView exactly
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-export type SubmissionStatus = "pending" | "ready";
+// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
+export type SubmissionStatus = "pending" | "reviewed" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 type LeaveTypeLocal = "Unpaid";
 
@@ -110,13 +112,14 @@ const leaveTypeConfig: Record<LeaveTypeLocal, { icon: React.ElementType; label: 
 
 const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: string; color: string }> = {
   pending: { icon: Clock, label: "Pending", color: "text-orange-600" },
+  reviewed: { icon: Eye, label: "Reviewed", color: "text-blue-600" },
   ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
 };
 
-// AdjustmentRow - Interactive adjustment with approve/reject
+// AdjustmentRow - Interactive adjustment with 2-step review flow (direct approve/reject, reversible with Undo)
 const AdjustmentRow = ({ 
   label, amount, currency, status, rejectionReason,
-  onApprove, onReject, isExpanded = false, onToggleExpand,
+  onApprove, onReject, onUndo, isExpanded = false, onToggleExpand, isFinalized = false,
 }: { 
   label: string;
   amount: number;
@@ -125,8 +128,10 @@ const AdjustmentRow = ({
   rejectionReason?: string;
   onApprove: () => void;
   onReject: (reason: string) => void;
+  onUndo?: () => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  isFinalized?: boolean;
 }) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
@@ -134,42 +139,85 @@ const AdjustmentRow = ({
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReasonInput, setRejectReasonInput] = useState("");
   const [isHovered, setIsHovered] = useState(false);
-  const [showApproveDialog, setShowApproveDialog] = useState(false);
-  const [showRejectDialog, setShowRejectDialog] = useState(false);
 
   const formatAmount = (amt: number, curr: string) => {
     const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", SGD: "S$" };
     return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const handleApproveClick = () => setShowApproveDialog(true);
-  const handleApproveConfirm = () => { onApprove(); toggleExpand(); };
-  const handleRejectClick = () => { if (rejectReasonInput.trim()) setShowRejectDialog(true); };
-  const handleRejectConfirm = () => { onReject(rejectReasonInput); toggleExpand(); setShowRejectForm(false); setRejectReasonInput(""); };
+  // Direct approve - no confirmation dialog (reversible)
+  const handleApproveClick = () => {
+    onApprove();
+    toggleExpand();
+  };
 
-  // Approved state
+  // Direct reject - no confirmation dialog (reversible)
+  const handleRejectClick = () => {
+    if (rejectReasonInput.trim()) {
+      onReject(rejectReasonInput);
+      toggleExpand();
+      setShowRejectForm(false);
+      setRejectReasonInput("");
+    }
+  };
+
+  // Approved state - show with Undo option (unless finalized)
   if (status === 'approved') {
     return (
-      <div className="flex items-center justify-between py-2">
-        <span className="text-sm text-muted-foreground">{label}</span>
-        <span className="text-sm tabular-nums font-mono text-foreground">+{formatAmount(amount, currency)}</span>
+      <div 
+        className="flex items-center justify-between py-2 -mx-3 px-3 rounded group"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
+          <span className="text-sm text-muted-foreground">{label}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {!isFinalized && onUndo && isHovered && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onUndo(); }}
+              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+            >
+              <Undo2 className="h-3 w-3" />
+              Undo
+            </button>
+          )}
+          <span className="text-sm tabular-nums font-mono text-foreground">+{formatAmount(amount, currency)}</span>
+        </div>
       </div>
     );
   }
 
-  // Rejected state
+  // Rejected state - show with Undo option (unless finalized)
   if (status === 'rejected') {
     return (
-      <div className="mb-1.5" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+      <div 
+        className="mb-1.5"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <div className="rounded-md overflow-hidden border border-destructive/40 bg-destructive/5">
           <div className="flex items-center justify-between py-2.5 px-3">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
               <span className="text-sm text-muted-foreground line-through">{label}</span>
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-destructive/10 text-destructive border-destructive/40">
                 Rejected
               </Badge>
             </div>
-            <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">+{formatAmount(amount, currency)}</span>
+            <div className="flex items-center gap-2">
+              {!isFinalized && onUndo && isHovered && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onUndo(); }}
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                >
+                  <Undo2 className="h-3 w-3" />
+                  Undo
+                </button>
+              )}
+              <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">+{formatAmount(amount, currency)}</span>
+            </div>
           </div>
           <AnimatePresence>
             {isHovered && rejectionReason && (
@@ -187,45 +235,41 @@ const AdjustmentRow = ({
 
   // Pending state
   return (
-    <>
-      <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
-        <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleExpand(); }}>
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-sm text-foreground">{label}</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
-          </div>
-          <span className="text-sm tabular-nums font-mono text-foreground ml-3">+{formatAmount(amount, currency)}</span>
+    <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
+      <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleExpand(); }}>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sm text-foreground">{label}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
         </div>
-        <AnimatePresence>
-          {expanded && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.12 }} className="overflow-hidden">
-              <div className="pb-3">
-                {!showRejectForm ? (
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setShowRejectForm(true); }} className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shadow-none">
-                      <X className="h-3.5 w-3.5" />Reject
-                    </Button>
-                    <Button size="sm" onClick={(e) => { e.stopPropagation(); handleApproveClick(); }} className="flex-1 h-8 text-xs gap-1.5 shadow-none">
-                      <Check className="h-3.5 w-3.5" />Approve
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
-                    <Textarea placeholder="Reason for rejection..." value={rejectReasonInput} onChange={(e) => setRejectReasonInput(e.target.value)} className="min-h-[60px] resize-none text-sm bg-background" autoFocus />
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline" onClick={() => { setShowRejectForm(false); setRejectReasonInput(""); }} className="flex-1 h-8 text-xs shadow-none">Cancel</Button>
-                      <Button size="sm" onClick={handleRejectClick} disabled={!rejectReasonInput.trim()} className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white shadow-none">Reject</Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <span className="text-sm tabular-nums font-mono text-foreground ml-3">+{formatAmount(amount, currency)}</span>
       </div>
-      <CA3_ApproveDialog open={showApproveDialog} onOpenChange={setShowApproveDialog} onConfirm={handleApproveConfirm} adjustmentType={label} amount={`+${formatAmount(amount, currency)}`} />
-      <CA3_RejectDialog open={showRejectDialog} onOpenChange={setShowRejectDialog} onConfirm={handleRejectConfirm} adjustmentType={label} />
-    </>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.12 }} className="overflow-hidden">
+            <div className="pb-3">
+              {!showRejectForm ? (
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setShowRejectForm(true); }} className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shadow-none">
+                    <X className="h-3.5 w-3.5" />Reject
+                  </Button>
+                  <Button size="sm" onClick={(e) => { e.stopPropagation(); handleApproveClick(); }} className="flex-1 h-8 text-xs gap-1.5 shadow-none">
+                    <Check className="h-3.5 w-3.5" />Approve
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
+                  <Textarea placeholder="Reason for rejection..." value={rejectReasonInput} onChange={(e) => setRejectReasonInput(e.target.value)} className="min-h-[60px] resize-none text-sm bg-background" autoFocus />
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => { setShowRejectForm(false); setRejectReasonInput(""); }} className="flex-1 h-8 text-xs shadow-none">Cancel</Button>
+                    <Button size="sm" onClick={handleRejectClick} disabled={!rejectReasonInput.trim()} className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white shadow-none">Reject</Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -247,9 +291,9 @@ const BreakdownRow = ({ label, amount, currency, isPositive = true, isLocked = f
   );
 };
 
-// LeaveRow - Interactive leave with approve/reject (matching CA3 exactly)
-const LeaveRow = ({ leave, currency, onApprove, onReject, isExpanded = false, onToggleExpand }: { 
-  leave: PendingLeaveItem; currency: string; onApprove: () => void; onReject: (reason: string) => void; isExpanded?: boolean; onToggleExpand?: () => void;
+// LeaveRow - Interactive leave with 2-step review flow (direct approve/reject, reversible with Undo)
+const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = false, onToggleExpand, isFinalized = false }: { 
+  leave: PendingLeaveItem; currency: string; onApprove: () => void; onReject: (reason: string) => void; onUndo?: () => void; isExpanded?: boolean; onToggleExpand?: () => void; isFinalized?: boolean;
 }) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
@@ -257,8 +301,6 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, isExpanded = false, on
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReasonInput, setRejectReasonInput] = useState("");
   const [isHovered, setIsHovered] = useState(false);
-  const [showApproveDialog, setShowApproveDialog] = useState(false);
-  const [showRejectDialog, setShowRejectDialog] = useState(false);
   
   const config = leaveTypeConfig[leave.leaveType as keyof typeof leaveTypeConfig];
   if (!config) return null;
@@ -268,44 +310,79 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, isExpanded = false, on
     return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const formatDateRange = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    if (start === end) return format(startDate, "d MMM");
-    if (startDate.getMonth() === endDate.getMonth()) return `${format(startDate, "d")}–${format(endDate, "d MMM")}`;
-    return `${format(startDate, "d MMM")}–${format(endDate, "d MMM")}`;
-  };
-
   const deductionAmount = config.affectsPay && leave.dailyRate ? leave.daysInThisPeriod * leave.dailyRate : 0;
 
-  const handleApproveClick = () => setShowApproveDialog(true);
-  const handleApproveConfirm = () => { onApprove(); toggleExpand(); };
-  const handleRejectClick = () => { if (rejectReasonInput.trim()) setShowRejectDialog(true); };
-  const handleRejectConfirm = () => { onReject(rejectReasonInput); toggleExpand(); setShowRejectForm(false); setRejectReasonInput(""); };
+  // Direct approve - no confirmation dialog (reversible)
+  const handleApproveClick = () => {
+    onApprove();
+    toggleExpand();
+  };
 
-  // Approved state
+  // Direct reject - no confirmation dialog (reversible)
+  const handleRejectClick = () => {
+    if (rejectReasonInput.trim()) {
+      onReject(rejectReasonInput);
+      toggleExpand();
+      setShowRejectForm(false);
+      setRejectReasonInput("");
+    }
+  };
+
+  // Approved state - show with Undo option (unless finalized)
   if (leave.status === 'approved') {
     return (
-      <div className="flex items-center justify-between py-2">
+      <div 
+        className="flex items-center justify-between py-2 -mx-3 px-3 rounded group"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <div className="flex items-center gap-2 min-w-0">
+          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <span className="text-sm text-muted-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
         </div>
-        <span className="text-sm tabular-nums font-mono text-muted-foreground">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
+        <div className="flex items-center gap-2">
+          {!isFinalized && onUndo && isHovered && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onUndo(); }}
+              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+            >
+              <Undo2 className="h-3 w-3" />
+              Undo
+            </button>
+          )}
+          <span className="text-sm tabular-nums font-mono text-muted-foreground">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
+        </div>
       </div>
     );
   }
 
-  // Rejected state
+  // Rejected state - show with Undo option (unless finalized)
   if (leave.status === 'rejected') {
     return (
-      <div className="mb-1.5" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+      <div 
+        className="mb-1.5"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <div className="rounded-md overflow-hidden border border-destructive/40 bg-destructive/5">
           <div className="flex items-center justify-between py-2.5 px-3">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
               <span className="text-sm text-muted-foreground line-through">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-destructive/10 text-destructive border-destructive/40">Rejected</Badge>
             </div>
-            <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
+            <div className="flex items-center gap-2">
+              {!isFinalized && onUndo && isHovered && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onUndo(); }}
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                >
+                  <Undo2 className="h-3 w-3" />
+                  Undo
+                </button>
+              )}
+              <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
+            </div>
           </div>
           <AnimatePresence>
             {isHovered && leave.rejectionReason && (
@@ -323,45 +400,41 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, isExpanded = false, on
 
   // Pending state
   return (
-    <>
-      <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
-        <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleExpand(); }}>
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-sm text-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
-          </div>
-          <span className="text-sm tabular-nums font-mono text-foreground ml-3">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
+    <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
+      <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleExpand(); }}>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sm text-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
         </div>
-        <AnimatePresence>
-          {expanded && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.12 }} className="overflow-hidden">
-              <div className="pb-3">
-                {!showRejectForm ? (
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setShowRejectForm(true); }} className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shadow-none">
-                      <X className="h-3.5 w-3.5" />Reject
-                    </Button>
-                    <Button size="sm" onClick={(e) => { e.stopPropagation(); handleApproveClick(); }} className="flex-1 h-8 text-xs gap-1.5 shadow-none">
-                      <Check className="h-3.5 w-3.5" />Approve
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
-                    <Textarea placeholder="Reason for rejection..." value={rejectReasonInput} onChange={(e) => setRejectReasonInput(e.target.value)} className="min-h-[60px] resize-none text-sm bg-background" autoFocus />
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline" onClick={() => { setShowRejectForm(false); setRejectReasonInput(""); }} className="flex-1 h-8 text-xs shadow-none">Cancel</Button>
-                      <Button size="sm" onClick={handleRejectClick} disabled={!rejectReasonInput.trim()} className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white shadow-none">Reject</Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <span className="text-sm tabular-nums font-mono text-foreground ml-3">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
       </div>
-      <CA3_ApproveDialog open={showApproveDialog} onOpenChange={setShowApproveDialog} onConfirm={handleApproveConfirm} adjustmentType={`${config.label} (${leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`})`} amount={deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : "No pay impact"} />
-      <CA3_RejectDialog open={showRejectDialog} onOpenChange={setShowRejectDialog} onConfirm={handleRejectConfirm} adjustmentType={`${config.label} (${leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`})`} />
-    </>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.12 }} className="overflow-hidden">
+            <div className="pb-3">
+              {!showRejectForm ? (
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setShowRejectForm(true); }} className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shadow-none">
+                    <X className="h-3.5 w-3.5" />Reject
+                  </Button>
+                  <Button size="sm" onClick={(e) => { e.stopPropagation(); handleApproveClick(); }} className="flex-1 h-8 text-xs gap-1.5 shadow-none">
+                    <Check className="h-3.5 w-3.5" />Approve
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
+                  <Textarea placeholder="Reason for rejection..." value={rejectReasonInput} onChange={(e) => setRejectReasonInput(e.target.value)} className="min-h-[60px] resize-none text-sm bg-background" autoFocus />
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => { setShowRejectForm(false); setRejectReasonInput(""); }} className="flex-1 h-8 text-xs shadow-none">Cancel</Button>
+                    <Button size="sm" onClick={handleRejectClick} disabled={!rejectReasonInput.trim()} className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white shadow-none">Reject</Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -383,10 +456,13 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [adminAdjustments, setAdminAdjustments] = useState<Record<string, AdminAddedAdjustment[]>>({});
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
   const [showBulkRejectDialog, setShowBulkRejectDialog] = useState(false);
+  const [showMarkAsReadyDialog, setShowMarkAsReadyDialog] = useState(false);
   const [showReceiptView, setShowReceiptView] = useState(false);
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
+  // Finalized workers - once finalized, their items are locked
+  const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
 
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments(prev => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));
@@ -502,6 +578,31 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     toast.info(`Rejected all pending items for ${selectedSubmission.workerName}`);
   };
 
+  // Undo adjustment status (revert to pending)
+  const undoAdjustmentStatus = (submissionId: string, adjIndex: number) => {
+    const key = `${submissionId}-${adjIndex}`;
+    setAdjustmentStates(prev => ({ ...prev, [key]: { status: 'pending' } }));
+    toast.info('Action undone');
+  };
+
+  // Undo leave status (revert to pending)
+  const undoLeaveStatus = (submissionId: string, leaveId: string) => {
+    const key = `${submissionId}-leave-${leaveId}`;
+    setLeaveStates(prev => ({ ...prev, [key]: { status: 'pending' } }));
+    toast.info('Action undone');
+  };
+
+  // Mark worker as ready (finalize all reviews)
+  const handleMarkAsReady = () => {
+    if (!selectedSubmission) return;
+    setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
+    setDrawerOpen(false);
+    toast.success(`${selectedSubmission.workerName} marked as ready`);
+  };
+
+  // Check if current worker is finalized
+  const isWorkerFinalized = (workerId: string) => finalizedWorkers.has(workerId);
+
   const renderSubmissionRow = (submission: WorkerSubmission) => {
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
     
@@ -531,7 +632,23 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     
     const workerPendingCount = pendingAdjustmentCount + pendingLeaveCount;
     const workerRejectedCount = rejectedAdjustmentCount + rejectedLeaveCount;
-    const effectiveWorkerStatus: SubmissionStatus = (workerPendingCount > 0 || workerRejectedCount > 0) ? "pending" : "ready";
+    
+    // Check if worker is finalized
+    const isFinalized = isWorkerFinalized(submission.id);
+    
+    // Derive effective worker status: 
+    // - pending = has items needing review
+    // - reviewed = all items approved/rejected, awaiting "Mark as Ready"
+    // - ready = admin has clicked "Mark as Ready" (finalized)
+    let effectiveWorkerStatus: SubmissionStatus;
+    if (isFinalized) {
+      effectiveWorkerStatus = "ready";
+    } else if (workerPendingCount > 0) {
+      effectiveWorkerStatus = "pending";
+    } else {
+      // All items reviewed but not yet finalized
+      effectiveWorkerStatus = "reviewed";
+    }
     const status = statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
@@ -569,16 +686,20 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             <p className="text-xs text-muted-foreground">—</p>
           )}
 
+          {/* Status with pending count, reviewed indicator, or ready */}
           <div className={cn("flex items-center gap-1.5 text-xs", status.color)}>
             {workerPendingCount > 0 ? (
               <>
                 <span className="flex items-center justify-center h-4 w-4 rounded-full bg-orange-500/15 text-orange-600 text-[10px] font-semibold">{workerPendingCount}</span>
                 <span className="hidden sm:inline">{status.label}</span>
               </>
-            ) : workerRejectedCount > 0 ? (
+            ) : effectiveWorkerStatus === 'reviewed' ? (
               <>
-                <span className="flex items-center justify-center h-4 w-4 rounded-full bg-destructive/15 text-destructive text-[10px] font-semibold">{workerRejectedCount}</span>
-                <span className="hidden sm:inline text-destructive">Rejected</span>
+                <StatusIcon className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{status.label}</span>
+                {workerRejectedCount > 0 && (
+                  <span className="flex items-center justify-center h-4 w-4 rounded-full bg-destructive/15 text-destructive text-[10px] font-semibold ml-0.5">{workerRejectedCount}</span>
+                )}
               </>
             ) : (
               <>
@@ -821,8 +942,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus').filter(({ adj, originalIdx }) => shouldShowItem(getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status)).map(({ adj, originalIdx }) => {
                             const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                             const itemId = `adj-${originalIdx}`;
+                            const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                             return (
-                              <AdjustmentRow key={itemId} label={adj.description || submissionTypeConfig[adj.type]?.label || 'Adjustment'} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' }); toast.success('Approved'); }} onReject={(reason) => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason }); toast.info('Rejected'); }} />
+                              <AdjustmentRow key={itemId} label={adj.description || submissionTypeConfig[adj.type]?.label || 'Adjustment'} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' }); toast.success('Approved'); }} onReject={(reason) => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason }); toast.info('Rejected'); }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} />
                             );
                           })}
                           {/* Admin-added expenses */}
@@ -862,8 +984,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'overtime').filter(({ adj, originalIdx }) => shouldShowItem(getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status)).map(({ adj, originalIdx }) => {
                             const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                             const itemId = `overtime-${originalIdx}`;
+                            const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                             return (
-                              <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' }); toast.success('Approved overtime'); }} onReject={(reason) => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason }); toast.info('Rejected overtime'); }} />
+                              <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' }); toast.success('Approved overtime'); }} onReject={(reason) => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason }); toast.info('Rejected overtime'); }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} />
                             );
                           })}
                           {/* Admin-added overtime */}
@@ -892,8 +1015,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           {pendingLeaves.filter(leave => shouldShowItem(getLeaveStatus(selectedSubmission.id, leave.id, leave.status).status)).map(leave => {
                             const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
                             const itemId = `leave-${leave.id}`;
+                            const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                             return (
-                              <LeaveRow key={itemId} leave={{ ...leave, status: leaveState.status, rejectionReason: leaveState.rejectionReason || leave.rejectionReason }} currency={currency} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => { updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' }); toast.success('Approved leave'); }} onReject={(reason) => { updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason }); toast.info('Rejected leave'); }} />
+                              <LeaveRow key={itemId} leave={{ ...leave, status: leaveState.status, rejectionReason: leaveState.rejectionReason || leave.rejectionReason }} currency={currency} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => { updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' }); toast.success('Approved leave'); }} onReject={(reason) => { updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason }); toast.info('Rejected leave'); }} onUndo={() => undoLeaveStatus(selectedSubmission.id, leave.id)} isFinalized={workerIsFinalized} />
                             );
                           })}
                           {/* Admin-added unpaid leave */}
@@ -917,24 +1041,66 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       )}
                     </div>
 
-                    {/* Footer with bulk actions */}
-                    {currentPendingCount > 0 && !expandedItemId && (
-                      <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm" className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowBulkRejectDialog(true)}>
-                            Reject all ({currentPendingCount})
-                          </Button>
-                          <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => setShowBulkApproveDialog(true)}>
-                            Approve all ({currentPendingCount})
-                          </Button>
-                        </div>
-                      </div>
-                    )}
+                    {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
+                    {!expandedItemId && (() => {
+                      const approvedCount = moneyAdjustments.filter(({ adj, originalIdx }) => getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus) === 'approved').length + pendingLeaves.filter(l => getLeaveStatus(selectedSubmission.id, l.id, l.status).status === 'approved').length + workerAdminAdjustments.length;
+                      const rejectedCount = moneyAdjustments.filter(({ adj, originalIdx }) => getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus) === 'rejected').length + pendingLeaves.filter(l => getLeaveStatus(selectedSubmission.id, l.id, l.status).status === 'rejected').length;
+                      const isFinalized = isWorkerFinalized(selectedSubmission.id);
+                      const hasReviewedItems = approvedCount > 0 || rejectedCount > 0;
+                      
+                      if (currentPendingCount > 0) {
+                        return (
+                          <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowBulkRejectDialog(true)}>
+                                Reject all ({currentPendingCount})
+                              </Button>
+                              <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => setShowBulkApproveDialog(true)}>
+                                Approve all ({currentPendingCount})
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      }
+                      
+                      if (hasReviewedItems && !isFinalized) {
+                        return (
+                          <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                            <Button size="sm" className="w-full h-10 text-sm gap-2" onClick={() => setShowMarkAsReadyDialog(true)}>
+                              <CheckCircle2 className="h-4 w-4" />
+                              Mark as Ready
+                            </Button>
+                            <p className="text-[11px] text-muted-foreground text-center mt-2">This will finalize the review and lock all decisions</p>
+                          </div>
+                        );
+                      }
+                      
+                      if (isFinalized) {
+                        return (
+                          <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                            <div className="flex items-center justify-center gap-2 text-accent-green-text">
+                              <CheckCircle2 className="h-4 w-4" />
+                              <span className="text-sm font-medium">Ready for payroll</span>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </>
                 )}
 
                 <CA3_BulkApproveDialog open={showBulkApproveDialog} onOpenChange={setShowBulkApproveDialog} onConfirm={handleBulkApprove} pendingCount={currentPendingCount} />
                 <CA3_BulkRejectDialog open={showBulkRejectDialog} onOpenChange={setShowBulkRejectDialog} onConfirm={handleBulkReject} pendingCount={currentPendingCount} />
+                
+                {/* Mark as Ready dialog */}
+                {selectedSubmission && (() => {
+                  const approvedCount = selectedSubmission.submissions.filter((adj, idx) => getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus).status === 'approved' && typeof adj.amount === 'number').length + (selectedSubmission.pendingLeaves || []).filter(l => getLeaveStatus(selectedSubmission.id, l.id, l.status).status === 'approved').length + (adminAdjustments[selectedSubmission.id] || []).length;
+                  const rejectedCount = selectedSubmission.submissions.filter((adj, idx) => getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus).status === 'rejected' && typeof adj.amount === 'number').length + (selectedSubmission.pendingLeaves || []).filter(l => getLeaveStatus(selectedSubmission.id, l.id, l.status).status === 'rejected').length;
+                  return (
+                    <CA3_MarkAsReadyDialog open={showMarkAsReadyDialog} onOpenChange={setShowMarkAsReadyDialog} onConfirm={handleMarkAsReady} workerName={selectedSubmission.workerName} approvedCount={approvedCount} rejectedCount={rejectedCount} />
+                  );
+                })()}
 
                 {/* Receipt Overlay */}
                 <AnimatePresence>
