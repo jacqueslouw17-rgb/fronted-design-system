@@ -12,7 +12,6 @@ import {
   Briefcase,
   Globe,
   FileCheck,
-  AlertTriangle,
   ChevronLeft,
   XCircle,
   Clock,
@@ -20,20 +19,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
 import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v4_PayrollStepper";
+import { F1v4_ApproveConfirmationModal } from "./F1v4_ApproveConfirmationModal";
 
 interface F1v4_ApproveStepProps {
   company: CompanyPayrollData;
@@ -259,36 +248,19 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             />
           </div>
           <div className="flex items-center gap-3">
-            <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-              <AlertDialogTrigger asChild>
-                <Button size="sm" className="gap-1.5">
-                  <FileCheck className="h-3.5 w-3.5" />
-                  Approve & Lock
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Approve Payroll Numbers?</AlertDialogTitle>
-                  <AlertDialogDescription className="space-y-3">
-                    <p>
-                      Approving payroll for <strong>{company.name}</strong> totaling{" "}
-                      <strong>{formatCurrency(company.totalCost)}</strong>.
-                    </p>
-                    <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 text-foreground text-sm">
-                      <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                      <p>
-                        Payments are handled outside Fronted. This locks the run 
-                        and generates the payment summary.
-                      </p>
-                    </div>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={onApprove}>Confirm & Lock</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Button size="sm" className="gap-1.5" onClick={() => setIsConfirmOpen(true)}>
+              <FileCheck className="h-3.5 w-3.5" />
+              Approve & Lock
+            </Button>
+            <F1v4_ApproveConfirmationModal
+              open={isConfirmOpen}
+              onOpenChange={setIsConfirmOpen}
+              onConfirm={onApprove}
+              companyName={company.name}
+              employeeCount={company.employeeCount}
+              contractorCount={company.contractorCount}
+              totalAmount={formatCurrency(company.totalCost)}
+            />
           </div>
         </div>
       </CardHeader>
