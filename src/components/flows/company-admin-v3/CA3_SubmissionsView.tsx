@@ -1267,33 +1267,28 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   />
                 ) : (
                 <>
-                {/* Compact header - only shown when NOT adding adjustment */}
-                <SheetHeader className="px-5 pt-5 pb-3 border-b border-border/30">
-                  <div className="flex items-center gap-2 mb-2">
-                    <SheetTitle className="text-base font-semibold">Pay breakdown</SheetTitle>
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal text-muted-foreground">
-                      {selectedSubmission.periodLabel || "Jan 1–31"}
-                    </Badge>
-                  </div>
+                {/* Clean minimal header */}
+                <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/20">
                   <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
                   
-                  {/* Worker info + actions in same row */}
-                  <div className="flex items-start gap-2.5">
-                    <Avatar className="h-7 w-7 mt-0.5">
-                      <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
+                  {/* Worker row with actions */}
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                         {getInitials(selectedSubmission.workerName)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground leading-tight">{selectedSubmission.workerName}</p>
-                      <p className="text-[11px] text-muted-foreground/70">
-                        {selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}
+                      <SheetTitle className="text-sm font-semibold text-foreground leading-tight">
+                        {selectedSubmission.workerName}
+                      </SheetTitle>
+                      <p className="text-[11px] text-muted-foreground/70 mt-0.5">
+                        {selectedSubmission.workerCountry} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
                       </p>
                     </div>
                     
-                    {/* Right-side actions: Add adjustment + Pending toggle - aligned to name baseline */}
-                    <div className="flex items-center gap-2 shrink-0 mt-0.5">
-                      {/* Small outlined add adjustment button */}
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
                       {!showPendingOnly && (
                         <button
                           onClick={() => setIsAddingAdjustment(true)}
@@ -1304,7 +1299,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         </button>
                       )}
                       
-                      {/* Pending toggle with tooltip */}
                       {currentPendingCount > 0 && (
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -1323,10 +1317,39 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       )}
                     </div>
                   </div>
+                  
+                  {/* Net pay hero - prominent at top */}
+                  {!isAddingAdjustment && (
+                    <div className="mt-4 pt-4 border-t border-border/20">
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-medium">
+                            {selectedSubmission.workerType === "employee" ? "Estimated net" : "Invoice total"}
+                          </p>
+                          <button 
+                            onClick={() => setShowReceiptView(true)}
+                            className="text-[10px] text-muted-foreground/50 hover:text-primary transition-colors mt-0.5"
+                          >
+                            View receipt →
+                          </button>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
+                            {formatCurrency(adjustedNet, currency)}
+                          </p>
+                          {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments) && (
+                            <p className="text-[10px] text-muted-foreground/60 tabular-nums">
+                              was {formatCurrency(baseNet, currency)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </SheetHeader>
 
                 {/* Content with collapsible sections */}
-                <div className="px-5 py-3 space-y-1" onClick={() => setExpandedItemId(null)}>
+                <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
                   
                   {/* Breakdown sections - hidden when adding adjustment */}
                   {!isAddingAdjustment && (
@@ -1617,33 +1640,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   </>
                   )}
 
-                  {/* Estimated net pay - hidden when adding adjustment */}
-                  {!isAddingAdjustment && (
-                  <section className="pt-2 border-t border-border/40">
-                    <div className="flex items-center justify-between py-3">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Estimated net pay</p>
-                        <button 
-                          onClick={() => setShowReceiptView(true)}
-                          className="text-[11px] text-muted-foreground/70 hover:text-primary transition-colors"
-                        >
-                          View full receipt →
-                        </button>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
-                          {formatCurrency(adjustedNet, currency)}
-                        </p>
-                        {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments) && (
-                          <p className="text-xs text-muted-foreground mt-1 tabular-nums font-mono">
-                            Base: {formatCurrency(baseNet, currency)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </section>
-                  )}
-
                   {/* Rejection form - matching leave pattern */}
                   {showCustomReason && (
                     <section className="space-y-3 pt-2 border-t border-border/40">
@@ -1688,36 +1684,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </div>
 
-                {/* Footer - Hidden when adding adjustment */}
-                {!isAddingAdjustment && (
-                <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-4">
-                  {currentPendingCount > 0 ? (
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex-1 h-9 text-xs border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 hover:border-red-300"
-                        onClick={() => setShowBulkRejectDialog(true)}
-                      >
-                        Reject all ({currentPendingCount})
-                      </Button>
-                      <Button 
-                        size="sm"
-                        className="flex-1 h-9 text-xs"
-                        onClick={() => setShowBulkApproveDialog(true)}
-                      >
-                        Approve all ({currentPendingCount})
-                      </Button>
-                    </div>
-                  ) : (
+                {/* Footer - Only show when pending items exist */}
+                {!isAddingAdjustment && currentPendingCount > 0 && (
+                <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                  <div className="flex items-center gap-2">
                     <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={() => setDrawerOpen(false)}
+                      variant="ghost" 
+                      size="sm"
+                      className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={() => setShowBulkRejectDialog(true)}
                     >
-                      Close
+                      Reject all ({currentPendingCount})
                     </Button>
-                  )}
+                    <Button 
+                      size="sm"
+                      className="flex-1 h-9 text-xs"
+                      onClick={() => setShowBulkApproveDialog(true)}
+                    >
+                      Approve all ({currentPendingCount})
+                    </Button>
+                  </div>
                 </div>
                 )}
                 </>
