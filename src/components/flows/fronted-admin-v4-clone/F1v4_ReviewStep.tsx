@@ -13,19 +13,20 @@ import {
   Building2,
   TrendingUp,
   Search,
-  ChevronRight,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
-import { toast } from "sonner";
 import { F1v4_WorkerDetailDrawer, WorkerData } from "./F1v4_WorkerDetailDrawer";
 import { F1v4_PayslipPreviewModal } from "./F1v4_PayslipPreviewModal";
+import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v4_PeriodDropdown";
 
 interface F1v4_ReviewStepProps {
   company: CompanyPayrollData;
@@ -40,6 +41,12 @@ const MOCK_WORKERS: WorkerData[] = [
   { id: "5", name: "David Martinez", type: "contractor", country: "Portugal", currency: "EUR", status: "ready", netPay: 4200, issues: 0 },
   { id: "6", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "needs-attention", netPay: 72000, issues: 2, missingData: [{ field: "Bank details", reason: "Account verification pending", fix: "Request verification" }] },
   { id: "7", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0 },
+];
+
+const MOCK_PERIODS: PayrollPeriod[] = [
+  { id: "current", label: "January 2026", status: "current" },
+  { id: "dec-2025", label: "December 2025", status: "paid" },
+  { id: "nov-2025", label: "November 2025", status: "paid" },
 ];
 
 const statusConfig: Record<WorkerData["status"], { label: string; className: string }> = {
@@ -65,6 +72,7 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
   const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0);
   const [payslipModalOpen, setPayslipModalOpen] = useState(false);
   const [payslipWorker, setPayslipWorker] = useState<WorkerData | null>(null);
+  const [selectedPeriodId, setSelectedPeriodId] = useState("current");
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", SGD: "S$" };
@@ -91,10 +99,32 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
     setPayslipModalOpen(true);
   };
 
+  const isViewingPrevious = selectedPeriodId !== "current";
+
   return (
-    <div className="space-y-6">
-      {/* Summary Card with KPIs */}
+    <div className="space-y-5">
+      {/* Summary Card with Period Header and KPIs */}
       <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+        <CardHeader className="py-4 px-5 border-b border-border/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <F1v4_PeriodDropdown 
+                periods={MOCK_PERIODS}
+                selectedPeriodId={selectedPeriodId}
+                onPeriodChange={setSelectedPeriodId}
+              />
+              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                <Clock className="h-3 w-3 mr-1" />
+                In review
+              </Badge>
+            </div>
+            {!isViewingPrevious && (
+              <Button onClick={onContinue} size="sm">
+                Continue to Exceptions
+              </Button>
+            )}
+          </div>
+        </CardHeader>
         <CardContent className="py-5 px-5">
           {/* KPI Grid */}
           <div className="grid grid-cols-4 gap-3 mb-5">
@@ -152,39 +182,48 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* Worker List - Table UI matching Flow 6 v3 Submissions pattern */}
-      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
-        <div className="px-4 py-2.5 border-b border-border/30 flex items-center justify-between">
+      {/* Worker List - Card rows matching Flow 6 v3 Submissions pattern */}
+      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+        <CardHeader className="py-4 px-5 border-b border-border/30">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-medium text-foreground">Workers</h3>
+            <div className="relative w-48">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input 
+                placeholder="Search..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                className="pl-8 h-8 text-xs bg-background/50 border-border/30" 
+              />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
           <Tabs defaultValue="all" className="w-full">
-            <div className="flex items-center justify-between">
-              <TabsList className="h-7 bg-transparent p-0 gap-1">
-                <TabsTrigger value="all" className="text-xs h-6 px-2 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none rounded-md">All ({workers.length})</TabsTrigger>
-                <TabsTrigger value="employees" className="text-xs h-6 px-2 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none rounded-md">Employees ({employees.length})</TabsTrigger>
-                <TabsTrigger value="contractors" className="text-xs h-6 px-2 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none rounded-md">Contractors ({contractors.length})</TabsTrigger>
+            <div className="px-5 pt-4 pb-3 border-b border-border/30">
+              <TabsList className="h-8 bg-muted/30 p-0.5">
+                <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  All ({workers.length})
+                </TabsTrigger>
+                <TabsTrigger value="employees" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Employees ({employees.length})
+                </TabsTrigger>
+                <TabsTrigger value="contractors" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Contractors ({contractors.length})
+                </TabsTrigger>
               </TabsList>
-              
-              <div className="relative w-48">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-7 h-6 text-xs bg-background/50 border-border/30" />
-              </div>
             </div>
 
-            {["all", "employees", "contractors"].map((tabValue) => {
-              const tabWorkers = tabValue === "all" ? filteredWorkers : tabValue === "employees" ? employees.filter(w => filteredWorkers.includes(w)) : contractors.filter(w => filteredWorkers.includes(w));
+            <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
+              {["all", "employees", "contractors"].map((tabValue) => {
+                const tabWorkers = tabValue === "all" 
+                  ? filteredWorkers 
+                  : tabValue === "employees" 
+                    ? employees.filter(w => filteredWorkers.includes(w)) 
+                    : contractors.filter(w => filteredWorkers.includes(w));
 
-              return (
-                <TabsContent key={tabValue} value={tabValue} className="mt-0">
-                  {/* Table Header */}
-                  <div className="grid grid-cols-[1fr_100px_80px_100px_20px] gap-3 px-3 py-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wide border-b border-border/20 mt-2.5">
-                    <span>Worker</span>
-                    <span>Country</span>
-                    <span className="text-center">Status</span>
-                    <span className="text-right">Net Pay</span>
-                    <span></span>
-                  </div>
-                  
-                  {/* Table Rows */}
-                  <div className="divide-y divide-border/10">
+                return (
+                  <TabsContent key={tabValue} value={tabValue} className="mt-0 space-y-1.5">
                     {tabWorkers.map((worker) => {
                       const config = statusConfig[worker.status];
                       const TypeIcon = worker.type === "employee" ? Users : Briefcase;
@@ -192,55 +231,48 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
                       return (
                         <div 
                           key={worker.id} 
-                          className="grid grid-cols-[1fr_100px_80px_100px_20px] gap-3 px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer items-center" 
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer"
                           onClick={() => handleViewDetails(worker)}
                         >
-                          {/* Worker */}
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Avatar className="h-6 w-6">
-                              <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">{getInitials(worker.name)}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span className="text-sm font-medium text-foreground truncate">{worker.name}</span>
-                              <TypeIcon className="h-3 w-3 text-muted-foreground shrink-0" />
+                          {/* Avatar */}
+                          <Avatar className="h-7 w-7 flex-shrink-0">
+                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
+                              {getInitials(worker.name)}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          {/* Worker Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-foreground truncate">
+                                {worker.name}
+                              </span>
+                              <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                             </div>
+                            <span className="text-[11px] text-muted-foreground leading-tight">
+                              {countryFlags[worker.country] || ""} {worker.country}
+                            </span>
                           </div>
-                          
-                          {/* Country */}
-                          <span className="text-xs text-muted-foreground">
-                            {countryFlags[worker.country] || ""} {worker.country}
-                          </span>
-                          
-                          {/* Status */}
-                          <div className="flex justify-center">
-                            <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", config.className)}>
+
+                          {/* Right side: Amount + Status */}
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <p className="text-sm font-semibold text-foreground tabular-nums">
+                              {formatCurrency(worker.netPay, worker.currency)}
+                            </p>
+                            <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4.5 font-medium", config.className)}>
                               {config.label}
                             </Badge>
                           </div>
-                          
-                          {/* Net Pay */}
-                          <span className="text-sm font-medium text-foreground text-right tabular-nums">
-                            {formatCurrency(worker.netPay, worker.currency)}
-                          </span>
-                          
-                          {/* Arrow */}
-                          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
                         </div>
                       );
                     })}
-                  </div>
-                </TabsContent>
-              );
-            })}
+                  </TabsContent>
+                );
+              })}
+            </div>
           </Tabs>
-        </div>
+        </CardContent>
       </Card>
-
-      {/* Continue Action */}
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">Deadline: <span className="font-medium text-foreground">Jan 25</span> — 5 days left</p>
-        <Button onClick={onContinue} size="sm" className="gap-1.5">Continue to Exceptions<ChevronRight className="h-3.5 w-3.5" /></Button>
-      </div>
 
       {/* Worker Detail Drawer */}
       <F1v4_WorkerDetailDrawer

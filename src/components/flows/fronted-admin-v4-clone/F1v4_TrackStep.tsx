@@ -14,13 +14,12 @@ import {
   Briefcase,
   Search,
   Clock,
-  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -162,81 +161,100 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         )}
       </div>
 
-      {/* Worker List */}
-      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-border/30">
+      {/* Worker List Card */}
+      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+        <CardHeader className="py-4 px-5 border-b border-border/30">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-foreground">Payment Status</h3>
-            <div className="relative w-56">
+            <h3 className="text-base font-medium text-foreground">Payment Status</h3>
+            <div className="relative w-48">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-7 text-xs bg-background/50" />
+              <Input 
+                placeholder="Search..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                className="pl-8 h-8 text-xs bg-background/50 border-border/30" 
+              />
             </div>
           </div>
-        </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Tabs defaultValue="all" className="w-full">
+            <div className="px-5 pt-4 pb-3 border-b border-border/30">
+              <TabsList className="h-8 bg-muted/30 p-0.5">
+                <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  All ({workers.length})
+                </TabsTrigger>
+                <TabsTrigger value="employees" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Employees ({employees.length})
+                </TabsTrigger>
+                <TabsTrigger value="contractors" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Contractors ({contractors.length})
+                </TabsTrigger>
+                {notPaidCount > 0 && (
+                  <TabsTrigger value="not-paid" className="text-xs h-7 px-3 data-[state=active]:bg-background text-destructive">
+                    Not paid ({notPaidCount})
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            </div>
 
-        <div className="px-5 py-3">
-          <Tabs defaultValue="all">
-            <TabsList className="h-7 bg-muted/30 p-0.5 mb-3">
-              <TabsTrigger value="all" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background">All ({workers.length})</TabsTrigger>
-              <TabsTrigger value="employees" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background">Employees ({employees.length})</TabsTrigger>
-              <TabsTrigger value="contractors" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background">Contractors ({contractors.length})</TabsTrigger>
-              {notPaidCount > 0 && (
-                <TabsTrigger value="not-paid" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background text-destructive">Not paid ({notPaidCount})</TabsTrigger>
-              )}
-            </TabsList>
+            <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
+              {["all", "employees", "contractors", "not-paid"].map((tabValue) => {
+                let tabWorkers = filteredWorkers;
+                if (tabValue === "employees") tabWorkers = employees.filter(w => filteredWorkers.includes(w));
+                if (tabValue === "contractors") tabWorkers = contractors.filter(w => filteredWorkers.includes(w));
+                if (tabValue === "not-paid") tabWorkers = filteredWorkers.filter(w => w.paymentStatus === "not-paid");
 
-            {["all", "employees", "contractors", "not-paid"].map((tabValue) => {
-              let tabWorkers = filteredWorkers;
-              if (tabValue === "employees") tabWorkers = employees.filter(w => filteredWorkers.includes(w));
-              if (tabValue === "contractors") tabWorkers = contractors.filter(w => filteredWorkers.includes(w));
-              if (tabValue === "not-paid") tabWorkers = filteredWorkers.filter(w => w.paymentStatus === "not-paid");
+                return (
+                  <TabsContent key={tabValue} value={tabValue} className="mt-0 space-y-1.5">
+                    {tabWorkers.map((worker) => {
+                      const config = paymentStatusConfig[worker.paymentStatus || "not-paid"];
+                      const StatusIcon = config.icon;
+                      const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
-              return (
-                <TabsContent key={tabValue} value={tabValue} className="mt-0 space-y-1.5">
-                  {tabWorkers.map((worker) => {
-                    const config = paymentStatusConfig[worker.paymentStatus || "not-paid"];
-                    const StatusIcon = config.icon;
-                    const TypeIcon = worker.type === "employee" ? Users : Briefcase;
-
-                    return (
-                      <div 
-                        key={worker.id}
-                        className={cn(
-                          "px-3 py-2.5 rounded-lg border transition-colors cursor-pointer hover:bg-muted/30",
-                          worker.paymentStatus === "not-paid" ? "border-destructive/30 bg-destructive/5" : "border-border/20 bg-muted/30"
-                        )}
-                        onClick={() => handleViewDetails(worker)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2.5 flex-1">
-                            <Avatar className="h-7 w-7">
-                              <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">{getInitials(worker.name)}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <p className="text-sm font-medium text-foreground">{worker.name}</p>
-                                <TypeIcon className="h-3 w-3 text-muted-foreground" />
-                              </div>
-                              <p className="text-[11px] text-muted-foreground">{countryFlags[worker.country] || ""} {worker.country}</p>
+                      return (
+                        <div 
+                          key={worker.id}
+                          className={cn(
+                            "flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer hover:bg-muted/30",
+                            worker.paymentStatus === "not-paid" ? "border-destructive/30 bg-destructive/5" : "border-border/30 bg-card"
+                          )}
+                          onClick={() => handleViewDetails(worker)}
+                        >
+                          <Avatar className="h-7 w-7 flex-shrink-0">
+                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
+                              {getInitials(worker.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-foreground truncate">
+                                {worker.name}
+                              </span>
+                              <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                             </div>
+                            <span className="text-[11px] text-muted-foreground leading-tight">
+                              {countryFlags[worker.country] || ""} {worker.country}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <p className="text-sm font-medium text-foreground min-w-[90px] text-right tabular-nums">{formatCurrency(worker.netPay, worker.currency)}</p>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <p className="text-sm font-semibold text-foreground tabular-nums min-w-[90px] text-right">
+                              {formatCurrency(worker.netPay, worker.currency)}
+                            </p>
                             <div className={cn("flex items-center gap-1 text-xs min-w-[70px]", config.className)}>
                               <StatusIcon className="h-3 w-3" />
                               {config.label}
                             </div>
-                            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </TabsContent>
-              );
-            })}
+                      );
+                    })}
+                  </TabsContent>
+                );
+              })}
+            </div>
           </Tabs>
-        </div>
+        </CardContent>
       </Card>
 
       {/* Worker Detail Drawer */}
