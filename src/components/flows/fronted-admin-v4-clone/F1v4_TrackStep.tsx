@@ -39,6 +39,64 @@ interface PayrollPeriod {
   status: "current" | "processing" | "paid";
 }
 
+// Historical payroll data
+interface HistoricalPayroll {
+  id: string;
+  period: string;
+  paidDate: string;
+  grossPay: string;
+  adjustments: string;
+  fees: string;
+  totalCost: string;
+  employeeCount: number;
+  contractorCount: number;
+  currencyCount: number;
+  workers: WorkerData[];
+}
+
+const HISTORICAL_PAYROLLS: HistoricalPayroll[] = [
+  {
+    id: "dec-2025",
+    period: "December 2025",
+    paidDate: "Dec 28, 2025",
+    grossPay: "$118.4K",
+    adjustments: "$6.8K",
+    fees: "$3,512",
+    totalCost: "$121.9K",
+    employeeCount: 3,
+    contractorCount: 4,
+    currencyCount: 3,
+    workers: [
+      { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112234" },
+      { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112235" },
+      { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "ready", netPay: 280000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112236" },
+      { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "ready", netPay: 65000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112237" },
+      { id: "5", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "ready", netPay: 72000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112238" },
+      { id: "6", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112239" },
+    ],
+  },
+  {
+    id: "nov-2025",
+    period: "November 2025",
+    paidDate: "Nov 28, 2025",
+    grossPay: "$115.2K",
+    adjustments: "$5.4K",
+    fees: "$3,380",
+    totalCost: "$118.6K",
+    employeeCount: 3,
+    contractorCount: 3,
+    currencyCount: 3,
+    workers: [
+      { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111234" },
+      { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111235" },
+      { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "ready", netPay: 280000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111236" },
+      { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "ready", netPay: 65000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111237" },
+      { id: "5", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "ready", netPay: 72000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111238" },
+      { id: "6", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111239" },
+    ],
+  },
+];
+
 interface F1v4_TrackStepProps {
   company: CompanyPayrollData;
   onBack?: () => void;
@@ -82,14 +140,14 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   onBack,
   onClose,
   hideHeader = false,
-  isHistorical = false,
-  paidDate,
+  isHistorical: isHistoricalProp = false,
+  paidDate: paidDateProp,
   showStepper = false,
   currentStep = "track",
   completedSteps = ["submissions", "exceptions", "approve"],
   onStepClick,
 }) => {
-  const [workers, setWorkers] = useState<WorkerData[]>(MOCK_TRACKED_WORKERS);
+  const [currentWorkers, setCurrentWorkers] = useState<WorkerData[]>(MOCK_TRACKED_WORKERS);
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0);
@@ -107,6 +165,17 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   ];
 
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
+  
+  // Determine if viewing historical period
+  const isViewingHistorical = selectedPeriodId !== "current";
+  const selectedHistoricalPayroll = isViewingHistorical 
+    ? HISTORICAL_PAYROLLS.find(p => p.id === selectedPeriodId) 
+    : null;
+  
+  // Get workers based on selected period
+  const workers = isViewingHistorical && selectedHistoricalPayroll 
+    ? selectedHistoricalPayroll.workers 
+    : currentWorkers;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -149,14 +218,14 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   });
 
   const handleMarkAsPaid = (workerId: string) => {
-    setWorkers(prev => prev.map(w => 
+    setCurrentWorkers(prev => prev.map(w => 
       w.id === workerId ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } : w
     ));
     toast.success("Marked as paid");
   };
 
   const handleRetryPayout = (workerId: string) => {
-    setWorkers(prev => prev.map(w => 
+    setCurrentWorkers(prev => prev.map(w => 
       w.id === workerId ? { ...w, paymentStatus: "in-transit" as const } : w
     ));
     toast.success("Payout retry initiated");
@@ -221,16 +290,30 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
     );
   };
 
-  // KPI metrics for this payroll month
-  const displayMetrics = {
-    grossPay: "$124.9K",
-    adjustments: "$8.2K",
-    fees: "$3,742",
-    totalCost: "$128.6K",
-    employeeCount: employees.length,
-    contractorCount: contractors.length,
-    currencyCount: 3,
-  };
+  // Computed values based on period selection
+  const isHistorical = isViewingHistorical;
+  const paidDate = selectedHistoricalPayroll?.paidDate;
+  
+  // KPI metrics for this payroll month - use historical data if viewing past period
+  const displayMetrics = isViewingHistorical && selectedHistoricalPayroll 
+    ? {
+        grossPay: selectedHistoricalPayroll.grossPay,
+        adjustments: selectedHistoricalPayroll.adjustments,
+        fees: selectedHistoricalPayroll.fees,
+        totalCost: selectedHistoricalPayroll.totalCost,
+        employeeCount: selectedHistoricalPayroll.employeeCount,
+        contractorCount: selectedHistoricalPayroll.contractorCount,
+        currencyCount: selectedHistoricalPayroll.currencyCount,
+      }
+    : {
+        grossPay: "$124.9K",
+        adjustments: "$8.2K",
+        fees: "$3,742",
+        totalCost: "$128.6K",
+        employeeCount: employees.length,
+        contractorCount: contractors.length,
+        currencyCount: 3,
+      };
 
   const renderPeriodDropdown = () => (
     <div className="relative" ref={periodDropdownRef}>
