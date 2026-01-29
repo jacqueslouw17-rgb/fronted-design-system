@@ -5,7 +5,6 @@
  */
 
 import React, { useState } from "react";
-import { F1v4_PayrollOverview } from "./F1v4_PayrollOverview";
 import { F1v4_CompanyPayrollRun } from "./F1v4_CompanyPayrollRun";
 
 export interface CompanyPayrollData {
@@ -98,38 +97,22 @@ interface F1v4_PayrollTabProps {
 export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
   selectedCompanyId,
 }) => {
-  const [activeCompanyId, setActiveCompanyId] = useState<string | null>(null);
-  const [initialStep, setInitialStep] = useState<number | undefined>(undefined);
   const [companies] = useState<CompanyPayrollData[]>(MOCK_COMPANY_PAYROLLS);
 
-  const activeCompany = activeCompanyId 
-    ? companies.find(c => c.id === activeCompanyId) 
-    : null;
+  // Find the selected company, default to first company if not found
+  const activeCompany = companies.find(c => c.id === selectedCompanyId) || companies[0];
 
-  const handleSelectCompany = (companyId: string, jumpToStep?: number) => {
-    setActiveCompanyId(companyId);
-    setInitialStep(jumpToStep);
-  };
-
-  const handleBackToOverview = () => {
-    setActiveCompanyId(null);
-    setInitialStep(undefined);
-  };
-
-  if (activeCompany) {
+  if (!activeCompany) {
     return (
-      <F1v4_CompanyPayrollRun
-        company={activeCompany}
-        onBack={handleBackToOverview}
-        initialStep={initialStep}
-      />
+      <div className="max-w-6xl mx-auto p-8 text-center text-muted-foreground">
+        No companies available
+      </div>
     );
   }
 
   return (
-    <F1v4_PayrollOverview
-      companies={companies}
-      onSelectCompany={handleSelectCompany}
+    <F1v4_CompanyPayrollRun
+      company={activeCompany}
     />
   );
 };

@@ -4,25 +4,15 @@
  * Clean 4-step workflow: Review → Exceptions → Approve → Track & Reconcile
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  ArrowLeft, 
   Building2,
   Users,
   Briefcase,
-  Globe,
-  Download,
-  FileText,
-  CheckCircle2,
-  AlertCircle,
-  ChevronRight,
-  Eye
+  Globe
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
 import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v4_PayrollStepper";
 import { F1v4_ReviewStep } from "./F1v4_ReviewStep";
@@ -32,7 +22,6 @@ import { F1v4_TrackStep } from "./F1v4_TrackStep";
 
 interface F1v4_CompanyPayrollRunProps {
   company: CompanyPayrollData;
-  onBack: () => void;
   initialStep?: number; // 1=review, 2=exceptions, 3=approve, 4=track
 }
 
@@ -45,7 +34,6 @@ const stepMap: Record<number, F1v4_PayrollStep> = {
 
 export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   company,
-  onBack,
   initialStep,
 }) => {
   // Determine initial step based on prop
@@ -151,29 +139,15 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto p-8 pb-32 space-y-6">
-      {/* Header with Back */}
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="gap-1.5 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            All Companies
-          </Button>
-          
-          <div className="h-6 w-px bg-border" />
-          
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Building2 className="h-4 w-4 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-lg font-medium text-foreground">{company.name}</h1>
-              <p className="text-xs text-muted-foreground">{company.payPeriod}</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Building2 className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-lg font-medium text-foreground">{company.name}</h1>
+            <p className="text-xs text-muted-foreground">{company.payPeriod}</p>
           </div>
         </div>
 
