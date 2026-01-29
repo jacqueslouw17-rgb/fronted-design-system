@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { ChevronRight, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Send } from "lucide-react";
+import { ChevronLeft, ChevronRight, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Send, Users, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 import { CA3_SubmissionsView, WorkerSubmission, PendingLeaveItem } from "./CA3_SubmissionsView";
@@ -216,11 +218,80 @@ const mockTrackingWorkers: TrackingWorker[] = [
   { id: "7", name: "Jose Reyes", country: "Philippines", type: "contractor", amount: 245000, currency: "PHP", status: "failed", errorMessage: "Bank rejected payment - invalid account number. Contact Fronted support to update bank details." },
 ];
 
+// Previous payroll periods - immutable historical data
+interface PreviousPayroll {
+  id: string;
+  period: string;
+  paidDate: string;
+  grossPay: string;
+  adjustments: string;
+  fees: string;
+  totalCost: string;
+  employeeCount: number;
+  contractorCount: number;
+  currencyCount: number;
+  workers: {
+    id: string;
+    name: string;
+    country: string;
+    type: "employee" | "contractor";
+    amount: number;
+    currency: string;
+  }[];
+}
+
+const previousPayrolls: PreviousPayroll[] = [
+  {
+    id: "dec-2025",
+    period: "December 2025",
+    paidDate: "Dec 28, 2025",
+    grossPay: "$118.4K",
+    adjustments: "$6.8K",
+    fees: "$3,512",
+    totalCost: "$121.9K",
+    employeeCount: 4,
+    contractorCount: 5,
+    currencyCount: 3,
+    workers: [
+      { id: "1", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4200, currency: "EUR" },
+      { id: "2", name: "Sophie Laurent", country: "France", type: "employee", amount: 5800, currency: "EUR" },
+      { id: "3", name: "Marco Rossi", country: "Italy", type: "contractor", amount: 4500, currency: "EUR" },
+      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 65000, currency: "NOK" },
+      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 72000, currency: "NOK" },
+      { id: "6", name: "Maria Santos", country: "Philippines", type: "employee", amount: 280000, currency: "PHP" },
+      { id: "7", name: "Jose Reyes", country: "Philippines", type: "contractor", amount: 245000, currency: "PHP" },
+    ],
+  },
+  {
+    id: "nov-2025",
+    period: "November 2025",
+    paidDate: "Nov 28, 2025",
+    grossPay: "$115.2K",
+    adjustments: "$5.4K",
+    fees: "$3,380",
+    totalCost: "$118.6K",
+    employeeCount: 4,
+    contractorCount: 4,
+    currencyCount: 3,
+    workers: [
+      { id: "1", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4200, currency: "EUR" },
+      { id: "2", name: "Sophie Laurent", country: "France", type: "employee", amount: 5800, currency: "EUR" },
+      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 65000, currency: "NOK" },
+      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 72000, currency: "NOK" },
+      { id: "6", name: "Maria Santos", country: "Philippines", type: "employee", amount: 280000, currency: "PHP" },
+      { id: "7", name: "Jose Reyes", country: "Philippines", type: "contractor", amount: 245000, currency: "PHP" },
+    ],
+  },
+];
+
 interface CA3_PayrollSectionProps {
   payPeriod: string;
 }
 
 export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPeriod }) => {
+  // Period view state - null = current, string = previous period id
+  const [viewingPreviousId, setViewingPreviousId] = useState<string | null>(null);
+  
   // Workflow entered state - start on landing view
   const [hasEnteredWorkflow, setHasEnteredWorkflow] = useState(false);
   
@@ -240,8 +311,23 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Tracking state
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
 
+  // Get selected previous payroll
+  const selectedPrevious = viewingPreviousId 
+    ? previousPayrolls.find(p => p.id === viewingPreviousId) 
+    : null;
+
   // Computed values for submissions
   const pendingSubmissions = useMemo(() => submissions.filter(s => s.status === "pending").length, [submissions]);
+
+  // Helper functions for previous payroll view
+  const getInitials = (name: string) => {
+    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  };
+
+  const formatCurrency = (amount: number, currency: string) => {
+    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", INR: "₹", SEK: "kr" };
+    return `${symbols[currency] || currency}${amount.toLocaleString()}`;
+  };
 
   const handleStepClick = (step: CA3_PayrollStep) => {
     if (completedSteps.includes(step) || step === currentStep) {
@@ -307,7 +393,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       <CardContent className="py-6 px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
             {isSubmitted ? (
               <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
@@ -320,6 +406,13 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                 In review
               </Badge>
             )}
+            <span className="text-muted-foreground/50">·</span>
+            <button 
+              onClick={() => setViewingPreviousId(previousPayrolls[0]?.id || null)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            >
+              View previous
+            </button>
           </div>
           {!isSubmitted && (
             <Button onClick={handleEnterWorkflow} size="sm">
@@ -379,14 +472,197 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           <span className="text-border">·</span>
           <span>Currencies: <strong className="text-foreground">3</strong></span>
         </div>
-
-        {/* CTA - only in landing view */}
       </CardContent>
     </Card>
   );
 
+  // Render previous payroll view (immutable historical data)
+  const renderPreviousPayrollView = () => {
+    if (!selectedPrevious) return null;
+
+    const employees = selectedPrevious.workers.filter(w => w.type === "employee");
+    const contractors = selectedPrevious.workers.filter(w => w.type === "contractor");
+
+    return (
+      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+        <CardContent className="py-6 px-6">
+          {/* Header with back navigation */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setViewingPreviousId(null)}
+                className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <h3 className="text-lg font-semibold text-foreground">{selectedPrevious.period} Payroll</h3>
+              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Paid
+              </Badge>
+              {/* Navigate between previous periods */}
+              {previousPayrolls.length > 1 && (
+                <>
+                  <span className="text-muted-foreground/50">·</span>
+                  {previousPayrolls.map((p, idx) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setViewingPreviousId(p.id)}
+                      className={cn(
+                        "text-sm transition-colors",
+                        p.id === viewingPreviousId 
+                          ? "text-foreground font-medium" 
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {p.period.split(" ")[0]}
+                    </button>
+                  ))}
+                </>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">Paid on {selectedPrevious.paidDate}</p>
+          </div>
+
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+                <DollarSign className="h-4 w-4 text-primary" />
+                <span className="text-sm">Gross Pay</span>
+              </div>
+              <p className="text-2xl font-semibold text-foreground">{selectedPrevious.grossPay}</p>
+              <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
+            </div>
+
+            <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+                <Receipt className="h-4 w-4 text-primary" />
+                <span className="text-sm">Adjustments</span>
+              </div>
+              <p className="text-2xl font-semibold text-foreground">{selectedPrevious.adjustments}</p>
+              <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
+            </div>
+
+            <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+                <Building2 className="h-4 w-4 text-primary" />
+                <span className="text-sm">Fronted Fees</span>
+              </div>
+              <p className="text-2xl font-semibold text-foreground">{selectedPrevious.fees}</p>
+              <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+            </div>
+
+            <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <span className="text-sm">Total Cost</span>
+              </div>
+              <p className="text-2xl font-semibold text-foreground">{selectedPrevious.totalCost}</p>
+              <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
+            </div>
+          </div>
+
+          {/* Workers List */}
+          <div className="space-y-4">
+            {/* Employees Section */}
+            {employees.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">Employees</span>
+                  <span className="text-xs text-muted-foreground">({employees.length})</span>
+                </div>
+                <div className="space-y-1">
+                  {employees.map((worker) => (
+                    <div 
+                      key={worker.id}
+                      className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20"
+                    >
+                      <Avatar className="h-6 w-6 flex-shrink-0">
+                        <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
+                          {getInitials(worker.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
+                          <span className="text-[11px] text-muted-foreground">· {worker.country}</span>
+                        </div>
+                      </div>
+                      <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
+                        {formatCurrency(worker.amount, worker.currency)}
+                      </p>
+                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-accent-green/10 text-accent-green-text flex-shrink-0">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Paid
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Contractors Section */}
+            {contractors.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Briefcase className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">Contractors</span>
+                  <span className="text-xs text-muted-foreground">({contractors.length})</span>
+                </div>
+                <div className="space-y-1">
+                  {contractors.map((worker) => (
+                    <div 
+                      key={worker.id}
+                      className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20"
+                    >
+                      <Avatar className="h-6 w-6 flex-shrink-0">
+                        <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
+                          {getInitials(worker.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
+                          <span className="text-[11px] text-muted-foreground">· {worker.country}</span>
+                        </div>
+                      </div>
+                      <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
+                        {formatCurrency(worker.amount, worker.currency)}
+                      </p>
+                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-accent-green/10 text-accent-green-text flex-shrink-0">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Paid
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer Stats */}
+          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 mt-4 border-t border-border/30">
+            <span>Employees: <strong className="text-foreground">{selectedPrevious.employeeCount}</strong></span>
+            <span className="text-border">·</span>
+            <span>Contractors: <strong className="text-foreground">{selectedPrevious.contractorCount}</strong></span>
+            <span className="text-border">·</span>
+            <span>Currencies: <strong className="text-foreground">{selectedPrevious.currencyCount}</strong></span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   // Render landing view (before entering workflow)
-  const renderLandingView = () => renderSummaryCard(false);
+  const renderLandingView = () => {
+    // If viewing previous, show historical view instead
+    if (viewingPreviousId) {
+      return renderPreviousPayrollView();
+    }
+    return renderSummaryCard(false);
+  };
 
   // Render track view with summary card above
   const renderTrackView = () => (
