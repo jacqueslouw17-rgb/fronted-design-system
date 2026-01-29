@@ -1117,7 +1117,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
       {/* Worker Pay Breakdown Drawer - Full receipt style */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-[420px] overflow-y-auto p-0">
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-[420px] overflow-y-auto p-0"
+          hideClose={isAddingAdjustment}
+        >
           {selectedSubmission && (() => {
             // Calculate breakdown data
             const earnings = selectedSubmission.lineItems?.filter(item => item.type === 'Earnings') || [];
