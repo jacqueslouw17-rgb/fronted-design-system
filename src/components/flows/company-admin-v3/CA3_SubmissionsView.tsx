@@ -1254,8 +1254,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       </p>
                     </div>
                     
-                    {/* Inline pending toggle */}
-                    {currentPendingCount > 0 && (
+                    {/* Inline pending toggle - hidden when adding adjustment */}
+                    {currentPendingCount > 0 && !isAddingAdjustment && (
                       <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
                         <span className="text-[10px] text-muted-foreground/60">Pending</span>
                         <Switch
@@ -1554,7 +1554,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </div>
                   )}
 
-                  {/* Estimated net pay - above rejection section */}
+                  {/* Estimated net pay - hidden when adding adjustment */}
+                  {!isAddingAdjustment && (
                   <section className="pt-2 border-t border-border/40">
                     <div className="flex items-center justify-between py-3">
                       <p className="text-sm font-medium text-foreground">Estimated net pay</p>
@@ -1581,6 +1582,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       View receipt
                     </Button>
                   </section>
+                  )}
 
                   {/* Rejection form - matching leave pattern */}
                   {showCustomReason && (
@@ -1626,7 +1628,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </div>
 
-                {/* Footer - Bulk actions when pending, otherwise close only */}
+                {/* Footer - Hidden when adding adjustment */}
+                {!isAddingAdjustment && (
                 <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-4">
                   {currentPendingCount > 0 ? (
                     <div className="flex items-center gap-2">
@@ -1656,6 +1659,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </Button>
                   )}
                 </div>
+                )}
                 
                 {/* Bulk action dialogs */}
                 <CA3_BulkApproveDialog
