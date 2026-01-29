@@ -202,12 +202,13 @@ const AdjustmentRow = ({
   if (isRejected) {
     return (
       <div 
-        className="-mx-3 px-3 rounded transition-colors bg-destructive/5 border border-destructive/30"
+        className="mb-1.5"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        <div className="rounded-md overflow-hidden border border-destructive/40 bg-destructive/5">
           {/* Main row */}
-          <div className="flex items-center justify-between py-2.5">
+          <div className="flex items-center justify-between py-2.5 px-3">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <span className="text-sm text-muted-foreground line-through">{label}</span>
               <Badge 
@@ -240,6 +241,7 @@ const AdjustmentRow = ({
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
       </div>
     );
   }
@@ -525,11 +527,12 @@ const LeaveRow = ({
   if (isRejected) {
     return (
       <div 
-        className="-mx-3 px-3 rounded transition-colors bg-destructive/5 border border-destructive/30"
+        className="-mx-2 mb-2"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-          <div className="flex items-center justify-between py-2.5">
+        <div className="rounded-lg overflow-hidden border border-destructive/30 bg-destructive/5">
+          <div className="flex items-center justify-between py-2.5 px-3">
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground line-through">
@@ -565,6 +568,7 @@ const LeaveRow = ({
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
       </div>
     );
   }
