@@ -1271,8 +1271,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/20">
                   <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
                   
-                  {/* Worker row with actions */}
-                  <div className="flex items-start gap-3">
+                  {/* Worker row - name with space for X close */}
+                  <div className="flex items-start gap-3 pr-6">
                     <Avatar className="h-9 w-9">
                       <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                         {getInitials(selectedSubmission.workerName)}
@@ -1286,39 +1286,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         {selectedSubmission.workerCountry} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
                       </p>
                     </div>
-                    
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      {!showPendingOnly && (
-                        <button
-                          onClick={() => setIsAddingAdjustment(true)}
-                          className="flex items-center gap-1 px-2 py-1 text-[10px] text-muted-foreground border border-border/60 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
-                        >
-                          <Plus className="h-3 w-3" />
-                          <span>Add</span>
-                        </button>
-                      )}
-                      
-                      {currentPendingCount > 0 && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                              <Switch
-                                checked={showPendingOnly}
-                                onCheckedChange={setShowPendingOnly}
-                                className="h-4 w-7 data-[state=checked]:bg-orange-500"
-                              />
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="text-xs">
-                            {showPendingOnly ? "Show all items" : "Show pending only"}
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
                   </div>
                   
-                  {/* Net pay hero - prominent at top */}
+                  {/* Net pay hero + actions row */}
                   {!isAddingAdjustment && (
                     <div className="mt-4 pt-4 border-t border-border/20">
                       <div className="flex items-end justify-between">
@@ -1343,6 +1313,37 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             </p>
                           )}
                         </div>
+                      </div>
+                      
+                      {/* Actions row - below net pay */}
+                      <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-border/10">
+                        {!showPendingOnly && (
+                          <button
+                            onClick={() => setIsAddingAdjustment(true)}
+                            className="flex items-center gap-1 px-2.5 py-1 text-[10px] text-muted-foreground border border-border/60 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
+                          >
+                            <Plus className="h-3 w-3" />
+                            <span>Add adjustment</span>
+                          </button>
+                        )}
+                        
+                        {currentPendingCount > 0 && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-muted-foreground">
+                                <span>Pending</span>
+                                <Switch
+                                  checked={showPendingOnly}
+                                  onCheckedChange={setShowPendingOnly}
+                                  className="h-4 w-7 data-[state=checked]:bg-orange-500"
+                                />
+                              </label>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="text-xs">
+                              {showPendingOnly ? "Show all items" : "Filter to pending only"}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
                       </div>
                     </div>
                   )}
