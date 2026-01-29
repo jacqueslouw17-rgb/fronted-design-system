@@ -10,7 +10,6 @@ import {
   AlertCircle, 
   AlertTriangle,
   CheckCircle2,
-  ChevronRight,
   CreditCard,
   FileText,
   Clock,
@@ -19,8 +18,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
@@ -226,77 +226,73 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
 
   return (
     <div className="space-y-5">
-      {/* Status Banner */}
-      {visibleExceptions.length === 0 ? (
-        <Card className="border-accent-green-outline/30 bg-accent-green-fill/5">
-          <CardContent className="py-4 px-5 flex items-center gap-3">
-            <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-            <div>
+      {/* Exception List Card with Header */}
+      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+        <CardHeader className="py-4 px-5 border-b border-border/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <h3 className="text-base font-medium text-foreground">Exceptions</h3>
+              {visibleExceptions.length > 0 && (
+                <Badge variant="outline" className={cn(
+                  blockingExceptions.length > 0 || pendingBlockingExceptions.length > 0
+                    ? "bg-destructive/10 text-destructive border-destructive/20"
+                    : "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                )}>
+                  {blockingExceptions.length > 0
+                    ? `${blockingExceptions.length} blocking`
+                    : pendingBlockingExceptions.length > 0
+                    ? `${pendingBlockingExceptions.length} pending`
+                    : `${warningExceptions.length} warning${warningExceptions.length !== 1 ? "s" : ""}`}
+                </Badge>
+              )}
+            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button onClick={onContinue} size="sm" disabled={!canContinue}>
+                    Continue to Approve
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!canContinue && (
+                <TooltipContent side="bottom" className="max-w-[200px]">
+                  <p className="text-xs">Resolve all blocking exceptions before continuing</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </div>
+        </CardHeader>
+        <CardContent className="py-4 px-4 space-y-1.5">
+          {visibleExceptions.length === 0 ? (
+            <div className="py-6 flex flex-col items-center gap-2">
+              <CheckCircle2 className="h-8 w-8 text-accent-green-text" />
               <p className="text-sm font-medium text-foreground">All exceptions resolved</p>
               <p className="text-xs text-muted-foreground">Ready to approve payroll</p>
             </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className={cn(
-          "border-border/40",
-          blockingExceptions.length > 0 || pendingBlockingExceptions.length > 0
-            ? "border-destructive/30 bg-destructive/5"
-            : "border-amber-500/30 bg-amber-500/5"
-        )}>
-          <CardContent className="py-4 px-5 flex items-center gap-3">
-            {blockingExceptions.length > 0 || pendingBlockingExceptions.length > 0 ? (
-              <AlertCircle className="h-4 w-4 text-destructive" />
-            ) : (
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-            )}
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                {blockingExceptions.length > 0
-                  ? `${blockingExceptions.length} blocking exception${blockingExceptions.length > 1 ? "s" : ""}`
-                  : pendingBlockingExceptions.length > 0
-                  ? `${pendingBlockingExceptions.length} pending resolution`
-                  : `${warningExceptions.length} warning${warningExceptions.length > 1 ? "s" : ""}`}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {blockingExceptions.length > 0
-                  ? "Resolve to continue"
-                  : pendingBlockingExceptions.length > 0
-                  ? "Waiting on response"
-                  : "Review before approving"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {visibleExceptions.map((exception) => {
+                const CategoryIcon = categoryIcons[exception.category];
+                const isBlocking = exception.type === "blocking";
+                const isPending = exception.status === "pending";
+                const progress = getProgress(exception.id);
 
-      {/* Exception List */}
-      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
-        <CardContent className="py-3 px-4 space-y-2">
-          <AnimatePresence mode="popLayout">
-            {visibleExceptions.map((exception) => {
-              const CategoryIcon = categoryIcons[exception.category];
-              const isBlocking = exception.type === "blocking";
-              const isPending = exception.status === "pending";
-              const progress = getProgress(exception.id);
-
-              return (
-                <motion.div
-                  key={exception.id}
-                  layout
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10, transition: { duration: 0.3 } }}
-                  className={cn(
-                    "px-3 py-2.5 rounded-lg border transition-all cursor-pointer hover:bg-muted/30",
-                    isBlocking && !isPending && "border-destructive/30 bg-destructive/5",
-                    isBlocking && isPending && "border-accent-green-outline/30 bg-accent-green-fill/5",
-                    !isBlocking && "border-amber-500/20 bg-amber-500/5"
-                  )}
-                  onClick={() => handleOpenFix(exception.id)}
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-7 w-7">
+                return (
+                  <motion.div
+                    key={exception.id}
+                    layout
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10, transition: { duration: 0.3 } }}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer hover:bg-muted/30",
+                      isBlocking && !isPending && "border-destructive/30 bg-destructive/5",
+                      isBlocking && isPending && "border-accent-green-outline/30 bg-accent-green-fill/5",
+                      !isBlocking && "border-amber-500/20 bg-amber-500/5"
+                    )}
+                    onClick={() => handleOpenFix(exception.id)}
+                  >
+                    <Avatar className="h-7 w-7 flex-shrink-0">
                       <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
                         {getInitials(exception.workerName)}
                       </AvatarFallback>
@@ -304,14 +300,14 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <CategoryIcon className={cn(
-                          "h-3.5 w-3.5",
+                          "h-3.5 w-3.5 flex-shrink-0",
                           isBlocking && !isPending && "text-destructive",
                           isBlocking && isPending && "text-accent-green-text",
                           !isBlocking && "text-amber-600"
                         )} />
-                        <p className="text-sm font-medium text-foreground">{exception.title}</p>
+                        <p className="text-sm font-medium text-foreground truncate">{exception.title}</p>
                         <Badge variant="outline" className={cn(
-                          "text-[9px] px-1.5 py-0 h-4 font-medium",
+                          "text-[9px] px-1.5 py-0 h-4 font-medium flex-shrink-0",
                           isBlocking
                             ? "bg-destructive/10 text-destructive border-destructive/20"
                             : "bg-amber-500/10 text-amber-600 border-amber-500/20"
@@ -319,7 +315,7 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
                           {isBlocking ? "Blocking" : "Warning"}
                         </Badge>
                       </div>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground truncate">
                         {countryFlags[exception.workerCountry]} {exception.workerName}
                         {!isPending && ` · ${exception.description}`}
                       </p>
@@ -330,28 +326,13 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
                         </div>
                       )}
                     </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-
-          {visibleExceptions.length === 0 && (
-            <div className="py-6 text-center text-sm text-muted-foreground">
-              No exceptions to display
-            </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           )}
         </CardContent>
       </Card>
-
-      {/* Continue Action */}
-      <div className="flex items-center justify-end">
-        <Button onClick={onContinue} size="sm" disabled={!canContinue} className="gap-1.5">
-          Continue to Approve
-          <ChevronRight className="h-3.5 w-3.5" />
-        </Button>
-      </div>
 
       {/* Exception Fix Drawer */}
       <F1v4_ExceptionFixDrawer

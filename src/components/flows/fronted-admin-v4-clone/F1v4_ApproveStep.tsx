@@ -19,7 +19,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -157,39 +157,44 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* CTA */}
-      <div className="flex items-center justify-end">
-        <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-          <AlertDialogTrigger asChild>
-            <Button size="sm" className="gap-1.5">
-              <FileCheck className="h-3.5 w-3.5" />
-              Approve Numbers & Lock
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Approve Payroll Numbers?</AlertDialogTitle>
-              <AlertDialogDescription className="space-y-3">
-                <p>
-                  Approving payroll for <strong>{company.name}</strong> totaling{" "}
-                  <strong>{formatCurrency(company.totalCost)}</strong>.
-                </p>
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 text-foreground text-sm">
-                  <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <p>
-                    Payments are handled outside Fronted. This locks the run 
-                    and generates the payment summary.
-                  </p>
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onApprove}>Confirm & Lock</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+      {/* CTA - Moved to card header pattern for consistency */}
+      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+        <CardHeader className="py-4 px-5">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Ready to finalize payroll</p>
+            <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" className="gap-1.5">
+                  <FileCheck className="h-3.5 w-3.5" />
+                  Approve & Lock
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Approve Payroll Numbers?</AlertDialogTitle>
+                  <AlertDialogDescription className="space-y-3">
+                    <p>
+                      Approving payroll for <strong>{company.name}</strong> totaling{" "}
+                      <strong>{formatCurrency(company.totalCost)}</strong>.
+                    </p>
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 text-foreground text-sm">
+                      <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <p>
+                        Payments are handled outside Fronted. This locks the run 
+                        and generates the payment summary.
+                      </p>
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={onApprove}>Confirm & Lock</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </CardHeader>
+      </Card>
     </div>
   );
 };
