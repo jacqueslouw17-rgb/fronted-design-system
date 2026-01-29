@@ -1271,24 +1271,46 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/20">
                   <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
                   
-                  {/* Worker row - name with space for X close */}
-                  <div className="flex items-start gap-3 pr-6">
-                    <Avatar className="h-9 w-9">
+                  {/* Worker row - name + inline actions */}
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-9 w-9 shrink-0">
                       <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                         {getInitials(selectedSubmission.workerName)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <SheetTitle className="text-sm font-semibold text-foreground leading-tight">
-                        {selectedSubmission.workerName}
-                      </SheetTitle>
+                      <div className="flex items-center gap-2">
+                        <SheetTitle className="text-sm font-semibold text-foreground leading-tight">
+                          {selectedSubmission.workerName}
+                        </SheetTitle>
+                        {/* Inline actions - next to name */}
+                        {!showPendingOnly && (
+                          <button
+                            onClick={() => setIsAddingAdjustment(true)}
+                            className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
+                          >
+                            <Plus className="h-2.5 w-2.5" />
+                            <span>Add</span>
+                          </button>
+                        )}
+                        {currentPendingCount > 0 && (
+                          <label className="flex items-center gap-1 cursor-pointer">
+                            <Switch
+                              checked={showPendingOnly}
+                              onCheckedChange={setShowPendingOnly}
+                              className="h-3 w-6 data-[state=checked]:bg-primary [&>span]:h-2 [&>span]:w-2 [&>span]:data-[state=checked]:translate-x-3"
+                            />
+                            <span className="text-[10px] text-muted-foreground">Pending</span>
+                          </label>
+                        )}
+                      </div>
                       <p className="text-[11px] text-muted-foreground/70 mt-0.5">
                         {selectedSubmission.workerCountry} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
                       </p>
                     </div>
                   </div>
                   
-                  {/* Net pay hero + actions row */}
+                  {/* Net pay hero */}
                   {!isAddingAdjustment && (
                     <div className="mt-4 pt-4 border-t border-border/20">
                       <div className="flex items-end justify-between">
@@ -1313,37 +1335,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             </p>
                           )}
                         </div>
-                      </div>
-                      
-                      {/* Actions row - below net pay */}
-                      <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-border/10">
-                        {!showPendingOnly && (
-                          <button
-                            onClick={() => setIsAddingAdjustment(true)}
-                            className="flex items-center gap-1 px-2.5 py-1 text-[10px] text-muted-foreground border border-border/60 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
-                          >
-                            <Plus className="h-3 w-3" />
-                            <span>Add adjustment</span>
-                          </button>
-                        )}
-                        
-                        {currentPendingCount > 0 && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-muted-foreground">
-                                <span>Pending</span>
-                                <Switch
-                                  checked={showPendingOnly}
-                                  onCheckedChange={setShowPendingOnly}
-                                  className="h-4 w-7 data-[state=checked]:bg-orange-500"
-                                />
-                              </label>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom" className="text-xs">
-                              {showPendingOnly ? "Show all items" : "Filter to pending only"}
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
                       </div>
                     </div>
                   )}
