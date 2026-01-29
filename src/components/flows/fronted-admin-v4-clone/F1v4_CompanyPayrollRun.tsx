@@ -24,6 +24,8 @@ import { F1v4_PayrollStepper, F1v4_PayrollStep as StepperStep } from "./F1v4_Pay
 import { F1v4_HistoricalTrackingView } from "./F1v4_HistoricalTrackingView";
 export type F1v4_PayrollStep = "submissions" | "exceptions" | "approve" | "track";
 
+import { HistoricalWorker } from "./F1v4_HistoricalTrackingView";
+
 // Historical payroll data
 interface HistoricalPayroll {
   id: string;
@@ -36,6 +38,7 @@ interface HistoricalPayroll {
   employeeCount: number;
   contractorCount: number;
   currencyCount: number;
+  workers: HistoricalWorker[];
 }
 
 const HISTORICAL_PAYROLLS: HistoricalPayroll[] = [
@@ -50,6 +53,15 @@ const HISTORICAL_PAYROLLS: HistoricalPayroll[] = [
     employeeCount: 3,
     contractorCount: 4,
     currencyCount: 3,
+    workers: [
+      { id: "1", name: "Marcus Chen", country: "Singapore", type: "contractor", amount: 11500, currency: "SGD", status: "paid", providerRef: "PAY-2025-112134" },
+      { id: "2", name: "Sofia Rodriguez", country: "Spain", type: "contractor", amount: 6200, currency: "EUR", status: "paid", providerRef: "PAY-2025-112135" },
+      { id: "3", name: "Maria Santos", country: "Philippines", type: "employee", amount: 275000, currency: "PHP", status: "paid", providerRef: "PAY-2025-112136" },
+      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 64000, currency: "NOK", status: "paid", providerRef: "PAY-2025-112137" },
+      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 70000, currency: "NOK", status: "paid", providerRef: "PAY-2025-112138" },
+      { id: "6", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4100, currency: "EUR", status: "paid", providerRef: "PAY-2025-112139" },
+      { id: "7", name: "Jonas Schmidt", country: "Germany", type: "employee", amount: 5700, currency: "EUR", status: "paid", providerRef: "PAY-2025-112140" },
+    ],
   },
   {
     id: "nov-2025",
@@ -62,6 +74,14 @@ const HISTORICAL_PAYROLLS: HistoricalPayroll[] = [
     employeeCount: 3,
     contractorCount: 3,
     currencyCount: 3,
+    workers: [
+      { id: "1", name: "Marcus Chen", country: "Singapore", type: "contractor", amount: 11000, currency: "SGD", status: "paid", providerRef: "PAY-2025-111034" },
+      { id: "2", name: "Sofia Rodriguez", country: "Spain", type: "contractor", amount: 6100, currency: "EUR", status: "paid", providerRef: "PAY-2025-111035" },
+      { id: "3", name: "Maria Santos", country: "Philippines", type: "employee", amount: 270000, currency: "PHP", status: "paid", providerRef: "PAY-2025-111036" },
+      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 63000, currency: "NOK", status: "paid", providerRef: "PAY-2025-111037" },
+      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 68000, currency: "NOK", status: "paid", providerRef: "PAY-2025-111038" },
+      { id: "6", name: "Jonas Schmidt", country: "Germany", type: "employee", amount: 5600, currency: "EUR", status: "paid", providerRef: "PAY-2025-111039" },
+    ],
   },
 ];
 
@@ -570,7 +590,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         {renderSummaryCard()}
         {isViewingPrevious && selectedHistoricalPayroll && (
           <F1v4_HistoricalTrackingView
-            workers={[]}
+            workers={selectedHistoricalPayroll.workers}
             paidDate={selectedHistoricalPayroll.paidDate}
           />
         )}
