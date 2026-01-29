@@ -1776,30 +1776,119 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </div>
 
-                {/* Footer - Only show when pending items exist and no item is expanded */}
-                {!isAddingAdjustment && currentPendingCount > 0 && !expandedItemId && (
-                <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
-                      onClick={() => setShowBulkRejectDialog(true)}
-                    >
-                      Reject all ({currentPendingCount})
-                    </Button>
-                    <Button 
-                      size="sm"
-                      className="flex-1 h-9 text-xs"
-                      onClick={() => setShowBulkApproveDialog(true)}
-                    >
-                      Approve all ({currentPendingCount})
-                    </Button>
-                  </div>
-                </div>
-                )}
+                {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
+                {!isAddingAdjustment && !expandedItemId && (() => {
+                  // Calculate reviewed counts for Mark as Ready
+                  const approvedCount = moneyAdjustments.filter(({ adj, originalIdx }) => {
+                    const effectiveStatus = getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus);
+                    return effectiveStatus === 'approved';
+                  }).length + pendingLeaves.filter((leave) => {
+                    const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                    return leaveState.status === 'approved';
+                  }).length + workerAdminAdjustments.length;
+                  
+                  const rejectedCount = moneyAdjustments.filter(({ adj, originalIdx }) => {
+                    const effectiveStatus = getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus);
+                    return effectiveStatus === 'rejected';
+                  }).length + pendingLeaves.filter((leave) => {
+                    const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                    return leaveState.status === 'rejected';
+                  }).length;
+                  
+                  const isFinalized = isWorkerFinalized(selectedSubmission.id);
+                  const hasReviewedItems = approvedCount > 0 || rejectedCount > 0;
+                  
+                  // Show bulk actions when pending items exist
+                  if (currentPendingCount > 0) {
+                    return (
+                      <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => setShowBulkRejectDialog(true)}
+                          >
+                            Reject all ({currentPendingCount})
+                          </Button>
+                          <Button 
+                            size="sm"
+                            className="flex-1 h-9 text-xs"
+                            onClick={() => setShowBulkApproveDialog(true)}
+                          >
+                            Approve all ({currentPendingCount})
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  // Show "Mark as Ready" when all items are reviewed (no pending) and not yet finalized
+                  if (hasReviewedItems && !isFinalized) {
+                    return (
+                      <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                        <Button 
+                          size="sm"
+                          className="w-full h-10 text-sm gap-2"
+                          onClick={() => setShowMarkAsReadyDialog(true)}
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                          Mark as Ready
+                        </Button>
+                        <p className="text-[11px] text-muted-foreground text-center mt-2">
+                          This will finalize the review and lock all decisions
+                        </p>
+                      </div>
+                    );
+                  }
+                  
+                  // Show finalized state
+                  if (isFinalized) {
+                    return (
+                      <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                        <div className="flex items-center justify-center gap-2 text-accent-green-text">
+                          <CheckCircle2 className="h-4 w-4" />
+                          <span className="text-sm font-medium">Ready for payroll</span>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return null;
+                })()}
                 </>
                 )}
+                
+                {/* Mark as Ready dialog */}
+                {selectedSubmission && (() => {
+                  // Calculate counts for the dialog
+                  const approvedCount = selectedSubmission.submissions.filter((adj, idx) => {
+                    const state = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
+                    return state.status === 'approved' && typeof adj.amount === 'number';
+                  }).length + (selectedSubmission.pendingLeaves || []).filter((leave) => {
+                    const state = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                    return state.status === 'approved';
+                  }).length + (adminAdjustments[selectedSubmission.id] || []).length;
+                  
+                  const rejectedCount = selectedSubmission.submissions.filter((adj, idx) => {
+                    const state = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
+                    return state.status === 'rejected' && typeof adj.amount === 'number';
+                  }).length + (selectedSubmission.pendingLeaves || []).filter((leave) => {
+                    const state = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                    return state.status === 'rejected';
+                  }).length;
+                  
+                  return (
+                    <CA3_MarkAsReadyDialog
+                      open={showMarkAsReadyDialog}
+                      onOpenChange={setShowMarkAsReadyDialog}
+                      onConfirm={handleMarkAsReady}
+                      workerName={selectedSubmission.workerName}
+                      approvedCount={approvedCount}
+                      rejectedCount={rejectedCount}
+                    />
+                  );
+                })()}
                 
                 {/* Bulk action dialogs */}
                 <CA3_BulkApproveDialog
