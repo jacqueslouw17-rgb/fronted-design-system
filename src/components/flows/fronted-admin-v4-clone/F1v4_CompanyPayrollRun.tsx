@@ -21,7 +21,49 @@ import { F1v4_ApproveStep } from "./F1v4_ApproveStep";
 import { F1v4_TrackStep } from "./F1v4_TrackStep";
 import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v4_PeriodDropdown";
 import { F1v4_PayrollStepper, F1v4_PayrollStep as StepperStep } from "./F1v4_PayrollStepper";
+import { F1v4_HistoricalTrackingView } from "./F1v4_HistoricalTrackingView";
 export type F1v4_PayrollStep = "submissions" | "exceptions" | "approve" | "track";
+
+// Historical payroll data
+interface HistoricalPayroll {
+  id: string;
+  period: string;
+  paidDate: string;
+  grossPay: string;
+  adjustments: string;
+  fees: string;
+  totalCost: string;
+  employeeCount: number;
+  contractorCount: number;
+  currencyCount: number;
+}
+
+const HISTORICAL_PAYROLLS: HistoricalPayroll[] = [
+  {
+    id: "dec-2025",
+    period: "December 2025",
+    paidDate: "Dec 28, 2025",
+    grossPay: "$118.4K",
+    adjustments: "$6.8K",
+    fees: "$3,512",
+    totalCost: "$121.9K",
+    employeeCount: 3,
+    contractorCount: 4,
+    currencyCount: 3,
+  },
+  {
+    id: "nov-2025",
+    period: "November 2025",
+    paidDate: "Nov 28, 2025",
+    grossPay: "$115.2K",
+    adjustments: "$5.4K",
+    fees: "$3,380",
+    totalCost: "$118.6K",
+    employeeCount: 3,
+    contractorCount: 3,
+    currencyCount: 3,
+  },
+];
 
 interface F1v4_CompanyPayrollRunProps {
   company: CompanyPayrollData;
@@ -202,6 +244,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const employees = submissions.filter(w => w.workerType === "employee");
   const contractors = submissions.filter(w => w.workerType === "contractor");
   const isViewingPrevious = selectedPeriodId !== "current";
+  const selectedHistoricalPayroll = isViewingPrevious 
+    ? HISTORICAL_PAYROLLS.find(p => p.id === selectedPeriodId) 
+    : null;
 
   // Computed values for submissions
   const pendingSubmissions = useMemo(() => submissions.filter(s => s.status === "pending").length, [submissions]);
@@ -272,6 +317,27 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     }
   };
 
+  // Get display metrics based on period selection
+  const displayMetrics = isViewingPrevious && selectedHistoricalPayroll 
+    ? {
+        grossPay: selectedHistoricalPayroll.grossPay,
+        adjustments: selectedHistoricalPayroll.adjustments,
+        fees: selectedHistoricalPayroll.fees,
+        totalCost: selectedHistoricalPayroll.totalCost,
+        employeeCount: selectedHistoricalPayroll.employeeCount,
+        contractorCount: selectedHistoricalPayroll.contractorCount,
+        currencyCount: selectedHistoricalPayroll.currencyCount,
+      }
+    : {
+        grossPay: "$124.9K",
+        adjustments: "$8.2K",
+        fees: "$3.7K",
+        totalCost: `$${(company.totalCost / 1000).toFixed(1)}K`,
+        employeeCount: employees.length,
+        contractorCount: contractors.length,
+        currencyCount: company.currencyCount,
+      };
+
   // Render summary card (landing view)
   const renderSummaryCard = () => {
     return (
@@ -312,7 +378,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <DollarSign className="h-4 w-4 text-primary" />
                 <span className="text-sm">Gross Pay</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">$124.9K</p>
+              <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
               <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
             </div>
 
@@ -322,7 +388,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <Receipt className="h-4 w-4 text-primary" />
                 <span className="text-sm">Adjustments</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">$8.2K</p>
+              <p className="text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
               <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
             </div>
 
@@ -332,7 +398,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <Building2 className="h-4 w-4 text-primary" />
                 <span className="text-sm">Fronted Fees</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">$3.7K</p>
+              <p className="text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
               <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
             </div>
 
@@ -342,7 +408,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <TrendingUp className="h-4 w-4 text-primary" />
                 <span className="text-sm">Total Cost</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">${(company.totalCost / 1000).toFixed(1)}K</p>
+              <p className="text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
               <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
             </div>
           </div>
@@ -351,15 +417,15 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
           <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
             <span className="flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5" />
-              Employees: <strong className="text-foreground">{employees.length}</strong>
+              Employees: <strong className="text-foreground">{displayMetrics.employeeCount}</strong>
             </span>
             <span className="text-border">·</span>
             <span className="flex items-center gap-1.5">
               <Briefcase className="h-3.5 w-3.5" />
-              Contractors: <strong className="text-foreground">{contractors.length}</strong>
+              Contractors: <strong className="text-foreground">{displayMetrics.contractorCount}</strong>
             </span>
             <span className="text-border">·</span>
-            <span>Currencies: <strong className="text-foreground">{company.currencyCount}</strong></span>
+            <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
           </div>
         </CardContent>
       </Card>
@@ -497,11 +563,17 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     }
   };
 
-  // Landing view - no stepper, just summary card
+  // Landing view - show summary card, and tracking view for historical periods
   if (!hasEnteredWorkflow) {
     return (
       <div className="max-w-6xl mx-auto p-8 pb-32 space-y-5">
         {renderSummaryCard()}
+        {isViewingPrevious && selectedHistoricalPayroll && (
+          <F1v4_HistoricalTrackingView
+            workers={[]}
+            paidDate={selectedHistoricalPayroll.paidDate}
+          />
+        )}
       </div>
     );
   }
