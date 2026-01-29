@@ -1277,7 +1277,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   </div>
                   <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
                   
-                  {/* Worker info + toggle in same row */}
+                  {/* Worker info + actions in same row */}
                   <div className="flex items-center gap-2.5">
                     <Avatar className="h-7 w-7">
                       <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
@@ -1291,17 +1291,31 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       </p>
                     </div>
                     
-                    {/* Inline pending toggle */}
-                    {currentPendingCount > 0 && (
-                      <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
-                        <span className="text-[10px] text-muted-foreground/60">Pending</span>
-                        <Switch
-                          checked={showPendingOnly}
-                          onCheckedChange={setShowPendingOnly}
-                          className="h-4 w-7 data-[state=checked]:bg-orange-500"
-                        />
-                      </label>
-                    )}
+                    {/* Right-side actions: Add adjustment + Pending toggle */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {/* Minimal add adjustment button */}
+                      {!showPendingOnly && (
+                        <button
+                          onClick={() => setIsAddingAdjustment(true)}
+                          className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          <Plus className="h-3 w-3" />
+                          <span>Add</span>
+                        </button>
+                      )}
+                      
+                      {/* Inline pending toggle */}
+                      {currentPendingCount > 0 && (
+                        <label className="flex items-center gap-1.5 cursor-pointer">
+                          <span className="text-[10px] text-muted-foreground/60">Pending</span>
+                          <Switch
+                            checked={showPendingOnly}
+                            onCheckedChange={setShowPendingOnly}
+                            className="h-4 w-7 data-[state=checked]:bg-orange-500"
+                          />
+                        </label>
+                      )}
+                    </div>
                   </div>
                 </SheetHeader>
 
@@ -1597,30 +1611,19 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   </>
                   )}
 
-                  {/* Add Adjustment Button - shows dashed button when not in add mode */}
-                  {!showPendingOnly && !isAddingAdjustment && (
-                    <div className="pt-2">
-                      <button
-                        onClick={() => setIsAddingAdjustment(true)}
-                        className={cn(
-                          "w-full flex items-center justify-center gap-1.5 py-2.5 px-3",
-                          "border border-dashed border-border/60 rounded-md",
-                          "text-xs text-muted-foreground",
-                          "hover:border-primary/40 hover:text-primary hover:bg-primary/5",
-                          "transition-colors cursor-pointer"
-                        )}
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        <span>Add adjustment</span>
-                      </button>
-                    </div>
-                  )}
-
                   {/* Estimated net pay - hidden when adding adjustment */}
                   {!isAddingAdjustment && (
                   <section className="pt-2 border-t border-border/40">
                     <div className="flex items-center justify-between py-3">
-                      <p className="text-sm font-medium text-foreground">Estimated net pay</p>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Estimated net pay</p>
+                        <button 
+                          onClick={() => setShowReceiptView(true)}
+                          className="text-[11px] text-muted-foreground/70 hover:text-primary transition-colors"
+                        >
+                          View full receipt →
+                        </button>
+                      </div>
                       <div className="text-right">
                         <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
                           {formatCurrency(adjustedNet, currency)}
@@ -1632,17 +1635,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         )}
                       </div>
                     </div>
-                    
-                    {/* View Receipt Button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full mt-3 h-9 text-xs gap-1.5"
-                      onClick={() => setShowReceiptView(true)}
-                    >
-                      <Receipt className="h-3.5 w-3.5" />
-                      View receipt
-                    </Button>
                   </section>
                   )}
 
