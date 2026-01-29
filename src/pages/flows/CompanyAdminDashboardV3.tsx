@@ -3596,15 +3596,7 @@ You can ask me about:
                   // }
                   />
 
-                    {/* Elegant Tab Navigation - Centered Pill Style */}
-                    <div className="flex items-center justify-center py-4">
-                      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "payroll" | "leaves")}>
-                        <TabsList className="grid w-[240px] grid-cols-2">
-                          <TabsTrigger value="payroll">Payroll</TabsTrigger>
-                          <TabsTrigger value="leaves">Leaves</TabsTrigger>
-                        </TabsList>
-                      </Tabs>
-                    </div>
+                    {/* Tab Navigation hidden - focusing on Payroll only */}
 
                     {/* Breadcrumb for Batch Review - only in Payroll tab */}
                     {activeTab === "payroll" && viewMode === "batch-review" && <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
