@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog } from "./CA3_ConfirmationDialogs";
+import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "./CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA3_AdminAddAdjustment";
 
@@ -123,7 +123,9 @@ const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: s
   ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
 };
 
-// Interactive adjustment row with expandable approve/reject UI and state management
+// Interactive adjustment row with 2-step review flow:
+// Step 1: Approve/Reject (reversible with Undo)
+// Step 2: Mark as Ready (finalization happens at worker level)
 const AdjustmentRow = ({ 
   label, 
   amount, 
@@ -132,8 +134,10 @@ const AdjustmentRow = ({
   rejectionReason,
   onApprove,
   onReject,
+  onUndo,
   isExpanded = false,
   onToggleExpand,
+  isFinalized = false,
 }: { 
   label: string;
   amount: number;
@@ -142,8 +146,10 @@ const AdjustmentRow = ({
   rejectionReason?: string;
   onApprove: () => void;
   onReject: (reason: string) => void;
+  onUndo?: () => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  isFinalized?: boolean;
 }) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
@@ -151,55 +157,63 @@ const AdjustmentRow = ({
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReasonInput, setRejectReasonInput] = useState("");
   const [isHovered, setIsHovered] = useState(false);
-  
-  // Confirmation dialogs
-  const [showApproveDialog, setShowApproveDialog] = useState(false);
-  const [showRejectDialog, setShowRejectDialog] = useState(false);
 
   const formatAmount = (amt: number, curr: string) => {
     const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$" };
     return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+  // Direct approve - no confirmation dialog (reversible)
   const handleApproveClick = () => {
-    setShowApproveDialog(true);
-  };
-
-  const handleApproveConfirm = () => {
     onApprove();
-    toggleExpand(); // Close on approve
+    toggleExpand();
   };
 
+  // Direct reject - no confirmation dialog (reversible)
   const handleRejectClick = () => {
     if (rejectReasonInput.trim()) {
-      setShowRejectDialog(true);
+      onReject(rejectReasonInput);
+      toggleExpand();
+      setShowRejectForm(false);
+      setRejectReasonInput("");
     }
-  };
-
-  const handleRejectConfirm = () => {
-    onReject(rejectReasonInput);
-    toggleExpand(); // Close on reject
-    setShowRejectForm(false);
-    setRejectReasonInput("");
   };
 
   const isPending = status === 'pending';
   const isRejected = status === 'rejected';
   const isApproved = status === 'approved';
 
-  // Approved state - becomes part of the list with no badge
+  // Approved state - show with Undo option (unless finalized)
   if (isApproved) {
     return (
-      <div className="flex items-center justify-between py-2">
-        <span className="text-sm text-muted-foreground">{label}</span>
-        <span className="text-sm tabular-nums font-mono text-foreground">
-          +{formatAmount(amount, currency)}
-        </span>
+      <div 
+        className="flex items-center justify-between py-2 -mx-3 px-3 rounded group"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
+          <span className="text-sm text-muted-foreground">{label}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {!isFinalized && onUndo && isHovered && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onUndo(); }}
+              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+            >
+              <Undo2 className="h-3 w-3" />
+              Undo
+            </button>
+          )}
+          <span className="text-sm tabular-nums font-mono text-foreground">
+            +{formatAmount(amount, currency)}
+          </span>
+        </div>
       </div>
     );
   }
 
-  // Rejected state - red styling with hover-to-reveal reason
+  // Rejected state - show with Undo option (unless finalized) and hover-reveal reason
   if (isRejected) {
     return (
       <div 
@@ -211,6 +225,7 @@ const AdjustmentRow = ({
           {/* Main row */}
           <div className="flex items-center justify-between py-2.5 px-3">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
               <span className="text-sm text-muted-foreground line-through">{label}</span>
               <Badge 
                 variant="outline" 
@@ -219,9 +234,20 @@ const AdjustmentRow = ({
                 Rejected
               </Badge>
             </div>
-            <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
-              +{formatAmount(amount, currency)}
-            </span>
+            <div className="flex items-center gap-2">
+              {!isFinalized && onUndo && isHovered && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onUndo(); }}
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                >
+                  <Undo2 className="h-3 w-3" />
+                  Undo
+                </button>
+              )}
+              <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
+                +{formatAmount(amount, currency)}
+              </span>
+            </div>
           </div>
           
           {/* Hover-to-reveal rejection reason */}
@@ -249,121 +275,105 @@ const AdjustmentRow = ({
 
   // Pending state - wrapped container for unified expanded state
   return (
-    <>
+    <div 
+      className={cn(
+        "-mx-3 px-3 rounded transition-colors",
+        expanded 
+          ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" 
+          : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
+      )}
+    >
+      {/* Header row */}
       <div 
-        className={cn(
-          "-mx-3 px-3 rounded transition-colors",
-          expanded 
-            ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" 
-            : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
-        )}
+        className="flex items-center justify-between py-2 cursor-pointer"
+        onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
       >
-        {/* Header row */}
-        <div 
-          className="flex items-center justify-between py-2 cursor-pointer"
-          onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-sm text-foreground">{label}</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-              pending
-            </span>
-          </div>
-          
-          <span className="text-sm tabular-nums font-mono text-foreground ml-3">
-            +{formatAmount(amount, currency)}
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sm text-foreground">{label}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+            pending
           </span>
         </div>
         
-        {/* Expanded action panel */}
-        <AnimatePresence>
-          {expanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.12, ease: "easeOut" }}
-              className="overflow-hidden"
-            >
-              <div className="pb-3">
-                {!showRejectForm ? (
+        <span className="text-sm tabular-nums font-mono text-foreground ml-3">
+          +{formatAmount(amount, currency)}
+        </span>
+      </div>
+      
+      {/* Expanded action panel - No confirmation dialogs, direct actions */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.12, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="pb-3">
+              {!showRejectForm ? (
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowRejectForm(true);
+                    }}
+                    className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shadow-none hover:shadow-none hover:translate-y-0"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    Reject
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleApproveClick();
+                    }}
+                    className="flex-1 h-8 text-xs gap-1.5 shadow-none hover:shadow-none hover:translate-y-0"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    Approve
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
+                  <Textarea
+                    placeholder="Reason for rejection..."
+                    value={rejectReasonInput}
+                    onChange={(e) => setRejectReasonInput(e.target.value)}
+                    className="min-h-[60px] resize-none text-sm bg-background"
+                    autoFocus
+                  />
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowRejectForm(true);
+                      onClick={() => {
+                        setShowRejectForm(false);
+                        setRejectReasonInput("");
                       }}
-                      className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shadow-none hover:shadow-none hover:translate-y-0"
+                      className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
                     >
-                      <X className="h-3.5 w-3.5" />
-                      Reject
+                      Cancel
                     </Button>
                     <Button
                       size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleApproveClick();
-                      }}
-                      className="flex-1 h-8 text-xs gap-1.5 shadow-none hover:shadow-none hover:translate-y-0"
+                      onClick={handleRejectClick}
+                      disabled={!rejectReasonInput.trim()}
+                      className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white shadow-none hover:shadow-none hover:translate-y-0"
                     >
-                      <Check className="h-3.5 w-3.5" />
-                      Approve
+                      Reject
                     </Button>
                   </div>
-                ) : (
-                  <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
-                    <Textarea
-                      placeholder="Reason for rejection..."
-                      value={rejectReasonInput}
-                      onChange={(e) => setRejectReasonInput(e.target.value)}
-                      className="min-h-[60px] resize-none text-sm bg-background"
-                      autoFocus
-                    />
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setShowRejectForm(false);
-                          setRejectReasonInput("");
-                        }}
-                        className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={handleRejectClick}
-                        disabled={!rejectReasonInput.trim()}
-                        className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white shadow-none hover:shadow-none hover:translate-y-0"
-                      >
-                        Reject
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-      {/* Confirmation Dialogs */}
-      <CA3_ApproveDialog
-        open={showApproveDialog}
-        onOpenChange={setShowApproveDialog}
-        onConfirm={handleApproveConfirm}
-        adjustmentType={label}
-        amount={`+${formatAmount(amount, currency)}`}
-      />
-      <CA3_RejectDialog
-        open={showRejectDialog}
-        onOpenChange={setShowRejectDialog}
-        onConfirm={handleRejectConfirm}
-        adjustmentType={label}
-      />
-    </>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -414,21 +424,27 @@ const BreakdownRow = ({
   );
 };
 
-// Interactive leave row with expandable approve/reject UI
+// Interactive leave row with 2-step review flow:
+// Step 1: Approve/Reject (reversible with Undo)
+// Step 2: Mark as Ready (finalization happens at worker level)
 const LeaveRow = ({ 
   leave,
   currency,
   onApprove,
   onReject,
+  onUndo,
   isExpanded = false,
   onToggleExpand,
+  isFinalized = false,
 }: { 
   leave: PendingLeaveItem;
   currency: string;
   onApprove: () => void;
   onReject: (reason: string) => void;
+  onUndo?: () => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  isFinalized?: boolean;
 }) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
@@ -436,8 +452,6 @@ const LeaveRow = ({
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReasonInput, setRejectReasonInput] = useState("");
   const [isHovered, setIsHovered] = useState(false);
-  const [showApproveDialog, setShowApproveDialog] = useState(false);
-  const [showRejectDialog, setShowRejectDialog] = useState(false);
   
   const config = leaveTypeConfig[leave.leaveType as keyof typeof leaveTypeConfig];
   
@@ -472,46 +486,49 @@ const LeaveRow = ({
   const isRejected = leave.status === 'rejected';
   const isApproved = leave.status === 'approved';
 
+  // Direct approve - no confirmation dialog (reversible)
   const handleApproveClick = () => {
-    setShowApproveDialog(true);
-  };
-
-  const handleApproveConfirm = () => {
-    setShowApproveDialog(false);
     onApprove();
-    toggleExpand(); // Close on approve
+    toggleExpand();
   };
 
+  // Direct reject - no confirmation dialog (reversible)
   const handleRejectClick = () => {
     if (rejectReasonInput.trim()) {
-      setShowRejectDialog(true);
+      onReject(rejectReasonInput);
+      toggleExpand();
+      setShowRejectForm(false);
+      setRejectReasonInput("");
     }
   };
 
-  const handleRejectConfirm = () => {
-    setShowRejectDialog(false);
-    onReject(rejectReasonInput);
-    toggleExpand(); // Close on reject
-    setShowRejectForm(false);
-    setRejectReasonInput("");
-  };
-
-  // Show details when hovered or expanded
-  const showDetails = isHovered || expanded;
-
-  // Approved state - clean display with better spacing
+  // Approved state - show with Undo option (unless finalized)
   if (isApproved) {
     return (
-      <div className="flex items-center justify-between py-2.5 px-1">
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-sm text-muted-foreground">
-            {config.label}
-          </span>
-          <span className="text-xs text-muted-foreground/70">
-            {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
-          </span>
+      <div 
+        className="flex items-center justify-between py-2.5 -mx-3 px-3 rounded group"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="text-sm text-muted-foreground">{config.label}</span>
+            <span className="text-xs text-muted-foreground/70">
+              {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col items-end gap-0.5 shrink-0 ml-4">
+        <div className="flex items-center gap-2 shrink-0 ml-4">
+          {!isFinalized && onUndo && isHovered && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onUndo(); }}
+              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+            >
+              <Undo2 className="h-3 w-3" />
+              Undo
+            </button>
+          )}
           {deductionAmount > 0 ? (
             <span className="text-sm tabular-nums font-mono text-muted-foreground">
               −{formatAmount(deductionAmount, currency)}
@@ -524,7 +541,7 @@ const LeaveRow = ({
     );
   }
 
-  // Rejected state - with hover reveal for reason
+  // Rejected state - show with Undo option (unless finalized) and hover-reveal reason
   if (isRejected) {
     return (
       <div 
@@ -536,9 +553,8 @@ const LeaveRow = ({
           <div className="flex items-center justify-between py-2.5 px-3">
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground line-through">
-                  {config.label}
-                </span>
+                <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
+                <span className="text-sm text-muted-foreground line-through">{config.label}</span>
                 <Badge 
                   variant="outline" 
                   className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 pointer-events-none"
@@ -546,10 +562,19 @@ const LeaveRow = ({
                   Rejected
                 </Badge>
               </div>
-              <span className="text-xs text-muted-foreground/50 line-through">
+              <span className="text-xs text-muted-foreground/50 line-through pl-5">
                 {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
               </span>
             </div>
+            {!isFinalized && onUndo && isHovered && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onUndo(); }}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors shrink-0"
+              >
+                <Undo2 className="h-3 w-3" />
+                Undo
+              </button>
+            )}
           </div>
           
           <AnimatePresence>
@@ -574,153 +599,136 @@ const LeaveRow = ({
     );
   }
 
-  // Pending state - wrapped container for unified expanded state (matching AdjustmentRow)
+  // Pending state - wrapped container for unified expanded state
   return (
-    <>
+    <div 
+      className={cn(
+        "-mx-3 px-3 rounded transition-colors",
+        expanded 
+          ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" 
+          : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
+      )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Header row */}
       <div 
-        className={cn(
-          "-mx-3 px-3 rounded transition-colors",
-          expanded 
-            ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" 
-            : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
-        )}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        className="flex items-center justify-between py-2 cursor-pointer"
+        onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
       >
-        {/* Header row */}
-        <div 
-          className="flex items-center justify-between py-2 cursor-pointer"
-          onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
-        >
-          <div className="flex flex-col gap-0 min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-foreground">{config.label}</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-                pending
-              </span>
-            </div>
-            {/* Dates revealed on hover (when not expanded) */}
-            <AnimatePresence>
-              {isHovered && !expanded && (
-                <motion.span
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.1 }}
-                  className="text-xs text-muted-foreground overflow-hidden"
-                >
-                  {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`} · {formatDateRange(leave.startDate, leave.endDate)}
-                </motion.span>
-              )}
-            </AnimatePresence>
+        <div className="flex flex-col gap-0 min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-foreground">{config.label}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+              pending
+            </span>
           </div>
-          
-          {/* Right side */}
-          <span className="text-xs text-muted-foreground shrink-0 ml-3">
-            {deductionAmount > 0 ? (
-              <span className="text-sm tabular-nums font-mono text-foreground">
-                −{formatAmount(deductionAmount, currency)}
-              </span>
-            ) : (
-              'No pay impact'
+          {/* Dates revealed on hover (when not expanded) */}
+          <AnimatePresence>
+            {isHovered && !expanded && (
+              <motion.span
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.1 }}
+                className="text-xs text-muted-foreground overflow-hidden"
+              >
+                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`} · {formatDateRange(leave.startDate, leave.endDate)}
+              </motion.span>
             )}
-          </span>
+          </AnimatePresence>
         </div>
+        
+        {/* Right side */}
+        <span className="text-xs text-muted-foreground shrink-0 ml-3">
+          {deductionAmount > 0 ? (
+            <span className="text-sm tabular-nums font-mono text-foreground">
+              −{formatAmount(deductionAmount, currency)}
+            </span>
+          ) : (
+            'No pay impact'
+          )}
+        </span>
+      </div>
 
-        {/* Expanded action panel */}
-        <AnimatePresence>
-          {expanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.12, ease: "easeOut" }}
-              className="overflow-hidden"
-            >
-              <div className="pb-3">
-                {/* Show dates when expanded */}
-                <div className="text-xs text-muted-foreground mb-2">
-                  {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+      {/* Expanded action panel - No confirmation dialogs, direct actions */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.12, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="pb-3">
+              {/* Show dates when expanded */}
+              <div className="text-xs text-muted-foreground mb-2">
+                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+              </div>
+              {!showRejectForm ? (
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowRejectForm(true);
+                    }}
+                    className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shadow-none hover:shadow-none hover:translate-y-0"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    Reject
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleApproveClick();
+                    }}
+                    className="flex-1 h-8 text-xs gap-1.5 shadow-none hover:shadow-none hover:translate-y-0"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    Approve
+                  </Button>
                 </div>
-                {!showRejectForm ? (
+              ) : (
+                <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
+                  <Textarea
+                    placeholder="Reason for rejection..."
+                    value={rejectReasonInput}
+                    onChange={(e) => setRejectReasonInput(e.target.value)}
+                    className="min-h-[60px] resize-none text-sm bg-background"
+                    autoFocus
+                  />
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowRejectForm(true);
+                      onClick={() => {
+                        setShowRejectForm(false);
+                        setRejectReasonInput("");
                       }}
-                      className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shadow-none hover:shadow-none hover:translate-y-0"
+                      className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
                     >
-                      <X className="h-3.5 w-3.5" />
-                      Reject
+                      Cancel
                     </Button>
                     <Button
                       size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleApproveClick();
-                      }}
-                      className="flex-1 h-8 text-xs gap-1.5 shadow-none hover:shadow-none hover:translate-y-0"
+                      onClick={handleRejectClick}
+                      disabled={!rejectReasonInput.trim()}
+                      className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white shadow-none hover:shadow-none hover:translate-y-0"
                     >
-                      <Check className="h-3.5 w-3.5" />
-                      Approve
+                      Reject
                     </Button>
                   </div>
-                ) : (
-                  <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
-                    <Textarea
-                      placeholder="Reason for rejection..."
-                      value={rejectReasonInput}
-                      onChange={(e) => setRejectReasonInput(e.target.value)}
-                      className="min-h-[60px] resize-none text-sm bg-background"
-                      autoFocus
-                    />
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setShowRejectForm(false);
-                          setRejectReasonInput("");
-                        }}
-                        className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={handleRejectClick}
-                        disabled={!rejectReasonInput.trim()}
-                        className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white shadow-none hover:shadow-none hover:translate-y-0"
-                      >
-                        Reject
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Confirmation Dialogs */}
-      <CA3_ApproveDialog
-        open={showApproveDialog}
-        onOpenChange={setShowApproveDialog}
-        onConfirm={handleApproveConfirm}
-        adjustmentType={`${config.label} (${leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`})`}
-        amount={deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : "No pay impact"}
-      />
-      <CA3_RejectDialog
-        open={showRejectDialog}
-        onOpenChange={setShowRejectDialog}
-        onConfirm={handleRejectConfirm}
-        adjustmentType={`${config.label} (${leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`})`}
-      />
-    </>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -759,9 +767,15 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   // Admin-added adjustments (keyed by submissionId)
   const [adminAdjustments, setAdminAdjustments] = useState<Record<string, AdminAddedAdjustment[]>>({});
   
+  // Finalized workers - once finalized, their items are locked
+  const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
+  
   // Bulk action dialogs
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
   const [showBulkRejectDialog, setShowBulkRejectDialog] = useState(false);
+  
+  // Mark as Ready dialog
+  const [showMarkAsReadyDialog, setShowMarkAsReadyDialog] = useState(false);
   
   // Receipt view state
   const [showReceiptView, setShowReceiptView] = useState(false);
@@ -975,6 +989,38 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     
     toast.info(`Rejected all pending items for ${selectedSubmission.workerName}`);
   };
+
+  // Undo adjustment status (revert to pending)
+  const undoAdjustmentStatus = (submissionId: string, adjIndex: number) => {
+    const key = `${submissionId}-${adjIndex}`;
+    setAdjustmentStates(prev => ({
+      ...prev,
+      [key]: { status: 'pending' }
+    }));
+    toast.info('Action undone');
+  };
+
+  // Undo leave status (revert to pending)
+  const undoLeaveStatus = (submissionId: string, leaveId: string) => {
+    const key = `${submissionId}-leave-${leaveId}`;
+    setLeaveStates(prev => ({
+      ...prev,
+      [key]: { status: 'pending' }
+    }));
+    toast.info('Action undone');
+  };
+
+  // Mark worker as ready (finalize all reviews)
+  const handleMarkAsReady = () => {
+    if (!selectedSubmission) return;
+    
+    setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
+    setDrawerOpen(false);
+    toast.success(`${selectedSubmission.workerName} marked as ready`);
+  };
+
+  // Check if current worker is finalized
+  const isWorkerFinalized = (workerId: string) => finalizedWorkers.has(workerId);
 
   const renderSubmissionRow = (submission: WorkerSubmission) => {
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
@@ -1446,6 +1492,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                               updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
                               toast.info(`Rejected ${config.label.toLowerCase()}`);
                             }}
+                            onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)}
+                            isFinalized={isWorkerFinalized(selectedSubmission.id)}
                           />
                         );
                       })}
@@ -1560,6 +1608,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                                 updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
                                 toast.info('Rejected overtime');
                               }}
+                              onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)}
+                              isFinalized={isWorkerFinalized(selectedSubmission.id)}
                             />
                           );
                         })}
@@ -1637,6 +1687,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                                 updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
                                 toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
                               }}
+                              onUndo={() => undoLeaveStatus(selectedSubmission.id, leave.id)}
+                              isFinalized={isWorkerFinalized(selectedSubmission.id)}
                             />
                           );
                         })}
