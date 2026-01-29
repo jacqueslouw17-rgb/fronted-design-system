@@ -27,6 +27,8 @@ interface CA3_TrackingViewProps {
   onDownloadAuditPDF: () => void;
   onBack?: () => void;
   onClose?: () => void;
+  isHistorical?: boolean;
+  paidDate?: string;
 }
 
 export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
@@ -35,11 +37,13 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   onDownloadAuditPDF,
   onBack,
   onClose,
+  isHistorical = false,
+  paidDate,
 }) => {
-  const completedCount = workers.filter(w => w.status === "paid" || w.status === "posted").length;
-  const attentionCount = workers.filter(w => w.status === "failed").length;
+  const paidCount = workers.filter(w => w.status === "paid" || w.status === "posted").length;
+  const notPaidCount = workers.filter(w => w.status === "failed").length;
   const processingCount = workers.filter(w => w.status === "processing" || w.status === "queued" || w.status === "sent").length;
-  const progressPercent = workers.length > 0 ? Math.round((completedCount / workers.length) * 100) : 0;
+  const progressPercent = workers.length > 0 ? Math.round((paidCount / workers.length) * 100) : 0;
 
   const getInitials = (name: string) => {
     return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
@@ -49,14 +53,14 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
     switch (status) {
       case "paid":
       case "posted":
-        return { icon: CheckCircle2, color: "text-accent-green-text", bg: "bg-accent-green/10", label: "Completed" };
+        return { icon: CheckCircle2, color: "text-accent-green-text", bg: "bg-accent-green/10", label: "Paid" };
       case "processing":
         return { icon: Clock, color: "text-blue-600", bg: "bg-blue-500/10", label: "Processing" };
       case "queued":
       case "sent":
         return { icon: Clock, color: "text-muted-foreground", bg: "bg-muted", label: "In progress" };
       case "failed":
-        return { icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-500/10", label: "Attention" };
+        return { icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-500/10", label: isHistorical ? "Not paid" : "Attention" };
     }
   };
 
@@ -81,16 +85,38 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
       <div className="px-6 pt-6 pb-5 border-b border-border/40">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm text-muted-foreground">Payment Progress</p>
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium">In review</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-foreground tabular-nums">{completedCount}</span>
-              <span className="text-lg text-muted-foreground">of {workers.length}</span>
-              <span className="text-sm text-muted-foreground">payments completed</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Submit before Jan 25, 2026 — 5 days remaining</p>
+            {isHistorical ? (
+              <>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm text-muted-foreground">Payment Status</p>
+                  <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Paid
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
+                  <span className="text-lg text-muted-foreground">of {workers.length}</span>
+                  <span className="text-sm text-muted-foreground">payments paid</span>
+                </div>
+                {paidDate && (
+                  <p className="text-xs text-muted-foreground mt-1">Paid on {paidDate}</p>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm text-muted-foreground">Payment Progress</p>
+                  <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium">In review</span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
+                  <span className="text-lg text-muted-foreground">of {workers.length}</span>
+                  <span className="text-sm text-muted-foreground">payments paid</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Submit before Jan 25, 2026 — 5 days remaining</p>
+              </>
+            )}
           </div>
           <div className="flex items-center gap-1.5">
             <Button variant="ghost" size="sm" onClick={onExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
@@ -104,28 +130,30 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
           </div>
         </div>
         
-        {/* Progress bar */}
-        <div className="space-y-2">
-          <Progress value={progressPercent} className="h-1" />
-          <div className="flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5">
-              <div className="h-2 w-2 rounded-full bg-accent-green" />
-              <span className="text-muted-foreground">{completedCount} completed</span>
+        {/* Progress bar - hidden for historical view */}
+        {!isHistorical && (
+          <div className="space-y-2">
+            <Progress value={progressPercent} className="h-1" />
+            <div className="flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1.5">
+                <div className="h-2 w-2 rounded-full bg-accent-green" />
+                <span className="text-muted-foreground">{paidCount} paid</span>
+              </div>
+              {processingCount > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full bg-blue-500" />
+                  <span className="text-muted-foreground">{processingCount} processing</span>
+                </div>
+              )}
+              {notPaidCount > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span className="text-muted-foreground">{notPaidCount} needs attention</span>
+                </div>
+              )}
             </div>
-            {processingCount > 0 && (
-              <div className="flex items-center gap-1.5">
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
-                <span className="text-muted-foreground">{processingCount} processing</span>
-              </div>
-            )}
-            {attentionCount > 0 && (
-              <div className="flex items-center gap-1.5">
-                <div className="h-2 w-2 rounded-full bg-amber-500" />
-                <span className="text-muted-foreground">{attentionCount} needs attention</span>
-              </div>
-            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Worker List */}
