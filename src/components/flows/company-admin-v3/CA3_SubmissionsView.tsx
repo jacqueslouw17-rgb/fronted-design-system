@@ -861,10 +861,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   
   const internalPendingCount = submissions.filter(s => s.status === "pending").length;
   const pendingCount = externalPendingCount ?? dynamicPendingCount;
-  const readyCount = submissions.length - dynamicPendingCount;
+  // Ready count = workers that have been finalized (marked as ready)
+  const readyCount = finalizedWorkers.size;
   
-  // Can continue only when no pending submissions (using dynamic count)
-  const canContinue = dynamicPendingCount === 0;
+  // Can continue only when ALL workers have been marked as ready
+  const canContinue = finalizedWorkers.size === submissions.length && submissions.length > 0;
 
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
@@ -1187,7 +1188,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 </TooltipTrigger>
                 {!canContinue && (
                   <TooltipContent side="bottom" className="max-w-[200px]">
-                    <p className="text-xs">Resolve all {pendingCount} pending submission{pendingCount !== 1 ? 's' : ''} before continuing</p>
+                    <p className="text-xs">Mark all {submissions.length - readyCount} remaining worker{submissions.length - readyCount !== 1 ? 's' : ''} as ready before continuing</p>
                   </TooltipContent>
                 )}
               </Tooltip>
