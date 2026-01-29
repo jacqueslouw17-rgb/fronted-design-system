@@ -1,7 +1,7 @@
 /**
  * F1v4_TrackStep - Track & Reconcile with payment status
  * 
- * Dense glass-container layout matching Flow 6 v3 patterns
+ * Layout aligned with CA3_TrackingView: stepper in header, progress hero, dense worker rows
  */
 
 import React, { useState } from "react";
@@ -12,12 +12,12 @@ import {
   FileText,
   Users,
   Briefcase,
-  Search,
   Clock,
+  AlertTriangle,
+  ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,10 +27,20 @@ import { CompanyPayrollData } from "./F1v4_PayrollTab";
 import { toast } from "sonner";
 import { F1v4_WorkerDetailDrawer, WorkerData } from "./F1v4_WorkerDetailDrawer";
 import { F1v4_PayslipPreviewModal } from "./F1v4_PayslipPreviewModal";
+import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v4_PayrollStepper";
 
 interface F1v4_TrackStepProps {
   company: CompanyPayrollData;
+  onBack?: () => void;
+  onClose?: () => void;
+  hideHeader?: boolean;
+  // Stepper props
+  currentStep?: F1v4_PayrollStep;
+  completedSteps?: F1v4_PayrollStep[];
+  onStepClick?: (step: F1v4_PayrollStep) => void;
 }
+
+export type WorkerPaymentStatus = "paid" | "not-paid" | "in-transit" | "posted";
 
 const MOCK_TRACKED_WORKERS: WorkerData[] = [
   { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2026-001234" },
@@ -42,11 +52,11 @@ const MOCK_TRACKED_WORKERS: WorkerData[] = [
   { id: "7", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0, paymentStatus: "posted", providerRef: "PAY-2026-001239" },
 ];
 
-const paymentStatusConfig: Record<string, { label: string; icon: React.ElementType; className: string }> = {
-  paid: { label: "Paid", icon: CheckCircle2, className: "text-accent-green-text" },
-  "not-paid": { label: "Not paid", icon: XCircle, className: "text-destructive" },
-  "in-transit": { label: "In transit", icon: Clock, className: "text-amber-600" },
-  posted: { label: "Posted", icon: CheckCircle2, className: "text-blue-600" },
+const paymentStatusConfig: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
+  paid: { label: "Paid", icon: CheckCircle2, color: "text-accent-green-text", bg: "bg-accent-green/10" },
+  "not-paid": { label: "Not paid", icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-500/10" },
+  "in-transit": { label: "In transit", icon: Clock, color: "text-blue-600", bg: "bg-blue-500/10" },
+  posted: { label: "Posted", icon: CheckCircle2, color: "text-blue-600", bg: "bg-blue-500/10" },
 };
 
 const countryFlags: Record<string, string> = {
@@ -56,6 +66,12 @@ const countryFlags: Record<string, string> = {
 
 export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   company,
+  onBack,
+  onClose,
+  hideHeader = false,
+  currentStep = "track",
+  completedSteps = ["submissions", "exceptions", "approve"],
+  onStepClick,
 }) => {
   const [workers, setWorkers] = useState<WorkerData[]>(MOCK_TRACKED_WORKERS);
   const [searchQuery, setSearchQuery] = useState("");
@@ -76,11 +92,22 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   const paidCount = workers.filter(w => w.paymentStatus === "paid" || w.paymentStatus === "posted").length;
   const notPaidCount = workers.filter(w => w.paymentStatus === "not-paid").length;
   const inTransitCount = workers.filter(w => w.paymentStatus === "in-transit").length;
+  const progressPercent = workers.length > 0 ? Math.round((paidCount / workers.length) * 100) : 0;
 
   const filteredWorkers = workers.filter(w =>
     w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     w.country.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Sort: attention first, then in-transit, then completed
+  const sortedWorkers = [...filteredWorkers].sort((a, b) => {
+    const priority = (status: string | undefined) => {
+      if (status === "not-paid") return 0;
+      if (status === "in-transit") return 1;
+      return 2;
+    };
+    return priority(a.paymentStatus) - priority(b.paymentStatus);
+  });
 
   const handleMarkAsPaid = (workerId: string) => {
     setWorkers(prev => prev.map(w => 
@@ -110,154 +137,182 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   const handleExportCSV = () => toast.success("CSV exported");
   const handleDownloadAuditPDF = () => toast.success("Audit PDF downloaded");
 
-  const progressPercent = (paidCount / workers.length) * 100;
+  const renderWorkerRow = (worker: WorkerData) => {
+    const config = paymentStatusConfig[worker.paymentStatus || "not-paid"];
+    const StatusIcon = config.icon;
+    const TypeIcon = worker.type === "employee" ? Users : Briefcase;
+    const needsAttention = worker.paymentStatus === "not-paid";
 
-  return (
-    <div className="space-y-5">
-      {/* Approved Banner with Progress */}
-      <Card className="border-accent-green-outline/30 bg-accent-green-fill/5">
-        <CardContent className="py-4 px-5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-              <p className="text-sm font-medium text-foreground">Payroll approved and locked</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-1.5 text-xs h-7">
-                <Download className="h-3 w-3" />CSV
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleDownloadAuditPDF} className="gap-1.5 text-xs h-7">
-                <FileText className="h-3 w-3" />Audit
-              </Button>
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{paidCount} of {workers.length} payments completed</span>
-              <span>{Math.round(progressPercent)}%</span>
-            </div>
-            <Progress value={progressPercent} className="h-1" />
-          </div>
-        </CardContent>
-      </Card>
+    return (
+      <div 
+        key={worker.id}
+        className={cn(
+          "flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20 cursor-pointer hover:bg-muted/50 transition-colors",
+          needsAttention && "border-amber-500/30 bg-amber-500/5"
+        )}
+        onClick={() => handleViewDetails(worker)}
+      >
+        <Avatar className="h-6 w-6 flex-shrink-0">
+          <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
+            {getInitials(worker.name)}
+          </AvatarFallback>
+        </Avatar>
 
-      {/* Status Summary */}
-      <div className="flex items-center gap-4 text-xs">
-        <span className="flex items-center gap-1.5 text-accent-green-text">
-          <CheckCircle2 className="h-3.5 w-3.5" />
-          {paidCount} paid
-        </span>
-        {inTransitCount > 0 && (
-          <span className="flex items-center gap-1.5 text-amber-600">
-            <Clock className="h-3.5 w-3.5" />
-            {inTransitCount} in transit
-          </span>
-        )}
-        {notPaidCount > 0 && (
-          <span className="flex items-center gap-1.5 text-destructive">
-            <XCircle className="h-3.5 w-3.5" />
-            {notPaidCount} not paid
-          </span>
-        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
+            <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+            <span className="text-[11px] text-muted-foreground">· {countryFlags[worker.country] || ""} {worker.country}</span>
+          </div>
+        </div>
+
+        <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
+          {formatCurrency(worker.netPay, worker.currency)}
+        </p>
+
+        <div className={cn(
+          "flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium flex-shrink-0",
+          config.bg,
+          config.color
+        )}>
+          <StatusIcon className="h-3 w-3" />
+          {config.label}
+        </div>
+      </div>
+    );
+  };
+
+  const renderContent = () => (
+    <>
+      {/* Progress Hero */}
+      <div className="px-6 pt-6 pb-5 border-b border-border/40">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-sm text-muted-foreground">Payment Status</p>
+              <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                Approved
+              </span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
+              <span className="text-lg text-muted-foreground">of {workers.length}</span>
+              <span className="text-sm text-muted-foreground">payments reconciled</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Mark payments as paid or retry failed payouts</p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Button variant="ghost" size="sm" onClick={handleExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
+              <Download className="h-3.5 w-3.5" />
+              CSV
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleDownloadAuditPDF} className="h-8 text-xs gap-1.5 text-muted-foreground">
+              <FileText className="h-3.5 w-3.5" />
+              Audit
+            </Button>
+          </div>
+        </div>
+        
+        {/* Progress bar */}
+        <div className="space-y-2">
+          <Progress value={progressPercent} className="h-1" />
+          <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-1.5">
+              <div className="h-2 w-2 rounded-full bg-accent-green" />
+              <span className="text-muted-foreground">{paidCount} paid</span>
+            </div>
+            {inTransitCount > 0 && (
+              <div className="flex items-center gap-1.5">
+                <div className="h-2 w-2 rounded-full bg-blue-500" />
+                <span className="text-muted-foreground">{inTransitCount} in transit</span>
+              </div>
+            )}
+            {notPaidCount > 0 && (
+              <div className="flex items-center gap-1.5">
+                <div className="h-2 w-2 rounded-full bg-amber-500" />
+                <span className="text-muted-foreground">{notPaidCount} not paid</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Worker List Card */}
-      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
-        <CardHeader className="py-4 px-5 border-b border-border/30">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-medium text-foreground">Payment Status</h3>
-            <div className="relative w-48">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input 
-                placeholder="Search..." 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                className="pl-8 h-8 text-xs bg-background/50 border-border/30" 
-              />
-            </div>
+      {/* Worker List */}
+      <CardContent className="p-4">
+        <div className="max-h-[380px] overflow-y-auto space-y-1">
+          {sortedWorkers.map(renderWorkerRow)}
+        </div>
+      </CardContent>
+    </>
+  );
+
+  // When hideHeader is true, render content without card wrappers
+  if (hideHeader) {
+    return (
+      <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
+        {renderContent()}
+        
+        <F1v4_WorkerDetailDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          worker={workers[selectedWorkerIndex] || null}
+          workers={workers}
+          currentIndex={selectedWorkerIndex}
+          onNavigate={setSelectedWorkerIndex}
+          onPayslipPreview={handlePayslipPreview}
+          isTrackStep={true}
+          onMarkAsPaid={handleMarkAsPaid}
+          onRetryPayout={handleRetryPayout}
+        />
+
+        <F1v4_PayslipPreviewModal
+          open={payslipModalOpen}
+          onOpenChange={setPayslipModalOpen}
+          worker={payslipWorker}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {onBack && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onBack}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            )}
+            <F1v4_PayrollStepper
+              currentStep={currentStep}
+              completedSteps={completedSteps}
+              onStepClick={onStepClick}
+            />
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Tabs defaultValue="all" className="w-full">
-            <div className="px-5 pt-4 pb-3 border-b border-border/30">
-              <TabsList className="h-8 bg-muted/30 p-0.5">
-                <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  All ({workers.length})
-                </TabsTrigger>
-                <TabsTrigger value="employees" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  Employees ({employees.length})
-                </TabsTrigger>
-                <TabsTrigger value="contractors" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  Contractors ({contractors.length})
-                </TabsTrigger>
-                {notPaidCount > 0 && (
-                  <TabsTrigger value="not-paid" className="text-xs h-7 px-3 data-[state=active]:bg-background text-destructive">
-                    Not paid ({notPaidCount})
-                  </TabsTrigger>
-                )}
-              </TabsList>
-            </div>
+          <div className="flex items-center gap-3">
+            {onClose && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={onClose}
+                className="h-9 text-xs"
+              >
+                Close
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      
+      {renderContent()}
 
-            <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
-              {["all", "employees", "contractors", "not-paid"].map((tabValue) => {
-                let tabWorkers = filteredWorkers;
-                if (tabValue === "employees") tabWorkers = employees.filter(w => filteredWorkers.includes(w));
-                if (tabValue === "contractors") tabWorkers = contractors.filter(w => filteredWorkers.includes(w));
-                if (tabValue === "not-paid") tabWorkers = filteredWorkers.filter(w => w.paymentStatus === "not-paid");
-
-                return (
-                  <TabsContent key={tabValue} value={tabValue} className="mt-0 space-y-1.5">
-                    {tabWorkers.map((worker) => {
-                      const config = paymentStatusConfig[worker.paymentStatus || "not-paid"];
-                      const StatusIcon = config.icon;
-                      const TypeIcon = worker.type === "employee" ? Users : Briefcase;
-
-                      return (
-                        <div 
-                          key={worker.id}
-                          className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer hover:bg-muted/30",
-                            worker.paymentStatus === "not-paid" ? "border-destructive/30 bg-destructive/5" : "border-border/30 bg-card"
-                          )}
-                          onClick={() => handleViewDetails(worker)}
-                        >
-                          <Avatar className="h-7 w-7 flex-shrink-0">
-                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
-                              {getInitials(worker.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-foreground truncate">
-                                {worker.name}
-                              </span>
-                              <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                            </div>
-                            <span className="text-[11px] text-muted-foreground leading-tight">
-                              {countryFlags[worker.country] || ""} {worker.country}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 flex-shrink-0">
-                            <p className="text-sm font-semibold text-foreground tabular-nums min-w-[90px] text-right">
-                              {formatCurrency(worker.netPay, worker.currency)}
-                            </p>
-                            <div className={cn("flex items-center gap-1 text-xs min-w-[70px]", config.className)}>
-                              <StatusIcon className="h-3 w-3" />
-                              {config.label}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </TabsContent>
-                );
-              })}
-            </div>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Worker Detail Drawer */}
       <F1v4_WorkerDetailDrawer
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
@@ -271,13 +326,12 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         onRetryPayout={handleRetryPayout}
       />
 
-      {/* Payslip Preview Modal */}
       <F1v4_PayslipPreviewModal
         open={payslipModalOpen}
         onOpenChange={setPayslipModalOpen}
         worker={payslipWorker}
       />
-    </div>
+    </Card>
   );
 };
 
