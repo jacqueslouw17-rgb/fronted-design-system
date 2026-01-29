@@ -4,7 +4,7 @@
  * Layout aligned with CA3_TrackingView: stepper in header, progress hero, dense worker rows
  */
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   CheckCircle2, 
   XCircle,
@@ -15,9 +15,11 @@ import {
   Clock,
   AlertTriangle,
   ChevronLeft,
+  ChevronDown,
   DollarSign,
   Receipt,
-  Globe,
+  Building2,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -30,6 +32,12 @@ import { toast } from "sonner";
 import { F1v4_WorkerDetailDrawer, WorkerData } from "./F1v4_WorkerDetailDrawer";
 import { F1v4_PayslipPreviewModal } from "./F1v4_PayslipPreviewModal";
 import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v4_PayrollStepper";
+
+interface PayrollPeriod {
+  id: string;
+  label: string;
+  status: "current" | "processing" | "paid";
+}
 
 interface F1v4_TrackStepProps {
   company: CompanyPayrollData;
@@ -87,6 +95,29 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0);
   const [payslipModalOpen, setPayslipModalOpen] = useState(false);
   const [payslipWorker, setPayslipWorker] = useState<WorkerData | null>(null);
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("current");
+  const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
+  const periodDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Period options
+  const periods: PayrollPeriod[] = [
+    { id: "current", label: "January 2026", status: "paid" },
+    { id: "dec-2025", label: "December 2025", status: "paid" },
+    { id: "nov-2025", label: "November 2025", status: "paid" },
+  ];
+
+  const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (periodDropdownRef.current && !periodDropdownRef.current.contains(event.target as Node)) {
+        setIsPeriodDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", SGD: "S$" };
@@ -196,41 +227,76 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
     adjustments: "$8.2K",
     fees: "$3,742",
     totalCost: "$128.6K",
+    employeeCount: employees.length,
+    contractorCount: contractors.length,
+    currencyCount: 3,
   };
 
+  const renderPeriodDropdown = () => (
+    <div className="relative" ref={periodDropdownRef}>
+      <button
+        onClick={() => setIsPeriodDropdownOpen(!isPeriodDropdownOpen)}
+        className={cn(
+          "flex items-center gap-1.5 text-lg font-semibold text-foreground",
+          "hover:text-foreground/80 transition-colors",
+          "focus:outline-none"
+        )}
+      >
+        {selectedPeriod?.label} Payroll
+        <ChevronDown className={cn(
+          "h-4 w-4 text-muted-foreground transition-transform duration-200",
+          isPeriodDropdownOpen && "rotate-180"
+        )} />
+      </button>
+
+      {isPeriodDropdownOpen && (
+        <div className="absolute top-full left-0 mt-2 z-50 min-w-[200px] bg-card border border-border/40 rounded-lg shadow-lg py-1 backdrop-blur-sm">
+          {periods.map((period) => (
+            <button
+              key={period.id}
+              onClick={() => {
+                setSelectedPeriodId(period.id);
+                setIsPeriodDropdownOpen(false);
+              }}
+              className={cn(
+                "w-full flex items-center justify-between px-3 py-2 text-left text-sm",
+                "hover:bg-muted/50 transition-colors",
+                period.id === selectedPeriodId && "bg-muted/30"
+              )}
+            >
+              <span className={cn(
+                "font-medium",
+                period.id === selectedPeriodId ? "text-foreground" : "text-muted-foreground"
+              )}>
+                {period.label}
+              </span>
+              <span className="flex items-center gap-1 text-[11px] text-accent-green-text">
+                <CheckCircle2 className="h-3 w-3" />
+                Paid
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   const renderSummaryCard = () => (
-    <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm mb-4">
+    <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
       <CardContent className="py-6 px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <h2 className="text-base font-medium text-foreground">January 2026</h2>
-            {isHistorical ? (
-              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                Paid
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                Approved
-              </Badge>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Button variant="ghost" size="sm" onClick={handleExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
-              <Download className="h-3.5 w-3.5" />
-              CSV
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleDownloadAuditPDF} className="h-8 text-xs gap-1.5 text-muted-foreground">
-              <FileText className="h-3.5 w-3.5" />
-              Audit
-            </Button>
+            {renderPeriodDropdown()}
+            <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              {isHistorical ? "Paid" : "Approved"}
+            </Badge>
           </div>
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-4 mb-6">
           {/* Gross Pay */}
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
@@ -254,22 +320,31 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           {/* Fronted Fees */}
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-              <Receipt className="h-4 w-4 text-primary" />
+              <Building2 className="h-4 w-4 text-primary" />
               <span className="text-sm">Fronted Fees</span>
             </div>
             <p className="text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
-            <p className="text-xs text-muted-foreground mt-1">Platform & processing</p>
+            <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
           </div>
 
           {/* Total Cost */}
-          <div className="border border-primary/20 bg-primary/5 rounded-xl p-4">
-            <div className="flex items-center gap-1.5 text-primary/70 mb-2">
-              <DollarSign className="h-4 w-4 text-primary" />
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
               <span className="text-sm">Total Cost</span>
             </div>
-            <p className="text-2xl font-semibold text-primary">{displayMetrics.totalCost}</p>
-            <p className="text-xs text-primary/60 mt-1">Gross + Fees</p>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
+            <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
           </div>
+        </div>
+
+        {/* Footer Stats */}
+        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
+          <span>Employees: <strong className="text-foreground">{displayMetrics.employeeCount}</strong></span>
+          <span className="text-border">·</span>
+          <span>Contractors: <strong className="text-foreground">{displayMetrics.contractorCount}</strong></span>
+          <span className="text-border">·</span>
+          <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
         </div>
       </CardContent>
     </Card>
@@ -363,7 +438,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   );
 
   const renderContent = () => (
-    <div className="space-y-0">
+    <div className="space-y-6">
       {renderSummaryCard()}
       {renderTrackingTable()}
     </div>
