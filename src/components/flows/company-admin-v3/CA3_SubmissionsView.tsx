@@ -252,10 +252,10 @@ const AdjustmentRow = ({
     <>
       <div 
         className={cn(
-          "rounded transition-colors",
+          "-mx-3 px-3 rounded transition-colors",
           expanded 
-            ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20 mx-0 px-3" 
-            : "-mx-3 px-3 hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
+            ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" 
+            : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
         )}
       >
         {/* Header row */}
