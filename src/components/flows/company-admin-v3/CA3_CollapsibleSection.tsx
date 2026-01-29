@@ -59,10 +59,13 @@ export const CollapsibleSection = ({
           {title}
         </span>
         
-        {/* Inline counts */}
+        {/* Inline counts with pending dot indicator */}
         {hasPending && (
-          <span className="text-[10px] font-semibold text-orange-600 dark:text-orange-400 ml-0.5">
-            {pendingCount}
+          <span className="flex items-center gap-1 ml-0.5">
+            <span className="text-[10px] font-semibold text-orange-600 dark:text-orange-400">
+              {pendingCount}
+            </span>
+            <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
           </span>
         )}
         {!isOpen && !hasPending && displayTotal > 0 && (
