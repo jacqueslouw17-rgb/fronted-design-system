@@ -15,12 +15,14 @@ import {
   Clock,
   AlertTriangle,
   ChevronLeft,
+  DollarSign,
+  Receipt,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
@@ -188,8 +190,93 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
     );
   };
 
-  const renderContent = () => (
-    <>
+  // KPI metrics for this payroll month
+  const displayMetrics = {
+    grossPay: "$124.9K",
+    adjustments: "$8.2K",
+    fees: "$3,742",
+    totalCost: "$128.6K",
+  };
+
+  const renderSummaryCard = () => (
+    <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm mb-4">
+      <CardContent className="py-6 px-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <h2 className="text-base font-medium text-foreground">January 2026</h2>
+            {isHistorical ? (
+              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Paid
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Approved
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Button variant="ghost" size="sm" onClick={handleExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
+              <Download className="h-3.5 w-3.5" />
+              CSV
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleDownloadAuditPDF} className="h-8 text-xs gap-1.5 text-muted-foreground">
+              <FileText className="h-3.5 w-3.5" />
+              Audit
+            </Button>
+          </div>
+        </div>
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-4 gap-4">
+          {/* Gross Pay */}
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <DollarSign className="h-4 w-4 text-primary" />
+              <span className="text-sm">Gross Pay</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
+            <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
+          </div>
+
+          {/* Total Adjustments */}
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <Receipt className="h-4 w-4 text-primary" />
+              <span className="text-sm">Adjustments</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
+            <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
+          </div>
+
+          {/* Fronted Fees */}
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <Receipt className="h-4 w-4 text-primary" />
+              <span className="text-sm">Fronted Fees</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
+            <p className="text-xs text-muted-foreground mt-1">Platform & processing</p>
+          </div>
+
+          {/* Total Cost */}
+          <div className="border border-primary/20 bg-primary/5 rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-primary/70 mb-2">
+              <DollarSign className="h-4 w-4 text-primary" />
+              <span className="text-sm">Total Cost</span>
+            </div>
+            <p className="text-2xl font-semibold text-primary">{displayMetrics.totalCost}</p>
+            <p className="text-xs text-primary/60 mt-1">Gross + Fees</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderTrackingTable = () => (
+    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
       {/* Progress Hero */}
       <div className="px-6 pt-6 pb-5 border-b border-border/40">
         <div className="flex items-start justify-between mb-4">
@@ -216,10 +303,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
               <>
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-sm text-muted-foreground">Payment Status</p>
-                  <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Approved
-                  </span>
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
@@ -230,15 +313,17 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
               </>
             )}
           </div>
-          <div className="flex items-center gap-1.5">
-            <Button variant="ghost" size="sm" onClick={handleExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
-              <Download className="h-3.5 w-3.5" />
-              CSV
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleDownloadAuditPDF} className="h-8 text-xs gap-1.5 text-muted-foreground">
-              <FileText className="h-3.5 w-3.5" />
-              Audit
-            </Button>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5" />
+              <span className="font-medium text-foreground">{employees.length}</span>
+              <span>employees</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Briefcase className="h-3.5 w-3.5" />
+              <span className="font-medium text-foreground">{contractors.length}</span>
+              <span>contractors</span>
+            </div>
           </div>
         </div>
         
@@ -270,17 +355,24 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
 
       {/* Worker List */}
       <CardContent className="p-4">
-        <div className="max-h-[380px] overflow-y-auto space-y-1">
+        <div className="max-h-[320px] overflow-y-auto space-y-1">
           {sortedWorkers.map(renderWorkerRow)}
         </div>
       </CardContent>
-    </>
+    </Card>
   );
 
-  // When hideHeader is true, render content without card wrappers
+  const renderContent = () => (
+    <div className="space-y-0">
+      {renderSummaryCard()}
+      {renderTrackingTable()}
+    </div>
+  );
+
+  // When hideHeader is true, render content without outer wrapper
   if (hideHeader) {
     return (
-      <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
+      <>
         {renderContent()}
         
         <F1v4_WorkerDetailDrawer
@@ -301,49 +393,12 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           onOpenChange={setPayslipModalOpen}
           worker={payslipWorker}
         />
-      </div>
+      </>
     );
   }
 
   return (
-    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-      {/* Stepper Header - only show when showStepper is true */}
-      {showStepper && (
-        <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {onBack && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onBack}
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              )}
-              <F1v4_PayrollStepper
-                currentStep={currentStep}
-                completedSteps={completedSteps}
-                onStepClick={onStepClick}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              {onClose && (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={onClose}
-                  className="h-9 text-xs"
-                >
-                  Close
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardHeader>
-      )}
-      
+    <>
       {renderContent()}
 
       <F1v4_WorkerDetailDrawer
@@ -364,7 +419,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         onOpenChange={setPayslipModalOpen}
         worker={payslipWorker}
       />
-    </Card>
+    </>
   );
 };
 
