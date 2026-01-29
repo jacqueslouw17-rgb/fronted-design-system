@@ -184,23 +184,9 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
 
       {/* Worker List - Card rows matching Flow 6 v3 Submissions pattern */}
       <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
-        <CardHeader className="py-4 px-5 border-b border-border/30">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-medium text-foreground">Workers</h3>
-            <div className="relative w-48">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input 
-                placeholder="Search..." 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                className="pl-8 h-8 text-xs bg-background/50 border-border/30" 
-              />
-            </div>
-          </div>
-        </CardHeader>
         <CardContent className="p-0">
           <Tabs defaultValue="all" className="w-full">
-            <div className="px-5 pt-4 pb-3 border-b border-border/30">
+            <div className="px-5 py-3 border-b border-border/30 flex items-center justify-between">
               <TabsList className="h-8 bg-muted/30 p-0.5">
                 <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
                   All ({workers.length})
@@ -212,6 +198,15 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
                   Contractors ({contractors.length})
                 </TabsTrigger>
               </TabsList>
+              <div className="relative w-44">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input 
+                  placeholder="Search..." 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                  className="pl-8 h-8 text-xs bg-background/50 border-border/30" 
+                />
+              </div>
             </div>
 
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
