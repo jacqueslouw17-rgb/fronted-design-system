@@ -202,11 +202,10 @@ const AdjustmentRow = ({
   if (isRejected) {
     return (
       <div 
-        className="mb-1.5"
+        className="-mx-3 px-3 rounded transition-colors bg-destructive/5 border border-destructive/30"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="rounded-md overflow-hidden border border-destructive/40 bg-destructive/5">
           {/* Main row */}
           <div className="flex items-center justify-between py-2.5 px-3">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -241,7 +240,6 @@ const AdjustmentRow = ({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
       </div>
     );
   }
@@ -527,11 +525,10 @@ const LeaveRow = ({
   if (isRejected) {
     return (
       <div 
-        className="-mx-2 mb-2"
+        className="-mx-3 px-3 rounded transition-colors bg-destructive/5 border border-destructive/30"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="rounded-lg overflow-hidden border border-destructive/30 bg-destructive/5">
           <div className="flex items-center justify-between py-2.5 px-3">
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <div className="flex items-center gap-2">
@@ -568,7 +565,6 @@ const LeaveRow = ({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
       </div>
     );
   }
