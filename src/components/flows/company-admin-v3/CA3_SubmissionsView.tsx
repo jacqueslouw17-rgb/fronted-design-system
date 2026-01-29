@@ -428,7 +428,7 @@ const LeaveRow = ({
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   
-  const config = leaveTypeConfig[leave.leaveType];
+  const config = leaveTypeConfig[leave.leaveType as keyof typeof leaveTypeConfig];
   
   const formatAmount = (amt: number, curr: string) => {
     const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$" };
@@ -447,10 +447,15 @@ const LeaveRow = ({
     return `${format(startDate, "d MMM")}–${format(endDate, "d MMM")}`;
   };
 
-  // Calculate deduction for unpaid leave
-  const deductionAmount = config.affectsPay && leave.dailyRate 
+  // Calculate deduction for unpaid leave (only if config exists)
+  const deductionAmount = config?.affectsPay && leave.dailyRate 
     ? leave.daysInThisPeriod * leave.dailyRate 
     : 0;
+    
+  // Return null if leave type is not supported (only Unpaid is in payroll submissions)
+  if (!config) {
+    return null;
+  }
 
   const isPending = leave.status === 'pending';
   const isRejected = leave.status === 'rejected';
