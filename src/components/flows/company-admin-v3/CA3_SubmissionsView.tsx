@@ -1293,11 +1293,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     
                     {/* Right-side actions: Add adjustment + Pending toggle */}
                     <div className="flex items-center gap-2 shrink-0">
-                      {/* Minimal add adjustment button */}
+                      {/* Small outlined add adjustment button */}
                       {!showPendingOnly && (
                         <button
                           onClick={() => setIsAddingAdjustment(true)}
-                          className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                          className="flex items-center gap-1 px-2 py-1 text-[10px] text-muted-foreground border border-border/60 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
                         >
                           <Plus className="h-3 w-3" />
                           <span>Add</span>
