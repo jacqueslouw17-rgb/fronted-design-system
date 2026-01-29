@@ -815,6 +815,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         return effectiveStatus === 'pending' && typeof adj.amount === 'number';
       }).length;
       
+      // Count rejected adjustments - worker needs to resubmit
+      const rejectedAdjustments = submission.submissions.filter((adj, idx) => {
+        const key = `${submission.id}-${idx}`;
+        const localState = adjustmentStates[key];
+        const effectiveStatus = localState?.status || adj.status || 'pending';
+        return effectiveStatus === 'rejected' && typeof adj.amount === 'number';
+      }).length;
+      
       // Count pending leaves considering local overrides
       const pendingLeaves = (submission.pendingLeaves || []).filter((leave) => {
         const key = `${submission.id}-leave-${leave.id}`;
@@ -823,8 +831,16 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         return effectiveStatus === 'pending';
       }).length;
       
-      // If worker has any pending items, count as pending worker
-      return count + (pendingAdjustments + pendingLeaves > 0 ? 1 : 0);
+      // Count rejected leaves - worker needs to resubmit
+      const rejectedLeaves = (submission.pendingLeaves || []).filter((leave) => {
+        const key = `${submission.id}-leave-${leave.id}`;
+        const localState = leaveStates[key];
+        const effectiveStatus = localState?.status || leave.status || 'pending';
+        return effectiveStatus === 'rejected';
+      }).length;
+      
+      // If worker has any pending OR rejected items, count as pending worker
+      return count + ((pendingAdjustments + pendingLeaves + rejectedAdjustments + rejectedLeaves) > 0 ? 1 : 0);
     }, 0);
   }, [submissions, adjustmentStates, leaveStates]);
   
@@ -971,17 +987,36 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
       return effectiveStatus === 'pending' && typeof adj.amount === 'number';
     }).length;
     
+    // Count rejected adjustments for this worker
+    const rejectedAdjustmentCount = submission.submissions.filter((adj, idx) => {
+      const key = `${submission.id}-${idx}`;
+      const localState = adjustmentStates[key];
+      const effectiveStatus = localState?.status || adj.status || 'pending';
+      return effectiveStatus === 'rejected' && typeof adj.amount === 'number';
+    }).length;
+    
     // Count pending leaves for this worker
     const pendingLeaveCount = (submission.pendingLeaves || []).filter((leave) => {
       const leaveState = getLeaveStatus(submission.id, leave.id, leave.status);
       return leaveState.status === 'pending';
     }).length;
     
+    // Count rejected leaves for this worker
+    const rejectedLeaveCount = (submission.pendingLeaves || []).filter((leave) => {
+      const leaveState = getLeaveStatus(submission.id, leave.id, leave.status);
+      return leaveState.status === 'rejected';
+    }).length;
+    
     // Total pending items (adjustments + leaves)
     const workerPendingCount = pendingAdjustmentCount + pendingLeaveCount;
     
-    // Derive effective worker status: if no pending items remain, worker is "ready"
-    const effectiveWorkerStatus: SubmissionStatus = workerPendingCount > 0 ? "pending" : "ready";
+    // Total rejected items - worker needs to resubmit
+    const workerRejectedCount = rejectedAdjustmentCount + rejectedLeaveCount;
+    
+    // Derive effective worker status: 
+    // - pending = has items needing review OR has rejected items awaiting resubmission
+    // - ready = all items approved (no pending, no rejected)
+    const effectiveWorkerStatus: SubmissionStatus = (workerPendingCount > 0 || workerRejectedCount > 0) ? "pending" : "ready";
     const status = statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
@@ -1010,9 +1045,16 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             </span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           </div>
-          <span className="text-[11px] text-muted-foreground leading-tight">
-            {submission.workerCountry}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] text-muted-foreground leading-tight">
+              {submission.workerCountry}
+            </span>
+            {workerRejectedCount > 0 && workerPendingCount === 0 && (
+              <span className="text-[10px] text-destructive/80">
+                · 1 day to resubmit
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Right side: Amount + Status */}
@@ -1026,14 +1068,21 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             <p className="text-xs text-muted-foreground">—</p>
           )}
 
-          {/* Status with pending count */}
+          {/* Status with pending count or rejected indicator */}
           <div className={cn("flex items-center gap-1.5 text-xs", status.color)}>
-            {effectiveWorkerStatus === "pending" && workerPendingCount > 0 ? (
+            {workerPendingCount > 0 ? (
               <>
                 <span className="flex items-center justify-center h-4 w-4 rounded-full bg-orange-500/15 text-orange-600 text-[10px] font-semibold">
                   {workerPendingCount}
                 </span>
                 <span className="hidden sm:inline">{status.label}</span>
+              </>
+            ) : workerRejectedCount > 0 ? (
+              <>
+                <span className="flex items-center justify-center h-4 w-4 rounded-full bg-destructive/15 text-destructive text-[10px] font-semibold">
+                  {workerRejectedCount}
+                </span>
+                <span className="hidden sm:inline text-destructive">Rejected</span>
               </>
             ) : (
               <>
