@@ -533,12 +533,17 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       {/* Summary card with submitted status */}
       {renderSummaryCard(true)}
       
-      {/* Tracking view below */}
+      {/* Tracking view below - with stepper */}
       <CA3_TrackingView
         workers={trackingWorkers}
         onExportCSV={handleExportCSV}
         onDownloadAuditPDF={handleDownloadAuditPDF}
         onClose={() => setHasEnteredWorkflow(false)}
+        onBack={() => setCurrentStep("submit")}
+        showStepper={true}
+        currentStep="track"
+        completedSteps={completedSteps}
+        onStepClick={handleStepClick}
       />
     </div>
   );
@@ -555,7 +560,12 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             onApproveAll={handleApproveAllSafe}
             onContinue={goToSubmit}
             onClose={() => setHasEnteredWorkflow(false)}
+            onBack={() => setHasEnteredWorkflow(false)}
             pendingCount={pendingSubmissions}
+            currentStep={currentStep}
+            completedSteps={completedSteps}
+            onStepClick={handleStepClick}
+            pendingSubmissions={pendingSubmissions}
           />
         );
 
@@ -587,6 +597,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             onDownloadAuditPDF={handleDownloadAuditPDF}
             onBack={() => setCurrentStep("submissions")}
             onClose={() => setHasEnteredWorkflow(false)}
+            currentStep={currentStep}
+            completedSteps={completedSteps}
+            onStepClick={handleStepClick}
           />
         );
 
@@ -621,20 +634,10 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     );
   }
 
-  // Workflow view - with stepper
+  // Workflow view - stepper now embedded in each step's card header
   return (
     <div className="space-y-6">
-      {/* Stepper - hidden after submission */}
-      {!isPayrollSubmitted && (
-        <CA3_PayrollStepper
-          currentStep={currentStep}
-          completedSteps={completedSteps}
-          onStepClick={handleStepClick}
-          pendingSubmissions={pendingSubmissions}
-        />
-      )}
-
-      {/* Step Content */}
+      {/* Step Content - stepper is now inside each step component */}
       <div>
         {renderStepContent()}
       </div>

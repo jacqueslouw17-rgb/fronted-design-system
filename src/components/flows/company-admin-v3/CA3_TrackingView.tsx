@@ -1,10 +1,11 @@
 import React from "react";
-import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, AlertTriangle, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 
 export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued" | "sent";
 
@@ -29,6 +30,11 @@ interface CA3_TrackingViewProps {
   onClose?: () => void;
   isHistorical?: boolean;
   paidDate?: string;
+  // Stepper props
+  currentStep?: CA3_PayrollStep;
+  completedSteps?: CA3_PayrollStep[];
+  onStepClick?: (step: CA3_PayrollStep) => void;
+  showStepper?: boolean;
 }
 
 export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
@@ -39,6 +45,11 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   onClose,
   isHistorical = false,
   paidDate,
+  // Stepper props
+  currentStep = "track",
+  completedSteps = ["submissions", "submit"],
+  onStepClick,
+  showStepper = false,
 }) => {
   const paidCount = workers.filter(w => w.status === "paid" || w.status === "posted").length;
   const notPaidCount = workers.filter(w => w.status === "failed").length;
@@ -81,6 +92,42 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
 
   return (
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
+      {/* Stepper Header - only show when showStepper is true */}
+      {showStepper && (
+        <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {onBack && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onBack}
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <CA3_PayrollStepper
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+                onStepClick={onStepClick}
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              {onClose && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={onClose}
+                  className="h-9 text-xs"
+                >
+                  Close
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+      )}
       {/* Progress Hero */}
       <div className="px-6 pt-6 pb-5 border-b border-border/40">
         <div className="flex items-start justify-between mb-4">

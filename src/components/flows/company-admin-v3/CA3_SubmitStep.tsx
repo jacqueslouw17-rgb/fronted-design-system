@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 
 export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued" | "sent";
 
@@ -34,6 +35,10 @@ interface CA3_SubmitStepProps {
   // Navigation
   onBack?: () => void;
   onClose?: () => void;
+  // Stepper props
+  currentStep?: CA3_PayrollStep;
+  completedSteps?: CA3_PayrollStep[];
+  onStepClick?: (step: CA3_PayrollStep) => void;
 }
 
 export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
@@ -48,6 +53,10 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   onDownloadAuditPDF = () => {},
   onBack,
   onClose,
+  // Stepper props
+  currentStep = "submit",
+  completedSteps = ["submissions"],
+  onStepClick,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isRefreshingFx, setIsRefreshingFx] = useState(false);
@@ -156,7 +165,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
       <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-3">
             {!isSubmitted && onBack && (
               <Button
                 variant="ghost"
@@ -167,9 +176,11 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             )}
-            <h3 className="text-base font-medium text-foreground">
-              {isSubmitted ? "Payment Status" : "Submit Batch"}
-            </h3>
+            <CA3_PayrollStepper
+              currentStep={currentStep}
+              completedSteps={completedSteps}
+              onStepClick={onStepClick}
+            />
           </div>
           <div className="flex items-center gap-3">
             {onClose && (

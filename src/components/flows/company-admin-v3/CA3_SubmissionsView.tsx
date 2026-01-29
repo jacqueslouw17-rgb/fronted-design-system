@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -93,6 +93,8 @@ export interface WorkerSubmission {
   flagReason?: string;
 }
 
+import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
+
 interface CA3_SubmissionsViewProps {
   submissions: WorkerSubmission[];
   onApprove: (submission: WorkerSubmission) => void;
@@ -100,7 +102,13 @@ interface CA3_SubmissionsViewProps {
   onApproveAll: () => void;
   onContinue: () => void;
   onClose?: () => void;
+  onBack?: () => void;
   pendingCount?: number; // If provided, blocks continue when > 0
+  // Stepper props
+  currentStep?: CA3_PayrollStep;
+  completedSteps?: CA3_PayrollStep[];
+  onStepClick?: (step: CA3_PayrollStep) => void;
+  pendingSubmissions?: number;
 }
 
 // Note: Leave is not included here - it's managed in the separate Leaves tab
@@ -746,7 +754,13 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   onApproveAll,
   onContinue,
   onClose,
+  onBack,
   pendingCount: externalPendingCount,
+  // Stepper props
+  currentStep = "submissions",
+  completedSteps = [],
+  onStepClick,
+  pendingSubmissions = 0,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState<WorkerSubmission | null>(null);
@@ -1167,10 +1181,22 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h3 className="text-base font-medium text-foreground">Submissions</h3>
-              <p className="text-sm text-muted-foreground">
-                {submissions.length} submission{submissions.length !== 1 ? "s" : ""} this cycle
-              </p>
+              {onBack && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onBack}
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <CA3_PayrollStepper
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+                onStepClick={onStepClick}
+                pendingSubmissions={pendingSubmissions || dynamicPendingCount}
+              />
             </div>
             <div className="flex items-center gap-3">
               <Tooltip>
