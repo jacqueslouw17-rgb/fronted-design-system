@@ -1794,25 +1794,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
                 {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
                 {!isAddingAdjustment && !expandedItemId && (() => {
-                  // Calculate reviewed counts for Mark as Ready
-                  const approvedCount = moneyAdjustments.filter(({ adj, originalIdx }) => {
-                    const effectiveStatus = getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus);
-                    return effectiveStatus === 'approved';
-                  }).length + pendingLeaves.filter((leave) => {
-                    const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
-                    return leaveState.status === 'approved';
-                  }).length + workerAdminAdjustments.length;
-                  
-                  const rejectedCount = moneyAdjustments.filter(({ adj, originalIdx }) => {
-                    const effectiveStatus = getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus);
-                    return effectiveStatus === 'rejected';
-                  }).length + pendingLeaves.filter((leave) => {
-                    const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
-                    return leaveState.status === 'rejected';
-                  }).length;
-                  
                   const isFinalized = isWorkerFinalized(selectedSubmission.id);
-                  const hasReviewedItems = approvedCount > 0 || rejectedCount > 0;
                   
                   // Show bulk actions when pending items exist
                   if (currentPendingCount > 0) {
@@ -1839,8 +1821,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     );
                   }
                   
-                  // Show "Mark as Ready" when all items are reviewed (no pending) and not yet finalized
-                  if (hasReviewedItems && !isFinalized) {
+                  // Show "Mark as Ready" when no pending items and not yet finalized
+                  if (!isFinalized) {
                     return (
                       <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
                         <Button 
@@ -1859,18 +1841,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   }
                   
                   // Show finalized state
-                  if (isFinalized) {
-                    return (
-                      <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                        <div className="flex items-center justify-center gap-2 text-accent-green-text">
-                          <CheckCircle2 className="h-4 w-4" />
-                          <span className="text-sm font-medium">Ready for payroll</span>
-                        </div>
+                  return (
+                    <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                      <div className="flex items-center justify-center gap-2 text-accent-green-text">
+                        <CheckCircle2 className="h-4 w-4" />
+                        <span className="text-sm font-medium">Ready for payroll</span>
                       </div>
-                    );
-                  }
-                  
-                  return null;
+                    </div>
+                  );
                 })()}
                 </>
                 )}

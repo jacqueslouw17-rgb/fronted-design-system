@@ -1043,11 +1043,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
                     {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
                     {!expandedItemId && (() => {
-                      const approvedCount = moneyAdjustments.filter(({ adj, originalIdx }) => getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus) === 'approved').length + pendingLeaves.filter(l => getLeaveStatus(selectedSubmission.id, l.id, l.status).status === 'approved').length + workerAdminAdjustments.length;
-                      const rejectedCount = moneyAdjustments.filter(({ adj, originalIdx }) => getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus) === 'rejected').length + pendingLeaves.filter(l => getLeaveStatus(selectedSubmission.id, l.id, l.status).status === 'rejected').length;
                       const isFinalized = isWorkerFinalized(selectedSubmission.id);
-                      const hasReviewedItems = approvedCount > 0 || rejectedCount > 0;
                       
+                      // Show bulk actions when pending items exist
                       if (currentPendingCount > 0) {
                         return (
                           <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
@@ -1063,7 +1061,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         );
                       }
                       
-                      if (hasReviewedItems && !isFinalized) {
+                      // Show "Mark as Ready" when no pending items and not yet finalized
+                      if (!isFinalized) {
                         return (
                           <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
                             <Button size="sm" className="w-full h-10 text-sm gap-2" onClick={() => setShowMarkAsReadyDialog(true)}>
@@ -1075,17 +1074,15 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         );
                       }
                       
-                      if (isFinalized) {
-                        return (
-                          <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                            <div className="flex items-center justify-center gap-2 text-accent-green-text">
-                              <CheckCircle2 className="h-4 w-4" />
-                              <span className="text-sm font-medium">Ready for payroll</span>
-                            </div>
+                      // Show finalized state
+                      return (
+                        <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                          <div className="flex items-center justify-center gap-2 text-accent-green-text">
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span className="text-sm font-medium">Ready for payroll</span>
                           </div>
-                        );
-                      }
-                      return null;
+                        </div>
+                      );
                     })()}
                   </>
                 )}
