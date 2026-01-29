@@ -6,15 +6,11 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Building2,
-  Users,
-  Briefcase,
-  Globe
-} from "lucide-react";
+import { Check } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
-import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v4_PayrollStepper";
+import { F1v4_PayrollStep } from "./F1v4_PayrollStepper";
 import { F1v4_ReviewStep } from "./F1v4_ReviewStep";
 import { F1v4_ExceptionsStep } from "./F1v4_ExceptionsStep";
 import { F1v4_ApproveStep } from "./F1v4_ApproveStep";
@@ -31,6 +27,19 @@ const stepMap: Record<number, F1v4_PayrollStep> = {
   3: "approve",
   4: "track",
 };
+
+// Minimal inline stepper matching Flow 6 v3 pattern
+interface StepConfig {
+  id: F1v4_PayrollStep;
+  label: string;
+}
+
+const steps: StepConfig[] = [
+  { id: "review", label: "Review" },
+  { id: "exceptions", label: "Exceptions" },
+  { id: "approve", label: "Approve" },
+  { id: "track", label: "Track" },
+];
 
 export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   company,
@@ -57,6 +66,14 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const [completedSteps, setCompletedSteps] = useState<F1v4_PayrollStep[]>(getInitialCompletedSteps);
   const [isApproved, setIsApproved] = useState(initialStep === 4);
   const [exceptionsCount, setExceptionsCount] = useState(company.blockingExceptions);
+  const stepOrder: F1v4_PayrollStep[] = ["review", "exceptions", "approve", "track"];
+  const currentIndex = stepOrder.indexOf(currentStep);
+
+  const getStepState = (step: F1v4_PayrollStep): "completed" | "active" | "upcoming" => {
+    if (completedSteps.includes(step)) return "completed";
+    if (step === currentStep) return "active";
+    return "upcoming";
+  };
 
   const handleStepClick = (step: F1v4_PayrollStep) => {
     if (completedSteps.includes(step) || step === currentStep) {
@@ -138,44 +155,65 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-8 pb-32 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Building2 className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-lg font-medium text-foreground">{company.name}</h1>
-            <p className="text-xs text-muted-foreground">{company.payPeriod}</p>
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Users className="h-3.5 w-3.5" />
-            {company.employeeCount} employees
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Briefcase className="h-3.5 w-3.5" />
-            {company.contractorCount} contractors
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Globe className="h-3.5 w-3.5" />
-            {company.currencyCount} currencies
-          </span>
-        </div>
-      </div>
-
-      {/* Stepper - Hidden after approval */}
+    <div className="max-w-6xl mx-auto p-8 pb-32 space-y-5">
+      {/* Minimal Stepper - Hidden after approval */}
       {!isApproved && (
-        <F1v4_PayrollStepper
-          currentStep={currentStep}
-          completedSteps={completedSteps}
-          onStepClick={handleStepClick}
-          exceptionsCount={exceptionsCount}
-        />
+        <div className="flex items-center gap-1">
+          {steps.map((step, index) => {
+            const state = getStepState(step.id);
+            const isClickable = state === "completed" || step.id === currentStep;
+            const showExceptionsBadge = step.id === "exceptions" && exceptionsCount > 0 && state !== "completed";
+
+            return (
+              <React.Fragment key={step.id}>
+                <button
+                  onClick={() => isClickable && handleStepClick(step.id)}
+                  disabled={!isClickable}
+                  className={cn(
+                    "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+                    "text-xs relative",
+                    state === "active" && "text-foreground font-medium",
+                    state === "completed" && "text-muted-foreground cursor-pointer hover:text-foreground",
+                    state === "upcoming" && "text-muted-foreground/70 cursor-not-allowed"
+                  )}
+                >
+                  {/* Step indicator */}
+                  <div className={cn(
+                    "flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-medium transition-all",
+                    state === "completed" && "bg-accent-green-fill/15 text-accent-green-text",
+                    state === "active" && "bg-foreground/10 text-foreground",
+                    state === "upcoming" && "bg-muted/20 text-muted-foreground/30"
+                  )}>
+                    {state === "completed" ? (
+                      <Check className="h-2.5 w-2.5" />
+                    ) : (
+                      <span>{index + 1}</span>
+                    )}
+                  </div>
+                  
+                  <span className="hidden sm:inline">{step.label}</span>
+                  
+                  {/* Exceptions badge */}
+                  {showExceptionsBadge && (
+                    <span className="flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-destructive/90 text-white text-[9px] font-medium">
+                      {exceptionsCount}
+                    </span>
+                  )}
+                </button>
+                
+                {/* Connector */}
+                {index < steps.length - 1 && (
+                  <div className={cn(
+                    "w-4 h-px transition-colors",
+                    stepOrder.indexOf(step.id) < currentIndex 
+                      ? "bg-accent-green-text/15" 
+                      : "bg-border/5"
+                  )} />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
       )}
 
       {/* Step Content */}

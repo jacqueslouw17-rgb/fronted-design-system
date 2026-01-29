@@ -152,58 +152,83 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* Worker List */}
+      {/* Worker List - Table UI matching Flow 6 v3 Submissions pattern */}
       <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-border/30">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-foreground">Workers</h3>
-            <div className="relative w-56">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-7 text-xs bg-background/50" />
+        <div className="px-4 py-2.5 border-b border-border/30 flex items-center justify-between">
+          <Tabs defaultValue="all" className="w-full">
+            <div className="flex items-center justify-between">
+              <TabsList className="h-7 bg-transparent p-0 gap-1">
+                <TabsTrigger value="all" className="text-xs h-6 px-2 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none rounded-md">All ({workers.length})</TabsTrigger>
+                <TabsTrigger value="employees" className="text-xs h-6 px-2 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none rounded-md">Employees ({employees.length})</TabsTrigger>
+                <TabsTrigger value="contractors" className="text-xs h-6 px-2 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none rounded-md">Contractors ({contractors.length})</TabsTrigger>
+              </TabsList>
+              
+              <div className="relative w-48">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-7 h-6 text-xs bg-background/50 border-border/30" />
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div className="px-5 py-3">
-          <Tabs defaultValue="all">
-            <TabsList className="h-7 bg-muted/30 p-0.5 mb-3">
-              <TabsTrigger value="all" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background">All ({workers.length})</TabsTrigger>
-              <TabsTrigger value="employees" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background">Employees ({employees.length})</TabsTrigger>
-              <TabsTrigger value="contractors" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background">Contractors ({contractors.length})</TabsTrigger>
-            </TabsList>
 
             {["all", "employees", "contractors"].map((tabValue) => {
               const tabWorkers = tabValue === "all" ? filteredWorkers : tabValue === "employees" ? employees.filter(w => filteredWorkers.includes(w)) : contractors.filter(w => filteredWorkers.includes(w));
 
               return (
-                <TabsContent key={tabValue} value={tabValue} className="mt-0 space-y-1.5">
-                  {tabWorkers.map((worker) => {
-                    const config = statusConfig[worker.status];
-                    const TypeIcon = worker.type === "employee" ? Users : Briefcase;
+                <TabsContent key={tabValue} value={tabValue} className="mt-0">
+                  {/* Table Header */}
+                  <div className="grid grid-cols-[1fr_100px_80px_100px_20px] gap-3 px-3 py-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wide border-b border-border/20 mt-2.5">
+                    <span>Worker</span>
+                    <span>Country</span>
+                    <span className="text-center">Status</span>
+                    <span className="text-right">Net Pay</span>
+                    <span></span>
+                  </div>
+                  
+                  {/* Table Rows */}
+                  <div className="divide-y divide-border/10">
+                    {tabWorkers.map((worker) => {
+                      const config = statusConfig[worker.status];
+                      const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
-                    return (
-                      <div key={worker.id} className="px-3 py-2.5 rounded-lg bg-muted/30 border border-border/20 hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleViewDetails(worker)}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2.5 flex-1">
-                            <Avatar className="h-7 w-7"><AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">{getInitials(worker.name)}</AvatarFallback></Avatar>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <p className="text-sm font-medium text-foreground">{worker.name}</p>
-                                <TypeIcon className="h-3 w-3 text-muted-foreground" />
-                              </div>
-                              <p className="text-[11px] text-muted-foreground">{countryFlags[worker.country] || ""} {worker.country} · {worker.currency}</p>
+                      return (
+                        <div 
+                          key={worker.id} 
+                          className="grid grid-cols-[1fr_100px_80px_100px_20px] gap-3 px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer items-center" 
+                          onClick={() => handleViewDetails(worker)}
+                        >
+                          {/* Worker */}
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Avatar className="h-6 w-6">
+                              <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">{getInitials(worker.name)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="text-sm font-medium text-foreground truncate">{worker.name}</span>
+                              <TypeIcon className="h-3 w-3 text-muted-foreground shrink-0" />
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", config.className)}>{config.label}</Badge>
-                            {worker.issues > 0 && <span className="text-[10px] text-destructive font-medium">{worker.issues}</span>}
-                            <p className="text-sm font-medium text-foreground min-w-[90px] text-right tabular-nums">{formatCurrency(worker.netPay, worker.currency)}</p>
-                            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                          
+                          {/* Country */}
+                          <span className="text-xs text-muted-foreground">
+                            {countryFlags[worker.country] || ""} {worker.country}
+                          </span>
+                          
+                          {/* Status */}
+                          <div className="flex justify-center">
+                            <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", config.className)}>
+                              {config.label}
+                            </Badge>
                           </div>
+                          
+                          {/* Net Pay */}
+                          <span className="text-sm font-medium text-foreground text-right tabular-nums">
+                            {formatCurrency(worker.netPay, worker.currency)}
+                          </span>
+                          
+                          {/* Arrow */}
+                          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </TabsContent>
               );
             })}
