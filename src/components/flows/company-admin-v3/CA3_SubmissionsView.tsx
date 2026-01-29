@@ -246,98 +246,108 @@ const AdjustmentRow = ({
     );
   }
 
-  // Pending state - clean inline row, no box
+  // Pending state - wrapped container for unified expanded state
   return (
     <>
       <div 
-        className="flex items-center justify-between py-2 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/15 -mx-3 px-3 rounded transition-colors"
-        onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
+        className={cn(
+          "-mx-3 px-3 rounded transition-colors",
+          expanded 
+            ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" 
+            : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
+        )}
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm text-foreground">{label}</span>
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-            pending
+        {/* Header row */}
+        <div 
+          className="flex items-center justify-between py-2 cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-sm text-foreground">{label}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+              pending
+            </span>
+          </div>
+          
+          <span className="text-sm tabular-nums font-mono text-foreground ml-3">
+            +{formatAmount(amount, currency)}
           </span>
         </div>
         
-        <span className="text-sm tabular-nums font-mono text-foreground ml-3">
-          +{formatAmount(amount, currency)}
-        </span>
-      </div>
-      
-      {/* Expanded action panel */}
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.12, ease: "easeOut" }}
-            className="overflow-hidden"
-          >
-            <div className="py-2 -mx-3 px-3">
-              {!showRejectForm ? (
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowRejectForm(true);
-                    }}
-                    className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                    Reject
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleApproveClick();
-                    }}
-                    className="flex-1 h-8 text-xs gap-1.5"
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                    Approve
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-2 p-3 rounded-md border border-border/50 bg-muted/30" onClick={(e) => e.stopPropagation()}>
-                  <Textarea
-                    placeholder="Reason for rejection..."
-                    value={rejectReasonInput}
-                    onChange={(e) => setRejectReasonInput(e.target.value)}
-                    className="min-h-[60px] resize-none text-sm bg-background"
-                    autoFocus
-                  />
+        {/* Expanded action panel */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.12, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <div className="pb-3">
+                {!showRejectForm ? (
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {
-                        setShowRejectForm(false);
-                        setRejectReasonInput("");
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowRejectForm(true);
                       }}
-                      className="flex-1 h-8 text-xs"
+                      className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300"
                     >
-                      Cancel
+                      <X className="h-3.5 w-3.5" />
+                      Reject
                     </Button>
                     <Button
                       size="sm"
-                      onClick={handleRejectClick}
-                      disabled={!rejectReasonInput.trim()}
-                      className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleApproveClick();
+                      }}
+                      className="flex-1 h-8 text-xs gap-1.5"
                     >
-                      Reject
+                      <Check className="h-3.5 w-3.5" />
+                      Approve
                     </Button>
                   </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                ) : (
+                  <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
+                    <Textarea
+                      placeholder="Reason for rejection..."
+                      value={rejectReasonInput}
+                      onChange={(e) => setRejectReasonInput(e.target.value)}
+                      className="min-h-[60px] resize-none text-sm bg-background"
+                      autoFocus
+                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setShowRejectForm(false);
+                          setRejectReasonInput("");
+                        }}
+                        className="flex-1 h-8 text-xs"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handleRejectClick}
+                        disabled={!rejectReasonInput.trim()}
+                        className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       {/* Confirmation Dialogs */}
       <CA3_ApproveDialog
         open={showApproveDialog}
@@ -563,17 +573,22 @@ const LeaveRow = ({
     );
   }
 
-  // Pending state - minimal inline row matching AdjustmentRow pattern
+  // Pending state - wrapped container for unified expanded state (matching AdjustmentRow)
   return (
     <>
       <div 
-        className="-mx-3"
+        className={cn(
+          "-mx-3 px-3 rounded transition-colors",
+          expanded 
+            ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" 
+            : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
+        )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Main row - clean inline, no box */}
+        {/* Header row */}
         <div 
-          className="flex items-center justify-between py-2 px-3 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/15 rounded transition-colors"
+          className="flex items-center justify-between py-2 cursor-pointer"
           onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
         >
           <div className="flex flex-col gap-0 min-w-0 flex-1">
@@ -583,7 +598,7 @@ const LeaveRow = ({
                 pending
               </span>
             </div>
-            {/* Dates revealed on hover */}
+            {/* Dates revealed on hover (when not expanded) */}
             <AnimatePresence>
               {isHovered && !expanded && (
                 <motion.span
@@ -621,7 +636,7 @@ const LeaveRow = ({
               transition={{ duration: 0.12, ease: "easeOut" }}
               className="overflow-hidden"
             >
-              <div className="py-2 px-3">
+              <div className="pb-3">
                 {/* Show dates when expanded */}
                 <div className="text-xs text-muted-foreground mb-2">
                   {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
@@ -653,7 +668,7 @@ const LeaveRow = ({
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-2 p-3 rounded-md border border-border/50 bg-muted/30" onClick={(e) => e.stopPropagation()}>
+                  <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
                     <Textarea
                       placeholder="Reason for rejection..."
                       value={rejectReasonInput}
