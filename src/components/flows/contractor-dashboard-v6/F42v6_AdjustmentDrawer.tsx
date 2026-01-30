@@ -32,11 +32,12 @@ import {
 import { toast } from 'sonner';
 import { useF42v6_DashboardStore, type F42v6_ContractType } from '@/stores/F42v6_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle, Calendar } from 'lucide-react';
+import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle } from 'lucide-react';
 import { F41v6_TimeInput } from '@/components/flows/employee-dashboard-v6/F41v6_TimeInput';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
 
 export type ContractorRequestType = 'expense' | 'additional-hours' | 'bonus' | 'correction' | null;
 
@@ -80,6 +81,7 @@ interface AdditionalHoursLineItem {
 interface CommissionLineItem {
   id: string;
   amount: string;
+  attachment: File | null;
 }
 const getRequestTypeOptions = (contractType: F42v6_ContractType) => {
   const options = [
@@ -150,7 +152,7 @@ export const F42v6_AdjustmentDrawer = ({
   
   // Commission form state - multiple line items
   const [commissionItems, setCommissionItems] = useState<CommissionLineItem[]>([
-    { id: crypto.randomUUID(), amount: '' }
+    { id: crypto.randomUUID(), amount: '', attachment: null }
   ]);
   
   // Correction form state
@@ -168,7 +170,7 @@ export const F42v6_AdjustmentDrawer = ({
     setSelectedType(initialType);
     setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
     setAdditionalHoursItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
-    setCommissionItems([{ id: crypto.randomUUID(), amount: '' }]);
+    setCommissionItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
     setCorrectionDescription('');
     setCorrectionAttachment(null);
     setErrors({});
@@ -219,7 +221,7 @@ export const F42v6_AdjustmentDrawer = ({
 
   // Commission line item helpers
   const addCommissionItem = () => {
-    setCommissionItems(prev => [...prev, { id: crypto.randomUUID(), amount: '' }]);
+    setCommissionItems(prev => [...prev, { id: crypto.randomUUID(), amount: '', attachment: null }]);
   };
 
   const removeCommissionItem = (id: string) => {
@@ -227,7 +229,7 @@ export const F42v6_AdjustmentDrawer = ({
     setCommissionItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateCommissionItem = (id: string, field: keyof CommissionLineItem, value: string) => {
+  const updateCommissionItem = (id: string, field: keyof CommissionLineItem, value: string | File | null) => {
     setCommissionItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -288,7 +290,7 @@ export const F42v6_AdjustmentDrawer = ({
     }
     // Pre-fill commission amount for resubmissions
     if (open && initialType === 'bonus' && initialExpenseAmount) {
-      setCommissionItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount }]);
+      setCommissionItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount, attachment: null }]);
     }
     // Pre-fill additional hours for resubmissions
     if (open && initialType === 'additional-hours') {
@@ -487,6 +489,7 @@ export const F42v6_AdjustmentDrawer = ({
         type: 'Bonus',
         label: 'Commission',
         amount: parseFloat(item.amount),
+        receiptUrl: item.attachment ? URL.createObjectURL(item.attachment) : undefined,
       });
     });
 
@@ -852,13 +855,12 @@ export const F42v6_AdjustmentDrawer = ({
                           <Button
                             variant="outline"
                             className={cn(
-                              "w-full justify-start text-left font-normal h-9",
+                              "w-full h-9 justify-start text-left font-normal",
                               !item.date && "text-muted-foreground",
                               errors[`additional_${index}_date`] && "border-destructive"
                             )}
                           >
-                            <Calendar className="mr-2 h-4 w-4" />
-                            {item.date ? format(item.date, 'PPP') : 'Select date'}
+                            {item.date ? format(item.date, 'MMM d, yyyy') : 'Select date'}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -900,13 +902,11 @@ export const F42v6_AdjustmentDrawer = ({
                       </div>
                     </div>
 
-                    {/* Calculated hours display */}
+                    {/* Calculated hours badge - matching employee overtime UI */}
                     {item.calculatedHours > 0 && (
-                      <div className="flex items-center justify-end pt-1">
-                        <span className="text-xs text-muted-foreground">
-                          = <span className="font-medium text-foreground tabular-nums">{item.calculatedHours}h</span>
-                        </span>
-                      </div>
+                      <Badge variant="secondary" className="text-xs w-fit">
+                        {item.calculatedHours}h calculated
+                      </Badge>
                     )}
                   </div>
                 ))}
@@ -922,11 +922,11 @@ export const F42v6_AdjustmentDrawer = ({
                 </button>
               </div>
 
-              {/* Session total - always show when has calculated hours */}
-              {additionalHoursItems.length > 0 && (
+              {/* Total hours summary - show when has calculated hours */}
+              {additionalHoursItems.some(item => item.calculatedHours > 0) && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Session total</span>
+                    <span className="text-sm text-muted-foreground">Total hours</span>
                     <span className="text-sm font-semibold tabular-nums">
                       {totalAdditionalHours}h
                     </span>
@@ -989,6 +989,42 @@ export const F42v6_AdjustmentDrawer = ({
                       />
                       {errors[`commission_${index}_amount`] && (
                         <p className="text-xs text-destructive">{errors[`commission_${index}_amount`]}</p>
+                      )}
+                    </div>
+
+                    {/* Attachment upload - optional */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Attachment (optional)</Label>
+                      {item.attachment ? (
+                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                          {item.attachment.type.startsWith('image/') ? (
+                            <Image className="h-4 w-4 text-primary" />
+                          ) : (
+                            <FileText className="h-4 w-4 text-primary" />
+                          )}
+                          <span className="text-xs flex-1 truncate">{item.attachment.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateCommissionItem(item.id, 'attachment', null)}
+                            className="p-0.5 hover:bg-muted rounded"
+                          >
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Upload file</span>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) updateCommissionItem(item.id, 'attachment', file);
+                            }}
+                          />
+                        </label>
                       )}
                     </div>
                   </div>
