@@ -827,27 +827,33 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                     </div>
 
                     {/* Start & End Time row */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Start time</Label>
-                        <F41v6_TimeInput
-                          value={item.startTime}
-                          onChange={(value) => updateOvertimeItem(item.id, 'startTime', value)}
-                          hasError={!!errors[`overtime_${index}_startTime`]}
-                        />
-                      </div>
+                    <div className="space-y-1.5">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Start time</Label>
+                          <F41v6_TimeInput
+                            value={item.startTime}
+                            onChange={(value) => updateOvertimeItem(item.id, 'startTime', value)}
+                            hasError={!!errors[`overtime_${index}_startTime`]}
+                          />
+                        </div>
 
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">End time</Label>
-                        <F41v6_TimeInput
-                          value={item.endTime}
-                          onChange={(value) => updateOvertimeItem(item.id, 'endTime', value)}
-                          hasError={!!errors[`overtime_${index}_endTime`]}
-                        />
-                        {errors[`overtime_${index}_endTime`] && (
-                          <p className="text-xs text-destructive">{errors[`overtime_${index}_endTime`]}</p>
-                        )}
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">End time</Label>
+                          <F41v6_TimeInput
+                            value={item.endTime}
+                            onChange={(value) => updateOvertimeItem(item.id, 'endTime', value)}
+                            hasError={!!errors[`overtime_${index}_endTime`]}
+                          />
+                          {errors[`overtime_${index}_endTime`] && (
+                            <p className="text-xs text-destructive">{errors[`overtime_${index}_endTime`]}</p>
+                          )}
+                        </div>
                       </div>
+                      {/* Timezone indicator */}
+                      <p className="text-[11px] text-muted-foreground">
+                        Times are in your local timezone ({Intl.DateTimeFormat().resolvedOptions().timeZone})
+                      </p>
                     </div>
 
                     {/* Hours badge */}
