@@ -69,22 +69,37 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
           <button
-            className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-muted/30 hover:bg-muted/50 border border-border/30 transition-colors text-left group"
+            className="w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-lg bg-card/50 backdrop-blur-sm hover:bg-muted/40 border border-border/40 transition-all duration-200 text-left group"
           >
-            <div className="flex items-center gap-2 min-w-0">
-              <FileEdit className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-              <span className="text-xs text-muted-foreground truncate">
-                Edit history
-              </span>
-              <Badge variant="secondary" className="h-4 px-1.5 text-[10px] font-medium">
-                {editCount}
-              </Badge>
+            {/* Header row */}
+            <div className="w-full flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="h-5 w-5 rounded-full bg-muted/50 flex items-center justify-center flex-shrink-0">
+                  <FileEdit className="h-3 w-3 text-muted-foreground" />
+                </div>
+                <span className="text-xs font-medium text-foreground">
+                  Edit history
+                </span>
+                <Badge variant="secondary" className="h-4 px-1.5 text-[10px] font-medium bg-muted/60">
+                  {editCount}
+                </Badge>
+              </div>
+              <ChevronDown 
+                className={`h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-transform duration-200 ${
+                  isOpen ? 'rotate-180' : ''
+                }`}
+              />
             </div>
-            <ChevronDown 
-              className={`h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-transform duration-200 ${
-                isOpen ? 'rotate-180' : ''
-              }`}
-            />
+            
+            {/* Last edit preview - only in collapsed state */}
+            {!isOpen && mostRecentEdit && (
+              <div className="flex items-center gap-1.5 pl-7 text-[11px] text-muted-foreground">
+                <Clock className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">
+                  {mostRecentEdit.editorName} · {formatRelativeTime(mostRecentEdit.timestamp)}
+                </span>
+              </div>
+            )}
           </button>
         </CollapsibleTrigger>
 
