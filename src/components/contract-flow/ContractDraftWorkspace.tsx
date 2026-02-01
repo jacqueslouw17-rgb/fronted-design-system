@@ -206,6 +206,25 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
 
+  // Measure how much vertical space the audit log has under the worker card,
+  // so the audit log can cap itself and become scrollable (without stretching UI).
+  const auditLogSlotRef = useRef<HTMLDivElement>(null);
+  const [auditLogSlotHeight, setAuditLogSlotHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = auditLogSlotRef.current;
+    if (!el) return;
+
+    const ro = new ResizeObserver(() => {
+      setAuditLogSlotHeight(el.clientHeight);
+    });
+
+    ro.observe(el);
+    setAuditLogSlotHeight(el.clientHeight);
+
+    return () => ro.disconnect();
+  }, [candidate.id]);
+
   // Helper to render text with highlighted variable data
   const renderHighlightedText = useCallback((text: string) => {
     const parts = text.split(/(\{\{hl\}\}.*?\{\{\/hl\}\})/g);
@@ -612,12 +631,13 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           </div>
         </Card>
         
-        {/* Audit Log - Grows to fill remaining space, scrolls when needed */}
-        <div className="flex-1 min-h-0 overflow-hidden">
+        {/* Audit Log - expands until it hits the agreement height, then scrolls */}
+        <div ref={auditLogSlotRef} className="flex-1 min-h-0 overflow-hidden">
           <ContractAuditLog
             contractId={contractId}
             workerName={candidate.name}
             editEvents={editEvents}
+            maxHeightPx={auditLogSlotHeight}
           />
         </div>
       </motion.div>
