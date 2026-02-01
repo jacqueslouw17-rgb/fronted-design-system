@@ -119,7 +119,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.2 }}
-      className="mt-3"
+      className="mt-3 h-full flex flex-col"
     >
       <Collapsible open={isOpen} onOpenChange={(open) => {
         setIsOpen(open);
@@ -161,19 +161,19 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
           </button>
         </CollapsibleTrigger>
 
-        <CollapsibleContent>
+        <CollapsibleContent className="flex-1 min-h-0 overflow-hidden">
           <AnimatePresence>
             {isOpen && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
+                animate={{ opacity: 1, height: '100%' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
+                className="h-full flex flex-col"
               >
-                <div className="mt-2 rounded-lg border border-border/30 bg-card/30 overflow-hidden">
-                  {/* Edit log list - fixed max height with scroll */}
-                  <div className="max-h-32 overflow-hidden">
-                    <ScrollArea className="h-full max-h-32">
+                <div className="mt-2 rounded-lg border border-border/30 bg-card/30 overflow-hidden flex-1 min-h-0 flex flex-col">
+                  {/* Edit log list - grows to fill available space, scrolls when needed */}
+                  <ScrollArea className="flex-1 min-h-0">
                     {showAll ? (
                       // Grouped view when showing all
                       <div className="divide-y divide-border/20">
@@ -259,8 +259,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                         ))}
                       </div>
                     )}
-                    </ScrollArea>
-                  </div>
+                  </ScrollArea>
 
                   {/* Show all / Show less toggle */}
                   {hasMoreEdits && (
