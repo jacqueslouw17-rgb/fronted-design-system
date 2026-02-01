@@ -97,7 +97,6 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
 
   const triggerButtonRef = useRef<HTMLButtonElement | null>(null);
   const showAllToggleRef = useRef<HTMLButtonElement | null>(null);
-  const footerRef = useRef<HTMLDivElement | null>(null);
   const [scrollMaxHeight, setScrollMaxHeight] = useState<number | undefined>(undefined);
 
   const editCount = editEvents.length;
@@ -117,13 +116,12 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
 
     const triggerH = triggerButtonRef.current?.offsetHeight ?? 0;
     const toggleH = hasMoreEdits ? (showAllToggleRef.current?.offsetHeight ?? 0) : 0;
-    const footerH = footerRef.current?.offsetHeight ?? 0;
 
     // Small safety padding so we don't clip borders / last row.
     const safetyPx = 8;
 
     const available =
-      maxHeightPx - rootMtPx - triggerH - expandedCardMtPx - toggleH - footerH - safetyPx;
+      maxHeightPx - rootMtPx - triggerH - expandedCardMtPx - toggleH - safetyPx;
 
     setScrollMaxHeight(Math.max(96, available));
   }, [hasMoreEdits, isOpen, maxHeightPx]);
@@ -316,13 +314,6 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                       </span>
                     </button>
                   )}
-
-                  {/* Footer */}
-                  <div ref={footerRef} className="px-3 py-1.5 border-t border-border/20 bg-muted/5">
-                    <p className="text-[10px] text-muted-foreground text-center">
-                      Read-only audit log
-                    </p>
-                  </div>
                 </div>
               </motion.div>
             )}
