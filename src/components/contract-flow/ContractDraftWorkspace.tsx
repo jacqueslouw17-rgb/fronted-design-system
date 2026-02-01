@@ -561,7 +561,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     }} transition={{
       duration: 0.3
     }} className="h-full flex gap-4 items-start">
-      {/* Left: Candidate card - Fixed height */}
+      {/* Left: Candidate card + Audit Log - Flex column with max height matching right panel */}
       <motion.div initial={{
         x: -20,
         opacity: 0
@@ -571,10 +571,9 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
       }} transition={{
         delay: 0.1,
         duration: 0.3
-      }} className="w-80 flex-shrink-0">
-        <Card className="p-6 overflow-auto border border-border/40 bg-card/50 backdrop-blur-sm" style={{
-          maxHeight: '600px'
-        }}>
+      }} className="w-80 flex-shrink-0 flex flex-col h-[600px]">
+        {/* Worker card - stays compact, doesn't stretch */}
+        <Card className="p-6 border border-border/40 bg-card/50 backdrop-blur-sm flex-shrink-0">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-4xl">{candidate.flag}</span>
             <div className="flex-1">
@@ -613,12 +612,14 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           </div>
         </Card>
         
-        {/* Audit Log - Collapsible below candidate card */}
-        <ContractAuditLog
-          contractId={contractId}
-          workerName={candidate.name}
-          editEvents={editEvents}
-        />
+        {/* Audit Log - Grows to fill remaining space, scrolls when needed */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <ContractAuditLog
+            contractId={contractId}
+            workerName={candidate.name}
+            editEvents={editEvents}
+          />
+        </div>
       </motion.div>
 
       {/* Right: Contract editor */}
