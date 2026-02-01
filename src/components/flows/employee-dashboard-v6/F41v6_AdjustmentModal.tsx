@@ -457,15 +457,23 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     handleClose();
   };
 
+  // Round to nearest 0.5
+  const roundToNearestHalf = (value: number): number => {
+    return Math.round(value * 2) / 2;
+  };
+
   const handleSubmitUnpaidLeave = () => {
     if (!validateUnpaidLeave()) return;
 
-    const days = parseFloat(unpaidLeaveDays);
+    const rawDays = parseFloat(unpaidLeaveDays);
+    const roundedDays = roundToNearestHalf(rawDays);
+    const wasRounded = rawDays !== roundedDays;
+
     addAdjustment({
       type: 'Unpaid Leave',
-      label: `${days} day${days !== 1 ? 's' : ''} unpaid leave`,
+      label: `${roundedDays} day${roundedDays !== 1 ? 's' : ''} unpaid leave`,
       amount: null,
-      days: days,
+      days: roundedDays,
     });
 
     // Mark the rejected item as resubmitted if this was a resubmission
@@ -473,7 +481,13 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       markRejectionResubmitted(rejectedId);
     }
 
-    toast.success(`Unpaid leave request submitted for review.`);
+    if (wasRounded) {
+      toast.success(`Unpaid leave request submitted for review.`, {
+        description: `Days rounded from ${rawDays} to ${roundedDays} (nearest half day).`,
+      });
+    } else {
+      toast.success(`Unpaid leave request submitted for review.`);
+    }
     handleClose();
   };
 
