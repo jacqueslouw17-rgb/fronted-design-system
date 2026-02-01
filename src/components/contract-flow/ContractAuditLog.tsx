@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Clock, User, FileEdit } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 export interface ContractEditEvent {
   id: string;
@@ -211,7 +210,10 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
               >
                 <div className="mt-2 rounded-lg border border-border/30 bg-card/30 overflow-hidden">
                   {/* Edit log list - caps to available height, then scrolls */}
-                  <ScrollArea style={scrollMaxHeight ? { maxHeight: scrollMaxHeight } : undefined}>
+                  <div
+                    className="overflow-y-auto"
+                    style={scrollMaxHeight ? { maxHeight: scrollMaxHeight } : undefined}
+                  >
                     {showAll ? (
                       // Grouped view when showing all
                       <div className="divide-y divide-border/20">
@@ -224,7 +226,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                               </span>
                             </div>
                             {/* Group events */}
-                            {group.events.map((event, index) => {
+                            {group.events.map((event) => {
                               const isLatest = event.id === editEvents[0]?.id;
                               const opacityClass = !isLatest && group.group === 'Older' 
                                 ? 'opacity-60' 
@@ -297,7 +299,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                         ))}
                       </div>
                     )}
-                  </ScrollArea>
+                  </div>
 
                   {/* Show all / Show less toggle */}
                   {hasMoreEdits && (
