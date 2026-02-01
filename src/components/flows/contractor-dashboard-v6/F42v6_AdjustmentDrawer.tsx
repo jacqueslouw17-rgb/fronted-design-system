@@ -879,27 +879,33 @@ export const F42v6_AdjustmentDrawer = ({
                     </div>
 
                     {/* Start & End Time row */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Start time</Label>
-                        <F41v6_TimeInput
-                          value={item.startTime}
-                          onChange={(val) => updateAdditionalHoursItem(item.id, 'startTime', val)}
-                          hasError={!!errors[`additional_${index}_startTime`]}
-                        />
-                      </div>
+                    <div className="space-y-1.5">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Start time</Label>
+                          <F41v6_TimeInput
+                            value={item.startTime}
+                            onChange={(val) => updateAdditionalHoursItem(item.id, 'startTime', val)}
+                            hasError={!!errors[`additional_${index}_startTime`]}
+                          />
+                        </div>
 
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">End time</Label>
-                        <F41v6_TimeInput
-                          value={item.endTime}
-                          onChange={(val) => updateAdditionalHoursItem(item.id, 'endTime', val)}
-                          hasError={!!errors[`additional_${index}_endTime`]}
-                        />
-                        {errors[`additional_${index}_endTime`] && (
-                          <p className="text-xs text-destructive">{errors[`additional_${index}_endTime`]}</p>
-                        )}
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">End time</Label>
+                          <F41v6_TimeInput
+                            value={item.endTime}
+                            onChange={(val) => updateAdditionalHoursItem(item.id, 'endTime', val)}
+                            hasError={!!errors[`additional_${index}_endTime`]}
+                          />
+                          {errors[`additional_${index}_endTime`] && (
+                            <p className="text-xs text-destructive">{errors[`additional_${index}_endTime`]}</p>
+                          )}
+                        </div>
                       </div>
+                      {/* Timezone indicator */}
+                      <p className="text-[11px] text-muted-foreground">
+                        Times are in your local timezone ({Intl.DateTimeFormat().resolvedOptions().timeZone})
+                      </p>
                     </div>
 
                     {/* Calculated hours badge - matching employee overtime UI */}
