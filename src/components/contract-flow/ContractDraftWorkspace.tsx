@@ -12,6 +12,8 @@ import { ContractCarousel } from "./ContractCarousel";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { useAgentState } from "@/hooks/useAgentState";
+import { ContractAuditLog } from "./ContractAuditLog";
+import { useGlobalContractAuditLog } from "@/hooks/useContractAuditLog";
 type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance";
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -147,6 +149,11 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 }) => {
   // Determine employment type (default to contractor if not specified)
   const employmentType = candidate.employmentType || "contractor";
+  
+  // Contract audit log hook
+  const { getEditEvents } = useGlobalContractAuditLog();
+  const contractId = `${candidate.name.toLowerCase().replace(/\s+/g, '-')}-${candidate.countryCode?.toLowerCase() || 'unknown'}`;
+  const editEvents = getEditEvents(contractId);
 
   const documents = useMemo(() => {
     if (employmentType === "employee") {
@@ -605,6 +612,13 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 
           </div>
         </Card>
+        
+        {/* Audit Log - Collapsible below candidate card */}
+        <ContractAuditLog
+          contractId={contractId}
+          workerName={candidate.name}
+          editEvents={editEvents}
+        />
       </motion.div>
 
       {/* Right: Contract editor */}
