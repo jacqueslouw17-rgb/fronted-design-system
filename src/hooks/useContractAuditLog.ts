@@ -68,26 +68,68 @@ let globalAuditState: ContractAuditState = {};
 // Initialize with some demo data
 const initializeDemoData = () => {
   if (Object.keys(globalAuditState).length === 0) {
-    // Add some mock historical edits for demo purposes
+    // Add 10 mock historical edits for demo purposes
     globalAuditState = {
       "marcus-chen-sg": [
         {
           id: "edit-demo-1",
           editorName: "Sarah Johnson",
           workerName: "Marcus Chen",
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+          timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago (Today)
         },
         {
           id: "edit-demo-2",
           editorName: "David Park",
           workerName: "Marcus Chen",
-          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago (Today)
         },
         {
           id: "edit-demo-3",
           editorName: "Emily Rodriguez",
           workerName: "Marcus Chen",
-          timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+          timestamp: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(), // Yesterday
+        },
+        {
+          id: "edit-demo-4",
+          editorName: "Michael Chen",
+          workerName: "Marcus Chen",
+          timestamp: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(), // Yesterday
+        },
+        {
+          id: "edit-demo-5",
+          editorName: "Sarah Johnson",
+          workerName: "Marcus Chen",
+          timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago (This week)
+        },
+        {
+          id: "edit-demo-6",
+          editorName: "Lisa Wong",
+          workerName: "Marcus Chen",
+          timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago (This week)
+        },
+        {
+          id: "edit-demo-7",
+          editorName: "David Park",
+          workerName: "Marcus Chen",
+          timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago (This week)
+        },
+        {
+          id: "edit-demo-8",
+          editorName: "James Miller",
+          workerName: "Marcus Chen",
+          timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago (Older)
+        },
+        {
+          id: "edit-demo-9",
+          editorName: "Emily Rodriguez",
+          workerName: "Marcus Chen",
+          timestamp: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days ago (Older)
+        },
+        {
+          id: "edit-demo-10",
+          editorName: "Michael Chen",
+          workerName: "Marcus Chen",
+          timestamp: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(), // 21 days ago (Older)
         },
       ],
     };

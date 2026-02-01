@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Clock, User, FileEdit } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -17,6 +17,8 @@ interface ContractAuditLogProps {
   workerName: string;
   editEvents: ContractEditEvent[];
 }
+
+const INITIAL_VISIBLE_COUNT = 3;
 
 const formatTimestamp = (isoString: string): string => {
   const date = new Date(isoString);
@@ -45,19 +47,72 @@ const formatRelativeTime = (isoString: string): string => {
   return formatTimestamp(isoString);
 };
 
+type DateGroup = 'Today' | 'Yesterday' | 'This week' | 'Older';
+
+const getDateGroup = (isoString: string): DateGroup => {
+  const date = new Date(isoString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return 'This week';
+  return 'Older';
+};
+
+interface GroupedEvents {
+  group: DateGroup;
+  events: ContractEditEvent[];
+}
+
+const groupEventsByDate = (events: ContractEditEvent[]): GroupedEvents[] => {
+  const groups: Record<DateGroup, ContractEditEvent[]> = {
+    'Today': [],
+    'Yesterday': [],
+    'This week': [],
+    'Older': [],
+  };
+
+  events.forEach(event => {
+    const group = getDateGroup(event.timestamp);
+    groups[group].push(event);
+  });
+
+  const order: DateGroup[] = ['Today', 'Yesterday', 'This week', 'Older'];
+  return order
+    .filter(group => groups[group].length > 0)
+    .map(group => ({ group, events: groups[group] }));
+};
+
 export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
   contractId,
   workerName,
   editEvents,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   const editCount = editEvents.length;
   const mostRecentEdit = editEvents[0] || null;
+  const hasMoreEdits = editCount > INITIAL_VISIBLE_COUNT;
+
+  // Events to display based on showAll state
+  const visibleEvents = useMemo(() => {
+    if (showAll) return editEvents;
+    return editEvents.slice(0, INITIAL_VISIBLE_COUNT);
+  }, [editEvents, showAll]);
+
+  // Grouped events for full view
+  const groupedEvents = useMemo(() => {
+    return groupEventsByDate(editEvents);
+  }, [editEvents]);
 
   if (editCount === 0) {
     return null; // Don't show if no edits
   }
+
+  const hiddenCount = editCount - INITIAL_VISIBLE_COUNT;
 
   return (
     <motion.div
@@ -66,7 +121,10 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
       transition={{ delay: 0.3, duration: 0.2 }}
       className="mt-3"
     >
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible open={isOpen} onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) setShowAll(false); // Reset showAll when collapsing
+      }}>
         <CollapsibleTrigger asChild>
           <button
             className="w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-lg bg-card/50 backdrop-blur-sm hover:bg-muted/40 border border-border/40 transition-all duration-200 text-left group"
@@ -113,55 +171,114 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                 transition={{ duration: 0.2 }}
               >
                 <div className="mt-2 rounded-lg border border-border/30 bg-card/30 overflow-hidden">
-                  {/* Summary header */}
-                  {mostRecentEdit && (
-                    <div className="px-3 py-2 border-b border-border/20 bg-muted/20">
-                      <p className="text-[11px] text-muted-foreground">
-                        Last edited by <span className="text-foreground font-medium">{mostRecentEdit.editorName}</span>
-                        {' · '}
-                        <span className="text-muted-foreground">{formatRelativeTime(mostRecentEdit.timestamp)}</span>
-                      </p>
-                    </div>
-                  )}
-
                   {/* Edit log list */}
-                  <ScrollArea className="max-h-40">
-                    <div className="divide-y divide-border/20">
-                      {editEvents.map((event, index) => (
-                        <div
-                          key={event.id}
-                          className="px-3 py-2 flex items-start gap-2 hover:bg-muted/10 transition-colors"
-                        >
-                          <div className="flex-shrink-0 mt-0.5">
-                            <div className="h-5 w-5 rounded-full bg-muted/50 flex items-center justify-center">
-                              <User className="h-3 w-3 text-muted-foreground" />
-                            </div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs text-foreground font-medium truncate">
-                              {event.editorName}
-                            </p>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <Clock className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-[10px] text-muted-foreground">
-                                {formatTimestamp(event.timestamp)}
+                  <ScrollArea className={showAll ? "max-h-64" : "max-h-auto"}>
+                    {showAll ? (
+                      // Grouped view when showing all
+                      <div className="divide-y divide-border/20">
+                        {groupedEvents.map((group) => (
+                          <div key={group.group}>
+                            {/* Group header */}
+                            <div className="px-3 py-1.5 bg-muted/30 sticky top-0">
+                              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+                                {group.group}
                               </span>
                             </div>
+                            {/* Group events */}
+                            {group.events.map((event, index) => {
+                              const isLatest = event.id === editEvents[0]?.id;
+                              const opacityClass = !isLatest && group.group === 'Older' 
+                                ? 'opacity-60' 
+                                : group.group === 'This week' && !isLatest
+                                  ? 'opacity-80'
+                                  : '';
+                              
+                              return (
+                                <div
+                                  key={event.id}
+                                  className={`px-3 py-2 flex items-start gap-2 hover:bg-muted/10 transition-colors ${opacityClass}`}
+                                >
+                                  <div className="flex-shrink-0 mt-0.5">
+                                    <div className="h-5 w-5 rounded-full bg-muted/50 flex items-center justify-center">
+                                      <User className="h-3 w-3 text-muted-foreground" />
+                                    </div>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs text-foreground font-medium truncate">
+                                      {event.editorName}
+                                    </p>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <Clock className="h-3 w-3 text-muted-foreground" />
+                                      <span className="text-[10px] text-muted-foreground">
+                                        {formatTimestamp(event.timestamp)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  {isLatest && (
+                                    <Badge variant="outline" className="h-4 px-1.5 text-[9px] flex-shrink-0">
+                                      Latest
+                                    </Badge>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
-                          {index === 0 && (
-                            <Badge variant="outline" className="h-4 px-1.5 text-[9px] flex-shrink-0">
-                              Latest
-                            </Badge>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      // Compact view - show first 3
+                      <div className="divide-y divide-border/20">
+                        {visibleEvents.map((event, index) => (
+                          <div
+                            key={event.id}
+                            className="px-3 py-2 flex items-start gap-2 hover:bg-muted/10 transition-colors"
+                          >
+                            <div className="flex-shrink-0 mt-0.5">
+                              <div className="h-5 w-5 rounded-full bg-muted/50 flex items-center justify-center">
+                                <User className="h-3 w-3 text-muted-foreground" />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-foreground font-medium truncate">
+                                {event.editorName}
+                              </p>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <Clock className="h-3 w-3 text-muted-foreground" />
+                                <span className="text-[10px] text-muted-foreground">
+                                  {formatRelativeTime(event.timestamp)}
+                                </span>
+                              </div>
+                            </div>
+                            {index === 0 && (
+                              <Badge variant="outline" className="h-4 px-1.5 text-[9px] flex-shrink-0">
+                                Latest
+                              </Badge>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </ScrollArea>
 
+                  {/* Show all / Show less toggle */}
+                  {hasMoreEdits && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAll(!showAll);
+                      }}
+                      className="w-full px-3 py-2 border-t border-border/20 bg-muted/10 hover:bg-muted/20 transition-colors text-center"
+                    >
+                      <span className="text-[11px] text-primary font-medium">
+                        {showAll ? 'Show less' : `Show all ${editCount} edits`}
+                      </span>
+                    </button>
+                  )}
+
                   {/* Footer */}
-                  <div className="px-3 py-1.5 border-t border-border/20 bg-muted/10">
+                  <div className="px-3 py-1.5 border-t border-border/20 bg-muted/5">
                     <p className="text-[10px] text-muted-foreground text-center">
-                      {editCount} edit{editCount !== 1 ? 's' : ''} recorded · Read-only log
+                      Read-only audit log
                     </p>
                   </div>
                 </div>
