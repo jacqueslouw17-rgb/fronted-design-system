@@ -79,13 +79,13 @@ const initializeDemoData = () => {
         },
         {
           id: "edit-demo-2",
-          editorName: "Admin User",
+          editorName: "David Park",
           workerName: "Marcus Chen",
           timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
         },
         {
           id: "edit-demo-3",
-          editorName: "HR Manager",
+          editorName: "Emily Rodriguez",
           workerName: "Marcus Chen",
           timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
         },
