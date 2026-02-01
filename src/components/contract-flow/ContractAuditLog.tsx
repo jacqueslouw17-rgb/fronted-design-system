@@ -171,8 +171,8 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                 transition={{ duration: 0.2 }}
               >
                 <div className="mt-2 rounded-lg border border-border/30 bg-card/30 overflow-hidden">
-                  {/* Edit log list */}
-                  <ScrollArea className={showAll ? "max-h-64" : "max-h-auto"}>
+                  {/* Edit log list - fixed max height with scroll */}
+                  <ScrollArea className="max-h-32">
                     {showAll ? (
                       // Grouped view when showing all
                       <div className="divide-y divide-border/20">
