@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useLayoutEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Clock, User, FileEdit } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -16,6 +16,8 @@ interface ContractAuditLogProps {
   contractId: string;
   workerName: string;
   editEvents: ContractEditEvent[];
+  /** Max height available for this component (in px). Used to enable scrolling when showing full history. */
+  maxHeightPx?: number;
 }
 
 const INITIAL_VISIBLE_COUNT = 3;
@@ -89,13 +91,49 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
   contractId,
   workerName,
   editEvents,
+  maxHeightPx,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
+  const triggerButtonRef = useRef<HTMLButtonElement | null>(null);
+  const showAllToggleRef = useRef<HTMLButtonElement | null>(null);
+  const footerRef = useRef<HTMLDivElement | null>(null);
+  const [scrollMaxHeight, setScrollMaxHeight] = useState<number | undefined>(undefined);
+
   const editCount = editEvents.length;
   const mostRecentEdit = editEvents[0] || null;
   const hasMoreEdits = editCount > INITIAL_VISIBLE_COUNT;
+
+  const recalcScrollMaxHeight = useCallback(() => {
+    if (!maxHeightPx || !isOpen) {
+      setScrollMaxHeight(undefined);
+      return;
+    }
+
+    // Tailwind spacing used in this component:
+    // mt-3 (12px) on the root + mt-2 (8px) on the expanded card.
+    const rootMtPx = 12;
+    const expandedCardMtPx = 8;
+
+    const triggerH = triggerButtonRef.current?.offsetHeight ?? 0;
+    const toggleH = hasMoreEdits ? (showAllToggleRef.current?.offsetHeight ?? 0) : 0;
+    const footerH = footerRef.current?.offsetHeight ?? 0;
+
+    // Small safety padding so we don't clip borders / last row.
+    const safetyPx = 8;
+
+    const available =
+      maxHeightPx - rootMtPx - triggerH - expandedCardMtPx - toggleH - footerH - safetyPx;
+
+    setScrollMaxHeight(Math.max(96, available));
+  }, [hasMoreEdits, isOpen, maxHeightPx]);
+
+  useLayoutEffect(() => {
+    recalcScrollMaxHeight();
+    window.addEventListener("resize", recalcScrollMaxHeight);
+    return () => window.removeEventListener("resize", recalcScrollMaxHeight);
+  }, [recalcScrollMaxHeight, showAll, editEvents.length]);
 
   // Events to display based on showAll state
   const visibleEvents = useMemo(() => {
@@ -119,7 +157,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.2 }}
-      className="mt-3 h-full flex flex-col"
+      className="mt-3"
     >
       <Collapsible open={isOpen} onOpenChange={(open) => {
         setIsOpen(open);
@@ -127,6 +165,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
       }}>
         <CollapsibleTrigger asChild>
           <button
+            ref={triggerButtonRef}
             className="w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-lg bg-card/50 backdrop-blur-sm hover:bg-muted/40 border border-border/40 transition-all duration-200 text-left group"
           >
             {/* Header row */}
@@ -161,19 +200,18 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
           </button>
         </CollapsibleTrigger>
 
-        <CollapsibleContent className="flex-1 min-h-0 overflow-hidden">
+        <CollapsibleContent>
           <AnimatePresence>
             {isOpen && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: '100%' }}
+                animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
-                className="h-full flex flex-col"
               >
-                <div className="mt-2 rounded-lg border border-border/30 bg-card/30 overflow-hidden flex-1 min-h-0 flex flex-col">
-                  {/* Edit log list - grows to fill available space, scrolls when needed */}
-                  <ScrollArea className="flex-1 min-h-0">
+                <div className="mt-2 rounded-lg border border-border/30 bg-card/30 overflow-hidden">
+                  {/* Edit log list - caps to available height, then scrolls */}
+                  <ScrollArea style={scrollMaxHeight ? { maxHeight: scrollMaxHeight } : undefined}>
                     {showAll ? (
                       // Grouped view when showing all
                       <div className="divide-y divide-border/20">
@@ -264,6 +302,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                   {/* Show all / Show less toggle */}
                   {hasMoreEdits && (
                     <button
+                      ref={showAllToggleRef}
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowAll(!showAll);
@@ -277,7 +316,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                   )}
 
                   {/* Footer */}
-                  <div className="px-3 py-1.5 border-t border-border/20 bg-muted/5">
+                  <div ref={footerRef} className="px-3 py-1.5 border-t border-border/20 bg-muted/5">
                     <p className="text-[10px] text-muted-foreground text-center">
                       Read-only audit log
                     </p>
