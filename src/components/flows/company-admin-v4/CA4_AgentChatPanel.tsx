@@ -357,21 +357,71 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 ))
               )}
 
-              {/* Enhanced skeleton loading with animation */}
+              {/* Enhanced skeleton loading with cool staggered animation */}
               {showRetrieving && (
                 <motion.div 
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-2.5"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-5"
                 >
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground/60 mb-3">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    <span>Retrieving data...</span>
+                  {/* Status indicator */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1, duration: 0.3 }}
+                    className="flex items-center gap-2.5"
+                  >
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.5, 1, 0.5] 
+                      }}
+                      transition={{ 
+                        duration: 1.5, 
+                        repeat: Infinity, 
+                        ease: "easeInOut" 
+                      }}
+                      className="w-2 h-2 rounded-full bg-primary"
+                    />
+                    <span className="text-xs text-muted-foreground/70 font-medium">Retrieving context...</span>
+                  </motion.div>
+
+                  {/* Content skeleton blocks with staggered fade-in */}
+                  <div className="space-y-3">
+                    {[
+                      { width: '92%', delay: 0.15 },
+                      { width: '78%', delay: 0.25 },
+                      { width: '85%', delay: 0.35 },
+                      { width: '65%', delay: 0.45 },
+                    ].map((line, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: line.delay, duration: 0.3, ease: "easeOut" }}
+                      >
+                        <Skeleton 
+                          className="h-3 rounded-full" 
+                          style={{ 
+                            width: line.width,
+                            animationDelay: `${i * 150}ms`,
+                          }} 
+                        />
+                      </motion.div>
+                    ))}
                   </div>
-                  <Skeleton className="h-3 w-[85%] animate-pulse" />
-                  <Skeleton className="h-3 w-[70%] animate-pulse" style={{ animationDelay: '150ms' }} />
-                  <Skeleton className="h-3 w-[60%] animate-pulse" style={{ animationDelay: '300ms' }} />
-                  <Skeleton className="h-3 w-[75%] animate-pulse" style={{ animationDelay: '450ms' }} />
+
+                  {/* Simulated action buttons skeleton */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.3 }}
+                    className="flex items-center gap-2 pt-1"
+                  >
+                    <Skeleton className="h-7 w-24 rounded-lg" />
+                    <Skeleton className="h-7 w-20 rounded-lg" style={{ animationDelay: '100ms' }} />
+                  </motion.div>
                 </motion.div>
               )}
 
