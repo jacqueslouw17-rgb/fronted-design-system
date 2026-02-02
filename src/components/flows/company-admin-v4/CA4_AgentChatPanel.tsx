@@ -242,11 +242,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
             ref={scrollRef}
             className="flex-1 overflow-y-auto"
           >
-            <div className="p-5 space-y-5">
+            <div className="px-4 py-4 space-y-4">
               {messages.length === 0 ? (
-                <div className="pt-4">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Ask me about your payroll, workers, or pending submissions.
+                <div className="pt-2">
+                  <p className="text-[13px] text-muted-foreground/70">
+                    Ask about payroll, workers, or submissions.
                   </p>
                 </div>
               ) : (
@@ -261,16 +261,16 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
               {/* Skeleton loading when waiting for first token */}
               {isLoading && messages[messages.length - 1]?.role === 'user' && (
-                <div className="space-y-3">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-4 w-2/3" />
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-3 w-5/8" />
                 </div>
               )}
 
               {/* Navigation status */}
               {isNavigating && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground/60">
                   {navigationMessage || 'Navigating...'}
                 </p>
               )}
@@ -335,32 +335,34 @@ const MessageBubble: React.FC<{
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] px-4 py-3 rounded-2xl bg-foreground text-background text-sm leading-relaxed">
+        <div className="max-w-[88%] px-3 py-2 rounded-2xl bg-muted/60 text-foreground/80 text-[13px] leading-relaxed">
           {message.content}
         </div>
       </div>
     );
   }
 
-  // Assistant message with markdown
+  // Assistant message with markdown - tight, dense styling
   return (
-    <div className="space-y-2">
-      <div className={cn(
-        "prose prose-sm prose-neutral dark:prose-invert max-w-none",
-        "prose-p:leading-relaxed prose-p:my-2",
-        "prose-headings:my-3 prose-headings:font-semibold",
-        "prose-ul:my-2 prose-li:my-0.5",
-        "prose-strong:font-semibold",
-        "prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-xs",
-        "[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-      )}>
-        <ReactMarkdown>
-          {message.content || ''}
-        </ReactMarkdown>
-        {isStreaming && (
-          <span className="inline-block w-2 h-4 bg-foreground/60 animate-pulse ml-0.5" />
-        )}
-      </div>
+    <div className={cn(
+      "text-[13px] text-foreground/90 leading-relaxed",
+      "[&_p]:my-1.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
+      "[&_h1]:text-sm [&_h1]:font-semibold [&_h1]:mt-3 [&_h1]:mb-1.5",
+      "[&_h2]:text-sm [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-1.5",
+      "[&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:mt-2.5 [&_h3]:mb-1",
+      "[&_ul]:my-1.5 [&_ul]:pl-4 [&_ul]:list-disc",
+      "[&_ol]:my-1.5 [&_ol]:pl-4 [&_ol]:list-decimal",
+      "[&_li]:my-0.5",
+      "[&_strong]:font-semibold",
+      "[&_code]:bg-muted/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono",
+      "[&_pre]:bg-muted/40 [&_pre]:p-2 [&_pre]:rounded-lg [&_pre]:my-2 [&_pre]:overflow-x-auto",
+    )}>
+      <ReactMarkdown>
+        {message.content || ''}
+      </ReactMarkdown>
+      {isStreaming && (
+        <span className="inline-block w-1.5 h-3.5 bg-foreground/50 animate-pulse ml-0.5 rounded-sm" />
+      )}
     </div>
   );
 };
