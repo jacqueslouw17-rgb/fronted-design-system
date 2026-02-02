@@ -16,10 +16,9 @@ import {
   CA4_LeavesTab,
   CA4_AgentProvider,
   CA4_AgentChatPanel,
-  CA4_AskKurtButton,
+  CA4_KurtVisualizer,
   useCA4Agent,
 } from "@/components/flows/company-admin-v4";
-import { cn } from "@/lib/utils";
 
 const CompanyAdminDashboardV4Content: React.FC = () => {
   const {
@@ -103,17 +102,20 @@ const CompanyAdminDashboardV4Content: React.FC = () => {
                 className="flex-1 overflow-y-auto"
               >
                 <div className="max-w-7xl mx-auto p-8 pb-32 space-y-6">
-                  {/* Agent Header - Clean and inviting */}
-                  <div className="flex items-start justify-between gap-6">
-                    <div className="space-y-1">
-                      <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+                  {/* Agent Header - Centered with frequency visualizer */}
+                  <div className="flex flex-col items-center text-center space-y-4 pt-4 pb-6">
+                    {/* Kurt Frequency Visualizer - Interactive entry point */}
+                    <CA4_KurtVisualizer />
+                    
+                    {/* Title & Subtitle */}
+                    <div className="space-y-2 pt-2">
+                      <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                         Company Admin · Payroll
                       </h1>
-                      <p className="text-sm text-muted-foreground max-w-lg">
+                      <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto">
                         Ask anything about payroll, taxes, FX, or worker costs. I'll navigate the dashboard and open the right details for you.
                       </p>
                     </div>
-                    <CA4_AskKurtButton />
                   </div>
 
                   {/* Tab Content */}
