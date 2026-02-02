@@ -35,7 +35,12 @@ export const CA4_KurtVisualizer: React.FC = () => {
     <div className="relative flex flex-col items-center">
       {/* Clickable visualizer container */}
       <motion.button
-        onClick={toggleOpen}
+        onClick={() => {
+          // Only open the panel, never close it from here (use X button in panel to close)
+          if (!isOpen) {
+            toggleOpen();
+          }
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className="relative w-64 h-32 flex items-center justify-center gap-2 cursor-pointer border-none bg-transparent outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus-visible:ring-0 hover:bg-transparent"

@@ -135,36 +135,44 @@ export const CA4_AgentChatPanel: React.FC = () => {
     // Detect worker intent and trigger UI orchestration
     const intent = detectWorkerIntent(query);
     
-    // If navigation is requested, orchestrate the UI transitions with longer timing for visibility
+    // Calculate when we expect the AI response to arrive (roughly 2-3 seconds)
+    // We want the UI transitions to complete around the same time as the AI response
+    const TRANSITION_DURATION = 2500; // Total orchestration time in ms
+    
+    // If navigation is requested, orchestrate the UI transitions
     if (intent.wantsNavigation || intent.workerId) {
       console.log('[AgentChat] Detected intent:', intent);
       
-      // Ensure chat panel stays open during transition
+      // CRITICAL: Ensure chat panel stays open throughout the entire transition
       setOpen(true);
       
-      // Start button loading animation immediately
-      setButtonLoading(true);
-      setNavigating(true, `Navigating to ${intent.workerName || 'submissions'}...`);
+      // Start button loading animation after a brief delay
+      setTimeout(() => {
+        // Re-assert open state in case something tried to close it
+        setOpen(true);
+        setButtonLoading(true);
+        setNavigating(true, `Navigating to ${intent.workerName || 'submissions'}...`);
+      }, 300);
       
-      // After 600ms, navigate to submissions step  
+      // After 1000ms, navigate to submissions step  
       setTimeout(() => {
         console.log('[AgentChat] Triggering navigation to submissions');
         setRequestedStep('submissions');
-      }, 600);
+      }, 1000);
       
-      // After 1200ms, open the worker panel if specified
+      // After 1800ms, open the worker panel if specified
       if (intent.workerId) {
         setTimeout(() => {
           console.log('[AgentChat] Opening worker panel:', intent.workerId);
           setOpenWorkerId(intent.workerId);
-        }, 1200);
+        }, 1800);
       }
       
-      // After 1800ms, clear button loading but keep skeleton showing
+      // After full duration, clear button loading
       setTimeout(() => {
         setButtonLoading(false);
         setNavigating(false);
-      }, 1800);
+      }, TRANSITION_DURATION);
     }
 
     abortControllerRef.current = new AbortController();
