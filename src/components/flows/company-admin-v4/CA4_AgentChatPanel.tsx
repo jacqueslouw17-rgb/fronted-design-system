@@ -24,7 +24,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -39,14 +39,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen]);
-
-  // Auto-resize textarea
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.style.height = 'auto';
-      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px';
-    }
-  }, [input]);
 
   const handleSubmit = async (query: string) => {
     if (!query.trim() || isLoading) return;
@@ -192,22 +184,22 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
           {/* Input - clean, minimal */}
           <div className="px-4 pb-4 pt-2">
-            <div className="relative flex items-end gap-2 rounded-2xl border border-border/50 bg-muted/30 px-4 py-3 focus-within:border-primary/30 focus-within:bg-muted/40 transition-colors">
-              <textarea
+            <div className="relative flex items-center gap-2 rounded-full border border-border/50 bg-muted/30 pl-4 pr-2 py-2 focus-within:border-primary/30 focus-within:bg-muted/40 transition-colors">
+              <input
                 ref={inputRef}
+                type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Message Kurt..."
-                rows={1}
-                className="flex-1 bg-transparent text-sm placeholder:text-muted-foreground/60 resize-none outline-none min-h-[20px] max-h-[120px]"
+                className="flex-1 bg-transparent text-sm placeholder:text-muted-foreground/60 outline-none"
                 disabled={isLoading}
               />
               <button
                 onClick={() => handleSubmit(input)}
                 disabled={!input.trim() || isLoading}
                 className={cn(
-                  "p-2 rounded-xl transition-all duration-200",
+                  "p-2 rounded-full transition-all duration-200 flex-shrink-0",
                   input.trim() 
                     ? "bg-primary text-primary-foreground hover:bg-primary/90" 
                     : "text-muted-foreground/40"
