@@ -209,7 +209,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     confirmPendingAction,
     cancelPendingAction,
     setButtonLoadingState,
-    actionCallbacks,
+    executeCallback,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
@@ -371,34 +371,20 @@ export const CA4_AgentChatPanel: React.FC = () => {
       setButtonLoadingState(actionType, true);
       setButtonLoading(true);
       
-      // Brief delay for UI feedback, then execute callback directly
+      // Brief delay for UI feedback, then execute callback via context
       setTimeout(() => {
         console.log('[AgentChat] Executing callback for:', actionType);
         
-        // Call the callback directly
-        switch (actionType) {
-          case 'approve_all':
-            console.log('[AgentChat] Calling onApproveAll directly');
-            actionCallbacks.onApproveAll?.();
-            break;
-          case 'reject_all':
-            // For reject, we need a reason - would need a dialog
-            break;
-          case 'mark_ready':
-            if (workerId) {
-              actionCallbacks.onMarkReady?.(workerId);
-            } else {
-              // Mark all workers as ready
-              WORKERS_DATA.forEach(w => {
-                if (w.status !== 'ready') {
-                  actionCallbacks.onMarkReady?.(w.id);
-                }
-              });
+        // Execute via context (uses ref for latest callbacks)
+        if (actionType === 'mark_ready' && !workerId) {
+          // Mark all workers as ready
+          WORKERS_DATA.forEach(w => {
+            if (w.status !== 'ready') {
+              executeCallback('mark_ready', w.id);
             }
-            break;
-          case 'submit_payroll':
-            actionCallbacks.onSubmitPayroll?.();
-            break;
+          });
+        } else {
+          executeCallback(actionType, workerId);
         }
         
         // Complete the action and show next suggestion
@@ -853,25 +839,15 @@ export const CA4_AgentChatPanel: React.FC = () => {
                       const workerId = pendingAction.workerId;
                       
                       setTimeout(() => {
-                        // Execute the action
-                        switch (actionType) {
-                          case 'approve_all':
-                            actionCallbacks.onApproveAll?.();
-                            break;
-                          case 'mark_ready':
-                            if (workerId) {
-                              actionCallbacks.onMarkReady?.(workerId);
-                            } else {
-                              WORKERS_DATA.forEach(w => {
-                                if (w.status !== 'ready') {
-                                  actionCallbacks.onMarkReady?.(w.id);
-                                }
-                              });
+                        // Execute via context (uses ref for latest callbacks)
+                        if (actionType === 'mark_ready' && !workerId) {
+                          WORKERS_DATA.forEach(w => {
+                            if (w.status !== 'ready') {
+                              executeCallback('mark_ready', w.id);
                             }
-                            break;
-                          case 'submit_payroll':
-                            actionCallbacks.onSubmitPayroll?.();
-                            break;
+                          });
+                        } else {
+                          executeCallback(actionType, workerId);
                         }
                         
                         // Complete and show next suggestion
