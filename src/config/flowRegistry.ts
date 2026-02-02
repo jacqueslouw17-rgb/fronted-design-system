@@ -335,6 +335,19 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/components/flows/fronted-admin-v4-clone/F1v4_SignatureWorkflowDrawer.tsx',
       'src/components/flows/fronted-admin-v4-clone/F1v4_StartOnboardingConfirmation.tsx'
     ]
+  },
+  'f6-company-admin-dashboard-v4': {
+    id: 'f6-company-admin-dashboard-v4',
+    title: 'Flow 6 — Company Admin Dashboard v4 (Agent)',
+    path: '/flows/company-admin-dashboard-v4',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/CompanyAdminDashboardV4.tsx',
+      'src/components/flows/company-admin-v4/CA4_PayrollSection.tsx',
+      'src/components/flows/company-admin-v4/CA4_LeavesTab.tsx'
+    ]
   }
 };
 
