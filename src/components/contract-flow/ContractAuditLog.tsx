@@ -221,7 +221,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                         {groupedEvents.map((group) => (
                           <div key={group.group}>
                             {/* Group header */}
-                            <div className="px-3 py-1.5 bg-muted/30 sticky top-0">
+                            <div className="px-3 py-1.5 bg-muted/80 backdrop-blur-sm sticky top-0 z-10 border-b border-border/10">
                               <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                                 {group.group}
                               </span>
