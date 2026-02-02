@@ -264,6 +264,12 @@ export const CA4_AgentChatPanel: React.FC = () => {
     
     if (actionIntent.type === 'confirm_no' && pendingAction?.awaitingConfirmation) {
       console.log('[AgentChat] User cancelled action');
+      const actionType = pendingAction.type;
+      
+      // Clear button loading state
+      setButtonLoadingState(actionType, false);
+      setButtonLoading(false);
+      
       cancelPendingAction();
       setAwaitingConfirmation(false);
       
@@ -280,6 +286,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (actionIntent.type && actionIntent.type !== 'confirm_yes' && actionIntent.type !== 'confirm_no') {
       console.log('[AgentChat] Detected action intent:', actionIntent);
       
+      const actionType = actionIntent.type as PendingActionType;
+      
       setOpen(true);
       setButtonLoading(true);
       
@@ -287,6 +295,17 @@ export const CA4_AgentChatPanel: React.FC = () => {
       setTimeout(() => {
         setRequestedStep('submissions');
       }, 300);
+      
+      // Open first worker with pending items to show the Approve All button
+      setTimeout(() => {
+        // Open the first worker (David Martinez by default) to show the drawer
+        setOpenWorkerId('1');
+      }, 800);
+      
+      // Set the button loading state to show the button is "preparing"
+      setTimeout(() => {
+        setButtonLoadingState(actionType, true);
+      }, 1200);
       
       // Set up pending action and ask for confirmation
       setTimeout(() => {
@@ -298,7 +317,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         };
         
         setPendingAction({
-          type: actionIntent.type as PendingActionType,
+          type: actionType,
           workerId: actionIntent.workerId,
           workerName: actionIntent.workerName,
           awaitingConfirmation: true,
@@ -310,12 +329,12 @@ export const CA4_AgentChatPanel: React.FC = () => {
         // Show confirmation prompt as assistant message
         setMessages(prev => [...prev, { 
           role: 'assistant', 
-          content: `I can ${actionLabels[actionIntent.type!] || 'do that'} for you. This will apply to all pending adjustments and leaves.\n\n**Do you want to proceed?**`
+          content: `I can ${actionLabels[actionType] || 'do that'} for you. This will apply to all pending adjustments and leaves.\n\n**Do you want to proceed?**`
         }]);
         
         setIsLoading(false);
         setShowRetrieving(false);
-      }, 1500);
+      }, 1800);
       
       return;
     }
