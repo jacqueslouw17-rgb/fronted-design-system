@@ -12,5 +12,5 @@ export { CollapsibleSection } from "./CA4_CollapsibleSection";
 // Agent components
 export { CA4_AgentProvider, useCA4Agent } from "./CA4_AgentContext";
 export { CA4_AgentChatPanel } from "./CA4_AgentChatPanel";
-export { CA4_AskKurtButton } from "./CA4_AskKurtButton";
+export { CA4_KurtVisualizer } from "./CA4_KurtVisualizer";
 export * from "./CA4_AgentTypes";
