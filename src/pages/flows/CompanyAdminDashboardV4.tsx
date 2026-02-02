@@ -5,127 +5,166 @@
  * Uses CA4_ prefixed components for complete isolation.
  */
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Building2, ChevronDown, Settings, LogOut, User, Bot } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import Topbar from "@/components/dashboard/Topbar";
+import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
+import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
+import { RoleLensProvider } from "@/contexts/RoleLensContext";
+import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
+import { useAgentState } from "@/hooks/useAgentState";
+import FloatingKurtButton from "@/components/FloatingKurtButton";
 import { CA4_PayrollSection, CA4_LeavesTab } from "@/components/flows/company-admin-v4";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Bot } from "lucide-react";
 
-const companies = [
-  { id: "acme-uk", name: "Acme Corp UK", country: "GB", employeeCount: 45 },
-  { id: "acme-de", name: "Acme GmbH", country: "DE", employeeCount: 23 },
-  { id: "acme-us", name: "Acme Inc", country: "US", employeeCount: 78 },
-];
+const CompanyAdminDashboardV4: React.FC = () => {
+  const {
+    isOpen: isDrawerOpen,
+    toggle: toggleDrawer
+  } = useDashboardDrawer();
+  const {
+    addMessage,
+    setLoading,
+    setOpen
+  } = useAgentState();
 
-const CompanyAdminDashboardV4 = () => {
-  const [selectedCompany, setSelectedCompany] = useState(companies[0]);
+  // Main dashboard tab state
   const [activeTab, setActiveTab] = useState<"payroll" | "leaves">("payroll");
 
+  const userData = {
+    firstName: "Joe",
+    lastName: "User",
+    email: "joe@example.com",
+    country: "United States",
+    role: "admin"
+  };
+
+  const handleKurtAction = async (action: string) => {
+    addMessage({
+      role: 'user',
+      text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+    });
+    setOpen(true);
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    let response = '';
+    if (action === 'any-updates') {
+      response = `📊 Payroll Status Update\n\n✅ 2 contractors ready for batch\n🔄 2 contractors in current batch\n⚡ 1 contractor executing payment\n💰 1 contractor paid (last month)\n⏸️ 1 contractor on hold\n\nYou have 2 contractors ready to be added to the current payroll batch.`;
+    } else if (action === 'ask-kurt') {
+      response = `I'm here to help you with payroll! 
+      
+You can ask me about:
+
+💱 FX rates and currency conversions
+📋 Compliance checks and requirements
+💸 Payment execution and timing
+🔍 Batch review and adjustments
+⚠️ Exception handling
+
+**Try asking:**
+• "What's the total for this batch?"
+• "Any compliance issues?"
+• "Show me FX rates"
+• "When will payments execute?"`;
+    }
+    addMessage({
+      role: 'kurt',
+      text: response
+    });
+    setLoading(false);
+  };
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/flows">
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            
-            {/* Company Switcher */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2 h-9">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{selectedCompany.name}</span>
-                  <Badge variant="secondary" className="ml-1 text-xs">
-                    {selectedCompany.employeeCount}
-                  </Badge>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                <DropdownMenuLabel>Switch Company</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {companies.map((company) => (
-                  <DropdownMenuItem
-                    key={company.id}
-                    onClick={() => setSelectedCompany(company)}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span>{company.name}</span>
+    <RoleLensProvider initialRole="admin">
+      <div className="flex flex-col h-screen">
+        {/* Topbar */}
+        <Topbar 
+          userName={`${userData.firstName} ${userData.lastName}`} 
+          isDrawerOpen={isDrawerOpen} 
+          onDrawerToggle={toggleDrawer} 
+        />
+
+        {/* Main Content Area */}
+        <main className="flex-1 flex overflow-hidden">
+          {/* Dashboard Drawer */}
+          <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
+
+          {/* Main Area with Agent Layout */}
+          <AgentLayout context="Payroll Pipeline (Agent)">
+            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative min-h-full">
+              {/* Static background */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+                <div 
+                  className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10" 
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))'
+                  }} 
+                />
+                <div 
+                  className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8" 
+                  style={{
+                    background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))'
+                  }} 
+                />
+              </div>
+              
+              <div className="relative z-10">
+                <motion.div 
+                  key="payroll-pipeline-agent"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex-1 overflow-y-auto"
+                >
+                  <div className="max-w-7xl mx-auto p-8 pb-32 space-y-2">
+                    {/* Agent Header with Badge */}
+                    <div className="flex items-center gap-3 mb-2">
+                      <AgentHeader 
+                        title="Company Admin · Payroll" 
+                        subtitle="Kurt can help with: FX rates, compliance checks, or payment execution." 
+                        showPulse={true} 
+                        showInput={false} 
+                        simplified={false}
+                      />
+                      <Badge variant="secondary" className="gap-1 bg-primary/10 text-primary border-primary/20">
+                        <Bot className="h-3 w-3" />
+                        Agent
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="text-xs">
-                      {company.employeeCount}
-                    </Badge>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
 
-            {/* Agent Badge */}
-            <Badge variant="secondary" className="gap-1 bg-primary/10 text-primary border-primary/20">
-              <Bot className="h-3 w-3" />
-              Agent
-            </Badge>
-          </div>
+                    {/* Tab Navigation */}
+                    <div className="pt-4">
+                      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "payroll" | "leaves")}>
+                        <TabsList className="h-9">
+                          <TabsTrigger value="payroll" className="text-xs px-4">Payroll</TabsTrigger>
+                          <TabsTrigger value="leaves" className="text-xs px-4">Leaves</TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+                    </div>
 
-          {/* User Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-2 h-9">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback>AD</AvatarFallback>
-                </Avatar>
-                <span className="text-sm">Admin</span>
-                <ChevronDown className="h-3 w-3 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem>
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative min-h-full">
-        <div className="container mx-auto px-4 py-6 max-w-6xl">
-          {/* Content */}
-          {activeTab === "payroll" ? (
-            <CA4_PayrollSection payPeriod="January 2025" />
-          ) : (
-            <CA4_LeavesTab />
-          )}
-        </div>
+                    {/* Tab Content */}
+                    <div className="pt-4">
+                      {activeTab === "payroll" && (
+                        <CA4_PayrollSection payPeriod="January 2026" />
+                      )}
+                      
+                      {activeTab === "leaves" && (
+                        <CA4_LeavesTab />
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+            <FloatingKurtButton />
+          </AgentLayout>
+        </main>
       </div>
-    </div>
+    </RoleLensProvider>
   );
 };
 
