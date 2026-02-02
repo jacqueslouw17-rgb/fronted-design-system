@@ -1220,8 +1220,44 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   };
 
   // Get chat panel state to position drawer correctly
-  const { isOpen: isAgentOpen } = useCA4Agent();
+  const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction } = useCA4Agent();
   const chatWidth = isAgentOpen ? 420 : 0;
+
+  // Register action callbacks for agent-driven orchestration
+  useEffect(() => {
+    registerActionCallbacks({
+      onApproveAll: () => {
+        console.log('[SubmissionsView] Agent triggered bulk approve');
+        if (selectedSubmission) {
+          handleBulkApprove();
+        } else {
+          toast.success('All pending items approved');
+        }
+      },
+      onRejectAll: (reason: string) => {
+        console.log('[SubmissionsView] Agent triggered bulk reject');
+        if (selectedSubmission) {
+          handleBulkReject(reason);
+        }
+      },
+      onMarkReady: (workerId: string) => {
+        console.log('[SubmissionsView] Agent triggered mark ready for:', workerId);
+        const worker = submissions.find(s => s.workerId === workerId);
+        if (worker) {
+          setFinalizedWorkers(prev => new Set(prev).add(worker.id));
+          toast.success(`${worker.workerName} marked as ready`);
+        }
+      },
+      onSubmitPayroll: () => {
+        console.log('[SubmissionsView] Agent triggered submit payroll');
+        onContinue();
+      },
+    });
+  }, [selectedSubmission, submissions, registerActionCallbacks, handleBulkApprove, handleBulkReject, onContinue]);
+
+  // Check if buttons should show loading from agent
+  const isApproveAllLoading = loadingButtons['approve_all'];
+  const isRejectAllLoading = loadingButtons['reject_all'];
 
   return (
     <>
@@ -2001,15 +2037,31 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             size="sm"
                             className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
                             onClick={() => setShowBulkRejectDialog(true)}
+                            disabled={isRejectAllLoading}
                           >
-                            Reject all ({currentPendingCount})
+                            {isRejectAllLoading ? (
+                              <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                                Processing...
+                              </div>
+                            ) : (
+                              `Reject all (${currentPendingCount})`
+                            )}
                           </Button>
                           <Button 
                             size="sm"
                             className="flex-1 h-9 text-xs"
                             onClick={() => setShowBulkApproveDialog(true)}
+                            disabled={isApproveAllLoading}
                           >
-                            Approve all ({currentPendingCount})
+                            {isApproveAllLoading ? (
+                              <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                                Approving...
+                              </div>
+                            ) : (
+                              `Approve all (${currentPendingCount})`
+                            )}
                           </Button>
                         </div>
                       </div>
