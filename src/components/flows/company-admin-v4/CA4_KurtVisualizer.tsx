@@ -102,23 +102,6 @@ export const CA4_KurtVisualizer: React.FC = () => {
           />
         ))}
       </motion.button>
-
-      {/* "Ask Kurt" tooltip */}
-      <AnimatePresence>
-        {isHovered && !isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.15 }}
-            className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap"
-          >
-            <span className="text-sm font-medium text-primary/80">
-              Ask Kurt
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
