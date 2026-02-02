@@ -48,6 +48,8 @@ interface AgentContextType extends AgentState {
     onSubmitPayroll?: () => void;
   };
   registerActionCallbacks: (callbacks: AgentContextType['actionCallbacks']) => void;
+  // Execute callback by type - uses ref for latest callbacks
+  executeCallback: (actionType: PendingActionType, workerId?: string) => boolean;
   // NEW: Button-specific loading states
   loadingButtons: Record<string, boolean>;
   setButtonLoadingState: (buttonId: string, loading: boolean) => void;
@@ -68,7 +70,38 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [pendingAction, setPendingActionState] = useState<PendingAction>();
   // Use ref for callbacks to avoid stale closure issues
   const actionCallbacksRef = useRef<AgentContextType['actionCallbacks']>({});
-  const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>();
+  const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>({});
+
+  // Execute action callback by type - always uses latest ref
+  const executeCallback = useCallback((actionType: PendingActionType, workerId?: string): boolean => {
+    const callbacks = actionCallbacksRef.current;
+    console.log('[AgentContext] executeCallback called:', actionType, 'callbacks available:', Object.keys(callbacks));
+    
+    switch (actionType) {
+      case 'approve_all':
+        if (callbacks.onApproveAll) {
+          callbacks.onApproveAll();
+          return true;
+        }
+        break;
+      case 'reject_all':
+        // Reject needs a reason - handled separately
+        break;
+      case 'mark_ready':
+        if (callbacks.onMarkReady && workerId) {
+          callbacks.onMarkReady(workerId);
+          return true;
+        }
+        break;
+      case 'submit_payroll':
+        if (callbacks.onSubmitPayroll) {
+          callbacks.onSubmitPayroll();
+          return true;
+        }
+        break;
+    }
+    return false;
+  }, []);
 
   const toggleOpen = useCallback(() => setIsOpen(prev => !prev), []);
   const setOpen = useCallback((open: boolean) => setIsOpen(open), []);
@@ -225,6 +258,7 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         confirmPendingAction,
         cancelPendingAction,
         registerActionCallbacks,
+        executeCallback,
         setButtonLoadingState,
       }}
     >
