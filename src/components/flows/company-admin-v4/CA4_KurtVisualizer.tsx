@@ -51,30 +51,6 @@ export const CA4_KurtVisualizer: React.FC = () => {
             background: 'radial-gradient(circle, #3B82F6 0%, #60A5FA 40%, #93C5FD 70%, transparent 100%)',
           }}
         />
-
-        {/* Interactive hover ripple */}
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ 
-                opacity: [0, 0.5, 0],
-                scale: [0.8, 1.4, 1.6],
-              }}
-              exit={{ opacity: 0 }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                ease: "easeOut"
-              }}
-              className="absolute inset-0 blur-2xl pointer-events-none"
-              style={{ 
-                background: 'radial-gradient(circle, #60A5FA 0%, #93C5FD 50%, transparent 100%)',
-              }}
-            />
-          )}
-        </AnimatePresence>
-
         {/* Animated wave lines - matching v3 blue gradient */}
         {waves.map((wave, index) => (
           <motion.div
