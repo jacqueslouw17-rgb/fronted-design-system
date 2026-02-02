@@ -1210,71 +1210,97 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
 
   return (
     <>
-      <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm min-h-full">
+      <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {/* Back button */}
               {onBack && (
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={onBack}
-                  className="h-8 w-8 rounded-lg"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
               )}
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Users className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-foreground">Submissions</h3>
-                <p className="text-xs text-muted-foreground">Review worker pay data</p>
-              </div>
+              <CA4_PayrollStepper
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+                onStepClick={onStepClick}
+                pendingSubmissions={pendingSubmissions || dynamicPendingCount}
+              />
             </div>
             <div className="flex items-center gap-3">
-              {/* Search */}
-              <div className="relative w-48">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-8 pl-8 text-xs bg-background/50"
-                />
-              </div>
-              {/* Close button */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Button 
+                      size="sm"
+                      onClick={onContinue}
+                      disabled={!canContinue}
+                      className="h-9 text-xs"
+                    >
+                      Continue to Submit
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {!canContinue && (
+                  <TooltipContent side="bottom" className="max-w-[200px]">
+                    <p className="text-xs">Mark all {submissions.length - readyCount} remaining worker{submissions.length - readyCount !== 1 ? 's' : ''} as ready before continuing</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
               {onClose && (
                 <Button
-                  variant="ghost"
-                  size="icon"
+                  size="sm"
+                  variant="secondary"
                   onClick={onClose}
-                  className="h-8 w-8 rounded-lg"
+                  className="h-9 text-xs"
                 >
-                  <X className="h-4 w-4" />
+                  Close
                 </Button>
               )}
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-4">
-          <div className="space-y-2">
-            {filteredSubmissions.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {searchQuery ? (
-                  <p className="text-sm">No workers match your search</p>
-                ) : (
-                  <>
-                    <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-green-500" />
-                    <p className="text-sm">All submissions reviewed!</p>
-                  </>
-                )}
-              </div>
-            ) : (
-              filteredSubmissions.map(renderSubmissionRow)
-            )}
-          </div>
+        <CardContent className="p-0">
+          {/* Tabbed view */}
+          <Tabs defaultValue="all" className="w-full">
+            <div className="px-5 pt-4 pb-3 border-b border-border/40">
+              <TabsList className="h-8 bg-muted/30 p-0.5">
+                <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  All ({submissions.length})
+                </TabsTrigger>
+                <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Pending ({pendingCount})
+                </TabsTrigger>
+                <TabsTrigger value="ready" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Ready ({readyCount})
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
+              <TabsContent value="all" className="mt-0 space-y-1.5">
+                <AnimatePresence mode="popLayout">
+                  {filteredSubmissions.map((s) => renderSubmissionRow(s))}
+                </AnimatePresence>
+              </TabsContent>
+
+              <TabsContent value="pending" className="mt-0 space-y-1.5">
+                <AnimatePresence mode="popLayout">
+                  {filteredSubmissions.filter(s => s.status === "pending").map((s) => renderSubmissionRow(s))}
+                </AnimatePresence>
+              </TabsContent>
+
+              <TabsContent value="ready" className="mt-0 space-y-1.5">
+                <AnimatePresence mode="popLayout">
+                  {filteredSubmissions.filter(s => s.status === "ready").map((s) => renderSubmissionRow(s))}
+                </AnimatePresence>
+              </TabsContent>
+            </div>
+          </Tabs>
         </CardContent>
       </Card>
 
