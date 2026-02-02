@@ -1,9 +1,11 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
 import { CA4_SubmissionsView, WorkerSubmission, PendingLeaveItem } from "./CA4_SubmissionsView";
@@ -11,6 +13,17 @@ import { CA4_SubmitConfirmationModal } from "./CA4_SubmitConfirmationModal";
 import { CA4_TrackingView, TrackingWorker } from "./CA4_TrackingView";
 import { CA4_SubmitStep } from "./CA4_SubmitStep";
 import { CA4_PeriodDropdown, PayrollPeriod } from "./CA4_PeriodDropdown";
+
+// Try to use agent context if available (will work when wrapped in provider)
+let useCA4AgentOptional: () => { highlights: any[]; openWorkerId?: string; setOpenWorkerId: (id?: string) => void } | null;
+try {
+  const { useCA4Agent } = require("./CA4_AgentContext");
+  useCA4AgentOptional = () => {
+    try { return useCA4Agent(); } catch { return null; }
+  };
+} catch {
+  useCA4AgentOptional = () => null;
+}
 
 const mockSubmissions: WorkerSubmission[] = [
   {
