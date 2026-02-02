@@ -69,6 +69,9 @@ interface AgentContextType extends AgentState {
   // NEW: Agent-driven item processing state
   processingItem?: TargetedItemInfo;
   setProcessingItem: (item?: TargetedItemInfo) => void;
+  // NEW: Staggered "marking ready" state for worker rows
+  workersMarkingReady: Set<string>;
+  setWorkersMarkingReady: React.Dispatch<React.SetStateAction<Set<string>>>;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -88,6 +91,7 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const actionCallbacksRef = useRef<AgentContextType['actionCallbacks']>({});
   const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>({});
   const [processingItem, setProcessingItemState] = useState<TargetedItemInfo | undefined>();
+  const [workersMarkingReady, setWorkersMarkingReadyState] = useState<Set<string>>(new Set());
 
   const setProcessingItem = useCallback((item?: TargetedItemInfo) => {
     setProcessingItemState(item);
@@ -279,6 +283,8 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         loadingButtons: loadingButtons || {},
         processingItem,
         setProcessingItem,
+        workersMarkingReady,
+        setWorkersMarkingReady: setWorkersMarkingReadyState,
         toggleOpen,
         setOpen,
         addMessage,

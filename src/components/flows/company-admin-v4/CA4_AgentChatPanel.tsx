@@ -319,6 +319,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setButtonLoadingState,
     executeCallback,
     setProcessingItem,
+    setWorkersMarkingReady,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
@@ -477,7 +478,60 @@ export const CA4_AgentChatPanel: React.FC = () => {
     // Prevent double submit - clear pending action state
     setPendingAction(undefined);
 
-    // Show "processing" skeleton in chat while we execute
+    // SPECIAL FLOW: "Mark all as ready" - close panel, show staggered row animations
+    if (actionType === 'mark_ready' && !workerId) {
+      // Close the chat panel
+      setOpen(false);
+      
+      // Navigate to submissions
+      setRequestedStep('submissions');
+      
+      // Get list of workers not yet ready
+      const workersToMark = WORKERS_DATA.filter(w => w.status !== 'ready').map(w => w.id);
+      
+      // Start staggered marking - set all workers as "marking" state
+      setTimeout(() => {
+        setWorkersMarkingReady(new Set(workersToMark));
+      }, 300);
+      
+      // Execute mark ready for each worker with staggered delays
+      workersToMark.forEach((wId, index) => {
+        setTimeout(() => {
+          executeCallback('mark_ready', wId);
+          // Remove from marking set after this worker is done
+          setWorkersMarkingReady(prev => {
+            const next = new Set(prev);
+            next.delete(wId);
+            return next;
+          });
+        }, 500 + index * 400); // Stagger: 500ms base + 400ms per worker
+      });
+      
+      // After all done, add success message and reopen chat
+      const totalTime = 500 + workersToMark.length * 400 + 300;
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `✓ **Done!** Marked ${workersToMark.length} worker${workersToMark.length !== 1 ? 's' : ''} as ready.\n\n**Next step:** You can now submit the payroll.`,
+          suggestedAction: {
+            type: 'submit_payroll',
+            label: 'Continue to submit',
+            description: 'All workers are ready for payroll',
+          },
+        }]);
+        setCurrentSuggestedAction({
+          type: 'submit_payroll',
+          label: 'Continue to submit',
+          description: 'All workers are ready for payroll',
+        });
+        // Reopen chat to show completion
+        setOpen(true);
+      }, totalTime);
+      
+      return;
+    }
+
+    // Standard flow for other actions - show skeleton in chat
     setShowRetrieving(true);
     setIsLoading(true);
 
@@ -516,11 +570,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
         ok = executeCallback('approve_item', workerId, targetedItem);
         // Clear processing indicator after a short delay for visual feedback
         setTimeout(() => setProcessingItem(undefined), 500);
-      } else if (actionType === 'mark_ready' && !workerId) {
-        WORKERS_DATA.forEach(w => {
-          if (w.status !== 'ready') executeCallback('mark_ready', w.id);
-        });
-        ok = true;
       } else {
         ok = executeCallback(actionType, workerId);
       }
@@ -545,7 +594,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
       completeAction(actionType, workerId, workerName);
     }, 1800);
-  }, [pendingAction, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction, setProcessingItem]);
+  }, [pendingAction, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction, setProcessingItem, setWorkersMarkingReady]);
 
   const handleSubmit = async (query: string) => {
     const trimmed = query.trim();

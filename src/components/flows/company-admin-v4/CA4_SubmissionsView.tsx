@@ -1126,6 +1126,9 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   const renderSubmissionRow = (submission: WorkerSubmission) => {
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
     
+    // Check if this worker is currently being marked as ready by the agent
+    const isBeingMarkedReady = workersMarkingReady.has(submission.workerId);
+    
     // Count pending adjustments for this worker (considering local state overrides)
     const pendingAdjustmentCount = submission.submissions.filter((adj, idx) => {
       const key = `${submission.id}-${idx}`;
@@ -1178,6 +1181,34 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     }
     const status = statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
+
+    // Show loading skeleton when being marked as ready
+    if (isBeingMarkedReady) {
+      return (
+        <motion.div
+          key={submission.id}
+          layout
+          initial={{ opacity: 0.7 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/[0.06] border border-primary/20"
+        >
+          {/* Avatar skeleton */}
+          <div className="h-7 w-7 rounded-full bg-primary/20 animate-pulse flex-shrink-0" />
+
+          {/* Worker Info skeleton */}
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <div className="h-3.5 w-24 bg-primary/15 rounded animate-pulse" />
+            <div className="h-2.5 w-16 bg-primary/10 rounded animate-pulse" />
+          </div>
+
+          {/* Right side: Loading indicator */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Loader2 className="h-4 w-4 text-primary animate-spin" />
+            <span className="text-xs text-primary font-medium">Marking ready...</span>
+          </div>
+        </motion.div>
+      );
+    }
 
     return (
       <motion.div
@@ -1263,7 +1294,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // (handleCloseDrawer is defined above)
 
   // Get chat panel state to position drawer correctly
-  const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction, processingItem } = useCA4Agent();
+  const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction, processingItem, workersMarkingReady } = useCA4Agent();
   const chatWidth = isAgentOpen ? 420 : 0;
 
   // Global approve all pending items across ALL workers
