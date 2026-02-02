@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -151,6 +151,7 @@ const AdjustmentRow = ({
   isExpanded = false,
   onToggleExpand,
   isFinalized = false,
+  isProcessing = false,
 }: { 
   label: string;
   amount: number;
@@ -163,6 +164,7 @@ const AdjustmentRow = ({
   isExpanded?: boolean;
   onToggleExpand?: () => void;
   isFinalized?: boolean;
+  isProcessing?: boolean;
 }) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
@@ -195,6 +197,22 @@ const AdjustmentRow = ({
   const isPending = status === 'pending';
   const isRejected = status === 'rejected';
   const isApproved = status === 'approved';
+
+  // Processing state - show skeleton while agent is approving
+  if (isProcessing) {
+    return (
+      <div className="flex items-center justify-between py-2 -mx-3 px-3 rounded bg-primary/5 animate-pulse">
+        <div className="flex items-center gap-2 min-w-0">
+          <Loader2 className="h-3.5 w-3.5 text-primary animate-spin shrink-0" />
+          <span className="text-sm text-muted-foreground">{label}</span>
+          <span className="text-[10px] font-medium text-primary">Approving...</span>
+        </div>
+        <span className="text-sm tabular-nums font-mono text-foreground">
+          +{formatAmount(amount, currency)}
+        </span>
+      </div>
+    );
+  }
 
   // Approved state - show with Undo option (unless finalized)
   if (isApproved) {
@@ -1245,7 +1263,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // (handleCloseDrawer is defined above)
 
   // Get chat panel state to position drawer correctly
-  const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction } = useCA4Agent();
+  const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction, processingItem } = useCA4Agent();
   const chatWidth = isAgentOpen ? 420 : 0;
 
   // Global approve all pending items across ALL workers
@@ -1838,6 +1856,12 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         if (!config) return null;
                         const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                         const itemId = `adj-${originalIdx}`;
+                        // Check if agent is processing this specific item
+                        const isItemProcessing = processingItem && 
+                          processingItem.workerId === selectedSubmission.workerId &&
+                          processingItem.itemType === adj.type &&
+                          (processingItem.amount === undefined || 
+                           (adj.amount !== undefined && Math.abs(adj.amount - processingItem.amount) < 1));
                         return (
                           <AdjustmentRow
                             key={itemId}
@@ -1858,6 +1882,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             }}
                             onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)}
                             isFinalized={isWorkerFinalized(selectedSubmission.id)}
+                            isProcessing={!!isItemProcessing}
                           />
                         );
                       })}
@@ -1954,6 +1979,12 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         .map(({ adj, originalIdx }) => {
                           const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                           const itemId = `overtime-${originalIdx}`;
+                          // Check if agent is processing this specific overtime item
+                          const isItemProcessing = processingItem && 
+                            processingItem.workerId === selectedSubmission.workerId &&
+                            processingItem.itemType === 'overtime' &&
+                            (processingItem.amount === undefined || 
+                             (adj.amount !== undefined && Math.abs(adj.amount - processingItem.amount) < 1));
                           return (
                             <AdjustmentRow
                               key={itemId}
@@ -1974,6 +2005,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                               }}
                               onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)}
                               isFinalized={isWorkerFinalized(selectedSubmission.id)}
+                              isProcessing={!!isItemProcessing}
                             />
                           );
                         })}

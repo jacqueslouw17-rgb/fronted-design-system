@@ -307,6 +307,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     cancelPendingAction,
     setButtonLoadingState,
     executeCallback,
+    setProcessingItem,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
@@ -477,10 +478,17 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setButtonLoadingState(actionType, true);
     setButtonLoading(true);
 
+    // Show processing indicator on the targeted item in the drawer
+    if (actionType === 'approve_item' && targetedItem) {
+      setProcessingItem(targetedItem);
+    }
+
     setTimeout(() => {
       let ok = false;
       if (actionType === 'approve_item' && targetedItem) {
         ok = executeCallback('approve_item', workerId, targetedItem);
+        // Clear processing indicator after a short delay for visual feedback
+        setTimeout(() => setProcessingItem(undefined), 400);
       } else if (actionType === 'mark_ready' && !workerId) {
         WORKERS_DATA.forEach(w => {
           if (w.status !== 'ready') executeCallback('mark_ready', w.id);
@@ -493,6 +501,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       if (!ok) {
         setButtonLoadingState(actionType, false);
         setButtonLoading(false);
+        setProcessingItem(undefined);
         setMessages(prev => [...prev, {
           role: 'assistant',
           content: `I couldn't find a matching **pending** item to approve for **${workerName || 'that worker'}**. Please keep the drawer open and try again with the exact type/amount.`,
@@ -502,7 +511,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
       completeAction(actionType, workerId, workerName);
     }, 650);
-  }, [pendingAction, setAwaitingConfirmation, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction]);
+  }, [pendingAction, setAwaitingConfirmation, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction, setProcessingItem]);
 
   const handleSubmit = async (query: string) => {
     if (!query.trim() || isLoading) return;
