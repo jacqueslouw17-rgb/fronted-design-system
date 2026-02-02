@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+// Sheet components removed - using inline drawer instead
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
@@ -1454,8 +1454,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                 ) : (
                 <>
                 {/* Clean minimal header */}
-                <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/20">
-                  <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
+                <div className="px-5 pt-5 pb-4 border-b border-border/20">
+                  <span className="sr-only">Pay breakdown details</span>
                   
                   {/* Worker row - name + inline actions */}
                   <div className="flex items-start gap-3">
@@ -1466,9 +1466,9 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <SheetTitle className="text-sm font-semibold text-foreground leading-tight">
+                        <h2 className="text-sm font-semibold text-foreground leading-tight">
                           {selectedSubmission.workerName}
-                        </SheetTitle>
+                        </h2>
                         {/* Inline actions - next to name */}
                         {!showPendingOnly && (
                           <button
@@ -1524,7 +1524,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                       </div>
                     </div>
                   )}
-                </SheetHeader>
+                </div>
 
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
