@@ -327,7 +327,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showRetrieving, setShowRetrieving] = useState(false);
   const [minLoadingComplete, setMinLoadingComplete] = useState(false);
-  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const [currentSuggestedAction, setCurrentSuggestedAction] = useState<SuggestedAction | undefined>();
   const abortControllerRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -404,7 +403,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
     // Update button states
     setButtonLoadingState(actionType, false);
     setButtonLoading(false);
-    setAwaitingConfirmation(false);
     
     // Build response message with context
     let responseContent = '';
@@ -462,7 +460,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setButtonLoadingState(pendingAction.type, false);
     setButtonLoading(false);
     cancelPendingAction();
-    setAwaitingConfirmation(false);
     setMessages(prev => [...prev, {
       role: 'assistant',
       content: "Cancelled. Tell me what you'd like to do next.",
@@ -477,29 +474,48 @@ export const CA4_AgentChatPanel: React.FC = () => {
     const workerName = pendingAction.workerName;
     const targetedItem = pendingAction.targetedItem;
 
-    // Prevent double submit.
-    setAwaitingConfirmation(false);
+    // Prevent double submit - clear pending action state
     setPendingAction(undefined);
 
-    // Keep chat open and show the relevant drawer.
+    // Show "processing" skeleton in chat while we execute
+    setShowRetrieving(true);
+    setIsLoading(true);
+
+    // Add a "processing" message
+    setMessages(prev => [...prev, { 
+      role: 'assistant', 
+      content: '' // Empty triggers skeleton
+    }]);
+
+    // Keep chat open and navigate to submissions
     setOpen(true);
-    setRequestedStep('submissions');
-    if (workerId) setOpenWorkerId(workerId);
+    
+    // Step 1: Navigate to submissions (300ms)
+    setTimeout(() => {
+      setRequestedStep('submissions');
+    }, 300);
+    
+    // Step 2: Open worker drawer (800ms)
+    setTimeout(() => {
+      if (workerId) setOpenWorkerId(workerId);
+    }, 800);
 
-    setButtonLoadingState(actionType, true);
-    setButtonLoading(true);
+    // Step 3: Show processing indicator on the targeted item (1200ms)
+    setTimeout(() => {
+      if (actionType === 'approve_item' && targetedItem) {
+        setProcessingItem(targetedItem);
+      }
+      setButtonLoadingState(actionType, true);
+      setButtonLoading(true);
+    }, 1200);
 
-    // Show processing indicator on the targeted item in the drawer
-    if (actionType === 'approve_item' && targetedItem) {
-      setProcessingItem(targetedItem);
-    }
-
+    // Step 4: Execute the action (1800ms - longer delay for visual feedback)
     setTimeout(() => {
       let ok = false;
       if (actionType === 'approve_item' && targetedItem) {
         ok = executeCallback('approve_item', workerId, targetedItem);
         // Clear processing indicator after a short delay for visual feedback
-        setTimeout(() => setProcessingItem(undefined), 400);
+        setTimeout(() => setProcessingItem(undefined), 500);
       } else if (actionType === 'mark_ready' && !workerId) {
         WORKERS_DATA.forEach(w => {
           if (w.status !== 'ready') executeCallback('mark_ready', w.id);
@@ -509,20 +525,27 @@ export const CA4_AgentChatPanel: React.FC = () => {
         ok = executeCallback(actionType, workerId);
       }
 
+      // Hide skeleton
+      setShowRetrieving(false);
+      setIsLoading(false);
+      
+      // Remove the empty skeleton message
+      setMessages(prev => prev.filter(m => m.content !== ''));
+
       if (!ok) {
         setButtonLoadingState(actionType, false);
         setButtonLoading(false);
         setProcessingItem(undefined);
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: `I couldn't find a matching **pending** item to approve for **${workerName || 'that worker'}**. Please keep the drawer open and try again with the exact type/amount.`,
+          content: `I couldn't find a matching **pending** item to approve for **${workerName || 'that worker'}**. The item may already be approved or the details don't match.`,
         }]);
         return;
       }
 
       completeAction(actionType, workerId, workerName);
-    }, 650);
-  }, [pendingAction, setAwaitingConfirmation, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction, setProcessingItem]);
+    }, 1800);
+  }, [pendingAction, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction, setProcessingItem]);
 
   const handleSubmit = async (query: string) => {
     const trimmed = query.trim();
@@ -713,7 +736,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
           targetedItem: actionIntent.targetedItem,
         });
         
-        setAwaitingConfirmation(true);
         setButtonLoading(false);
         
         // Show confirmation prompt as assistant message
@@ -928,7 +950,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
               awaitingConfirmation: true,
               targetedItem: inferred.targetedItem,
             });
-            setAwaitingConfirmation(true);
           }
         }
       }
@@ -1018,13 +1039,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     key={index}
                     message={message}
                     isStreaming={isStreaming && index === messages.length - 1 && message.role === 'assistant'}
-                    showInlineConfirm={
-                      !!pendingAction?.awaitingConfirmation &&
-                      index === messages.length - 1 &&
-                      message.role === 'assistant'
-                    }
-                    onConfirmYes={handleConfirmYes}
-                    onConfirmNo={handleConfirmNo}
                   />
                 ))
               )}
@@ -1192,14 +1206,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
   );
 };
 
-// Message component with markdown support
+// Message component with markdown support - enhanced styling for worker details
 const MessageBubble: React.FC<{
   message: ChatMessage;
   isStreaming?: boolean;
-  showInlineConfirm?: boolean;
-  onConfirmYes?: () => void;
-  onConfirmNo?: () => void;
-}> = ({ message, isStreaming, showInlineConfirm, onConfirmYes, onConfirmNo }) => {
+}> = ({ message, isStreaming }) => {
   const isUser = message.role === 'user';
 
   if (isUser) {
@@ -1215,7 +1226,7 @@ const MessageBubble: React.FC<{
   // Don't render empty assistant messages (skeleton will show instead)
   if (!message.content) return null;
 
-  // Assistant message with markdown - tight, dense styling
+  // Assistant message with markdown - enhanced styling for worker details
   return (
     <motion.div 
       initial={{ opacity: 0, y: 4 }}
@@ -1223,31 +1234,30 @@ const MessageBubble: React.FC<{
       transition={{ duration: 0.2 }}
       className={cn(
         "text-[13px] text-foreground/90 leading-relaxed",
-        "[&_p]:my-1.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
-        "[&_h1]:text-sm [&_h1]:font-semibold [&_h1]:mt-3 [&_h1]:mb-1.5",
-        "[&_h2]:text-sm [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-1.5",
-        "[&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:mt-2.5 [&_h3]:mb-1",
-        "[&_ul]:my-1.5 [&_ul]:pl-4 [&_ul]:list-disc",
-        "[&_ol]:my-1.5 [&_ol]:pl-4 [&_ol]:list-decimal",
-        "[&_li]:my-0.5",
-        "[&_strong]:font-semibold",
+        // Paragraphs
+        "[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
+        // Headers - more prominent
+        "[&_h1]:text-sm [&_h1]:font-semibold [&_h1]:mt-4 [&_h1]:mb-2 [&_h1]:text-foreground",
+        "[&_h2]:text-sm [&_h2]:font-semibold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-foreground",
+        "[&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1.5 [&_h3]:text-foreground",
+        // Lists - better spacing
+        "[&_ul]:my-2 [&_ul]:pl-4 [&_ul]:list-disc [&_ul]:space-y-1",
+        "[&_ol]:my-2 [&_ol]:pl-4 [&_ol]:list-decimal [&_ol]:space-y-1",
+        "[&_li]:my-0 [&_li]:leading-relaxed",
+        // Strong/bold - primary color for emphasis
+        "[&_strong]:font-semibold [&_strong]:text-foreground",
+        // Code styling
         "[&_code]:bg-muted/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono",
-        "[&_pre]:bg-muted/40 [&_pre]:p-2 [&_pre]:rounded-lg [&_pre]:my-2 [&_pre]:overflow-x-auto",
+        "[&_pre]:bg-muted/40 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:my-3 [&_pre]:overflow-x-auto",
+        // Horizontal rules for visual separation
+        "[&_hr]:my-3 [&_hr]:border-border/40",
+        // Blockquotes for callouts
+        "[&_blockquote]:border-l-2 [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:my-2 [&_blockquote]:text-muted-foreground",
       )}
     >
       <ReactMarkdown>
         {message.content || ''}
       </ReactMarkdown>
-      {showInlineConfirm && (
-        <div className="mt-2 flex items-center justify-end gap-2">
-          <Button size="sm" onClick={onConfirmYes} className="h-7 px-3 text-[11px]">
-            Yes
-          </Button>
-          <Button size="sm" variant="outline" onClick={onConfirmNo} className="h-7 px-3 text-[11px]">
-            No
-          </Button>
-        </div>
-      )}
       {isStreaming && (
         <span className="inline-block w-1.5 h-3.5 bg-foreground/50 animate-pulse ml-0.5 rounded-sm" />
       )}
