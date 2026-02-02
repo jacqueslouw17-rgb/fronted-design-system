@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw } from "lucide-react";
+import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw, X } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
 import { ContractCarousel } from "./ContractCarousel";
@@ -955,7 +955,16 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 
     {/* Reset Confirmation Dialog */}
     <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
-      <AlertDialogContent>
+      <AlertDialogContent onOverlayClick={() => setIsResetDialogOpen(false)}>
+        {/* Close icon */}
+        <button
+          onClick={() => setIsResetDialogOpen(false)}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
         <AlertDialogHeader>
           <AlertDialogTitle>Reset contract to original?</AlertDialogTitle>
           <AlertDialogDescription>
