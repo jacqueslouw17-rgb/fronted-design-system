@@ -89,7 +89,9 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // For approve_item, pass pendingAction to get targetedItem info
   const executeCallback = useCallback((actionType: PendingActionType, workerId?: string, targetedItem?: TargetedItemInfo): boolean => {
     const callbacks = actionCallbacksRef.current;
-    console.log('[AgentContext] executeCallback called:', actionType, 'callbacks available:', Object.keys(callbacks));
+    console.log('[AgentContext] executeCallback called:', actionType, 'workerId:', workerId, 'targetedItem:', targetedItem);
+    console.log('[AgentContext] Callbacks available:', Object.keys(callbacks));
+    console.log('[AgentContext] onApproveItem callback exists:', !!callbacks.onApproveItem);
     
     switch (actionType) {
       case 'approve_all':
@@ -114,8 +116,14 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
         break;
       case 'approve_item':
+        console.log('[AgentContext] approve_item case - targetedItem:', targetedItem);
         if (callbacks.onApproveItem && targetedItem) {
-          return callbacks.onApproveItem(targetedItem.workerId, targetedItem.itemType, targetedItem.amount);
+          console.log('[AgentContext] Calling onApproveItem with:', targetedItem.workerId, targetedItem.itemType, targetedItem.amount);
+          const result = callbacks.onApproveItem(targetedItem.workerId, targetedItem.itemType, targetedItem.amount);
+          console.log('[AgentContext] onApproveItem result:', result);
+          return result;
+        } else {
+          console.log('[AgentContext] onApproveItem NOT called - callback exists:', !!callbacks.onApproveItem, 'targetedItem exists:', !!targetedItem);
         }
         break;
     }
