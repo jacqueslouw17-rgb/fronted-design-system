@@ -139,6 +139,9 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (intent.wantsNavigation || intent.workerId) {
       console.log('[AgentChat] Detected intent:', intent);
       
+      // Ensure chat panel stays open during transition
+      setOpen(true);
+      
       // Start button loading animation immediately
       setButtonLoading(true);
       setNavigating(true, `Navigating to ${intent.workerName || 'submissions'}...`);
