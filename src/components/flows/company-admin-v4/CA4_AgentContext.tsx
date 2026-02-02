@@ -8,7 +8,17 @@ export type PendingActionType =
   | 'mark_ready' 
   | 'submit_payroll'
   | 'approve_worker'
-  | 'reject_worker';
+  | 'reject_worker'
+  | 'approve_item'; // Approve a specific item (e.g. expense, bonus)
+
+// For targeted item approval
+export interface TargetedItemInfo {
+  workerId: string;
+  workerName: string;
+  itemType: 'expenses' | 'bonus' | 'overtime' | 'leave';
+  amount?: number;
+  itemIndex?: number; // Index of the item in the worker's submissions array
+}
 
 export interface PendingAction {
   type: PendingActionType;
@@ -17,6 +27,8 @@ export interface PendingAction {
   pendingCount?: number;
   awaitingConfirmation: boolean;
   dialogOpen?: boolean;
+  // For targeted item approval
+  targetedItem?: TargetedItemInfo;
 }
 
 interface AgentContextType extends AgentState {
@@ -46,10 +58,11 @@ interface AgentContextType extends AgentState {
     onRejectAll?: (reason: string) => void;
     onMarkReady?: (workerId: string) => void;
     onSubmitPayroll?: () => void;
+    onApproveItem?: (workerId: string, itemType: string, amount?: number) => boolean; // Returns true if item found/approved
   };
   registerActionCallbacks: (callbacks: AgentContextType['actionCallbacks']) => void;
   // Execute callback by type - uses ref for latest callbacks
-  executeCallback: (actionType: PendingActionType, workerId?: string) => boolean;
+  executeCallback: (actionType: PendingActionType, workerId?: string, targetedItem?: TargetedItemInfo) => boolean;
   // NEW: Button-specific loading states
   loadingButtons: Record<string, boolean>;
   setButtonLoadingState: (buttonId: string, loading: boolean) => void;
@@ -73,7 +86,8 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>({});
 
   // Execute action callback by type - always uses latest ref
-  const executeCallback = useCallback((actionType: PendingActionType, workerId?: string): boolean => {
+  // For approve_item, pass pendingAction to get targetedItem info
+  const executeCallback = useCallback((actionType: PendingActionType, workerId?: string, targetedItem?: TargetedItemInfo): boolean => {
     const callbacks = actionCallbacksRef.current;
     console.log('[AgentContext] executeCallback called:', actionType, 'callbacks available:', Object.keys(callbacks));
     
@@ -97,6 +111,11 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         if (callbacks.onSubmitPayroll) {
           callbacks.onSubmitPayroll();
           return true;
+        }
+        break;
+      case 'approve_item':
+        if (callbacks.onApproveItem && targetedItem) {
+          return callbacks.onApproveItem(targetedItem.workerId, targetedItem.itemType, targetedItem.amount);
         }
         break;
     }

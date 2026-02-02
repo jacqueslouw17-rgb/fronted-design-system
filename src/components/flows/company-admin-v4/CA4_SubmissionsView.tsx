@@ -1329,8 +1329,48 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         console.log('[SubmissionsView] Agent triggered submit payroll');
         onContinue();
       },
+      onApproveItem: (workerId: string, itemType: string, amount?: number): boolean => {
+        console.log('[SubmissionsView] Agent triggered approve item:', { workerId, itemType, amount });
+        
+        // Find the worker's submission
+        const worker = submissions.find(s => s.workerId === workerId);
+        if (!worker) {
+          console.log('[SubmissionsView] Worker not found:', workerId);
+          return false;
+        }
+        
+        // Find the matching pending item
+        let foundIndex = -1;
+        worker.submissions.forEach((adj, idx) => {
+          if (foundIndex >= 0) return; // Already found
+          
+          const currentState = getAdjustmentStatus(worker.id, idx, adj.status as AdjustmentItemStatus);
+          if (currentState.status !== 'pending') return; // Not pending
+          
+          // Match by type
+          if (adj.type !== itemType) return;
+          
+          // If amount specified, match by amount (with tolerance)
+          if (amount !== undefined && adj.amount !== undefined) {
+            const diff = Math.abs(adj.amount - amount);
+            if (diff > 1) return; // Not a match (tolerance of 1 for rounding)
+          }
+          
+          foundIndex = idx;
+        });
+        
+        if (foundIndex >= 0) {
+          // Approve the item
+          updateAdjustmentStatus(worker.id, foundIndex, { status: 'approved' });
+          toast.success(`Approved ${itemType} for ${worker.workerName}`);
+          return true;
+        }
+        
+        console.log('[SubmissionsView] No matching pending item found');
+        return false;
+      },
     });
-  }, [submissions, registerActionCallbacks, handleGlobalApproveAll, handleGlobalRejectAll, onContinue]);
+  }, [submissions, registerActionCallbacks, handleGlobalApproveAll, handleGlobalRejectAll, onContinue, getAdjustmentStatus, updateAdjustmentStatus]);
 
   // Check if buttons should show loading from agent
   const isApproveAllLoading = loadingButtons['approve_all'];
