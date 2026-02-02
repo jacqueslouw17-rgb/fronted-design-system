@@ -822,15 +822,15 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 </motion.div>
               )}
 
-              {/* Inline action buttons when awaiting confirmation */}
+              {/* Inline action buttons when awaiting confirmation - minimal style */}
               {awaitingConfirmation && pendingAction && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 pt-2"
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center gap-2 -mt-1"
                 >
-                  <Button
-                    size="sm"
+                  <button
                     onClick={() => {
                       setButtonLoadingState(pendingAction.type, true);
                       setButtonLoading(true);
@@ -854,13 +854,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
                         completeAction(actionType, workerId);
                       }, 1200);
                     }}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs h-8"
+                    className="px-3 py-1.5 text-[11px] font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
-                    Yes, proceed
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
+                    Yes
+                  </button>
+                  <button
                     onClick={() => {
                       setButtonLoadingState(pendingAction.type, false);
                       cancelPendingAction();
@@ -870,10 +868,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
                         content: 'Cancelled. Let me know if you need anything else.'
                       }]);
                     }}
-                    className="text-xs h-8"
+                    className="px-3 py-1.5 text-[11px] font-medium rounded-md border border-border/60 text-muted-foreground hover:text-foreground hover:border-border transition-colors"
                   >
-                    Cancel
-                  </Button>
+                    No
+                  </button>
                 </motion.div>
               )}
 
