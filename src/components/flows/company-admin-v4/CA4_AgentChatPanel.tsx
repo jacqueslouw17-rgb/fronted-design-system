@@ -73,6 +73,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [showRetrieving, setShowRetrieving] = useState(false);
+  const [minLoadingComplete, setMinLoadingComplete] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -104,6 +105,13 @@ export const CA4_AgentChatPanel: React.FC = () => {
     adjustTextareaHeight();
   }, [input, adjustTextareaHeight]);
 
+  // Hide skeleton when both streaming starts AND minimum loading time passed
+  useEffect(() => {
+    if (isStreaming && minLoadingComplete && showRetrieving) {
+      setShowRetrieving(false);
+    }
+  }, [isStreaming, minLoadingComplete, showRetrieving]);
+
   const stopStreaming = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -123,6 +131,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setInput('');
     setIsLoading(true);
     setShowRetrieving(true);
+    setMinLoadingComplete(false);
+    
+    // Minimum loading duration for smooth UX (1.5s)
+    setTimeout(() => setMinLoadingComplete(true), 1500);
 
     // Reset textarea height
     if (textareaRef.current) {
@@ -230,10 +242,9 @@ export const CA4_AgentChatPanel: React.FC = () => {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
-              // Hide skeleton on first token
+              // Mark first token received - skeleton hides when min loading also complete
               if (!firstTokenReceived) {
                 firstTokenReceived = true;
-                setShowRetrieving(false);
                 setIsStreaming(true);
               }
               

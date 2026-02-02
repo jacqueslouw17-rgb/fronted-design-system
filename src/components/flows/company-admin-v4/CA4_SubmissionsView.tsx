@@ -820,10 +820,10 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         setIsDrawerLoading(true);
         setRejectReason("");
         
-        // Sync loading with drawer spring animation
+        // Extended loading for smooth transition feel
         setTimeout(() => {
           setIsDrawerLoading(false);
-        }, 500);
+        }, 1200);
       }
       // Signal that we handled it
       onAgentOpenHandled?.();
@@ -976,10 +976,10 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     setRejectReason("");
     setExpandedItemId(null);
     
-    // Sync loading with drawer spring animation (approx 450ms for spring to settle)
+    // Extended loading for smooth transition feel
     setTimeout(() => {
       setIsDrawerLoading(false);
-    }, 500);
+    }, 1200);
   };
 
   const handleApproveFromDrawer = () => {
