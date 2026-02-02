@@ -554,9 +554,36 @@ export const CA4_AgentChatPanel: React.FC = () => {
         signal: abortControllerRef.current.signal,
       });
 
-      if (!resp.ok || !resp.body) {
+      // Handle rate limit and other errors gracefully
+      if (!resp.ok) {
         const errorData = await resp.json().catch(() => ({}));
+        
+        // Handle specific error types with friendly messages
+        if (resp.status === 429) {
+          setMessages(prev => [
+            ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
+            { role: 'assistant', content: "I'm a bit busy right now. Please try again in a moment! 🙏" }
+          ]);
+          setIsLoading(false);
+          setShowRetrieving(false);
+          return;
+        }
+        
+        if (resp.status === 402) {
+          setMessages(prev => [
+            ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
+            { role: 'assistant', content: "AI credits are temporarily exhausted. Please try again later." }
+          ]);
+          setIsLoading(false);
+          setShowRetrieving(false);
+          return;
+        }
+        
         throw new Error(errorData.error || 'Failed to get response');
+      }
+      
+      if (!resp.body) {
+        throw new Error('No response body');
       }
 
       const reader = resp.body.getReader();
@@ -658,9 +685,15 @@ export const CA4_AgentChatPanel: React.FC = () => {
         return;
       }
       console.error('Kurt chat error:', error);
+      
+      // Show friendly error message instead of technical details
+      const friendlyMessage = error.message?.includes('Rate limit') 
+        ? "I'm a bit busy right now. Please try again in a moment! 🙏"
+        : "Sorry, I had trouble processing that. Please try again.";
+        
       setMessages(prev => [
         ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
-        { role: 'assistant', content: `Sorry, I encountered an error: ${error.message}` }
+        { role: 'assistant', content: friendlyMessage }
       ]);
     } finally {
       setIsLoading(false);
