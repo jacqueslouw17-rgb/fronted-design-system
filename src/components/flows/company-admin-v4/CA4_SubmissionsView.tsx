@@ -1358,28 +1358,37 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         }
         
         // Find the matching pending item
+        // Strategy: First try exact match (type + amount), then fallback to type-only match
         let foundIndex = -1;
+        let typeOnlyMatchIndex = -1;
+        
         worker.submissions.forEach((adj, idx) => {
-          if (foundIndex >= 0) return; // Already found
-          
           const currentState = getAdjustmentStatus(worker.id, idx, adj.status as AdjustmentItemStatus);
           if (currentState.status !== 'pending') return; // Not pending
           
           // Match by type
           if (adj.type !== itemType) return;
           
-          // If amount specified, match by amount (with tolerance)
-          if (amount !== undefined && adj.amount !== undefined) {
-            const diff = Math.abs(adj.amount - amount);
-            if (diff > 1) return; // Not a match (tolerance of 1 for rounding)
+          // Track first type-only match as fallback
+          if (typeOnlyMatchIndex < 0) {
+            typeOnlyMatchIndex = idx;
           }
           
-          foundIndex = idx;
+          // If amount specified, try exact match (with tolerance)
+          if (amount !== undefined && adj.amount !== undefined) {
+            const diff = Math.abs(adj.amount - amount);
+            if (diff <= 1 && foundIndex < 0) {
+              foundIndex = idx; // Exact match found
+            }
+          }
         });
         
-        if (foundIndex >= 0) {
+        // Use exact match if found, otherwise fall back to type-only match
+        const targetIndex = foundIndex >= 0 ? foundIndex : typeOnlyMatchIndex;
+        
+        if (targetIndex >= 0) {
           // Approve the item
-          updateAdjustmentStatus(worker.id, foundIndex, { status: 'approved' });
+          updateAdjustmentStatus(worker.id, targetIndex, { status: 'approved' });
           toast.success(`Approved ${itemType} for ${worker.workerName}`);
           return true;
         }
