@@ -1206,14 +1206,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   return (
     <div className="relative flex h-full">
       {/* Main content area */}
-      <motion.div 
-        className="flex-1 min-w-0"
-        animate={{ 
-          marginRight: drawerOpen ? 420 : 0 
-        }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      >
-      <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+      <div className="flex-1 min-w-0">
+        <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -1306,33 +1300,48 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           </Tabs>
         </CardContent>
       </Card>
-      </motion.div>
+      </div>
 
-      {/* Worker Pay Breakdown Drawer - Inline sliding panel matching Sheet styling */}
+      {/* Worker Pay Breakdown Drawer + Overlay (scoped to main area, chat stays visible) */}
       <AnimatePresence>
         {drawerOpen && (
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ 
-              type: 'spring', 
-              damping: 26, 
-              stiffness: 260,
-              mass: 0.8 
-            }}
-            className="absolute top-0 right-0 bottom-0 w-full sm:max-w-[420px] bg-background border-l shadow-lg overflow-y-auto z-10 p-0"
-          >
-            {/* Close button - matching Sheet close style */}
-            {!isAddingAdjustment && (
-              <button
-                onClick={handleCloseDrawer}
-                className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </button>
-            )}
+          <>
+            {/* Backdrop overlay (click to dismiss) */}
+            <motion.button
+              type="button"
+              aria-label="Close worker drawer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="absolute inset-0 z-10 bg-black/80"
+              onClick={isAddingAdjustment ? undefined : handleCloseDrawer}
+              disabled={isAddingAdjustment}
+            />
+
+            {/* Drawer */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{
+                type: 'spring',
+                damping: 26,
+                stiffness: 260,
+                mass: 0.8,
+              }}
+              className="absolute top-0 right-0 bottom-0 z-20 w-full sm:max-w-[420px] bg-background border-l shadow-lg overflow-y-auto p-0"
+            >
+              {/* Close button - matching Sheet close style */}
+              {!isAddingAdjustment && (
+                <button
+                  onClick={handleCloseDrawer}
+                  className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </button>
+              )}
           {selectedSubmission && (() => {
             // Calculate breakdown data
             const earnings = selectedSubmission.lineItems?.filter(item => item.type === 'Earnings') || [];
@@ -2116,7 +2125,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
               </>
             );
           })()}
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
