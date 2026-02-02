@@ -135,29 +135,33 @@ export const CA4_AgentChatPanel: React.FC = () => {
     // Detect worker intent and trigger UI orchestration
     const intent = detectWorkerIntent(query);
     
-    // If navigation is requested, orchestrate the UI transitions
+    // If navigation is requested, orchestrate the UI transitions with longer timing for visibility
     if (intent.wantsNavigation || intent.workerId) {
-      // Start button loading animation
+      console.log('[AgentChat] Detected intent:', intent);
+      
+      // Start button loading animation immediately
       setButtonLoading(true);
       setNavigating(true, `Navigating to ${intent.workerName || 'submissions'}...`);
       
-      // After 400ms, navigate to submissions step
+      // After 600ms, navigate to submissions step  
       setTimeout(() => {
+        console.log('[AgentChat] Triggering navigation to submissions');
         setRequestedStep('submissions');
-      }, 400);
+      }, 600);
       
-      // After 800ms, open the worker panel if specified
+      // After 1200ms, open the worker panel if specified
       if (intent.workerId) {
         setTimeout(() => {
+          console.log('[AgentChat] Opening worker panel:', intent.workerId);
           setOpenWorkerId(intent.workerId);
-        }, 1000);
+        }, 1200);
       }
       
-      // After 1500ms, clear button loading
+      // After 1800ms, clear button loading but keep skeleton showing
       setTimeout(() => {
         setButtonLoading(false);
         setNavigating(false);
-      }, 1500);
+      }, 1800);
     }
 
     abortControllerRef.current = new AbortController();
