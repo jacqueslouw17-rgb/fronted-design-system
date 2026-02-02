@@ -1197,8 +1197,22 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     );
   };
 
+  // Close drawer handler
+  const handleCloseDrawer = () => {
+    setDrawerOpen(false);
+    setSelectedSubmission(null);
+  };
+
   return (
-    <>
+    <div className="relative flex h-full">
+      {/* Main content area */}
+      <motion.div 
+        className="flex-1 min-w-0"
+        animate={{ 
+          marginRight: drawerOpen ? 420 : 0 
+        }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      >
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
           <div className="flex items-center justify-between">
@@ -1292,14 +1306,27 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           </Tabs>
         </CardContent>
       </Card>
+      </motion.div>
 
-      {/* Worker Pay Breakdown Drawer - Full receipt style */}
-      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent
-          side="right"
-          className="w-full sm:max-w-[420px] overflow-y-auto p-0"
-          hideClose={isAddingAdjustment}
-        >
+      {/* Worker Pay Breakdown Drawer - Inline sliding panel (not portal) */}
+      <AnimatePresence>
+        {drawerOpen && (
+          <motion.div
+            initial={{ x: '100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="absolute top-0 right-0 bottom-0 w-[420px] bg-background border-l border-border/40 shadow-xl overflow-y-auto z-10"
+          >
+            {/* Close button */}
+            {!isAddingAdjustment && (
+              <button
+                onClick={handleCloseDrawer}
+                className="absolute top-4 right-4 z-20 p-1.5 rounded-md hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           {selectedSubmission && (() => {
             // Calculate breakdown data
             const earnings = selectedSubmission.lineItems?.filter(item => item.type === 'Earnings') || [];
@@ -2083,11 +2110,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
               </>
             );
           })()}
-        </SheetContent>
-      </Sheet>
-    </>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
 export default CA4_SubmissionsView;
-
