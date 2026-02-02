@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
+import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,14 @@ import { CA4_SubmitStep } from "./CA4_SubmitStep";
 import { CA4_PeriodDropdown, PayrollPeriod } from "./CA4_PeriodDropdown";
 
 // Try to use agent context if available (will work when wrapped in provider)
-let useCA4AgentOptional: () => { highlights: any[]; openWorkerId?: string; setOpenWorkerId: (id?: string) => void } | null;
+let useCA4AgentOptional: () => { 
+  highlights: any[]; 
+  openWorkerId?: string; 
+  setOpenWorkerId: (id?: string) => void;
+  requestedStep?: 'submissions' | 'submit' | 'track';
+  setRequestedStep: (step?: 'submissions' | 'submit' | 'track') => void;
+  isButtonLoading: boolean;
+} | null;
 try {
   const { useCA4Agent } = require("./CA4_AgentContext");
   useCA4AgentOptional = () => {
@@ -331,6 +338,30 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   // Computed values for submissions
   const pendingSubmissions = useMemo(() => submissions.filter(s => s.status === "pending").length, [submissions]);
 
+  // Get agent context for coordinated navigation
+  const agentContext = useCA4AgentOptional?.();
+
+  // Respond to agent navigation requests
+  useEffect(() => {
+    if (agentContext?.requestedStep) {
+      // Navigate to the requested step
+      if (agentContext.requestedStep === 'submissions') {
+        setHasEnteredWorkflow(true);
+        setCurrentStep('submissions');
+      } else if (agentContext.requestedStep === 'submit') {
+        setHasEnteredWorkflow(true);
+        setCompletedSteps(prev => prev.includes('submissions') ? prev : [...prev, 'submissions']);
+        setCurrentStep('submit');
+      } else if (agentContext.requestedStep === 'track') {
+        setHasEnteredWorkflow(true);
+        setCompletedSteps(['submissions', 'submit']);
+        setCurrentStep('track');
+      }
+      // Clear the request after handling
+      agentContext.setRequestedStep(undefined);
+    }
+  }, [agentContext?.requestedStep]);
+
   // Handle period change
   const handlePeriodChange = (periodId: string) => {
     setSelectedPeriodId(periodId);
@@ -443,8 +474,20 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
               )}
             </div>
             {!isSubmitted && !isViewingPrevious && (
-              <Button onClick={handleEnterWorkflow} size="sm">
-                Continue to submissions
+              <Button 
+                onClick={handleEnterWorkflow} 
+                size="sm"
+                disabled={agentContext?.isButtonLoading}
+                className="min-w-[160px]"
+              >
+                {agentContext?.isButtonLoading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                    Navigating...
+                  </>
+                ) : (
+                  'Continue to submissions'
+                )}
               </Button>
             )}
           </div>
