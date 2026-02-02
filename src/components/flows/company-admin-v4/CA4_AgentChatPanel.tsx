@@ -129,6 +129,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     confirmPendingAction,
     cancelPendingAction,
     setButtonLoadingState,
+    actionCallbacks,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
@@ -215,14 +216,38 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (actionIntent.type === 'confirm_yes' && pendingAction?.awaitingConfirmation) {
       console.log('[AgentChat] User confirmed action:', pendingAction.type);
       
+      // Capture the action type before async operations
+      const actionType = pendingAction.type;
+      
       // Show loading on relevant button
-      setButtonLoadingState(pendingAction.type, true);
+      setButtonLoadingState(actionType, true);
       setButtonLoading(true);
       
-      // Brief delay for UI feedback, then execute
+      // Brief delay for UI feedback, then execute callback directly
       setTimeout(() => {
-        confirmPendingAction();
-        setButtonLoadingState(pendingAction.type, false);
+        console.log('[AgentChat] Executing callback for:', actionType);
+        
+        // Call the callback directly instead of going through confirmPendingAction
+        switch (actionType) {
+          case 'approve_all':
+            console.log('[AgentChat] Calling onApproveAll directly');
+            actionCallbacks.onApproveAll?.();
+            break;
+          case 'reject_all':
+            // For reject, we need a reason - would need a dialog
+            break;
+          case 'mark_ready':
+            if (pendingAction.workerId) {
+              actionCallbacks.onMarkReady?.(pendingAction.workerId);
+            }
+            break;
+          case 'submit_payroll':
+            actionCallbacks.onSubmitPayroll?.();
+            break;
+        }
+        
+        setPendingAction(undefined);
+        setButtonLoadingState(actionType, false);
         setButtonLoading(false);
         setAwaitingConfirmation(false);
       }, 1200);
@@ -230,7 +255,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       // Show immediate assistant response
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: `✓ Done! I've ${pendingAction.type === 'approve_all' ? 'approved all pending items' : pendingAction.type === 'reject_all' ? 'opened the rejection dialog' : 'completed the action'}.`
+        content: `✓ Done! I've ${actionType === 'approve_all' ? 'approved all pending items' : actionType === 'reject_all' ? 'opened the rejection dialog' : 'completed the action'}.`
       }]);
       setIsLoading(false);
       setShowRetrieving(false);
