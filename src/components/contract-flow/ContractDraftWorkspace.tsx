@@ -154,7 +154,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   // Contract audit log hook
   const { getEditEvents, recordEdit } = useGlobalContractAuditLog();
   const contractId = `${candidate.name.toLowerCase().replace(/\s+/g, '-')}-${candidate.countryCode?.toLowerCase() || 'unknown'}`;
-  const editEvents = getEditEvents(contractId);
+  const editEvents = getEditEvents(contractId, candidate.name);
 
   const documents = useMemo(() => {
     if (employmentType === "employee") {
