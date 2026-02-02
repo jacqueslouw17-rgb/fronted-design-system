@@ -66,6 +66,9 @@ interface AgentContextType extends AgentState {
   // NEW: Button-specific loading states
   loadingButtons: Record<string, boolean>;
   setButtonLoadingState: (buttonId: string, loading: boolean) => void;
+  // NEW: Agent-driven item processing state
+  processingItem?: TargetedItemInfo;
+  setProcessingItem: (item?: TargetedItemInfo) => void;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -84,6 +87,11 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Use ref for callbacks to avoid stale closure issues
   const actionCallbacksRef = useRef<AgentContextType['actionCallbacks']>({});
   const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>({});
+  const [processingItem, setProcessingItemState] = useState<TargetedItemInfo | undefined>();
+
+  const setProcessingItem = useCallback((item?: TargetedItemInfo) => {
+    setProcessingItemState(item);
+  }, []);
 
   // Execute action callback by type - always uses latest ref
   // For approve_item, pass pendingAction to get targetedItem info
@@ -269,6 +277,8 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         pendingAction,
         actionCallbacks: actionCallbacksRef.current,
         loadingButtons: loadingButtons || {},
+        processingItem,
+        setProcessingItem,
         toggleOpen,
         setOpen,
         addMessage,
