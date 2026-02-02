@@ -495,6 +495,82 @@ export const CA4_AgentChatPanel: React.FC = () => {
       
       const actionType = actionIntent.type as PendingActionType;
       
+      // MARK_READY: Execute immediately without confirmation
+      if (actionType === 'mark_ready') {
+        const workerId = actionIntent.workerId;
+        const workerName = actionIntent.workerName;
+        
+        setOpen(true);
+        
+        // Navigate to submissions
+        setTimeout(() => {
+          setRequestedStep('submissions');
+        }, 300);
+        
+        // Open the worker drawer briefly to show context
+        if (workerId) {
+          setTimeout(() => {
+            setOpenWorkerId(workerId);
+          }, 600);
+        }
+        
+        // Execute the action after drawer opens
+        setTimeout(() => {
+          if (workerId) {
+            // Single worker
+            executeCallback('mark_ready', workerId);
+          } else {
+            // All workers
+            WORKERS_DATA.forEach(w => {
+              if (w.status !== 'ready') {
+                executeCallback('mark_ready', w.id);
+              }
+            });
+          }
+        }, 1200);
+        
+        // Close drawer and show completion
+        setTimeout(() => {
+          setOpenWorkerId(undefined); // Close drawer
+          
+          // Check for remaining pending items to suggest next action
+          const workersWithPending = WORKERS_DATA.filter(w => w.pendingItems > 0);
+          let nextAction: SuggestedAction | undefined;
+          let responseContent = workerId 
+            ? `✓ **Done!** ${workerName} has been marked as ready for payroll.`
+            : '✓ **Done!** All reviewed workers have been marked as ready.';
+          
+          if (workersWithPending.length > 0) {
+            nextAction = {
+              type: 'approve_all',
+              label: 'Approve all pending items',
+              description: `${workersWithPending.length} worker${workersWithPending.length > 1 ? 's' : ''} have pending items`,
+            };
+            responseContent += `\n\n**Next:** ${workersWithPending.length} worker${workersWithPending.length > 1 ? 's' : ''} still have pending items. Want me to approve them all?`;
+          } else {
+            nextAction = {
+              type: 'submit_payroll',
+              label: 'Continue to submit',
+              description: 'All workers are ready',
+            };
+            responseContent += `\n\n**Next:** All workers are ready! Would you like to continue to submit?`;
+          }
+          
+          setCurrentSuggestedAction(nextAction);
+          setMessages(prev => [...prev, { 
+            role: 'assistant', 
+            content: responseContent,
+            suggestedAction: nextAction,
+          }]);
+          
+          setIsLoading(false);
+          setShowRetrieving(false);
+        }, 1800);
+        
+        return;
+      }
+      
+      // OTHER ACTIONS: Ask for confirmation
       setOpen(true);
       setButtonLoading(true);
       
@@ -528,9 +604,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
         const actionLabels: Record<string, string> = {
           'approve_all': 'approve all pending items',
           'reject_all': 'reject all pending items',
-          'mark_ready': actionIntent.workerId 
-            ? `mark ${actionIntent.workerName} as ready`
-            : 'mark all reviewed workers as ready',
           'submit_payroll': 'submit the payroll for processing',
           'approve_item': `approve the ${itemTypeLabel}${amountStr} for ${actionIntent.workerName}`,
         };
@@ -538,9 +611,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
         const actionDescriptions: Record<string, string> = {
           'approve_all': 'This will approve all pending adjustments and leaves across all workers.',
           'reject_all': 'This will reject all pending items. Workers will need to resubmit.',
-          'mark_ready': actionIntent.workerId 
-            ? `This will finalize ${actionIntent.workerName}'s review and lock all decisions.`
-            : 'This will finalize all reviewed workers and prepare them for payroll.',
           'submit_payroll': 'This will submit the payroll run for processing. Payments will be scheduled.',
           'approve_item': `I'll open ${actionIntent.workerName}'s drawer, find the ${itemTypeLabel}${amountStr}, and approve it.`,
         };
@@ -978,9 +1048,9 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     size="sm"
                     variant="outline"
                     onClick={() => executeSuggestedAction(currentSuggestedAction)}
-                    className="text-xs h-8 gap-1.5 border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50"
+                    className="text-xs h-8 gap-1.5 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/60"
                   >
-                    {currentSuggestedAction.label} →
+                    {currentSuggestedAction.label}
                   </Button>
                 </motion.div>
               )}
