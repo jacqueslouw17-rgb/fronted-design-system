@@ -1,0 +1,162 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+// Payroll data context for Kurt to understand
+const PAYROLL_CONTEXT = `
+You are Kurt, an AI payroll assistant for a company admin dashboard. You help with payroll questions, worker information, and provide actionable insights.
+
+## Current Payroll Period: January 2026
+
+## Workers in System:
+
+### 1. David Martinez
+- Country: Portugal
+- Type: Contractor
+- Base Pay: €4,200/month
+- Currency: EUR
+- Pending Submissions: €245 travel expenses
+- Status: Pending review
+
+### 2. Sophie Laurent
+- Country: France
+- Type: Employee
+- Base Salary: €5,800/month
+- Net Pay (after deductions): €4,350
+- Deductions: Income Tax (€870), Social Security (€580)
+- Pending Submissions: €500 Q4 performance bonus
+- Status: Pending review
+
+### 3. Maria Santos
+- Country: Philippines
+- Type: Employee
+- Base Salary: ₱50,000/month
+- Net Pay: ₱38,000
+- Includes: 13th Month pro-rated (₱4,166.67)
+- Deductions: Income Tax, SSS, PhilHealth, Pag-IBIG
+- Pending Submissions: ₱3,500 overtime (8 hours), ₱1,212 meals expense
+- Status: Pending review
+
+### 4. Alex Hansen
+- Country: Norway
+- Type: Employee
+- Base Salary: kr65,000/month
+- Net Pay: kr42,250
+- Deductions: Income Tax, Pension, National Insurance
+- Pending Submissions: kr1,200 home office equipment
+- Pending Leave: 0.5 days unpaid leave (personal appointment)
+- Status: Pending review
+
+### 5. Emma Wilson
+- Country: Norway
+- Type: Contractor
+- Contract Rate: kr72,000/month
+- Status: Ready (all approved)
+
+### 6. Jonas Schmidt
+- Country: Germany
+- Type: Employee
+- Base Salary: €6,200/month
+- Net Pay: €4,030
+- Deductions: Income Tax, Health Insurance, Pension Insurance
+- Pending Submissions: €890 conference registration fee
+- Status: Pending review
+
+### 7. Priya Sharma
+- Country: India
+- Type: Employee
+- Base Salary: ₹150,000/month
+- Net Pay: ₹112,500
+- Deductions: Income Tax, PF, ESI
+- Status: Ready (no pending items)
+
+### 8. Lisa Chen
+- Country: Sweden
+- Type: Employee
+- Base Salary: kr55,000 SEK/month
+- Net Pay: kr38,500 SEK
+- Pending Submissions: kr5,000 SEK Q4 performance bonus
+- Status: Pending review
+
+## Summary Stats:
+- Total Workers: 8
+- Employees: 6
+- Contractors: 2
+- Countries: Portugal, France, Philippines, Norway, Germany, India, Sweden
+- Workers with pending items: 6
+- Workers ready: 2
+
+## Guidelines for Responses:
+1. Be concise and helpful
+2. Use markdown formatting for clarity
+3. When mentioning amounts, always include the currency symbol
+4. If asked about a specific worker, provide detailed breakdown
+5. If asked to take action (like drafting an adjustment), suggest the action in your response
+6. Reference specific data from the workers above
+7. Keep responses under 200 words unless more detail is needed
+`;
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { messages } = await req.json();
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: PAYROLL_CONTEXT },
+          ...messages,
+        ],
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const text = await response.text();
+      console.error("AI gateway error:", response.status, text);
+      return new Response(JSON.stringify({ error: "AI service temporarily unavailable" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(response.body, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    });
+  } catch (error) {
+    console.error("Kurt chat error:", error);
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
