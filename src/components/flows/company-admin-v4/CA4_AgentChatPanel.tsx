@@ -333,6 +333,17 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Index of the last *visible* assistant message.
+  // Used to anchor inline Yes/No buttons to the correct bubble even if a user message
+  // is appended afterwards (e.g. recording a click as "Yes").
+  const lastAssistantIndex = (() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m?.role === 'assistant' && !!m.content) return i;
+    }
+    return -1;
+  })();
+
   // Auto-scroll to bottom when new messages arrive or confirmation buttons appear
   useEffect(() => {
     if (scrollRef.current) {
@@ -456,24 +467,25 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setShowRetrieving(false);
   }, [setButtonLoading, setButtonLoadingState, setPendingAction]);
 
-  const handleConfirmNo = useCallback(() => {
+  const handleConfirmNo = useCallback((userResponse: string = 'No') => {
     if (!pendingAction) return;
-    
-    // Add user's "No" response to chat history first
-    setMessages(prev => [...prev, { role: 'user', content: 'No' }]);
-    
+
     setButtonLoadingState(pendingAction.type, false);
     setButtonLoading(false);
     cancelPendingAction();
-    
-    // Then add Kurt's response
-    setMessages(prev => [...prev, {
-      role: 'assistant',
-      content: "No problem. Let me know what you'd like to do instead.",
-    }]);
+
+    // Persist history: record the user's response + Kurt's response.
+    setMessages(prev => [
+      ...prev,
+      { role: 'user', content: userResponse },
+      {
+        role: 'assistant',
+        content: "No problem. Let me know what you'd like to do instead.",
+      },
+    ]);
   }, [pendingAction, setButtonLoadingState, setButtonLoading, cancelPendingAction]);
 
-  const handleConfirmYes = useCallback(() => {
+  const handleConfirmYes = useCallback((userResponse: string = 'Yes') => {
     if (!pendingAction) return;
 
     const actionType = pendingAction.type;
@@ -481,8 +493,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
     const workerName = pendingAction.workerName;
     const targetedItem = pendingAction.targetedItem;
 
-    // Add user's "Yes" response to chat history first
-    setMessages(prev => [...prev, { role: 'user', content: 'Yes' }]);
+    // Persist history: record the user's response.
+    setMessages(prev => [...prev, { role: 'user', content: userResponse }]);
 
     // Prevent double submit - clear pending action state
     setPendingAction(undefined);
@@ -617,7 +629,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
       pendingAction?.awaitingConfirmation &&
       (actionIntent.type === 'confirm_yes' || actionIntent.type === 'confirm_no')
     ) {
-      setMessages(prev => [...prev, { role: 'user', content: query }]);
       setInput('');
       addMessage({ role: 'user', content: query });
 
@@ -628,10 +639,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
       if (actionIntent.type === 'confirm_yes') {
         console.log('[AgentChat] User confirmed action:', pendingAction?.type);
-        handleConfirmYes();
+        handleConfirmYes(trimmed);
       } else {
         console.log('[AgentChat] User cancelled action');
-        handleConfirmNo();
+        handleConfirmNo(trimmed);
       }
       return;
     }
@@ -1093,21 +1104,23 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 </div>
               ) : (
                 messages.map((message, index) => {
-                  // Show confirmation buttons on the assistant message that asked the question
-                  // We find the last assistant message that ends with "proceed?" and has pending confirmation
-                  const isConfirmationQuestion = 
-                    message.role === 'assistant' && 
-                    message.content.includes('Do you want to proceed?') &&
-                    pendingAction?.awaitingConfirmation;
+                  // Show confirmation buttons inline on the latest assistant bubble whenever a
+                  // confirmation is pending (covers both Kurt-generated "Would you like..." and
+                  // our own "Do you want to proceed?" prompts).
+                  const showConfirmation =
+                    !!pendingAction?.awaitingConfirmation &&
+                    index === lastAssistantIndex &&
+                    message.role === 'assistant' &&
+                    !!message.content;
                   
                   return (
                     <MessageBubble
                       key={index}
                       message={message}
                       isStreaming={isStreaming && index === messages.length - 1 && message.role === 'assistant'}
-                      isConfirmationMessage={isConfirmationQuestion}
-                      onConfirmYes={isConfirmationQuestion ? handleConfirmYes : undefined}
-                      onConfirmNo={isConfirmationQuestion ? handleConfirmNo : undefined}
+                      isConfirmationMessage={showConfirmation}
+                      onConfirmYes={showConfirmation ? () => handleConfirmYes() : undefined}
+                      onConfirmNo={showConfirmation ? () => handleConfirmNo() : undefined}
                     />
                   );
                 })
