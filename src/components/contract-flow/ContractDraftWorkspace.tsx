@@ -4,8 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil } from "lucide-react";
+import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
 import { ContractCarousel } from "./ContractCarousel";
@@ -262,8 +272,28 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     toast.success("Contract changes saved");
     setIsEditMode(false);
     // Log the edit event
-    recordEdit(contractId, "You", candidate.name);
+    recordEdit(contractId, "You", candidate.name, 'edit');
   }, [isContentEmpty, recordEdit, contractId, candidate.name]);
+
+  // Reset confirmation dialog state
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+
+  // Reset contract to original template state
+  const handleResetContract = useCallback(() => {
+    // Regenerate contract from template using current candidate data
+    const regeneratedHtml = convertSectionsToHtml(fullContent);
+    setEditedContent(regeneratedHtml);
+    setOriginalContent(regeneratedHtml);
+    setIsResetDialogOpen(false);
+    setIsEditMode(false);
+    
+    // Log the reset event
+    recordEdit(contractId, "You", candidate.name, 'reset');
+    
+    toast.success("Contract reset to original", {
+      description: "The contract has been regenerated using the current candidate data."
+    });
+  }, [convertSectionsToHtml, fullContent, recordEdit, contractId, candidate.name]);
 
   // Measure how much vertical space the audit log has under the worker card,
   // so the audit log can cap itself and become scrollable (without stretching UI).
@@ -753,15 +783,26 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           ) : (
             <>
               <p className="text-sm text-foreground">Review the contract details carefully before proceeding.</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleEnterEditMode}
-                className="flex items-center gap-1.5"
-              >
-                <Pencil className="h-3.5 w-3.5" />
-                Edit Contract
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsResetDialogOpen(true)}
+                  className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Reset
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEnterEditMode}
+                  className="flex items-center gap-1.5"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Edit Contract
+                </Button>
+              </div>
             </>
           )}
         </motion.div>
@@ -854,5 +895,23 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </div>
       </motion.div>
     </motion.div>
+
+    {/* Reset Confirmation Dialog */}
+    <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Reset contract to original?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will regenerate the contract using the current candidate data and discard all manual edits. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleResetContract}>
+            Reset Contract
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </div>;
 };
