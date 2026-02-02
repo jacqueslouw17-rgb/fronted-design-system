@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUp, X, Square } from 'lucide-react';
+import { ArrowUp, X, Square, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 import { useCA4Agent } from './CA4_AgentContext';
@@ -9,9 +9,50 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kurt-chat`;
 
+// Worker name to ID mapping for navigation
+const WORKER_MAP: Record<string, { id: string; name: string }> = {
+  'david': { id: '1', name: 'David Martinez' },
+  'david martinez': { id: '1', name: 'David Martinez' },
+  'sophie': { id: '2', name: 'Sophie Laurent' },
+  'sophie laurent': { id: '2', name: 'Sophie Laurent' },
+  'maria': { id: '6', name: 'Maria Santos' },
+  'maria santos': { id: '6', name: 'Maria Santos' },
+  'alex': { id: '4', name: 'Alex Hansen' },
+  'alex hansen': { id: '4', name: 'Alex Hansen' },
+  'emma': { id: '5', name: 'Emma Wilson' },
+  'emma wilson': { id: '5', name: 'Emma Wilson' },
+  'jonas': { id: '7', name: 'Jonas Schmidt' },
+  'jonas schmidt': { id: '7', name: 'Jonas Schmidt' },
+  'priya': { id: '8', name: 'Priya Sharma' },
+  'priya sharma': { id: '8', name: 'Priya Sharma' },
+  'lisa': { id: '9', name: 'Lisa Chen' },
+  'lisa chen': { id: '9', name: 'Lisa Chen' },
+};
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+}
+
+// Detect worker name and navigation intent from query
+function detectWorkerIntent(query: string): { workerId?: string; workerName?: string; wantsNavigation?: boolean } {
+  const lowerQuery = query.toLowerCase();
+  
+  // Check for navigation intent
+  const wantsNavigation = lowerQuery.includes('open') || 
+    lowerQuery.includes('show') || 
+    lowerQuery.includes('submission') || 
+    lowerQuery.includes('go to') ||
+    lowerQuery.includes('navigate');
+  
+  // Find worker name
+  for (const [key, value] of Object.entries(WORKER_MAP)) {
+    if (lowerQuery.includes(key)) {
+      return { workerId: value.id, workerName: value.name, wantsNavigation };
+    }
+  }
+  
+  return { wantsNavigation };
 }
 
 export const CA4_AgentChatPanel: React.FC = () => {
@@ -21,13 +62,17 @@ export const CA4_AgentChatPanel: React.FC = () => {
     addMessage,
     isNavigating,
     navigationMessage,
-    executeAction,
+    setNavigating,
+    setRequestedStep,
+    setOpenWorkerId,
+    setButtonLoading,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [showRetrieving, setShowRetrieving] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -37,7 +82,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, showRetrieving]);
 
   // Focus input when panel opens
   useEffect(() => {
@@ -66,6 +111,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     }
     setIsStreaming(false);
     setIsLoading(false);
+    setShowRetrieving(false);
   };
 
   const handleSubmit = async (query: string) => {
@@ -76,7 +122,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setMessages(updatedMessages);
     setInput('');
     setIsLoading(true);
-    setIsStreaming(true);
+    setShowRetrieving(true);
 
     // Reset textarea height
     if (textareaRef.current) {
@@ -85,6 +131,34 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
     // Add to agent context
     addMessage({ role: 'user', content: query });
+
+    // Detect worker intent and trigger UI orchestration
+    const intent = detectWorkerIntent(query);
+    
+    // If navigation is requested, orchestrate the UI transitions
+    if (intent.wantsNavigation || intent.workerId) {
+      // Start button loading animation
+      setButtonLoading(true);
+      setNavigating(true, `Navigating to ${intent.workerName || 'submissions'}...`);
+      
+      // After 400ms, navigate to submissions step
+      setTimeout(() => {
+        setRequestedStep('submissions');
+      }, 400);
+      
+      // After 800ms, open the worker panel if specified
+      if (intent.workerId) {
+        setTimeout(() => {
+          setOpenWorkerId(intent.workerId);
+        }, 1000);
+      }
+      
+      // After 1500ms, clear button loading
+      setTimeout(() => {
+        setButtonLoading(false);
+        setNavigating(false);
+      }, 1500);
+    }
 
     abortControllerRef.current = new AbortController();
     
@@ -111,6 +185,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       let textBuffer = '';
       let assistantContent = '';
       let streamDone = false;
+      let firstTokenReceived = false;
 
       // Add empty assistant message that we'll update
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
@@ -140,6 +215,13 @@ export const CA4_AgentChatPanel: React.FC = () => {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
+              // Hide skeleton on first token
+              if (!firstTokenReceived) {
+                firstTokenReceived = true;
+                setShowRetrieving(false);
+                setIsStreaming(true);
+              }
+              
               assistantContent += content;
               // Update the last message with new content
               setMessages(prev => {
@@ -205,6 +287,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     } finally {
       setIsLoading(false);
       setIsStreaming(false);
+      setShowRetrieving(false);
       abortControllerRef.current = null;
     }
   };
@@ -243,7 +326,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
             className="flex-1 overflow-y-auto"
           >
             <div className="px-4 py-4 space-y-4">
-              {messages.length === 0 ? (
+              {messages.length === 0 && !showRetrieving ? (
                 <div className="pt-2">
                   <p className="text-[13px] text-muted-foreground/70">
                     Ask about payroll, workers, or submissions.
@@ -259,20 +342,34 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 ))
               )}
 
-              {/* Skeleton loading when waiting for first token */}
-              {isLoading && messages[messages.length - 1]?.role === 'user' && (
-                <div className="space-y-2">
-                  <Skeleton className="h-3 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
-                  <Skeleton className="h-3 w-5/8" />
-                </div>
+              {/* Enhanced skeleton loading with animation */}
+              {showRetrieving && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-2.5"
+                >
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground/60 mb-3">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <span>Retrieving data...</span>
+                  </div>
+                  <Skeleton className="h-3 w-[85%] animate-pulse" />
+                  <Skeleton className="h-3 w-[70%] animate-pulse" style={{ animationDelay: '150ms' }} />
+                  <Skeleton className="h-3 w-[60%] animate-pulse" style={{ animationDelay: '300ms' }} />
+                  <Skeleton className="h-3 w-[75%] animate-pulse" style={{ animationDelay: '450ms' }} />
+                </motion.div>
               )}
 
               {/* Navigation status */}
               {isNavigating && (
-                <p className="text-xs text-muted-foreground/60">
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-xs text-muted-foreground/60 flex items-center gap-1.5"
+                >
+                  <Loader2 className="h-3 w-3 animate-spin" />
                   {navigationMessage || 'Navigating...'}
-                </p>
+                </motion.p>
               )}
             </div>
           </div>
@@ -342,27 +439,35 @@ const MessageBubble: React.FC<{
     );
   }
 
+  // Don't render empty assistant messages (skeleton will show instead)
+  if (!message.content) return null;
+
   // Assistant message with markdown - tight, dense styling
   return (
-    <div className={cn(
-      "text-[13px] text-foreground/90 leading-relaxed",
-      "[&_p]:my-1.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
-      "[&_h1]:text-sm [&_h1]:font-semibold [&_h1]:mt-3 [&_h1]:mb-1.5",
-      "[&_h2]:text-sm [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-1.5",
-      "[&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:mt-2.5 [&_h3]:mb-1",
-      "[&_ul]:my-1.5 [&_ul]:pl-4 [&_ul]:list-disc",
-      "[&_ol]:my-1.5 [&_ol]:pl-4 [&_ol]:list-decimal",
-      "[&_li]:my-0.5",
-      "[&_strong]:font-semibold",
-      "[&_code]:bg-muted/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono",
-      "[&_pre]:bg-muted/40 [&_pre]:p-2 [&_pre]:rounded-lg [&_pre]:my-2 [&_pre]:overflow-x-auto",
-    )}>
+    <motion.div 
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className={cn(
+        "text-[13px] text-foreground/90 leading-relaxed",
+        "[&_p]:my-1.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
+        "[&_h1]:text-sm [&_h1]:font-semibold [&_h1]:mt-3 [&_h1]:mb-1.5",
+        "[&_h2]:text-sm [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-1.5",
+        "[&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:mt-2.5 [&_h3]:mb-1",
+        "[&_ul]:my-1.5 [&_ul]:pl-4 [&_ul]:list-disc",
+        "[&_ol]:my-1.5 [&_ol]:pl-4 [&_ol]:list-decimal",
+        "[&_li]:my-0.5",
+        "[&_strong]:font-semibold",
+        "[&_code]:bg-muted/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono",
+        "[&_pre]:bg-muted/40 [&_pre]:p-2 [&_pre]:rounded-lg [&_pre]:my-2 [&_pre]:overflow-x-auto",
+      )}
+    >
       <ReactMarkdown>
         {message.content || ''}
       </ReactMarkdown>
       {isStreaming && (
         <span className="inline-block w-1.5 h-3.5 bg-foreground/50 animate-pulse ml-0.5 rounded-sm" />
       )}
-    </div>
+    </motion.div>
   );
 };

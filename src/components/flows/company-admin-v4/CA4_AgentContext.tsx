@@ -12,6 +12,11 @@ interface AgentContextType extends AgentState {
   setDraftAdjustment: (draft?: AgentState['draftAdjustment']) => void;
   executeAction: (action: AgentAction) => void;
   clearMessages: () => void;
+  // New: navigation control for coordinated UI
+  requestedStep?: 'submissions' | 'submit' | 'track';
+  setRequestedStep: (step?: 'submissions' | 'submit' | 'track') => void;
+  isButtonLoading: boolean;
+  setButtonLoading: (loading: boolean) => void;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -24,6 +29,8 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [highlights, setHighlightsState] = useState<UIHighlight[]>([]);
   const [openWorkerId, setOpenWorkerIdState] = useState<string>();
   const [draftAdjustment, setDraftAdjustmentState] = useState<AgentState['draftAdjustment']>();
+  const [requestedStep, setRequestedStepState] = useState<'submissions' | 'submit' | 'track'>();
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
 
   const toggleOpen = useCallback(() => setIsOpen(prev => !prev), []);
   const setOpen = useCallback((open: boolean) => setIsOpen(open), []);
@@ -58,8 +65,21 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setDraftAdjustmentState(draft);
   }, []);
 
+  const setRequestedStep = useCallback((step?: 'submissions' | 'submit' | 'track') => {
+    setRequestedStepState(step);
+  }, []);
+
+  const setButtonLoading = useCallback((loading: boolean) => {
+    setIsButtonLoading(loading);
+  }, []);
+
   const executeAction = useCallback((action: AgentAction) => {
     switch (action.type) {
+      case 'navigate':
+        if (action.payload?.step) {
+          setRequestedStepState(action.payload.step);
+        }
+        break;
       case 'open_panel':
         if (action.payload?.workerId) {
           setOpenWorkerIdState(action.payload.workerId);
@@ -100,6 +120,8 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         highlights,
         openWorkerId,
         draftAdjustment,
+        requestedStep,
+        isButtonLoading,
         toggleOpen,
         setOpen,
         addMessage,
@@ -110,6 +132,8 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setDraftAdjustment,
         executeAction,
         clearMessages,
+        setRequestedStep,
+        setButtonLoading,
       }}
     >
       {children}
