@@ -63,7 +63,7 @@ export const ContractRichTextEditor: React.FC<ContractRichTextEditorProps> = ({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none focus:outline-none min-h-[400px] px-6 py-4 text-foreground",
+          "max-w-none focus:outline-none min-h-[400px] px-6 py-4 text-sm text-foreground/80 leading-relaxed",
       },
     },
   });
@@ -240,27 +240,35 @@ export const ContractRichTextEditor: React.FC<ContractRichTextEditorProps> = ({
           outline: none;
         }
         .ProseMirror p {
-          margin-bottom: 0.75rem;
+          margin-bottom: 1rem;
+          font-size: 0.875rem;
+          line-height: 1.625;
+          color: hsl(var(--foreground) / 0.8);
         }
         .ProseMirror h1 {
-          font-size: 1.5rem;
-          font-weight: 600;
+          font-size: 1.125rem;
+          font-weight: 500;
           margin-bottom: 1rem;
+          text-align: center;
+          color: hsl(var(--foreground));
         }
         .ProseMirror h2 {
-          font-size: 1.25rem;
-          font-weight: 600;
-          margin-bottom: 0.75rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          margin-bottom: 0.5rem;
+          color: hsl(var(--foreground));
         }
         .ProseMirror h3 {
-          font-size: 1rem;
-          font-weight: 600;
+          font-size: 0.875rem;
+          font-weight: 500;
           margin-bottom: 0.5rem;
+          color: hsl(var(--foreground));
         }
         .ProseMirror ul,
         .ProseMirror ol {
           padding-left: 1.5rem;
           margin-bottom: 0.75rem;
+          font-size: 0.875rem;
         }
         .ProseMirror li {
           margin-bottom: 0.25rem;
