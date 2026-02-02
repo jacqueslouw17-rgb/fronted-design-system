@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
 
-import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText } from "lucide-react";
+import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
 import { ContractCarousel } from "./ContractCarousel";
@@ -14,6 +14,7 @@ import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { useAgentState } from "@/hooks/useAgentState";
 import { ContractAuditLog } from "./ContractAuditLog";
 import { useGlobalContractAuditLog } from "@/hooks/useContractAuditLog";
+import { ContractRichTextEditor } from "./ContractRichTextEditor";
 type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance";
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -151,7 +152,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const employmentType = candidate.employmentType || "contractor";
   
   // Contract audit log hook
-  const { getEditEvents } = useGlobalContractAuditLog();
+  const { getEditEvents, recordEdit } = useGlobalContractAuditLog();
   const contractId = `${candidate.name.toLowerCase().replace(/\s+/g, '-')}-${candidate.countryCode?.toLowerCase() || 'unknown'}`;
   const editEvents = getEditEvents(contractId);
 
@@ -205,6 +206,50 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const fullContent = getContractContent(candidate, activeDocument);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  
+  // Edit mode state
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedContent, setEditedContent] = useState<string>("");
+  const [originalContent, setOriginalContent] = useState<string>("");
+
+  // Convert contract sections to HTML for the editor
+  const convertSectionsToHtml = useCallback((sections: Array<{ heading: string; text: string }>) => {
+    return sections.map(section => {
+      let html = "";
+      if (section.heading) {
+        html += `<h2>${section.heading}</h2>`;
+      }
+      if (section.text) {
+        // Convert newlines to <br> and handle paragraphs
+        const paragraphs = section.text.split("\n\n");
+        html += paragraphs.map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
+      }
+      return html;
+    }).join("");
+  }, []);
+
+  // Initialize editor content when entering edit mode
+  const handleEnterEditMode = useCallback(() => {
+    const htmlContent = convertSectionsToHtml(fullContent);
+    setEditedContent(htmlContent);
+    setOriginalContent(htmlContent);
+    setIsEditMode(true);
+  }, [fullContent, convertSectionsToHtml]);
+
+  // Cancel editing and restore original content
+  const handleCancelEdit = useCallback(() => {
+    setEditedContent(originalContent);
+    setIsEditMode(false);
+  }, [originalContent]);
+
+  // Save changes
+  const handleSaveChanges = useCallback(() => {
+    // Here you would typically save to backend/state
+    toast.success("Contract changes saved");
+    setIsEditMode(false);
+    // Log the edit event
+    recordEdit(contractId, "You", candidate.name);
+  }, [recordEdit, contractId, candidate.name]);
 
   // Measure how much vertical space the audit log has under the worker card,
   // so the audit log can cap itself and become scrollable (without stretching UI).
@@ -653,7 +698,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         delay: 0.2,
         duration: 0.3
       }} className="flex-1 flex flex-col h-[600px] min-h-0">
-        {/* Info message */}
+        {/* Info message / Edit controls */}
         <motion.div initial={{
           opacity: 0,
           scale: 0.95
@@ -663,41 +708,93 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         }} transition={{
           delay: 0.3,
           duration: 0.3
-        }} className="rounded-lg border border-border bg-muted/30 p-4 mb-4 flex-shrink-0 text-center">
-          <p className="text-sm text-foreground">This contract uses a legally verified template — just review the details and you're good to go.</p>
+        }} className="rounded-lg border border-border bg-muted/30 p-3 mb-4 flex-shrink-0 flex items-center justify-between">
+          {isEditMode ? (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-warning" />
+                <p className="text-sm text-foreground">Making edits to the contract. Remember to save your changes.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveChanges}
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-foreground">Review the contract details carefully before proceeding.</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEnterEditMode}
+                className="flex items-center gap-1.5"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit Contract
+              </Button>
+            </>
+          )}
         </motion.div>
 
-        {/* Scrollable contract content */}
+        {/* Contract content - Editor or Preview */}
         <div
           ref={scrollAreaRef}
           className="flex-1 min-h-0 overflow-y-auto rounded-t-lg border border-b-0 border-border bg-background"
         >
           <AnimatePresence mode="wait">
-            <motion.div key={activeDocument} initial={{
-              opacity: 0,
-              x: 20
-            }} animate={{
-              opacity: 1,
-              x: 0
-            }} exit={{
-              opacity: 0,
-              x: -20
-            }} transition={{
-              duration: 0.2
-            }}>
-              <div className="p-6">
-                <div className="space-y-4 select-none">
-                  {fullContent.map((section, idx) => <div key={idx}>
-                      {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
-                          {section.heading}
-                        </h3>}
-                      {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                          {renderHighlightedText(section.text)}
-                        </p>}
-                    </div>)}
+            {isEditMode ? (
+              <motion.div 
+                key="editor"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="h-full"
+              >
+                <ContractRichTextEditor
+                  content={editedContent}
+                  onChange={setEditedContent}
+                  className="border-0 rounded-none min-h-full"
+                />
+              </motion.div>
+            ) : (
+              <motion.div key={activeDocument} initial={{
+                opacity: 0,
+                x: 20
+              }} animate={{
+                opacity: 1,
+                x: 0
+              }} exit={{
+                opacity: 0,
+                x: -20
+              }} transition={{
+                duration: 0.2
+              }}>
+                <div className="p-6">
+                  <div className="space-y-4 select-none">
+                    {fullContent.map((section, idx) => <div key={idx}>
+                        {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
+                            {section.heading}
+                          </h3>}
+                        {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                            {renderHighlightedText(section.text)}
+                          </p>}
+                      </div>)}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
 
@@ -710,20 +807,23 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
               onPrevious();
             }}
             size="lg"
+            disabled={isEditMode}
           >
             Previous
           </Button>
           <div className="flex items-center gap-2">
-            {!hasScrolledToBottom && (
+            {isEditMode ? (
+              <span className="text-xs text-primary">Save or cancel your edits to continue</span>
+            ) : !hasScrolledToBottom ? (
               <span className="text-xs text-muted-foreground">Scroll to bottom to confirm</span>
-            )}
+            ) : null}
             <Button
               onClick={() => {
                 scrollAgreementToTop();
                 onNext();
               }}
               size="lg"
-              disabled={!hasScrolledToBottom}
+              disabled={!hasScrolledToBottom || isEditMode}
             >
               {index === total - 1 ? "Confirm & Continue" : "Confirm"}
             </Button>
