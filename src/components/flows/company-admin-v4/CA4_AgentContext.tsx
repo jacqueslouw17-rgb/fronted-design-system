@@ -1,6 +1,24 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { AgentState, AgentMessage, AgentAction, UIHighlight } from './CA4_AgentTypes';
 
+// Pending action types for agent-driven confirmations
+export type PendingActionType = 
+  | 'approve_all' 
+  | 'reject_all' 
+  | 'mark_ready' 
+  | 'submit_payroll'
+  | 'approve_worker'
+  | 'reject_worker';
+
+export interface PendingAction {
+  type: PendingActionType;
+  workerId?: string;
+  workerName?: string;
+  pendingCount?: number;
+  awaitingConfirmation: boolean;
+  dialogOpen?: boolean;
+}
+
 interface AgentContextType extends AgentState {
   toggleOpen: () => void;
   setOpen: (open: boolean) => void;
@@ -12,11 +30,27 @@ interface AgentContextType extends AgentState {
   setDraftAdjustment: (draft?: AgentState['draftAdjustment']) => void;
   executeAction: (action: AgentAction) => void;
   clearMessages: () => void;
-  // New: navigation control for coordinated UI
+  // Navigation control for coordinated UI
   requestedStep?: 'submissions' | 'submit' | 'track';
   setRequestedStep: (step?: 'submissions' | 'submit' | 'track') => void;
   isButtonLoading: boolean;
   setButtonLoading: (loading: boolean) => void;
+  // NEW: Pending action orchestration
+  pendingAction?: PendingAction;
+  setPendingAction: (action?: PendingAction) => void;
+  confirmPendingAction: () => void;
+  cancelPendingAction: () => void;
+  // NEW: Action callbacks for UI to register
+  actionCallbacks: {
+    onApproveAll?: () => void;
+    onRejectAll?: (reason: string) => void;
+    onMarkReady?: (workerId: string) => void;
+    onSubmitPayroll?: () => void;
+  };
+  registerActionCallbacks: (callbacks: AgentContextType['actionCallbacks']) => void;
+  // NEW: Button-specific loading states
+  loadingButtons: Record<string, boolean>;
+  setButtonLoadingState: (buttonId: string, loading: boolean) => void;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -31,6 +65,9 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [draftAdjustment, setDraftAdjustmentState] = useState<AgentState['draftAdjustment']>();
   const [requestedStep, setRequestedStepState] = useState<'submissions' | 'submit' | 'track'>();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
+  const [pendingAction, setPendingActionState] = useState<PendingAction>();
+  const [actionCallbacks, setActionCallbacks] = useState<AgentContextType['actionCallbacks']>({});
+  const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>({});
 
   const toggleOpen = useCallback(() => setIsOpen(prev => !prev), []);
   const setOpen = useCallback((open: boolean) => setIsOpen(open), []);
@@ -71,6 +108,46 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const setButtonLoading = useCallback((loading: boolean) => {
     setIsButtonLoading(loading);
+  }, []);
+
+  const setPendingAction = useCallback((action?: PendingAction) => {
+    setPendingActionState(action);
+  }, []);
+
+  const setButtonLoadingState = useCallback((buttonId: string, loading: boolean) => {
+    setLoadingButtons(prev => ({ ...prev, [buttonId]: loading }));
+  }, []);
+
+  const confirmPendingAction = useCallback(() => {
+    if (!pendingAction) return;
+    
+    switch (pendingAction.type) {
+      case 'approve_all':
+        actionCallbacks.onApproveAll?.();
+        break;
+      case 'reject_all':
+        // For reject, we need a reason - this triggers dialog instead
+        setPendingActionState(prev => prev ? { ...prev, dialogOpen: true } : undefined);
+        return;
+      case 'mark_ready':
+        if (pendingAction.workerId) {
+          actionCallbacks.onMarkReady?.(pendingAction.workerId);
+        }
+        break;
+      case 'submit_payroll':
+        actionCallbacks.onSubmitPayroll?.();
+        break;
+    }
+    
+    setPendingActionState(undefined);
+  }, [pendingAction, actionCallbacks]);
+
+  const cancelPendingAction = useCallback(() => {
+    setPendingActionState(undefined);
+  }, []);
+
+  const registerActionCallbacks = useCallback((callbacks: AgentContextType['actionCallbacks']) => {
+    setActionCallbacks(callbacks);
   }, []);
 
   const executeAction = useCallback((action: AgentAction) => {
@@ -122,6 +199,9 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         draftAdjustment,
         requestedStep,
         isButtonLoading,
+        pendingAction,
+        actionCallbacks,
+        loadingButtons,
         toggleOpen,
         setOpen,
         addMessage,
@@ -134,6 +214,11 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         clearMessages,
         setRequestedStep,
         setButtonLoading,
+        setPendingAction,
+        confirmPendingAction,
+        cancelPendingAction,
+        registerActionCallbacks,
+        setButtonLoadingState,
       }}
     >
       {children}

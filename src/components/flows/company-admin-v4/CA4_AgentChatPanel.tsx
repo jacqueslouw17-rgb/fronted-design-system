@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp, X, Square, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
-import { useCA4Agent } from './CA4_AgentContext';
+import { useCA4Agent, PendingActionType } from './CA4_AgentContext';
 import { AgentMessage, AgentAction } from './CA4_AgentTypes';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kurt-chat`;
 
@@ -55,6 +56,63 @@ function detectWorkerIntent(query: string): { workerId?: string; workerName?: st
   return { wantsNavigation };
 }
 
+// Detect action intents (approve, reject, confirm, etc.)
+interface ActionIntent {
+  type: PendingActionType | 'confirm_yes' | 'confirm_no' | null;
+  workerId?: string;
+  workerName?: string;
+}
+
+function detectActionIntent(query: string): ActionIntent {
+  const lowerQuery = query.toLowerCase().trim();
+  
+  // Confirmation responses
+  if (/^(yes|yeah|yep|sure|confirm|ok|okay|do it|go ahead|proceed|approve it|yes please)$/i.test(lowerQuery) ||
+      lowerQuery.includes('yes, approve') || 
+      lowerQuery.includes('yes approve') ||
+      lowerQuery.includes('confirm') && lowerQuery.includes('approve')) {
+    return { type: 'confirm_yes' };
+  }
+  
+  if (/^(no|nope|cancel|stop|don't|nevermind|never mind)$/i.test(lowerQuery)) {
+    return { type: 'confirm_no' };
+  }
+  
+  // Approve all intent
+  if ((lowerQuery.includes('approve') && lowerQuery.includes('all')) ||
+      lowerQuery.includes('approve everything') ||
+      lowerQuery.includes('approve all pending') ||
+      lowerQuery.includes('approve all items')) {
+    return { type: 'approve_all' };
+  }
+  
+  // Reject all intent  
+  if ((lowerQuery.includes('reject') && lowerQuery.includes('all')) ||
+      lowerQuery.includes('reject everything')) {
+    return { type: 'reject_all' };
+  }
+  
+  // Mark ready intent
+  if (lowerQuery.includes('mark') && lowerQuery.includes('ready')) {
+    // Check for worker name
+    for (const [key, value] of Object.entries(WORKER_MAP)) {
+      if (lowerQuery.includes(key)) {
+        return { type: 'mark_ready', workerId: value.id, workerName: value.name };
+      }
+    }
+    return { type: 'mark_ready' };
+  }
+  
+  // Submit payroll intent
+  if ((lowerQuery.includes('submit') && lowerQuery.includes('payroll')) ||
+      lowerQuery.includes('continue to submit') ||
+      lowerQuery.includes('finalize payroll')) {
+    return { type: 'submit_payroll' };
+  }
+  
+  return { type: null };
+}
+
 export const CA4_AgentChatPanel: React.FC = () => {
   const {
     isOpen,
@@ -66,6 +124,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setRequestedStep,
     setOpenWorkerId,
     setButtonLoading,
+    pendingAction,
+    setPendingAction,
+    confirmPendingAction,
+    cancelPendingAction,
+    setButtonLoadingState,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
@@ -74,6 +137,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showRetrieving, setShowRetrieving] = useState(false);
   const [minLoadingComplete, setMinLoadingComplete] = useState(false);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -143,6 +207,93 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
     // Add to agent context
     addMessage({ role: 'user', content: query });
+
+    // FIRST: Check for action intents (approve, reject, confirm)
+    const actionIntent = detectActionIntent(query);
+    
+    // Handle confirmation responses
+    if (actionIntent.type === 'confirm_yes' && pendingAction?.awaitingConfirmation) {
+      console.log('[AgentChat] User confirmed action:', pendingAction.type);
+      
+      // Show loading on relevant button
+      setButtonLoadingState(pendingAction.type, true);
+      setButtonLoading(true);
+      
+      // Brief delay for UI feedback, then execute
+      setTimeout(() => {
+        confirmPendingAction();
+        setButtonLoadingState(pendingAction.type, false);
+        setButtonLoading(false);
+        setAwaitingConfirmation(false);
+      }, 1200);
+      
+      // Show immediate assistant response
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: `✓ Done! I've ${pendingAction.type === 'approve_all' ? 'approved all pending items' : pendingAction.type === 'reject_all' ? 'opened the rejection dialog' : 'completed the action'}.`
+      }]);
+      setIsLoading(false);
+      setShowRetrieving(false);
+      return;
+    }
+    
+    if (actionIntent.type === 'confirm_no' && pendingAction?.awaitingConfirmation) {
+      console.log('[AgentChat] User cancelled action');
+      cancelPendingAction();
+      setAwaitingConfirmation(false);
+      
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'No problem, I\'ve cancelled that action. Let me know if you need anything else.'
+      }]);
+      setIsLoading(false);
+      setShowRetrieving(false);
+      return;
+    }
+    
+    // Handle new action intents (approve all, reject all, etc.)
+    if (actionIntent.type && actionIntent.type !== 'confirm_yes' && actionIntent.type !== 'confirm_no') {
+      console.log('[AgentChat] Detected action intent:', actionIntent);
+      
+      setOpen(true);
+      setButtonLoading(true);
+      
+      // Navigate to submissions if not already there
+      setTimeout(() => {
+        setRequestedStep('submissions');
+      }, 300);
+      
+      // Set up pending action and ask for confirmation
+      setTimeout(() => {
+        const actionLabels: Record<string, string> = {
+          'approve_all': 'approve all pending items',
+          'reject_all': 'reject all pending items',
+          'mark_ready': `mark ${actionIntent.workerName || 'the worker'} as ready`,
+          'submit_payroll': 'submit the payroll for processing',
+        };
+        
+        setPendingAction({
+          type: actionIntent.type as PendingActionType,
+          workerId: actionIntent.workerId,
+          workerName: actionIntent.workerName,
+          awaitingConfirmation: true,
+        });
+        
+        setAwaitingConfirmation(true);
+        setButtonLoading(false);
+        
+        // Show confirmation prompt as assistant message
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: `I can ${actionLabels[actionIntent.type!] || 'do that'} for you. This will apply to all pending adjustments and leaves.\n\n**Do you want to proceed?**`
+        }]);
+        
+        setIsLoading(false);
+        setShowRetrieving(false);
+      }, 1500);
+      
+      return;
+    }
 
     // Detect worker intent and trigger UI orchestration
     const intent = detectWorkerIntent(query);
@@ -433,6 +584,51 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     <Skeleton className="h-7 w-24 rounded-lg" />
                     <Skeleton className="h-7 w-20 rounded-lg" style={{ animationDelay: '100ms' }} />
                   </motion.div>
+                </motion.div>
+              )}
+
+              {/* Inline action buttons when awaiting confirmation */}
+              {awaitingConfirmation && pendingAction && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 pt-2"
+                >
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setButtonLoadingState(pendingAction.type, true);
+                      setButtonLoading(true);
+                      setTimeout(() => {
+                        confirmPendingAction();
+                        setButtonLoadingState(pendingAction.type, false);
+                        setButtonLoading(false);
+                        setAwaitingConfirmation(false);
+                        setMessages(prev => [...prev, { 
+                          role: 'assistant', 
+                          content: '✓ Done! Action completed successfully.'
+                        }]);
+                      }, 1200);
+                    }}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs h-8"
+                  >
+                    Yes, proceed
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      cancelPendingAction();
+                      setAwaitingConfirmation(false);
+                      setMessages(prev => [...prev, { 
+                        role: 'assistant', 
+                        content: 'Cancelled. Let me know if you need anything else.'
+                      }]);
+                    }}
+                    className="text-xs h-8"
+                  >
+                    Cancel
+                  </Button>
                 </motion.div>
               )}
 
