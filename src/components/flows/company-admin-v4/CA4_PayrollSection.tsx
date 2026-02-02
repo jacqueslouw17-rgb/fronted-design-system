@@ -13,24 +13,7 @@ import { CA4_SubmitConfirmationModal } from "./CA4_SubmitConfirmationModal";
 import { CA4_TrackingView, TrackingWorker } from "./CA4_TrackingView";
 import { CA4_SubmitStep } from "./CA4_SubmitStep";
 import { CA4_PeriodDropdown, PayrollPeriod } from "./CA4_PeriodDropdown";
-
-// Try to use agent context if available (will work when wrapped in provider)
-let useCA4AgentOptional: () => { 
-  highlights: any[]; 
-  openWorkerId?: string; 
-  setOpenWorkerId: (id?: string) => void;
-  requestedStep?: 'submissions' | 'submit' | 'track';
-  setRequestedStep: (step?: 'submissions' | 'submit' | 'track') => void;
-  isButtonLoading: boolean;
-} | null;
-try {
-  const { useCA4Agent } = require("./CA4_AgentContext");
-  useCA4AgentOptional = () => {
-    try { return useCA4Agent(); } catch { return null; }
-  };
-} catch {
-  useCA4AgentOptional = () => null;
-}
+import { useCA4Agent } from "./CA4_AgentContext";
 
 const mockSubmissions: WorkerSubmission[] = [
   {
@@ -339,28 +322,35 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   const pendingSubmissions = useMemo(() => submissions.filter(s => s.status === "pending").length, [submissions]);
 
   // Get agent context for coordinated navigation
-  const agentContext = useCA4AgentOptional?.();
+  const { 
+    requestedStep, 
+    setRequestedStep, 
+    isButtonLoading, 
+    openWorkerId,
+    setOpenWorkerId 
+  } = useCA4Agent();
 
   // Respond to agent navigation requests
   useEffect(() => {
-    if (agentContext?.requestedStep) {
+    if (requestedStep) {
+      console.log('[CA4_PayrollSection] Received requestedStep:', requestedStep);
       // Navigate to the requested step
-      if (agentContext.requestedStep === 'submissions') {
+      if (requestedStep === 'submissions') {
         setHasEnteredWorkflow(true);
         setCurrentStep('submissions');
-      } else if (agentContext.requestedStep === 'submit') {
+      } else if (requestedStep === 'submit') {
         setHasEnteredWorkflow(true);
         setCompletedSteps(prev => prev.includes('submissions') ? prev : [...prev, 'submissions']);
         setCurrentStep('submit');
-      } else if (agentContext.requestedStep === 'track') {
+      } else if (requestedStep === 'track') {
         setHasEnteredWorkflow(true);
         setCompletedSteps(['submissions', 'submit']);
         setCurrentStep('track');
       }
       // Clear the request after handling
-      agentContext.setRequestedStep(undefined);
+      setRequestedStep(undefined);
     }
-  }, [agentContext?.requestedStep]);
+  }, [requestedStep, setRequestedStep]);
 
   // Handle period change
   const handlePeriodChange = (periodId: string) => {
@@ -477,10 +467,10 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
               <Button 
                 onClick={handleEnterWorkflow} 
                 size="sm"
-                disabled={agentContext?.isButtonLoading}
+                disabled={isButtonLoading}
                 className="min-w-[160px]"
               >
-                {agentContext?.isButtonLoading ? (
+                {isButtonLoading ? (
                   <>
                     <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                     Navigating...
@@ -622,6 +612,8 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
             completedSteps={completedSteps}
             onStepClick={handleStepClick}
             pendingSubmissions={pendingSubmissions}
+            agentOpenWorkerId={openWorkerId}
+            onAgentOpenHandled={() => setOpenWorkerId(undefined)}
           />
         );
 

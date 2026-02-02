@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -109,6 +109,9 @@ interface CA4_SubmissionsViewProps {
   completedSteps?: CA4_PayrollStep[];
   onStepClick?: (step: CA4_PayrollStep) => void;
   pendingSubmissions?: number;
+  // Agent-driven auto-open
+  agentOpenWorkerId?: string;
+  onAgentOpenHandled?: () => void;
 }
 
 // Note: Leave is not included here - it's managed in the separate Leaves tab
@@ -761,6 +764,9 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   completedSteps = [],
   onStepClick,
   pendingSubmissions = 0,
+  // Agent-driven
+  agentOpenWorkerId,
+  onAgentOpenHandled,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState<WorkerSubmission | null>(null);
@@ -798,6 +804,22 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // Admin add adjustment mode
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
   
+  // Agent-driven auto-open - when agentOpenWorkerId changes, find and open that worker's drawer
+  useEffect(() => {
+    if (agentOpenWorkerId) {
+      console.log('[CA4_SubmissionsView] Agent requested to open worker:', agentOpenWorkerId);
+      const worker = submissions.find(s => s.workerId === agentOpenWorkerId);
+      if (worker) {
+        console.log('[CA4_SubmissionsView] Found worker, opening drawer:', worker.workerName);
+        setSelectedSubmission(worker);
+        setDrawerOpen(true);
+        setRejectReason("");
+      }
+      // Signal that we handled it
+      onAgentOpenHandled?.();
+    }
+  }, [agentOpenWorkerId, submissions, onAgentOpenHandled]);
+
   // Track newly added adjustment for animation + auto-expand
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
