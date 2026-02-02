@@ -458,12 +458,18 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
   const handleConfirmNo = useCallback(() => {
     if (!pendingAction) return;
+    
+    // Add user's "No" response to chat history first
+    setMessages(prev => [...prev, { role: 'user', content: 'No' }]);
+    
     setButtonLoadingState(pendingAction.type, false);
     setButtonLoading(false);
     cancelPendingAction();
+    
+    // Then add Kurt's response
     setMessages(prev => [...prev, {
       role: 'assistant',
-      content: "Cancelled. Tell me what you'd like to do next.",
+      content: "No problem. Let me know what you'd like to do instead.",
     }]);
   }, [pendingAction, setButtonLoadingState, setButtonLoading, cancelPendingAction]);
 
@@ -474,6 +480,9 @@ export const CA4_AgentChatPanel: React.FC = () => {
     const workerId = pendingAction.workerId;
     const workerName = pendingAction.workerName;
     const targetedItem = pendingAction.targetedItem;
+
+    // Add user's "Yes" response to chat history first
+    setMessages(prev => [...prev, { role: 'user', content: 'Yes' }]);
 
     // Prevent double submit - clear pending action state
     setPendingAction(undefined);
