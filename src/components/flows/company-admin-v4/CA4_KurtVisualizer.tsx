@@ -89,6 +89,7 @@ export const CA4_KurtVisualizer: React.FC = () => {
           </TooltipTrigger>
           <TooltipContent 
             side="bottom" 
+            sideOffset={-20}
             className="text-xs font-medium"
           >
             Click to chat with Kurt
