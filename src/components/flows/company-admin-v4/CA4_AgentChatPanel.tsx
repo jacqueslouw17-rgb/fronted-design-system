@@ -1034,13 +1034,22 @@ export const CA4_AgentChatPanel: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                messages.map((message, index) => (
-                  <MessageBubble
-                    key={index}
-                    message={message}
-                    isStreaming={isStreaming && index === messages.length - 1 && message.role === 'assistant'}
-                  />
-                ))
+                messages.map((message, index) => {
+                  // Show confirmation buttons on the last assistant message when awaiting confirmation
+                  const isLastAssistant = message.role === 'assistant' && index === messages.length - 1;
+                  const showConfirmation = isLastAssistant && pendingAction?.awaitingConfirmation;
+                  
+                  return (
+                    <MessageBubble
+                      key={index}
+                      message={message}
+                      isStreaming={isStreaming && index === messages.length - 1 && message.role === 'assistant'}
+                      isConfirmationMessage={showConfirmation}
+                      onConfirmYes={showConfirmation ? handleConfirmYes : undefined}
+                      onConfirmNo={showConfirmation ? handleConfirmNo : undefined}
+                    />
+                  );
+                })
               )}
 
               {/* Enhanced skeleton loading with cool staggered animation */}
@@ -1144,20 +1153,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
             </div>
           </div>
 
-          {/* Always-visible confirmation bar (prevents "Yes/No" disappearing due to message ordering/loading) */}
-          {pendingAction?.awaitingConfirmation && (
-            <div className="px-4 pb-3">
-              <div className="flex items-center justify-end gap-2">
-                <Button size="sm" onClick={handleConfirmYes} className="h-7 px-3 text-[11px]">
-                  Yes
-                </Button>
-                <Button size="sm" variant="outline" onClick={handleConfirmNo} className="h-7 px-3 text-[11px]">
-                  No
-                </Button>
-              </div>
-            </div>
-          )}
-
           {/* Input Area - Lovable style */}
           <div className="p-4 border-t border-border/20">
             <div className={cn(
@@ -1210,7 +1205,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
 const MessageBubble: React.FC<{
   message: ChatMessage;
   isStreaming?: boolean;
-}> = ({ message, isStreaming }) => {
+  isConfirmationMessage?: boolean;
+  onConfirmYes?: () => void;
+  onConfirmNo?: () => void;
+}> = ({ message, isStreaming, isConfirmationMessage, onConfirmYes, onConfirmNo }) => {
   const isUser = message.role === 'user';
 
   if (isUser) {
@@ -1260,6 +1258,23 @@ const MessageBubble: React.FC<{
       </ReactMarkdown>
       {isStreaming && (
         <span className="inline-block w-1.5 h-3.5 bg-foreground/50 animate-pulse ml-0.5 rounded-sm" />
+      )}
+      
+      {/* Inline confirmation buttons - contextual to the question */}
+      {isConfirmationMessage && onConfirmYes && onConfirmNo && (
+        <motion.div 
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.2 }}
+          className="flex items-center gap-2 mt-3"
+        >
+          <Button size="sm" onClick={onConfirmYes} className="h-7 px-3 text-[11px]">
+            Yes
+          </Button>
+          <Button size="sm" variant="outline" onClick={onConfirmNo} className="h-7 px-3 text-[11px]">
+            No
+          </Button>
+        </motion.div>
       )}
     </motion.div>
   );
