@@ -112,7 +112,7 @@ export const CA4_KurtVisualizer: React.FC = () => {
               className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
             >
               <div 
-                className="px-3 py-1.5 rounded-full text-[11px] font-medium tracking-wide text-white/90 whitespace-nowrap backdrop-blur-md"
+                className="px-3 py-1.5 rounded-full overflow-hidden text-[11px] font-medium tracking-wide text-white/90 whitespace-nowrap backdrop-blur-md"
                 style={{
                   background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(96, 165, 250, 0.25) 100%)',
                   boxShadow: '0 0 20px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
