@@ -748,27 +748,31 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </motion.div>
 
         {/* Contract content - Editor or Preview */}
-        <div
-          ref={scrollAreaRef}
-          className="flex-1 min-h-0 overflow-y-auto rounded-t-lg border border-b-0 border-border bg-background"
-        >
-          <AnimatePresence mode="wait">
-            {isEditMode ? (
+        {isEditMode ? (
+          <div className="flex-1 min-h-0 rounded-t-lg border border-b-0 border-border bg-background flex flex-col overflow-hidden">
+            <AnimatePresence mode="wait">
               <motion.div 
                 key="editor"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="h-full"
+                className="h-full flex flex-col"
               >
                 <ContractRichTextEditor
                   content={editedContent}
                   onChange={setEditedContent}
-                  className="border-0 rounded-none min-h-full"
+                  className="border-0 rounded-none flex-1 min-h-0"
                 />
               </motion.div>
-            ) : (
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div
+            ref={scrollAreaRef}
+            className="flex-1 min-h-0 overflow-y-auto rounded-t-lg border border-b-0 border-border bg-background"
+          >
+            <AnimatePresence mode="wait">
               <motion.div key={activeDocument} initial={{
                 opacity: 0,
                 x: 20
@@ -794,9 +798,9 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
                   </div>
                 </div>
               </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+            </AnimatePresence>
+          </div>
+        )}
 
         {/* Buttons below document - always visible */}
         <div className="flex-shrink-0 p-4 flex gap-3 justify-between items-center bg-background border border-t-0 border-border rounded-b-lg">

@@ -63,7 +63,7 @@ export const ContractRichTextEditor: React.FC<ContractRichTextEditorProps> = ({
     editorProps: {
       attributes: {
         class:
-          "max-w-none focus:outline-none min-h-[400px] px-6 py-4 text-sm text-foreground/80 leading-relaxed",
+          "max-w-none focus:outline-none px-6 py-4 text-sm text-foreground/80 leading-relaxed",
       },
     },
   });
@@ -116,9 +116,9 @@ export const ContractRichTextEditor: React.FC<ContractRichTextEditorProps> = ({
   );
 
   return (
-    <div className={cn("border border-border rounded-lg overflow-hidden bg-background flex flex-col", className)}>
-      {/* Toolbar - sticky at top */}
-      <div className="flex items-center gap-0.5 px-3 py-2 border-b border-border bg-muted/30 sticky top-0 z-10 flex-shrink-0">
+    <div className={cn("border border-border rounded-lg bg-background flex flex-col overflow-hidden", className)}>
+      {/* Toolbar - fixed at top, not scrollable */}
+      <div className="flex items-center gap-0.5 px-3 py-2 border-b border-border bg-muted/30 flex-shrink-0">
         {/* Heading Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
