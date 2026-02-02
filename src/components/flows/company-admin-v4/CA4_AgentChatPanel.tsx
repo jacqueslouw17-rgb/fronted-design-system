@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp, X, Square, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
-import { useCA4Agent, PendingActionType } from './CA4_AgentContext';
+import { useCA4Agent, PendingActionType, TargetedItemInfo } from './CA4_AgentContext';
 import { AgentMessage, AgentAction } from './CA4_AgentTypes';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -83,6 +83,45 @@ interface ActionIntent {
   type: PendingActionType | 'confirm_yes' | 'confirm_no' | null;
   workerId?: string;
   workerName?: string;
+  // For targeted item approval
+  targetedItem?: TargetedItemInfo;
+}
+
+// Parse targeted item approval: "approve the expense of 245 for David"
+function parseTargetedItemApproval(query: string): { workerId: string; workerName: string; itemType: 'expenses' | 'bonus' | 'overtime'; amount?: number } | null {
+  const lowerQuery = query.toLowerCase();
+  
+  // Must contain "approve" but NOT "all"
+  if (!lowerQuery.includes('approve') || lowerQuery.includes('all')) return null;
+  
+  // Find worker name
+  let foundWorker: { id: string; name: string } | null = null;
+  for (const [key, value] of Object.entries(WORKER_MAP)) {
+    if (lowerQuery.includes(key)) {
+      foundWorker = value;
+      break;
+    }
+  }
+  if (!foundWorker) return null;
+  
+  // Find item type
+  let itemType: 'expenses' | 'bonus' | 'overtime' | null = null;
+  if (lowerQuery.includes('expense')) itemType = 'expenses';
+  else if (lowerQuery.includes('bonus')) itemType = 'bonus';
+  else if (lowerQuery.includes('overtime')) itemType = 'overtime';
+  
+  if (!itemType) return null;
+  
+  // Parse amount (optional) - look for numbers
+  const amountMatch = query.match(/(\d+(?:[.,]\d+)?)/);
+  const amount = amountMatch ? parseFloat(amountMatch[1].replace(',', '.')) : undefined;
+  
+  return {
+    workerId: foundWorker.id,
+    workerName: foundWorker.name,
+    itemType,
+    amount,
+  };
 }
 
 function detectActionIntent(query: string): ActionIntent {
@@ -100,6 +139,22 @@ function detectActionIntent(query: string): ActionIntent {
   
   if (/^(no|nope|cancel|stop|don't|nevermind|never mind)$/i.test(lowerQuery)) {
     return { type: 'confirm_no' };
+  }
+  
+  // Check for targeted item approval FIRST (before approve_all)
+  const targetedItem = parseTargetedItemApproval(query);
+  if (targetedItem) {
+    return { 
+      type: 'approve_item', 
+      workerId: targetedItem.workerId, 
+      workerName: targetedItem.workerName,
+      targetedItem: {
+        workerId: targetedItem.workerId,
+        workerName: targetedItem.workerName,
+        itemType: targetedItem.itemType,
+        amount: targetedItem.amount,
+      },
+    };
   }
   
   // Approve all intent
@@ -287,15 +342,14 @@ export const CA4_AgentChatPanel: React.FC = () => {
     }
   }, []);
 
-  // Complete an action and show next suggestion
-  const completeAction = useCallback((actionType: PendingActionType, workerId?: string) => {
+  // Complete an action and show next suggestion (optionally trigger follow-up for item approval)
+  const completeAction = useCallback((actionType: PendingActionType, workerId?: string, workerName?: string) => {
     // Get the next suggested action
-    const nextAction = getNextSuggestedAction(actionType, workerId);
+    let nextAction = getNextSuggestedAction(actionType, workerId);
     
     // Update button states
     setButtonLoadingState(actionType, false);
     setButtonLoading(false);
-    setPendingAction(undefined);
     setAwaitingConfirmation(false);
     
     // Build response message with context
@@ -315,13 +369,29 @@ export const CA4_AgentChatPanel: React.FC = () => {
       case 'reject_all':
         responseContent = '✓ **Done!** All pending items have been rejected. Workers will need to resubmit.';
         break;
+      case 'approve_item':
+        responseContent = `✓ **Done!** The item has been approved for ${workerName || 'the worker'}.`;
+        // After approving a single item, prompt to mark worker as ready
+        if (workerId && workerName) {
+          nextAction = {
+            type: 'mark_ready',
+            label: `Mark ${workerName} as ready`,
+            description: `${workerName} can now be finalized`,
+            workerId,
+            workerName,
+          };
+          responseContent += `\n\n**Next step:** Would you like to mark ${workerName} as ready?`;
+        }
+        break;
     }
     
-    // Add the next suggested action to the message if available
-    if (nextAction) {
+    // For non-approve_item actions, add the next suggested action to the message
+    if (actionType !== 'approve_item' && nextAction) {
       responseContent += `\n\n**Next step:** ${nextAction.description || nextAction.label}`;
-      setCurrentSuggestedAction(nextAction);
     }
+    
+    setCurrentSuggestedAction(nextAction);
+    setPendingAction(undefined);
     
     setMessages(prev => [...prev, { 
       role: 'assistant', 
@@ -363,9 +433,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (actionIntent.type === 'confirm_yes' && pendingAction?.awaitingConfirmation) {
       console.log('[AgentChat] User confirmed action:', pendingAction.type);
       
-      // Capture the action type before async operations
+      // Capture the action info before async operations
       const actionType = pendingAction.type;
       const workerId = pendingAction.workerId;
+      const workerName = pendingAction.workerName;
+      const targetedItem = pendingAction.targetedItem;
       
       // Show loading on relevant button
       setButtonLoadingState(actionType, true);
@@ -383,12 +455,15 @@ export const CA4_AgentChatPanel: React.FC = () => {
               executeCallback('mark_ready', w.id);
             }
           });
+        } else if (actionType === 'approve_item' && targetedItem) {
+          // Approve specific item
+          executeCallback('approve_item', workerId, targetedItem);
         } else {
           executeCallback(actionType, workerId);
         }
         
         // Complete the action and show next suggestion
-        completeAction(actionType, workerId);
+        completeAction(actionType, workerId, workerName);
       }, 1200);
       
       return;
@@ -414,7 +489,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       return;
     }
     
-    // Handle new action intents (approve all, reject all, mark ready, submit)
+    // Handle new action intents (approve all, reject all, mark ready, submit, approve_item)
     if (actionIntent.type && actionIntent.type !== 'confirm_yes' && actionIntent.type !== 'confirm_no') {
       console.log('[AgentChat] Detected action intent:', actionIntent);
       
@@ -428,10 +503,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
         setRequestedStep('submissions');
       }, 300);
       
-      // Open first worker with pending items to show the Approve All button
+      // Open the target worker (or first worker for approve_all)
+      const targetWorkerId = actionIntent.workerId || '1';
       setTimeout(() => {
-        // Open the first worker (David Martinez by default) to show the drawer
-        setOpenWorkerId('1');
+        setOpenWorkerId(targetWorkerId);
       }, 800);
       
       // Set the button loading state to show the button is "preparing"
@@ -441,6 +516,15 @@ export const CA4_AgentChatPanel: React.FC = () => {
       
       // Set up pending action and ask for confirmation
       setTimeout(() => {
+        // Build action labels and descriptions including approve_item
+        const itemTypeLabel = actionIntent.targetedItem?.itemType === 'expenses' ? 'expense' 
+          : actionIntent.targetedItem?.itemType === 'bonus' ? 'bonus'
+          : actionIntent.targetedItem?.itemType === 'overtime' ? 'overtime' : 'item';
+        
+        const amountStr = actionIntent.targetedItem?.amount 
+          ? ` of €${actionIntent.targetedItem.amount}` 
+          : '';
+        
         const actionLabels: Record<string, string> = {
           'approve_all': 'approve all pending items',
           'reject_all': 'reject all pending items',
@@ -448,6 +532,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
             ? `mark ${actionIntent.workerName} as ready`
             : 'mark all reviewed workers as ready',
           'submit_payroll': 'submit the payroll for processing',
+          'approve_item': `approve the ${itemTypeLabel}${amountStr} for ${actionIntent.workerName}`,
         };
         
         const actionDescriptions: Record<string, string> = {
@@ -457,6 +542,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
             ? `This will finalize ${actionIntent.workerName}'s review and lock all decisions.`
             : 'This will finalize all reviewed workers and prepare them for payroll.',
           'submit_payroll': 'This will submit the payroll run for processing. Payments will be scheduled.',
+          'approve_item': `I'll open ${actionIntent.workerName}'s drawer, find the ${itemTypeLabel}${amountStr}, and approve it.`,
         };
         
         setPendingAction({
@@ -464,6 +550,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
           workerId: actionIntent.workerId,
           workerName: actionIntent.workerName,
           awaitingConfirmation: true,
+          targetedItem: actionIntent.targetedItem,
         });
         
         setAwaitingConfirmation(true);
@@ -837,6 +924,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
                       
                       const actionType = pendingAction.type;
                       const workerId = pendingAction.workerId;
+                      const workerName = pendingAction.workerName;
+                      const targetedItem = pendingAction.targetedItem;
                       
                       setTimeout(() => {
                         // Execute via context (uses ref for latest callbacks)
@@ -846,12 +935,14 @@ export const CA4_AgentChatPanel: React.FC = () => {
                               executeCallback('mark_ready', w.id);
                             }
                           });
+                        } else if (actionType === 'approve_item' && targetedItem) {
+                          executeCallback('approve_item', workerId, targetedItem);
                         } else {
                           executeCallback(actionType, workerId);
                         }
                         
                         // Complete and show next suggestion
-                        completeAction(actionType, workerId);
+                        completeAction(actionType, workerId, workerName);
                       }, 1200);
                     }}
                     className="px-3 py-1.5 text-[11px] font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
