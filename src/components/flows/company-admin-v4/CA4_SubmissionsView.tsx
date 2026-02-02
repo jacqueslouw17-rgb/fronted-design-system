@@ -808,27 +808,44 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // Drawer loading state - simulates data fetch synced with animation
   const [isDrawerLoading, setIsDrawerLoading] = useState(false);
   
+  // Track which sections to force open (for agent-driven expand)
+  const [forceOpenSections, setForceOpenSections] = useState<Set<string>>(new Set());
+  
   // Agent-driven auto-open - when agentOpenWorkerId changes, find and open that worker's drawer
+  // IMPORTANT: Skip skeleton if drawer is already open for the same worker
   useEffect(() => {
     if (agentOpenWorkerId) {
       console.log('[CA4_SubmissionsView] Agent requested to open worker:', agentOpenWorkerId);
       const worker = submissions.find(s => s.workerId === agentOpenWorkerId);
       if (worker) {
-        console.log('[CA4_SubmissionsView] Found worker, opening drawer:', worker.workerName);
-        setSelectedSubmission(worker);
-        setDrawerOpen(true);
-        setIsDrawerLoading(true);
-        setRejectReason("");
+        // Check if drawer is already open for this worker - skip loading skeleton
+        const isAlreadyOpen = drawerOpen && selectedSubmission?.workerId === agentOpenWorkerId;
         
-        // Extended loading for smooth transition feel
-        setTimeout(() => {
-          setIsDrawerLoading(false);
-        }, 1200);
+        if (!isAlreadyOpen) {
+          console.log('[CA4_SubmissionsView] Found worker, opening drawer:', worker.workerName);
+          setSelectedSubmission(worker);
+          setDrawerOpen(true);
+          setIsDrawerLoading(true);
+          setRejectReason("");
+          
+          // Extended loading for smooth transition feel
+          setTimeout(() => {
+            setIsDrawerLoading(false);
+            // Auto-expand earnings section and show pending only
+            setForceOpenSections(new Set(['earnings']));
+            setShowPendingOnly(true);
+          }, 1200);
+        } else {
+          // Drawer already open for this worker - just expand earnings and show pending
+          console.log('[CA4_SubmissionsView] Drawer already open, expanding sections');
+          setForceOpenSections(new Set(['earnings']));
+          setShowPendingOnly(true);
+        }
       }
       // Signal that we handled it
       onAgentOpenHandled?.();
     }
-  }, [agentOpenWorkerId, submissions, onAgentOpenHandled]);
+  }, [agentOpenWorkerId, submissions, onAgentOpenHandled, drawerOpen, selectedSubmission?.workerId]);
 
   // Track newly added adjustment for animation + auto-expand
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
@@ -968,6 +985,15 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     }));
   };
 
+  // Close drawer handler
+  const handleCloseDrawer = () => {
+    setDrawerOpen(false);
+    setSelectedSubmission(null);
+    // Reset agent-driven states
+    setForceOpenSections(new Set());
+    setShowPendingOnly(false);
+  };
+
   // Close expanded item when clicking outside
   const handleRowClick = (submission: WorkerSubmission) => {
     setSelectedSubmission(submission);
@@ -975,6 +1001,9 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     setIsDrawerLoading(true);
     setRejectReason("");
     setExpandedItemId(null);
+    // Reset agent-driven states for manual opens
+    setForceOpenSections(new Set());
+    setShowPendingOnly(false);
     
     // Extended loading for smooth transition feel
     setTimeout(() => {
@@ -1213,11 +1242,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     );
   };
 
-  // Close drawer handler
-  const handleCloseDrawer = () => {
-    setDrawerOpen(false);
-    setSelectedSubmission(null);
-  };
+  // (handleCloseDrawer is defined above)
 
   // Get chat panel state to position drawer correctly
   const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction } = useCA4Agent();
@@ -1740,12 +1765,12 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   {!isAddingAdjustment && (
                     <>
                   
-                  {/* EARNINGS Section - Collapsed by default, only force open when pending filter or newly added */}
+                  {/* EARNINGS Section - Collapsed by default, only force open when pending filter, newly added, or agent-driven */}
                   {(!showPendingOnly || earningAdjCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Earnings"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'}
+                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || forceOpenSections.has('earnings'))}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                     >
