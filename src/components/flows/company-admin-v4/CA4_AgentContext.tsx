@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { AgentState, AgentMessage, AgentAction, UIHighlight } from './CA4_AgentTypes';
 
 // Pending action types for agent-driven confirmations
@@ -66,8 +66,9 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [requestedStep, setRequestedStepState] = useState<'submissions' | 'submit' | 'track'>();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [pendingAction, setPendingActionState] = useState<PendingAction>();
-  const [actionCallbacks, setActionCallbacks] = useState<AgentContextType['actionCallbacks']>({});
-  const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>({});
+  // Use ref for callbacks to avoid stale closure issues
+  const actionCallbacksRef = useRef<AgentContextType['actionCallbacks']>({});
+  const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>();
 
   const toggleOpen = useCallback(() => setIsOpen(prev => !prev), []);
   const setOpen = useCallback((open: boolean) => setIsOpen(open), []);
@@ -121,9 +122,14 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const confirmPendingAction = useCallback(() => {
     if (!pendingAction) return;
     
+    // Use ref to get latest callbacks (avoids stale closure)
+    const callbacks = actionCallbacksRef.current;
+    console.log('[AgentContext] confirmPendingAction called, type:', pendingAction.type, 'callbacks:', callbacks);
+    
     switch (pendingAction.type) {
       case 'approve_all':
-        actionCallbacks.onApproveAll?.();
+        console.log('[AgentContext] Calling onApproveAll callback');
+        callbacks.onApproveAll?.();
         break;
       case 'reject_all':
         // For reject, we need a reason - this triggers dialog instead
@@ -131,23 +137,24 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return;
       case 'mark_ready':
         if (pendingAction.workerId) {
-          actionCallbacks.onMarkReady?.(pendingAction.workerId);
+          callbacks.onMarkReady?.(pendingAction.workerId);
         }
         break;
       case 'submit_payroll':
-        actionCallbacks.onSubmitPayroll?.();
+        callbacks.onSubmitPayroll?.();
         break;
     }
     
     setPendingActionState(undefined);
-  }, [pendingAction, actionCallbacks]);
+  }, [pendingAction]);
 
   const cancelPendingAction = useCallback(() => {
     setPendingActionState(undefined);
   }, []);
 
   const registerActionCallbacks = useCallback((callbacks: AgentContextType['actionCallbacks']) => {
-    setActionCallbacks(callbacks);
+    console.log('[AgentContext] Registering action callbacks:', Object.keys(callbacks));
+    actionCallbacksRef.current = callbacks;
   }, []);
 
   const executeAction = useCallback((action: AgentAction) => {
@@ -200,8 +207,8 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         requestedStep,
         isButtonLoading,
         pendingAction,
-        actionCallbacks,
-        loadingButtons,
+        actionCallbacks: actionCallbacksRef.current,
+        loadingButtons: loadingButtons || {},
         toggleOpen,
         setOpen,
         addMessage,
