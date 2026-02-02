@@ -27,6 +27,7 @@ import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "./CA4_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA4_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA4_AdminAddAdjustment";
+import { useCA4Agent } from "./CA4_AgentContext";
 
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
@@ -1203,134 +1204,81 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     setSelectedSubmission(null);
   };
 
+  // Get chat panel state to position drawer correctly
+  const { isOpen: isAgentOpen } = useCA4Agent();
+  const chatWidth = isAgentOpen ? 420 : 0;
+
   return (
-    <div className="relative flex h-full">
-      {/* Main content area - shrinks when drawer opens */}
-      <motion.div
-        className="flex-1 min-w-0"
-        animate={{ marginRight: drawerOpen ? 420 : 0 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-      >
-        <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+    <>
+      <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {onBack && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onBack}
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              )}
-              <CA4_PayrollStepper
-                currentStep={currentStep}
-                completedSteps={completedSteps}
-                onStepClick={onStepClick}
-                pendingSubmissions={pendingSubmissions || dynamicPendingCount}
-              />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground">Submissions</h3>
+                <p className="text-xs text-muted-foreground">Review worker pay data</p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>
-                    <Button 
-                      size="sm"
-                      onClick={onContinue}
-                      disabled={!canContinue}
-                      className="h-9 text-xs"
-                    >
-                      Continue to Submit
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                {!canContinue && (
-                  <TooltipContent side="bottom" className="max-w-[200px]">
-                    <p className="text-xs">Mark all {submissions.length - readyCount} remaining worker{submissions.length - readyCount !== 1 ? 's' : ''} as ready before continuing</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-              {onClose && (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={onClose}
-                  className="h-9 text-xs"
-                >
-                  Close
-                </Button>
-              )}
+            {/* Search */}
+            <div className="relative w-48">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-8 pl-8 text-xs bg-background/50"
+              />
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
-          {/* Tabbed view */}
-          <Tabs defaultValue="all" className="w-full">
-            <div className="px-5 pt-4 pb-3 border-b border-border/40">
-              <TabsList className="h-8 bg-muted/30 p-0.5">
-                <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  All ({submissions.length})
-                </TabsTrigger>
-                <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  Pending ({pendingCount})
-                </TabsTrigger>
-                <TabsTrigger value="ready" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  Ready ({readyCount})
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
-              <TabsContent value="all" className="mt-0 space-y-1.5">
-                <AnimatePresence mode="popLayout">
-                  {filteredSubmissions.map((s) => renderSubmissionRow(s))}
-                </AnimatePresence>
-              </TabsContent>
-
-              <TabsContent value="pending" className="mt-0 space-y-1.5">
-                <AnimatePresence mode="popLayout">
-                  {filteredSubmissions.filter(s => s.status === "pending").map((s) => renderSubmissionRow(s))}
-                </AnimatePresence>
-              </TabsContent>
-
-              <TabsContent value="ready" className="mt-0 space-y-1.5">
-                <AnimatePresence mode="popLayout">
-                  {filteredSubmissions.filter(s => s.status === "ready").map((s) => renderSubmissionRow(s))}
-                </AnimatePresence>
-              </TabsContent>
-            </div>
-          </Tabs>
+        <CardContent className="p-4">
+          <div className="space-y-2">
+            {filteredSubmissions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {searchQuery ? (
+                  <p className="text-sm">No workers match your search</p>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                    <p className="text-sm">All submissions reviewed!</p>
+                  </>
+                )}
+              </div>
+            ) : (
+              filteredSubmissions.map(renderSubmissionRow)
+            )}
+          </div>
         </CardContent>
-        </Card>
-      </motion.div>
+      </Card>
 
-      {/* Worker Pay Breakdown Drawer - Inline panel (opens to left of chat) */}
+      {/* Worker Pay Breakdown Drawer - Fixed, respects chat panel width */}
       <AnimatePresence>
         {drawerOpen && (
           <>
-            {/* Backdrop overlay (scoped to main content, click to dismiss) */}
-            <motion.button
-              type="button"
-              aria-label="Close worker drawer"
+            {/* Backdrop overlay - covers everything except chat panel */}
+            <motion.div
+              key="ca4-drawer-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 z-10 bg-black/80 border-0 outline-none"
+              className="fixed inset-0 z-40 bg-black/80"
+              style={{ right: chatWidth }}
               onClick={isAddingAdjustment ? undefined : handleCloseDrawer}
-              disabled={isAddingAdjustment}
-              style={{ right: drawerOpen ? 420 : 0 }}
             />
 
-            {/* Inline Drawer */}
+            {/* Drawer panel - slides in from right, stops at chat edge */}
             <motion.div
+              key="ca4-worker-drawer"
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="absolute top-0 right-0 bottom-0 z-20 w-[420px] bg-background border-l shadow-lg overflow-y-auto p-0"
+              className="fixed top-0 bottom-0 z-50 w-full sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto"
+              style={{ right: chatWidth }}
             >
               {/* Close button */}
               {!isAddingAdjustment && (
@@ -2129,7 +2077,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           </>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 };
 
