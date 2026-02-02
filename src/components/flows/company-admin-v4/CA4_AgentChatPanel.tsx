@@ -30,9 +30,31 @@ const WORKER_MAP: Record<string, { id: string; name: string }> = {
   'lisa chen': { id: '9', name: 'Lisa Chen' },
 };
 
+// Worker data for intelligent suggestions
+const WORKERS_DATA = [
+  { id: '1', name: 'David Martinez', pendingItems: 2, status: 'pending' },
+  { id: '2', name: 'Sophie Laurent', pendingItems: 1, status: 'pending' },
+  { id: '4', name: 'Alex Hansen', pendingItems: 0, status: 'reviewed' },
+  { id: '5', name: 'Emma Wilson', pendingItems: 1, status: 'pending' },
+  { id: '6', name: 'Maria Santos', pendingItems: 0, status: 'reviewed' },
+  { id: '7', name: 'Jonas Schmidt', pendingItems: 2, status: 'pending' },
+  { id: '8', name: 'Priya Sharma', pendingItems: 1, status: 'pending' },
+  { id: '9', name: 'Lisa Chen', pendingItems: 0, status: 'ready' },
+];
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  suggestedAction?: SuggestedAction;
+}
+
+// Suggested next action for proactive flow
+interface SuggestedAction {
+  type: PendingActionType | 'view_worker' | 'continue_to_submit';
+  label: string;
+  description?: string;
+  workerId?: string;
+  workerName?: string;
 }
 
 // Detect worker name and navigation intent from query
@@ -70,7 +92,9 @@ function detectActionIntent(query: string): ActionIntent {
   if (/^(yes|yeah|yep|sure|confirm|ok|okay|do it|go ahead|proceed|approve it|yes please)$/i.test(lowerQuery) ||
       lowerQuery.includes('yes, approve') || 
       lowerQuery.includes('yes approve') ||
-      lowerQuery.includes('confirm') && lowerQuery.includes('approve')) {
+      lowerQuery.includes('yes, mark') ||
+      lowerQuery.includes('yes mark') ||
+      lowerQuery.includes('confirm') && (lowerQuery.includes('approve') || lowerQuery.includes('mark') || lowerQuery.includes('submit'))) {
     return { type: 'confirm_yes' };
   }
   
@@ -92,25 +116,81 @@ function detectActionIntent(query: string): ActionIntent {
     return { type: 'reject_all' };
   }
   
-  // Mark ready intent
+  // Mark ready intent - check for specific worker or all workers
   if (lowerQuery.includes('mark') && lowerQuery.includes('ready')) {
-    // Check for worker name
+    // Check for "all" workers
+    if (lowerQuery.includes('all') || lowerQuery.includes('everyone') || lowerQuery.includes('everybody')) {
+      return { type: 'mark_ready' }; // No workerId means all workers
+    }
+    // Check for specific worker name
     for (const [key, value] of Object.entries(WORKER_MAP)) {
       if (lowerQuery.includes(key)) {
         return { type: 'mark_ready', workerId: value.id, workerName: value.name };
       }
     }
+    // Default to current worker context
     return { type: 'mark_ready' };
   }
   
   // Submit payroll intent
   if ((lowerQuery.includes('submit') && lowerQuery.includes('payroll')) ||
       lowerQuery.includes('continue to submit') ||
-      lowerQuery.includes('finalize payroll')) {
+      lowerQuery.includes('finalize payroll') ||
+      lowerQuery.includes('proceed to submit') ||
+      lowerQuery.includes('go to submit')) {
     return { type: 'submit_payroll' };
   }
   
   return { type: null };
+}
+
+// Generate the next suggested action based on current state
+function getNextSuggestedAction(completedAction: PendingActionType, workerId?: string): SuggestedAction | undefined {
+  switch (completedAction) {
+    case 'approve_all':
+      // After approving all, suggest marking workers as ready
+      const workersToMark = WORKERS_DATA.filter(w => w.status !== 'ready');
+      if (workersToMark.length > 0) {
+        return {
+          type: 'mark_ready',
+          label: 'Mark workers as ready',
+          description: `${workersToMark.length} worker${workersToMark.length > 1 ? 's' : ''} can now be finalized`,
+        };
+      }
+      break;
+      
+    case 'mark_ready':
+      // After marking ready, check if all workers are ready → suggest submit
+      const remainingWorkers = WORKERS_DATA.filter(w => w.status !== 'ready');
+      if (remainingWorkers.length === 0 || remainingWorkers.length <= 1) {
+        return {
+          type: 'submit_payroll',
+          label: 'Continue to submit',
+          description: 'All workers are ready for payroll',
+        };
+      } else {
+        // Suggest marking more workers
+        const nextWorker = remainingWorkers[0];
+        return {
+          type: 'mark_ready',
+          label: `Mark ${nextWorker.name} as ready`,
+          description: `${remainingWorkers.length} more worker${remainingWorkers.length > 1 ? 's' : ''} to finalize`,
+          workerId: nextWorker.id,
+          workerName: nextWorker.name,
+        };
+      }
+      
+    case 'reject_all':
+      // After rejecting, no automatic next step - worker needs to resubmit
+      return undefined;
+      
+    case 'submit_payroll':
+      // After submitting, we're done with this flow
+      return undefined;
+      
+    default:
+      return undefined;
+  }
 }
 
 export const CA4_AgentChatPanel: React.FC = () => {
@@ -139,6 +219,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const [showRetrieving, setShowRetrieving] = useState(false);
   const [minLoadingComplete, setMinLoadingComplete] = useState(false);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  const [currentSuggestedAction, setCurrentSuggestedAction] = useState<SuggestedAction | undefined>();
   const abortControllerRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -148,7 +229,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, showRetrieving]);
+  }, [messages, showRetrieving, currentSuggestedAction]);
 
   // Focus input when panel opens
   useEffect(() => {
@@ -187,6 +268,71 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setShowRetrieving(false);
   };
 
+  // Execute a suggested action
+  const executeSuggestedAction = useCallback((action: SuggestedAction) => {
+    // Clear the current suggestion
+    setCurrentSuggestedAction(undefined);
+    
+    // Simulate user confirming via input
+    if (action.type === 'mark_ready') {
+      if (action.workerId) {
+        handleSubmit(`Mark ${action.workerName} as ready`);
+      } else {
+        handleSubmit('Mark all workers as ready');
+      }
+    } else if (action.type === 'submit_payroll') {
+      handleSubmit('Continue to submit payroll');
+    } else if (action.type === 'approve_all') {
+      handleSubmit('Approve all pending items');
+    }
+  }, []);
+
+  // Complete an action and show next suggestion
+  const completeAction = useCallback((actionType: PendingActionType, workerId?: string) => {
+    // Get the next suggested action
+    const nextAction = getNextSuggestedAction(actionType, workerId);
+    
+    // Update button states
+    setButtonLoadingState(actionType, false);
+    setButtonLoading(false);
+    setPendingAction(undefined);
+    setAwaitingConfirmation(false);
+    
+    // Build response message with context
+    let responseContent = '';
+    switch (actionType) {
+      case 'approve_all':
+        responseContent = '✓ **Done!** All pending adjustments and leaves have been approved.';
+        break;
+      case 'mark_ready':
+        responseContent = workerId 
+          ? `✓ **Done!** Worker has been marked as ready for payroll.`
+          : '✓ **Done!** All reviewed workers have been marked as ready.';
+        break;
+      case 'submit_payroll':
+        responseContent = '✓ **Done!** Payroll has been submitted for processing.';
+        break;
+      case 'reject_all':
+        responseContent = '✓ **Done!** All pending items have been rejected. Workers will need to resubmit.';
+        break;
+    }
+    
+    // Add the next suggested action to the message if available
+    if (nextAction) {
+      responseContent += `\n\n**Next step:** ${nextAction.description || nextAction.label}`;
+      setCurrentSuggestedAction(nextAction);
+    }
+    
+    setMessages(prev => [...prev, { 
+      role: 'assistant', 
+      content: responseContent,
+      suggestedAction: nextAction,
+    }]);
+    
+    setIsLoading(false);
+    setShowRetrieving(false);
+  }, [setButtonLoading, setButtonLoadingState, setPendingAction]);
+
   const handleSubmit = async (query: string) => {
     if (!query.trim() || isLoading) return;
 
@@ -197,6 +343,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setIsLoading(true);
     setShowRetrieving(true);
     setMinLoadingComplete(false);
+    setCurrentSuggestedAction(undefined);
     
     // Minimum loading duration for smooth UX (1.5s)
     setTimeout(() => setMinLoadingComplete(true), 1500);
@@ -218,6 +365,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       
       // Capture the action type before async operations
       const actionType = pendingAction.type;
+      const workerId = pendingAction.workerId;
       
       // Show loading on relevant button
       setButtonLoadingState(actionType, true);
@@ -227,7 +375,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       setTimeout(() => {
         console.log('[AgentChat] Executing callback for:', actionType);
         
-        // Call the callback directly instead of going through confirmPendingAction
+        // Call the callback directly
         switch (actionType) {
           case 'approve_all':
             console.log('[AgentChat] Calling onApproveAll directly');
@@ -237,8 +385,15 @@ export const CA4_AgentChatPanel: React.FC = () => {
             // For reject, we need a reason - would need a dialog
             break;
           case 'mark_ready':
-            if (pendingAction.workerId) {
-              actionCallbacks.onMarkReady?.(pendingAction.workerId);
+            if (workerId) {
+              actionCallbacks.onMarkReady?.(workerId);
+            } else {
+              // Mark all workers as ready
+              WORKERS_DATA.forEach(w => {
+                if (w.status !== 'ready') {
+                  actionCallbacks.onMarkReady?.(w.id);
+                }
+              });
             }
             break;
           case 'submit_payroll':
@@ -246,19 +401,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
             break;
         }
         
-        setPendingAction(undefined);
-        setButtonLoadingState(actionType, false);
-        setButtonLoading(false);
-        setAwaitingConfirmation(false);
+        // Complete the action and show next suggestion
+        completeAction(actionType, workerId);
       }, 1200);
       
-      // Show immediate assistant response
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: `✓ Done! I've ${actionType === 'approve_all' ? 'approved all pending items' : actionType === 'reject_all' ? 'opened the rejection dialog' : 'completed the action'}.`
-      }]);
-      setIsLoading(false);
-      setShowRetrieving(false);
       return;
     }
     
@@ -282,7 +428,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       return;
     }
     
-    // Handle new action intents (approve all, reject all, etc.)
+    // Handle new action intents (approve all, reject all, mark ready, submit)
     if (actionIntent.type && actionIntent.type !== 'confirm_yes' && actionIntent.type !== 'confirm_no') {
       console.log('[AgentChat] Detected action intent:', actionIntent);
       
@@ -312,8 +458,19 @@ export const CA4_AgentChatPanel: React.FC = () => {
         const actionLabels: Record<string, string> = {
           'approve_all': 'approve all pending items',
           'reject_all': 'reject all pending items',
-          'mark_ready': `mark ${actionIntent.workerName || 'the worker'} as ready`,
+          'mark_ready': actionIntent.workerId 
+            ? `mark ${actionIntent.workerName} as ready`
+            : 'mark all reviewed workers as ready',
           'submit_payroll': 'submit the payroll for processing',
+        };
+        
+        const actionDescriptions: Record<string, string> = {
+          'approve_all': 'This will approve all pending adjustments and leaves across all workers.',
+          'reject_all': 'This will reject all pending items. Workers will need to resubmit.',
+          'mark_ready': actionIntent.workerId 
+            ? `This will finalize ${actionIntent.workerName}'s review and lock all decisions.`
+            : 'This will finalize all reviewed workers and prepare them for payroll.',
+          'submit_payroll': 'This will submit the payroll run for processing. Payments will be scheduled.',
         };
         
         setPendingAction({
@@ -329,7 +486,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         // Show confirmation prompt as assistant message
         setMessages(prev => [...prev, { 
           role: 'assistant', 
-          content: `I can ${actionLabels[actionType] || 'do that'} for you. This will apply to all pending adjustments and leaves.\n\n**Do you want to proceed?**`
+          content: `I can **${actionLabels[actionType] || 'do that'}** for you.\n\n${actionDescriptions[actionType] || ''}\n\n**Do you want to proceed?**`
         }]);
         
         setIsLoading(false);
@@ -550,8 +707,23 @@ export const CA4_AgentChatPanel: React.FC = () => {
               {messages.length === 0 && !showRetrieving ? (
                 <div className="pt-2">
                   <p className="text-[13px] text-muted-foreground/70">
-                    Ask about payroll, workers, or submissions.
+                    Ask about payroll, workers, or submissions. Try:
                   </p>
+                  <div className="mt-3 space-y-2">
+                    {[
+                      'Approve all pending items',
+                      'Show David Martinez',
+                      'Mark all workers as ready',
+                    ].map((suggestion, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSubmit(suggestion)}
+                        className="block w-full text-left px-3 py-2 rounded-lg text-[12px] text-muted-foreground bg-muted/30 hover:bg-muted/50 transition-colors"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 messages.map((message, index) => (
@@ -643,15 +815,34 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     onClick={() => {
                       setButtonLoadingState(pendingAction.type, true);
                       setButtonLoading(true);
+                      
+                      const actionType = pendingAction.type;
+                      const workerId = pendingAction.workerId;
+                      
                       setTimeout(() => {
-                        confirmPendingAction();
-                        setButtonLoadingState(pendingAction.type, false);
-                        setButtonLoading(false);
-                        setAwaitingConfirmation(false);
-                        setMessages(prev => [...prev, { 
-                          role: 'assistant', 
-                          content: '✓ Done! Action completed successfully.'
-                        }]);
+                        // Execute the action
+                        switch (actionType) {
+                          case 'approve_all':
+                            actionCallbacks.onApproveAll?.();
+                            break;
+                          case 'mark_ready':
+                            if (workerId) {
+                              actionCallbacks.onMarkReady?.(workerId);
+                            } else {
+                              WORKERS_DATA.forEach(w => {
+                                if (w.status !== 'ready') {
+                                  actionCallbacks.onMarkReady?.(w.id);
+                                }
+                              });
+                            }
+                            break;
+                          case 'submit_payroll':
+                            actionCallbacks.onSubmitPayroll?.();
+                            break;
+                        }
+                        
+                        // Complete and show next suggestion
+                        completeAction(actionType, workerId);
                       }, 1200);
                     }}
                     className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs h-8"
@@ -662,6 +853,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     size="sm"
                     variant="outline"
                     onClick={() => {
+                      setButtonLoadingState(pendingAction.type, false);
                       cancelPendingAction();
                       setAwaitingConfirmation(false);
                       setMessages(prev => [...prev, { 
@@ -672,6 +864,25 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     className="text-xs h-8"
                   >
                     Cancel
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Suggested next action button */}
+              {currentSuggestedAction && !awaitingConfirmation && !isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="pt-2"
+                >
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => executeSuggestedAction(currentSuggestedAction)}
+                    className="text-xs h-8 gap-1.5 border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50"
+                  >
+                    {currentSuggestedAction.label} →
                   </Button>
                 </motion.div>
               )}
