@@ -805,6 +805,9 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // Admin add adjustment mode
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
   
+  // Drawer loading state - simulates data fetch synced with animation
+  const [isDrawerLoading, setIsDrawerLoading] = useState(false);
+  
   // Agent-driven auto-open - when agentOpenWorkerId changes, find and open that worker's drawer
   useEffect(() => {
     if (agentOpenWorkerId) {
@@ -814,7 +817,13 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         console.log('[CA4_SubmissionsView] Found worker, opening drawer:', worker.workerName);
         setSelectedSubmission(worker);
         setDrawerOpen(true);
+        setIsDrawerLoading(true);
         setRejectReason("");
+        
+        // Sync loading with drawer spring animation
+        setTimeout(() => {
+          setIsDrawerLoading(false);
+        }, 500);
       }
       // Signal that we handled it
       onAgentOpenHandled?.();
@@ -963,8 +972,14 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   const handleRowClick = (submission: WorkerSubmission) => {
     setSelectedSubmission(submission);
     setDrawerOpen(true);
+    setIsDrawerLoading(true);
     setRejectReason("");
     setExpandedItemId(null);
+    
+    // Sync loading with drawer spring animation (approx 450ms for spring to settle)
+    setTimeout(() => {
+      setIsDrawerLoading(false);
+    }, 500);
   };
 
   const handleApproveFromDrawer = () => {
@@ -1340,7 +1355,98 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   <span className="sr-only">Close</span>
                 </button>
               )}
-          {selectedSubmission && (() => {
+              
+              {/* Skeleton Loading State */}
+              {isDrawerLoading && selectedSubmission && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="p-5 space-y-6"
+                >
+                  {/* Header skeleton */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <motion.div 
+                        className="h-10 w-10 rounded-full bg-muted"
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                      />
+                      <div className="space-y-2 flex-1">
+                        <motion.div 
+                          className="h-5 w-32 rounded-md bg-muted"
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.1 }}
+                        />
+                        <motion.div 
+                          className="h-3 w-24 rounded-md bg-muted/70"
+                          animate={{ opacity: [0.4, 0.8, 0.4] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Net pay hero skeleton */}
+                    <motion.div 
+                      className="h-16 w-full rounded-xl bg-gradient-to-r from-muted via-muted/80 to-muted"
+                      animate={{ 
+                        opacity: [0.6, 1, 0.6],
+                        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      style={{ backgroundSize: '200% 100%' }}
+                    />
+                  </div>
+                  
+                  {/* Divider */}
+                  <div className="h-px bg-border/50" />
+                  
+                  {/* Collapsible sections skeleton */}
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <motion.div 
+                        key={i}
+                        className="rounded-lg border border-border/40 bg-card/30 p-4"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <motion.div 
+                              className="h-4 w-4 rounded bg-muted"
+                              animate={{ opacity: [0.4, 0.8, 0.4] }}
+                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 }}
+                            />
+                            <motion.div 
+                              className="h-4 w-20 rounded bg-muted"
+                              animate={{ opacity: [0.5, 1, 0.5] }}
+                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 }}
+                            />
+                          </div>
+                          <motion.div 
+                            className="h-4 w-16 rounded bg-muted/70"
+                            animate={{ opacity: [0.4, 0.8, 0.4] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 + 0.1 }}
+                          />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                  
+                  {/* Footer skeleton */}
+                  <div className="pt-4 space-y-3">
+                    <motion.div 
+                      className="h-10 w-full rounded-lg bg-primary/20"
+                      animate={{ opacity: [0.5, 0.8, 0.5] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                  </div>
+                </motion.div>
+              )}
+              
+              {/* Actual content - only show when not loading */}
+          {!isDrawerLoading && selectedSubmission && (() => {
             // Calculate breakdown data
             const earnings = selectedSubmission.lineItems?.filter(item => item.type === 'Earnings') || [];
             const deductions = selectedSubmission.lineItems?.filter(item => item.type === 'Deduction') || [];
