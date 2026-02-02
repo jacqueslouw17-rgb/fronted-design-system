@@ -87,6 +87,48 @@ interface ActionIntent {
   targetedItem?: TargetedItemInfo;
 }
 
+// Infer an actionable "approve_item" request from Kurt's own message when it contains
+// an "Action Required" section (so the user's Yes/No actually drives the UI).
+function inferActionRequiredApproveItem(content: string): {
+  workerId: string;
+  workerName: string;
+  targetedItem: TargetedItemInfo;
+} | null {
+  const lower = content.toLowerCase();
+
+  const mentionsActionRequired = lower.includes('action required');
+  const asksToApprove = /would you like me to approve|do you want.*approve|approve this submission|approve this item/i.test(content);
+  if (!mentionsActionRequired || !asksToApprove) return null;
+
+  const worker = Object.values(WORKER_MAP).find(w => lower.includes(w.name.toLowerCase()));
+  if (!worker) return null;
+
+  let itemType: TargetedItemInfo['itemType'] | undefined;
+  if (/(expense|expenses|reimbursement)/i.test(content)) itemType = 'expenses';
+  else if (/bonus/i.test(content)) itemType = 'bonus';
+  else if (/overtime/i.test(content)) itemType = 'overtime';
+  else if (/leave/i.test(content)) itemType = 'leave';
+  if (!itemType) return null;
+
+  // Extract all currency amounts and pick the smallest (line-item) amount.
+  const amounts = Array.from(content.matchAll(/[€$£]\s?(\d+(?:[\.,]\d+)?)/g))
+    .map(m => Number(String(m[1]).replace(',', '.')))
+    .filter(n => Number.isFinite(n)) as number[];
+
+  const amount = amounts.length ? amounts.sort((a, b) => a - b)[0] : undefined;
+
+  return {
+    workerId: worker.id,
+    workerName: worker.name,
+    targetedItem: {
+      workerId: worker.id,
+      workerName: worker.name,
+      itemType,
+      amount,
+    },
+  };
+}
+
 // Parse targeted item approval: "approve the expense of 245 for David"
 function parseTargetedItemApproval(query: string): { workerId: string; workerName: string; itemType: 'expenses' | 'bonus' | 'overtime'; amount?: number } | null {
   const lowerQuery = query.toLowerCase();
@@ -403,6 +445,65 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setShowRetrieving(false);
   }, [setButtonLoading, setButtonLoadingState, setPendingAction]);
 
+  const handleConfirmNo = useCallback(() => {
+    if (!pendingAction) return;
+    setButtonLoadingState(pendingAction.type, false);
+    setButtonLoading(false);
+    cancelPendingAction();
+    setAwaitingConfirmation(false);
+    setMessages(prev => [...prev, {
+      role: 'assistant',
+      content: "Cancelled. Tell me what you'd like to do next.",
+    }]);
+  }, [pendingAction, setButtonLoadingState, setButtonLoading, cancelPendingAction]);
+
+  const handleConfirmYes = useCallback(() => {
+    if (!pendingAction) return;
+
+    const actionType = pendingAction.type;
+    const workerId = pendingAction.workerId;
+    const workerName = pendingAction.workerName;
+    const targetedItem = pendingAction.targetedItem;
+
+    // Prevent double submit.
+    setAwaitingConfirmation(false);
+    setPendingAction(undefined);
+
+    // Keep chat open and show the relevant drawer.
+    setOpen(true);
+    setRequestedStep('submissions');
+    if (workerId) setOpenWorkerId(workerId);
+
+    setButtonLoadingState(actionType, true);
+    setButtonLoading(true);
+
+    setTimeout(() => {
+      let ok = false;
+      if (actionType === 'approve_item' && targetedItem) {
+        ok = executeCallback('approve_item', workerId, targetedItem);
+      } else if (actionType === 'mark_ready' && !workerId) {
+        WORKERS_DATA.forEach(w => {
+          if (w.status !== 'ready') executeCallback('mark_ready', w.id);
+        });
+        ok = true;
+      } else {
+        ok = executeCallback(actionType, workerId);
+      }
+
+      if (!ok) {
+        setButtonLoadingState(actionType, false);
+        setButtonLoading(false);
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `I couldn't find a matching **pending** item to approve for **${workerName || 'that worker'}**. Please keep the drawer open and try again with the exact type/amount.`,
+        }]);
+        return;
+      }
+
+      completeAction(actionType, workerId, workerName);
+    }, 650);
+  }, [pendingAction, setAwaitingConfirmation, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction]);
+
   const handleSubmit = async (query: string) => {
     if (!query.trim() || isLoading) return;
 
@@ -432,58 +533,13 @@ export const CA4_AgentChatPanel: React.FC = () => {
     // Handle confirmation responses
     if (actionIntent.type === 'confirm_yes' && pendingAction?.awaitingConfirmation) {
       console.log('[AgentChat] User confirmed action:', pendingAction.type);
-      
-      // Capture the action info before async operations
-      const actionType = pendingAction.type;
-      const workerId = pendingAction.workerId;
-      const workerName = pendingAction.workerName;
-      const targetedItem = pendingAction.targetedItem;
-      
-      // Show loading on relevant button
-      setButtonLoadingState(actionType, true);
-      setButtonLoading(true);
-      
-      // Brief delay for UI feedback, then execute callback via context
-      setTimeout(() => {
-        console.log('[AgentChat] Executing callback for:', actionType);
-        
-        // Execute via context (uses ref for latest callbacks)
-        if (actionType === 'mark_ready' && !workerId) {
-          // Mark all workers as ready
-          WORKERS_DATA.forEach(w => {
-            if (w.status !== 'ready') {
-              executeCallback('mark_ready', w.id);
-            }
-          });
-        } else if (actionType === 'approve_item' && targetedItem) {
-          // Approve specific item
-          executeCallback('approve_item', workerId, targetedItem);
-        } else {
-          executeCallback(actionType, workerId);
-        }
-        
-        // Complete the action and show next suggestion
-        completeAction(actionType, workerId, workerName);
-      }, 1200);
-      
+      handleConfirmYes();
       return;
     }
     
     if (actionIntent.type === 'confirm_no' && pendingAction?.awaitingConfirmation) {
       console.log('[AgentChat] User cancelled action');
-      const actionType = pendingAction.type;
-      
-      // Clear button loading state
-      setButtonLoadingState(actionType, false);
-      setButtonLoading(false);
-      
-      cancelPendingAction();
-      setAwaitingConfirmation(false);
-      
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'No problem, I\'ve cancelled that action. Let me know if you need anything else.'
-      }]);
+      handleConfirmNo();
       setIsLoading(false);
       setShowRetrieving(false);
       return;
@@ -820,6 +876,27 @@ export const CA4_AgentChatPanel: React.FC = () => {
       // Add to agent context
       if (assistantContent) {
         addMessage({ role: 'assistant', content: assistantContent });
+
+        // Convert Kurt's "Action Required" text into a real UI-wired confirmation.
+        // This prevents the user from having to type "yes" and ensures the click
+        // actually executes the drawer action.
+        if (!pendingAction?.awaitingConfirmation) {
+          const inferred = inferActionRequiredApproveItem(assistantContent);
+          if (inferred) {
+            setCurrentSuggestedAction(undefined);
+            setOpen(true);
+            setRequestedStep('submissions');
+            setOpenWorkerId(inferred.workerId);
+            setPendingAction({
+              type: 'approve_item',
+              workerId: inferred.workerId,
+              workerName: inferred.workerName,
+              awaitingConfirmation: true,
+              targetedItem: inferred.targetedItem,
+            });
+            setAwaitingConfirmation(true);
+          }
+        }
       }
 
     } catch (error: any) {
@@ -907,6 +984,14 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     key={index}
                     message={message}
                     isStreaming={isStreaming && index === messages.length - 1 && message.role === 'assistant'}
+                    showInlineConfirm={
+                      awaitingConfirmation &&
+                      !!pendingAction &&
+                      index === messages.length - 1 &&
+                      message.role === 'assistant'
+                    }
+                    onConfirmYes={handleConfirmYes}
+                    onConfirmNo={handleConfirmNo}
                   />
                 ))
               )}
@@ -979,63 +1064,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 </motion.div>
               )}
 
-              {/* Inline action buttons when awaiting confirmation - minimal style */}
-              {awaitingConfirmation && pendingAction && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex items-center gap-2 -mt-1"
-                >
-                  <button
-                    onClick={() => {
-                      setButtonLoadingState(pendingAction.type, true);
-                      setButtonLoading(true);
-                      
-                      const actionType = pendingAction.type;
-                      const workerId = pendingAction.workerId;
-                      const workerName = pendingAction.workerName;
-                      const targetedItem = pendingAction.targetedItem;
-                      
-                      setTimeout(() => {
-                        // Execute via context (uses ref for latest callbacks)
-                        if (actionType === 'mark_ready' && !workerId) {
-                          WORKERS_DATA.forEach(w => {
-                            if (w.status !== 'ready') {
-                              executeCallback('mark_ready', w.id);
-                            }
-                          });
-                        } else if (actionType === 'approve_item' && targetedItem) {
-                          executeCallback('approve_item', workerId, targetedItem);
-                        } else {
-                          executeCallback(actionType, workerId);
-                        }
-                        
-                        // Complete and show next suggestion
-                        completeAction(actionType, workerId, workerName);
-                      }, 1200);
-                    }}
-                    className="px-3 py-1.5 text-[11px] font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => {
-                      setButtonLoadingState(pendingAction.type, false);
-                      cancelPendingAction();
-                      setAwaitingConfirmation(false);
-                      setMessages(prev => [...prev, { 
-                        role: 'assistant', 
-                        content: 'Cancelled. Let me know if you need anything else.'
-                      }]);
-                    }}
-                    className="px-3 py-1.5 text-[11px] font-medium rounded-md border border-border/60 text-muted-foreground hover:text-foreground hover:border-border transition-colors"
-                  >
-                    No
-                  </button>
-                </motion.div>
-              )}
-
               {/* Suggested next action button */}
               {currentSuggestedAction && !awaitingConfirmation && !isLoading && (
                 <motion.div
@@ -1048,7 +1076,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     size="sm"
                     variant="outline"
                     onClick={() => executeSuggestedAction(currentSuggestedAction)}
-                    className="text-xs h-8 gap-1.5 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/60"
+                    className="text-xs h-8 gap-1.5"
                   >
                     {currentSuggestedAction.label}
                   </Button>
@@ -1121,7 +1149,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
 const MessageBubble: React.FC<{
   message: ChatMessage;
   isStreaming?: boolean;
-}> = ({ message, isStreaming }) => {
+  showInlineConfirm?: boolean;
+  onConfirmYes?: () => void;
+  onConfirmNo?: () => void;
+}> = ({ message, isStreaming, showInlineConfirm, onConfirmYes, onConfirmNo }) => {
   const isUser = message.role === 'user';
 
   if (isUser) {
@@ -1160,6 +1191,16 @@ const MessageBubble: React.FC<{
       <ReactMarkdown>
         {message.content || ''}
       </ReactMarkdown>
+      {showInlineConfirm && (
+        <div className="mt-2 flex items-center justify-end gap-2">
+          <Button size="sm" onClick={onConfirmYes} className="h-7 px-3 text-[11px]">
+            Yes
+          </Button>
+          <Button size="sm" variant="outline" onClick={onConfirmNo} className="h-7 px-3 text-[11px]">
+            No
+          </Button>
+        </div>
+      )}
       {isStreaming && (
         <span className="inline-block w-1.5 h-3.5 bg-foreground/50 animate-pulse ml-0.5 rounded-sm" />
       )}
