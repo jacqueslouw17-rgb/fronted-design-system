@@ -322,7 +322,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
           animate={{ width: 420, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          className="h-full bg-background flex flex-col overflow-hidden border-l border-border/30"
+          className="h-full bg-background flex flex-col overflow-hidden border-l border-border/30 relative z-[60]"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
