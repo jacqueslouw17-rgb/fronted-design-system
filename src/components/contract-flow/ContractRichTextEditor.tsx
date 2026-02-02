@@ -116,9 +116,9 @@ export const ContractRichTextEditor: React.FC<ContractRichTextEditorProps> = ({
   );
 
   return (
-    <div className={cn("border border-border rounded-lg overflow-hidden bg-background", className)}>
-      {/* Toolbar */}
-      <div className="flex items-center gap-0.5 px-3 py-2 border-b border-border bg-muted/30">
+    <div className={cn("border border-border rounded-lg overflow-hidden bg-background flex flex-col", className)}>
+      {/* Toolbar - sticky at top */}
+      <div className="flex items-center gap-0.5 px-3 py-2 border-b border-border bg-muted/30 sticky top-0 z-10 flex-shrink-0">
         {/* Heading Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -231,8 +231,10 @@ export const ContractRichTextEditor: React.FC<ContractRichTextEditorProps> = ({
         </ToolbarButton>
       </div>
 
-      {/* Editor Content */}
-      <EditorContent editor={editor} />
+      {/* Editor Content - scrollable area */}
+      <div className="flex-1 overflow-y-auto">
+        <EditorContent editor={editor} />
+      </div>
 
       {/* TipTap Editor Styles */}
       <style>{`
