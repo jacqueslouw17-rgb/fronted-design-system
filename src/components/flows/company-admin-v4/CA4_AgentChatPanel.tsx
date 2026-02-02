@@ -110,11 +110,22 @@ function inferActionRequiredApproveItem(content: string): {
   else if (/leave/i.test(content)) itemType = 'leave';
   if (!itemType) return null;
 
-  // Extract all currency amounts and pick the smallest (line-item) amount.
-  const amounts = Array.from(content.matchAll(/[€$£]\s?(\d+(?:[\.,]\d+)?)/g))
-    .map(m => Number(String(m[1]).replace(',', '.')))
-    .filter(n => Number.isFinite(n)) as number[];
+  // Extract currency amounts - but skip "k" abbreviated amounts (e.g., €4.2k means 4200, not 4.2)
+  // Match patterns like €245, $500, £100 but NOT €4.2k
+  const amounts: number[] = [];
+  const amountMatches = content.matchAll(/[€$£₱]\s?(\d+(?:[\.,]\d+)?)\s?(k|K)?/g);
+  for (const m of amountMatches) {
+    const baseNum = Number(String(m[1]).replace(',', '.'));
+    const hasK = m[2] !== undefined;
+    if (!Number.isFinite(baseNum)) continue;
+    // If it has "k" suffix, it's a large abbreviated amount (like base pay), skip it
+    if (hasK) continue;
+    // Skip very small amounts that are likely decimals from something else
+    if (baseNum < 10) continue;
+    amounts.push(baseNum);
+  }
 
+  // Pick the smallest reasonable amount (likely the line item, not the total)
   const amount = amounts.length ? amounts.sort((a, b) => a - b)[0] : undefined;
 
   return {
@@ -124,7 +135,7 @@ function inferActionRequiredApproveItem(content: string): {
       workerId: worker.id,
       workerName: worker.name,
       itemType,
-      amount,
+      amount, // May be undefined - that's OK, we'll match by type only
     },
   };
 }
