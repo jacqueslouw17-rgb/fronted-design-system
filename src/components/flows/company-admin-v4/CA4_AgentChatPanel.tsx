@@ -1,13 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, X, Sparkles, ChevronRight, FileText, Calculator, ArrowRight, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+import { Send, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCA4Agent } from './CA4_AgentContext';
-import { SUGGESTED_PROMPTS, AgentMessage, AgentAction } from './CA4_AgentTypes';
+import { AgentMessage, AgentAction } from './CA4_AgentTypes';
 import { processAgentQuery } from './CA4_AgentResponses';
 
 export const CA4_AgentChatPanel: React.FC = () => {
@@ -28,7 +24,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -44,6 +40,14 @@ export const CA4_AgentChatPanel: React.FC = () => {
     }
   }, [isOpen]);
 
+  // Auto-resize textarea
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px';
+    }
+  }, [input]);
+
   const handleSubmit = async (query: string) => {
     if (!query.trim() || isLoading) return;
 
@@ -51,6 +55,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
     addMessage({ role: 'user', content: query });
     setInput('');
     setIsLoading(true);
+
+    // Reset textarea height
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+    }
 
     // Process query and get response
     await processAgentQuery(query, {
@@ -81,67 +90,71 @@ export const CA4_AgentChatPanel: React.FC = () => {
       {isOpen && (
         <motion.div
           initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 420, opacity: 1 }}
+          animate={{ width: 400, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          className="h-full border-l border-border/40 bg-background/95 backdrop-blur-sm flex flex-col overflow-hidden"
+          className="h-full bg-background flex flex-col overflow-hidden border-l border-border/30"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-primary" />
+          {/* Minimal Header */}
+          <div className="flex items-center justify-between px-5 py-4">
+            <div className="flex items-center gap-3">
+              {/* Animated frequency indicator - mini version */}
+              <div className="flex items-center gap-0.5 h-5">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-0.5 rounded-full bg-primary"
+                    animate={{
+                      height: [6, 12, 8, 14, 6],
+                      opacity: [0.5, 0.8, 0.6, 1, 0.5],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      delay: i * 0.15,
+                      ease: "easeInOut",
+                    }}
+                  />
+                ))}
               </div>
-              <div>
-                <h3 className="text-sm font-semibold">Kurt</h3>
-                <p className="text-xs text-muted-foreground">AI Payroll Assistant</p>
-              </div>
+              <span className="text-sm font-medium text-foreground">Kurt</span>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setOpen(false)} className="h-8 w-8">
+            <button 
+              onClick={() => setOpen(false)} 
+              className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+            >
               <X className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
 
-          {/* Navigation Status */}
+          {/* Navigation Status - minimal */}
           <AnimatePresence>
             {isNavigating && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="px-4 py-2 bg-primary/5 border-b border-primary/10"
+                className="px-5 pb-3"
               >
-                <div className="flex items-center gap-2 text-xs text-primary">
+                <div className="flex items-center gap-2 text-xs text-primary/80">
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>{navigationMessage || 'Kurt is navigating...'}</span>
+                  <span>{navigationMessage || 'Navigating...'}</span>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Messages */}
-          <ScrollArea className="flex-1 px-4" ref={scrollRef}>
-            <div className="py-4 space-y-4">
+          {/* Messages Area */}
+          <div 
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto px-5 pb-4"
+          >
+            <div className="space-y-5">
               {messages.length === 0 ? (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    Ask me anything about payroll, taxes, FX, or worker costs. I'll navigate the dashboard and show you the details.
+                <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
+                  <p className="text-sm text-muted-foreground max-w-[260px] leading-relaxed">
+                    Ask about payroll, costs, workers, or anything else.
                   </p>
-                  
-                  {/* Suggested Prompts */}
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground font-medium">Try asking:</p>
-                    {SUGGESTED_PROMPTS.map((prompt, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleSubmit(prompt)}
-                        className="w-full text-left px-3 py-2.5 rounded-lg border border-border/40 bg-muted/30 hover:bg-muted/50 transition-colors text-sm text-foreground group"
-                      >
-                        <span className="line-clamp-2">{prompt}</span>
-                        <ChevronRight className="inline-block ml-1 h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    ))}
-                  </div>
                 </div>
               ) : (
                 messages.map((message) => (
@@ -154,41 +167,54 @@ export const CA4_AgentChatPanel: React.FC = () => {
               )}
 
               {isLoading && (
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1 py-2">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      <span>Thinking...</span>
-                    </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="w-1.5 h-1.5 rounded-full bg-primary/40"
+                        animate={{ 
+                          opacity: [0.3, 1, 0.3],
+                          scale: [1, 1.2, 1]
+                        }}
+                        transition={{ 
+                          duration: 1, 
+                          repeat: Infinity, 
+                          delay: i * 0.2 
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
             </div>
-          </ScrollArea>
+          </div>
 
-          {/* Input */}
-          <div className="p-4 border-t border-border/40">
-            <div className="flex items-center gap-2">
-              <Input
+          {/* Input - clean, minimal */}
+          <div className="px-4 pb-4 pt-2">
+            <div className="relative flex items-end gap-2 rounded-2xl border border-border/50 bg-muted/30 px-4 py-3 focus-within:border-primary/30 focus-within:bg-muted/40 transition-colors">
+              <textarea
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about payroll costs, taxes, FX, bonuses…"
-                className="flex-1 bg-muted/30"
+                placeholder="Message Kurt..."
+                rows={1}
+                className="flex-1 bg-transparent text-sm placeholder:text-muted-foreground/60 resize-none outline-none min-h-[20px] max-h-[120px]"
                 disabled={isLoading}
               />
-              <Button
-                size="icon"
+              <button
                 onClick={() => handleSubmit(input)}
                 disabled={!input.trim() || isLoading}
-                className="h-9 w-9"
+                className={cn(
+                  "p-2 rounded-xl transition-all duration-200",
+                  input.trim() 
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                    : "text-muted-foreground/40"
+                )}
               >
                 <Send className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
           </div>
         </motion.div>
@@ -197,7 +223,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
   );
 };
 
-// Message Bubble Component
+// Minimal Message Bubble
 const MessageBubble: React.FC<{
   message: AgentMessage;
   onActionClick: (action: AgentAction) => void;
@@ -207,7 +233,7 @@ const MessageBubble: React.FC<{
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm">
+        <div className="max-w-[85%] px-4 py-2.5 rounded-2xl rounded-br-md bg-primary text-primary-foreground text-sm leading-relaxed">
           {message.content}
         </div>
       </div>
@@ -215,64 +241,49 @@ const MessageBubble: React.FC<{
   }
 
   return (
-    <div className="flex items-start gap-3">
-      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-        <Sparkles className="h-4 w-4 text-primary" />
+    <div className="space-y-3">
+      {/* Response text */}
+      <div className="text-sm text-foreground leading-relaxed">
+        {message.summary || message.content}
       </div>
-      <div className="flex-1 space-y-3">
-        {/* Summary */}
-        <div className="text-sm text-foreground leading-relaxed">
-          {message.summary || message.content}
-        </div>
 
-        {/* Context */}
-        {message.context && Object.keys(message.context).length > 0 && (
-          <div className="px-3 py-2 rounded-lg bg-muted/40 border border-border/30 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">What I looked at:</p>
-            <div className="flex flex-wrap gap-1.5">
-              {message.context.payPeriod && (
-                <Badge variant="secondary" className="text-xs">{message.context.payPeriod}</Badge>
-              )}
-              {message.context.worker && (
-                <Badge variant="secondary" className="text-xs">{message.context.worker}</Badge>
-              )}
-              {message.context.country && (
-                <Badge variant="secondary" className="text-xs">{message.context.country}</Badge>
-              )}
-              {message.context.currency && (
-                <Badge variant="secondary" className="text-xs">{message.context.currency}</Badge>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Assumptions */}
-        {message.assumptions && message.assumptions.length > 0 && (
-          <div className="text-xs text-muted-foreground italic">
-            <span className="font-medium">Note:</span> {message.assumptions.join(' ')}
-          </div>
-        )}
-
-        {/* Actions */}
-        {message.actions && message.actions.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {message.actions.map((action) => (
-              <Button
-                key={action.id}
-                variant="outline"
-                size="sm"
-                onClick={() => onActionClick(action)}
-                className="h-7 text-xs gap-1.5"
+      {/* Minimal context chips */}
+      {message.context && Object.keys(message.context).length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {Object.entries(message.context).map(([key, value]) => (
+            value && (
+              <span 
+                key={key}
+                className="text-[10px] px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground"
               >
-                {action.type === 'open_panel' && <FileText className="h-3 w-3" />}
-                {action.type === 'explain' && <Calculator className="h-3 w-3" />}
-                {action.type === 'draft_adjustment' && <ArrowRight className="h-3 w-3" />}
-                {action.label}
-              </Button>
-            ))}
-          </div>
-        )}
-      </div>
+                {value}
+              </span>
+            )
+          ))}
+        </div>
+      )}
+
+      {/* Actions as subtle links */}
+      {message.actions && message.actions.length > 0 && (
+        <div className="flex flex-wrap gap-3">
+          {message.actions.map((action) => (
+            <button
+              key={action.id}
+              onClick={() => onActionClick(action)}
+              className="text-xs text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors"
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Assumptions - very subtle */}
+      {message.assumptions && message.assumptions.length > 0 && (
+        <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
+          {message.assumptions.join(' ')}
+        </p>
+      )}
     </div>
   );
 };
