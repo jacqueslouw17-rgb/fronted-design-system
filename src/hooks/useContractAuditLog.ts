@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { ContractEditEvent } from "@/components/contract-flow/ContractAuditLog";
+import type { ContractEditEvent, ContractEditEventType } from "@/components/contract-flow/ContractAuditLog";
 
 // Generate a unique ID for each edit event
 const generateId = () => `edit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -211,20 +211,22 @@ export const useGlobalContractAuditLog = () => {
   const recordEdit = useCallback((
     contractId: string,
     editorName: string,
-    workerName: string
+    workerName: string,
+    eventType: ContractEditEventType = 'edit'
   ) => {
     const newEvent: ContractEditEvent = {
       id: generateId(),
       editorName,
       workerName,
       timestamp: new Date().toISOString(),
+      eventType,
     };
 
     const existingEvents = globalAuditState[contractId] || [];
     globalAuditState[contractId] = [newEvent, ...existingEvents];
     
     forceUpdate({}); // Trigger re-render
-    console.log("Contract edit recorded:", newEvent);
+    console.log(`Contract ${eventType} recorded:`, newEvent);
     return newEvent;
   }, []);
 

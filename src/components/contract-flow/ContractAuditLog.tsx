@@ -1,14 +1,17 @@
 import React, { useState, useMemo, useLayoutEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Clock, User, FileEdit } from "lucide-react";
+import { ChevronDown, Clock, User, FileEdit, RotateCcw } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
+
+export type ContractEditEventType = 'edit' | 'reset';
 
 export interface ContractEditEvent {
   id: string;
   editorName: string;
   timestamp: string; // UTC ISO string
   workerName: string;
+  eventType?: ContractEditEventType; // 'edit' (default) or 'reset'
 }
 
 interface ContractAuditLogProps {
@@ -226,6 +229,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                             {/* Group events */}
                             {group.events.map((event) => {
                               const isLatest = event.id === editEvents[0]?.id;
+                              const isReset = event.eventType === 'reset';
                               const opacityClass = !isLatest && group.group === 'Older' 
                                 ? 'opacity-60' 
                                 : group.group === 'This week' && !isLatest
@@ -238,14 +242,25 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                                   className={`px-3 py-2 flex items-start gap-2 hover:bg-muted/10 transition-colors ${opacityClass}`}
                                 >
                                   <div className="flex-shrink-0 mt-0.5">
-                                    <div className="h-5 w-5 rounded-full bg-muted/50 flex items-center justify-center">
-                                      <User className="h-3 w-3 text-muted-foreground" />
+                                    <div className={`h-5 w-5 rounded-full flex items-center justify-center ${isReset ? 'bg-primary/10' : 'bg-muted/50'}`}>
+                                      {isReset ? (
+                                        <RotateCcw className="h-3 w-3 text-primary" />
+                                      ) : (
+                                        <User className="h-3 w-3 text-muted-foreground" />
+                                      )}
                                     </div>
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs text-foreground font-medium truncate">
-                                      {event.editorName}
-                                    </p>
+                                    <div className="flex items-center gap-1.5">
+                                      <p className="text-xs text-foreground font-medium truncate">
+                                        {event.editorName}
+                                      </p>
+                                      {isReset && (
+                                        <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
+                                          Reset
+                                        </Badge>
+                                      )}
+                                    </div>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                       <Clock className="h-3 w-3 text-muted-foreground" />
                                       <span className="text-[10px] text-muted-foreground">
@@ -267,34 +282,48 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                     ) : (
                       // Compact view - show first 3
                       <div className="divide-y divide-border/20">
-                        {visibleEvents.map((event, index) => (
-                          <div
-                            key={event.id}
-                            className="px-3 py-2 flex items-start gap-2 hover:bg-muted/10 transition-colors"
-                          >
-                            <div className="flex-shrink-0 mt-0.5">
-                              <div className="h-5 w-5 rounded-full bg-muted/50 flex items-center justify-center">
-                                <User className="h-3 w-3 text-muted-foreground" />
+                        {visibleEvents.map((event, index) => {
+                          const isReset = event.eventType === 'reset';
+                          return (
+                            <div
+                              key={event.id}
+                              className="px-3 py-2 flex items-start gap-2 hover:bg-muted/10 transition-colors"
+                            >
+                              <div className="flex-shrink-0 mt-0.5">
+                                <div className={`h-5 w-5 rounded-full flex items-center justify-center ${isReset ? 'bg-primary/10' : 'bg-muted/50'}`}>
+                                  {isReset ? (
+                                    <RotateCcw className="h-3 w-3 text-primary" />
+                                  ) : (
+                                    <User className="h-3 w-3 text-muted-foreground" />
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs text-foreground font-medium truncate">
-                                {event.editorName}
-                              </p>
-                              <div className="flex items-center gap-1.5 mt-0.5">
-                                <Clock className="h-3 w-3 text-muted-foreground" />
-                                <span className="text-[10px] text-muted-foreground">
-                                  {formatRelativeTime(event.timestamp)}
-                                </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-xs text-foreground font-medium truncate">
+                                    {event.editorName}
+                                  </p>
+                                  {isReset && (
+                                    <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
+                                      Reset
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <Clock className="h-3 w-3 text-muted-foreground" />
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {formatRelativeTime(event.timestamp)}
+                                  </span>
+                                </div>
                               </div>
+                              {index === 0 && (
+                                <Badge variant="outline" className="h-4 px-1.5 text-[9px] flex-shrink-0">
+                                  Latest
+                                </Badge>
+                              )}
                             </div>
-                            {index === 0 && (
-                              <Badge variant="outline" className="h-4 px-1.5 text-[9px] flex-shrink-0">
-                                Latest
-                              </Badge>
-                            )}
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
