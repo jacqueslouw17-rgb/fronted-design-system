@@ -3,6 +3,8 @@
  * 
  * Isolated clone of v3. Changes here do NOT affect v3 or any other versions.
  * Uses CA4_ prefixed components for complete isolation.
+ * 
+ * Key difference from v3: Agent badge in header to signal agentic features.
  */
 
 import React, { useState } from "react";
@@ -16,7 +18,7 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import { CA4_PayrollSection, CA4_LeavesTab } from "@/components/flows/company-admin-v4";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Bot } from "lucide-react";
 
@@ -31,8 +33,11 @@ const CompanyAdminDashboardV4: React.FC = () => {
     setOpen
   } = useAgentState();
 
-  // Main dashboard tab state
+  // Main dashboard tab state - defaults to payroll, tabs hidden like v3
   const [activeTab, setActiveTab] = useState<"payroll" | "leaves">("payroll");
+  
+  // View mode for batch review (matching v3 structure)
+  const [viewMode, setViewMode] = useState<"payroll" | "batch-review">("payroll");
 
   const userData = {
     firstName: "Joe",
@@ -40,6 +45,18 @@ const CompanyAdminDashboardV4: React.FC = () => {
     email: "joe@example.com",
     country: "United States",
     role: "admin"
+  };
+
+  // Payroll cycle data (matching v3 structure)
+  const payrollCycleData = {
+    current: {
+      label: "January 2026",
+      status: "active" as const,
+    }
+  };
+
+  const handleBackToPayroll = () => {
+    setViewMode("payroll");
   };
 
   const handleKurtAction = async (action: string) => {
@@ -92,7 +109,7 @@ You can ask me about:
           {/* Dashboard Drawer */}
           <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
-          {/* Main Area with Agent Layout */}
+          {/* Payroll Pipeline Main Area with Agent Layout */}
           <AgentLayout context="Payroll Pipeline (Agent)">
             <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative min-h-full">
               {/* Static background */}
@@ -121,39 +138,50 @@ You can ask me about:
                   className="flex-1 overflow-y-auto"
                 >
                   <div className="max-w-7xl mx-auto p-8 pb-32 space-y-2">
-                    {/* Agent Header with Badge */}
-                    <div className="flex items-center gap-3 mb-2">
-                      <AgentHeader 
-                        title="Company Admin · Payroll" 
-                        subtitle="Kurt can help with: FX rates, compliance checks, or payment execution." 
-                        showPulse={true} 
-                        showInput={false} 
-                        simplified={false}
-                      />
-                      <Badge variant="secondary" className="gap-1 bg-primary/10 text-primary border-primary/20">
-                        <Bot className="h-3 w-3" />
+                    {/* Agent Header with Badge - key visual difference from v3 */}
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <AgentHeader 
+                          title="Company Admin · Payroll" 
+                          subtitle="Kurt can help with: FX rates, compliance checks, or payment execution." 
+                          showPulse={true} 
+                          showInput={false} 
+                          simplified={false}
+                        />
+                      </div>
+                      <Badge variant="secondary" className="gap-1.5 bg-primary/10 text-primary border-primary/20 mt-1">
+                        <Bot className="h-3.5 w-3.5" />
                         Agent
                       </Badge>
                     </div>
 
-                    {/* Tab Navigation */}
-                    <div className="pt-4">
-                      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "payroll" | "leaves")}>
-                        <TabsList className="h-9">
-                          <TabsTrigger value="payroll" className="text-xs px-4">Payroll</TabsTrigger>
-                          <TabsTrigger value="leaves" className="text-xs px-4">Leaves</TabsTrigger>
-                        </TabsList>
-                      </Tabs>
-                    </div>
+                    {/* Tab Navigation hidden - focusing on Payroll only (matching v3) */}
+
+                    {/* Breadcrumb for Batch Review - only in Payroll tab */}
+                    {activeTab === "payroll" && viewMode === "batch-review" && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                        <Button 
+                          variant="link" 
+                          className="h-auto p-0 text-muted-foreground hover:text-foreground" 
+                          onClick={handleBackToPayroll}
+                        >
+                          Payroll
+                        </Button>
+                        <span>›</span>
+                        <span className="text-foreground font-medium">Payment Batch Review (Jan 2026)</span>
+                      </div>
+                    )}
 
                     {/* Tab Content */}
                     <div className="pt-4">
-                      {activeTab === "payroll" && (
-                        <CA4_PayrollSection payPeriod="January 2026" />
-                      )}
-                      
+                      {/* LEAVES TAB - hidden by default, available if needed */}
                       {activeTab === "leaves" && (
                         <CA4_LeavesTab />
+                      )}
+
+                      {/* PAYROLL TAB */}
+                      {activeTab === "payroll" && viewMode === "payroll" && (
+                        <CA4_PayrollSection payPeriod={payrollCycleData.current.label} />
                       )}
                     </div>
                   </div>
