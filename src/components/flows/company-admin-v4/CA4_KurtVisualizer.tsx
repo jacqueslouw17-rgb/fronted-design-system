@@ -26,9 +26,8 @@ export const CA4_KurtVisualizer: React.FC = () => {
         onClick={toggleOpen}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="relative w-64 h-32 flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 rounded-2xl group transition-all duration-300"
+        className="relative w-64 h-32 flex items-center justify-center gap-2 cursor-pointer border-0 bg-transparent outline-none"
         whileTap={{ scale: 0.98 }}
-        style={{ contain: 'layout' }}
         aria-label="Ask Kurt - Open AI assistant"
       >
         {/* Enhanced breathing glow effect - matches v3 */}
