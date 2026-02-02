@@ -1210,10 +1210,21 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
 
   return (
     <>
-      <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+      <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm min-h-full">
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {/* Back button */}
+              {onBack && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onBack}
+                  className="h-8 w-8 rounded-lg"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              )}
               <div className="p-2 rounded-lg bg-primary/10">
                 <Users className="h-5 w-5 text-primary" />
               </div>
@@ -1222,15 +1233,28 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                 <p className="text-xs text-muted-foreground">Review worker pay data</p>
               </div>
             </div>
-            {/* Search */}
-            <div className="relative w-48">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 pl-8 text-xs bg-background/50"
-              />
+            <div className="flex items-center gap-3">
+              {/* Search */}
+              <div className="relative w-48">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-8 pl-8 text-xs bg-background/50"
+                />
+              </div>
+              {/* Close button */}
+              {onClose && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onClose}
+                  className="h-8 w-8 rounded-lg"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
