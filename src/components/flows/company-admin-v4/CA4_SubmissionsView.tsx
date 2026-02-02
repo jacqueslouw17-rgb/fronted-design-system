@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -1223,22 +1223,74 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction } = useCA4Agent();
   const chatWidth = isAgentOpen ? 420 : 0;
 
+  // Global approve all pending items across ALL workers
+  const handleGlobalApproveAll = useCallback(() => {
+    console.log('[SubmissionsView] Executing global approve all');
+    let approvedCount = 0;
+    
+    submissions.forEach((submission) => {
+      // Approve all pending adjustments for this worker
+      submission.submissions.forEach((adj, idx) => {
+        const currentState = getAdjustmentStatus(submission.id, idx, adj.status as AdjustmentItemStatus);
+        if (currentState.status === 'pending') {
+          updateAdjustmentStatus(submission.id, idx, { status: 'approved' });
+          approvedCount++;
+        }
+      });
+      
+      // Approve all pending leaves for this worker
+      (submission.pendingLeaves || []).forEach((leave) => {
+        const currentState = getLeaveStatus(submission.id, leave.id, leave.status);
+        if (currentState.status === 'pending') {
+          updateLeaveStatus(submission.id, leave.id, { status: 'approved' });
+          approvedCount++;
+        }
+      });
+    });
+    
+    toast.success(`Approved ${approvedCount} pending item${approvedCount !== 1 ? 's' : ''} across all workers`);
+  }, [submissions, getAdjustmentStatus, updateAdjustmentStatus, getLeaveStatus, updateLeaveStatus]);
+
+  // Global reject all pending items across ALL workers
+  const handleGlobalRejectAll = useCallback((reason: string) => {
+    console.log('[SubmissionsView] Executing global reject all');
+    let rejectedCount = 0;
+    
+    submissions.forEach((submission) => {
+      // Reject all pending adjustments for this worker
+      submission.submissions.forEach((adj, idx) => {
+        const currentState = getAdjustmentStatus(submission.id, idx, adj.status as AdjustmentItemStatus);
+        if (currentState.status === 'pending') {
+          updateAdjustmentStatus(submission.id, idx, { status: 'rejected', rejectionReason: reason });
+          rejectedCount++;
+        }
+      });
+      
+      // Reject all pending leaves for this worker
+      (submission.pendingLeaves || []).forEach((leave) => {
+        const currentState = getLeaveStatus(submission.id, leave.id, leave.status);
+        if (currentState.status === 'pending') {
+          updateLeaveStatus(submission.id, leave.id, { status: 'rejected', rejectionReason: reason });
+          rejectedCount++;
+        }
+      });
+    });
+    
+    toast.info(`Rejected ${rejectedCount} pending item${rejectedCount !== 1 ? 's' : ''} across all workers`);
+  }, [submissions, getAdjustmentStatus, updateAdjustmentStatus, getLeaveStatus, updateLeaveStatus]);
+
   // Register action callbacks for agent-driven orchestration
   useEffect(() => {
     registerActionCallbacks({
       onApproveAll: () => {
         console.log('[SubmissionsView] Agent triggered bulk approve');
-        if (selectedSubmission) {
-          handleBulkApprove();
-        } else {
-          toast.success('All pending items approved');
-        }
+        // Use global approve to approve ALL pending items across all workers
+        handleGlobalApproveAll();
       },
       onRejectAll: (reason: string) => {
         console.log('[SubmissionsView] Agent triggered bulk reject');
-        if (selectedSubmission) {
-          handleBulkReject(reason);
-        }
+        // Use global reject to reject ALL pending items across all workers  
+        handleGlobalRejectAll(reason);
       },
       onMarkReady: (workerId: string) => {
         console.log('[SubmissionsView] Agent triggered mark ready for:', workerId);
@@ -1253,7 +1305,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         onContinue();
       },
     });
-  }, [selectedSubmission, submissions, registerActionCallbacks, handleBulkApprove, handleBulkReject, onContinue]);
+  }, [submissions, registerActionCallbacks, handleGlobalApproveAll, handleGlobalRejectAll, onContinue]);
 
   // Check if buttons should show loading from agent
   const isApproveAllLoading = loadingButtons['approve_all'];
