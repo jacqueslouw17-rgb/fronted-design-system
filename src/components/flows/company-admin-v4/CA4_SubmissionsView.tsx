@@ -1308,23 +1308,29 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
       </Card>
       </motion.div>
 
-      {/* Worker Pay Breakdown Drawer - Inline sliding panel (not portal) */}
+      {/* Worker Pay Breakdown Drawer - Inline sliding panel matching Sheet styling */}
       <AnimatePresence>
         {drawerOpen && (
           <motion.div
-            initial={{ x: '100%', opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: '100%', opacity: 0 }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="absolute top-0 right-0 bottom-0 w-[420px] bg-background border-l border-border/40 shadow-xl overflow-y-auto z-10"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ 
+              type: 'spring', 
+              damping: 26, 
+              stiffness: 260,
+              mass: 0.8 
+            }}
+            className="absolute top-0 right-0 bottom-0 w-full sm:max-w-[420px] bg-background border-l shadow-lg overflow-y-auto z-10 p-0"
           >
-            {/* Close button */}
+            {/* Close button - matching Sheet close style */}
             {!isAddingAdjustment && (
               <button
                 onClick={handleCloseDrawer}
-                className="absolute top-4 right-4 z-20 p-1.5 rounded-md hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground"
+                className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
               </button>
             )}
           {selectedSubmission && (() => {
