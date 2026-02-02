@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
 import {
   AlertDialog,
@@ -277,22 +278,29 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 
   // Reset confirmation dialog state
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   // Reset contract to original template state
   const handleResetContract = useCallback(() => {
-    // Regenerate contract from template using current candidate data
-    const regeneratedHtml = convertSectionsToHtml(fullContent);
-    setEditedContent(regeneratedHtml);
-    setOriginalContent(regeneratedHtml);
     setIsResetDialogOpen(false);
-    setIsEditMode(false);
+    setIsResetting(true);
     
-    // Log the reset event
-    recordEdit(contractId, "You", candidate.name, 'reset');
-    
-    toast.success("Contract reset to original", {
-      description: "The contract has been regenerated using the current candidate data."
-    });
+    // Simulate regeneration delay for perceived performance
+    setTimeout(() => {
+      // Regenerate contract from template using current candidate data
+      const regeneratedHtml = convertSectionsToHtml(fullContent);
+      setEditedContent(regeneratedHtml);
+      setOriginalContent(regeneratedHtml);
+      setIsEditMode(false);
+      setIsResetting(false);
+      
+      // Log the reset event
+      recordEdit(contractId, "You", candidate.name, 'reset');
+      
+      toast.success("Contract reset to original", {
+        description: "The contract has been regenerated using the current candidate data."
+      });
+    }, 4000); // 4 second delay for perception
   }, [convertSectionsToHtml, fullContent, recordEdit, contractId, candidate.name]);
 
   // Measure how much vertical space the audit log has under the worker card,
@@ -782,21 +790,25 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
             </>
           ) : (
             <>
-              <p className="text-sm text-foreground">Review the contract details carefully before proceeding.</p>
+              <p className="text-sm text-foreground">
+                {isResetting ? "Regenerating contract from template..." : "Review the contract details carefully before proceeding."}
+              </p>
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsResetDialogOpen(true)}
+                  disabled={isResetting}
                   className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
                 >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  Reset
+                  <RotateCcw className={`h-3.5 w-3.5 ${isResetting ? 'animate-spin' : ''}`} />
+                  {isResetting ? "Resetting..." : "Reset"}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleEnterEditMode}
+                  disabled={isResetting}
                   className="flex items-center gap-1.5"
                 >
                   <Pencil className="h-3.5 w-3.5" />
@@ -833,31 +845,76 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
             className="flex-1 min-h-0 overflow-y-auto rounded-t-lg border border-b-0 border-border bg-background"
           >
             <AnimatePresence mode="wait">
-              <motion.div key={activeDocument} initial={{
-                opacity: 0,
-                x: 20
-              }} animate={{
-                opacity: 1,
-                x: 0
-              }} exit={{
-                opacity: 0,
-                x: -20
-              }} transition={{
-                duration: 0.2
-              }}>
-                <div className="p-6">
-                  <div className="space-y-4 select-none">
-                    {fullContent.map((section, idx) => <div key={idx}>
-                        {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
-                            {section.heading}
-                          </h3>}
-                        {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                            {renderHighlightedText(section.text)}
-                          </p>}
-                      </div>)}
+              {isResetting ? (
+                <motion.div
+                  key="skeleton"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="p-6"
+                >
+                  <div className="space-y-4">
+                    {/* Title skeleton */}
+                    <div className="flex justify-center">
+                      <Skeleton className="h-6 w-48" />
+                    </div>
+                    {/* Paragraph skeletons */}
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-11/12" />
+                      <Skeleton className="h-4 w-10/12" />
+                    </div>
+                    {/* Section heading */}
+                    <Skeleton className="h-5 w-40 mt-6" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-9/12" />
+                    </div>
+                    {/* Another section */}
+                    <Skeleton className="h-5 w-36 mt-6" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-10/12" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-8/12" />
+                    </div>
+                    {/* More content */}
+                    <Skeleton className="h-5 w-44 mt-6" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-11/12" />
+                    </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              ) : (
+                <motion.div key={activeDocument} initial={{
+                  opacity: 0,
+                  x: 20
+                }} animate={{
+                  opacity: 1,
+                  x: 0
+                }} exit={{
+                  opacity: 0,
+                  x: -20
+                }} transition={{
+                  duration: 0.2
+                }}>
+                  <div className="p-6">
+                    <div className="space-y-4 select-none">
+                      {fullContent.map((section, idx) => <div key={idx}>
+                          {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
+                              {section.heading}
+                            </h3>}
+                          {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                              {renderHighlightedText(section.text)}
+                            </p>}
+                        </div>)}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
         )}
