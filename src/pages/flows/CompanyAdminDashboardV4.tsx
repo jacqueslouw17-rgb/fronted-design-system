@@ -112,8 +112,8 @@ const CompanyAdminDashboardV4Content: React.FC = () => {
                       <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                         Company Admin · Payroll
                       </h1>
-                      <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto">
-                        Ask anything about payroll, taxes, FX, or worker costs. I'll navigate the dashboard and open the right details for you.
+                      <p className="text-sm sm:text-base text-muted-foreground">
+                        Ask about payroll, taxes, FX, or worker costs.
                       </p>
                     </div>
                   </div>
