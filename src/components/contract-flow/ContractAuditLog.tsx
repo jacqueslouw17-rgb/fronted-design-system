@@ -257,7 +257,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                                       </p>
                                       {isReset && (
                                         <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
-                                          Reset
+                                          Reset to original
                                         </Badge>
                                       )}
                                     </div>
@@ -305,7 +305,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                                   </p>
                                   {isReset && (
                                     <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
-                                      Reset
+                                      Reset to original
                                     </Badge>
                                   )}
                                 </div>
