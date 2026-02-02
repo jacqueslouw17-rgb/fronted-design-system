@@ -8,3 +8,9 @@ export { CA4_ReadinessIndicator } from "./CA4_ReadinessIndicator";
 export { CA4_PayrollStepper, type CA4_PayrollStep } from "./CA4_PayrollStepper";
 export { CA4_PeriodDropdown, type PayrollPeriod } from "./CA4_PeriodDropdown";
 export { CollapsibleSection } from "./CA4_CollapsibleSection";
+
+// Agent components
+export { CA4_AgentProvider, useCA4Agent } from "./CA4_AgentContext";
+export { CA4_AgentChatPanel } from "./CA4_AgentChatPanel";
+export { CA4_AskKurtButton } from "./CA4_AskKurtButton";
+export * from "./CA4_AgentTypes";
