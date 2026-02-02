@@ -224,12 +224,12 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when new messages arrive or confirmation buttons appear
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, showRetrieving, currentSuggestedAction]);
+  }, [messages, showRetrieving, currentSuggestedAction, awaitingConfirmation]);
 
   // Focus input when panel opens
   useEffect(() => {
