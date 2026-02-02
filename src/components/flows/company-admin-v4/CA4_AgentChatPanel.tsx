@@ -338,7 +338,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, showRetrieving, currentSuggestedAction, awaitingConfirmation]);
+  }, [messages, showRetrieving, currentSuggestedAction, pendingAction?.awaitingConfirmation]);
 
   // Focus input when panel opens
   useEffect(() => {
@@ -525,7 +525,37 @@ export const CA4_AgentChatPanel: React.FC = () => {
   }, [pendingAction, setAwaitingConfirmation, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction, setProcessingItem]);
 
   const handleSubmit = async (query: string) => {
-    if (!query.trim() || isLoading) return;
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    // Detect action intents (approve/reject/confirm/etc.) up-front.
+    // Confirmations should never trigger the "Retrieving context" skeleton.
+    const actionIntent = detectActionIntent(trimmed);
+
+    if (
+      pendingAction?.awaitingConfirmation &&
+      (actionIntent.type === 'confirm_yes' || actionIntent.type === 'confirm_no')
+    ) {
+      setMessages(prev => [...prev, { role: 'user', content: query }]);
+      setInput('');
+      addMessage({ role: 'user', content: query });
+
+      // Ensure no loading UI is shown for confirmations.
+      setShowRetrieving(false);
+      setIsStreaming(false);
+      setIsLoading(false);
+
+      if (actionIntent.type === 'confirm_yes') {
+        console.log('[AgentChat] User confirmed action:', pendingAction?.type);
+        handleConfirmYes();
+      } else {
+        console.log('[AgentChat] User cancelled action');
+        handleConfirmNo();
+      }
+      return;
+    }
+
+    if (isLoading) return;
 
     const userMessage: ChatMessage = { role: 'user', content: query };
     const updatedMessages = [...messages, userMessage];
@@ -547,23 +577,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     // Add to agent context
     addMessage({ role: 'user', content: query });
 
-    // FIRST: Check for action intents (approve, reject, confirm)
-    const actionIntent = detectActionIntent(query);
-    
-    // Handle confirmation responses
-    if (actionIntent.type === 'confirm_yes' && pendingAction?.awaitingConfirmation) {
-      console.log('[AgentChat] User confirmed action:', pendingAction.type);
-      handleConfirmYes();
-      return;
-    }
-    
-    if (actionIntent.type === 'confirm_no' && pendingAction?.awaitingConfirmation) {
-      console.log('[AgentChat] User cancelled action');
-      handleConfirmNo();
-      setIsLoading(false);
-      setShowRetrieving(false);
-      return;
-    }
+    // actionIntent already computed above
     
     // Handle new action intents (approve all, reject all, mark ready, submit, approve_item)
     if (actionIntent.type && actionIntent.type !== 'confirm_yes' && actionIntent.type !== 'confirm_no') {
@@ -1005,8 +1019,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     message={message}
                     isStreaming={isStreaming && index === messages.length - 1 && message.role === 'assistant'}
                     showInlineConfirm={
-                      awaitingConfirmation &&
-                      !!pendingAction &&
+                      !!pendingAction?.awaitingConfirmation &&
                       index === messages.length - 1 &&
                       message.role === 'assistant'
                     }
@@ -1085,7 +1098,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
               )}
 
               {/* Suggested next action button */}
-              {currentSuggestedAction && !awaitingConfirmation && !isLoading && (
+              {currentSuggestedAction && !pendingAction?.awaitingConfirmation && !isLoading && (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1116,6 +1129,20 @@ export const CA4_AgentChatPanel: React.FC = () => {
               )}
             </div>
           </div>
+
+          {/* Always-visible confirmation bar (prevents "Yes/No" disappearing due to message ordering/loading) */}
+          {pendingAction?.awaitingConfirmation && (
+            <div className="px-4 pb-3">
+              <div className="flex items-center justify-end gap-2">
+                <Button size="sm" onClick={handleConfirmYes} className="h-7 px-3 text-[11px]">
+                  Yes
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleConfirmNo} className="h-7 px-3 text-[11px]">
+                  No
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Input Area - Lovable style */}
           <div className="p-4 border-t border-border/20">
