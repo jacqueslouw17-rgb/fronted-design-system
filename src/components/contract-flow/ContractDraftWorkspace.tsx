@@ -272,6 +272,8 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     // Here you would typically save to backend/state
     toast.success("Contract changes saved");
     setIsEditMode(false);
+    // Mark that changes have been made since last reset
+    setHasChangesSinceReset(true);
     // Log the edit event
     recordEdit(contractId, "You", candidate.name, 'edit');
   }, [isContentEmpty, recordEdit, contractId, candidate.name]);
@@ -279,6 +281,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   // Reset confirmation dialog state
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [hasChangesSinceReset, setHasChangesSinceReset] = useState(true); // Track if edits made since last reset
 
   // Reset contract to original template state
   const handleResetContract = useCallback(() => {
@@ -293,6 +296,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
       setOriginalContent(regeneratedHtml);
       setIsEditMode(false);
       setIsResetting(false);
+      setHasChangesSinceReset(false); // Reset the changes flag
       
       // Log the reset event
       recordEdit(contractId, "You", candidate.name, 'reset');
@@ -798,8 +802,8 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsResetDialogOpen(true)}
-                  disabled={isResetting}
-                  className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                  disabled={isResetting || !hasChangesSinceReset}
+                  className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground disabled:opacity-50"
                 >
                   <RotateCcw className={`h-3.5 w-3.5 ${isResetting ? 'animate-spin' : ''}`} />
                   {isResetting ? "Resetting..." : "Reset"}
