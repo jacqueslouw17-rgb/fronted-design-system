@@ -1093,18 +1093,21 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 </div>
               ) : (
                 messages.map((message, index) => {
-                  // Show confirmation buttons on the last assistant message when awaiting confirmation
-                  const isLastAssistant = message.role === 'assistant' && index === messages.length - 1;
-                  const showConfirmation = isLastAssistant && pendingAction?.awaitingConfirmation;
+                  // Show confirmation buttons on the assistant message that asked the question
+                  // We find the last assistant message that ends with "proceed?" and has pending confirmation
+                  const isConfirmationQuestion = 
+                    message.role === 'assistant' && 
+                    message.content.includes('Do you want to proceed?') &&
+                    pendingAction?.awaitingConfirmation;
                   
                   return (
                     <MessageBubble
                       key={index}
                       message={message}
                       isStreaming={isStreaming && index === messages.length - 1 && message.role === 'assistant'}
-                      isConfirmationMessage={showConfirmation}
-                      onConfirmYes={showConfirmation ? handleConfirmYes : undefined}
-                      onConfirmNo={showConfirmation ? handleConfirmNo : undefined}
+                      isConfirmationMessage={isConfirmationQuestion}
+                      onConfirmYes={isConfirmationQuestion ? handleConfirmYes : undefined}
+                      onConfirmNo={isConfirmationQuestion ? handleConfirmNo : undefined}
                     />
                   );
                 })
