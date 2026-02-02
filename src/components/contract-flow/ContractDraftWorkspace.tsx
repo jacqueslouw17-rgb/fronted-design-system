@@ -242,14 +242,28 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     setIsEditMode(false);
   }, [originalContent]);
 
+  // Check if content is empty (only whitespace or empty HTML tags)
+  const isContentEmpty = useMemo(() => {
+    if (!editedContent) return true;
+    // Strip HTML tags and check if any text content remains
+    const textContent = editedContent.replace(/<[^>]*>/g, '').trim();
+    return textContent.length === 0;
+  }, [editedContent]);
+
   // Save changes
   const handleSaveChanges = useCallback(() => {
+    if (isContentEmpty) {
+      toast.error("Contract cannot be empty", {
+        description: "Please add content before saving."
+      });
+      return;
+    }
     // Here you would typically save to backend/state
     toast.success("Contract changes saved");
     setIsEditMode(false);
     // Log the edit event
     recordEdit(contractId, "You", candidate.name);
-  }, [recordEdit, contractId, candidate.name]);
+  }, [isContentEmpty, recordEdit, contractId, candidate.name]);
 
   // Measure how much vertical space the audit log has under the worker card,
   // so the audit log can cap itself and become scrollable (without stretching UI).
@@ -711,11 +725,15 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         }} className="rounded-lg border border-border bg-muted/30 p-3 mb-4 flex-shrink-0 flex items-center justify-between">
           {isEditMode ? (
             <>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-warning" />
-                <p className="text-sm text-foreground">Making edits to the contract. Remember to save your changes.</p>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isContentEmpty ? 'bg-destructive' : 'bg-warning'}`} />
+                <p className="text-sm text-foreground truncate">
+                  {isContentEmpty 
+                    ? "Contract cannot be empty" 
+                    : "Making edits to the contract. Remember to save your changes."}
+                </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <Button
                   variant="outline"
                   size="sm"
@@ -726,6 +744,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
                 <Button
                   size="sm"
                   onClick={handleSaveChanges}
+                  disabled={isContentEmpty}
                 >
                   Save Changes
                 </Button>
