@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, X, Loader2 } from 'lucide-react';
+import { ArrowUp, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCA4Agent } from './CA4_AgentContext';
 import { AgentMessage, AgentAction } from './CA4_AgentTypes';
@@ -43,17 +43,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const handleSubmit = async (query: string) => {
     if (!query.trim() || isLoading) return;
 
-    // Add user message
     addMessage({ role: 'user', content: query });
     setInput('');
     setIsLoading(true);
 
-    // Reset textarea height
-    if (inputRef.current) {
-      inputRef.current.style.height = 'auto';
-    }
-
-    // Process query and get response
     await processAgentQuery(query, {
       addMessage,
       setNavigating,
@@ -82,70 +75,31 @@ export const CA4_AgentChatPanel: React.FC = () => {
       {isOpen && (
         <motion.div
           initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 400, opacity: 1 }}
+          animate={{ width: 380, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          className="h-full bg-background flex flex-col overflow-hidden border-l border-border/30"
+          className="h-full bg-background flex flex-col overflow-hidden border-l border-border/20"
         >
-          {/* Minimal Header */}
-          <div className="flex items-center justify-between px-5 py-4">
-            <div className="flex items-center gap-3">
-              {/* Animated frequency indicator - mini version */}
-              <div className="flex items-center gap-0.5 h-5">
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="w-0.5 rounded-full bg-primary"
-                    animate={{
-                      height: [6, 12, 8, 14, 6],
-                      opacity: [0.5, 0.8, 0.6, 1, 0.5],
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      delay: i * 0.15,
-                      ease: "easeInOut",
-                    }}
-                  />
-                ))}
-              </div>
-              <span className="text-sm font-medium text-foreground">Kurt</span>
-            </div>
+          {/* Ultra minimal header - just close button */}
+          <div className="flex items-center justify-end px-4 py-3">
             <button 
               onClick={() => setOpen(false)} 
-              className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+              className="p-1 rounded-md hover:bg-muted/40 transition-colors text-muted-foreground/60 hover:text-muted-foreground"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Navigation Status - minimal */}
-          <AnimatePresence>
-            {isNavigating && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="px-5 pb-3"
-              >
-                <div className="flex items-center gap-2 text-xs text-primary/80">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>{navigationMessage || 'Navigating...'}</span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           {/* Messages Area */}
           <div 
             ref={scrollRef}
-            className="flex-1 overflow-y-auto px-5 pb-4"
+            className="flex-1 overflow-y-auto px-5"
           >
-            <div className="space-y-5">
+            <div className="space-y-6 pb-4">
               {messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
-                  <p className="text-sm text-muted-foreground max-w-[260px] leading-relaxed">
-                    Ask about payroll, costs, workers, or anything else.
+                <div className="pt-8">
+                  <p className="text-[13px] text-muted-foreground/70 leading-relaxed">
+                    Ask about payroll, costs, or workers.
                   </p>
                 </div>
               ) : (
@@ -158,54 +112,53 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 ))
               )}
 
+              {/* Loading indicator */}
               {isLoading && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="flex gap-1">
-                    {[0, 1, 2].map((i) => (
-                      <motion.div
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-primary/40"
-                        animate={{ 
-                          opacity: [0.3, 1, 0.3],
-                          scale: [1, 1.2, 1]
-                        }}
-                        transition={{ 
-                          duration: 1, 
-                          repeat: Infinity, 
-                          delay: i * 0.2 
-                        }}
-                      />
-                    ))}
-                  </div>
+                <div className="flex items-center gap-1.5">
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      className="w-1 h-1 rounded-full bg-muted-foreground/30"
+                      animate={{ opacity: [0.3, 0.8, 0.3] }}
+                      transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+                    />
+                  ))}
                 </div>
+              )}
+
+              {/* Navigation status - inline */}
+              {isNavigating && (
+                <p className="text-xs text-muted-foreground/60">
+                  {navigationMessage || 'Looking...'}
+                </p>
               )}
             </div>
           </div>
 
-          {/* Input - clean, minimal */}
-          <div className="px-4 pb-4 pt-2">
-            <div className="relative flex items-center gap-2 rounded-full border border-border/50 bg-muted/30 pl-4 pr-2 py-2 focus-within:border-primary/30 focus-within:bg-muted/40 transition-colors">
+          {/* Input - ultra minimal */}
+          <div className="p-4">
+            <div className="flex items-center gap-2 rounded-xl border border-border/40 bg-muted/20 px-3 py-2 focus-within:border-border/60 transition-colors">
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Message Kurt..."
-                className="flex-1 bg-transparent text-sm placeholder:text-muted-foreground/60 outline-none"
+                placeholder="Ask anything..."
+                className="flex-1 bg-transparent text-[13px] placeholder:text-muted-foreground/40 outline-none"
                 disabled={isLoading}
               />
               <button
                 onClick={() => handleSubmit(input)}
                 disabled={!input.trim() || isLoading}
                 className={cn(
-                  "p-2 rounded-full transition-all duration-200 flex-shrink-0",
+                  "p-1.5 rounded-lg transition-all",
                   input.trim() 
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-                    : "text-muted-foreground/40"
+                    ? "bg-foreground text-background" 
+                    : "text-muted-foreground/30"
                 )}
               >
-                <Send className="h-4 w-4" />
+                <ArrowUp className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
@@ -215,7 +168,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
   );
 };
 
-// Minimal Message Bubble
+// Ultra minimal message styling
 const MessageBubble: React.FC<{
   message: AgentMessage;
   onActionClick: (action: AgentAction) => void;
@@ -225,7 +178,7 @@ const MessageBubble: React.FC<{
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] px-4 py-2.5 rounded-2xl rounded-br-md bg-primary text-primary-foreground text-sm leading-relaxed">
+        <div className="max-w-[85%] px-3 py-2 rounded-xl bg-muted/50 text-foreground/80 text-[13px] leading-relaxed">
           {message.content}
         </div>
       </div>
@@ -233,48 +186,41 @@ const MessageBubble: React.FC<{
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* Response text */}
-      <div className="text-sm text-foreground leading-relaxed">
+      <div className="text-[13px] text-foreground/90 leading-relaxed">
         {message.summary || message.content}
       </div>
 
-      {/* Minimal context chips */}
+      {/* Actions as subtle text links */}
+      {message.actions && message.actions.length > 0 && (
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
+          {message.actions.map((action) => (
+            <button
+              key={action.id}
+              onClick={() => onActionClick(action)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {action.label} →
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Context - barely visible */}
       {message.context && Object.keys(message.context).length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 pt-1">
           {Object.entries(message.context).map(([key, value]) => (
             value && (
               <span 
                 key={key}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground"
+                className="text-[10px] text-muted-foreground/50"
               >
                 {value}
               </span>
             )
           ))}
         </div>
-      )}
-
-      {/* Actions as subtle links */}
-      {message.actions && message.actions.length > 0 && (
-        <div className="flex flex-wrap gap-3">
-          {message.actions.map((action) => (
-            <button
-              key={action.id}
-              onClick={() => onActionClick(action)}
-              className="text-xs text-primary hover:text-primary/80 hover:underline underline-offset-2 transition-colors"
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Assumptions - very subtle */}
-      {message.assumptions && message.assumptions.length > 0 && (
-        <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
-          {message.assumptions.join(' ')}
-        </p>
       )}
     </div>
   );
