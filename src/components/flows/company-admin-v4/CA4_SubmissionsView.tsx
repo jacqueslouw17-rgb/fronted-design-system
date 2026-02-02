@@ -93,9 +93,9 @@ export interface WorkerSubmission {
   flagReason?: string;
 }
 
-import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA4_PayrollStepper";
+import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
 
-interface CA3_SubmissionsViewProps {
+interface CA4_SubmissionsViewProps {
   submissions: WorkerSubmission[];
   onApprove: (submission: WorkerSubmission) => void;
   onFlag: (submission: WorkerSubmission, reason: string) => void;
@@ -105,9 +105,9 @@ interface CA3_SubmissionsViewProps {
   onBack?: () => void;
   pendingCount?: number; // If provided, blocks continue when > 0
   // Stepper props
-  currentStep?: CA3_PayrollStep;
-  completedSteps?: CA3_PayrollStep[];
-  onStepClick?: (step: CA3_PayrollStep) => void;
+  currentStep?: CA4_PayrollStep;
+  completedSteps?: CA4_PayrollStep[];
+  onStepClick?: (step: CA4_PayrollStep) => void;
   pendingSubmissions?: number;
 }
 
@@ -747,7 +747,7 @@ interface AdjustmentState {
   rejectionReason?: string;
 }
 
-export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
+export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   submissions,
   onApprove,
   onFlag,
@@ -1191,7 +1191,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
               )}
-              <CA3_PayrollStepper
+              <CA4_PayrollStepper
                 currentStep={currentStep}
                 completedSteps={completedSteps}
                 onStepClick={onStepClick}
@@ -2067,5 +2067,5 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   );
 };
 
-export default CA3_SubmissionsView;
+export default CA4_SubmissionsView;
 

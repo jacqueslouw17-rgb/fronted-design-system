@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA4_PayrollStepper";
+import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
 
 export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued" | "sent";
 
@@ -21,7 +21,7 @@ export interface TrackingWorker {
   errorMessage?: string;
 }
 
-interface CA3_SubmitStepProps {
+interface CA4_SubmitStepProps {
   totalCost: string;
   employeeCount: number;
   contractorCount: number;
@@ -36,12 +36,12 @@ interface CA3_SubmitStepProps {
   onBack?: () => void;
   onClose?: () => void;
   // Stepper props
-  currentStep?: CA3_PayrollStep;
-  completedSteps?: CA3_PayrollStep[];
-  onStepClick?: (step: CA3_PayrollStep) => void;
+  currentStep?: CA4_PayrollStep;
+  completedSteps?: CA4_PayrollStep[];
+  onStepClick?: (step: CA4_PayrollStep) => void;
 }
 
-export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
+export const CA4_SubmitStep: React.FC<CA4_SubmitStepProps> = ({
   totalCost,
   employeeCount,
   contractorCount,
@@ -176,7 +176,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             )}
-            <CA3_PayrollStepper
+            <CA4_PayrollStepper
               currentStep={currentStep}
               completedSteps={completedSteps}
               onStepClick={onStepClick}
@@ -516,4 +516,4 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   );
 };
 
-export default CA3_SubmitStep;
+export default CA4_SubmitStep;

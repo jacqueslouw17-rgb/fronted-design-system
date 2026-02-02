@@ -185,7 +185,7 @@ const mockLeaveRequests: LeaveRequest[] = [
   },
 ];
 
-export const CA3_LeavesTab: React.FC = () => {
+export const CA4_LeavesTab: React.FC = () => {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(mockLeaveRequests);
   const [searchQuery, setSearchQuery] = useState("");
   const [countryFilter, setCountryFilter] = useState<string>("all");
@@ -665,4 +665,4 @@ export const CA3_LeavesTab: React.FC = () => {
   );
 };
 
-export default CA3_LeavesTab;
+export default CA4_LeavesTab;
