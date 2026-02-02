@@ -43,10 +43,15 @@ export const CA4_KurtVisualizer: React.FC = () => {
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="relative w-64 h-32 flex items-center justify-center gap-2 cursor-pointer border-none bg-transparent outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus-visible:ring-0 hover:bg-transparent"
+        className="relative w-64 h-32 flex items-center justify-center gap-2 cursor-pointer !border-none !bg-transparent !outline-none focus:!outline-none focus-visible:!outline-none !ring-0 focus:!ring-0 focus-visible:!ring-0 hover:!bg-transparent active:!bg-transparent !shadow-none focus:!shadow-none [&]:!border-0 [&]:!outline-0"
         whileTap={{ scale: 0.98 }}
         aria-label="Ask Kurt - Open AI assistant"
-        style={{ WebkitTapHighlightColor: 'transparent' }}
+        style={{ 
+          WebkitTapHighlightColor: 'transparent',
+          outline: 'none',
+          border: 'none',
+          boxShadow: 'none',
+        }}
       >
         {/* Enhanced breathing glow effect - matches v3 */}
         <motion.div
