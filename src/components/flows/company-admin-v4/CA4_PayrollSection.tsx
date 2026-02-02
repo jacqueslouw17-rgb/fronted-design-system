@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA4_PayrollStepper";
-import { CA3_SubmissionsView, WorkerSubmission, PendingLeaveItem } from "./CA4_SubmissionsView";
-import { CA3_SubmitConfirmationModal } from "./CA4_SubmitConfirmationModal";
-import { CA3_TrackingView, TrackingWorker } from "./CA4_TrackingView";
-import { CA3_SubmitStep } from "./CA4_SubmitStep";
-import { CA3_PeriodDropdown, PayrollPeriod } from "./CA4_PeriodDropdown";
+import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
+import { CA4_SubmissionsView, WorkerSubmission, PendingLeaveItem } from "./CA4_SubmissionsView";
+import { CA4_SubmitConfirmationModal } from "./CA4_SubmitConfirmationModal";
+import { CA4_TrackingView, TrackingWorker } from "./CA4_TrackingView";
+import { CA4_SubmitStep } from "./CA4_SubmitStep";
+import { CA4_PeriodDropdown, PayrollPeriod } from "./CA4_PeriodDropdown";
 
 const mockSubmissions: WorkerSubmission[] = [
   {
@@ -282,11 +282,11 @@ const buildPeriods = (isSubmitted: boolean): PayrollPeriod[] => [
   ...previousPayrolls.map(p => ({ id: p.id, label: p.period, status: "paid" as const })),
 ];
 
-interface CA3_PayrollSectionProps {
+interface CA4_PayrollSectionProps {
   payPeriod: string;
 }
 
-export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPeriod }) => {
+export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPeriod }) => {
   // Period view state - "current" = current, or previous period id
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>("current");
   
@@ -294,8 +294,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   const [hasEnteredWorkflow, setHasEnteredWorkflow] = useState(false);
   
   // Step state - 3 steps now (Submissions, Submit, Track)
-  const [currentStep, setCurrentStep] = useState<CA3_PayrollStep>("submissions");
-  const [completedSteps, setCompletedSteps] = useState<CA3_PayrollStep[]>([]);
+  const [currentStep, setCurrentStep] = useState<CA4_PayrollStep>("submissions");
+  const [completedSteps, setCompletedSteps] = useState<CA4_PayrollStep[]>([]);
   
   // Submissions state
   const [submissions, setSubmissions] = useState<WorkerSubmission[]>(mockSubmissions);
@@ -327,7 +327,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     }
   };
 
-  const handleStepClick = (step: CA3_PayrollStep) => {
+  const handleStepClick = (step: CA4_PayrollStep) => {
     if (completedSteps.includes(step) || step === currentStep) {
       setCurrentStep(step);
     }
@@ -407,7 +407,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <CA3_PeriodDropdown 
+              <CA4_PeriodDropdown 
                 periods={periods}
                 selectedPeriodId={selectedPeriodId}
                 onPeriodChange={handlePeriodChange}
@@ -507,7 +507,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           contractorCount: selectedPrevious.contractorCount,
           currencyCount: selectedPrevious.currencyCount,
         })}
-        <CA3_TrackingView
+        <CA4_TrackingView
           workers={selectedPrevious.workers}
           onExportCSV={handleExportCSV}
           onDownloadAuditPDF={handleDownloadAuditPDF}
@@ -534,7 +534,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       {renderSummaryCard(true)}
       
       {/* Tracking view below - with stepper */}
-      <CA3_TrackingView
+      <CA4_TrackingView
         workers={trackingWorkers}
         onExportCSV={handleExportCSV}
         onDownloadAuditPDF={handleDownloadAuditPDF}
@@ -553,7 +553,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     switch (currentStep) {
       case "submissions":
         return (
-          <CA3_SubmissionsView
+          <CA4_SubmissionsView
             submissions={submissions}
             onApprove={handleApproveSubmission}
             onFlag={handleRejectSubmission}
@@ -576,7 +576,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           return (
             <div className="space-y-6">
               {renderSummaryCard(true)}
-              <CA3_TrackingView
+              <CA4_TrackingView
                 workers={trackingWorkers}
                 onExportCSV={handleExportCSV}
                 onDownloadAuditPDF={handleDownloadAuditPDF}
@@ -585,7 +585,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           );
         }
         return (
-          <CA3_SubmitStep
+          <CA4_SubmitStep
             totalCost="$128,592"
             employeeCount={4}
             contractorCount={5}
@@ -622,7 +622,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       <>
         {renderTrackView()}
         {/* Submit Confirmation Modal */}
-        <CA3_SubmitConfirmationModal
+        <CA4_SubmitConfirmationModal
           open={submitModalOpen}
           onOpenChange={setSubmitModalOpen}
           onConfirm={handleConfirmSubmit}
@@ -643,7 +643,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       </div>
 
       {/* Submit Confirmation Modal */}
-      <CA3_SubmitConfirmationModal
+      <CA4_SubmitConfirmationModal
         open={submitModalOpen}
         onOpenChange={setSubmitModalOpen}
         onConfirm={handleConfirmSubmit}
@@ -655,4 +655,4 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   );
 };
 
-export default CA3_PayrollSection;
+export default CA4_PayrollSection;
