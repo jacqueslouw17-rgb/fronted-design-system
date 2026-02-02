@@ -255,6 +255,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 4,
       dataModel: null
     },
+    'flow-6-company-admin-dashboard-v4': {
+      path: "/flows/company-admin-dashboard-v4",
+      iconColor: "purple",
+      icon: UserCheck,
+      title: "Flow 6 Company Admin Dashboard v4 (Agentic)",
+      locked: false,
+      deprecated: false,
+      description: "Isolated clone of v3 with agent-first patterns and fully independent CA4_ components. Changes here do NOT affect v3.",
+      steps: "4 steps",
+      patterns: "6 patterns",
+      badges: [
+        { label: "Payroll Batch", path: "/payroll-batch" },
+        { label: "FX Review", path: "/payroll-batch" }
+      ],
+      additionalCount: 4,
+      dataModel: null
+    },
     'flow-1.1-fronted-admin-v3': {
       path: "/flows/contract-flow-multi-company-v3",
       iconColor: "cyan",
