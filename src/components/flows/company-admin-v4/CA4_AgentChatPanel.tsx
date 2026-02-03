@@ -386,6 +386,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const updateMessageContent = useCallback((messageId: string, content: string) => {
+    setMessages(prev => prev.map(m => (m.id === messageId ? { ...m, content } : m)));
+  }, []);
+
   // Stable anchoring for inline confirmation buttons.
   // If we explicitly anchored a confirmation to a specific assistant bubble, use it;
   // otherwise fall back to the latest assistant message with content.
@@ -403,6 +407,12 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (!currentSuggestedAction) return false;
     return messages.slice(-3).some(m => m.suggestedAction?.label === currentSuggestedAction.label);
   }, [messages, currentSuggestedAction]);
+
+  const canAnchorConfirmation = useMemo(() => {
+    if (!pendingAction?.awaitingConfirmation) return false;
+    if (!confirmationTargetId) return false;
+    return messages.some(m => m.id === confirmationTargetId && m.role === 'assistant' && !!m.content);
+  }, [pendingAction?.awaitingConfirmation, confirmationTargetId, messages]);
 
   // Auto-scroll to bottom when new messages arrive or confirmation buttons appear
   useEffect(() => {
@@ -428,8 +438,18 @@ export const CA4_AgentChatPanel: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // Avoid measuring while the panel is collapsed (width=0) because it can
+    // produce an exaggerated scrollHeight and make the input look stretched.
+    if (!isOpen) return;
     adjustTextareaHeight();
-  }, [input, adjustTextareaHeight]);
+  }, [input, isOpen, adjustTextareaHeight]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    // Re-measure once the open animation has progressed so wrapping is correct.
+    const t = window.setTimeout(() => adjustTextareaHeight(), 280);
+    return () => window.clearTimeout(t);
+  }, [isOpen, adjustTextareaHeight]);
 
   // Hide skeleton when both streaming starts AND minimum loading time passed
   useEffect(() => {
@@ -681,10 +701,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setIsLoading(true);
 
     // Add a "processing" message
-    setMessages(prev => [...prev, createChatMessage({ 
-      role: 'assistant', 
-      content: '' // Empty triggers skeleton
-    })]);
+    const skeletonMsg = createChatMessage({
+      role: 'assistant',
+      content: '', // Empty triggers skeleton
+    });
+    setMessages(prev => [...prev, skeletonMsg]);
 
     // Keep chat open and navigate to submissions
     setOpen(true);
@@ -723,8 +744,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
       setShowRetrieving(false);
       setIsLoading(false);
       
-      // Remove the empty skeleton message
-      setMessages(prev => prev.filter(m => m.content !== ''));
+      // Remove ONLY the skeleton message we inserted for this flow.
+      setMessages(prev => prev.filter(m => m.id !== skeletonMsg.id));
 
       if (!ok) {
         setButtonLoadingState(actionType, false);
@@ -1157,17 +1178,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
               }
               
               assistantContent += content;
-              // Update the last message with new content
-              setMessages(prev => {
-                const newMessages = [...prev];
-                if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'assistant') {
-                  newMessages[newMessages.length - 1] = {
-                    ...newMessages[newMessages.length - 1],
-                    content: assistantContent,
-                  };
-                }
-                return newMessages;
-              });
+              // Update the streaming assistant message by ID (never rely on "last message",
+              // because other UI-driven messages can be appended during orchestrations).
+              if (streamingAssistantIdRef.current) {
+                updateMessageContent(streamingAssistantIdRef.current, assistantContent);
+              }
             }
           } catch {
             // Incomplete JSON, put back and wait for more
@@ -1191,13 +1206,9 @@ export const CA4_AgentChatPanel: React.FC = () => {
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantContent += content;
-              setMessages(prev => {
-                const newMessages = [...prev];
-                if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'assistant') {
-                  newMessages[newMessages.length - 1].content = assistantContent;
-                }
-                return newMessages;
-              });
+              if (streamingAssistantIdRef.current) {
+                updateMessageContent(streamingAssistantIdRef.current, assistantContent);
+              }
             }
           } catch { /* ignore */ }
         }
@@ -1281,6 +1292,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
         !isOpen && "pointer-events-none"
       )}
     >
+      {/*
+        Keep inner panel at a fixed width so the textarea/buttons don't visually stretch
+        while the outer container animates its width.
+      */}
+      <div className="w-[420px] min-w-[420px] h-full flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
             <span className="text-sm font-medium text-foreground">Kurt</span>
@@ -1328,6 +1344,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     !!pendingAction?.awaitingConfirmation &&
                     message.role === 'assistant' &&
                     !!message.content &&
+                    canAnchorConfirmation &&
                     !!confirmationTargetId &&
                     message.id === confirmationTargetId;
                   
@@ -1343,6 +1360,30 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     />
                   );
                 })
+              )}
+
+              {/* Fallback confirmation bar (never let Yes/No disappear) */}
+              {pendingAction?.awaitingConfirmation && !canAnchorConfirmation && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="pt-2"
+                  >
+                    <div className="rounded-xl border border-border/30 bg-card/40 backdrop-blur-sm p-3 flex items-center justify-between gap-3">
+                      <p className="text-[12px] text-muted-foreground leading-relaxed">
+                        Confirm action?
+                      </p>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Button size="sm" onClick={() => handleConfirmYes()} className="h-7 px-3 text-[11px]">
+                          Yes
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleConfirmNo()} className="h-7 px-3 text-[11px]">
+                          No
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
               )}
 
               {/* Enhanced skeleton loading with cool staggered animation */}
@@ -1491,6 +1532,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
               )}
             </div>
           </div>
+      </div>
     </motion.div>
   );
 };
