@@ -845,7 +845,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
             executeCallback('mark_ready', workerId);
           } else {
             // All workers
-            WORKERS_DATA.forEach(w => {
+            workersData.forEach(w => {
               if (w.status !== 'ready') {
                 executeCallback('mark_ready', w.id);
               }
