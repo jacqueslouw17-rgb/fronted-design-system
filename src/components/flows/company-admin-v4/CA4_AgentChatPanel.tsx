@@ -858,7 +858,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
           setOpenWorkerId(undefined); // Close drawer
           
           // Check for remaining pending items to suggest next action
-          const workersWithPending = WORKERS_DATA.filter(w => w.pendingItems > 0);
+          const workersWithPending = workersData.filter(w => w.pendingItems > 0);
           let nextAction: SuggestedAction | undefined;
           let responseContent = workerId 
             ? `✓ **Done!** ${workerName} has been marked as ready for payroll.`
