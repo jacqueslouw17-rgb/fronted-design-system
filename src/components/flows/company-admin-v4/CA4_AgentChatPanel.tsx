@@ -320,6 +320,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     executeCallback,
     setProcessingItem,
     setWorkersMarkingReady,
+    setWorkersApproving,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
@@ -752,6 +753,63 @@ export const CA4_AgentChatPanel: React.FC = () => {
           setIsLoading(false);
           setShowRetrieving(false);
         }, 1800);
+        
+        return;
+      }
+      
+      // APPROVE_ALL: Execute immediately with staggered row animations
+      if (actionType === 'approve_all') {
+        // Close any open worker drawer
+        setOpenWorkerId(undefined);
+        
+        setOpen(true);
+        
+        // Navigate to submissions
+        setTimeout(() => {
+          setRequestedStep('submissions');
+        }, 300);
+        
+        // Get list of workers with pending items
+        const workersToApprove = WORKERS_DATA.filter(w => w.pendingItems > 0).map(w => w.id);
+        
+        // Start staggered approving - set all workers as "approving" state
+        setTimeout(() => {
+          setWorkersApproving(new Set(workersToApprove));
+        }, 400);
+        
+        // Execute approve for each worker with staggered delays
+        workersToApprove.forEach((wId, index) => {
+          setTimeout(() => {
+            executeCallback('approve_all', wId);
+            // Remove from approving set after this worker is done
+            setWorkersApproving(prev => {
+              const next = new Set(prev);
+              next.delete(wId);
+              return next;
+            });
+          }, 600 + index * 400); // Stagger: 600ms base + 400ms per worker
+        });
+        
+        // After all done, add success message
+        const totalTime = 600 + workersToApprove.length * 400 + 300;
+        setTimeout(() => {
+          // Suggest marking workers as ready next
+          const nextAction: SuggestedAction = {
+            type: 'mark_ready',
+            label: 'Mark all as ready',
+            description: 'All items approved - ready to finalize',
+          };
+          
+          setCurrentSuggestedAction(nextAction);
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\n**Next step:** Would you like to mark all workers as ready?`,
+            suggestedAction: nextAction,
+          }]);
+          
+          setIsLoading(false);
+          setShowRetrieving(false);
+        }, totalTime);
         
         return;
       }

@@ -54,7 +54,7 @@ interface AgentContextType extends AgentState {
   cancelPendingAction: () => void;
   // NEW: Action callbacks for UI to register
   actionCallbacks: {
-    onApproveAll?: () => void;
+    onApproveAll?: (workerId?: string) => void; // Optional workerId for per-worker approval
     onRejectAll?: (reason: string) => void;
     onMarkReady?: (workerId: string) => void;
     onSubmitPayroll?: () => void;
@@ -72,6 +72,9 @@ interface AgentContextType extends AgentState {
   // NEW: Staggered "marking ready" state for worker rows
   workersMarkingReady: Set<string>;
   setWorkersMarkingReady: React.Dispatch<React.SetStateAction<Set<string>>>;
+  // NEW: Staggered "approving" state for worker rows (pending → reviewed)
+  workersApproving: Set<string>;
+  setWorkersApproving: React.Dispatch<React.SetStateAction<Set<string>>>;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -92,6 +95,7 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>({});
   const [processingItem, setProcessingItemState] = useState<TargetedItemInfo | undefined>();
   const [workersMarkingReady, setWorkersMarkingReadyState] = useState<Set<string>>(new Set());
+  const [workersApproving, setWorkersApprovingState] = useState<Set<string>>(new Set());
 
   const setProcessingItem = useCallback((item?: TargetedItemInfo) => {
     setProcessingItemState(item);
@@ -108,7 +112,7 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     switch (actionType) {
       case 'approve_all':
         if (callbacks.onApproveAll) {
-          callbacks.onApproveAll();
+          callbacks.onApproveAll(workerId); // Pass workerId for per-worker approval
           return true;
         }
         break;
@@ -285,6 +289,8 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setProcessingItem,
         workersMarkingReady,
         setWorkersMarkingReady: setWorkersMarkingReadyState,
+        workersApproving,
+        setWorkersApproving: setWorkersApprovingState,
         toggleOpen,
         setOpen,
         addMessage,

@@ -1129,6 +1129,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     // Check if this worker is currently being marked as ready by the agent
     const isBeingMarkedReady = workersMarkingReady.has(submission.workerId);
     
+    // Check if this worker is currently having items approved by the agent
+    const isBeingApproved = workersApproving.has(submission.workerId);
     // Count pending adjustments for this worker (considering local state overrides)
     const pendingAdjustmentCount = submission.submissions.filter((adj, idx) => {
       const key = `${submission.id}-${idx}`;
@@ -1205,6 +1207,34 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           <div className="flex items-center gap-2 flex-shrink-0">
             <Loader2 className="h-4 w-4 text-primary animate-spin" />
             <span className="text-xs text-primary font-medium">Marking ready...</span>
+          </div>
+        </motion.div>
+      );
+    }
+
+    // Show loading skeleton when items are being approved
+    if (isBeingApproved) {
+      return (
+        <motion.div
+          key={submission.id}
+          layout
+          initial={{ opacity: 0.7 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-green-500/[0.06] border border-green-500/20"
+        >
+          {/* Avatar skeleton */}
+          <div className="h-7 w-7 rounded-full bg-green-500/20 animate-pulse flex-shrink-0" />
+
+          {/* Worker Info skeleton */}
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <div className="h-3.5 w-24 bg-green-500/15 rounded animate-pulse" />
+            <div className="h-2.5 w-16 bg-green-500/10 rounded animate-pulse" />
+          </div>
+
+          {/* Right side: Loading indicator */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Loader2 className="h-4 w-4 text-green-600 animate-spin" />
+            <span className="text-xs text-green-600 font-medium">Approving items...</span>
           </div>
         </motion.div>
       );
@@ -1294,7 +1324,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // (handleCloseDrawer is defined above)
 
   // Get chat panel state to position drawer correctly
-  const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction, processingItem, workersMarkingReady } = useCA4Agent();
+  const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction, processingItem, workersMarkingReady, workersApproving } = useCA4Agent();
   const chatWidth = isAgentOpen ? 420 : 0;
 
   // Global approve all pending items across ALL workers
@@ -1356,10 +1386,31 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // Register action callbacks for agent-driven orchestration
   useEffect(() => {
     registerActionCallbacks({
-      onApproveAll: () => {
-        console.log('[SubmissionsView] Agent triggered bulk approve');
-        // Use global approve to approve ALL pending items across all workers
-        handleGlobalApproveAll();
+      onApproveAll: (workerId?: string) => {
+        console.log('[SubmissionsView] Agent triggered approve all, workerId:', workerId);
+        
+        if (workerId) {
+          // Approve items for specific worker only
+          const worker = submissions.find(s => s.workerId === workerId);
+          if (!worker) return;
+          
+          worker.submissions.forEach((adj, idx) => {
+            const currentState = getAdjustmentStatus(worker.id, idx, adj.status as AdjustmentItemStatus);
+            if (currentState.status === 'pending') {
+              updateAdjustmentStatus(worker.id, idx, { status: 'approved' });
+            }
+          });
+          
+          (worker.pendingLeaves || []).forEach((leave) => {
+            const currentState = getLeaveStatus(worker.id, leave.id, leave.status);
+            if (currentState.status === 'pending') {
+              updateLeaveStatus(worker.id, leave.id, { status: 'approved' });
+            }
+          });
+        } else {
+          // Global approve all workers
+          handleGlobalApproveAll();
+        }
       },
       onRejectAll: (reason: string) => {
         console.log('[SubmissionsView] Agent triggered bulk reject');
@@ -1428,7 +1479,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         return false;
       },
     });
-  }, [submissions, registerActionCallbacks, handleGlobalApproveAll, handleGlobalRejectAll, onContinue, getAdjustmentStatus, updateAdjustmentStatus]);
+  }, [submissions, registerActionCallbacks, handleGlobalApproveAll, handleGlobalRejectAll, onContinue, getAdjustmentStatus, updateAdjustmentStatus, getLeaveStatus, updateLeaveStatus]);
 
   // Check if buttons should show loading from agent
   const isApproveAllLoading = loadingButtons['approve_all'];
