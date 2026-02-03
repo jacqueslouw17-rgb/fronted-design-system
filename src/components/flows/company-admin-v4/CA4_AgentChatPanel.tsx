@@ -956,6 +956,17 @@ export const CA4_AgentChatPanel: React.FC = () => {
           'approve_item': `I'll open ${actionIntent.workerName}'s drawer, find the ${itemTypeLabel}${amountStr}, and approve it.`,
         };
         
+        setButtonLoading(false);
+
+        // Show confirmation prompt as assistant message (and anchor Yes/No to this bubble)
+        const promptMsg = createChatMessage({
+          role: 'assistant',
+          content: `I can **${actionLabels[actionType] || 'do that'}** for you.\n\n${actionDescriptions[actionType] || ''}\n\n**Do you want to proceed?**`,
+        });
+        setMessages(prev => [...prev, promptMsg]);
+        setConfirmationAnchorId(promptMsg.id);
+
+        // Now arm the pending action (so the UI doesn't briefly attach buttons to an older bubble)
         setPendingAction({
           type: actionType,
           workerId: actionIntent.workerId,
@@ -963,16 +974,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
           awaitingConfirmation: true,
           targetedItem: actionIntent.targetedItem,
         });
-        
-        setButtonLoading(false);
-        
-        // Show confirmation prompt as assistant message
-        const promptMsg = createChatMessage({
-          role: 'assistant',
-          content: `I can **${actionLabels[actionType] || 'do that'}** for you.\n\n${actionDescriptions[actionType] || ''}\n\n**Do you want to proceed?**`,
-        });
-        setMessages(prev => [...prev, promptMsg]);
-        setConfirmationAnchorId(promptMsg.id);
         
         setIsLoading(false);
         setShowRetrieving(false);
