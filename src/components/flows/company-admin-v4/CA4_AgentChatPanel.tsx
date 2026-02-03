@@ -405,6 +405,19 @@ export const CA4_AgentChatPanel: React.FC = () => {
     return messages.slice(-3).some(m => m.suggestedAction?.label === currentSuggestedAction.label);
   }, [messages, currentSuggestedAction]);
 
+  // Compute dynamic worker data based on finalizedWorkerIds from context
+  const workersData = useMemo(() => {
+    return WORKERS_DATA.map(w => ({
+      ...w,
+      status: finalizedWorkerIds.has(w.id) ? 'ready' : w.status,
+    }));
+  }, [finalizedWorkerIds]);
+
+  // Check if all workers are ready
+  const allWorkersReady = useMemo(() => {
+    return workersData.every(w => w.status === 'ready');
+  }, [workersData]);
+
   // Auto-scroll to bottom when new messages arrive or confirmation buttons appear
   useEffect(() => {
     if (scrollRef.current) {
