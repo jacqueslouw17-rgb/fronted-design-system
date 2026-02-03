@@ -408,6 +408,12 @@ export const CA4_AgentChatPanel: React.FC = () => {
     return messages.slice(-3).some(m => m.suggestedAction?.label === currentSuggestedAction.label);
   }, [messages, currentSuggestedAction]);
 
+  const canAnchorConfirmation = useMemo(() => {
+    if (!pendingAction?.awaitingConfirmation) return false;
+    if (!confirmationTargetId) return false;
+    return messages.some(m => m.id === confirmationTargetId && m.role === 'assistant' && !!m.content);
+  }, [pendingAction?.awaitingConfirmation, confirmationTargetId, messages]);
+
   // Auto-scroll to bottom when new messages arrive or confirmation buttons appear
   useEffect(() => {
     if (scrollRef.current) {
@@ -1331,13 +1337,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 </div>
               ) : (
                 messages.map((message) => {
-                  const targetId = confirmationAnchorId ?? lastAssistantId;
-
-                  const canAnchorConfirmation =
-                    !!pendingAction?.awaitingConfirmation &&
-                    !!targetId &&
-                    messages.some(m => m.id === targetId && m.role === 'assistant' && !!m.content);
-
                   // Show confirmation buttons inline on the latest assistant bubble whenever a
                   // confirmation is pending (covers both Kurt-generated "Would you like..." and
                   // our own "Do you want to proceed?" prompts).
@@ -1345,9 +1344,9 @@ export const CA4_AgentChatPanel: React.FC = () => {
                     !!pendingAction?.awaitingConfirmation &&
                     message.role === 'assistant' &&
                     !!message.content &&
-                    !!targetId &&
                     canAnchorConfirmation &&
-                    message.id === targetId;
+                    !!confirmationTargetId &&
+                    message.id === confirmationTargetId;
                   
                   return (
                     <MessageBubble
@@ -1364,13 +1363,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
               )}
 
               {/* Fallback confirmation bar (never let Yes/No disappear) */}
-              {pendingAction?.awaitingConfirmation && (() => {
-                const targetId = confirmationAnchorId ?? lastAssistantId;
-                const canAnchor =
-                  !!targetId &&
-                  messages.some(m => m.id === targetId && m.role === 'assistant' && !!m.content);
-                if (canAnchor) return null;
-                return (
+              {pendingAction?.awaitingConfirmation && !canAnchorConfirmation && (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1391,8 +1384,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
                       </div>
                     </div>
                   </motion.div>
-                );
-              })()}
+              )}
 
               {/* Enhanced skeleton loading with cool staggered animation */}
               {showRetrieving && (
