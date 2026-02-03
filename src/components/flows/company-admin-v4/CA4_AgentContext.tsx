@@ -75,6 +75,9 @@ interface AgentContextType extends AgentState {
   // NEW: Staggered "approving" state for worker rows (pending → reviewed)
   workersApproving: Set<string>;
   setWorkersApproving: React.Dispatch<React.SetStateAction<Set<string>>>;
+  // NEW: Track finalized (ready) workers for button gating
+  finalizedWorkerIds: Set<string>;
+  addFinalizedWorker: (workerId: string) => void;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
