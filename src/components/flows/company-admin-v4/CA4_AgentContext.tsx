@@ -99,6 +99,11 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [processingItem, setProcessingItemState] = useState<TargetedItemInfo | undefined>();
   const [workersMarkingReady, setWorkersMarkingReadyState] = useState<Set<string>>(new Set());
   const [workersApproving, setWorkersApprovingState] = useState<Set<string>>(new Set());
+  const [finalizedWorkerIds, setFinalizedWorkerIds] = useState<Set<string>>(new Set());
+
+  const addFinalizedWorker = useCallback((workerId: string) => {
+    setFinalizedWorkerIds(prev => new Set(prev).add(workerId));
+  }, []);
 
   const setProcessingItem = useCallback((item?: TargetedItemInfo) => {
     setProcessingItemState(item);
