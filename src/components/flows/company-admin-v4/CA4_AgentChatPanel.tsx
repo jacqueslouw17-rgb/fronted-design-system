@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowUp, X, Square, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
@@ -347,20 +347,24 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const [showRetrieving, setShowRetrieving] = useState(false);
   const [minLoadingComplete, setMinLoadingComplete] = useState(false);
   const [currentSuggestedAction, setCurrentSuggestedAction] = useState<SuggestedAction | undefined>();
+  const [confirmationAnchorId, setConfirmationAnchorId] = useState<string | undefined>();
   const abortControllerRef = useRef<AbortController | null>(null);
+  const streamingAssistantIdRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Index of the last *visible* assistant message.
-  // Used to anchor inline Yes/No buttons to the correct bubble even if a user message
-  // is appended afterwards (e.g. recording a click as "Yes").
-  const lastAssistantIndex = (() => {
+  // Stable anchoring for inline confirmation buttons.
+  // If we explicitly anchored a confirmation to a specific assistant bubble, use it;
+  // otherwise fall back to the latest assistant message with content.
+  const lastAssistantId = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
-      if (m?.role === 'assistant' && !!m.content) return i;
+      if (m?.role === 'assistant' && !!m.content) return m.id;
     }
-    return -1;
-  })();
+    return undefined;
+  }, [messages]);
+
+  const confirmationTargetId = confirmationAnchorId ?? lastAssistantId;
 
   // Auto-scroll to bottom when new messages arrive or confirmation buttons appear
   useEffect(() => {
@@ -495,6 +499,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setButtonLoadingState(pendingAction.type, false);
     setButtonLoading(false);
     cancelPendingAction();
+    setConfirmationAnchorId(undefined);
 
     // Persist history: record the user's response + Kurt's response.
     setMessages(prev => [
@@ -520,6 +525,65 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
     // Prevent double submit - clear pending action state
     setPendingAction(undefined);
+    setConfirmationAnchorId(undefined);
+
+    // SPECIAL FLOW: "Approve all" bulk sequence - run staggered row animations
+    if (actionType === 'approve_all' && !workerId) {
+      // Close any open worker drawer
+      setOpenWorkerId(undefined);
+
+      // Keep chat open during the sequence
+      setOpen(true);
+
+      // Navigate to submissions
+      setTimeout(() => {
+        setRequestedStep('submissions');
+      }, 300);
+
+      const workersToApprove = WORKERS_DATA.filter(w => w.pendingItems > 0).map(w => w.id);
+
+      // Start staggered approving - set all workers as "approving" state
+      setTimeout(() => {
+        setWorkersApproving(new Set(workersToApprove));
+      }, 400);
+
+      // Execute approve for each worker with staggered delays
+      workersToApprove.forEach((wId, index) => {
+        setTimeout(() => {
+          executeCallback('approve_all', wId);
+          setWorkersApproving(prev => {
+            const next = new Set(prev);
+            next.delete(wId);
+            return next;
+          });
+        }, 600 + index * 400);
+      });
+
+      const totalTime = 600 + workersToApprove.length * 400 + 300;
+      setTimeout(() => {
+        const nextAction: SuggestedAction = {
+          type: 'mark_ready',
+          label: 'Mark all as ready',
+          description: 'All items approved - ready to finalize',
+        };
+
+        const doneMsg = createChatMessage({
+          role: 'assistant',
+          content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\n**Next step:** Would you like to mark all workers as ready?`,
+          suggestedAction: nextAction,
+        });
+
+        setMessages(prev => [...prev, doneMsg]);
+        setCurrentSuggestedAction(nextAction);
+        // Wire the question to real inline Yes/No
+        setPendingAction({ type: 'mark_ready', awaitingConfirmation: true });
+        setConfirmationAnchorId(doneMsg.id);
+        setIsLoading(false);
+        setShowRetrieving(false);
+      }, totalTime);
+
+      return;
+    }
 
     // SPECIAL FLOW: "Mark all as ready" - close panel, show staggered row animations
     if (actionType === 'mark_ready' && !workerId) {
@@ -759,13 +823,26 @@ export const CA4_AgentChatPanel: React.FC = () => {
             };
             responseContent += `\n\n**Next:** All workers are ready! Would you like to continue to submit?`;
           }
-          
+
           setCurrentSuggestedAction(nextAction);
-          setMessages(prev => [...prev, createChatMessage({ 
-            role: 'assistant', 
+
+          const nextMsg = createChatMessage({
+            role: 'assistant',
             content: responseContent,
             suggestedAction: nextAction,
-          })]);
+          });
+          setMessages(prev => [...prev, nextMsg]);
+
+          // If we asked a yes/no question as the next step, wire it to pendingAction so
+          // contextual buttons render (instead of leaving a dead-ended question).
+          if (nextAction?.type === 'approve_all') {
+            setPendingAction({ type: 'approve_all', awaitingConfirmation: true });
+            setConfirmationAnchorId(nextMsg.id);
+          }
+          if (nextAction?.type === 'submit_payroll') {
+            setPendingAction({ type: 'submit_payroll', awaitingConfirmation: true });
+            setConfirmationAnchorId(nextMsg.id);
+          }
           
           setIsLoading(false);
           setShowRetrieving(false);
@@ -816,13 +893,18 @@ export const CA4_AgentChatPanel: React.FC = () => {
             label: 'Mark all as ready',
             description: 'All items approved - ready to finalize',
           };
-          
+
           setCurrentSuggestedAction(nextAction);
-          setMessages(prev => [...prev, createChatMessage({
+          const doneMsg = createChatMessage({
             role: 'assistant',
             content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\n**Next step:** Would you like to mark all workers as ready?`,
             suggestedAction: nextAction,
-          })]);
+          });
+          setMessages(prev => [...prev, doneMsg]);
+
+          // Wire follow-up question to contextual Yes/No buttons.
+          setPendingAction({ type: 'mark_ready', awaitingConfirmation: true });
+          setConfirmationAnchorId(doneMsg.id);
           
           setIsLoading(false);
           setShowRetrieving(false);
@@ -887,10 +969,12 @@ export const CA4_AgentChatPanel: React.FC = () => {
         setButtonLoading(false);
         
         // Show confirmation prompt as assistant message
-        setMessages(prev => [...prev, createChatMessage({ 
-          role: 'assistant', 
-          content: `I can **${actionLabels[actionType] || 'do that'}** for you.\n\n${actionDescriptions[actionType] || ''}\n\n**Do you want to proceed?**`
-        })]);
+        const promptMsg = createChatMessage({
+          role: 'assistant',
+          content: `I can **${actionLabels[actionType] || 'do that'}** for you.\n\n${actionDescriptions[actionType] || ''}\n\n**Do you want to proceed?**`,
+        });
+        setMessages(prev => [...prev, promptMsg]);
+        setConfirmationAnchorId(promptMsg.id);
         
         setIsLoading(false);
         setShowRetrieving(false);
@@ -998,7 +1082,9 @@ export const CA4_AgentChatPanel: React.FC = () => {
       let firstTokenReceived = false;
 
       // Add empty assistant message that we'll update
-      setMessages(prev => [...prev, createChatMessage({ role: 'assistant', content: '' })]);
+      const streamingMsg = createChatMessage({ role: 'assistant', content: '' });
+      streamingAssistantIdRef.current = streamingMsg.id;
+      setMessages(prev => [...prev, streamingMsg]);
 
       while (!streamDone) {
         const { done, value } = await reader.read();
@@ -1099,6 +1185,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
               awaitingConfirmation: true,
               targetedItem: inferred.targetedItem,
             });
+            setConfirmationAnchorId(streamingAssistantIdRef.current || undefined);
           }
         }
       }
@@ -1135,15 +1222,16 @@ export const CA4_AgentChatPanel: React.FC = () => {
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 420, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          className="h-full bg-background flex flex-col overflow-hidden border-l border-border/30 relative z-[60]"
-        >
+    <motion.div
+      initial={false}
+      animate={{ width: isOpen ? 420 : 0, opacity: isOpen ? 1 : 0 }}
+      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      aria-hidden={!isOpen}
+      className={cn(
+        "h-full bg-background flex flex-col overflow-hidden border-l border-border/30 relative z-[60]",
+        !isOpen && "pointer-events-none"
+      )}
+    >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
             <span className="text-sm font-medium text-foreground">Kurt</span>
@@ -1183,24 +1271,26 @@ export const CA4_AgentChatPanel: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                messages.map((message, index) => {
+                messages.map((message) => {
                   // Show confirmation buttons inline on the latest assistant bubble whenever a
                   // confirmation is pending (covers both Kurt-generated "Would you like..." and
                   // our own "Do you want to proceed?" prompts).
                   const showConfirmation =
                     !!pendingAction?.awaitingConfirmation &&
-                    index === lastAssistantIndex &&
                     message.role === 'assistant' &&
-                    !!message.content;
+                    !!message.content &&
+                    !!confirmationTargetId &&
+                    message.id === confirmationTargetId;
                   
                   return (
                     <MessageBubble
-                      key={index}
+                      key={message.id}
                       message={message}
-                      isStreaming={isStreaming && index === messages.length - 1 && message.role === 'assistant'}
+                      isStreaming={isStreaming && message.id === streamingAssistantIdRef.current && message.role === 'assistant'}
                       isConfirmationMessage={showConfirmation}
                       onConfirmYes={showConfirmation ? () => handleConfirmYes() : undefined}
                       onConfirmNo={showConfirmation ? () => handleConfirmNo() : undefined}
+                      onSuggestedAction={executeSuggestedAction}
                     />
                   );
                 })
@@ -1274,24 +1364,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 </motion.div>
               )}
 
-              {/* Suggested next action button */}
-              {currentSuggestedAction && !pendingAction?.awaitingConfirmation && !isLoading && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="pt-2"
-                >
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => executeSuggestedAction(currentSuggestedAction)}
-                    className="text-xs h-8 gap-1.5"
-                  >
-                    {currentSuggestedAction.label}
-                  </Button>
-                </motion.div>
-              )}
+              {/* Suggested actions are rendered inline inside assistant bubbles (MessageBubble) */}
 
               {/* Navigation status */}
               {isNavigating && (
@@ -1349,9 +1422,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
               )}
             </div>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </motion.div>
   );
 };
 
@@ -1362,7 +1433,8 @@ const MessageBubble: React.FC<{
   isConfirmationMessage?: boolean;
   onConfirmYes?: () => void;
   onConfirmNo?: () => void;
-}> = ({ message, isStreaming, isConfirmationMessage, onConfirmYes, onConfirmNo }) => {
+  onSuggestedAction?: (action: SuggestedAction) => void;
+}> = ({ message, isStreaming, isConfirmationMessage, onConfirmYes, onConfirmNo, onSuggestedAction }) => {
   const isUser = message.role === 'user';
 
   if (isUser) {
@@ -1412,6 +1484,20 @@ const MessageBubble: React.FC<{
       </ReactMarkdown>
       {isStreaming && (
         <span className="inline-block w-1.5 h-3.5 bg-foreground/50 animate-pulse ml-0.5 rounded-sm" />
+      )}
+
+      {/* Inline suggested next action (keeps buttons contextual to the message) */}
+      {!isConfirmationMessage && message.suggestedAction && onSuggestedAction && (
+        <div className="mt-3">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onSuggestedAction(message.suggestedAction!)}
+            className="h-8 px-3 text-[11px] justify-start hover:bg-primary/10 hover:text-primary"
+          >
+            {message.suggestedAction.label}
+          </Button>
+        </div>
       )}
       
       {/* Inline confirmation buttons - contextual to the question */}
