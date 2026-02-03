@@ -299,6 +299,8 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setWorkersMarkingReady: setWorkersMarkingReadyState,
         workersApproving,
         setWorkersApproving: setWorkersApprovingState,
+        finalizedWorkerIds,
+        addFinalizedWorker,
         toggleOpen,
         setOpen,
         addMessage,
