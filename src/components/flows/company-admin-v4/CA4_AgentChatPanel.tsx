@@ -492,7 +492,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
   // Complete an action and show next suggestion (optionally trigger follow-up for item approval)
   const completeAction = useCallback((actionType: PendingActionType, workerId?: string, workerName?: string) => {
     // Get the next suggested action
-    let nextAction = getNextSuggestedAction(actionType, workerId);
+    let nextAction = getNextSuggestedAction(actionType, workerId, workersData);
     
     // Update button states
     setButtonLoadingState(actionType, false);
