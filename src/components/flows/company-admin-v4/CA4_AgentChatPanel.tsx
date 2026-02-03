@@ -304,15 +304,11 @@ function detectActionIntent(query: string): ActionIntent {
 }
 
 // Generate the next suggested action based on current state
-function getNextSuggestedAction(
-  completedAction: PendingActionType, 
-  workerId?: string,
-  workersData: typeof WORKERS_DATA = WORKERS_DATA
-): SuggestedAction | undefined {
+function getNextSuggestedAction(completedAction: PendingActionType, workerId?: string): SuggestedAction | undefined {
   switch (completedAction) {
     case 'approve_all':
       // After approving all, suggest marking workers as ready
-      const workersToMark = workersData.filter(w => w.status !== 'ready');
+      const workersToMark = WORKERS_DATA.filter(w => w.status !== 'ready');
       if (workersToMark.length > 0) {
         return {
           type: 'mark_ready',
@@ -324,7 +320,7 @@ function getNextSuggestedAction(
       
     case 'mark_ready':
       // After marking ready, check if all workers are ready → suggest submit
-      const remainingWorkers = workersData.filter(w => w.status !== 'ready');
+      const remainingWorkers = WORKERS_DATA.filter(w => w.status !== 'ready');
       if (remainingWorkers.length === 0 || remainingWorkers.length <= 1) {
         return {
           type: 'submit_payroll',
@@ -375,7 +371,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setProcessingItem,
     setWorkersMarkingReady,
     setWorkersApproving,
-    finalizedWorkerIds,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
@@ -408,19 +403,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (!currentSuggestedAction) return false;
     return messages.slice(-3).some(m => m.suggestedAction?.label === currentSuggestedAction.label);
   }, [messages, currentSuggestedAction]);
-
-  // Compute dynamic worker data based on finalizedWorkerIds from context
-  const workersData = useMemo(() => {
-    return WORKERS_DATA.map(w => ({
-      ...w,
-      status: finalizedWorkerIds.has(w.id) ? 'ready' : w.status,
-    }));
-  }, [finalizedWorkerIds]);
-
-  // Check if all workers are ready
-  const allWorkersReady = useMemo(() => {
-    return workersData.every(w => w.status === 'ready');
-  }, [workersData]);
 
   // Auto-scroll to bottom when new messages arrive or confirmation buttons appear
   useEffect(() => {
@@ -492,7 +474,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
   // Complete an action and show next suggestion (optionally trigger follow-up for item approval)
   const completeAction = useCallback((actionType: PendingActionType, workerId?: string, workerName?: string) => {
     // Get the next suggested action
-    let nextAction = getNextSuggestedAction(actionType, workerId, workersData);
+    let nextAction = getNextSuggestedAction(actionType, workerId);
     
     // Update button states
     setButtonLoadingState(actionType, false);
@@ -547,7 +529,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     
     setIsLoading(false);
     setShowRetrieving(false);
-  }, [setButtonLoading, setButtonLoadingState, setPendingAction, workersData]);
+  }, [setButtonLoading, setButtonLoadingState, setPendingAction]);
 
   const handleConfirmNo = useCallback((userResponse: string = 'No') => {
     if (!pendingAction) return;
@@ -596,7 +578,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         setRequestedStep('submissions');
       }, 300);
 
-      const workersToApprove = workersData.filter(w => w.pendingItems > 0).map(w => w.id);
+      const workersToApprove = WORKERS_DATA.filter(w => w.pendingItems > 0).map(w => w.id);
 
       // Start staggered approving - set all workers as "approving" state
       setTimeout(() => {
@@ -650,7 +632,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       setRequestedStep('submissions');
       
       // Get list of workers not yet ready
-      const workersToMark = workersData.filter(w => w.status !== 'ready').map(w => w.id);
+      const workersToMark = WORKERS_DATA.filter(w => w.status !== 'ready').map(w => w.id);
       
       // Start staggered marking - set all workers as "marking" state
       setTimeout(() => {
@@ -845,7 +827,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
             executeCallback('mark_ready', workerId);
           } else {
             // All workers
-            workersData.forEach(w => {
+            WORKERS_DATA.forEach(w => {
               if (w.status !== 'ready') {
                 executeCallback('mark_ready', w.id);
               }
@@ -858,7 +840,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
           setOpenWorkerId(undefined); // Close drawer
           
           // Check for remaining pending items to suggest next action
-          const workersWithPending = workersData.filter(w => w.pendingItems > 0);
+          const workersWithPending = WORKERS_DATA.filter(w => w.pendingItems > 0);
           let nextAction: SuggestedAction | undefined;
           let responseContent = workerId 
             ? `✓ **Done!** ${workerName} has been marked as ready for payroll.`
@@ -920,7 +902,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         }, 300);
         
         // Get list of workers with pending items
-        const workersToApprove = workersData.filter(w => w.pendingItems > 0).map(w => w.id);
+        const workersToApprove = WORKERS_DATA.filter(w => w.pendingItems > 0).map(w => w.id);
         
         // Start staggered approving - set all workers as "approving" state
         setTimeout(() => {

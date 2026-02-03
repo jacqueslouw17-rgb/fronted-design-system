@@ -1324,7 +1324,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // (handleCloseDrawer is defined above)
 
   // Get chat panel state to position drawer correctly
-  const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction, processingItem, workersMarkingReady, workersApproving, addFinalizedWorker } = useCA4Agent();
+  const { isOpen: isAgentOpen, registerActionCallbacks, loadingButtons, pendingAction, processingItem, workersMarkingReady, workersApproving } = useCA4Agent();
   const chatWidth = isAgentOpen ? 420 : 0;
 
   // Global approve all pending items across ALL workers
@@ -1436,7 +1436,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           });
 
           setFinalizedWorkers(prev => new Set(prev).add(worker.id));
-          addFinalizedWorker(workerId); // Sync to agent context for chat panel
           toast.success(`${worker.workerName} marked as ready`);
         }
       },

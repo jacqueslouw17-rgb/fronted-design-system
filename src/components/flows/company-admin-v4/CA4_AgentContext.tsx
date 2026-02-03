@@ -75,9 +75,6 @@ interface AgentContextType extends AgentState {
   // NEW: Staggered "approving" state for worker rows (pending → reviewed)
   workersApproving: Set<string>;
   setWorkersApproving: React.Dispatch<React.SetStateAction<Set<string>>>;
-  // NEW: Track finalized (ready) workers for button gating
-  finalizedWorkerIds: Set<string>;
-  addFinalizedWorker: (workerId: string) => void;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -99,11 +96,6 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [processingItem, setProcessingItemState] = useState<TargetedItemInfo | undefined>();
   const [workersMarkingReady, setWorkersMarkingReadyState] = useState<Set<string>>(new Set());
   const [workersApproving, setWorkersApprovingState] = useState<Set<string>>(new Set());
-  const [finalizedWorkerIds, setFinalizedWorkerIds] = useState<Set<string>>(new Set());
-
-  const addFinalizedWorker = useCallback((workerId: string) => {
-    setFinalizedWorkerIds(prev => new Set(prev).add(workerId));
-  }, []);
 
   const setProcessingItem = useCallback((item?: TargetedItemInfo) => {
     setProcessingItemState(item);
@@ -299,8 +291,6 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setWorkersMarkingReady: setWorkersMarkingReadyState,
         workersApproving,
         setWorkersApproving: setWorkersApprovingState,
-        finalizedWorkerIds,
-        addFinalizedWorker,
         toggleOpen,
         setOpen,
         addMessage,
