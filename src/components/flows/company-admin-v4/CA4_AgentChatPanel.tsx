@@ -596,7 +596,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         setRequestedStep('submissions');
       }, 300);
 
-      const workersToApprove = WORKERS_DATA.filter(w => w.pendingItems > 0).map(w => w.id);
+      const workersToApprove = workersData.filter(w => w.pendingItems > 0).map(w => w.id);
 
       // Start staggered approving - set all workers as "approving" state
       setTimeout(() => {
