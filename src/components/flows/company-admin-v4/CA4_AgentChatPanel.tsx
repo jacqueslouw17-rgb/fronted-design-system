@@ -371,6 +371,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setProcessingItem,
     setWorkersMarkingReady,
     setWorkersApproving,
+    finalizedWorkerIds,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
