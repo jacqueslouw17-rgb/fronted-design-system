@@ -304,11 +304,15 @@ function detectActionIntent(query: string): ActionIntent {
 }
 
 // Generate the next suggested action based on current state
-function getNextSuggestedAction(completedAction: PendingActionType, workerId?: string): SuggestedAction | undefined {
+function getNextSuggestedAction(
+  completedAction: PendingActionType, 
+  workerId?: string,
+  workersData: typeof WORKERS_DATA = WORKERS_DATA
+): SuggestedAction | undefined {
   switch (completedAction) {
     case 'approve_all':
       // After approving all, suggest marking workers as ready
-      const workersToMark = WORKERS_DATA.filter(w => w.status !== 'ready');
+      const workersToMark = workersData.filter(w => w.status !== 'ready');
       if (workersToMark.length > 0) {
         return {
           type: 'mark_ready',
@@ -320,7 +324,7 @@ function getNextSuggestedAction(completedAction: PendingActionType, workerId?: s
       
     case 'mark_ready':
       // After marking ready, check if all workers are ready → suggest submit
-      const remainingWorkers = WORKERS_DATA.filter(w => w.status !== 'ready');
+      const remainingWorkers = workersData.filter(w => w.status !== 'ready');
       if (remainingWorkers.length === 0 || remainingWorkers.length <= 1) {
         return {
           type: 'submit_payroll',
