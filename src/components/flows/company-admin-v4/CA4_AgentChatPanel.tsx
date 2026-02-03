@@ -4,7 +4,6 @@ import { ArrowUp, X, Square, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 import { useCA4Agent, PendingActionType, TargetedItemInfo } from './CA4_AgentContext';
-import { AgentMessage, AgentAction } from './CA4_AgentTypes';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
@@ -331,7 +330,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setButtonLoading,
     pendingAction,
     setPendingAction,
-    confirmPendingAction,
     cancelPendingAction,
     setButtonLoadingState,
     executeCallback,
