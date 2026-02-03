@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowUp, X, Square, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
-import { useCA4Agent, PendingActionType, TargetedItemInfo } from '@/components/flows/company-admin-v4/CA4_AgentContext';
+import { useCA4Agent, PendingActionType, TargetedItemInfo } from './CA4_AgentContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
