@@ -399,6 +399,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
   const confirmationTargetId = confirmationAnchorId ?? lastAssistantId;
 
+  const suggestionAlreadyRendered = useMemo(() => {
+    if (!currentSuggestedAction) return false;
+    return messages.slice(-3).some(m => m.suggestedAction?.label === currentSuggestedAction.label);
+  }, [messages, currentSuggestedAction]);
+
   // Auto-scroll to bottom when new messages arrive or confirmation buttons appear
   useEffect(() => {
     if (scrollRef.current) {
@@ -1221,6 +1226,16 @@ export const CA4_AgentChatPanel: React.FC = () => {
             });
             setConfirmationAnchorId(streamingAssistantIdRef.current || undefined);
           }
+
+          // If Kurt asked a simple Yes/No follow-up (approve all / mark ready / submit),
+          // convert it into a real contextual confirmation.
+          if (!inferred) {
+            const inferredYesNo = inferYesNoActionFromAssistant(assistantContent);
+            if (inferredYesNo) {
+              setPendingAction({ type: inferredYesNo, awaitingConfirmation: true });
+              setConfirmationAnchorId(streamingAssistantIdRef.current || undefined);
+            }
+          }
         }
       }
 
@@ -1398,7 +1413,27 @@ export const CA4_AgentChatPanel: React.FC = () => {
                 </motion.div>
               )}
 
-              {/* Suggested actions are rendered inline inside assistant bubbles (MessageBubble) */}
+              {/* Suggested next action button (fallback in case a message didn't carry suggestedAction) */}
+              {currentSuggestedAction &&
+                !pendingAction?.awaitingConfirmation &&
+                !isLoading &&
+                !suggestionAlreadyRendered && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="pt-2"
+                  >
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => executeSuggestedAction(currentSuggestedAction)}
+                      className="text-[11px] h-8 gap-1.5 hover:bg-primary/10 hover:text-primary"
+                    >
+                      {currentSuggestedAction.label}
+                    </Button>
+                  </motion.div>
+                )}
 
               {/* Navigation status */}
               {isNavigating && (
