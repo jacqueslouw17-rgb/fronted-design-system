@@ -43,10 +43,27 @@ const WORKERS_DATA = [
 ];
 
 interface ChatMessage {
+  id: string;
   role: 'user' | 'assistant';
   content: string;
   suggestedAction?: SuggestedAction;
 }
+
+const makeChatId = () => {
+  try {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID();
+    }
+  } catch {
+    // ignore
+  }
+  return `chat-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+};
+
+const createChatMessage = (msg: Omit<ChatMessage, 'id'>): ChatMessage => ({
+  id: makeChatId(),
+  ...msg,
+});
 
 // Suggested next action for proactive flow
 interface SuggestedAction {
@@ -462,11 +479,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setCurrentSuggestedAction(nextAction);
     setPendingAction(undefined);
     
-    setMessages(prev => [...prev, { 
+    setMessages(prev => [...prev, createChatMessage({ 
       role: 'assistant', 
       content: responseContent,
       suggestedAction: nextAction,
-    }]);
+    })]);
     
     setIsLoading(false);
     setShowRetrieving(false);
@@ -482,11 +499,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
     // Persist history: record the user's response + Kurt's response.
     setMessages(prev => [
       ...prev,
-      { role: 'user', content: userResponse },
-      {
+      createChatMessage({ role: 'user', content: userResponse }),
+      createChatMessage({
         role: 'assistant',
         content: "No problem. Let me know what you'd like to do instead.",
-      },
+      }),
     ]);
   }, [pendingAction, setButtonLoadingState, setButtonLoading, cancelPendingAction]);
 
@@ -499,7 +516,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     const targetedItem = pendingAction.targetedItem;
 
     // Persist history: record the user's response.
-    setMessages(prev => [...prev, { role: 'user', content: userResponse }]);
+    setMessages(prev => [...prev, createChatMessage({ role: 'user', content: userResponse })]);
 
     // Prevent double submit - clear pending action state
     setPendingAction(undefined);
@@ -536,7 +553,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       // After all done, add success message and reopen chat
       const totalTime = 500 + workersToMark.length * 400 + 300;
       setTimeout(() => {
-        setMessages(prev => [...prev, {
+        setMessages(prev => [...prev, createChatMessage({
           role: 'assistant',
           content: `✓ **Done!** Marked ${workersToMark.length} worker${workersToMark.length !== 1 ? 's' : ''} as ready.\n\n**Next step:** You can now submit the payroll.`,
           suggestedAction: {
@@ -544,7 +561,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
             label: 'Continue to submit',
             description: 'All workers are ready for payroll',
           },
-        }]);
+        })]);
         setCurrentSuggestedAction({
           type: 'submit_payroll',
           label: 'Continue to submit',
@@ -562,10 +579,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setIsLoading(true);
 
     // Add a "processing" message
-    setMessages(prev => [...prev, { 
+    setMessages(prev => [...prev, createChatMessage({ 
       role: 'assistant', 
       content: '' // Empty triggers skeleton
-    }]);
+    })]);
 
     // Keep chat open and navigate to submissions
     setOpen(true);
@@ -611,10 +628,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
         setButtonLoadingState(actionType, false);
         setButtonLoading(false);
         setProcessingItem(undefined);
-        setMessages(prev => [...prev, {
+        setMessages(prev => [...prev, createChatMessage({
           role: 'assistant',
           content: `I couldn't find a matching **pending** item to approve for **${workerName || 'that worker'}**. The item may already be approved or the details don't match.`,
-        }]);
+        })]);
         return;
       }
 
@@ -654,7 +671,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
     if (isLoading) return;
 
-    const userMessage: ChatMessage = { role: 'user', content: query };
+    const userMessage: ChatMessage = createChatMessage({ role: 'user', content: query });
     // Use functional update to always append to current state (avoids stale closure)
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -744,11 +761,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
           }
           
           setCurrentSuggestedAction(nextAction);
-          setMessages(prev => [...prev, { 
+          setMessages(prev => [...prev, createChatMessage({ 
             role: 'assistant', 
             content: responseContent,
             suggestedAction: nextAction,
-          }]);
+          })]);
           
           setIsLoading(false);
           setShowRetrieving(false);
@@ -801,11 +818,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
           };
           
           setCurrentSuggestedAction(nextAction);
-          setMessages(prev => [...prev, {
+          setMessages(prev => [...prev, createChatMessage({
             role: 'assistant',
             content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\n**Next step:** Would you like to mark all workers as ready?`,
             suggestedAction: nextAction,
-          }]);
+          })]);
           
           setIsLoading(false);
           setShowRetrieving(false);
@@ -870,10 +887,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
         setButtonLoading(false);
         
         // Show confirmation prompt as assistant message
-        setMessages(prev => [...prev, { 
+        setMessages(prev => [...prev, createChatMessage({ 
           role: 'assistant', 
           content: `I can **${actionLabels[actionType] || 'do that'}** for you.\n\n${actionDescriptions[actionType] || ''}\n\n**Do you want to proceed?**`
-        }]);
+        })]);
         
         setIsLoading(false);
         setShowRetrieving(false);
@@ -949,7 +966,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         if (resp.status === 429) {
           setMessages(prev => [
             ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
-            { role: 'assistant', content: "I'm a bit busy right now. Please try again in a moment! 🙏" }
+            createChatMessage({ role: 'assistant', content: "I'm a bit busy right now. Please try again in a moment! 🙏" })
           ]);
           setIsLoading(false);
           setShowRetrieving(false);
@@ -959,7 +976,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         if (resp.status === 402) {
           setMessages(prev => [
             ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
-            { role: 'assistant', content: "AI credits are temporarily exhausted. Please try again later." }
+            createChatMessage({ role: 'assistant', content: "AI credits are temporarily exhausted. Please try again later." })
           ]);
           setIsLoading(false);
           setShowRetrieving(false);
@@ -981,7 +998,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       let firstTokenReceived = false;
 
       // Add empty assistant message that we'll update
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+      setMessages(prev => [...prev, createChatMessage({ role: 'assistant', content: '' })]);
 
       while (!streamDone) {
         const { done, value } = await reader.read();
@@ -1100,7 +1117,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         
       setMessages(prev => [
         ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
-        { role: 'assistant', content: friendlyMessage }
+        createChatMessage({ role: 'assistant', content: friendlyMessage })
       ]);
     } finally {
       setIsLoading(false);
