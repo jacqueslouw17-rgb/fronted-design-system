@@ -388,22 +388,26 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setShowRetrieving(false);
   };
 
-  // Execute a suggested action
+  // Execute a suggested action - triggers handleSubmit which records the message
   const executeSuggestedAction = useCallback((action: SuggestedAction) => {
     // Clear the current suggestion
     setCurrentSuggestedAction(undefined);
     
-    // Simulate user confirming via input
+    // Build user message from button action
+    let userMessage = '';
     if (action.type === 'mark_ready') {
-      if (action.workerId) {
-        handleSubmit(`Mark ${action.workerName} as ready`);
-      } else {
-        handleSubmit('Mark all workers as ready');
-      }
+      userMessage = action.workerId 
+        ? `Mark ${action.workerName} as ready` 
+        : 'Mark all workers as ready';
     } else if (action.type === 'submit_payroll') {
-      handleSubmit('Continue to submit payroll');
+      userMessage = 'Continue to submit payroll';
     } else if (action.type === 'approve_all') {
-      handleSubmit('Approve all pending items');
+      userMessage = 'Approve all pending items';
+    }
+    
+    // Trigger the action via handleSubmit (it will add user message to history)
+    if (userMessage) {
+      handleSubmit(userMessage);
     }
   }, []);
 
@@ -650,8 +654,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
     if (isLoading) return;
 
     const userMessage: ChatMessage = { role: 'user', content: query };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+    // Use functional update to always append to current state (avoids stale closure)
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
     setShowRetrieving(true);
@@ -873,7 +877,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({ 
-          messages: updatedMessages.map(m => ({ role: m.role, content: m.content }))
+          // Include current messages plus the new user message for the API call
+          messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content }))
         }),
         signal: abortControllerRef.current.signal,
       });
