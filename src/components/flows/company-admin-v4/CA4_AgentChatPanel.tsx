@@ -381,10 +381,22 @@ export const CA4_AgentChatPanel: React.FC = () => {
   const [minLoadingComplete, setMinLoadingComplete] = useState(false);
   const [currentSuggestedAction, setCurrentSuggestedAction] = useState<SuggestedAction | undefined>();
   const [confirmationAnchorId, setConfirmationAnchorId] = useState<string | undefined>();
+  const [panelReady, setPanelReady] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const streamingAssistantIdRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Keep refs synced to avoid stale-closure bugs (timeouts/streaming finalizers) that
+  // can prevent arming pendingAction/anchoring → missing Yes/No.
+  const messagesRef = useRef<ChatMessage[]>([]);
+  const pendingActionRef = useRef<typeof pendingAction>(pendingAction);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+  useEffect(() => {
+    pendingActionRef.current = pendingAction;
+  }, [pendingAction]);
 
   const updateMessageContent = useCallback((messageId: string, content: string) => {
     setMessages(prev => prev.map(m => (m.id === messageId ? { ...m, content } : m)));
@@ -428,6 +440,17 @@ export const CA4_AgentChatPanel: React.FC = () => {
     }
   }, [isOpen]);
 
+  // Gate textarea measurement until the panel has finished opening.
+  // Measuring while the panel width is ~0 can inflate scrollHeight and make the input look stretched.
+  useEffect(() => {
+    if (!isOpen) {
+      setPanelReady(false);
+      return;
+    }
+    setPanelReady(false);
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
+  }, [isOpen]);
+
   // Auto-resize textarea
   const adjustTextareaHeight = useCallback(() => {
     const textarea = textareaRef.current;
@@ -440,16 +463,16 @@ export const CA4_AgentChatPanel: React.FC = () => {
   useEffect(() => {
     // Avoid measuring while the panel is collapsed (width=0) because it can
     // produce an exaggerated scrollHeight and make the input look stretched.
-    if (!isOpen) return;
+    if (!panelReady) return;
     adjustTextareaHeight();
-  }, [input, isOpen, adjustTextareaHeight]);
+  }, [input, panelReady, adjustTextareaHeight]);
 
   useEffect(() => {
-    if (!isOpen) return;
-    // Re-measure once the open animation has progressed so wrapping is correct.
-    const t = window.setTimeout(() => adjustTextareaHeight(), 280);
+    if (!panelReady) return;
+    // One extra re-measure after render; wrapping can change after layout settles.
+    const t = window.setTimeout(() => adjustTextareaHeight(), 0);
     return () => window.clearTimeout(t);
-  }, [isOpen, adjustTextareaHeight]);
+  }, [panelReady, adjustTextareaHeight]);
 
   // Hide skeleton when both streaming starts AND minimum loading time passed
   useEffect(() => {
@@ -468,28 +491,24 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setShowRetrieving(false);
   };
 
-  // Execute a suggested action - triggers handleSubmit which records the message
-  const executeSuggestedAction = useCallback((action: SuggestedAction) => {
-    // Clear the current suggestion
+  // Execute a suggested action - triggers handleSubmit which records the message.
+  // NOTE: Don't memoize with empty deps; that can capture stale state and break confirmations.
+  const executeSuggestedAction = (action: SuggestedAction) => {
     setCurrentSuggestedAction(undefined);
-    
-    // Build user message from button action
+
     let userMessage = '';
     if (action.type === 'mark_ready') {
-      userMessage = action.workerId 
-        ? `Mark ${action.workerName} as ready` 
+      userMessage = action.workerId
+        ? `Mark ${action.workerName} as ready`
         : 'Mark all workers as ready';
     } else if (action.type === 'submit_payroll') {
       userMessage = 'Continue to submit payroll';
     } else if (action.type === 'approve_all') {
       userMessage = 'Approve all pending items';
     }
-    
-    // Trigger the action via handleSubmit (it will add user message to history)
-    if (userMessage) {
-      handleSubmit(userMessage);
-    }
-  }, []);
+
+    if (userMessage) handleSubmit(userMessage);
+  };
 
   // Complete an action and show next suggestion (optionally trigger follow-up for item approval)
   const completeAction = useCallback((actionType: PendingActionType, workerId?: string, workerName?: string) => {
@@ -1089,6 +1108,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
     abortControllerRef.current = new AbortController();
     
     try {
+      const outboundMessages = [...messagesRef.current, userMessage].map(m => ({ role: m.role, content: m.content }));
+
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
@@ -1097,7 +1118,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         },
         body: JSON.stringify({ 
           // Include current messages plus the new user message for the API call
-          messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content }))
+          messages: outboundMessages,
         }),
         signal: abortControllerRef.current.signal,
       });
@@ -1143,7 +1164,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
       // Add empty assistant message that we'll update
       const streamingMsg = createChatMessage({ role: 'assistant', content: '' });
-      streamingAssistantIdRef.current = streamingMsg.id;
+      const streamingMsgId = streamingMsg.id;
+      streamingAssistantIdRef.current = streamingMsgId;
       setMessages(prev => [...prev, streamingMsg]);
 
       while (!streamDone) {
@@ -1181,7 +1203,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
               // Update the streaming assistant message by ID (never rely on "last message",
               // because other UI-driven messages can be appended during orchestrations).
               if (streamingAssistantIdRef.current) {
-                updateMessageContent(streamingAssistantIdRef.current, assistantContent);
+                updateMessageContent(streamingMsgId, assistantContent);
               }
             }
           } catch {
@@ -1207,7 +1229,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
             if (content) {
               assistantContent += content;
               if (streamingAssistantIdRef.current) {
-                updateMessageContent(streamingAssistantIdRef.current, assistantContent);
+                updateMessageContent(streamingMsgId, assistantContent);
               }
             }
           } catch { /* ignore */ }
@@ -1221,7 +1243,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         // Convert Kurt's "Action Required" text into a real UI-wired confirmation.
         // This prevents the user from having to type "yes" and ensures the click
         // actually executes the drawer action.
-        if (!pendingAction?.awaitingConfirmation) {
+        if (!pendingActionRef.current?.awaitingConfirmation) {
           const inferred = inferActionRequiredApproveItem(assistantContent);
           if (inferred) {
             setCurrentSuggestedAction(undefined);
@@ -1235,7 +1257,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
               awaitingConfirmation: true,
               targetedItem: inferred.targetedItem,
             });
-            setConfirmationAnchorId(streamingAssistantIdRef.current || undefined);
+            setConfirmationAnchorId(streamingMsgId);
           }
 
           // If Kurt asked a simple Yes/No follow-up (approve all / mark ready / submit),
@@ -1244,7 +1266,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
             const inferredYesNo = inferYesNoActionFromAssistant(assistantContent);
             if (inferredYesNo) {
               setPendingAction({ type: inferredYesNo, awaitingConfirmation: true });
-              setConfirmationAnchorId(streamingAssistantIdRef.current || undefined);
+              setConfirmationAnchorId(streamingMsgId);
             }
           }
         }
@@ -1286,6 +1308,9 @@ export const CA4_AgentChatPanel: React.FC = () => {
       initial={false}
       animate={{ width: isOpen ? 420 : 0, opacity: isOpen ? 1 : 0 }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      onAnimationComplete={() => {
+        if (isOpen) setPanelReady(true);
+      }}
       aria-hidden={!isOpen}
       className={cn(
         "h-full bg-background flex flex-col overflow-hidden border-l border-border/30 relative z-[60]",
