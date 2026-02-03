@@ -3,6 +3,8 @@
  * 
  * Agentic payroll dashboard where Kurt AI assistant drives the UI.
  * Changes here do NOT affect v3 or any other versions.
+ * 
+ * @refresh reset
  */
 
 import React, { useState } from "react";
