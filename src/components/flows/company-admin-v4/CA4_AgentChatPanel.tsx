@@ -547,7 +547,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     
     setIsLoading(false);
     setShowRetrieving(false);
-  }, [setButtonLoading, setButtonLoadingState, setPendingAction]);
+  }, [setButtonLoading, setButtonLoadingState, setPendingAction, workersData]);
 
   const handleConfirmNo = useCallback((userResponse: string = 'No') => {
     if (!pendingAction) return;
