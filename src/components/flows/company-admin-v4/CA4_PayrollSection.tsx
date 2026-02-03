@@ -13,7 +13,7 @@ import { CA4_SubmitConfirmationModal } from "./CA4_SubmitConfirmationModal";
 import { CA4_TrackingView, TrackingWorker } from "./CA4_TrackingView";
 import { CA4_SubmitStep } from "./CA4_SubmitStep";
 import { CA4_PeriodDropdown, PayrollPeriod } from "./CA4_PeriodDropdown";
-import { useCA4Agent } from "./CA4_AgentContext";
+import { useCA4Agent } from "@/components/flows/company-admin-v4/CA4_AgentContext";
 
 const mockSubmissions: WorkerSubmission[] = [
   {
