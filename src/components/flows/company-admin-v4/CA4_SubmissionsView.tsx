@@ -27,7 +27,7 @@ import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "./CA4_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA4_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA4_AdminAddAdjustment";
-import { useCA4Agent } from "./CA4_AgentContext";
+import { useCA4Agent } from "@/components/flows/company-admin-v4/CA4_AgentContext";
 
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
