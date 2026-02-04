@@ -8,11 +8,37 @@ import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown, CheckCircle2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export type PayrollFrequency = "monthly" | "fortnightly";
+export type PayrollRunStatus = "in-review" | "processing" | "paid";
+
 export interface PayrollPeriod {
   id: string;
-  label: string;
-  status: "current" | "processing" | "paid";
+  frequency: PayrollFrequency;
+  periodLabel: string; // e.g., "Jan 1–14", "Jan 2026"
+  payDate: string; // e.g., "15th", "30th"
+  status: PayrollRunStatus;
+  // Legacy compatibility
+  label?: string;
 }
+
+// Helper to build display label
+const buildRunLabel = (period: PayrollPeriod): string => {
+  const freqLabel = period.frequency === "monthly" ? "Monthly" : "Fortnightly";
+  return `${freqLabel} · ${period.periodLabel} · Pay date ${period.payDate}`;
+};
+
+// Helper to get status display
+const getStatusDisplay = (status: PayrollRunStatus): { label: string; className: string } => {
+  switch (status) {
+    case "paid":
+      return { label: "Paid", className: "text-accent-green-text" };
+    case "processing":
+      return { label: "Processing", className: "text-primary" };
+    case "in-review":
+    default:
+      return { label: "In review", className: "text-amber-600" };
+  }
+};
 
 interface F1v4_PeriodDropdownProps {
   periods: PayrollPeriod[];
@@ -46,6 +72,11 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
     setIsOpen(false);
   };
 
+  // Build trigger label - shorter for selected
+  const triggerLabel = selectedPeriod 
+    ? `${selectedPeriod.frequency === "monthly" ? "Monthly" : "Fortnightly"} · ${selectedPeriod.periodLabel}`
+    : "Select Run";
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -56,7 +87,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
           "focus:outline-none"
         )}
       >
-        {selectedPeriod?.label} Payroll
+        {triggerLabel}
         <ChevronDown className={cn(
           "h-4 w-4 text-muted-foreground transition-transform duration-200",
           isOpen && "rotate-180"
@@ -64,41 +95,36 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 z-50 min-w-[200px] bg-card border border-border/40 rounded-lg shadow-lg py-1 backdrop-blur-sm">
-          {periods.map((period) => (
-            <button
-              key={period.id}
-              onClick={() => handleSelect(period.id)}
-              className={cn(
-                "w-full flex items-center justify-between px-3 py-2 text-left text-sm",
-                "hover:bg-muted/50 transition-colors",
-                period.id === selectedPeriodId && "bg-muted/30"
-              )}
-            >
-              <span className={cn(
-                "font-medium",
-                period.id === selectedPeriodId ? "text-foreground" : "text-muted-foreground"
-              )}>
-                {period.label}
-              </span>
-              {period.status === "paid" ? (
-                <span className="flex items-center gap-1 text-[11px] text-accent-green-text">
-                  <CheckCircle2 className="h-3 w-3" />
-                  Paid
+        <div className="absolute top-full left-0 mt-2 z-50 min-w-[320px] bg-card border border-border/40 rounded-lg shadow-lg py-1 backdrop-blur-sm">
+          {periods.map((period) => {
+            const statusDisplay = getStatusDisplay(period.status);
+            return (
+              <button
+                key={period.id}
+                onClick={() => handleSelect(period.id)}
+                className={cn(
+                  "w-full flex items-center justify-between px-3 py-2.5 text-left text-sm",
+                  "hover:bg-muted/50 transition-colors",
+                  period.id === selectedPeriodId && "bg-muted/30"
+                )}
+              >
+                <span className={cn(
+                  "font-medium",
+                  period.id === selectedPeriodId ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {buildRunLabel(period)}
                 </span>
-              ) : period.status === "processing" ? (
-                <span className="flex items-center gap-1 text-[11px] text-primary">
-                  <Clock className="h-3 w-3" />
-                  Processing
+                <span className={cn("flex items-center gap-1 text-[11px]", statusDisplay.className)}>
+                  {period.status === "paid" ? (
+                    <CheckCircle2 className="h-3 w-3" />
+                  ) : (
+                    <Clock className="h-3 w-3" />
+                  )}
+                  {statusDisplay.label}
                 </span>
-              ) : (
-                <span className="flex items-center gap-1 text-[11px] text-amber-600">
-                  <Clock className="h-3 w-3" />
-                  In review
-                </span>
-              )}
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

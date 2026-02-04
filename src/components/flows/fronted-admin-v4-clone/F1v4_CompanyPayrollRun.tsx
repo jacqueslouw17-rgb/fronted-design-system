@@ -233,18 +233,58 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
   },
 ];
 
+// Multiple runs can be "in-review" simultaneously
 const MOCK_PERIODS: PayrollPeriod[] = [
-  { id: "current", label: "January 2026", status: "current" },
-  { id: "dec-2025", label: "December 2025", status: "paid" },
-  { id: "nov-2025", label: "November 2025", status: "paid" },
+  // Current active runs (can have multiple in-review)
+  { 
+    id: "jan-monthly", 
+    frequency: "monthly", 
+    periodLabel: "Jan 2026", 
+    payDate: "30th", 
+    status: "in-review",
+    label: "January 2026"
+  },
+  { 
+    id: "jan-fortnight-2", 
+    frequency: "fortnightly", 
+    periodLabel: "Jan 15–31", 
+    payDate: "30th", 
+    status: "in-review",
+    label: "Jan 15-31 2026"
+  },
+  { 
+    id: "jan-fortnight-1", 
+    frequency: "fortnightly", 
+    periodLabel: "Jan 1–14", 
+    payDate: "15th", 
+    status: "in-review",
+    label: "Jan 1-14 2026"
+  },
+  // Historical paid runs
+  { 
+    id: "dec-monthly", 
+    frequency: "monthly", 
+    periodLabel: "Dec 2025", 
+    payDate: "30th", 
+    status: "paid",
+    label: "December 2025"
+  },
+  { 
+    id: "nov-monthly", 
+    frequency: "monthly", 
+    periodLabel: "Nov 2025", 
+    payDate: "30th", 
+    status: "paid",
+    label: "November 2025"
+  },
 ];
 
 export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   company,
   initialStep,
 }) => {
-  // Period view state
-  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("current");
+  // Period view state - default to first "in-review" run
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("jan-monthly");
   
   // Workflow entered state - start on landing view
   const [hasEnteredWorkflow, setHasEnteredWorkflow] = useState(false);
@@ -265,9 +305,12 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
 
   const employees = submissions.filter(w => w.workerType === "employee");
   const contractors = submissions.filter(w => w.workerType === "contractor");
-  const isViewingPrevious = selectedPeriodId !== "current";
+  
+  // Determine if viewing historical (paid) run
+  const selectedPeriodData = MOCK_PERIODS.find(p => p.id === selectedPeriodId);
+  const isViewingPrevious = selectedPeriodData?.status === "paid";
   const selectedHistoricalPayroll = isViewingPrevious 
-    ? HISTORICAL_PAYROLLS.find(p => p.id === selectedPeriodId) 
+    ? HISTORICAL_PAYROLLS.find(p => p.id.includes(selectedPeriodId.replace("-monthly", "").replace("-fortnight-1", "").replace("-fortnight-2", ""))) 
     : null;
 
   // Computed values for submissions
@@ -276,7 +319,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Handle period change
   const handlePeriodChange = (periodId: string) => {
     setSelectedPeriodId(periodId);
-    if (periodId !== "current") {
+    // Reset workflow when switching to a paid period
+    const period = MOCK_PERIODS.find(p => p.id === periodId);
+    if (period?.status === "paid") {
       setHasEnteredWorkflow(false);
     }
   };
