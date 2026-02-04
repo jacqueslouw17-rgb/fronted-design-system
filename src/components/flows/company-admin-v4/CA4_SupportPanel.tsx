@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { useRoleLens } from "@/contexts/RoleLensContext";
+
 
 interface CA4_SupportPanelProps {
   isOpen: boolean;
@@ -53,13 +53,6 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
   onClose,
 }) => {
   const location = useLocation();
-  const { currentLens } = useRoleLens();
-
-  // Internal-only access for Product Feedback (kept out of Company Admin + Worker views)
-  // Add ?internal=1 to the URL while reviewing to expose Product Feedback.
-  const internalFlag = new URLSearchParams(location.search).get("internal") === "1";
-  const canSeeProductFeedback = internalFlag && currentLens.role === "admin";
-  
   const [view, setView] = useState<PanelView>("selection");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -175,7 +168,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
     setView("support-form");
   };
 
-  const isInternalUser = canSeeProductFeedback;
+  
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -228,43 +221,41 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                       </div>
                     </div>
                   </div>
-                </button>
+              </button>
 
-                {/* Card B: Give Product Feedback - Internal only */}
-                {isInternalUser && (
-                  <button
-                    onClick={() => setView("feedback-form")}
-                    className={cn(
-                      "w-full rounded-2xl text-left transition-all duration-200",
-                      "bg-gradient-to-br from-muted/60 via-muted/30 to-transparent",
-                      "border border-border/60 hover:border-border",
-                      "hover:shadow-lg hover:shadow-foreground/5",
-                      "group overflow-hidden"
-                    )}
-                  >
-                    <div className="p-5">
-                      <div className="flex items-start gap-4">
-                        <div className={cn(
-                          "h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0",
-                          "bg-muted group-hover:bg-muted/80 transition-colors"
-                        )}>
-                          <MessageSquareText className="h-6 w-6 text-muted-foreground group-hover:text-foreground transition-colors" />
-                        </div>
-                        <div className="flex-1 min-w-0 pt-0.5">
-                          <h3 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
-                            Give Product Feedback
-                          </h3>
-                          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                            Share ideas and suggestions with the team
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
+              {/* Card B: Give Product Feedback - sends to Slack */}
+              <button
+                onClick={() => setView("feedback-form")}
+                className={cn(
+                  "w-full rounded-2xl text-left transition-all duration-200",
+                  "bg-gradient-to-br from-muted/60 via-muted/30 to-transparent",
+                  "border border-border/60 hover:border-border",
+                  "hover:shadow-lg hover:shadow-foreground/5",
+                  "group overflow-hidden"
                 )}
-              </div>
-            </motion.div>
-          )}
+              >
+                <div className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className={cn(
+                      "h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0",
+                      "bg-muted group-hover:bg-muted/80 transition-colors"
+                    )}>
+                      <MessageSquareText className="h-6 w-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    </div>
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <h3 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
+                        Give Product Feedback
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                        Share ideas and suggestions with the team
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </motion.div>
+        )}
 
           {/* Support Form View */}
           {view === "support-form" && (
