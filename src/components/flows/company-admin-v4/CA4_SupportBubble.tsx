@@ -1,11 +1,12 @@
 /**
  * CA4_SupportBubble - Bottom-right bubble for Flow 6 v4
  * 
- * Opens the CA4_SupportPanel when clicked.
+ * Uses the same visual style as the original FeedbackBubble,
+ * but opens the CA4_SupportPanel with Support + Feedback cards.
  */
 
 import { useState } from "react";
-import { HeadphonesIcon } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -36,11 +37,11 @@ export const CA4_SupportBubble: React.FC = () => {
               size="icon"
               variant="ghost"
             >
-              <HeadphonesIcon className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors" />
+              <MessageSquare className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="left" className="text-xs">
-            <p>Get help</p>
+            <p>Help & feedback</p>
           </TooltipContent>
         </Tooltip>
       )}
