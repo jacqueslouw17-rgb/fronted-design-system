@@ -105,16 +105,16 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 z-50 w-[400px] bg-popover border border-border rounded-xl shadow-xl py-2 overflow-hidden">
+        <div className="absolute top-full left-0 mt-1.5 z-[100] w-[360px] bg-popover border border-border rounded-lg shadow-lg overflow-hidden">
           {/* Header */}
-          <div className="px-4 pb-2 mb-1 border-b border-border/50">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <div className="px-3 py-2 border-b border-border/50 bg-muted/30">
+            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
               Payroll Runs
             </span>
           </div>
           
-          {/* Period list */}
-          <div className="max-h-[320px] overflow-y-auto">
+          {/* Period list - scrollable */}
+          <div className="max-h-[280px] overflow-y-auto overscroll-contain">
             {periods.map((period, index) => {
               const isSelected = period.id === selectedPeriodId;
               const isPreviousInReview = index > 0 && periods[index - 1].status !== "paid" && period.status === "paid";
@@ -123,40 +123,40 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                 <React.Fragment key={period.id}>
                   {/* Divider between active and historical */}
                   {isPreviousInReview && (
-                    <div className="mx-4 my-2 border-t border-border/50" />
+                    <div className="mx-3 my-1 border-t border-border/50" />
                   )}
                   <button
                     onClick={() => handleSelect(period.id)}
                     className={cn(
-                      "w-full flex items-center justify-between px-4 py-3 text-left",
+                      "w-full flex items-center justify-between px-3 py-2 text-left",
                       "hover:bg-muted/50 transition-colors",
                       isSelected && "bg-primary/5"
                     )}
                   >
                     {/* Left: Run details */}
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-0 min-w-0">
+                      <div className="flex items-center gap-1.5">
                         <span className={cn(
-                          "text-sm font-semibold",
+                          "text-[13px] font-semibold",
                           isSelected ? "text-foreground" : "text-foreground/90"
                         )}>
                           {period.frequency === "monthly" ? "Monthly" : "Fortnightly"}
                         </span>
-                        <span className="text-sm text-muted-foreground">·</span>
+                        <span className="text-[13px] text-muted-foreground">·</span>
                         <span className={cn(
-                          "text-sm font-medium",
+                          "text-[13px] font-medium",
                           isSelected ? "text-foreground" : "text-foreground/80"
                         )}>
                           {period.periodLabel}
                         </span>
                       </div>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-[11px] text-muted-foreground">
                         Pay date: {period.payDate}
                       </span>
                     </div>
                     
                     {/* Right: Status badge */}
-                    <div className="flex-shrink-0 ml-4">
+                    <div className="flex-shrink-0 ml-3">
                       {getStatusBadge(period.status)}
                     </div>
                   </button>
