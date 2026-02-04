@@ -29,8 +29,10 @@ export const CA4_SupportBubble: React.FC = () => {
               className={cn(
                 "fixed bottom-8 right-8 h-12 w-12 rounded-full",
                 "bg-primary/5 border border-primary/20",
-                "transition-all duration-300 ease-out",
-                "hover:scale-110 hover:-translate-y-0.5 hover:bg-primary/10 hover:border-primary/30",
+                "transform-gpu will-change-transform origin-bottom-right",
+                "transition-[transform,background-color,border-color,box-shadow] duration-200 ease-out",
+                "hover:scale-[1.06] hover:bg-primary/10 hover:border-primary/30",
+                "active:scale-[0.98]",
                 "shadow-card hover:shadow-elevated",
                 "group z-[100]"
               )}
@@ -40,7 +42,7 @@ export const CA4_SupportBubble: React.FC = () => {
               <MessageSquare className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="left" className="text-xs">
+          <TooltipContent side="left" className="text-xs pointer-events-none">
             <p>Help & feedback</p>
           </TooltipContent>
         </Tooltip>
