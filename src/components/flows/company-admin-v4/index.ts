@@ -14,3 +14,7 @@ export { CA4_AgentProvider, useCA4Agent } from "./CA4_AgentContext";
 export { CA4_AgentChatPanel } from "./CA4_AgentChatPanel";
 export { CA4_KurtVisualizer } from "./CA4_KurtVisualizer";
 export * from "./CA4_AgentTypes";
+
+// Support panel
+export { CA4_SupportPanel } from "./CA4_SupportPanel";
+export { CA4_SupportBubble } from "./CA4_SupportBubble";
