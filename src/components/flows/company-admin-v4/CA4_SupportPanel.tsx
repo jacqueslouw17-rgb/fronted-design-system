@@ -59,7 +59,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
   // Support form state
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [supportMessage, setSupportMessage] = useState("");
-  const [relatedWorker, setRelatedWorker] = useState("");
+  
   
   // Feedback form state
   const [feedbackContext, setFeedbackContext] = useState("");
@@ -90,7 +90,6 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
         setView("selection");
         setSelectedCategory("");
         setSupportMessage("");
-        setRelatedWorker("");
         setFeedbackMessage("");
       }, 300);
       return () => clearTimeout(timer);
@@ -156,7 +155,6 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
     if (view === "support-submitted") {
       setSelectedCategory("");
       setSupportMessage("");
-      setRelatedWorker("");
     }
     setView("selection");
   };
@@ -164,7 +162,6 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
   const handleSubmitAnother = () => {
     setSelectedCategory("");
     setSupportMessage("");
-    setRelatedWorker("");
     setView("support-form");
   };
 
@@ -320,19 +317,6 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                   />
                 </div>
 
-                {/* Related Worker/Contract (Optional) */}
-                <div className="space-y-2">
-                  <Label htmlFor="relatedWorker" className="text-sm text-muted-foreground">
-                    Related worker / contract (optional)
-                  </Label>
-                  <Input
-                    id="relatedWorker"
-                    placeholder="e.g., John Smith, Contract #1234"
-                    value={relatedWorker}
-                    onChange={(e) => setRelatedWorker(e.target.value)}
-                    className="bg-background"
-                  />
-                </div>
 
                 {/* Submit Button */}
                 <Button
