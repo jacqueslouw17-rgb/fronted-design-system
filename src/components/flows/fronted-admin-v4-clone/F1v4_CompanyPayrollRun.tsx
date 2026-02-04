@@ -233,6 +233,96 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
   },
 ];
 
+// Per-run KPI metrics
+const RUN_METRICS: Record<string, { grossPay: string; adjustments: string; fees: string; totalCost: string; employeeCount: number; contractorCount: number; currencyCount: number }> = {
+  "jan-monthly": { grossPay: "$124.9K", adjustments: "$8.2K", fees: "$3,742", totalCost: "$128.6K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
+  "jan-fortnight-2": { grossPay: "$62.4K", adjustments: "$3.1K", fees: "$1,890", totalCost: "$65.5K", employeeCount: 3, contractorCount: 2, currencyCount: 2 },
+  "jan-fortnight-1": { grossPay: "$58.2K", adjustments: "$2.8K", fees: "$1,750", totalCost: "$61.0K", employeeCount: 2, contractorCount: 3, currencyCount: 2 },
+  "dec-monthly": { grossPay: "$118.4K", adjustments: "$6.8K", fees: "$3,512", totalCost: "$121.9K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
+  "nov-monthly": { grossPay: "$115.2K", adjustments: "$5.4K", fees: "$3,380", totalCost: "$118.6K", employeeCount: 4, contractorCount: 4, currencyCount: 3 },
+};
+
+// Per-run worker submissions
+const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
+  "jan-monthly": MOCK_SUBMISSIONS,
+  "jan-fortnight-2": [
+    {
+      id: "f2-sub-1",
+      workerId: "f2-1",
+      workerName: "Marcus Chen",
+      workerCountry: "Singapore",
+      workerType: "contractor",
+      periodLabel: "Jan 15 – Jan 31",
+      basePay: 8500,
+      estimatedNet: 8500,
+      lineItems: [{ type: "Earnings", label: "Consulting Fee", amount: 8500, locked: false }],
+      submissions: [{ type: "expenses", amount: 320, currency: "SGD", description: "Client meeting expenses", status: "pending" }],
+      pendingLeaves: [],
+      status: "pending",
+      totalImpact: 320,
+      currency: "SGD",
+    },
+    {
+      id: "f2-sub-2",
+      workerId: "f2-2",
+      workerName: "Emma Wilson",
+      workerCountry: "UK",
+      workerType: "employee",
+      periodLabel: "Jan 15 – Jan 31",
+      basePay: 3200,
+      estimatedNet: 2450,
+      lineItems: [
+        { type: "Earnings", label: "Base Salary", amount: 3200, locked: false },
+        { type: "Deduction", label: "Income Tax", amount: -480, locked: true },
+        { type: "Deduction", label: "NI", amount: -270, locked: true },
+      ],
+      submissions: [{ type: "overtime", hours: 4, description: "Month-end close", amount: 280, status: "pending" }],
+      pendingLeaves: [],
+      status: "pending",
+      totalImpact: 280,
+      currency: "GBP",
+    },
+  ],
+  "jan-fortnight-1": [
+    {
+      id: "f1-sub-1",
+      workerId: "f1-1",
+      workerName: "Takeshi Yamamoto",
+      workerCountry: "Japan",
+      workerType: "employee",
+      periodLabel: "Jan 1 – Jan 14",
+      basePay: 420000,
+      estimatedNet: 315000,
+      lineItems: [
+        { type: "Earnings", label: "Base Salary", amount: 420000, locked: false },
+        { type: "Deduction", label: "Income Tax", amount: -63000, locked: true },
+        { type: "Deduction", label: "Social Insurance", amount: -42000, locked: true },
+      ],
+      submissions: [{ type: "bonus", amount: 50000, currency: "JPY", description: "New year bonus", status: "pending" }],
+      pendingLeaves: [],
+      status: "pending",
+      totalImpact: 50000,
+      currency: "JPY",
+    },
+    {
+      id: "f1-sub-2",
+      workerId: "f1-2",
+      workerName: "Priya Sharma",
+      workerCountry: "India",
+      workerType: "contractor",
+      periodLabel: "Jan 1 – Jan 14",
+      basePay: 180000,
+      estimatedNet: 180000,
+      lineItems: [{ type: "Earnings", label: "Development Fee", amount: 180000, locked: false }],
+      submissions: [{ type: "expenses", amount: 8500, currency: "INR", description: "Software licenses", status: "pending" }],
+      pendingLeaves: [],
+      status: "pending",
+      totalImpact: 8500,
+      currency: "INR",
+    },
+  ],
+};
+
 // Multiple runs can be "in-review" simultaneously
 const MOCK_PERIODS: PayrollPeriod[] = [
   // Current active runs (can have multiple in-review)
@@ -303,8 +393,12 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const [isApproved, setIsApproved] = useState(false);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
 
-  const employees = submissions.filter(w => w.workerType === "employee");
-  const contractors = submissions.filter(w => w.workerType === "contractor");
+  // Get current run metrics and submissions
+  const currentRunMetrics = RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"];
+  const currentRunSubmissions = RUN_SUBMISSIONS[selectedPeriodId] || MOCK_SUBMISSIONS;
+
+  const employees = currentRunSubmissions.filter(w => w.workerType === "employee");
+  const contractors = currentRunSubmissions.filter(w => w.workerType === "contractor");
   
   // Determine if viewing historical (paid) run
   const selectedPeriodData = MOCK_PERIODS.find(p => p.id === selectedPeriodId);
@@ -314,7 +408,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     : null;
 
   // Computed values for submissions
-  const pendingSubmissions = useMemo(() => submissions.filter(s => s.status === "pending").length, [submissions]);
+  const pendingSubmissions = useMemo(() => currentRunSubmissions.filter(s => s.status === "pending").length, [currentRunSubmissions]);
 
   // Handle period change
   const handlePeriodChange = (periodId: string) => {
@@ -324,6 +418,10 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     if (period?.status === "paid") {
       setHasEnteredWorkflow(false);
     }
+    // Reset step state when switching runs
+    setCurrentStep("submissions");
+    setCompletedSteps([]);
+    setIsApproved(false);
   };
 
   // Enter workflow
@@ -384,7 +482,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     }
   };
 
-  // Get display metrics based on period selection
+  // Get display metrics based on period selection - use per-run metrics
   const displayMetrics = isViewingPrevious && selectedHistoricalPayroll 
     ? {
         grossPay: selectedHistoricalPayroll.grossPay,
@@ -395,23 +493,15 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         contractorCount: selectedHistoricalPayroll.contractorCount,
         currencyCount: selectedHistoricalPayroll.currencyCount,
       }
-    : {
-        grossPay: "$124.9K",
-        adjustments: "$8.2K",
-        fees: "$3.7K",
-        totalCost: `$${(company.totalCost / 1000).toFixed(1)}K`,
-        employeeCount: employees.length,
-        contractorCount: contractors.length,
-        currencyCount: company.currencyCount,
-      };
+    : currentRunMetrics;
 
   // Render summary card (landing view)
   const renderSummaryCard = () => {
     return (
-      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
-        <CardContent className="py-6 px-6">
+      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-visible">
+        <CardContent className="py-6 px-6 overflow-visible">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 relative z-[101]">
             <div className="flex items-center gap-3">
               <F1v4_PeriodDropdown 
                 periods={MOCK_PERIODS}
@@ -516,7 +606,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
       case "submissions":
         return (
           <F1v4_SubmissionsView
-            submissions={submissions}
+            submissions={currentRunSubmissions}
             onContinue={goToExceptions}
             onClose={() => setHasEnteredWorkflow(false)}
           />
