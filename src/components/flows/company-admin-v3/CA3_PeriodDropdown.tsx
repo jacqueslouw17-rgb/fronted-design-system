@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown, CheckCircle2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 export type PayrollFrequency = "monthly" | "fortnightly";
 export type PayrollRunStatus = "in-review" | "processing" | "paid";
@@ -14,25 +15,6 @@ export interface PayrollPeriod {
   // Legacy compatibility
   label?: string;
 }
-
-// Helper to build display label
-const buildRunLabel = (period: PayrollPeriod): string => {
-  const freqLabel = period.frequency === "monthly" ? "Monthly" : "Fortnightly";
-  return `${freqLabel} · ${period.periodLabel} · Pay date ${period.payDate}`;
-};
-
-// Helper to get status display
-const getStatusDisplay = (status: PayrollRunStatus): { label: string; className: string } => {
-  switch (status) {
-    case "paid":
-      return { label: "Paid", className: "text-accent-green-text" };
-    case "processing":
-      return { label: "Processing", className: "text-primary" };
-    case "in-review":
-    default:
-      return { label: "In review", className: "text-amber-600" };
-  }
-};
 
 interface CA3_PeriodDropdownProps {
   periods: PayrollPeriod[];
@@ -66,22 +48,50 @@ export const CA3_PeriodDropdown: React.FC<CA3_PeriodDropdownProps> = ({
     setIsOpen(false);
   };
 
-  // Build trigger label - shorter for selected
+  // Build trigger label
   const triggerLabel = selectedPeriod 
     ? `${selectedPeriod.frequency === "monthly" ? "Monthly" : "Fortnightly"} · ${selectedPeriod.periodLabel}`
     : "Select Run";
+
+  // Get status badge styles
+  const getStatusBadge = (status: PayrollRunStatus) => {
+    switch (status) {
+      case "paid":
+        return (
+          <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20 text-[11px] px-2 py-0.5 font-medium whitespace-nowrap">
+            <CheckCircle2 className="h-3 w-3 mr-1" />
+            Paid
+          </Badge>
+        );
+      case "processing":
+        return (
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[11px] px-2 py-0.5 font-medium whitespace-nowrap">
+            <Clock className="h-3 w-3 mr-1" />
+            Processing
+          </Badge>
+        );
+      case "in-review":
+      default:
+        return (
+          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[11px] px-2 py-0.5 font-medium whitespace-nowrap">
+            <Clock className="h-3 w-3 mr-1" />
+            In review
+          </Badge>
+        );
+    }
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-1.5 text-lg font-semibold text-foreground",
+          "flex items-center gap-2 text-lg font-semibold text-foreground",
           "hover:text-foreground/80 transition-colors",
           "focus:outline-none"
         )}
       >
-        {triggerLabel}
+        <span>{triggerLabel}</span>
         <ChevronDown className={cn(
           "h-4 w-4 text-muted-foreground transition-transform duration-200",
           isOpen && "rotate-180"
@@ -89,36 +99,65 @@ export const CA3_PeriodDropdown: React.FC<CA3_PeriodDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 z-50 min-w-[320px] bg-card border border-border/40 rounded-lg shadow-lg py-1 backdrop-blur-sm">
-          {periods.map((period) => {
-            const statusDisplay = getStatusDisplay(period.status);
-            return (
-              <button
-                key={period.id}
-                onClick={() => handleSelect(period.id)}
-                className={cn(
-                  "w-full flex items-center justify-between px-3 py-2.5 text-left text-sm",
-                  "hover:bg-muted/50 transition-colors",
-                  period.id === selectedPeriodId && "bg-muted/30"
-                )}
-              >
-                <span className={cn(
-                  "font-medium",
-                  period.id === selectedPeriodId ? "text-foreground" : "text-muted-foreground"
-                )}>
-                  {buildRunLabel(period)}
-                </span>
-                <span className={cn("flex items-center gap-1 text-[11px]", statusDisplay.className)}>
-                  {period.status === "paid" ? (
-                    <CheckCircle2 className="h-3 w-3" />
-                  ) : (
-                    <Clock className="h-3 w-3" />
+        <div className="absolute top-full left-0 mt-2 z-50 w-[400px] bg-popover border border-border rounded-xl shadow-xl py-2 overflow-hidden">
+          {/* Header */}
+          <div className="px-4 pb-2 mb-1 border-b border-border/50">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Payroll Runs
+            </span>
+          </div>
+          
+          {/* Period list */}
+          <div className="max-h-[320px] overflow-y-auto">
+            {periods.map((period, index) => {
+              const isSelected = period.id === selectedPeriodId;
+              const isPreviousInReview = index > 0 && periods[index - 1].status !== "paid" && period.status === "paid";
+              
+              return (
+                <React.Fragment key={period.id}>
+                  {/* Divider between active and historical */}
+                  {isPreviousInReview && (
+                    <div className="mx-4 my-2 border-t border-border/50" />
                   )}
-                  {statusDisplay.label}
-                </span>
-              </button>
-            );
-          })}
+                  <button
+                    onClick={() => handleSelect(period.id)}
+                    className={cn(
+                      "w-full flex items-center justify-between px-4 py-3 text-left",
+                      "hover:bg-muted/50 transition-colors",
+                      isSelected && "bg-primary/5"
+                    )}
+                  >
+                    {/* Left: Run details */}
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={cn(
+                          "text-sm font-semibold",
+                          isSelected ? "text-foreground" : "text-foreground/90"
+                        )}>
+                          {period.frequency === "monthly" ? "Monthly" : "Fortnightly"}
+                        </span>
+                        <span className="text-sm text-muted-foreground">·</span>
+                        <span className={cn(
+                          "text-sm font-medium",
+                          isSelected ? "text-foreground" : "text-foreground/80"
+                        )}>
+                          {period.periodLabel}
+                        </span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        Pay date: {period.payDate}
+                      </span>
+                    </div>
+                    
+                    {/* Right: Status badge */}
+                    <div className="flex-shrink-0 ml-4">
+                      {getStatusBadge(period.status)}
+                    </div>
+                  </button>
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
