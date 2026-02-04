@@ -9,6 +9,13 @@ import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 
 export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued" | "sent";
 
+// Country flag map for consistent display
+const countryFlags: Record<string, string> = {
+  Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
+  Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", USA: "🇺🇸",
+  "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧"
+};
+
 export interface TrackingWorker {
   id: string;
   name: string;
@@ -232,7 +239,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
                     <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                    <span className="text-[11px] text-muted-foreground">· {worker.country}</span>
+                    <span className="text-[11px] text-muted-foreground">· {countryFlags[worker.country] || ""} {worker.country}</span>
                   </div>
                   {needsAttention && worker.errorMessage && (
                     <p className="text-[10px] text-amber-600 truncate leading-tight">{worker.errorMessage}</p>
