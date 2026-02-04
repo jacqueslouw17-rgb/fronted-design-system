@@ -23,10 +23,9 @@ import { toast } from "sonner";
 import { 
   Send, 
   ArrowLeft, 
-  HeadphonesIcon, 
+  Headphones, 
   MessageSquareText,
   CheckCircle2,
-  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,8 +55,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
   const location = useLocation();
   
   // For demo purposes, simulate internal user - in production this would come from auth context
-  // Internal users can see both cards, external users only see support
-  const [userRole] = useState<UserRole>("internal"); // Change to "company-admin" or "worker" to test
+  const [userRole] = useState<UserRole>("internal");
   
   const [view, setView] = useState<PanelView>("selection");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,14 +65,13 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
   const [supportMessage, setSupportMessage] = useState("");
   const [relatedWorker, setRelatedWorker] = useState("");
   
-  // Feedback form state (existing functionality)
+  // Feedback form state
   const [feedbackContext, setFeedbackContext] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
   // Reset state when panel opens
   useEffect(() => {
     if (isOpen) {
-      // Auto-detect page context
       const pathName = location.pathname
         .split("/")
         .filter(Boolean)
@@ -93,7 +90,6 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
   // Reset to selection when panel closes
   useEffect(() => {
     if (!isOpen) {
-      // Delay reset to allow close animation
       const timer = setTimeout(() => {
         setView("selection");
         setSelectedCategory("");
@@ -116,10 +112,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
     setIsSubmitting(true);
 
     try {
-      // In production, this would call an edge function to create a support ticket
-      // For now, we simulate success
       await new Promise(resolve => setTimeout(resolve, 800));
-      
       setView("support-submitted");
       toast.success("Support request submitted");
     } catch (error) {
@@ -185,7 +178,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent 
         side="right" 
-        className="w-full sm:w-[480px] sm:max-w-[480px] overflow-y-auto p-0"
+        className="w-full sm:w-[440px] sm:max-w-[440px] overflow-y-auto p-0"
       >
         <AnimatePresence mode="wait">
           {/* Selection View */}
@@ -198,32 +191,40 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
               transition={{ duration: 0.2 }}
               className="p-6"
             >
-              <SheetHeader className="mb-6">
-                <SheetTitle className="text-xl">How can we help?</SheetTitle>
+              <SheetHeader className="mb-8">
+                <SheetTitle className="text-xl font-semibold">How can we help?</SheetTitle>
               </SheetHeader>
 
-              <div className="space-y-3">
-                {/* Card A: Contact Support - Always visible */}
+              <div className="space-y-4">
+                {/* Card A: Contact Support */}
                 <button
                   onClick={() => setView("support-form")}
                   className={cn(
-                    "w-full p-4 rounded-xl border text-left transition-all",
-                    "bg-card hover:bg-accent/50 border-border/60 hover:border-primary/30",
-                    "group flex items-start gap-4"
+                    "w-full rounded-2xl text-left transition-all duration-200",
+                    "bg-gradient-to-br from-primary/[0.08] via-primary/[0.04] to-transparent",
+                    "border border-primary/20 hover:border-primary/40",
+                    "hover:shadow-lg hover:shadow-primary/5",
+                    "group overflow-hidden"
                   )}
                 >
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <HeadphonesIcon className="h-5 w-5 text-primary" />
+                  <div className="p-5">
+                    <div className="flex items-start gap-4">
+                      <div className={cn(
+                        "h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0",
+                        "bg-primary/10 group-hover:bg-primary/15 transition-colors"
+                      )}>
+                        <Headphones className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0 pt-0.5">
+                        <h3 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
+                          Contact Support
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                          Get help with payments, contracts, payroll, or account issues
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-foreground group-hover:text-primary transition-colors">
-                      Contact Support
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      Get help with payments, contracts, payroll, or account issues
-                    </p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary/70 flex-shrink-0 mt-0.5" />
                 </button>
 
                 {/* Card B: Give Product Feedback - Internal only */}
@@ -231,23 +232,31 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                   <button
                     onClick={() => setView("feedback-form")}
                     className={cn(
-                      "w-full p-4 rounded-xl border text-left transition-all",
-                      "bg-card hover:bg-accent/50 border-border/60 hover:border-primary/30",
-                      "group flex items-start gap-4"
+                      "w-full rounded-2xl text-left transition-all duration-200",
+                      "bg-gradient-to-br from-muted/60 via-muted/30 to-transparent",
+                      "border border-border/60 hover:border-border",
+                      "hover:shadow-lg hover:shadow-foreground/5",
+                      "group overflow-hidden"
                     )}
                   >
-                    <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center flex-shrink-0">
-                      <MessageSquareText className="h-5 w-5 text-foreground/70" />
+                    <div className="p-5">
+                      <div className="flex items-start gap-4">
+                        <div className={cn(
+                          "h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0",
+                          "bg-muted group-hover:bg-muted/80 transition-colors"
+                        )}>
+                          <MessageSquareText className="h-6 w-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        </div>
+                        <div className="flex-1 min-w-0 pt-0.5">
+                          <h3 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
+                            Give Product Feedback
+                          </h3>
+                          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                            Share ideas and suggestions with the team
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-foreground group-hover:text-primary transition-colors">
-                        Give Product Feedback
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        Share ideas and suggestions with the team
-                      </p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary/70 flex-shrink-0 mt-0.5" />
                   </button>
                 )}
               </div>
@@ -265,23 +274,23 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
               className="p-6"
             >
               <SheetHeader className="mb-6">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 -ml-2"
+                    className="h-8 w-8 -ml-2 hover:bg-muted"
                     onClick={handleBack}
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
-                  <SheetTitle className="text-xl">Contact Support</SheetTitle>
+                  <SheetTitle className="text-xl font-semibold">Contact Support</SheetTitle>
                 </div>
               </SheetHeader>
 
-              <form onSubmit={handleSupportSubmit} className="space-y-5">
+              <form onSubmit={handleSupportSubmit} className="space-y-6">
                 {/* Category Selection */}
-                <div className="space-y-2">
-                  <Label>What do you need help with?</Label>
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">What do you need help with?</Label>
                   <div className="grid grid-cols-2 gap-2">
                     {SUPPORT_CATEGORIES.map((category) => (
                       <button
@@ -292,7 +301,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                           "px-3 py-2.5 rounded-lg border text-sm text-left transition-all",
                           selectedCategory === category.id
                             ? "bg-primary/10 border-primary/40 text-primary font-medium"
-                            : "bg-card border-border/60 text-foreground hover:bg-accent/50 hover:border-border"
+                            : "bg-card border-border hover:bg-muted/50 hover:border-border text-foreground"
                         )}
                       >
                         {category.label}
@@ -303,7 +312,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
 
                 {/* Message */}
                 <div className="space-y-2">
-                  <Label htmlFor="supportMessage">
+                  <Label htmlFor="supportMessage" className="text-sm font-medium">
                     Message <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
@@ -313,13 +322,13 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                     onChange={(e) => setSupportMessage(e.target.value)}
                     required
                     rows={5}
-                    className="resize-none"
+                    className="resize-none bg-background"
                   />
                 </div>
 
                 {/* Related Worker/Contract (Optional) */}
                 <div className="space-y-2">
-                  <Label htmlFor="relatedWorker" className="text-muted-foreground">
+                  <Label htmlFor="relatedWorker" className="text-sm text-muted-foreground">
                     Related worker / contract (optional)
                   </Label>
                   <Input
@@ -327,6 +336,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                     placeholder="e.g., John Smith, Contract #1234"
                     value={relatedWorker}
                     onChange={(e) => setRelatedWorker(e.target.value)}
+                    className="bg-background"
                   />
                 </div>
 
@@ -366,7 +376,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                 You'll receive an answer by email.
               </p>
 
-              <div className="flex flex-col gap-2 w-full max-w-[280px]">
+              <div className="flex flex-col gap-2 w-full max-w-[260px]">
                 <Button
                   variant="outline"
                   onClick={handleSubmitAnother}
@@ -385,7 +395,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
             </motion.div>
           )}
 
-          {/* Feedback Form View (existing functionality) */}
+          {/* Feedback Form View */}
           {view === "feedback-form" && (
             <motion.div
               key="feedback-form"
@@ -396,19 +406,19 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
               className="p-6"
             >
               <SheetHeader className="mb-6">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 -ml-2"
+                    className="h-8 w-8 -ml-2 hover:bg-muted"
                     onClick={handleBack}
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                   <div>
-                    <SheetTitle className="text-xl">Give Product Feedback</SheetTitle>
+                    <SheetTitle className="text-xl font-semibold">Product Feedback</SheetTitle>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Your feedback will be shared with the team on Slack.
+                      Shared with the team on Slack
                     </p>
                   </div>
                 </div>
@@ -417,19 +427,20 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
               <form onSubmit={handleFeedbackSubmit} className="space-y-5">
                 {/* Page Context */}
                 <div className="space-y-2">
-                  <Label htmlFor="feedbackContext">Context / Page</Label>
+                  <Label htmlFor="feedbackContext" className="text-sm font-medium">Context / Page</Label>
                   <Input
                     id="feedbackContext"
                     value={feedbackContext}
                     onChange={(e) => setFeedbackContext(e.target.value)}
                     placeholder="e.g., Dashboard, Login Page"
                     required
+                    className="bg-background"
                   />
                 </div>
 
                 {/* Feedback Message */}
                 <div className="space-y-2">
-                  <Label htmlFor="feedbackMessage">
+                  <Label htmlFor="feedbackMessage" className="text-sm font-medium">
                     Your Feedback <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
@@ -439,7 +450,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                     onChange={(e) => setFeedbackMessage(e.target.value)}
                     required
                     rows={6}
-                    className="resize-none"
+                    className="resize-none bg-background"
                   />
                 </div>
 
