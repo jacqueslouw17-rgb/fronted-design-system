@@ -277,9 +277,50 @@ const previousPayrolls: PreviousPayroll[] = [
 ];
 
 // Build periods array for dropdown - defined inside component to be dynamic
+// Multiple runs can be "in-review" simultaneously
 const buildPeriods = (isSubmitted: boolean): PayrollPeriod[] => [
-  { id: "current", label: "January 2026", status: isSubmitted ? "processing" : "current" },
-  ...previousPayrolls.map(p => ({ id: p.id, label: p.period, status: "paid" as const })),
+  // Current active runs (can have multiple in-review)
+  { 
+    id: "jan-monthly", 
+    frequency: "monthly", 
+    periodLabel: "Jan 2026", 
+    payDate: "30th", 
+    status: isSubmitted ? "processing" : "in-review",
+    label: "January 2026"
+  },
+  { 
+    id: "jan-fortnight-2", 
+    frequency: "fortnightly", 
+    periodLabel: "Jan 15–31", 
+    payDate: "30th", 
+    status: "in-review",
+    label: "Jan 15-31 2026"
+  },
+  { 
+    id: "jan-fortnight-1", 
+    frequency: "fortnightly", 
+    periodLabel: "Jan 1–14", 
+    payDate: "15th", 
+    status: "in-review",
+    label: "Jan 1-14 2026"
+  },
+  // Historical paid runs
+  { 
+    id: "dec-monthly", 
+    frequency: "monthly", 
+    periodLabel: "Dec 2025", 
+    payDate: "30th", 
+    status: "paid",
+    label: "December 2025"
+  },
+  { 
+    id: "nov-monthly", 
+    frequency: "monthly", 
+    periodLabel: "Nov 2025", 
+    payDate: "30th", 
+    status: "paid",
+    label: "November 2025"
+  },
 ];
 
 interface CA3_PayrollSectionProps {
@@ -287,8 +328,8 @@ interface CA3_PayrollSectionProps {
 }
 
 export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPeriod }) => {
-  // Period view state - "current" = current, or previous period id
-  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("current");
+  // Period view state - default to first "in-review" run
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("jan-monthly");
   
   // Workflow entered state - start on landing view
   const [hasEnteredWorkflow, setHasEnteredWorkflow] = useState(false);
@@ -309,10 +350,12 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Tracking state
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
 
-  // Get selected previous payroll
-  const isViewingPrevious = selectedPeriodId !== "current";
+  // Get periods and determine if viewing historical (paid) run
+  const periods = buildPeriods(isPayrollSubmitted);
+  const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
+  const isViewingPrevious = selectedPeriodData?.status === "paid";
   const selectedPrevious = isViewingPrevious 
-    ? previousPayrolls.find(p => p.id === selectedPeriodId) 
+    ? previousPayrolls.find(p => p.id.includes(selectedPeriodId.replace("-monthly", "").replace("-fortnight-1", "").replace("-fortnight-2", ""))) 
     : null;
 
   // Computed values for submissions
@@ -321,8 +364,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Handle period change
   const handlePeriodChange = (periodId: string) => {
     setSelectedPeriodId(periodId);
-    // Reset workflow when switching periods
-    if (periodId !== "current") {
+    // Reset workflow when switching to a paid period
+    const period = periods.find(p => p.id === periodId);
+    if (period?.status === "paid") {
       setHasEnteredWorkflow(false);
     }
   };
@@ -397,8 +441,6 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       currencyCount: 3,
     };
     
-    const periods = buildPeriods(isPayrollSubmitted);
-    const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
     const periodLabel = selectedPeriodData?.label || payPeriod;
     
     return (
