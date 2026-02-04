@@ -334,42 +334,110 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
           {view === "support-submitted" && (
             <motion.div
               key="support-submitted"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="p-6 flex flex-col items-center justify-center min-h-[400px] text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative flex flex-col items-center justify-center min-h-[500px] text-center overflow-hidden"
             >
-              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                <CheckCircle2 className="h-8 w-8 text-primary" />
-              </div>
+              {/* Subtle radial gradient background */}
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] via-transparent to-transparent pointer-events-none" />
               
-              <h2 className="text-xl font-semibold text-foreground mb-2">
-                Request received
-              </h2>
-              <p className="text-muted-foreground mb-1">
-                We'll respond within 24 hours.
-              </p>
-              <p className="text-muted-foreground mb-8">
-                You'll receive an answer by email.
-              </p>
+              {/* Decorative rings */}
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full border border-primary/[0.06] pointer-events-none"
+              />
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] h-[360px] rounded-full border border-primary/[0.04] pointer-events-none"
+              />
+              
+              {/* Checkmark with animated ring */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 200, 
+                  damping: 15, 
+                  delay: 0.1 
+                }}
+                className="relative mb-8"
+              >
+                {/* Outer glow ring */}
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
+                  className="absolute inset-0 -m-3 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 blur-xl"
+                />
+                
+                {/* Icon container */}
+                <div className="relative h-20 w-20 rounded-full bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/10">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ 
+                      type: "spring", 
+                      stiffness: 300, 
+                      damping: 20,
+                      delay: 0.25 
+                    }}
+                  >
+                    <CheckCircle2 className="h-10 w-10 text-primary" strokeWidth={1.5} />
+                  </motion.div>
+                </div>
+              </motion.div>
+              
+              {/* Text content */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+                className="relative z-10 space-y-3 mb-10 px-6"
+              >
+                <h2 className="text-2xl font-semibold text-foreground tracking-tight">
+                  Request received
+                </h2>
+                <p className="text-muted-foreground text-[15px] leading-relaxed max-w-[280px] mx-auto">
+                  We'll respond within 24 hours.
+                  <br />
+                  You'll receive an answer by email.
+                </p>
+              </motion.div>
 
-              <div className="flex flex-col gap-2 w-full max-w-[260px]">
+              {/* Action buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.4 }}
+                className="relative z-10 flex flex-col gap-3 w-full max-w-[280px] px-6"
+              >
                 <Button
                   variant="outline"
                   onClick={handleSubmitAnother}
-                  className="w-full"
+                  className={cn(
+                    "w-full h-11 rounded-xl",
+                    "border-border/60 hover:border-primary/40",
+                    "hover:bg-primary/[0.04]",
+                    "transition-all duration-200"
+                  )}
                 >
                   Submit another request
                 </Button>
                 <Button
                   variant="ghost"
                   onClick={onClose}
-                  className="w-full text-muted-foreground"
+                  className="w-full h-10 text-muted-foreground hover:text-foreground hover:bg-transparent"
                 >
                   Close
                 </Button>
-              </div>
+              </motion.div>
             </motion.div>
           )}
 
