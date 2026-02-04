@@ -28,6 +28,13 @@ import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRej
 import { CollapsibleSection } from "./CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA3_AdminAddAdjustment";
 
+// Country flag map for consistent display
+const countryFlags: Record<string, string> = {
+  Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
+  Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", USA: "🇺🇸",
+  "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧"
+};
+
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
@@ -1121,7 +1128,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-[11px] text-muted-foreground leading-tight">
-              {submission.workerCountry}
+              {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
             {workerRejectedCount > 0 && workerPendingCount === 0 && (
               <span className="text-[10px] text-destructive/80">

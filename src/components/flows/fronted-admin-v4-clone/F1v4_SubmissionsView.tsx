@@ -37,6 +37,13 @@ import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_Coll
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "@/components/flows/company-admin-v3/CA3_AdminAddAdjustment";
 import { F1v4_PayrollStepper } from "./F1v4_PayrollStepper";
 
+// Country flag map for consistent display
+const countryFlags: Record<string, string> = {
+  Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
+  Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", USA: "🇺🇸",
+  "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧"
+};
+
 // Types - matching CA3_SubmissionsView exactly
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
 // Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
@@ -675,7 +682,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-muted-foreground leading-tight">{submission.workerCountry}</span>
+            <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[submission.workerCountry] || ""} {submission.workerCountry}</span>
             {workerRejectedCount > 0 && workerPendingCount === 0 && (
               <span className="text-[10px] text-destructive/80">· 1 day to resubmit</span>
             )}
