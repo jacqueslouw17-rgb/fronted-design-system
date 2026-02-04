@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useRoleLens } from "@/contexts/RoleLensContext";
 
 interface CA4_SupportPanelProps {
   isOpen: boolean;
@@ -36,7 +37,6 @@ interface CA4_SupportPanelProps {
 }
 
 type PanelView = "selection" | "support-form" | "support-submitted" | "feedback-form";
-type UserRole = "company-admin" | "worker" | "internal";
 
 // Support categories - standardized across roles
 const SUPPORT_CATEGORIES = [
@@ -53,9 +53,12 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
   onClose,
 }) => {
   const location = useLocation();
-  
-  // For demo purposes, simulate internal user - in production this would come from auth context
-  const [userRole] = useState<UserRole>("internal");
+  const { currentLens } = useRoleLens();
+
+  // Internal-only access for Product Feedback (kept out of Company Admin + Worker views)
+  // Add ?internal=1 to the URL while reviewing to expose Product Feedback.
+  const internalFlag = new URLSearchParams(location.search).get("internal") === "1";
+  const canSeeProductFeedback = internalFlag && currentLens.role === "admin";
   
   const [view, setView] = useState<PanelView>("selection");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -172,7 +175,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
     setView("support-form");
   };
 
-  const isInternalUser = userRole === "internal";
+  const isInternalUser = canSeeProductFeedback;
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -362,8 +365,8 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
               transition={{ duration: 0.2 }}
               className="p-6 flex flex-col items-center justify-center min-h-[400px] text-center"
             >
-              <div className="h-16 w-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
-                <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                <CheckCircle2 className="h-8 w-8 text-primary" />
               </div>
               
               <h2 className="text-xl font-semibold text-foreground mb-2">

@@ -19,7 +19,6 @@ import {
   CA4_AgentProvider,
   CA4_AgentChatPanel,
   CA4_KurtVisualizer,
-  CA4_SupportBubble,
   useCA4Agent,
 } from "@/components/flows/company-admin-v4";
 
@@ -142,9 +141,6 @@ const CompanyAdminDashboardV4Content: React.FC = () => {
 
       {/* Right: Agent Chat Panel - completely outside product area */}
       <CA4_AgentChatPanel />
-
-      {/* Bottom-right: Support & Feedback Bubble */}
-      <CA4_SupportBubble />
     </div>
   );
 };
