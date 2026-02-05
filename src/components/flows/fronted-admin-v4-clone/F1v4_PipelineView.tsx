@@ -1436,5 +1436,25 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Done Worker Detail Drawer */}
+      <F1v4_DoneWorkerDetailDrawer
+        open={doneDetailDrawerOpen}
+        onOpenChange={setDoneDetailDrawerOpen}
+        worker={selectedForDoneDetail ? {
+          id: selectedForDoneDetail.id,
+          name: selectedForDoneDetail.name,
+          country: selectedForDoneDetail.country,
+          countryFlag: selectedForDoneDetail.countryFlag,
+          role: selectedForDoneDetail.role,
+          salary: selectedForDoneDetail.salary,
+          employmentType: selectedForDoneDetail.employmentType || "contractor",
+          email: selectedForDoneDetail.email,
+        } : null}
+        onGoToDataCollection={(workerId) => {
+          setDoneDetailDrawerOpen(false);
+          toast.info("Redirecting to data collection...");
+        }}
+      />
     </div>;
 };
