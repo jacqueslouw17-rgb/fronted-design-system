@@ -1050,7 +1050,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   duration: 0.2
                 }
               }}>
-                <Card className={cn("hover:shadow-card transition-all cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm", status === "CERTIFIED" && "hover:border-accent-green-outline/50 hover:bg-accent-green-fill/5")} onClick={() => {
+                <Card className="border border-border/40 bg-card cursor-pointer" onClick={() => {
                   if (status === "awaiting-signature") {
                     handleOpenSignatureWorkflow(contractor);
                   } else if (status === "CERTIFIED") {
