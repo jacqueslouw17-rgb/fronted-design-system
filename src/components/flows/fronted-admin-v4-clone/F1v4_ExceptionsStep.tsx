@@ -585,39 +585,7 @@
    };
  
    const renderContent = () => (
-     <div className="space-y-4">
-       <div className="flex items-center justify-between">
-         <div className="flex items-center gap-3">
-           <h3 className="text-base font-medium">Exceptions</h3>
-           <div className="flex items-center gap-2">
-             {activeExceptions.length > 0 && (
-               <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px]">
-                 {activeExceptions.length} to review
-               </Badge>
-             )}
-             {resolvedExceptions.length > 0 && (
-               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px]">
-                 {resolvedExceptions.length} resolved
-               </Badge>
-             )}
-           </div>
-         </div>
-         <Tooltip>
-           <TooltipTrigger asChild>
-             <span>
-               <Button onClick={onContinue} size="sm" disabled={!canContinue}>
-                 Continue to Approve
-               </Button>
-             </span>
-           </TooltipTrigger>
-           {!canContinue && (
-             <TooltipContent side="bottom" className="max-w-[200px]">
-               <p className="text-xs">Resolve all {activeExceptions.length} exception{activeExceptions.length !== 1 ? "s" : ""} before continuing</p>
-             </TooltipContent>
-           )}
-         </Tooltip>
-       </div>
- 
+    <div className="space-y-2">
        {activeExceptions.length === 0 && resolvedExceptions.length === 0 && (
          <div className="py-12 flex flex-col items-center gap-3 text-center">
            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
