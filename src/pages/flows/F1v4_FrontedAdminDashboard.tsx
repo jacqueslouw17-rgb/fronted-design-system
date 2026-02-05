@@ -104,6 +104,9 @@ const DEFAULT_DRAFTING_CANDIDATES = [
   },
 ];
 
+// Keep all navigation inside this flow (Flow 1 v4 clone)
+const FLOW_BASE_PATH = "/flows/fronted-admin-dashboard-v4-clone";
+
 const AdminContractingMultiCompany = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -181,7 +184,7 @@ const AdminContractingMultiCompany = () => {
       });
       
       // Clean URL
-      navigate('/flows/contract-flow-multi-company', { replace: true });
+      navigate(FLOW_BASE_PATH, { replace: true });
     }
   }, [searchParams, navigate, toast]);
   
@@ -203,7 +206,7 @@ const AdminContractingMultiCompany = () => {
       setContractors([]);
       
       // Clear the moved param to prevent re-triggering
-      navigate('/flows/contract-flow-multi-company?phase=data-collection', { replace: true });
+      navigate(`${FLOW_BASE_PATH}?phase=data-collection`, { replace: true });
     }
   }, [searchParams, contractors, selectedCompany, setContractors, navigate]);
 
@@ -637,7 +640,7 @@ const AdminContractingMultiCompany = () => {
     if (phaseParam === "bundle-creation") {
       // Bundle step is hidden in Flow 1.1 — treat this as drafting.
       contractFlow.proceedToDrafting();
-      navigate("/flows/contract-flow-multi-company", { replace: true });
+      navigate(FLOW_BASE_PATH, { replace: true });
     }
 
     if (phaseParam === "drafting" && idsParam) {
@@ -676,7 +679,7 @@ const AdminContractingMultiCompany = () => {
       }
 
       // Clean up the URL
-      navigate("/flows/contract-flow-multi-company?phase=drafting", { replace: true });
+      navigate(`${FLOW_BASE_PATH}?phase=drafting`, { replace: true });
     } else if (phaseParam === "drafting" && !idsParam) {
       // Returning without IDs: only force drafting once (avoid resetting draft index mid-flow)
       if (!didApplyDraftingUrlRef.current) {
@@ -780,7 +783,7 @@ const AdminContractingMultiCompany = () => {
             className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => {
               contractFlow.resetFlow();
-              navigate("/flows/contract-flow-multi-company");
+              navigate(FLOW_BASE_PATH);
             }}
           />
           <Button
@@ -788,7 +791,7 @@ const AdminContractingMultiCompany = () => {
             size="icon"
             onClick={() => {
               contractFlow.resetFlow();
-              navigate("/flows/contract-flow-multi-company");
+              navigate(FLOW_BASE_PATH);
             }}
             className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
           >
@@ -998,13 +1001,13 @@ const AdminContractingMultiCompany = () => {
                                 onDraftContract={(ids) => {
                                   const params = new URLSearchParams({ 
                                     ids: ids.join(','),
-                                    returnTo: 'flow-1.1',
+                                    returnTo: 'f1v4',
                                     company: selectedCompany
                                   }).toString();
                                   navigate(`/flows/contract-creation?${params}`);
                                 }}
                                 onSignatureComplete={() => {
-                                  navigate("/flows/contract-flow-multi-company?phase=data-collection&allSigned=true");
+                                  navigate(`${FLOW_BASE_PATH}?phase=data-collection&allSigned=true`);
                                 }}
                               />
                             </div>
@@ -1051,7 +1054,7 @@ const AdminContractingMultiCompany = () => {
                           candidate={candidate}
                           onGenerateBundle={(docs) => {}}
                           hideButton={true}
-                          onClose={() => navigate("/flows/contract-flow-multi-company")}
+                          onClose={() => navigate(FLOW_BASE_PATH)}
                         />
                       </div>
                     ))}
@@ -1100,7 +1103,7 @@ const AdminContractingMultiCompany = () => {
 
                           // Ensure "Confirm & Continue" lands on the final review screen (Send for Signature)
                           if (isLast) {
-                            navigate("/flows/contract-flow-multi-company?phase=reviewing", { replace: true });
+                            navigate(`${FLOW_BASE_PATH}?phase=reviewing`, { replace: true });
                           }
                         }}
                         onPrevious={() => {
@@ -1136,7 +1139,7 @@ const AdminContractingMultiCompany = () => {
                         }));
                         contractFlow.proceedToDataCollection();
                         toast({ title: "Contracts sent for signature", description: `${contractFlow.selectedCandidates.length} candidate(s) moved to Waiting for Signature` });
-                        navigate("/flows/contract-flow-multi-company?phase=data-collection&moved=true");
+                        navigate(`${FLOW_BASE_PATH}?phase=data-collection&moved=true`);
                       }}
                     />
                   </div>
@@ -1148,7 +1151,7 @@ const AdminContractingMultiCompany = () => {
                     onSendBundle={() => { 
                       contractFlow.startSigning(); 
                     }}
-                    onClose={() => { contractFlow.proceedToDataCollection(); navigate("/flows/contract-flow-multi-company?phase=data-collection"); }}
+                    onClose={() => { contractFlow.proceedToDataCollection(); navigate(`${FLOW_BASE_PATH}?phase=data-collection`); }}
                   />
                 </motion.div>
               ) : contractFlow.phase === "signing" ? (
