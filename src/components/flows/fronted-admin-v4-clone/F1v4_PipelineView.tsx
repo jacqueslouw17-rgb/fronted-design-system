@@ -1053,11 +1053,20 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   duration: 0.2
                 }
               }}>
-                <Card className="hover:shadow-card transition-shadow cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm" onClick={() => {
+                <Card 
+                  className={cn(
+                    "hover:shadow-card transition-all cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm",
+                    status === "CERTIFIED" && "hover:border-accent-green-outline/50 hover:bg-accent-green-fill/5"
+                  )} 
+                  onClick={() => {
                     if (status === "awaiting-signature") {
                       handleOpenSignatureWorkflow(contractor);
+                    } else if (status === "CERTIFIED") {
+                      setSelectedForDoneDetail(contractor);
+                      setDoneDetailDrawerOpen(true);
                     }
-                  }}>
+                  }}
+                >
                       <CardContent className="p-3 space-y-2">
                          {/* Contractor Header - No checkbox for certain columns */}
                         <div className="flex items-start gap-2">
