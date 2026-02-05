@@ -1115,7 +1115,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         {/* Contractor Details */}
                         <div className="flex flex-col gap-1.5 text-[11px]">
                           <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Salary</span>
+                            <span className="text-muted-foreground">
+                              {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
+                            </span>
                             <span className="font-medium text-foreground">
                               {getCurrencyCode(contractor.country, contractor.employmentType)} {contractor.salary}
                             </span>
@@ -1127,9 +1129,26 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">Type</span>
                             <span className="font-medium text-foreground">
-                              {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee"}
+                              {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
                             </span>
                           </div>
+                          {/* Enhanced fields for CERTIFIED/Done status */}
+                          {status === "CERTIFIED" && (
+                            <>
+                              <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Pay frequency</span>
+                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-primary/5 text-primary border-primary/20 font-medium">
+                                  {contractor.country === "Philippines" ? "Fortnightly" : "Monthly"}
+                                </Badge>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Bank</span>
+                                <span className="font-medium text-foreground text-[10px]">
+                                  {contractor.country === "Philippines" ? "BDO, PH" : contractor.country === "Norway" ? "DNB, NO" : `Local Bank, ${contractor.countryFlag}`}
+                                </span>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         {/* Quick Actions */}
