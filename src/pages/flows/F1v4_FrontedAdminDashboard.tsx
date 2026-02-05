@@ -1054,7 +1054,7 @@ const AdminContractingMultiCompany = () => {
                           candidate={candidate}
                           onGenerateBundle={(docs) => {}}
                           hideButton={true}
-                          onClose={() => navigate("/flows/contract-flow-multi-company")}
+                          onClose={() => navigate(FLOW_BASE_PATH)}
                         />
                       </div>
                     ))}
