@@ -92,6 +92,13 @@ const ContractCreation: React.FC = () => {
   const mockCandidates = useMockCandidates();
   const contractorsFromStore = useContractorStore((s) => s.contractors) as unknown as PipelineContractor[];
 
+  // Only override navigation when the launching flow explicitly asks for it.
+  // (Keeps existing default behavior unchanged.)
+  const closePath =
+    returnTo === "f1v4"
+      ? "/flows/fronted-admin-dashboard-v4-clone"
+      : "/flows/contract-flow-multi-company";
+
   // Combine mock candidates with display candidates for lookup
   const allCandidates = [...mockCandidates, ...displayCandidates];
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
@@ -187,13 +194,13 @@ const ContractCreation: React.FC = () => {
                     src={frontedLogo}
                     alt="Fronted"
                     className="h-7 sm:h-8 w-auto cursor-pointer"
-                    onClick={() => navigate("/flows/contract-flow-multi-company")}
+                      onClick={() => navigate(closePath)}
                   />
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => navigate("/flows/contract-flow-multi-company")}
+                      onClick={() => navigate(closePath)}
                     aria-label="Close and return to pipeline"
                   >
                     <X className="h-5 w-5" />
@@ -210,8 +217,7 @@ const ContractCreation: React.FC = () => {
                       and try again.
                     </p>
                     <div className="mt-4">
-                      <Button onClick={() => navigate("/flows/contract-flow-multi-company")}
-                      >
+                      <Button onClick={() => navigate(closePath)}>
                         Back to pipeline
                       </Button>
                     </div>
@@ -253,13 +259,13 @@ const ContractCreation: React.FC = () => {
                   src={frontedLogo} 
                   alt="Fronted" 
                   className="h-7 sm:h-8 w-auto cursor-pointer"
-                  onClick={() => navigate("/flows/contract-flow-multi-company")}
+                  onClick={() => navigate(closePath)}
                 />
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => navigate("/flows/contract-flow-multi-company")}
+                  onClick={() => navigate(closePath)}
                   aria-label="Close and return to pipeline"
                 >
                   <X className="h-5 w-5" />
@@ -290,6 +296,15 @@ const ContractCreation: React.FC = () => {
                           ...(companyParam && { company: companyParam })
                         }).toString();
                         navigate(`/flows/contract-flow-multi-company?${params}`);
+                      } else if (returnTo === 'f1v4') {
+                        // Return to Flow 1 v4 clone with company context and candidate IDs preserved
+                        const candidateIds = selected.map(c => c.id).join(',');
+                        const params = new URLSearchParams({
+                          phase: 'drafting',
+                          ids: candidateIds,
+                          ...(companyParam && { company: companyParam }),
+                        }).toString();
+                        navigate(`/flows/fronted-admin-dashboard-v4-clone?${params}`);
                       } else {
                         // Default: go to contract-flow drafting phase
                         navigate("/flows/contract-flow?phase=drafting");
