@@ -1114,13 +1114,13 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           {status === "CERTIFIED" && <>
                               <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Pay frequency</span>
-                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-primary/5 text-primary border-primary/20 font-medium">
+                                <span className="font-medium text-foreground">
                                   {contractor.country === "Philippines" ? "Fortnightly" : "Monthly"}
-                                </Badge>
+                                </span>
                               </div>
                               <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Bank</span>
-                                <span className="font-medium text-foreground text-[10px]">
+                                <span className="font-medium text-foreground">
                                   {contractor.country === "Philippines" ? "BDO, PH" : contractor.country === "Norway" ? "DNB, NO" : `Local Bank, ${contractor.countryFlag}`}
                                 </span>
                               </div>
@@ -1205,24 +1205,22 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Badge>
                             </div>}
                           
-                          {status === "CERTIFIED" && <div className="flex flex-col gap-2 w-full">
-                              <div className="flex items-center justify-between">
-                                <Badge variant="secondary" className="text-[10px] gap-1 px-2 py-0.5 bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30">
-                                  <CheckCircle2 className="h-2.5 w-2.5" />
-                                  Payroll ready
-                                </Badge>
-                                <span className="text-[9px] text-muted-foreground/60">
-                                  Updated 2d ago
-                                </span>
-                              </div>
-                              <Button size="sm" variant="ghost" className="w-full text-xs h-7 gap-1.5 text-primary hover:text-primary hover:bg-primary/5 justify-start px-2" onClick={e => {
-                          e.stopPropagation();
-                          setSelectedForDoneDetail(contractor);
-                          setDoneDetailDrawerOpen(true);
-                        }}>
+                          {status === "CERTIFIED" && <div className="flex flex-col gap-2 w-full items-center group/done">
+                              <Badge variant="secondary" className="text-[10px] gap-1 px-2 py-0.5 bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30">
+                                <CheckCircle2 className="h-2.5 w-2.5" />
+                                Payroll ready
+                              </Badge>
+                              <button 
+                                className="text-xs text-primary hover:underline opacity-0 group-hover/done:opacity-100 transition-opacity duration-200 flex items-center gap-1"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setSelectedForDoneDetail(contractor);
+                                  setDoneDetailDrawerOpen(true);
+                                }}
+                              >
                                 <Eye className="h-3 w-3" />
                                 View details
-                              </Button>
+                              </button>
                             </div>}
                           
                           {status === "payroll-ready" && contractor.status === "CERTIFIED" && <>
