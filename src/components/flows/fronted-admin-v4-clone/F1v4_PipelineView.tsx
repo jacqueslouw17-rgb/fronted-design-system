@@ -1114,13 +1114,13 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           {status === "CERTIFIED" && <>
                               <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Pay frequency</span>
-                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-primary/5 text-primary border-primary/20 font-medium">
+                                <span className="font-medium text-foreground">
                                   {contractor.country === "Philippines" ? "Fortnightly" : "Monthly"}
-                                </Badge>
+                                </span>
                               </div>
                               <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Bank</span>
-                                <span className="font-medium text-foreground text-[10px]">
+                                <span className="font-medium text-foreground">
                                   {contractor.country === "Philippines" ? "BDO, PH" : contractor.country === "Norway" ? "DNB, NO" : `Local Bank, ${contractor.countryFlag}`}
                                 </span>
                               </div>
