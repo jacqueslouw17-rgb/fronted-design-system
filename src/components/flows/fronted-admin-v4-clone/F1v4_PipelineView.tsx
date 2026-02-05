@@ -964,6 +964,12 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     </Badge>
                   </div>
                 </div>
+                {/* Subtitle for Done column */}
+                {status === "CERTIFIED" && 'subtitle' in config && (
+                  <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">
+                    {(config as any).subtitle}
+                  </p>
+                )}
                 
                 {/* Bulk Actions */}
                 {status === "offer-accepted" && getSelectedCount(status) > 0 && <div className="mt-2">
