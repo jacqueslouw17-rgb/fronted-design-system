@@ -749,7 +749,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
     }, 800);
   };
-
   const handleRemoveFromOfferAccepted = (contractorId: string) => {
     setContractors(prev => prev.filter(c => c.id !== contractorId));
     onRemoveContractor?.(contractorId);
@@ -965,11 +964,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   </div>
                 </div>
                 {/* Subtitle for Done column */}
-                {status === "CERTIFIED" && 'subtitle' in config && (
-                  <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">
-                    {(config as any).subtitle}
-                  </p>
-                )}
+                {status === "CERTIFIED" && 'subtitle' in config}
                 
                 {/* Bulk Actions */}
                 {status === "offer-accepted" && getSelectedCount(status) > 0 && <div className="mt-2">
@@ -1005,12 +1000,13 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               {/* Column Body */}
               <div className={cn("min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg", config.color)}>
                 {/* Empty state for offer-accepted column */}
-                {status === "offer-accepted" && items.length === 0 && onAddCandidate && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col items-center justify-center py-12 px-4 text-center"
-                  >
+                {status === "offer-accepted" && items.length === 0 && onAddCandidate && <motion.div initial={{
+              opacity: 0,
+              y: 20
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
                     <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                       <Plus className="h-8 w-8 text-primary" />
                     </div>
@@ -1018,16 +1014,11 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     <p className="text-xs text-muted-foreground mb-4">
                       Add your first candidate to start the contracting process
                     </p>
-                    <Button 
-                      size="sm" 
-                      onClick={onAddCandidate}
-                      className="gap-2"
-                    >
+                    <Button size="sm" onClick={onAddCandidate} className="gap-2">
                       <Plus className="h-4 w-4" />
                       Add Candidate
                     </Button>
-                  </motion.div>
-                )}
+                  </motion.div>}
                 
                 {/* Payroll Summary Card - Removed for certified column */}
                 
@@ -1053,20 +1044,14 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   duration: 0.2
                 }
               }}>
-                <Card 
-                  className={cn(
-                    "hover:shadow-card transition-all cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm",
-                    status === "CERTIFIED" && "hover:border-accent-green-outline/50 hover:bg-accent-green-fill/5"
-                  )} 
-                  onClick={() => {
-                    if (status === "awaiting-signature") {
-                      handleOpenSignatureWorkflow(contractor);
-                    } else if (status === "CERTIFIED") {
-                      setSelectedForDoneDetail(contractor);
-                      setDoneDetailDrawerOpen(true);
-                    }
-                  }}
-                >
+                <Card className={cn("hover:shadow-card transition-all cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm", status === "CERTIFIED" && "hover:border-accent-green-outline/50 hover:bg-accent-green-fill/5")} onClick={() => {
+                  if (status === "awaiting-signature") {
+                    handleOpenSignatureWorkflow(contractor);
+                  } else if (status === "CERTIFIED") {
+                    setSelectedForDoneDetail(contractor);
+                    setDoneDetailDrawerOpen(true);
+                  }
+                }}>
                       <CardContent className="p-3 space-y-2">
                          {/* Contractor Header - No checkbox for certain columns */}
                         <div className="flex items-start gap-2">
@@ -1096,20 +1081,13 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 Include in this month's batch
                               </p>}
                           </div>
-                          {status === "offer-accepted" && onRemoveContractor && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleRemoveFromOfferAccepted(contractor.id);
-                              }}
-                            >
+                          {status === "offer-accepted" && onRemoveContractor && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0" onClick={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleRemoveFromOfferAccepted(contractor.id);
+                      }}>
                               <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
+                            </Button>}
                         </div>
 
                         {/* Contractor Details */}
@@ -1133,8 +1111,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             </span>
                           </div>
                           {/* Enhanced fields for CERTIFIED/Done status */}
-                          {status === "CERTIFIED" && (
-                            <>
+                          {status === "CERTIFIED" && <>
                               <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Pay frequency</span>
                                 <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-primary/5 text-primary border-primary/20 font-medium">
@@ -1147,8 +1124,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   {contractor.country === "Philippines" ? "BDO, PH" : contractor.country === "Norway" ? "DNB, NO" : `Local Bank, ${contractor.countryFlag}`}
                                 </span>
                               </div>
-                            </>
-                          )}
+                            </>}
                         </div>
 
                         {/* Quick Actions */}
@@ -1170,60 +1146,47 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Button>
                             </>}
                           
-                          {status === "data-pending" && (
-                            <div className="w-full space-y-2">
+                          {status === "data-pending" && <div className="w-full space-y-2">
                               <p className="text-xs text-muted-foreground text-center">Awaiting candidate details</p>
-                              <Button 
-                                size="sm" 
-                                className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" 
-                                disabled={sendingFormIds.has(contractor.id)}
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  setSendingFormIds(prev => new Set([...prev, contractor.id]));
-                                  setTimeout(() => {
-                                    setSendingFormIds(prev => {
-                                      const next = new Set(prev);
-                                      next.delete(contractor.id);
-                                      return next;
-                                    });
-                                    setResentFormIds(prev => new Set([...prev, contractor.id]));
-                                    toast.info(`Form resent to ${contractor.name}`);
-                                  }, 1500);
-                                }}
-                              >
+                              <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
+                          e.stopPropagation();
+                          setSendingFormIds(prev => new Set([...prev, contractor.id]));
+                          setTimeout(() => {
+                            setSendingFormIds(prev => {
+                              const next = new Set(prev);
+                              next.delete(contractor.id);
+                              return next;
+                            });
+                            setResentFormIds(prev => new Set([...prev, contractor.id]));
+                            toast.info(`Form resent to ${contractor.name}`);
+                          }, 1500);
+                        }}>
                                 <RotateCcw className={cn("h-3.5 w-3.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
                                 Resend
                               </Button>
-                            </div>
-                          )}
+                            </div>}
                           
                           {status === "drafting" && <Button size="sm" className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
-                          e.stopPropagation();
-                          // Use the shared onDraftContract callback (same as bulk) for consistent behavior
-                          handleDraftContract([contractor.id]);
-                        }}>
+                        e.stopPropagation();
+                        // Use the shared onDraftContract callback (same as bulk) for consistent behavior
+                        handleDraftContract([contractor.id]);
+                      }}>
                               <FileEdit className="h-3 w-3" />
                               Draft Contract
                             </Button>}
                           
-                          {status === "awaiting-signature" && (
-                            <Button 
-                              size="sm" 
-                              className="w-full text-xs h-7 gap-1" 
-                              onClick={e => {
-                                e.stopPropagation();
-                                handleOpenSignatureWorkflow(contractor);
-                              }}
-                            >
+                          {status === "awaiting-signature" && <Button size="sm" className="w-full text-xs h-7 gap-1" onClick={e => {
+                        e.stopPropagation();
+                        handleOpenSignatureWorkflow(contractor);
+                      }}>
                               <Eye className="h-3 w-3" />
                               Track Progress
-                            </Button>
-                          )}
+                            </Button>}
                           
                           {status === "trigger-onboarding" && <Button size="sm" className="w-full text-xs h-7 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium" onClick={e => {
-                          e.stopPropagation();
-                          handleStartOnboardingClick(contractor);
-                        }}>
+                        e.stopPropagation();
+                        handleStartOnboardingClick(contractor);
+                      }}>
                               <CheckCircle2 className="h-3 w-3 mr-1" />
                               Start Onboarding
                             </Button>}
@@ -1235,17 +1198,14 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Badge>
                             </div>}
                           
-                          {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && (
-                            <div className="flex items-center justify-center w-full py-1">
+                          {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && <div className="flex items-center justify-center w-full py-1">
                               <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30 hover:bg-accent-green-fill/30">
                                 <CheckCircle2 className="h-3 w-3" />
                                 Ready for payroll
                               </Badge>
-                            </div>
-                          )}
+                            </div>}
                           
-                          {status === "CERTIFIED" && (
-                            <div className="flex flex-col gap-2 w-full">
+                          {status === "CERTIFIED" && <div className="flex flex-col gap-2 w-full">
                               <div className="flex items-center justify-between">
                                 <Badge variant="secondary" className="text-[10px] gap-1 px-2 py-0.5 bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30">
                                   <CheckCircle2 className="h-2.5 w-2.5" />
@@ -1255,24 +1215,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   Updated 2d ago
                                 </span>
                               </div>
-                              <Button 
-                                size="sm" 
-                                variant="ghost"
-                                className="w-full text-xs h-7 gap-1.5 text-primary hover:text-primary hover:bg-primary/5 justify-start px-2" 
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  setSelectedForDoneDetail(contractor);
-                                  setDoneDetailDrawerOpen(true);
-                                }}
-                              >
+                              <Button size="sm" variant="ghost" className="w-full text-xs h-7 gap-1.5 text-primary hover:text-primary hover:bg-primary/5 justify-start px-2" onClick={e => {
+                          e.stopPropagation();
+                          setSelectedForDoneDetail(contractor);
+                          setDoneDetailDrawerOpen(true);
+                        }}>
                                 <Eye className="h-3 w-3" />
                                 View details
                               </Button>
-                            </div>
-                          )}
+                            </div>}
                           
-                          {status === "payroll-ready" && contractor.status === "CERTIFIED" && (
-                            <>
+                          {status === "payroll-ready" && contractor.status === "CERTIFIED" && <>
                               <div className="flex items-center justify-center w-full py-1">
                                 <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30">
                                   <Award className="h-3 w-3" />
@@ -1280,33 +1233,22 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 </Badge>
                               </div>
                               <div className="flex gap-2">
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    handleOpenCertificate(contractor);
-                                  }}
-                                >
+                                <Button size="sm" variant="outline" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" onClick={e => {
+                            e.stopPropagation();
+                            handleOpenCertificate(contractor);
+                          }}>
                                   <Eye className="h-3 w-3" />
                                   View
                                 </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    toast.success("Certificate downloaded");
-                                  }}
-                                >
+                                <Button size="sm" variant="outline" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" onClick={e => {
+                            e.stopPropagation();
+                            toast.success("Certificate downloaded");
+                          }}>
                                   <Download className="h-3 w-3" />
                                   Download
                                 </Button>
                               </div>
-                            </>
-                          )}
+                            </>}
                         </div>
 
                         {/* Display Flags */}
@@ -1320,17 +1262,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 </AnimatePresence>
                 
                 {/* Add Candidate Button - Always visible in offer-accepted column */}
-                {status === "offer-accepted" && items.length > 0 && onAddCandidate && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={onAddCandidate}
-                    className="w-full gap-2 border-dashed hover:bg-primary/5 hover:border-primary/50 hover:text-primary"
-                  >
+                {status === "offer-accepted" && items.length > 0 && onAddCandidate && <Button variant="outline" size="sm" onClick={onAddCandidate} className="w-full gap-2 border-dashed hover:bg-primary/5 hover:border-primary/50 hover:text-primary">
                     <Plus className="h-4 w-4" />
                     Add Candidate
-                  </Button>
-                )}
+                  </Button>}
                 </div>
               </motion.div>;
       })}
@@ -1349,7 +1284,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       employmentType: selectedContractor.employmentType || "contractor",
       startDate: "",
       employmentTypeSource: selectedContractor.hasATSData ? "ats" : "suggested",
-      hasATSData: selectedContractor.hasATSData,
+      hasATSData: selectedContractor.hasATSData
     } : {} as any} onComplete={() => {
       // Simulate candidate completing form - auto-move to drafting
       if (selectedContractor) {
@@ -1406,55 +1341,44 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           <SheetHeader>
             <SheetTitle>Certificate of Contract</SheetTitle>
           </SheetHeader>
-          {selectedForCertificate && (
-            <div className="mt-6">
-              <CertificateCard
-                candidate={{
-                  id: selectedForCertificate.id,
-                  name: selectedForCertificate.name,
-                  role: selectedForCertificate.role,
-                  country: selectedForCertificate.country,
-                  countryCode: selectedForCertificate.country === "Philippines" ? "PH" : selectedForCertificate.country === "Norway" ? "NO" : "XK",
-                  flag: selectedForCertificate.countryFlag,
-                  salary: selectedForCertificate.salary,
-                  email: selectedForCertificate.email || "",
-                  employmentType: selectedForCertificate.employmentType || "contractor",
-                  startDate: "",
-                  noticePeriod: "30 days",
-                  pto: "20 days",
-                  currency: selectedForCertificate.salary.includes('₱') ? 'PHP' : selectedForCertificate.salary.includes('€') ? 'EUR' : 'USD',
-                  signingPortal: "Fronted Portal",
-                  status: "Hired" as const,
-                  employmentTypeSource: "suggested",
-                }}
-                index={0}
-                onView={() => {
-                  toast.success("Opening certificate preview");
-                }}
-              />
-            </div>
-          )}
+          {selectedForCertificate && <div className="mt-6">
+              <CertificateCard candidate={{
+            id: selectedForCertificate.id,
+            name: selectedForCertificate.name,
+            role: selectedForCertificate.role,
+            country: selectedForCertificate.country,
+            countryCode: selectedForCertificate.country === "Philippines" ? "PH" : selectedForCertificate.country === "Norway" ? "NO" : "XK",
+            flag: selectedForCertificate.countryFlag,
+            salary: selectedForCertificate.salary,
+            email: selectedForCertificate.email || "",
+            employmentType: selectedForCertificate.employmentType || "contractor",
+            startDate: "",
+            noticePeriod: "30 days",
+            pto: "20 days",
+            currency: selectedForCertificate.salary.includes('₱') ? 'PHP' : selectedForCertificate.salary.includes('€') ? 'EUR' : 'USD',
+            signingPortal: "Fronted Portal",
+            status: "Hired" as const,
+            employmentTypeSource: "suggested"
+          }} index={0} onView={() => {
+            toast.success("Opening certificate preview");
+          }} />
+            </div>}
         </SheetContent>
       </Sheet>
 
       {/* Done Worker Detail Drawer */}
-      <F1v4_DoneWorkerDetailDrawer
-        open={doneDetailDrawerOpen}
-        onOpenChange={setDoneDetailDrawerOpen}
-        worker={selectedForDoneDetail ? {
-          id: selectedForDoneDetail.id,
-          name: selectedForDoneDetail.name,
-          country: selectedForDoneDetail.country,
-          countryFlag: selectedForDoneDetail.countryFlag,
-          role: selectedForDoneDetail.role,
-          salary: selectedForDoneDetail.salary,
-          employmentType: selectedForDoneDetail.employmentType || "contractor",
-          email: selectedForDoneDetail.email,
-        } : null}
-        onGoToDataCollection={(workerId) => {
-          setDoneDetailDrawerOpen(false);
-          toast.info("Redirecting to data collection...");
-        }}
-      />
+      <F1v4_DoneWorkerDetailDrawer open={doneDetailDrawerOpen} onOpenChange={setDoneDetailDrawerOpen} worker={selectedForDoneDetail ? {
+      id: selectedForDoneDetail.id,
+      name: selectedForDoneDetail.name,
+      country: selectedForDoneDetail.country,
+      countryFlag: selectedForDoneDetail.countryFlag,
+      role: selectedForDoneDetail.role,
+      salary: selectedForDoneDetail.salary,
+      employmentType: selectedForDoneDetail.employmentType || "contractor",
+      email: selectedForDoneDetail.email
+    } : null} onGoToDataCollection={workerId => {
+      setDoneDetailDrawerOpen(false);
+      toast.info("Redirecting to data collection...");
+    }} />
     </div>;
 };
