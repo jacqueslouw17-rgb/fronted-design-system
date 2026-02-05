@@ -226,10 +226,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
 
   // Auto-transition onboarding-pending to certified after 5 seconds
   useEffect(() => {
-    const onboardingContractors = contractors.filter(c => c.status === "onboarding-pending" && !notifiedCertifiedIds.current.has(c.id));
+    const onboardingContractors = contractors.filter(c => c.status === "onboarding-pending");
     if (onboardingContractors.length === 0) return;
+    
     const timers = onboardingContractors.map(contractor => {
+      // Skip if already notified in this session
+      if (notifiedCertifiedIds.current.has(contractor.id)) return null;
+      
       return setTimeout(() => {
+        // Mark as notified first to prevent duplicates
+        notifiedCertifiedIds.current.add(contractor.id);
+        
         setContractors(prev => {
           const updated = prev.map(c => c.id === contractor.id ? {
             ...c,
@@ -239,15 +246,14 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           return updated;
         });
 
-        // Mark as notified and show toast
-        notifiedCertifiedIds.current.add(contractor.id);
         toast.success(`${contractor.name} is onboarded and certified`, {
           description: "Candidate is ready for payroll processing"
         });
       }, 5000);
     });
+    
     return () => {
-      timers.forEach(timer => clearTimeout(timer));
+      timers.forEach(timer => timer && clearTimeout(timer));
     };
   }, [contractors, onContractorUpdate]);
 
