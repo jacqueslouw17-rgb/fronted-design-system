@@ -33,6 +33,7 @@ import { CertifiedActionDrawer } from "@/components/contract-flow/CertifiedActio
 import { ResolvePayrollIssueDrawer } from "@/components/contract-flow/ResolvePayrollIssueDrawer";
 import { CertificateCard } from "@/components/contract-flow/CertificateCard";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { F1v4_DoneWorkerDetailDrawer, type DoneWorkerData } from "./F1v4_DoneWorkerDetailDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { useNavigate } from "react-router-dom";
@@ -117,10 +118,11 @@ const statusConfig = {
     tooltip: "Monitor completion status and send reminders"
   },
   "CERTIFIED": {
-    label: "Certified",
+    label: "Done",
+    subtitle: "All required details collected and verified. Worker is payroll-ready.",
     color: "bg-accent-green-fill/30 border-accent-green-outline/20",
     badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-    tooltip: "Contracts & compliance completed ✅"
+    tooltip: "All required details collected and verified ✅"
   },
   "PAYROLL_PENDING": {
     label: "Payroll Pending",
@@ -215,6 +217,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedForResolveIssue, setSelectedForResolveIssue] = useState<Contractor | null>(null);
   const [certificateDrawerOpen, setCertificateDrawerOpen] = useState(false);
   const [selectedForCertificate, setSelectedForCertificate] = useState<Contractor | null>(null);
+  const [doneDetailDrawerOpen, setDoneDetailDrawerOpen] = useState(false);
+  const [selectedForDoneDetail, setSelectedForDoneDetail] = useState<Contractor | null>(null);
 
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
@@ -960,6 +964,12 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     </Badge>
                   </div>
                 </div>
+                {/* Subtitle for Done column */}
+                {status === "CERTIFIED" && 'subtitle' in config && (
+                  <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">
+                    {(config as any).subtitle}
+                  </p>
+                )}
                 
                 {/* Bulk Actions */}
                 {status === "offer-accepted" && getSelectedCount(status) > 0 && <div className="mt-2">
@@ -1043,11 +1053,20 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   duration: 0.2
                 }
               }}>
-                <Card className="hover:shadow-card transition-shadow cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm" onClick={() => {
+                <Card 
+                  className={cn(
+                    "hover:shadow-card transition-all cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm",
+                    status === "CERTIFIED" && "hover:border-accent-green-outline/50 hover:bg-accent-green-fill/5"
+                  )} 
+                  onClick={() => {
                     if (status === "awaiting-signature") {
                       handleOpenSignatureWorkflow(contractor);
+                    } else if (status === "CERTIFIED") {
+                      setSelectedForDoneDetail(contractor);
+                      setDoneDetailDrawerOpen(true);
                     }
-                  }}>
+                  }}
+                >
                       <CardContent className="p-3 space-y-2">
                          {/* Contractor Header - No checkbox for certain columns */}
                         <div className="flex items-start gap-2">
@@ -1096,7 +1115,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         {/* Contractor Details */}
                         <div className="flex flex-col gap-1.5 text-[11px]">
                           <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Salary</span>
+                            <span className="text-muted-foreground">
+                              {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
+                            </span>
                             <span className="font-medium text-foreground">
                               {getCurrencyCode(contractor.country, contractor.employmentType)} {contractor.salary}
                             </span>
@@ -1108,9 +1129,26 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">Type</span>
                             <span className="font-medium text-foreground">
-                              {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee"}
+                              {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
                             </span>
                           </div>
+                          {/* Enhanced fields for CERTIFIED/Done status */}
+                          {status === "CERTIFIED" && (
+                            <>
+                              <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Pay frequency</span>
+                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-primary/5 text-primary border-primary/20 font-medium">
+                                  {contractor.country === "Philippines" ? "Fortnightly" : "Monthly"}
+                                </Badge>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Bank</span>
+                                <span className="font-medium text-foreground text-[10px]">
+                                  {contractor.country === "Philippines" ? "BDO, PH" : contractor.country === "Norway" ? "DNB, NO" : `Local Bank, ${contractor.countryFlag}`}
+                                </span>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         {/* Quick Actions */}
@@ -1207,11 +1245,29 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           )}
                           
                           {status === "CERTIFIED" && (
-                            <div className="flex items-center justify-center w-full py-1">
-                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30 hover:bg-accent-green-fill/30">
-                                <Award className="h-3 w-3" />
-                                Certified
-                              </Badge>
+                            <div className="flex flex-col gap-2 w-full">
+                              <div className="flex items-center justify-between">
+                                <Badge variant="secondary" className="text-[10px] gap-1 px-2 py-0.5 bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30">
+                                  <CheckCircle2 className="h-2.5 w-2.5" />
+                                  Payroll ready
+                                </Badge>
+                                <span className="text-[9px] text-muted-foreground/60">
+                                  Updated 2d ago
+                                </span>
+                              </div>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                className="w-full text-xs h-7 gap-1.5 text-primary hover:text-primary hover:bg-primary/5 justify-start px-2" 
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setSelectedForDoneDetail(contractor);
+                                  setDoneDetailDrawerOpen(true);
+                                }}
+                              >
+                                <Eye className="h-3 w-3" />
+                                View details
+                              </Button>
                             </div>
                           )}
                           
@@ -1380,5 +1436,25 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Done Worker Detail Drawer */}
+      <F1v4_DoneWorkerDetailDrawer
+        open={doneDetailDrawerOpen}
+        onOpenChange={setDoneDetailDrawerOpen}
+        worker={selectedForDoneDetail ? {
+          id: selectedForDoneDetail.id,
+          name: selectedForDoneDetail.name,
+          country: selectedForDoneDetail.country,
+          countryFlag: selectedForDoneDetail.countryFlag,
+          role: selectedForDoneDetail.role,
+          salary: selectedForDoneDetail.salary,
+          employmentType: selectedForDoneDetail.employmentType || "contractor",
+          email: selectedForDoneDetail.email,
+        } : null}
+        onGoToDataCollection={(workerId) => {
+          setDoneDetailDrawerOpen(false);
+          toast.info("Redirecting to data collection...");
+        }}
+      />
     </div>;
 };
