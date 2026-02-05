@@ -223,19 +223,24 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
   const notifiedCertifiedIds = React.useRef<Set<string>>(new Set());
+  
+  // Track timer IDs for cleanup
+  const transitionTimersRef = React.useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Auto-transition onboarding-pending to certified after 5 seconds
   useEffect(() => {
     const onboardingContractors = contractors.filter(c => c.status === "onboarding-pending");
-    if (onboardingContractors.length === 0) return;
     
-    const timers = onboardingContractors.map(contractor => {
-      // Skip if already notified in this session
-      if (notifiedCertifiedIds.current.has(contractor.id)) return null;
+    // Set up timers for each onboarding contractor
+    onboardingContractors.forEach(contractor => {
+      // Skip if already has a timer or already transitioned
+      if (transitionTimersRef.current.has(contractor.id)) return;
       
-      return setTimeout(() => {
-        // Mark as notified first to prevent duplicates
-        notifiedCertifiedIds.current.add(contractor.id);
+      console.log(`Setting up 5s transition timer for ${contractor.name}`);
+      
+      const timer = setTimeout(() => {
+        console.log(`Transitioning ${contractor.name} to CERTIFIED`);
+        transitionTimersRef.current.delete(contractor.id);
         
         setContractors(prev => {
           const updated = prev.map(c => c.id === contractor.id ? {
@@ -250,12 +255,31 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           description: "Candidate is ready for payroll processing"
         });
       }, 5000);
+      
+      transitionTimersRef.current.set(contractor.id, timer);
+    });
+    
+    // Cleanup timers for contractors no longer in onboarding-pending
+    transitionTimersRef.current.forEach((timer, id) => {
+      const stillOnboarding = onboardingContractors.some(c => c.id === id);
+      if (!stillOnboarding) {
+        clearTimeout(timer);
+        transitionTimersRef.current.delete(id);
+      }
     });
     
     return () => {
-      timers.forEach(timer => timer && clearTimeout(timer));
+      // Don't clear timers on re-render, only on unmount
     };
   }, [contractors, onContractorUpdate]);
+  
+  // Clear all timers on unmount
+  useEffect(() => {
+    return () => {
+      transitionTimersRef.current.forEach(timer => clearTimeout(timer));
+      transitionTimersRef.current.clear();
+    };
+  }, []);
 
   // Sync payroll metrics with global state whenever contractors change
   React.useEffect(() => {
