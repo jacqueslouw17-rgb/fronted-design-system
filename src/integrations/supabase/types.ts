@@ -149,6 +149,170 @@ export type Database = {
         }
         Relationships: []
       }
+      rbac_modules: {
+        Row: {
+          available_permissions: string[]
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          key: string
+          name: string
+        }
+        Insert: {
+          available_permissions?: string[]
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          key: string
+          name: string
+        }
+        Update: {
+          available_permissions?: string[]
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          key?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      rbac_role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          module_id: string
+          permission_level: Database["public"]["Enums"]["permission_level"]
+          role_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_id: string
+          permission_level?: Database["public"]["Enums"]["permission_level"]
+          role_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_id?: string
+          permission_level?: Database["public"]["Enums"]["permission_level"]
+          role_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rbac_role_permissions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "rbac_modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rbac_role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "rbac_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rbac_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_system_role: boolean
+          name: string
+          organization_id: string | null
+          privilege_level: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_system_role?: boolean
+          name: string
+          organization_id?: string | null
+          privilege_level?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_system_role?: boolean
+          name?: string
+          organization_id?: string | null
+          privilege_level?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rbac_team_members: {
+        Row: {
+          activated_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_at: string
+          invited_by: string | null
+          last_active_at: string | null
+          name: string | null
+          organization_id: string | null
+          role_id: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          last_active_at?: string | null
+          name?: string | null
+          organization_id?: string | null
+          role_id: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          last_active_at?: string | null
+          name?: string | null
+          organization_id?: string | null
+          role_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rbac_team_members_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "rbac_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_integrations: {
         Row: {
           accounting_system: string | null
@@ -226,6 +390,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_rbac: { Args: { _user_id: string }; Returns: boolean }
+      has_rbac_permission: {
+        Args: {
+          _module_key: string
+          _required_level: Database["public"]["Enums"]["permission_level"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -236,6 +409,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "hr" | "cfo" | "contractor"
+      permission_level: "none" | "view" | "manage" | "approve" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -364,6 +538,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "hr", "cfo", "contractor"],
+      permission_level: ["none", "view", "manage", "approve", "admin"],
     },
   },
 } as const

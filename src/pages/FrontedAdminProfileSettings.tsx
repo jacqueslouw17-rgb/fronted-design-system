@@ -1,7 +1,7 @@
 /**
  * Flow 1 – Fronted Admin Dashboard v4 - Profile Settings
- * 3-card overview pattern: Company Administrators, User Management, Change Password
- * Matches v3 design pattern
+ * 3-card overview pattern: Company Administrators, User Management (RBAC), Change Password
+ * Enhanced with full Role-Based Access Control system
  */
 
 import { useState, useEffect } from "react";
@@ -9,17 +9,16 @@ import { useNavigate } from "react-router-dom";
 import { X, Loader2, Mail, Users, KeyRound, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
-import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManagement";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import frontedLogo from "@/assets/fronted-logo.png";
 import CompanyAdministratorsDetail from "@/components/flows/admin-profile/CompanyAdministratorsDetail";
+import { RBACUserManagement } from "@/components/flows/admin-profile/rbac";
 
 type Section = "overview" | "company-administrators" | "user-management" | "change-password";
 
@@ -34,7 +33,7 @@ const OVERVIEW_CARDS = [
     id: "user-management" as Section,
     icon: Users,
     title: "User Management",
-    description: "View and manage all Fronted admin accounts and roles."
+    description: "Manage team members, roles, and permissions."
   },
   {
     id: "change-password" as Section,
@@ -49,67 +48,13 @@ const FrontedAdminProfileSettings = () => {
   const { isSpeaking } = useAgentState();
   const [currentSection, setCurrentSection] = useState<Section>("overview");
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Record<string, any>>({
-    users: []
-  });
 
   useEffect(() => {
-    // Allow viewing without auth; load data only when session exists
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        setUserId(session.user.id);
-        setTimeout(() => loadUserData(session.user!.id), 0);
-      } else {
-        setUserId(null);
-      }
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUserId(session.user.id);
-        loadUserData(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const loadUserData = async (uid: string) => {
-    setLoading(true);
-    try {
-      const [orgProfile] = await Promise.all([
-        supabase.from("organization_profiles").select("*").eq("user_id", uid).maybeSingle(),
-      ]);
-
-      const adminName = orgProfile.data?.contact_name || "Joe User";
-      const adminEmail = orgProfile.data?.contact_email || "joe@fronted.com";
-
-      setFormData({
-        users: [
-          {
-            id: "1",
-            name: adminName,
-            email: adminEmail,
-            role: "admin",
-            status: "active" as const
-          }
-        ]
-      });
-    } catch (error) {
-      toast.error("Failed to load profile data");
-    } finally {
+    // Quick session check to finish loading state
+    supabase.auth.getSession().then(() => {
       setLoading(false);
-    }
-  };
-
-  const handleUserManagementSave = async (stepId: string, data?: Record<string, any>) => {
-    if (!data) return;
-    setFormData(prev => ({ ...prev, users: data.users }));
-    toast.success("User management settings saved");
-  };
+    });
+  }, []);
 
   if (loading) {
     return (
@@ -224,20 +169,9 @@ const FrontedAdminProfileSettings = () => {
                   exit={{ opacity: 0, y: -20 }}
                   className="pb-20 sm:pb-8"
                 >
-                  <div className="space-y-6">
-                    <AdminUserManagement
-                      formData={{ users: formData.users }}
-                      onComplete={handleUserManagementSave}
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentSection("overview")}
-                      className="w-full sm:w-auto"
-                      size="lg"
-                    >
-                      Back to Overview
-                    </Button>
-                  </div>
+                  <RBACUserManagement
+                    onBack={() => setCurrentSection("overview")}
+                  />
                 </motion.div>
               )}
 
