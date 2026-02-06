@@ -4,7 +4,10 @@
  */
 
 export { RBACUserManagement } from "./RBACUserManagement";
+export { TeamMembersSection } from "./TeamMembersSection";
+export { RolesPermissionsSection } from "./RolesPermissionsSection";
 export { TeamMembersList } from "./TeamMembersList";
 export { RolesList } from "./RolesList";
 export { InviteMemberModal } from "./InviteMemberModal";
 export { RoleEditorModal } from "./RoleEditorModal";
+
