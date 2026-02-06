@@ -112,133 +112,146 @@ export function TeamMembersSection({ onBack }: TeamMembersSectionProps) {
             </p>
           </div>
         </div>
-        {canInviteUsers && (
-          <Button onClick={() => setShowInviteModal(true)} className="gap-1.5">
-            <UserPlus className="h-4 w-4" />
-            Invite Member
-          </Button>
-        )}
       </div>
 
-      {/* Members List */}
-      <div className="space-y-3">
-        <AnimatePresence mode="popLayout">
-          {teamMembers.map((member) => (
-            <motion.div
-              key={member.id}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-            >
-              <Card className="p-5 bg-card/30 border-border/40 hover:bg-card/50 transition-colors">
-                <div className="flex items-start justify-between gap-4">
-                  {/* Member Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <span className="font-medium text-base text-foreground">
-                        {member.name || "Unnamed"}
-                      </span>
-                      {member.status === "active" ? (
-                        <Badge variant="secondary" className="gap-1 bg-primary/10 text-primary border-primary/20">
-                          <Check className="h-3 w-3" />
-                          Active
-                        </Badge>
+      {/* Translucent Container Card */}
+      <Card className="p-6 bg-card/50 backdrop-blur-sm border-border/40">
+        {/* Section Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-base font-semibold text-foreground">Team Members</h3>
+            <p className="text-sm text-muted-foreground">
+              Manage access for your team
+            </p>
+          </div>
+          {canInviteUsers && (
+            <Button onClick={() => setShowInviteModal(true)} className="gap-1.5">
+              <UserPlus className="h-4 w-4" />
+              Invite Member
+            </Button>
+          )}
+        </div>
+
+        {/* Members List */}
+        <div className="space-y-3">
+          <AnimatePresence mode="popLayout">
+            {teamMembers.map((member) => (
+              <motion.div
+                key={member.id}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+              >
+                <Card className="p-4 bg-card border-border/40 hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center justify-between gap-4">
+                    {/* Member Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2.5 mb-1">
+                        <span className="font-medium text-foreground">
+                          {member.name || "Unnamed"}
+                        </span>
+                        {member.status === "active" ? (
+                          <Badge variant="secondary" className="gap-1 bg-primary/10 text-primary border-primary/20">
+                            <Check className="h-3 w-3" />
+                            Active
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="gap-1 text-warning border-warning/30 bg-warning/10">
+                            <Clock className="h-3 w-3" />
+                            Pending
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <Mail className="h-3.5 w-3.5" />
+                        <span className="truncate">{member.email}</span>
+                        {member.status === "pending" && (
+                          <span className="text-xs ml-2">
+                            · Invited {formatDistanceToNow(new Date(member.invited_at), { addSuffix: true })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Role Assignment + Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {canManageRoles ? (
+                        <Select
+                          value={member.role_id}
+                          onValueChange={(value) => handleRoleChange(member.id, value)}
+                          disabled={processing}
+                        >
+                          <SelectTrigger className="w-40 h-9 text-sm">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {assignableRoles.map((role) => (
+                              <SelectItem key={role.id} value={role.id} className="text-sm">
+                                {role.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       ) : (
-                        <Badge variant="outline" className="gap-1 text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          Pending
+                        <Badge variant="secondary" className="h-8 px-3 text-sm">
+                          {member.role?.name || "No Role"}
                         </Badge>
                       )}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-2">
-                      <Mail className="h-3.5 w-3.5" />
-                      <span className="truncate">{member.email}</span>
-                    </div>
-                    {member.status === "pending" && (
-                      <p className="text-xs text-muted-foreground">
-                        Invited {formatDistanceToNow(new Date(member.invited_at), { addSuffix: true })}
-                      </p>
-                    )}
-                  </div>
 
-                  {/* Role Assignment */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    {canManageRoles ? (
-                      <Select
-                        value={member.role_id}
-                        onValueChange={(value) => handleRoleChange(member.id, value)}
-                        disabled={processing}
-                      >
-                        <SelectTrigger className="w-44 h-9 text-sm">
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {assignableRoles.map((role) => (
-                            <SelectItem key={role.id} value={role.id} className="text-sm">
-                              {role.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <Badge variant="secondary" className="h-9 px-3 text-sm">
-                        {member.role?.name || "No Role"}
-                      </Badge>
-                    )}
-
-                    {/* Actions Menu */}
-                    {(canManageRoles || (canInviteUsers && member.status === "pending")) && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-9 w-9">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {member.status === "pending" && (
-                            <DropdownMenuItem onClick={() => handleResend(member.id)}>
-                              <RefreshCw className="h-4 w-4 mr-2" />
-                              Resend Invite
-                            </DropdownMenuItem>
-                          )}
-                          {canManageRoles && (
-                            <>
-                              {member.status === "pending" && <DropdownMenuSeparator />}
-                              <DropdownMenuItem 
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => setMemberToRemove(member)}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
+                      {/* Actions Menu */}
+                      {(canManageRoles || (canInviteUsers && member.status === "pending")) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {member.status === "pending" && (
+                              <DropdownMenuItem onClick={() => handleResend(member.id)}>
+                                <RefreshCw className="h-4 w-4 mr-2" />
+                                Resend Invite
                               </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
+                            )}
+                            {canManageRoles && (
+                              <>
+                                {member.status === "pending" && <DropdownMenuSeparator />}
+                                <DropdownMenuItem 
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={() => setMemberToRemove(member)}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Remove
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
-        {teamMembers.length === 0 && (
-          <Card className="p-8 bg-card/20 border-border/30 text-center">
-            <UserPlus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
-            <p className="text-base font-medium text-foreground mb-1">No team members yet</p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Invite your first team member to get started.
-            </p>
-            {canInviteUsers && (
-              <Button onClick={() => setShowInviteModal(true)} className="gap-1.5">
-                <UserPlus className="h-4 w-4" />
-                Invite Member
-              </Button>
-            )}
-          </Card>
-        )}
-      </div>
+          {teamMembers.length === 0 && (
+            <div className="py-12 text-center">
+              <UserPlus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-base font-medium text-foreground mb-1">No team members yet</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Invite your first team member to get started.
+              </p>
+              {canInviteUsers && (
+                <Button onClick={() => setShowInviteModal(true)} className="gap-1.5">
+                  <UserPlus className="h-4 w-4" />
+                  Invite Member
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </Card>
 
       {/* Back Button */}
       <Button

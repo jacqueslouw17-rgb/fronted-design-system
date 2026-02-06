@@ -116,13 +116,13 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
     const canDelete = !role.is_system_role && memberCount === 0;
 
     return (
-      <Card className="p-5 bg-card/30 border-border/40 hover:bg-card/50 transition-colors">
-        <div className="flex items-start justify-between gap-4">
+      <Card className="p-4 bg-card border-border/40 hover:bg-muted/30 transition-colors">
+        <div className="flex items-center justify-between gap-4">
           {/* Role Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2.5 mb-1.5">
+            <div className="flex items-center gap-2.5 mb-1">
               <Shield className="h-4 w-4 text-primary" />
-              <span className="font-medium text-base text-foreground">{role.name}</span>
+              <span className="font-medium text-foreground">{role.name}</span>
               {role.is_system_role && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   <Lock className="h-2.5 w-2.5" />
@@ -130,12 +130,14 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-              {role.description || getPermissionSummary(role.permissions)}
-            </p>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Users className="h-3.5 w-3.5" />
-              <span>{memberCount} member{memberCount !== 1 ? "s" : ""} assigned</span>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <span className="line-clamp-1">
+                {role.description || getPermissionSummary(role.permissions)}
+              </span>
+              <span className="shrink-0 flex items-center gap-1">
+                <Users className="h-3.5 w-3.5" />
+                {memberCount}
+              </span>
             </div>
           </div>
 
@@ -143,7 +145,7 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
           {canManageRoles && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -209,73 +211,86 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
             </p>
           </div>
         </div>
-        {canManageRoles && (
-          <Button onClick={handleCreateRole} className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            Create Role
-          </Button>
-        )}
       </div>
 
-      {/* System Roles */}
-      {systemRoles.length > 0 && (
-        <div className="space-y-3">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-1">
-            System Roles
-          </p>
-          <div className="space-y-3">
-            <AnimatePresence mode="popLayout">
-              {systemRoles.map((role) => (
-                <motion.div
-                  key={role.id}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                >
-                  <RoleCard role={role} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </div>
-      )}
-
-      {/* Custom Roles */}
-      <div className="space-y-3">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-1">
-          Custom Roles
-        </p>
-        {customRoles.length > 0 ? (
-          <div className="space-y-3">
-            <AnimatePresence mode="popLayout">
-              {customRoles.map((role) => (
-                <motion.div
-                  key={role.id}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                >
-                  <RoleCard role={role} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <Card className="p-8 bg-card/20 border-border/30 text-center">
-            <Plus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
-            <p className="text-base font-medium text-foreground mb-1">No custom roles yet</p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Create a custom role tailored to your team's needs.
+      {/* Translucent Container Card */}
+      <Card className="p-6 bg-card/50 backdrop-blur-sm border-border/40">
+        {/* Section Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-base font-semibold text-foreground">Roles & Permissions</h3>
+            <p className="text-sm text-muted-foreground">
+              Define access levels for your team
             </p>
-            {canManageRoles && (
-              <Button onClick={handleCreateRole} className="gap-1.5">
-                <Plus className="h-4 w-4" />
-                Create Role
-              </Button>
-            )}
-          </Card>
+          </div>
+          {canManageRoles && (
+            <Button onClick={handleCreateRole} className="gap-1.5">
+              <Plus className="h-4 w-4" />
+              Create Role
+            </Button>
+          )}
+        </div>
+
+        {/* System Roles */}
+        {systemRoles.length > 0 && (
+          <div className="mb-6">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              System Roles
+            </p>
+            <div className="space-y-2">
+              <AnimatePresence mode="popLayout">
+                {systemRoles.map((role) => (
+                  <motion.div
+                    key={role.id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                  >
+                    <RoleCard role={role} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
         )}
-      </div>
+
+        {/* Custom Roles */}
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            Custom Roles
+          </p>
+          {customRoles.length > 0 ? (
+            <div className="space-y-2">
+              <AnimatePresence mode="popLayout">
+                {customRoles.map((role) => (
+                  <motion.div
+                    key={role.id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                  >
+                    <RoleCard role={role} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <Plus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-base font-medium text-foreground mb-1">No custom roles yet</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Create a custom role tailored to your team's needs.
+              </p>
+              {canManageRoles && (
+                <Button onClick={handleCreateRole} className="gap-1.5">
+                  <Plus className="h-4 w-4" />
+                  Create Role
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </Card>
 
       {/* Back Button */}
       <Button

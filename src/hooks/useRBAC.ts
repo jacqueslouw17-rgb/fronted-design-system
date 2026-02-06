@@ -190,10 +190,13 @@ export function useRBAC(): UseRBACReturn {
   }, [loadAllData]);
 
   // Computed permissions
-  const canManageRoles = currentUserRole?.permissions?.user_management === 'admin' || 
+  // Bootstrap mode: if no team members exist, allow current user to manage (first-time setup)
+  const isBootstrapMode = teamMembers.length === 0;
+  const canManageRoles = isBootstrapMode || 
+    currentUserRole?.permissions?.user_management === 'admin' || 
     (currentUserRole?.privilege_level || 0) >= 100;
   
-  const canInviteUsers = canManageRoles || 
+  const canInviteUsers = isBootstrapMode || canManageRoles || 
     (currentUserRole?.privilege_level || 0) >= 80;
 
   // Role actions
