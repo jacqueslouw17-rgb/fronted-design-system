@@ -1,12 +1,11 @@
 /**
  * Flow 1 – Fronted Admin Dashboard v4 - Profile Settings
- * 3-card overview pattern: Company Administrators, User Management (RBAC), Change Password
- * Enhanced with full Role-Based Access Control system
+ * 4-card overview: Company Administrators, Team Members, Roles & Permissions, Change Password
  */
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Loader2, Mail, Users, KeyRound, ChevronRight } from "lucide-react";
+import { X, Loader2, Mail, Users, Shield, KeyRound, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,9 +17,10 @@ import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePas
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import frontedLogo from "@/assets/fronted-logo.png";
 import CompanyAdministratorsDetail from "@/components/flows/admin-profile/CompanyAdministratorsDetail";
-import { RBACUserManagement } from "@/components/flows/admin-profile/rbac";
+import { TeamMembersSection } from "@/components/flows/admin-profile/rbac/TeamMembersSection";
+import { RolesPermissionsSection } from "@/components/flows/admin-profile/rbac/RolesPermissionsSection";
 
-type Section = "overview" | "company-administrators" | "user-management" | "change-password";
+type Section = "overview" | "company-administrators" | "team-members" | "roles-permissions" | "change-password";
 
 const OVERVIEW_CARDS = [
   {
@@ -30,10 +30,16 @@ const OVERVIEW_CARDS = [
     description: "Manage Fronted admin users who can access this workspace."
   },
   {
-    id: "user-management" as Section,
+    id: "team-members" as Section,
     icon: Users,
-    title: "User Management",
-    description: "Manage team members, roles, and permissions."
+    title: "Team Members",
+    description: "Invite and manage team members with role assignments."
+  },
+  {
+    id: "roles-permissions" as Section,
+    icon: Shield,
+    title: "Roles & Permissions",
+    description: "Create and configure roles with module-level permissions."
   },
   {
     id: "change-password" as Section,
@@ -50,7 +56,6 @@ const FrontedAdminProfileSettings = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Quick session check to finish loading state
     supabase.auth.getSession().then(() => {
       setLoading(false);
     });
@@ -161,15 +166,29 @@ const FrontedAdminProfileSettings = () => {
                 </motion.div>
               )}
 
-              {currentSection === "user-management" && (
+              {currentSection === "team-members" && (
                 <motion.div
-                  key="user-management"
+                  key="team-members"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className="pb-20 sm:pb-8"
                 >
-                  <RBACUserManagement
+                  <TeamMembersSection
+                    onBack={() => setCurrentSection("overview")}
+                  />
+                </motion.div>
+              )}
+
+              {currentSection === "roles-permissions" && (
+                <motion.div
+                  key="roles-permissions"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="pb-20 sm:pb-8"
+                >
+                  <RolesPermissionsSection
                     onBack={() => setCurrentSection("overview")}
                   />
                 </motion.div>

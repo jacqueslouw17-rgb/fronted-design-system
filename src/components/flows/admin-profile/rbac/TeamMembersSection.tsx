@@ -1,0 +1,285 @@
+/**
+ * Team Members Section - Standalone page for managing team members
+ * Flow 1 v4 - Fronted Admin Dashboard
+ */
+
+import { useState } from "react";
+import { ArrowLeft, UserPlus, Mail, MoreHorizontal, RefreshCw, Trash2, Clock, Check, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRBAC } from "@/hooks/useRBAC";
+import { InviteMemberModal } from "./InviteMemberModal";
+import { formatDistanceToNow } from "date-fns";
+import type { RBACTeamMember } from "@/types/rbac";
+
+interface TeamMembersSectionProps {
+  onBack: () => void;
+}
+
+export function TeamMembersSection({ onBack }: TeamMembersSectionProps) {
+  const {
+    roles,
+    teamMembers,
+    currentUserRole,
+    loading,
+    canManageRoles,
+    canInviteUsers,
+    inviteMember,
+    updateMemberRole,
+    removeMember,
+    resendInvite,
+    getPermissionSummary,
+  } = useRBAC();
+
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<RBACTeamMember | null>(null);
+  const [processing, setProcessing] = useState(false);
+
+  const currentUserPrivilege = currentUserRole?.privilege_level || 0;
+  const assignableRoles = roles.filter(r => r.privilege_level <= currentUserPrivilege);
+
+  const handleRoleChange = async (memberId: string, roleId: string) => {
+    setProcessing(true);
+    await updateMemberRole(memberId, roleId);
+    setProcessing(false);
+  };
+
+  const handleRemove = async () => {
+    if (!memberToRemove) return;
+    setProcessing(true);
+    await removeMember(memberToRemove.id);
+    setMemberToRemove(null);
+    setProcessing(false);
+  };
+
+  const handleResend = async (memberId: string) => {
+    setProcessing(true);
+    await resendInvite(memberId);
+    setProcessing(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            className="h-8 w-8"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Team Members</h2>
+            <p className="text-sm text-muted-foreground">
+              {teamMembers.length} member{teamMembers.length !== 1 ? "s" : ""} in your team
+            </p>
+          </div>
+        </div>
+        {canInviteUsers && (
+          <Button onClick={() => setShowInviteModal(true)} className="gap-1.5">
+            <UserPlus className="h-4 w-4" />
+            Invite Member
+          </Button>
+        )}
+      </div>
+
+      {/* Members List */}
+      <div className="space-y-3">
+        <AnimatePresence mode="popLayout">
+          {teamMembers.map((member) => (
+            <motion.div
+              key={member.id}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+            >
+              <Card className="p-5 bg-card/30 border-border/40 hover:bg-card/50 transition-colors">
+                <div className="flex items-start justify-between gap-4">
+                  {/* Member Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <span className="font-medium text-base text-foreground">
+                        {member.name || "Unnamed"}
+                      </span>
+                      {member.status === "active" ? (
+                        <Badge variant="secondary" className="gap-1 bg-primary/10 text-primary border-primary/20">
+                          <Check className="h-3 w-3" />
+                          Active
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="gap-1 text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          Pending
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-2">
+                      <Mail className="h-3.5 w-3.5" />
+                      <span className="truncate">{member.email}</span>
+                    </div>
+                    {member.status === "pending" && (
+                      <p className="text-xs text-muted-foreground">
+                        Invited {formatDistanceToNow(new Date(member.invited_at), { addSuffix: true })}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Role Assignment */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {canManageRoles ? (
+                      <Select
+                        value={member.role_id}
+                        onValueChange={(value) => handleRoleChange(member.id, value)}
+                        disabled={processing}
+                      >
+                        <SelectTrigger className="w-44 h-9 text-sm">
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {assignableRoles.map((role) => (
+                            <SelectItem key={role.id} value={role.id} className="text-sm">
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge variant="secondary" className="h-9 px-3 text-sm">
+                        {member.role?.name || "No Role"}
+                      </Badge>
+                    )}
+
+                    {/* Actions Menu */}
+                    {(canManageRoles || (canInviteUsers && member.status === "pending")) && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-9 w-9">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {member.status === "pending" && (
+                            <DropdownMenuItem onClick={() => handleResend(member.id)}>
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                              Resend Invite
+                            </DropdownMenuItem>
+                          )}
+                          {canManageRoles && (
+                            <>
+                              {member.status === "pending" && <DropdownMenuSeparator />}
+                              <DropdownMenuItem 
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setMemberToRemove(member)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Remove
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        {teamMembers.length === 0 && (
+          <Card className="p-8 bg-card/20 border-border/30 text-center">
+            <UserPlus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
+            <p className="text-base font-medium text-foreground mb-1">No team members yet</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Invite your first team member to get started.
+            </p>
+            {canInviteUsers && (
+              <Button onClick={() => setShowInviteModal(true)} className="gap-1.5">
+                <UserPlus className="h-4 w-4" />
+                Invite Member
+              </Button>
+            )}
+          </Card>
+        )}
+      </div>
+
+      {/* Back Button */}
+      <Button
+        variant="outline"
+        onClick={onBack}
+        className="w-full sm:w-auto"
+        size="lg"
+      >
+        Back to Settings
+      </Button>
+
+      {/* Modals */}
+      <InviteMemberModal
+        open={showInviteModal}
+        onOpenChange={setShowInviteModal}
+        roles={roles}
+        currentUserPrivilege={currentUserPrivilege}
+        onInvite={inviteMember}
+        getPermissionSummary={getPermissionSummary}
+      />
+
+      <AlertDialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove team member?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove {memberToRemove?.name || memberToRemove?.email} from the team?
+              They will lose access to all Fronted features.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRemove}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
