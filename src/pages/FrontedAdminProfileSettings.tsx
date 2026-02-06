@@ -1,7 +1,7 @@
 /**
  * Flow 1 – Fronted Admin Dashboard v4 - Profile Settings
- * 3-card overview pattern: Company Administrators, User Management, Change Password
- * Matches v3 design pattern
+ * 3-card overview pattern: Company Administrators, User Management (RBAC), Change Password
+ * Enhanced with full Role-Based Access Control system
  */
 
 import { useState, useEffect } from "react";
@@ -15,11 +15,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
-import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManagement";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import frontedLogo from "@/assets/fronted-logo.png";
 import CompanyAdministratorsDetail from "@/components/flows/admin-profile/CompanyAdministratorsDetail";
+import { RBACUserManagement } from "@/components/flows/admin-profile/rbac";
 
 type Section = "overview" | "company-administrators" | "user-management" | "change-password";
 
