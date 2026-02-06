@@ -248,7 +248,7 @@ const FrontedAdminV4ProfileSettings = () => {
                   exit={{ opacity: 0, y: -20 }}
                   className="pb-20 sm:pb-8"
                 >
-                  <FrontedAdminV4ChangePassword
+                  <Flow6ChangePassword
                     onCancel={() => setCurrentSection("overview")}
                   />
                 </motion.div>
