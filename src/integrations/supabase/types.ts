@@ -406,6 +406,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      rbac_bootstrap_owner: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "admin" | "hr" | "cfo" | "contractor"
