@@ -87,14 +87,14 @@ export function TeamMembersList({
     switch (status) {
       case "active":
         return (
-          <Badge variant="default" className="gap-1 bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+          <Badge variant="default" className="gap-1 bg-primary/10 text-primary border-primary/20">
             <Check className="h-3 w-3" />
             Active
           </Badge>
         );
       case "pending":
         return (
-          <Badge variant="secondary" className="gap-1 bg-amber-500/10 text-amber-600 border-amber-500/20">
+          <Badge variant="secondary" className="gap-1 bg-secondary/50 text-secondary-foreground border-secondary/30">
             <Clock className="h-3 w-3" />
             Pending
           </Badge>

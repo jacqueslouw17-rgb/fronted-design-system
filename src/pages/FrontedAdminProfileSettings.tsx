@@ -34,7 +34,7 @@ const OVERVIEW_CARDS = [
     id: "user-management" as Section,
     icon: Users,
     title: "User Management",
-    description: "View and manage all Fronted admin accounts and roles."
+    description: "Manage team members, roles, and permissions."
   },
   {
     id: "change-password" as Section,
