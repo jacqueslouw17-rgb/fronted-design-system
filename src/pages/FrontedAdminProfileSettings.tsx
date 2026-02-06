@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import { X, Loader2, Mail, Users, KeyRound, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
@@ -49,67 +48,13 @@ const FrontedAdminProfileSettings = () => {
   const { isSpeaking } = useAgentState();
   const [currentSection, setCurrentSection] = useState<Section>("overview");
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Record<string, any>>({
-    users: []
-  });
 
   useEffect(() => {
-    // Allow viewing without auth; load data only when session exists
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        setUserId(session.user.id);
-        setTimeout(() => loadUserData(session.user!.id), 0);
-      } else {
-        setUserId(null);
-      }
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUserId(session.user.id);
-        loadUserData(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const loadUserData = async (uid: string) => {
-    setLoading(true);
-    try {
-      const [orgProfile] = await Promise.all([
-        supabase.from("organization_profiles").select("*").eq("user_id", uid).maybeSingle(),
-      ]);
-
-      const adminName = orgProfile.data?.contact_name || "Joe User";
-      const adminEmail = orgProfile.data?.contact_email || "joe@fronted.com";
-
-      setFormData({
-        users: [
-          {
-            id: "1",
-            name: adminName,
-            email: adminEmail,
-            role: "admin",
-            status: "active" as const
-          }
-        ]
-      });
-    } catch (error) {
-      toast.error("Failed to load profile data");
-    } finally {
+    // Quick session check to finish loading state
+    supabase.auth.getSession().then(() => {
       setLoading(false);
-    }
-  };
-
-  const handleUserManagementSave = async (stepId: string, data?: Record<string, any>) => {
-    if (!data) return;
-    setFormData(prev => ({ ...prev, users: data.users }));
-    toast.success("User management settings saved");
-  };
+    });
+  }, []);
 
   if (loading) {
     return (
