@@ -1,7 +1,7 @@
 /**
  * Flow 1 – Fronted Admin Dashboard v4 - Profile Settings
  * 3-card overview pattern: Company Administrators, User Management, Change Password
- * Detached copy from v3 - no shared logic
+ * Uses shared v3 components for profile settings
  */
 
 import { useState, useEffect } from "react";
@@ -15,11 +15,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
-import FrontedAdminV4CompanyAdministratorsDetail from "@/components/flows/fronted-admin-v4/FrontedAdminV4CompanyAdministratorsDetail";
-import FrontedAdminV4UserManagement from "@/components/flows/fronted-admin-v4/FrontedAdminV4UserManagement";
-import FrontedAdminV4ChangePassword from "@/components/flows/fronted-admin-v4/FrontedAdminV4ChangePassword";
+import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManagement";
+import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import frontedLogo from "@/assets/fronted-logo.png";
+import CompanyAdministratorsDetail from "@/components/flows/admin-profile/CompanyAdministratorsDetail";
 
 type V4Section = "overview" | "company-administrators" | "user-management" | "change-password";
 
