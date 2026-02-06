@@ -156,7 +156,7 @@ export function TeamMembersSection({ onBack }: TeamMembersSectionProps) {
                             Active
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="gap-1 text-amber-600 border-amber-200 bg-amber-50">
+                          <Badge variant="outline" className="gap-1 text-warning border-warning/30 bg-warning/10">
                             <Clock className="h-3 w-3" />
                             Pending
                           </Badge>
