@@ -224,7 +224,7 @@ const FrontedAdminV4ProfileSettings = () => {
                   className="pb-20 sm:pb-8"
                 >
                   <div className="space-y-6">
-                    <FrontedAdminV4UserManagement
+                    <AdminUserManagement
                       formData={{ users: formData.users }}
                       onComplete={handleUserManagementSave}
                     />
