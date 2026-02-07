@@ -56,87 +56,91 @@ const Flow6ChangePassword = ({ onCancel }: Flow6ChangePasswordProps) => {
   };
 
   return (
-    <div className="space-y-6 max-w-xl mx-auto">
-      <form onSubmit={handleSubmit} className="bg-card/40 border border-border/40 rounded-lg p-6 space-y-5">
-        <div className="space-y-2">
-          <Label htmlFor="current-password" className="text-sm font-medium">
-            Current Password <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="current-password"
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder="Enter current password"
-            required
-            disabled={isLoading}
-            className="h-11"
-          />
+    <div className="space-y-6 max-w-3xl mx-auto">
+      <div className="bg-card/40 border border-border/40 rounded-lg p-6">
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Change Password</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Update your login password for Fronted
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" onClick={onCancel} size="sm">
+              Back
+            </Button>
+            <Button
+              type="submit"
+              form="change-password-form"
+              disabled={isLoading}
+              size="sm"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                  Updating…
+                </>
+              ) : (
+                "Update"
+              )}
+            </Button>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="new-password" className="text-sm font-medium">
-            New Password <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="new-password"
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Enter new password"
-            required
-            disabled={isLoading}
-            className="h-11"
-          />
-          <p className="text-xs text-muted-foreground">
-            Must be at least 6 characters long
-          </p>
-        </div>
+        <form id="change-password-form" onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="current-password" className="text-sm font-medium">
+              Current Password <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="current-password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password"
+              required
+              disabled={isLoading}
+              className="h-11"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="confirm-password" className="text-sm font-medium">
-            Confirm New Password <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="confirm-password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm new password"
-            required
-            disabled={isLoading}
-            className="h-11"
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="new-password" className="text-sm font-medium">
+              New Password <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="new-password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password"
+              required
+              disabled={isLoading}
+              className="h-11"
+            />
+            <p className="text-xs text-muted-foreground">
+              Must be at least 6 characters long
+            </p>
+          </div>
 
-        <div className="flex gap-3 pt-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isLoading}
-            className="flex-1"
-            size="lg"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="flex-1"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Updating...
-              </>
-            ) : (
-              "Update Password"
-            )}
-          </Button>
-        </div>
-      </form>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password" className="text-sm font-medium">
+              Confirm New Password <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="confirm-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm new password"
+              required
+              disabled={isLoading}
+              className="h-11"
+            />
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

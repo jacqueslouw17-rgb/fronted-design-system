@@ -183,12 +183,17 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
             </p>
           </div>
 
-          {canManageRoles && (
-            <Button onClick={openCreate} className="gap-1.5" size="sm">
-              <Plus className="h-4 w-4" />
-              Create role
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" onClick={onBack} size="sm">
+              Back
             </Button>
-          )}
+            {canManageRoles && (
+              <Button onClick={openCreate} className="gap-1.5" size="sm">
+                <Plus className="h-4 w-4" />
+                Create role
+              </Button>
+            )}
+          </div>
         </div>
 
         {systemRoles.length > 0 && (
@@ -244,10 +249,6 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
           )}
         </div>
       </div>
-
-      <Button variant="outline" onClick={onBack} className="w-full sm:w-auto" size="lg">
-        Back to Overview
-      </Button>
 
       <RoleEditorDrawer
         open={editorOpen}

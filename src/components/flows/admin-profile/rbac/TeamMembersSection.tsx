@@ -113,12 +113,17 @@ export function TeamMembersSection({ onBack }: TeamMembersSectionProps) {
             </p>
           </div>
 
-          {canInviteUsers && (
-            <Button onClick={() => setInviteOpen(true)} className="gap-1.5" size="sm">
-              <UserPlus className="h-4 w-4" />
-              Invite
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" onClick={onBack} size="sm">
+              Back
             </Button>
-          )}
+            {canInviteUsers && (
+              <Button onClick={() => setInviteOpen(true)} className="gap-1.5" size="sm">
+                <UserPlus className="h-4 w-4" />
+                Invite
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="space-y-3">
@@ -238,10 +243,6 @@ export function TeamMembersSection({ onBack }: TeamMembersSectionProps) {
           )}
         </div>
       </div>
-
-      <Button variant="outline" onClick={onBack} className="w-full sm:w-auto" size="lg">
-        Back to Overview
-      </Button>
 
       <InviteMemberDrawer
         open={inviteOpen}
