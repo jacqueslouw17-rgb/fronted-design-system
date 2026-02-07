@@ -163,10 +163,21 @@ export function useRBAC(): UseRBACReturn {
   // Main data load
   const loadAllData = useCallback(async () => {
     setLoading(true);
-    
+
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id || null;
     setCurrentUserId(userId);
+
+    // Bootstrap: if this is the first user ever, ensure they become the Owner
+    // so RBAC insert/update policies (server-side) will allow role/member management.
+    if (userId) {
+      try {
+        await supabase.rpc('rbac_bootstrap_owner');
+      } catch (e) {
+        // Non-fatal: UI will still load; actions may be blocked by policies.
+        console.warn('rbac_bootstrap_owner failed', e);
+      }
+    }
 
     const moduleList = await loadModules();
     setModules(moduleList);
@@ -202,9 +213,19 @@ export function useRBAC(): UseRBACReturn {
   // Role actions
   const createRole = async (data: RoleFormData): Promise<boolean> => {
     try {
+      if (!currentUserId) {
+        toast.error('Please sign in to manage roles');
+        return false;
+      }
+
+      if (!currentUserRole) {
+        toast.error('Your access is still loading—try again in a second');
+        return false;
+      }
+
       // Get current user's privilege level for escalation check
-      const userPrivilege = currentUserRole?.privilege_level || 0;
-      
+      const userPrivilege = currentUserRole.privilege_level || 0;
+
       // Insert role
       const { data: newRole, error: roleError } = await supabase
         .from('rbac_roles')
@@ -212,8 +233,8 @@ export function useRBAC(): UseRBACReturn {
           name: data.name,
           description: data.description,
           is_system_role: false,
-          privilege_level: Math.min(userPrivilege - 1, 50), // Cannot create role higher than self
-          created_by: currentUserId
+          privilege_level: Math.max(1, Math.min(userPrivilege - 1, 50)), // cannot create role higher than self
+          created_by: currentUserId,
         })
         .select()
         .single();
@@ -221,30 +242,32 @@ export function useRBAC(): UseRBACReturn {
       if (roleError) throw roleError;
 
       // Insert permissions
-      const permissionInserts = Object.entries(data.permissions).map(([moduleKey, level]) => {
-        const module = modules.find(m => m.key === moduleKey);
-        if (!module) return null;
-        return {
-          role_id: newRole.id,
-          module_id: module.id,
-          permission_level: level
-        };
-      }).filter(Boolean);
+      const permissionInserts = Object.entries(data.permissions)
+        .map(([moduleKey, level]) => {
+          const module = modules.find(m => m.key === moduleKey);
+          if (!module) return null;
+          return {
+            role_id: newRole.id,
+            module_id: module.id,
+            permission_level: level,
+          };
+        })
+        .filter(Boolean);
 
       if (permissionInserts.length > 0) {
         const { error: permError } = await supabase
           .from('rbac_role_permissions')
           .insert(permissionInserts);
-        
+
         if (permError) throw permError;
       }
 
       toast.success(`Role "${data.name}" created successfully`);
       await loadAllData();
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating role:', error);
-      toast.error('Failed to create role');
+      toast.error(error?.message || 'Failed to create role');
       return false;
     }
   };
