@@ -115,11 +115,17 @@ const CompanyAdministratorsDetail = ({ onCancel }: CompanyAdministratorsDetailPr
     <div className="space-y-6 max-w-3xl mx-auto">
       {/* Header Card */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Company Administrators</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            View status and manage access for all company admins
-          </p>
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Company Administrators</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              View status and manage access for all company admins
+            </p>
+          </div>
+
+          <Button variant="outline" onClick={onCancel} size="sm">
+            Back
+          </Button>
         </div>
 
         {/* Admin List */}
@@ -183,16 +189,6 @@ const CompanyAdministratorsDetail = ({ onCancel }: CompanyAdministratorsDetailPr
           </AnimatePresence>
         </div>
       </div>
-
-      {/* Back Button */}
-      <Button
-        variant="outline"
-        onClick={onCancel}
-        className="w-full sm:w-auto"
-        size="lg"
-      >
-        Back to Overview
-      </Button>
     </div>
   );
 };
