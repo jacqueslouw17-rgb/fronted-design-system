@@ -26,7 +26,8 @@ export const CollapsibleSection = ({
   rejectedCount = 0,
   totalCount,
   className,
-}: CollapsibleSectionProps & { subtitle?: React.ReactNode }) => {
+  subtitle,
+}: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   
   // Respond to forceOpen changes
