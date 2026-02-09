@@ -1,10 +1,11 @@
 /**
  * Roles & Permissions Section - Standalone page for managing roles
  * Flow 1 v4 - Fronted Admin Dashboard
+ * Dense table-style layout consistent with payroll patterns
  */
 
 import { useState } from "react";
-import { Plus, Shield, MoreHorizontal, Copy, Pencil, Trash2, Lock, Users, Loader2 } from "lucide-react";
+import { Plus, MoreHorizontal, Copy, Pencil, Trash2, Lock, Users, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -15,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRBAC } from "@/hooks/useRBAC";
 import { RoleEditorDrawer } from "./RoleEditorDrawer";
+import { cn } from "@/lib/utils";
 import type { RoleWithPermissions } from "@/types/rbac";
 
 interface RolesPermissionsSectionProps {
@@ -88,91 +90,97 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
     );
   }
 
-  const RoleCard = ({ role }: { role: RoleWithPermissions }) => {
+  const RoleRow = ({ role, isFirst, isLast }: { role: RoleWithPermissions; isFirst?: boolean; isLast?: boolean }) => {
     const memberCount = getMemberCountForRole(role.id);
     const canDelete = !role.is_system_role && memberCount === 0;
 
     return (
-      <div className="bg-card/60 border border-border/30 rounded-lg p-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Role Info */}
+      <div
+        className={cn(
+          "flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-muted/30",
+          isFirst && "rounded-t-xl",
+          isLast && "rounded-b-xl"
+        )}
+      >
+        {/* Role Info */}
+        <div className="flex-1 min-w-0 flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2.5 mb-1">
-              <Shield className="h-4 w-4 text-primary" />
-              <span className="font-medium text-foreground">{role.name}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-foreground truncate">{role.name}</span>
               {role.is_system_role && (
-                <Badge variant="secondary" className="gap-1 text-xs">
+                <Badge variant="secondary" className="gap-1 text-[10px] px-1.5 py-0 h-5">
                   <Lock className="h-2.5 w-2.5" />
                   System
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <span className="line-clamp-1">
-                {role.description || getPermissionSummary(role.permissions)}
-              </span>
-              <span className="shrink-0 flex items-center gap-1">
-                <Users className="h-3.5 w-3.5" />
-                {memberCount}
-              </span>
-            </div>
+            <p className="text-xs text-muted-foreground truncate mt-0.5">
+              {role.description || getPermissionSummary(role.permissions)}
+            </p>
           </div>
-
-          {/* Actions */}
-          {canManageRoles && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {!role.is_system_role && (
-                  <DropdownMenuItem onClick={() => handleEditRole(role)}>
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit Role
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                  onClick={() => {
-                    setRoleToDuplicate(role);
-                    setDuplicateName(`${role.name} (Copy)`);
-                  }}
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Duplicate
-                </DropdownMenuItem>
-                {!role.is_system_role && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="text-destructive focus:text-destructive"
-                      onClick={() => setRoleToDelete(role)}
-                      disabled={!canDelete}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                      {memberCount > 0 && (
-                        <span className="ml-auto text-xs opacity-60">({memberCount} assigned)</span>
-                      )}
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
         </div>
+
+        {/* Member count */}
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+          <Users className="h-3.5 w-3.5" />
+          <span>{memberCount}</span>
+        </div>
+
+        {/* Actions */}
+        {canManageRoles && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              {!role.is_system_role && (
+                <DropdownMenuItem onClick={() => handleEditRole(role)}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={() => {
+                  setRoleToDuplicate(role);
+                  setDuplicateName(`${role.name} (Copy)`);
+                }}
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Duplicate
+              </DropdownMenuItem>
+              {!role.is_system_role && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onClick={() => setRoleToDelete(role)}
+                    disabled={!canDelete}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                    {memberCount > 0 && (
+                      <span className="ml-auto text-[10px] opacity-60">({memberCount})</span>
+                    )}
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     );
   };
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-      <div className="bg-card/40 border border-border/40 rounded-lg p-6">
-        <div className="flex items-start justify-between gap-4 mb-5">
+      <div className="bg-card/40 backdrop-blur-sm border border-border/40 rounded-xl p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-4 mb-5">
           <div>
             <h3 className="text-lg font-semibold text-foreground">Roles & Permissions</h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {roles.length} role{roles.length !== 1 ? "s" : ""} configured
             </p>
           </div>
@@ -190,54 +198,36 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
           </div>
         </div>
 
-        {/* System Roles */}
-        {systemRoles.length > 0 && (
-          <div className="mb-6">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-              System Roles
-            </p>
-            <div className="space-y-3">
-              <AnimatePresence mode="popLayout">
-                {systemRoles.map((role) => (
-                  <motion.div
-                    key={role.id}
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -60 }}
-                  >
-                    <RoleCard role={role} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          </div>
-        )}
+        {/* All roles in unified table */}
+        <div className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden divide-y divide-border/30">
+          <AnimatePresence mode="popLayout">
+            {roles.map((role, idx) => (
+              <motion.div
+                key={role.id}
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -60 }}
+                transition={{ duration: 0.15 }}
+              >
+                <RoleRow
+                  role={role}
+                  isFirst={idx === 0}
+                  isLast={idx === roles.length - 1}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
-        {/* Custom Roles */}
-        {customRoles.length > 0 ? (
-          <div className="space-y-3">
-            <AnimatePresence mode="popLayout">
-              {customRoles.map((role) => (
-                <motion.div
-                  key={role.id}
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -60 }}
-                >
-                  <RoleCard role={role} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <div className="py-10 text-center">
-            <Plus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
-            <p className="text-base font-medium text-foreground mb-1">No custom roles yet</p>
-            <p className="text-sm text-muted-foreground">
-              Create a custom role tailored to your team's needs.
-            </p>
-          </div>
-        )}
+          {roles.length === 0 && (
+            <div className="py-10 text-center">
+              <Plus className="h-8 w-8 mx-auto mb-2 text-muted-foreground/40" />
+              <p className="text-sm font-medium text-foreground mb-0.5">No roles configured</p>
+              <p className="text-xs text-muted-foreground">
+                Create your first role to get started.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Role Editor Drawer */}
