@@ -192,25 +192,34 @@ export function RoleEditorDrawer({
               </div>
 
               <TooltipProvider delayDuration={200}>
-                <div className="rounded-lg border border-border/40 bg-muted/20 overflow-hidden divide-y divide-border/30">
+                <div className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden divide-y divide-border/30">
                   {modules.length === 0 ? (
                     <div className="p-4">
                       <p className="text-sm text-muted-foreground">Loading modules…</p>
                     </div>
                   ) : (
-                    modules.map((module) => {
+                    modules.map((module, idx) => {
                       const current = formData.permissions[module.key] || "none";
                       const available = getAvailableLevels(module);
+                      const isFirst = idx === 0;
+                      const isLast = idx === modules.length - 1;
 
                       return (
-                        <div key={module.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                        <div
+                          key={module.id}
+                          className={cn(
+                            "flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-muted/30",
+                            isFirst && "rounded-t-xl",
+                            isLast && "rounded-b-xl"
+                          )}
+                        >
                           {/* Module name */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">{module.name}</p>
+                            <p className="text-sm font-medium text-foreground/90 truncate">{module.name}</p>
                           </div>
 
-                          {/* Level pills */}
-                          <div className="flex items-center gap-1 shrink-0">
+                          {/* Level pills - softer styling */}
+                          <div className="flex items-center gap-1.5 shrink-0">
                             {available.map((level) => {
                               const isActive = current === level;
                               const config = LEVEL_CONFIG[level];
@@ -227,16 +236,16 @@ export function RoleEditorDrawer({
                                         }))
                                       }
                                       className={cn(
-                                        "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
+                                        "px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-150",
                                         isActive
-                                          ? "bg-primary text-primary-foreground"
-                                          : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                          ? "bg-foreground/10 text-foreground border border-foreground/20 shadow-sm"
+                                          : "text-muted-foreground/70 hover:text-muted-foreground hover:bg-muted/50"
                                       )}
                                     >
                                       {config.shortLabel}
                                     </button>
                                   </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-xs">
+                                  <TooltipContent side="top" className="text-xs px-2 py-1">
                                     {config.tooltip}
                                   </TooltipContent>
                                 </Tooltip>
