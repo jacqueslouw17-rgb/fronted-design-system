@@ -17,7 +17,6 @@ interface StepConfig {
 
 const steps: StepConfig[] = [
   { id: "submissions", label: "Submissions" },
-  { id: "exceptions", label: "Exceptions" },
   { id: "approve", label: "Approve" },
   { id: "track", label: "Track" },
 ];
@@ -39,7 +38,7 @@ export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
   exceptionsCount = 0,
   isApproved = false,
 }) => {
-  const stepOrder: F1v4_PayrollStep[] = ["submissions", "exceptions", "approve", "track"];
+  const stepOrder: F1v4_PayrollStep[] = ["submissions", "approve", "track"];
   const currentIndex = stepOrder.indexOf(currentStep);
 
   const getStepState = (step: F1v4_PayrollStep): "completed" | "active" | "upcoming" | "locked" => {

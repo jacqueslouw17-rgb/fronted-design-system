@@ -3,7 +3,7 @@
  * 
  * Matches CA3_PayrollSection exactly:
  * - Landing view: KPI card with "Continue to submissions" button
- * - Workflow: Submissions → Exceptions → Approve → Track with back arrow navigation
+ * - Workflow: Submissions → Approve → Track with back arrow navigation
  */
 
 import React, { useState, useMemo } from "react";
@@ -16,14 +16,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
 import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v4_SubmissionsView";
-import { F1v4_ExceptionsStep, WorkerException } from "./F1v4_ExceptionsStep";
+
 import { F1v4_ApproveStep } from "./F1v4_ApproveStep";
 import { F1v4_TrackStep } from "./F1v4_TrackStep";
 import { F1v4_ApproveConfirmationModal } from "./F1v4_ApproveConfirmationModal";
 import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v4_PeriodDropdown";
 import { F1v4_PayrollStepper, F1v4_PayrollStep as StepperStep } from "./F1v4_PayrollStepper";
 import { F1v4_HistoricalTrackingView } from "./F1v4_HistoricalTrackingView";
-export type F1v4_PayrollStep = "submissions" | "exceptions" | "approve" | "track";
+export type F1v4_PayrollStep = "submissions" | "approve" | "track";
 
 import { HistoricalWorker } from "./F1v4_HistoricalTrackingView";
 
@@ -386,9 +386,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Submissions state
   const [submissions, setSubmissions] = useState<WorkerSubmission[]>(MOCK_SUBMISSIONS);
   
-  // Exceptions count
-  const [exceptionsCount, setExceptionsCount] = useState(company.blockingExceptions);
-  
   // Submit/Approved state
   const [isApproved, setIsApproved] = useState(false);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
@@ -431,18 +428,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   };
 
   // Navigation handlers
-  const goToExceptions = () => {
-    setCompletedSteps(prev => [...prev, "submissions"]);
-    setCurrentStep("exceptions");
-  };
-
   const goToApprove = () => {
-    setCompletedSteps(prev => {
-      const steps: F1v4_PayrollStep[] = [...prev];
-      if (!steps.includes("submissions")) steps.push("submissions");
-      if (!steps.includes("exceptions")) steps.push("exceptions");
-      return steps;
-    });
+    setCompletedSteps(prev => [...prev, "submissions"]);
     setCurrentStep("approve");
   };
 
@@ -450,7 +437,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     setCompletedSteps(prev => {
       const steps: F1v4_PayrollStep[] = [...prev];
       if (!steps.includes("submissions")) steps.push("submissions");
-      if (!steps.includes("exceptions")) steps.push("exceptions");
       if (!steps.includes("approve")) steps.push("approve");
       return steps;
     });
@@ -459,10 +445,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     toast.success("Payroll numbers approved and locked");
   };
 
-  const handleResolveException = () => {
-    setExceptionsCount(prev => Math.max(0, prev - 1));
-    toast.success("Exception resolved");
-  };
 
   // Back navigation
   const handleBack = () => {
@@ -470,11 +452,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
       case "submissions":
         setHasEnteredWorkflow(false);
         break;
-      case "exceptions":
-        setCurrentStep("submissions");
-        break;
       case "approve":
-        setCurrentStep("exceptions");
+        setCurrentStep("submissions");
         break;
       case "track":
         // No back from track
@@ -593,7 +572,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const getStepTitle = (): string => {
     switch (currentStep) {
       case "submissions": return "Submissions";
-      case "exceptions": return "Exceptions";
       case "approve": return "Approve";
       case "track": return "Track & Reconcile";
       default: return "";
@@ -607,60 +585,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         return (
           <F1v4_SubmissionsView
             submissions={currentRunSubmissions}
-            onContinue={goToExceptions}
+            onContinue={goToApprove}
             onClose={() => setHasEnteredWorkflow(false)}
           />
-        );
-      case "exceptions":
-        return (
-          <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-            <div className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleBack}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <F1v4_PayrollStepper
-                    currentStep="exceptions"
-                    completedSteps={completedSteps as StepperStep[]}
-                    exceptionsCount={exceptionsCount}
-                  />
-                </div>
-                <div className="flex items-center gap-3">
-                  <Button 
-                    size="sm" 
-                    onClick={goToApprove}
-                    disabled={exceptionsCount > 0}
-                    className="h-9 text-xs"
-                  >
-                    Continue to Approve
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setHasEnteredWorkflow(false)}
-                    className="h-9 text-xs"
-                  >
-                    Close
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="p-5">
-              <F1v4_ExceptionsStep
-                company={company}
-                exceptionsCount={exceptionsCount}
-                onResolve={handleResolveException}
-                onContinue={goToApprove}
-                hideHeader
-              />
-            </div>
-          </Card>
         );
       case "approve":
         return (

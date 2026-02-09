@@ -752,7 +752,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 <TooltipTrigger asChild>
                   <span>
                     <Button size="sm" onClick={onContinue} disabled={!canContinue} className="h-9 text-xs">
-                      Continue to Exceptions
+                      Continue to Approve
                     </Button>
                   </span>
                 </TooltipTrigger>
