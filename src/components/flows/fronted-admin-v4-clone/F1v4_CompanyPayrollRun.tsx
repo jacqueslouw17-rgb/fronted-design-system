@@ -589,57 +589,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             onClose={() => setHasEnteredWorkflow(false)}
           />
         );
-      case "exceptions":
-        return (
-          <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-            <div className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleBack}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <F1v4_PayrollStepper
-                    currentStep="exceptions"
-                    completedSteps={completedSteps as StepperStep[]}
-                    exceptionsCount={exceptionsCount}
-                  />
-                </div>
-                <div className="flex items-center gap-3">
-                  <Button 
-                    size="sm" 
-                    onClick={goToApprove}
-                    disabled={exceptionsCount > 0}
-                    className="h-9 text-xs"
-                  >
-                    Continue to Approve
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setHasEnteredWorkflow(false)}
-                    className="h-9 text-xs"
-                  >
-                    Close
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="p-5">
-              <F1v4_ExceptionsStep
-                company={company}
-                exceptionsCount={exceptionsCount}
-                onResolve={handleResolveException}
-                onContinue={goToApprove}
-                hideHeader
-              />
-            </div>
-          </Card>
-        );
       case "approve":
         return (
           <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
