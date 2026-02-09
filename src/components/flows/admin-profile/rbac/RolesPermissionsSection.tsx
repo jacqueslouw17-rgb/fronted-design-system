@@ -143,12 +143,14 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44 bg-popover border border-border shadow-md">
-              {!role.is_system_role && (
-                <DropdownMenuItem onClick={() => handleEditRole(role)}>
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem 
+                onClick={() => handleEditRole(role)}
+                disabled={role.is_system_role}
+                className={role.is_system_role ? "opacity-50" : ""}
+              >
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
                   setRoleToDuplicate(role);
@@ -158,15 +160,17 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
                 <Copy className="h-4 w-4 mr-2" />
                 Duplicate
               </DropdownMenuItem>
-              {!role.is_system_role && (
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={handleDeleteClick}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem
+                className={cn(
+                  "text-destructive focus:text-destructive",
+                  role.is_system_role && "opacity-50"
+                )}
+                onClick={handleDeleteClick}
+                disabled={role.is_system_role}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}
