@@ -1122,6 +1122,24 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 Include in this month's batch
                               </p>}
                           </div>
+                          {/* Status badge top-right for Done column */}
+                          {status === "CERTIFIED" && (
+                            <Badge 
+                              variant="outline" 
+                              className={cn(
+                                "text-[10px] px-1.5 py-0 h-4 flex-shrink-0",
+                                (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                                contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
+                                contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
+                              )}
+                            >
+                              {contractor.workerStatus === "contract-ended" ? "Ended" 
+                                : contractor.workerStatus === "resigned" ? "Resigned"
+                                : contractor.workerStatus === "terminated" ? "Terminated"
+                                : "Active"}
+                            </Badge>
+                          )}
                           {status === "offer-accepted" && onRemoveContractor && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0" onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
