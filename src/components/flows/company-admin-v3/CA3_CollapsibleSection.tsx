@@ -77,7 +77,6 @@ export const CollapsibleSection = ({
         {headerBadge && (
           <span className="ml-1">{headerBadge}</span>
         )}
-        )}
       </button>
       
       {/* Optional subtitle (e.g., pay change note) */}
