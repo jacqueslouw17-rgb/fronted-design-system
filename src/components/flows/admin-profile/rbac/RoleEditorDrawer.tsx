@@ -14,7 +14,6 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
@@ -160,7 +159,7 @@ export function RoleEditorDrawer({
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="role-name" className="text-sm">
-                  Role name <span className="text-destructive">*</span>
+                  Role name
                 </Label>
                 <Input
                   id="role-name"
@@ -177,7 +176,7 @@ export function RoleEditorDrawer({
 
               <div className="space-y-2">
                 <Label htmlFor="role-desc" className="text-sm">
-                  Description
+                  Description <span className="text-muted-foreground">(optional)</span>
                 </Label>
                 <Textarea
                   id="role-desc"
@@ -267,18 +266,19 @@ export function RoleEditorDrawer({
                 </p>
               </div>
             </div>
+
+            {/* Action buttons inline after fields */}
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit} disabled={saving} className="gap-1.5">
+                <Save className="h-4 w-4" />
+                {saving ? "Saving…" : isEditMode ? "Save changes" : "Create role"}
+              </Button>
+            </div>
           </div>
         </ScrollArea>
-
-        <SheetFooter className="px-5 pb-5 pt-4 border-t border-border/40 gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={saving} className="gap-1.5">
-            <Save className="h-4 w-4" />
-            {saving ? "Saving…" : isEditMode ? "Save changes" : "Create role"}
-          </Button>
-        </SheetFooter>
       </SheetContent>
     </Sheet>
   );
