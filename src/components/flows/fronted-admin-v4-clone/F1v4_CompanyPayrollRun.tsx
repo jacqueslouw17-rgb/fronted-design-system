@@ -23,7 +23,7 @@ import { F1v4_ApproveConfirmationModal } from "./F1v4_ApproveConfirmationModal";
 import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v4_PeriodDropdown";
 import { F1v4_PayrollStepper, F1v4_PayrollStep as StepperStep } from "./F1v4_PayrollStepper";
 import { F1v4_HistoricalTrackingView } from "./F1v4_HistoricalTrackingView";
-export type F1v4_PayrollStep = "submissions" | "exceptions" | "approve" | "track";
+export type F1v4_PayrollStep = "submissions" | "approve" | "track";
 
 import { HistoricalWorker } from "./F1v4_HistoricalTrackingView";
 
