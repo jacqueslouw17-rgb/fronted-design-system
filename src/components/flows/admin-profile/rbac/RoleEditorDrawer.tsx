@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useMemo, useState, useRef } from "react";
-import { Save, Shield, Search, Plus, Copy } from "lucide-react";
+import { Save, Shield, Search, Plus, ChevronDown, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,6 +85,7 @@ export function RoleEditorDrawer({
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<RoleWithPermissions | null>(null);
+  const [isManualEntry, setIsManualEntry] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -141,6 +142,7 @@ export function RoleEditorDrawer({
       permissions: { ...defaultPerms },
     }));
     setShowDropdown(false);
+    setIsManualEntry(true);
   };
 
   useEffect(() => {
@@ -151,6 +153,7 @@ export function RoleEditorDrawer({
       setSearchQuery("");
       setSelectedTemplate(null);
       setShowDropdown(false);
+      setIsManualEntry(false);
       return;
     }
 
@@ -248,10 +251,10 @@ export function RoleEditorDrawer({
           <div className="px-5 py-5 space-y-5">
             {/* Basic Info */}
             <div className="space-y-4">
-              {/* Role Name - Search and Create pattern for create mode */}
+              {/* Role Name - Select with search pattern for create mode */}
               <div className="space-y-2">
                 <Label htmlFor="role-name" className="text-sm">Role name</Label>
-                {isEditMode ? (
+                {isEditMode || isManualEntry || selectedTemplate ? (
                   <Input
                     id="role-name"
                     value={formData.name}
@@ -263,82 +266,91 @@ export function RoleEditorDrawer({
                     className={`h-10 ${errors.name ? "border-destructive" : ""}`}
                   />
                 ) : (
+                  /* Dropdown selector mode - for initial create */
                   <div className="relative">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                      <Input
-                        ref={inputRef}
-                        id="role-name"
-                        value={searchQuery}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setSearchQuery(value);
-                          setFormData((p) => ({ ...p, name: value }));
-                          if (errors.name) setErrors((p) => ({ ...p, name: "" }));
-                          setShowDropdown(true);
-                        }}
-                        onFocus={() => setShowDropdown(true)}
-                        placeholder="Search existing or create new..."
-                        className={`h-10 pl-9 ${errors.name ? "border-destructive" : ""}`}
-                      />
-                    </div>
+                    {/* Trigger button */}
+                    <button
+                      type="button"
+                      onClick={() => setShowDropdown(!showDropdown)}
+                      className={cn(
+                        "w-full h-10 px-3 flex items-center justify-between rounded-md border text-sm transition-colors",
+                        showDropdown 
+                          ? "bg-foreground text-background border-foreground" 
+                          : "bg-background border-input hover:bg-accent hover:text-accent-foreground",
+                        errors.name && "border-destructive"
+                      )}
+                    >
+                      <span className="text-muted-foreground">
+                        Select role...
+                      </span>
+                      <ChevronDown className={cn(
+                        "h-4 w-4 transition-transform",
+                        showDropdown && "rotate-180"
+                      )} />
+                    </button>
                     
-                    {/* Dropdown */}
+                    {/* Dropdown panel */}
                     {showDropdown && (
                       <div
                         ref={dropdownRef}
                         className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
                       >
+                        {/* Search input */}
+                        <div className="p-2 border-b border-border/50">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              ref={inputRef}
+                              value={searchQuery}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setSearchQuery(value);
+                                if (errors.name) setErrors((p) => ({ ...p, name: "" }));
+                              }}
+                              placeholder="Search roles..."
+                              className="h-9 pl-9 bg-background"
+                              autoFocus
+                            />
+                          </div>
+                        </div>
+                        
+                        {/* Results */}
                         <div className="max-h-[240px] overflow-y-auto">
-                          {/* Existing roles */}
-                          {filteredRoles.length > 0 && (
+                          {/* Existing roles list */}
+                          {filteredRoles.length > 0 ? (
                             <div className="py-1">
-                              <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
-                                Use as template
-                              </p>
                               {filteredRoles.map((r) => (
                                 <button
                                   key={r.id}
                                   type="button"
                                   onClick={() => handleSelectTemplate(r)}
-                                  className="w-full px-3 py-2 text-left hover:bg-muted/50 flex items-center gap-2 transition-colors"
+                                  className="w-full px-3 py-2.5 text-left hover:bg-muted/50 flex items-center justify-between gap-2 transition-colors"
                                 >
-                                  <Copy className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">{r.name}</p>
-                                    <p className="text-xs text-muted-foreground truncate">
-                                      {r.description || getPermissionSummary(r.permissions)}
-                                    </p>
-                                  </div>
+                                  <span className="text-sm font-medium truncate">{r.name}</span>
+                                  <span className="text-xs text-muted-foreground shrink-0">
+                                    {getPermissionSummary(r.permissions)}
+                                  </span>
                                 </button>
                               ))}
                             </div>
-                          )}
-                          
-                          {/* Create new option */}
-                          {searchQuery.trim() && !exactMatch && (
-                            <>
-                              {filteredRoles.length > 0 && (
-                                <div className="border-t border-border/50" />
-                              )}
+                          ) : searchQuery.trim() ? (
+                            /* Empty state with create option */
+                            <div className="py-6 px-4 text-center space-y-3">
+                              <p className="text-sm text-muted-foreground">No role found.</p>
                               <button
                                 type="button"
                                 onClick={handleCreateNew}
-                                className="w-full px-3 py-2.5 text-left hover:bg-muted/50 flex items-center gap-2 transition-colors"
+                                className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted/50 transition-colors"
                               >
-                                <Plus className="h-4 w-4 text-primary shrink-0" />
-                                <span className="text-sm">
-                                  Create "<span className="font-medium">{searchQuery}</span>"
-                                </span>
+                                <User className="h-4 w-4" />
+                                Add New Role
                               </button>
-                            </>
-                          )}
-                          
-                          {/* Empty state */}
-                          {filteredRoles.length === 0 && !searchQuery.trim() && (
-                            <div className="px-3 py-4 text-center">
+                            </div>
+                          ) : (
+                            /* Initial empty state */
+                            <div className="py-6 px-4 text-center">
                               <p className="text-sm text-muted-foreground">
-                                Type a name to create a new role
+                                Search or create a new role
                               </p>
                             </div>
                           )}
@@ -349,7 +361,6 @@ export function RoleEditorDrawer({
                 )}
                 {selectedTemplate && !isEditMode && (
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Copy className="h-3 w-3" />
                     Based on "{selectedTemplate.name}" permissions
                   </p>
                 )}
