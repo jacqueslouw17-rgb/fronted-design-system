@@ -580,10 +580,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       />
                     )}
                     <div className="flex items-center justify-between gap-4 py-1.5">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <FileText className="h-3.5 w-3.5" />
-                        <span>Contract status</span>
-                      </div>
+                      <span className="text-sm text-muted-foreground">Contract status</span>
                       <Badge 
                         variant="outline" 
                         className={cn(
