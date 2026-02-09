@@ -115,6 +115,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     dataReceived: true,
     bankDetails: "BDO Unibank ••••4521",
     payFrequency: "Fortnightly",
+    workerStatus: "active",
   },
   {
     id: "done-2",
@@ -129,6 +130,9 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     dataReceived: true,
     bankDetails: "AIB ••••8734",
     payFrequency: "Monthly",
+    workerStatus: "contract-ended",
+    endDate: "January 31, 2026",
+    endReason: "Contract period completed",
   },
 ];
 
