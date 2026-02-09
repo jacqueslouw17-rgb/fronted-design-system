@@ -142,7 +142,7 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuContent align="end" className="w-44 bg-popover border border-border shadow-md">
               {!role.is_system_role && (
                 <DropdownMenuItem onClick={() => handleEditRole(role)}>
                   <Pencil className="h-4 w-4 mr-2" />
@@ -159,16 +159,13 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
                 Duplicate
               </DropdownMenuItem>
               {!role.is_system_role && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onClick={handleDeleteClick}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </>
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={handleDeleteClick}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
