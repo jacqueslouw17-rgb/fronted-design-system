@@ -1,10 +1,10 @@
 /**
- * Invite Team Member Drawer (right-side)
+ * Invite/Edit Team Member Drawer (right-side)
  * RBAC - Flow 1 v4
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { Mail, Send, Shield, User } from "lucide-react";
+import { Mail, Pencil, Send, Shield, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import type { InviteFormData, PermissionMatrix, RoleWithPermissions } from "@/types/rbac";
+import type { InviteFormData, PermissionMatrix, RoleWithPermissions, RBACTeamMember } from "@/types/rbac";
 
 interface InviteMemberDrawerProps {
   open: boolean;
@@ -32,6 +32,9 @@ interface InviteMemberDrawerProps {
   onInvite: (data: InviteFormData) => Promise<boolean>;
   getPermissionSummary: (permissions: PermissionMatrix) => string;
   onNavigateToRoles?: () => void;
+  // Edit mode props
+  editMember?: RBACTeamMember | null;
+  onUpdateRole?: (memberId: string, roleId: string) => Promise<boolean>;
 }
 
 export function InviteMemberDrawer({
@@ -42,7 +45,11 @@ export function InviteMemberDrawer({
   onInvite,
   getPermissionSummary,
   onNavigateToRoles,
+  editMember,
+  onUpdateRole,
 }: InviteMemberDrawerProps) {
+  const isEditMode = !!editMember;
+  
   const assignableRoles = useMemo(
     () => roles.filter((r) => r.privilege_level <= currentUserPrivilege),
     [roles, currentUserPrivilege],
@@ -59,20 +66,31 @@ export function InviteMemberDrawer({
   const selectedRole = assignableRoles.find((r) => r.id === formData.role_id);
 
   useEffect(() => {
-    if (!open) {
-      setFormData({ name: "", email: "", role_id: "" });
+    if (open) {
+      if (editMember) {
+        // Pre-populate form with member data
+        setFormData({
+          name: editMember.name || "",
+          email: editMember.email,
+          role_id: editMember.role_id,
+        });
+      } else {
+        setFormData({ name: "", email: "", role_id: "" });
+      }
       setErrors({});
       setSending(false);
     }
-  }, [open]);
+  }, [open, editMember]);
 
   const validate = (): boolean => {
     const next: Record<string, string> = {};
 
-    if (!formData.email.trim()) {
-      next.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      next.email = "Enter a valid email";
+    if (!isEditMode) {
+      if (!formData.email.trim()) {
+        next.email = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        next.email = "Enter a valid email";
+      }
     }
 
     if (!formData.role_id) {
@@ -87,7 +105,14 @@ export function InviteMemberDrawer({
     if (!validate()) return;
 
     setSending(true);
-    const success = await onInvite(formData);
+    
+    let success = false;
+    if (isEditMode && onUpdateRole && editMember) {
+      success = await onUpdateRole(editMember.id, formData.role_id);
+    } else {
+      success = await onInvite(formData);
+    }
+    
     setSending(false);
 
     if (success) {
@@ -100,11 +125,23 @@ export function InviteMemberDrawer({
       <SheetContent side="right" className="w-full sm:max-w-[440px] overflow-y-auto p-0">
         <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/40">
           <SheetTitle className="text-base flex items-center gap-2">
-            <Mail className="h-4 w-4 text-primary" />
-            Invite team member
+            {isEditMode ? (
+              <>
+                <Pencil className="h-4 w-4 text-primary" />
+                Edit team member
+              </>
+            ) : (
+              <>
+                <Mail className="h-4 w-4 text-primary" />
+                Invite team member
+              </>
+            )}
           </SheetTitle>
           <SheetDescription>
-            Add someone to your workspace and assign a role.
+            {isEditMode 
+              ? "Update the role for this team member."
+              : "Add someone to your workspace and assign a role."
+            }
           </SheetDescription>
         </SheetHeader>
 
@@ -120,6 +157,7 @@ export function InviteMemberDrawer({
               onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
               placeholder="Jane Smith"
               className="h-11"
+              disabled={isEditMode}
             />
           </div>
 
@@ -138,6 +176,7 @@ export function InviteMemberDrawer({
               }}
               placeholder="jane@company.com"
               className={`h-11 ${errors.email ? "border-destructive" : ""}`}
+              disabled={isEditMode}
             />
             {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
           </div>
@@ -209,11 +248,20 @@ export function InviteMemberDrawer({
             </Button>
             <Button 
               onClick={handleSubmit} 
-              disabled={sending || !formData.email.trim() || !formData.role_id} 
+              disabled={sending || (!isEditMode && !formData.email.trim()) || !formData.role_id || (isEditMode && formData.role_id === editMember?.role_id)} 
               className="gap-1.5"
             >
-              <Send className="h-4 w-4" />
-              {sending ? "Sending…" : "Send invite"}
+              {isEditMode ? (
+                <>
+                  <Pencil className="h-4 w-4" />
+                  {sending ? "Saving…" : "Save changes"}
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  {sending ? "Sending…" : "Send invite"}
+                </>
+              )}
             </Button>
           </div>
         </div>
