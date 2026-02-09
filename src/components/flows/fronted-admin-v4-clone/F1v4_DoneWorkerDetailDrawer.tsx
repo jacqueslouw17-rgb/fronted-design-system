@@ -679,18 +679,12 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     )}
                     <DetailRow label="National ID / Government ID" value={mockData.nationalId} />
                     <div className="flex items-center justify-between gap-4 py-1.5">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Upload className="h-3.5 w-3.5" />
-                        <span>Identity document</span>
-                      </div>
+                      <span className="text-sm text-muted-foreground">Identity document</span>
                       <StatusBadge status={mockData.idDocumentStatus} />
                     </div>
                     {worker.optionalUploads?.map((upload, idx) => (
                       <div key={idx} className="flex items-center justify-between gap-4 py-1.5">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <FileText className="h-3.5 w-3.5" />
-                          <span>{upload.name}</span>
-                        </div>
+                        <span className="text-sm text-muted-foreground">{upload.name}</span>
                         <StatusBadge status={upload.status} />
                       </div>
                     ))}
