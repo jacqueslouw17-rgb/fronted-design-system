@@ -273,14 +273,14 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
       />
 
       <AlertDialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>
-        <AlertDialogContent className="relative">
-          <button
-            onClick={() => setMemberToRemove(null)}
-            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
-          >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <AlertDialogHeader>
+        <AlertDialogContent>
+          <AlertDialogHeader className="pr-8">
+            <button
+              onClick={() => setMemberToRemove(null)}
+              className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
             <AlertDialogTitle>Remove team member?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to remove {memberToRemove?.name || memberToRemove?.email}?
