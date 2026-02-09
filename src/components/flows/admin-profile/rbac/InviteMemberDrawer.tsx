@@ -34,7 +34,7 @@ interface InviteMemberDrawerProps {
   onNavigateToRoles?: () => void;
   // Edit mode props
   editMember?: RBACTeamMember | null;
-  onUpdateRole?: (memberId: string, roleId: string) => Promise<boolean>;
+  onUpdateMember?: (memberId: string, roleId: string, name: string) => Promise<boolean>;
 }
 
 export function InviteMemberDrawer({
@@ -46,7 +46,7 @@ export function InviteMemberDrawer({
   getPermissionSummary,
   onNavigateToRoles,
   editMember,
-  onUpdateRole,
+  onUpdateMember,
 }: InviteMemberDrawerProps) {
   const isEditMode = !!editMember;
   
@@ -107,8 +107,8 @@ export function InviteMemberDrawer({
     setSending(true);
     
     let success = false;
-    if (isEditMode && onUpdateRole && editMember) {
-      success = await onUpdateRole(editMember.id, formData.role_id);
+    if (isEditMode && onUpdateMember && editMember) {
+      success = await onUpdateMember(editMember.id, formData.role_id, formData.name);
     } else {
       success = await onInvite(formData);
     }
@@ -157,7 +157,6 @@ export function InviteMemberDrawer({
               onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
               placeholder="Jane Smith"
               className="h-11"
-              disabled={isEditMode}
             />
           </div>
 
@@ -248,7 +247,7 @@ export function InviteMemberDrawer({
             </Button>
             <Button 
               onClick={handleSubmit} 
-              disabled={sending || (!isEditMode && !formData.email.trim()) || !formData.role_id || (isEditMode && formData.role_id === editMember?.role_id)} 
+              disabled={sending || (!isEditMode && !formData.email.trim()) || !formData.role_id || (isEditMode && formData.role_id === editMember?.role_id && formData.name === (editMember?.name || ""))} 
               className="gap-1.5"
             >
               {isEditMode ? (
