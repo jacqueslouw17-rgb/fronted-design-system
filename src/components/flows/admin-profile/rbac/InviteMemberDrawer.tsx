@@ -19,7 +19,6 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
@@ -125,7 +124,7 @@ export function InviteMemberDrawer({
           <div className="space-y-2">
             <Label htmlFor="invite-email" className="text-sm flex items-center gap-1.5">
               <Mail className="h-3.5 w-3.5" />
-              Email <span className="text-destructive">*</span>
+              Email
             </Label>
             <Input
               id="invite-email"
@@ -144,7 +143,7 @@ export function InviteMemberDrawer({
           <div className="space-y-2">
             <Label className="text-sm flex items-center gap-1.5">
               <Shield className="h-3.5 w-3.5" />
-              Role <span className="text-destructive">*</span>
+              Role
             </Label>
             <Select
               value={formData.role_id}
@@ -181,17 +180,18 @@ export function InviteMemberDrawer({
               </p>
             </div>
           )}
-        </div>
 
-        <SheetFooter className="px-5 pb-5 pt-4 border-t border-border/40 gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={sending} className="gap-1.5">
-            <Send className="h-4 w-4" />
-            {sending ? "Sending…" : "Send invite"}
-          </Button>
-        </SheetFooter>
+          {/* Action buttons inline after fields */}
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={sending} className="gap-1.5">
+              <Send className="h-4 w-4" />
+              {sending ? "Sending…" : "Send invite"}
+            </Button>
+          </div>
+        </div>
       </SheetContent>
     </Sheet>
   );
