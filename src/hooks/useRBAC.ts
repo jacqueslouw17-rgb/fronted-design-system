@@ -256,7 +256,7 @@ export function useRBAC(): UseRBACReturn {
           description: data.description,
           is_system_role: false,
           privilege_level: Math.max(1, Math.min(userPrivilege - 1, 50)), // cannot create role higher than self
-          created_by: currentUserId,
+          created_by: DEMO_MODE ? null : currentUserId, // null in demo mode since it's not a valid UUID
         })
         .select()
         .single();
