@@ -386,9 +386,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Submissions state
   const [submissions, setSubmissions] = useState<WorkerSubmission[]>(MOCK_SUBMISSIONS);
   
-  // Exceptions count
-  const [exceptionsCount, setExceptionsCount] = useState(company.blockingExceptions);
-  
   // Submit/Approved state
   const [isApproved, setIsApproved] = useState(false);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
