@@ -38,7 +38,8 @@ interface RoleEditorDrawerProps {
   onOpenChange: (open: boolean) => void;
   modules: RBACModule[];
   role?: RoleWithPermissions | null;
-  existingRoles?: RoleWithPermissions[];
+  existingRoles?: RoleWithPermissions[]; // Active roles (for duplicate name check)
+  allRoleTemplates?: RoleWithPermissions[]; // All roles including deleted (for dropdown)
   initialData?: RoleFormData;
   onSave: (roleId: string | null, data: RoleFormData) => Promise<boolean>;
   getPermissionSummary: (permissions: PermissionMatrix) => string;
@@ -58,11 +59,15 @@ export function RoleEditorDrawer({
   modules,
   role,
   existingRoles = [],
+  allRoleTemplates,
   initialData,
   onSave,
   getPermissionSummary,
 }: RoleEditorDrawerProps) {
   const isEditMode = !!role;
+
+  // Use allRoleTemplates for dropdown if provided, otherwise fall back to existingRoles
+  const dropdownRoles = allRoleTemplates || existingRoles;
 
   const defaultPerms = useMemo(() => {
     const next: PermissionMatrix = {};
@@ -89,15 +94,15 @@ export function RoleEditorDrawer({
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Filter existing roles based on search
+  // Filter dropdown roles based on search (includes deleted templates)
   const filteredRoles = useMemo(() => {
-    if (!searchQuery.trim()) return existingRoles;
+    if (!searchQuery.trim()) return dropdownRoles;
     const query = searchQuery.toLowerCase();
-    return existingRoles.filter(r => 
+    return dropdownRoles.filter(r => 
       r.name.toLowerCase().includes(query) || 
       r.description?.toLowerCase().includes(query)
     );
-  }, [existingRoles, searchQuery]);
+  }, [dropdownRoles, searchQuery]);
 
   // Check if name matches any existing role exactly (excluding current role in edit mode)
   const isDuplicateName = useMemo(() => {
