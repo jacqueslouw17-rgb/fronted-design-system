@@ -16,7 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
 import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v4_SubmissionsView";
-import { F1v4_ExceptionsStep, WorkerException } from "./F1v4_ExceptionsStep";
+
 import { F1v4_ApproveStep } from "./F1v4_ApproveStep";
 import { F1v4_TrackStep } from "./F1v4_TrackStep";
 import { F1v4_ApproveConfirmationModal } from "./F1v4_ApproveConfirmationModal";
