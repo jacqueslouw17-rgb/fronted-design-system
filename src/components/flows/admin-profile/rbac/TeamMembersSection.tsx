@@ -45,13 +45,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 
 import { useRBACContext } from "@/contexts/RBACContext";
 import type { RBACTeamMember } from "@/types/rbac";
@@ -83,13 +76,12 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
   const [processing, setProcessing] = useState(false);
 
   const currentUserPrivilege = currentUserRole?.privilege_level || 0;
-  const assignableRoles = roles.filter((r) => r.privilege_level <= currentUserPrivilege);
 
-  const handleRoleChange = async (memberId: string, roleId: string) => {
+  const handleRoleChange = async (memberId: string, roleId: string): Promise<boolean> => {
     setProcessing(true);
-    await updateMemberRole(memberId, roleId);
-    setMemberToEdit(null);
+    const success = await updateMemberRole(memberId, roleId);
     setProcessing(false);
+    return success;
   };
 
   const handleRemove = async () => {
@@ -261,52 +253,23 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
         </div>
       </div>
 
+      {/* Invite / Edit Member Drawer */}
       <InviteMemberDrawer
-        open={inviteOpen}
-        onOpenChange={setInviteOpen}
+        open={inviteOpen || !!memberToEdit}
+        onOpenChange={(open) => {
+          if (!open) {
+            setInviteOpen(false);
+            setMemberToEdit(null);
+          }
+        }}
         roles={roles}
         currentUserPrivilege={currentUserPrivilege}
         onInvite={inviteMember}
         getPermissionSummary={getPermissionSummary}
         onNavigateToRoles={onNavigateToRoles}
+        editMember={memberToEdit}
+        onUpdateRole={handleRoleChange}
       />
-
-      {/* Edit Role Drawer */}
-      <Sheet open={!!memberToEdit} onOpenChange={() => setMemberToEdit(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Edit Role</SheetTitle>
-            <SheetDescription>
-              Change role for {memberToEdit?.name || memberToEdit?.email}
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="mt-6 space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Role</label>
-              <Select
-                value={memberToEdit?.role_id}
-                onValueChange={(value) => memberToEdit && handleRoleChange(memberToEdit.id, value)}
-                disabled={processing}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {assignableRoles.map((role) => (
-                    <SelectItem key={role.id} value={role.id}>
-                      <div className="flex items-center gap-2">
-                        <Shield className="h-3.5 w-3.5 text-muted-foreground" />
-                        {role.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
 
       <AlertDialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>
         <AlertDialogContent>
