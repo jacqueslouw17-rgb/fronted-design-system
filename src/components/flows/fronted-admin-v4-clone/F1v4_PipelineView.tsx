@@ -60,6 +60,12 @@ interface Contractor {
   payrollChecklist?: PayrollChecklistItem[];
   payrollProgress?: number;
   payrollMonth?: "last" | "current" | "next";
+  // Worker lifecycle
+  workerStatus?: "active" | "contract-ended" | "resigned" | "terminated";
+  endDate?: string;
+  endReason?: string;
+  bankDetails?: string;
+  payFrequency?: string;
 }
 interface PayrollChecklistItem {
   id: string;
