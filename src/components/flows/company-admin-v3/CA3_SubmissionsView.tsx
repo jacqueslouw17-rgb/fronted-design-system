@@ -1152,7 +1152,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
               )}>
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
-                {flag.type === "end_date" ? "Heads up: End date" : "Heads up: Pay change"}
+                {flag.type === "end_date" ? "Heads up: Status end date" : "Heads up: Pay change"}
               </Badge>
             ))}
           </div>
