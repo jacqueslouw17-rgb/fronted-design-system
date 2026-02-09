@@ -691,11 +691,22 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             <span className="text-sm font-medium text-foreground truncate">{submission.workerName}</span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[submission.workerCountry] || ""} {submission.workerCountry}</span>
             {workerRejectedCount > 0 && workerPendingCount === 0 && (
               <span className="text-[10px] text-destructive/80">· 1 day to resubmit</span>
             )}
+            {submission.flags?.map((flag, fi) => (
+              <Badge key={fi} variant="outline" className={cn(
+                "text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium",
+                flag.type === "end_date" 
+                  ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20" 
+                  : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+              )}>
+                <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
+                {flag.type === "end_date" ? "Heads up: End date" : "Heads up: Pay change"}
+              </Badge>
+            ))}
           </div>
         </div>
 
