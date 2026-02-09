@@ -166,6 +166,7 @@ export function RoleEditorDrawer({
       setFormData(data);
       setInitialFormData(data);
       setSearchQuery(role.name);
+      setIsManualEntry(true); // Edit mode goes straight to input
       setErrors({});
       return;
     }
@@ -251,10 +252,11 @@ export function RoleEditorDrawer({
           <div className="px-5 py-5 space-y-5">
             {/* Basic Info */}
             <div className="space-y-4">
-              {/* Role Name - Select with search pattern for create mode */}
+              {/* Role Name - Select with search pattern */}
               <div className="space-y-2">
                 <Label htmlFor="role-name" className="text-sm">Role name</Label>
-                {isEditMode || isManualEntry || selectedTemplate ? (
+                {isManualEntry || selectedTemplate || isEditMode ? (
+                  /* Direct input mode - after selection, manual entry, or editing */
                   <Input
                     id="role-name"
                     value={formData.name}
