@@ -428,9 +428,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   };
 
   // Navigation handlers
-  const goToExceptions = () => {
+  const goToApprove = () => {
     setCompletedSteps(prev => [...prev, "submissions"]);
-    setCurrentStep("exceptions");
+    setCurrentStep("approve");
   };
 
   const goToApprove = () => {
