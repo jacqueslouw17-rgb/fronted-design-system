@@ -3,7 +3,7 @@
  * 
  * Matches CA3_PayrollSection exactly:
  * - Landing view: KPI card with "Continue to submissions" button
- * - Workflow: Submissions → Exceptions → Approve → Track with back arrow navigation
+ * - Workflow: Submissions → Approve → Track with back arrow navigation
  */
 
 import React, { useState, useMemo } from "react";
