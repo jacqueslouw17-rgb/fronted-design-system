@@ -7,13 +7,14 @@ interface CollapsibleSectionProps {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
-  forceOpen?: boolean; // New prop to force open state dynamically
+  forceOpen?: boolean;
   pendingCount?: number;
   approvedCount?: number;
   rejectedCount?: number;
   totalCount?: number;
   className?: string;
   subtitle?: React.ReactNode;
+  headerBadge?: React.ReactNode;
 }
 
 export const CollapsibleSection = ({
