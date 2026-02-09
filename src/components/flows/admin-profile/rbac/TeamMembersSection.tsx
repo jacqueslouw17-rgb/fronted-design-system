@@ -77,9 +77,9 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
 
   const currentUserPrivilege = currentUserRole?.privilege_level || 0;
 
-  const handleRoleChange = async (memberId: string, roleId: string): Promise<boolean> => {
+  const handleUpdateMember = async (memberId: string, roleId: string, name: string): Promise<boolean> => {
     setProcessing(true);
-    const success = await updateMemberRole(memberId, roleId);
+    const success = await updateMemberRole(memberId, roleId, name);
     setProcessing(false);
     return success;
   };
@@ -268,7 +268,7 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
         getPermissionSummary={getPermissionSummary}
         onNavigateToRoles={onNavigateToRoles}
         editMember={memberToEdit}
-        onUpdateRole={handleRoleChange}
+        onUpdateMember={handleUpdateMember}
       />
 
       <AlertDialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>

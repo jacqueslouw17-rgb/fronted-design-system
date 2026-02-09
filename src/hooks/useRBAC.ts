@@ -43,7 +43,7 @@ interface UseRBACReturn {
   
   // Team member actions
   inviteMember: (data: InviteFormData) => Promise<boolean>;
-  updateMemberRole: (memberId: string, roleId: string) => Promise<boolean>;
+  updateMemberRole: (memberId: string, roleId: string, name?: string) => Promise<boolean>;
   removeMember: (memberId: string) => Promise<boolean>;
   resendInvite: (memberId: string) => Promise<boolean>;
   
@@ -711,7 +711,7 @@ export function useRBAC(): UseRBACReturn {
     }
   };
 
-  const updateMemberRole = async (memberId: string, roleId: string): Promise<boolean> => {
+  const updateMemberRole = async (memberId: string, roleId: string, name?: string): Promise<boolean> => {
     try {
       const member = teamMembers.find(m => m.id === memberId);
       if (!member) throw new Error('Member not found');
@@ -742,26 +742,40 @@ export function useRBAC(): UseRBACReturn {
       if (DEMO_MODE) {
         setTeamMembers(prev => prev.map(m => 
           m.id === memberId 
-            ? { ...m, role_id: roleId, role: targetRole, updated_at: new Date().toISOString() }
+            ? { 
+                ...m, 
+                role_id: roleId, 
+                role: targetRole, 
+                name: name !== undefined ? name : m.name,
+                updated_at: new Date().toISOString() 
+              }
             : m
         ));
-        toast.success(`Role updated for ${member.name || member.email}`);
+        toast.success(`Updated ${name || member.name || member.email}`);
         return true;
+      }
+
+      const updateData: { role_id: string; name?: string; updated_at: string } = { 
+        role_id: roleId, 
+        updated_at: new Date().toISOString() 
+      };
+      if (name !== undefined) {
+        updateData.name = name;
       }
 
       const { error } = await supabase
         .from('rbac_team_members')
-        .update({ role_id: roleId, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', memberId);
 
       if (error) throw error;
 
-      toast.success(`Role updated for ${member.name || member.email}`);
+      toast.success(`Updated ${name || member.name || member.email}`);
       await loadAllData();
       return true;
     } catch (error) {
-      console.error('Error updating member role:', error);
-      toast.error('Failed to update role');
+      console.error('Error updating member:', error);
+      toast.error('Failed to update member');
       return false;
     }
   };
