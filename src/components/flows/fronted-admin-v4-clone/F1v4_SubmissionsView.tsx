@@ -83,6 +83,14 @@ export interface PendingLeaveItem {
   dailyRate?: number;
 }
 
+// Flag types for "Heads up" indicators
+export interface WorkerFlag {
+  type: "end_date" | "pay_change";
+  endDate?: string; // For Flag 1
+  endReason?: "Termination" | "Resignation" | "End contract"; // For Flag 1
+  payChangePercent?: number; // For Flag 2 (positive = increase, negative = decrease)
+}
+
 export interface WorkerSubmission {
   id: string;
   workerId: string;
@@ -98,6 +106,7 @@ export interface WorkerSubmission {
   status: SubmissionStatus;
   totalImpact?: number;
   currency?: string;
+  flags?: WorkerFlag[];
 }
 
 interface F1v4_SubmissionsViewProps {
