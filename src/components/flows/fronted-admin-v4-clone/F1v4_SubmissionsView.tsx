@@ -977,31 +977,20 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                     </SheetHeader>
 
-                    {/* Heads up flags - single consolidated banner */}
-                    {selectedSubmission.flags && selectedSubmission.flags.length > 0 && (
+                    {/* Heads up flags - only show banner for end_date (Flag 1) */}
+                    {selectedSubmission.flags && selectedSubmission.flags.filter(f => f.type === "end_date").length > 0 && (
                       <div className="px-5 py-3 border-b border-border/20">
                         <div className="flex items-start gap-2.5 p-3 rounded-lg border bg-amber-500/5 border-amber-500/15">
                           <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
                           <div className="flex-1 min-w-0 space-y-1.5">
                             <p className="text-xs font-semibold text-foreground">Heads up</p>
-                            {selectedSubmission.flags.map((flag, fi) => (
+                            {selectedSubmission.flags.filter(f => f.type === "end_date").map((flag, fi) => (
                               <div key={fi}>
-                                {flag.type === "end_date" ? (
-                                  <>
-                                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                      This worker's status ends on <span className="font-medium text-foreground">{flag.endDate || "TBD"}</span>. Please confirm they should be included in this payroll run.
-                                    </p>
-                                    {flag.endReason && (
-                                      <p className="text-[10px] text-muted-foreground/70 mt-0.5">Status: {flag.endReason}</p>
-                                    )}
-                                  </>
-                                ) : (
-                                  <>
-                                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                      This payroll is <span className="font-medium text-foreground">{Math.abs(flag.payChangePercent || 0)}% {(flag.payChangePercent || 0) > 0 ? "higher" : "lower"}</span> than last period. Please confirm this is expected before submitting.
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground/50 mt-0.5 italic">Explanation: (Kurt will add details later)</p>
-                                  </>
+                                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                  This worker's status ends on <span className="font-medium text-foreground">{flag.endDate || "TBD"}</span>. Please confirm they should be included in this payroll run.
+                                </p>
+                                {flag.endReason && (
+                                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">Status: {flag.endReason}</p>
                                 )}
                               </div>
                             ))}
