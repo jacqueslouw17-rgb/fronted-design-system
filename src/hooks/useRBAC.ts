@@ -55,6 +55,10 @@ interface UseRBACReturn {
   refresh: () => Promise<void>;
 }
 
+// Demo mode: bypass authentication checks for Flow 1 v4 demo
+const DEMO_MODE = true;
+const DEMO_USER_ID = 'demo-admin-user';
+
 export function useRBAC(): UseRBACReturn {
   const [modules, setModules] = useState<RBACModule[]>([]);
   const [roles, setRoles] = useState<RoleWithPermissions[]>([]);
@@ -63,7 +67,7 @@ export function useRBAC(): UseRBACReturn {
   const [loading, setLoading] = useState(true);
   const [rolesLoading, setRolesLoading] = useState(true);
   const [membersLoading, setMembersLoading] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(DEMO_MODE ? DEMO_USER_ID : null);
 
   // Load modules
   const loadModules = useCallback(async () => {
@@ -164,13 +168,21 @@ export function useRBAC(): UseRBACReturn {
   const loadAllData = useCallback(async () => {
     setLoading(true);
 
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id || null;
+    let userId: string | null = null;
+    
+    if (DEMO_MODE) {
+      // Demo mode: use fake admin user ID
+      userId = DEMO_USER_ID;
+    } else {
+      const { data: { session } } = await supabase.auth.getSession();
+      userId = session?.user?.id || null;
+    }
+    
     setCurrentUserId(userId);
 
     // Bootstrap: if this is the first user ever, ensure they become the Owner
     // so RBAC insert/update policies (server-side) will allow role/member management.
-    if (userId) {
+    if (userId && !DEMO_MODE) {
       try {
         await supabase.rpc('rbac_bootstrap_owner');
       } catch (e) {
@@ -188,7 +200,16 @@ export function useRBAC(): UseRBACReturn {
     const membersList = await loadTeamMembers(rolesList);
     setTeamMembers(membersList);
 
-    if (userId) {
+    if (DEMO_MODE) {
+      // Demo mode: simulate Owner role with full permissions
+      const ownerRole = rolesList.find(r => r.privilege_level >= 100) || rolesList[0];
+      if (ownerRole) {
+        // Create a fake Owner role with all admin permissions
+        const fullPerms: PermissionMatrix = {};
+        moduleList.forEach(m => { fullPerms[m.key] = 'admin'; });
+        setCurrentUserRole({ ...ownerRole, permissions: fullPerms });
+      }
+    } else if (userId) {
       const userRole = await loadCurrentUserRole(userId, membersList, rolesList);
       setCurrentUserRole(userRole);
     }
@@ -201,24 +222,24 @@ export function useRBAC(): UseRBACReturn {
   }, [loadAllData]);
 
   // Computed permissions
-  // Bootstrap mode: if no team members exist, allow current user to manage (first-time setup)
+  // Demo mode OR bootstrap mode: grant full access
   const isBootstrapMode = teamMembers.length === 0;
-  const canManageRoles = isBootstrapMode || 
+  const canManageRoles = DEMO_MODE || isBootstrapMode || 
     currentUserRole?.permissions?.user_management === 'admin' || 
     (currentUserRole?.privilege_level || 0) >= 100;
   
-  const canInviteUsers = isBootstrapMode || canManageRoles || 
+  const canInviteUsers = DEMO_MODE || isBootstrapMode || canManageRoles || 
     (currentUserRole?.privilege_level || 0) >= 80;
 
   // Role actions
   const createRole = async (data: RoleFormData): Promise<boolean> => {
     try {
-      if (!currentUserId) {
+      if (!DEMO_MODE && !currentUserId) {
         toast.error('Please sign in to manage roles');
         return false;
       }
 
-      if (!currentUserRole) {
+      if (!DEMO_MODE && !currentUserRole) {
         toast.error('Your access is still loading—try again in a second');
         return false;
       }
@@ -380,14 +401,16 @@ export function useRBAC(): UseRBACReturn {
   // Team member actions
   const inviteMember = async (data: InviteFormData): Promise<boolean> => {
     try {
-      // Check escalation prevention
+      // Check escalation prevention (skip in demo mode)
       const targetRole = roles.find(r => r.id === data.role_id);
       if (!targetRole) throw new Error('Role not found');
       
-      const userPrivilege = currentUserRole?.privilege_level || 0;
-      if (targetRole.privilege_level > userPrivilege) {
-        toast.error('Cannot assign a role with higher privileges than your own');
-        return false;
+      if (!DEMO_MODE) {
+        const userPrivilege = currentUserRole?.privilege_level || 0;
+        if (targetRole.privilege_level > userPrivilege) {
+          toast.error('Cannot assign a role with higher privileges than your own');
+          return false;
+        }
       }
 
       // Check if email already exists
@@ -427,11 +450,13 @@ export function useRBAC(): UseRBACReturn {
       const targetRole = roles.find(r => r.id === roleId);
       if (!targetRole) throw new Error('Role not found');
 
-      // Escalation check
-      const userPrivilege = currentUserRole?.privilege_level || 0;
-      if (targetRole.privilege_level > userPrivilege) {
-        toast.error('Cannot assign a role with higher privileges than your own');
-        return false;
+      // Escalation check (skip in demo mode)
+      if (!DEMO_MODE) {
+        const userPrivilege = currentUserRole?.privilege_level || 0;
+        if (targetRole.privilege_level > userPrivilege) {
+          toast.error('Cannot assign a role with higher privileges than your own');
+          return false;
+        }
       }
 
       const { error } = await supabase
