@@ -40,6 +40,7 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
   const [showRoleEditor, setShowRoleEditor] = useState(false);
   const [editingRole, setEditingRole] = useState<RoleWithPermissions | null>(null);
   const [roleToDelete, setRoleToDelete] = useState<RoleWithPermissions | null>(null);
+  const [roleWithMembers, setRoleWithMembers] = useState<{ role: RoleWithPermissions; count: number } | null>(null);
   const [roleToDuplicate, setRoleToDuplicate] = useState<RoleWithPermissions | null>(null);
   const [duplicateName, setDuplicateName] = useState("");
   const [processing, setProcessing] = useState(false);
@@ -92,7 +93,14 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
 
   const RoleRow = ({ role, isFirst, isLast }: { role: RoleWithPermissions; isFirst?: boolean; isLast?: boolean }) => {
     const memberCount = getMemberCountForRole(role.id);
-    const canDelete = !role.is_system_role && memberCount === 0;
+
+    const handleDeleteClick = () => {
+      if (memberCount > 0) {
+        setRoleWithMembers({ role, count: memberCount });
+      } else {
+        setRoleToDelete(role);
+      }
+    };
 
     return (
       <div
@@ -155,14 +163,10 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-destructive focus:text-destructive"
-                    onClick={() => setRoleToDelete(role)}
-                    disabled={!canDelete}
+                    onClick={handleDeleteClick}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete
-                    {memberCount > 0 && (
-                      <span className="ml-auto text-[10px] opacity-60">({memberCount})</span>
-                    )}
                   </DropdownMenuItem>
                 </>
               )}
@@ -259,6 +263,22 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
             >
               Delete
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cannot Delete Warning */}
+      <AlertDialog open={!!roleWithMembers} onOpenChange={() => setRoleWithMembers(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cannot delete role</AlertDialogTitle>
+            <AlertDialogDescription>
+              The "{roleWithMembers?.role.name}" role is assigned to {roleWithMembers?.count} member{roleWithMembers?.count !== 1 ? "s" : ""}. 
+              Reassign them to a different role before deleting.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Got it</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
