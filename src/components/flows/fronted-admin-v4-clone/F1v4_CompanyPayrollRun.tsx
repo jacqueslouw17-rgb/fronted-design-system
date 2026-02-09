@@ -433,21 +433,10 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     setCurrentStep("approve");
   };
 
-  const goToApprove = () => {
-    setCompletedSteps(prev => {
-      const steps: F1v4_PayrollStep[] = [...prev];
-      if (!steps.includes("submissions")) steps.push("submissions");
-      if (!steps.includes("exceptions")) steps.push("exceptions");
-      return steps;
-    });
-    setCurrentStep("approve");
-  };
-
   const goToTrack = () => {
     setCompletedSteps(prev => {
       const steps: F1v4_PayrollStep[] = [...prev];
       if (!steps.includes("submissions")) steps.push("submissions");
-      if (!steps.includes("exceptions")) steps.push("exceptions");
       if (!steps.includes("approve")) steps.push("approve");
       return steps;
     });
