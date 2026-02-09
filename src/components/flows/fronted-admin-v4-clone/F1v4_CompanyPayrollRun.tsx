@@ -585,7 +585,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         return (
           <F1v4_SubmissionsView
             submissions={currentRunSubmissions}
-            onContinue={goToExceptions}
+            onContinue={goToApprove}
             onClose={() => setHasEnteredWorkflow(false)}
           />
         );
