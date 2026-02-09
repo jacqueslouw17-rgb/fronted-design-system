@@ -168,21 +168,242 @@ export function useRBAC(): UseRBACReturn {
   const loadAllData = useCallback(async () => {
     setLoading(true);
 
-    let userId: string | null = null;
-    
+    // Demo mode: provide fully-functional UI data without requiring auth/RLS.
+    // This keeps role creation + permission picking usable on the demo profile-settings screen.
     if (DEMO_MODE) {
-      // Demo mode: use fake admin user ID
-      userId = DEMO_USER_ID;
-    } else {
-      const { data: { session } } = await supabase.auth.getSession();
-      userId = session?.user?.id || null;
+      const now = new Date().toISOString();
+
+      const demoModules: RBACModule[] = [
+        {
+          id: "demo-module-hiring_onboarding",
+          key: "hiring_onboarding",
+          name: "Hiring & Onboarding Pipeline",
+          description: "View pipeline, move candidates, trigger actions",
+          available_permissions: ["view", "manage"],
+          display_order: 1,
+          created_at: now,
+        },
+        {
+          id: "demo-module-candidate_profiles",
+          key: "candidate_profiles",
+          name: "Candidate & Worker Profiles",
+          description: "View worker details and onboarding summaries",
+          available_permissions: ["view", "manage"],
+          display_order: 2,
+          created_at: now,
+        },
+        {
+          id: "demo-module-contracts",
+          key: "contracts",
+          name: "Contracts",
+          description: "Draft, edit, send, and approve contracts",
+          available_permissions: ["view", "manage", "approve"],
+          display_order: 3,
+          created_at: now,
+        },
+        {
+          id: "demo-module-payroll",
+          key: "payroll",
+          name: "Payroll",
+          description: "Manage submissions/exceptions and approve payroll",
+          available_permissions: ["view", "manage", "approve"],
+          display_order: 4,
+          created_at: now,
+        },
+        {
+          id: "demo-module-company_settings",
+          key: "company_settings",
+          name: "Company Settings",
+          description: "Edit company profile details and configuration",
+          available_permissions: ["view", "manage"],
+          display_order: 5,
+          created_at: now,
+        },
+        {
+          id: "demo-module-support_requests",
+          key: "support_requests",
+          name: "Support & Requests",
+          description: "View and create support requests",
+          available_permissions: ["view", "manage"],
+          display_order: 6,
+          created_at: now,
+        },
+        {
+          id: "demo-module-user_management",
+          key: "user_management",
+          name: "User Management (RBAC)",
+          description: "Invite users and manage roles & access",
+          available_permissions: ["view", "manage", "admin"],
+          display_order: 7,
+          created_at: now,
+        },
+      ];
+
+      const demoRoles: RoleWithPermissions[] = [
+        {
+          id: "demo-role-owner",
+          name: "Owner",
+          description: "Super admin",
+          is_system_role: true,
+          privilege_level: 100,
+          created_by: null,
+          organization_id: null,
+          created_at: now,
+          updated_at: now,
+          permissions: {
+            hiring_onboarding: "manage",
+            candidate_profiles: "manage",
+            contracts: "approve",
+            payroll: "approve",
+            company_settings: "manage",
+            support_requests: "manage",
+            user_management: "admin",
+          },
+        },
+        {
+          id: "demo-role-admin",
+          name: "Admin",
+          description: "Ops admin",
+          is_system_role: true,
+          privilege_level: 80,
+          created_by: null,
+          organization_id: null,
+          created_at: now,
+          updated_at: now,
+          permissions: {
+            hiring_onboarding: "manage",
+            candidate_profiles: "manage",
+            contracts: "approve",
+            payroll: "approve",
+            company_settings: "manage",
+            support_requests: "manage",
+            user_management: "manage",
+          },
+        },
+        {
+          id: "demo-role-payroll",
+          name: "Payroll Specialist",
+          description: "Payroll operations",
+          is_system_role: true,
+          privilege_level: 40,
+          created_by: null,
+          organization_id: null,
+          created_at: now,
+          updated_at: now,
+          permissions: {
+            hiring_onboarding: "view",
+            candidate_profiles: "view",
+            contracts: "none",
+            payroll: "manage",
+            company_settings: "none",
+            support_requests: "none",
+            user_management: "none",
+          },
+        },
+        {
+          id: "demo-role-contracts",
+          name: "Contract Specialist",
+          description: "Contracts operations",
+          is_system_role: true,
+          privilege_level: 40,
+          created_by: null,
+          organization_id: null,
+          created_at: now,
+          updated_at: now,
+          permissions: {
+            hiring_onboarding: "view",
+            candidate_profiles: "view",
+            contracts: "manage",
+            payroll: "none",
+            company_settings: "none",
+            support_requests: "none",
+            user_management: "none",
+          },
+        },
+        {
+          id: "demo-role-onboarding",
+          name: "Onboarding Coordinator",
+          description: "Pipeline + profiles",
+          is_system_role: true,
+          privilege_level: 20,
+          created_by: null,
+          organization_id: null,
+          created_at: now,
+          updated_at: now,
+          permissions: {
+            hiring_onboarding: "manage",
+            candidate_profiles: "view",
+            contracts: "none",
+            payroll: "none",
+            company_settings: "none",
+            support_requests: "none",
+            user_management: "none",
+          },
+        },
+        {
+          id: "demo-role-viewer",
+          name: "Viewer",
+          description: "Read-only",
+          is_system_role: true,
+          privilege_level: 10,
+          created_by: null,
+          organization_id: null,
+          created_at: now,
+          updated_at: now,
+          permissions: {
+            hiring_onboarding: "view",
+            candidate_profiles: "view",
+            contracts: "view",
+            payroll: "view",
+            company_settings: "view",
+            support_requests: "view",
+            user_management: "none",
+          },
+        },
+      ];
+
+      const demoMembers: RBACTeamMember[] = [
+        {
+          id: "demo-member-1",
+          user_id: DEMO_USER_ID,
+          email: "demo@fronted.local",
+          name: "Demo Admin",
+          role_id: "demo-role-owner",
+          organization_id: null,
+          status: "active",
+          invited_by: null,
+          invited_at: now,
+          activated_at: now,
+          last_active_at: now,
+          created_at: now,
+          updated_at: now,
+          role: demoRoles[0],
+        },
+      ];
+
+      setCurrentUserId(DEMO_USER_ID);
+      setModules(demoModules);
+      setRoles(demoRoles);
+      setTeamMembers(demoMembers);
+      setCurrentUserRole(demoRoles[0]);
+      setRolesLoading(false);
+      setMembersLoading(false);
+      setLoading(false);
+      return;
     }
-    
+
+    let userId: string | null = null;
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    userId = session?.user?.id || null;
+
     setCurrentUserId(userId);
 
     // Bootstrap: if this is the first user ever, ensure they become the Owner
     // so RBAC insert/update policies (server-side) will allow role/member management.
-    if (userId && !DEMO_MODE) {
+    if (userId) {
       try {
         await supabase.rpc('rbac_bootstrap_owner');
       } catch (e) {
@@ -200,16 +421,7 @@ export function useRBAC(): UseRBACReturn {
     const membersList = await loadTeamMembers(rolesList);
     setTeamMembers(membersList);
 
-    if (DEMO_MODE) {
-      // Demo mode: simulate Owner role with full permissions
-      const ownerRole = rolesList.find(r => r.privilege_level >= 100) || rolesList[0];
-      if (ownerRole) {
-        // Create a fake Owner role with all admin permissions
-        const fullPerms: PermissionMatrix = {};
-        moduleList.forEach(m => { fullPerms[m.key] = 'admin'; });
-        setCurrentUserRole({ ...ownerRole, permissions: fullPerms });
-      }
-    } else if (userId) {
+    if (userId) {
       const userRole = await loadCurrentUserRole(userId, membersList, rolesList);
       setCurrentUserRole(userRole);
     }
