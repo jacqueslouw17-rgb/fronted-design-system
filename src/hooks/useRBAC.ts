@@ -245,7 +245,8 @@ export function useRBAC(): UseRBACReturn {
       }
 
       // Get current user's privilege level for escalation check
-      const userPrivilege = currentUserRole.privilege_level || 0;
+      // In demo mode, currentUserRole might be null initially, default to max privilege
+      const userPrivilege = DEMO_MODE ? 100 : (currentUserRole?.privilege_level || 0);
 
       // Insert role
       const { data: newRole, error: roleError } = await supabase
