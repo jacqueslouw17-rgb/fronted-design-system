@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { Info, Save, Shield } from "lucide-react";
+import { Save, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -250,13 +250,6 @@ export function RoleEditorDrawer({
                 </div>
               </TooltipProvider>
 
-              {/* Least privilege note */}
-              <div className="flex items-start gap-2 rounded-lg border border-border/40 bg-primary/5 p-3">
-                <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground">
-                  <strong className="text-foreground">Least privilege:</strong> keep permissions tight and expand only when needed.
-                </p>
-              </div>
             </div>
 
             {/* Actions */}
