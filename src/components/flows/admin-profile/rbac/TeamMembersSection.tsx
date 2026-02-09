@@ -140,104 +140,113 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
 
         <div className="space-y-1.5">
           <AnimatePresence mode="popLayout">
-            {teamMembers.map((member) => (
-              <motion.div
-                key={member.id}
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -60 }}
-                className="group flex items-center justify-between gap-3 bg-card border border-border/40 rounded-lg px-4 py-3 hover:bg-muted/30 transition-colors"
-              >
-                {/* Member Info - Left side */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm text-foreground truncate">
-                      {member.name || "Unnamed"}
-                    </span>
-                    {member.status === "active" ? (
-                      <Badge
-                        variant="secondary"
-                        className="gap-1 bg-primary/10 text-primary border-primary/20 text-xs px-2 py-0.5"
-                      >
-                        <Check className="h-3 w-3" />
-                        Active
-                      </Badge>
-                    ) : (
-                      <Badge
-                        variant="outline"
-                        className="gap-1 bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs px-2 py-0.5"
-                      >
-                        <Clock className="h-3 w-3" />
-                        Pending
-                      </Badge>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-3 mt-0.5">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Mail className="h-3 w-3" />
-                      <span className="truncate">{member.email}</span>
-                    </div>
-                    {member.status === "pending" && (
-                      <span className="text-xs text-muted-foreground">
-                        · Invited{" "}
-                        {formatDistanceToNow(new Date(member.invited_at), { addSuffix: true })}
+            {teamMembers.map((member) => {
+              // Check if this is the current user (demo owner)
+              const isCurrentUser = member.id === 'demo-member-owner';
+              const canModifyMember = !isCurrentUser && (canManageRoles || (canInviteUsers && member.status === "pending"));
+              
+              return (
+                <motion.div
+                  key={member.id}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -60 }}
+                  className="group flex items-center justify-between gap-3 bg-card border border-border/40 rounded-lg px-4 py-3 hover:bg-muted/30 transition-colors"
+                >
+                  {/* Member Info - Left side */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-foreground truncate">
+                        {member.name || "Unnamed"}
                       </span>
+                      {isCurrentUser && (
+                        <span className="text-xs text-muted-foreground">(you)</span>
+                      )}
+                      {member.status === "active" ? (
+                        <Badge
+                          variant="secondary"
+                          className="gap-1 bg-primary/10 text-primary border-primary/20 text-xs px-2 py-0.5"
+                        >
+                          <Check className="h-3 w-3" />
+                          Active
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="gap-1 bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs px-2 py-0.5"
+                        >
+                          <Clock className="h-3 w-3" />
+                          Pending
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-0.5">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        <span className="truncate">{member.email}</span>
+                      </div>
+                      {member.status === "pending" && (
+                        <span className="text-xs text-muted-foreground">
+                          · Invited{" "}
+                          {formatDistanceToNow(new Date(member.invited_at), { addSuffix: true })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Role Badge & Actions - Right side */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    {/* Role display as badge - no hover state */}
+                    <Badge variant="outline" className="gap-1 text-xs px-2 py-1 pointer-events-none">
+                      <Shield className="h-3 w-3 text-muted-foreground" />
+                      {member.role?.name || "No role"}
+                    </Badge>
+
+                    {/* Actions Menu - hidden for current user */}
+                    {canModifyMember && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                          {canManageRoles && (
+                            <DropdownMenuItem onClick={() => setMemberToEdit(member)}>
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Edit Role
+                            </DropdownMenuItem>
+                          )}
+                          {member.status === "pending" && (
+                            <DropdownMenuItem onClick={() => handleResend(member.id)}>
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                              Resend Invite
+                            </DropdownMenuItem>
+                          )}
+                          {canManageRoles && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setMemberToRemove(member)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Remove
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     )}
                   </div>
-                </div>
-
-                {/* Role Badge & Actions - Right side */}
-                <div className="flex items-center gap-3 shrink-0">
-                  {/* Role display as badge - no hover state */}
-                  <Badge variant="outline" className="gap-1 text-xs px-2 py-1 pointer-events-none">
-                    <Shield className="h-3 w-3 text-muted-foreground" />
-                    {member.role?.name || "No role"}
-                  </Badge>
-
-                  {/* Actions Menu - always visible */}
-                  {(canManageRoles || (canInviteUsers && member.status === "pending")) && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
-                        {canManageRoles && (
-                          <DropdownMenuItem onClick={() => setMemberToEdit(member)}>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit Role
-                          </DropdownMenuItem>
-                        )}
-                        {member.status === "pending" && (
-                          <DropdownMenuItem onClick={() => handleResend(member.id)}>
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Resend Invite
-                          </DropdownMenuItem>
-                        )}
-                        {canManageRoles && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() => setMemberToRemove(member)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Remove
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
 
           {teamMembers.length === 0 && (
