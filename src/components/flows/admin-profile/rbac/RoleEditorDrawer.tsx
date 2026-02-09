@@ -75,6 +75,7 @@ export function RoleEditorDrawer({
     description: "",
     permissions: {},
   });
+  const [initialFormData, setInitialFormData] = useState<RoleFormData | null>(null);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -82,32 +83,55 @@ export function RoleEditorDrawer({
     if (!open) {
       setErrors({});
       setSaving(false);
+      setInitialFormData(null);
       return;
     }
 
     if (role) {
-      setFormData({
+      const data = {
         name: role.name,
         description: role.description || "",
         permissions: { ...role.permissions },
-      });
+      };
+      setFormData(data);
+      setInitialFormData(data);
       setErrors({});
       return;
     }
 
     if (initialData) {
-      setFormData({
+      const data = {
         name: initialData.name,
         description: initialData.description,
         permissions: { ...defaultPerms, ...initialData.permissions },
-      });
+      };
+      setFormData(data);
+      setInitialFormData(data);
       setErrors({});
       return;
     }
 
-    setFormData({ name: "", description: "", permissions: defaultPerms });
+    const data = { name: "", description: "", permissions: defaultPerms };
+    setFormData(data);
+    setInitialFormData(data);
     setErrors({});
   }, [role, initialData, defaultPerms, open]);
+
+  // Check if form has changes
+  const hasChanges = useMemo(() => {
+    if (!initialFormData) return false;
+    if (formData.name !== initialFormData.name) return true;
+    if (formData.description !== initialFormData.description) return true;
+    
+    const permKeys = new Set([
+      ...Object.keys(formData.permissions),
+      ...Object.keys(initialFormData.permissions),
+    ]);
+    for (const key of permKeys) {
+      if (formData.permissions[key] !== initialFormData.permissions[key]) return true;
+    }
+    return false;
+  }, [formData, initialFormData]);
 
   const validate = () => {
     const next: Record<string, string> = {};
@@ -266,7 +290,11 @@ export function RoleEditorDrawer({
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSubmit} disabled={saving} className="gap-1.5">
+              <Button 
+                onClick={handleSubmit} 
+                disabled={saving || (isEditMode && !hasChanges)} 
+                className="gap-1.5"
+              >
                 <Save className="h-4 w-4" />
                 {saving ? "Saving…" : isEditMode ? "Save changes" : "Create role"}
               </Button>
