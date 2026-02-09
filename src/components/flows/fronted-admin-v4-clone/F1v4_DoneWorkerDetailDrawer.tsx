@@ -406,60 +406,33 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-lg font-semibold text-foreground truncate">
-                  {worker.name}
-                </h2>
-                <span className="text-xl">{worker.countryFlag}</span>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Lifecycle status badge */}
-                <Badge 
-                  variant="outline" 
-                  className={cn("text-xs gap-1", statusConfig.badgeClass)}
-                >
-                  <statusConfig.icon className="h-3 w-3" />
-                  {statusConfig.label}
-                </Badge>
-                <Badge variant="outline" className="text-xs bg-muted/30">
-                  {isEmployee ? "Employee (EOR)" : "Contractor (COR)"}
-                </Badge>
-              </div>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h2 className="text-lg font-semibold text-foreground truncate">
+                      {worker.name}
+                    </h2>
+                    <span className="text-xl">{worker.countryFlag}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {worker.role} · {isEmployee ? "Employee (EOR)" : "Contractor (COR)"}
+                  </p>
+                </div>
 
-              {/* End date/reason if not active */}
-              {!isActive && worker.endDate && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  {workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Terminated on" : "Contract ended"}: {worker.endDate}
-                </p>
-              )}
-              {!isActive && worker.endReason && (
-                <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                  Reason: {worker.endReason}
-                </p>
-              )}
-
-              {isActive && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  All required details collected and verified.
-                </p>
-              )}
-              {mockData.completedOn && (
-                <p className="text-[11px] text-muted-foreground/70 mt-1">
-                  Completed on: {mockData.completedOn}
-                </p>
-              )}
-
-              {/* Actions dropdown - only for active workers */}
-              {isActive && (
-                <div className="mt-3">
+                {/* Status badge / dropdown — top right */}
+                {isActive ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
-                        Actions
-                        <ChevronDown className="h-3 w-3" />
-                      </Button>
+                      <button className={cn(
+                        "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-colors cursor-pointer shrink-0",
+                        "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 hover:bg-accent-green-fill/20"
+                      )}>
+                        <CheckCircle2 className="h-3 w-3" />
+                        Active
+                        <ChevronDown className="h-3 w-3 opacity-50" />
+                      </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-56">
+                    <DropdownMenuContent align="end" className="w-56">
                       <DropdownMenuItem 
                         onClick={() => setActionView("terminated")}
                         className="gap-2 text-destructive focus:text-destructive"
@@ -494,7 +467,33 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div>
+                ) : (
+                  <Badge 
+                    variant="outline" 
+                    className={cn("text-xs gap-1 shrink-0", statusConfig.badgeClass)}
+                  >
+                    <statusConfig.icon className="h-3 w-3" />
+                    {statusConfig.label}
+                  </Badge>
+                )}
+              </div>
+
+              {/* End date/reason if not active */}
+              {!isActive && worker.endDate && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  {workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Terminated on" : "Contract ended"}: {worker.endDate}
+                </p>
+              )}
+              {!isActive && worker.endReason && (
+                <p className="text-[11px] text-muted-foreground/70 mt-0.5">
+                  Reason: {worker.endReason}
+                </p>
+              )}
+
+              {isActive && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  All details collected and verified.
+                </p>
               )}
             </div>
           </div>
