@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { Mail, Pencil, Send, Shield, User } from "lucide-react";
+import { Mail, Pencil, Send, Shield, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -123,8 +123,14 @@ export function InviteMemberDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-[440px] overflow-y-auto p-0">
-        <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/40">
-          <SheetTitle className="text-base flex items-center gap-2">
+        <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/40 relative">
+          <button
+            onClick={() => onOpenChange(false)}
+            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <SheetTitle className="text-base flex items-center gap-2 pr-8">
             {isEditMode ? (
               <>
                 <Pencil className="h-4 w-4 text-primary" />

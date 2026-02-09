@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useMemo, useState, useRef } from "react";
-import { Save, Shield, Search, Plus, ChevronDown, User } from "lucide-react";
+import { Save, Shield, Search, Plus, ChevronDown, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -304,8 +304,14 @@ export function RoleEditorDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-[560px] p-0 overflow-hidden flex flex-col">
-        <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/40">
-          <SheetTitle className="text-base flex items-center gap-2">
+        <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/40 relative">
+          <button
+            onClick={() => onOpenChange(false)}
+            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <SheetTitle className="text-base flex items-center gap-2 pr-8">
             <Shield className="h-4 w-4 text-primary" />
             {isEditMode ? "Edit role" : "Create role"}
           </SheetTitle>

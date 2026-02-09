@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { Shield, MoreHorizontal, Plus, Copy, Pencil, Trash2, Lock, Users } from "lucide-react";
+import { Shield, MoreHorizontal, Plus, Copy, Pencil, Trash2, Lock, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -228,7 +228,13 @@ export function RolesList({
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!roleToDelete} onOpenChange={() => setRoleToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="relative">
+          <button
+            onClick={() => setRoleToDelete(null)}
+            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete role?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -250,7 +256,13 @@ export function RolesList({
 
       {/* Duplicate Dialog */}
       <Dialog open={!!roleToDuplicate} onOpenChange={() => setRoleToDuplicate(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md relative">
+          <button
+            onClick={() => setRoleToDuplicate(null)}
+            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors z-10"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
           <DialogHeader>
             <DialogTitle>Duplicate Role</DialogTitle>
             <DialogDescription>

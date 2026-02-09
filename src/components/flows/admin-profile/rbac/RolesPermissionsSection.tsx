@@ -5,7 +5,7 @@
  */
 
 import { useState } from "react";
-import { Plus, MoreHorizontal, Copy, Pencil, Trash2, Lock, Users, Loader2 } from "lucide-react";
+import { Plus, MoreHorizontal, Copy, Pencil, Trash2, Lock, Users, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -237,7 +237,13 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!roleToDelete} onOpenChange={() => setRoleToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="relative">
+          <button
+            onClick={() => setRoleToDelete(null)}
+            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete role?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -260,7 +266,13 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
 
       {/* Cannot Delete Warning */}
       <AlertDialog open={!!roleWithMembers} onOpenChange={() => setRoleWithMembers(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="relative">
+          <button
+            onClick={() => setRoleWithMembers(null)}
+            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
           <AlertDialogHeader>
             <AlertDialogTitle>Cannot delete role</AlertDialogTitle>
             <AlertDialogDescription>
@@ -276,7 +288,13 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
 
       {/* Duplicate Dialog */}
       <Dialog open={!!roleToDuplicate} onOpenChange={() => setRoleToDuplicate(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md relative">
+          <button
+            onClick={() => setRoleToDuplicate(null)}
+            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors z-10"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
           <DialogHeader>
             <DialogTitle>Duplicate Role</DialogTitle>
             <DialogDescription>
