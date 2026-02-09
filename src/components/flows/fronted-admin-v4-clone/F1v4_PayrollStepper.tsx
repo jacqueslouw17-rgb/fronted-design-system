@@ -17,7 +17,6 @@ interface StepConfig {
 
 const steps: StepConfig[] = [
   { id: "submissions", label: "Submissions" },
-  { id: "exceptions", label: "Exceptions" },
   { id: "approve", label: "Approve" },
   { id: "track", label: "Track" },
 ];
