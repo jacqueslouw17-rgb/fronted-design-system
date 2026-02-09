@@ -166,7 +166,7 @@ export function RoleEditorDrawer({
       setFormData(data);
       setInitialFormData(data);
       setSearchQuery(role.name);
-      setIsManualEntry(true); // Edit mode goes straight to input
+      setIsManualEntry(false); // Keep dropdown mode, role name will show in trigger
       setErrors({});
       return;
     }
@@ -255,8 +255,8 @@ export function RoleEditorDrawer({
               {/* Role Name - Select with search pattern */}
               <div className="space-y-2">
                 <Label htmlFor="role-name" className="text-sm">Role name</Label>
-                {isManualEntry || selectedTemplate || isEditMode ? (
-                  /* Direct input mode - after selection, manual entry, or editing */
+                {isManualEntry || selectedTemplate ? (
+                  /* Direct input mode - after selection or manual entry */
                   <Input
                     id="role-name"
                     value={formData.name}
@@ -268,7 +268,7 @@ export function RoleEditorDrawer({
                     className={`h-10 ${errors.name ? "border-destructive" : ""}`}
                   />
                 ) : (
-                  /* Dropdown selector mode - for initial create */
+                  /* Dropdown selector mode */
                   <div className="relative">
                     {/* Trigger button */}
                     <button
@@ -282,8 +282,8 @@ export function RoleEditorDrawer({
                         errors.name && "border-destructive"
                       )}
                     >
-                      <span className="text-muted-foreground">
-                        Select role...
+                      <span className={formData.name ? "text-foreground" : "text-muted-foreground"}>
+                        {formData.name || "Select role..."}
                       </span>
                       <ChevronDown className={cn(
                         "h-4 w-4 transition-transform",
