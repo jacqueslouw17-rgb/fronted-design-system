@@ -231,12 +231,9 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
 
   const hasMissingDetails = worker.missingDetails && worker.missingDetails.length > 0;
 
-  const DetailRow = ({ label, value, icon: Icon, className }: { label: string; value?: string; icon?: React.ElementType; className?: string }) => (
+  const DetailRow = ({ label, value, className }: { label: string; value?: string; icon?: React.ElementType; className?: string }) => (
     <div className={cn("flex items-start justify-between gap-4 py-1.5", className)}>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
-        {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
-        <span className="truncate">{label}</span>
-      </div>
+      <span className="text-sm text-muted-foreground truncate">{label}</span>
       <span className="text-sm font-medium text-foreground text-right">{value || "—"}</span>
     </div>
   );
