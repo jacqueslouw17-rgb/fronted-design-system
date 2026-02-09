@@ -445,10 +445,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     toast.success("Payroll numbers approved and locked");
   };
 
-  const handleResolveException = () => {
-    setExceptionsCount(prev => Math.max(0, prev - 1));
-    toast.success("Exception resolved");
-  };
 
   // Back navigation
   const handleBack = () => {
