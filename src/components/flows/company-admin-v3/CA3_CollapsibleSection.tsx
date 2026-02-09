@@ -13,8 +13,6 @@ interface CollapsibleSectionProps {
   rejectedCount?: number;
   totalCount?: number;
   className?: string;
-  subtitle?: React.ReactNode;
-  headerBadge?: React.ReactNode;
 }
 
 export const CollapsibleSection = ({
@@ -27,8 +25,6 @@ export const CollapsibleSection = ({
   rejectedCount = 0,
   totalCount,
   className,
-  subtitle,
-  headerBadge,
 }: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   
@@ -74,17 +70,7 @@ export const CollapsibleSection = ({
             {displayTotal}
           </span>
         )}
-        {headerBadge && (
-          <span className="ml-1">{headerBadge}</span>
-        )}
       </button>
-      
-      {/* Optional subtitle (e.g., pay change note) */}
-      {subtitle && (
-        <div className="ml-4 mt-0.5 mb-0.5">
-          {subtitle}
-        </div>
-      )}
       
       {/* Content - indented to align with header text */}
       <AnimatePresence initial={false}>
