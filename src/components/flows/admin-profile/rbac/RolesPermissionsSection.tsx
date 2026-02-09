@@ -113,15 +113,7 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
         {/* Role Info */}
         <div className="flex-1 min-w-0 flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground truncate">{role.name}</span>
-              {role.is_system_role && (
-                <Badge variant="secondary" className="gap-1 text-[10px] px-1.5 py-0 h-5">
-                  <Lock className="h-2.5 w-2.5" />
-                  System
-                </Badge>
-              )}
-            </div>
+            <span className="text-sm font-medium text-foreground truncate block">{role.name}</span>
             <p className="text-xs text-muted-foreground truncate mt-0.5">
               {role.description || getPermissionSummary(role.permissions)}
             </p>
@@ -143,11 +135,7 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44 bg-popover border border-border shadow-md">
-              <DropdownMenuItem 
-                onClick={() => handleEditRole(role)}
-                disabled={role.is_system_role}
-                className={role.is_system_role ? "opacity-50" : ""}
-              >
+              <DropdownMenuItem onClick={() => handleEditRole(role)}>
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit
               </DropdownMenuItem>
@@ -161,12 +149,8 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
                 Duplicate
               </DropdownMenuItem>
               <DropdownMenuItem
-                className={cn(
-                  "text-destructive focus:text-destructive",
-                  role.is_system_role && "opacity-50"
-                )}
+                className="text-destructive focus:text-destructive"
                 onClick={handleDeleteClick}
-                disabled={role.is_system_role}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
