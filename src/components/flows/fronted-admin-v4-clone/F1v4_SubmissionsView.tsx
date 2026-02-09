@@ -1043,7 +1043,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           ))}
                           <BreakdownRow label="Total earnings" amount={totalEarnings + approvedAdjustmentTotal + adminExpenseTotal} currency={currency} isPositive isTotal />
                         </CollapsibleSection>
-                      )}
+                        ) : null;
+                      })()}
 
                       {/* DEDUCTIONS Section */}
                       {deductions.length > 0 && !showPendingOnly && (
