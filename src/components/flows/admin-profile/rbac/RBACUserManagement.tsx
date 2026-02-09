@@ -149,6 +149,7 @@ export function RBACUserManagement({ onBack }: RBACUserManagementProps) {
         onOpenChange={setShowRoleEditor}
         modules={modules}
         role={editingRole}
+        existingRoles={roles}
         onSave={handleSaveRole}
         getPermissionSummary={getPermissionSummary}
       />

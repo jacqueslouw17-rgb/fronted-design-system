@@ -4,8 +4,8 @@
  * Compact single-row-per-module layout for faster decision-making
  */
 
-import { useEffect, useMemo, useState } from "react";
-import { Save, Shield } from "lucide-react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { Save, Shield, Search, Plus, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +38,7 @@ interface RoleEditorDrawerProps {
   onOpenChange: (open: boolean) => void;
   modules: RBACModule[];
   role?: RoleWithPermissions | null;
+  existingRoles?: RoleWithPermissions[];
   initialData?: RoleFormData;
   onSave: (roleId: string | null, data: RoleFormData) => Promise<boolean>;
   getPermissionSummary: (permissions: PermissionMatrix) => string;
@@ -56,6 +57,7 @@ export function RoleEditorDrawer({
   onOpenChange,
   modules,
   role,
+  existingRoles = [],
   initialData,
   onSave,
   getPermissionSummary,
@@ -78,12 +80,77 @@ export function RoleEditorDrawer({
   const [initialFormData, setInitialFormData] = useState<RoleFormData | null>(null);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Search state for create mode
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<RoleWithPermissions | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Filter existing roles based on search
+  const filteredRoles = useMemo(() => {
+    if (!searchQuery.trim()) return existingRoles;
+    const query = searchQuery.toLowerCase();
+    return existingRoles.filter(r => 
+      r.name.toLowerCase().includes(query) || 
+      r.description?.toLowerCase().includes(query)
+    );
+  }, [existingRoles, searchQuery]);
+
+  // Check if search matches any existing role exactly
+  const exactMatch = useMemo(() => {
+    return existingRoles.find(r => r.name.toLowerCase() === searchQuery.toLowerCase());
+  }, [existingRoles, searchQuery]);
+
+  // Handle clicking outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(e.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(e.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle selecting a template role
+  const handleSelectTemplate = (templateRole: RoleWithPermissions) => {
+    setSelectedTemplate(templateRole);
+    setFormData(prev => ({
+      ...prev,
+      name: `${templateRole.name} (Copy)`,
+      description: templateRole.description || "",
+      permissions: { ...templateRole.permissions },
+    }));
+    setSearchQuery(`${templateRole.name} (Copy)`);
+    setShowDropdown(false);
+  };
+
+  // Handle creating new from scratch
+  const handleCreateNew = () => {
+    setSelectedTemplate(null);
+    setFormData(prev => ({
+      ...prev,
+      name: searchQuery,
+      permissions: { ...defaultPerms },
+    }));
+    setShowDropdown(false);
+  };
 
   useEffect(() => {
     if (!open) {
       setErrors({});
       setSaving(false);
       setInitialFormData(null);
+      setSearchQuery("");
+      setSelectedTemplate(null);
+      setShowDropdown(false);
       return;
     }
 
@@ -95,6 +162,7 @@ export function RoleEditorDrawer({
       };
       setFormData(data);
       setInitialFormData(data);
+      setSearchQuery(role.name);
       setErrors({});
       return;
     }
@@ -107,6 +175,7 @@ export function RoleEditorDrawer({
       };
       setFormData(data);
       setInitialFormData(data);
+      setSearchQuery(initialData.name);
       setErrors({});
       return;
     }
@@ -114,6 +183,7 @@ export function RoleEditorDrawer({
     const data = { name: "", description: "", permissions: defaultPerms };
     setFormData(data);
     setInitialFormData(data);
+    setSearchQuery("");
     setErrors({});
   }, [role, initialData, defaultPerms, open]);
 
@@ -178,18 +248,111 @@ export function RoleEditorDrawer({
           <div className="px-5 py-5 space-y-5">
             {/* Basic Info */}
             <div className="space-y-4">
+              {/* Role Name - Search and Create pattern for create mode */}
               <div className="space-y-2">
                 <Label htmlFor="role-name" className="text-sm">Role name</Label>
-                <Input
-                  id="role-name"
-                  value={formData.name}
-                  onChange={(e) => {
-                    setFormData((p) => ({ ...p, name: e.target.value }));
-                    if (errors.name) setErrors((p) => ({ ...p, name: "" }));
-                  }}
-                  placeholder="e.g., Payroll Specialist"
-                  className={`h-10 ${errors.name ? "border-destructive" : ""}`}
-                />
+                {isEditMode ? (
+                  <Input
+                    id="role-name"
+                    value={formData.name}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, name: e.target.value }));
+                      if (errors.name) setErrors((p) => ({ ...p, name: "" }));
+                    }}
+                    placeholder="e.g., Payroll Specialist"
+                    className={`h-10 ${errors.name ? "border-destructive" : ""}`}
+                  />
+                ) : (
+                  <div className="relative">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <Input
+                        ref={inputRef}
+                        id="role-name"
+                        value={searchQuery}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setSearchQuery(value);
+                          setFormData((p) => ({ ...p, name: value }));
+                          if (errors.name) setErrors((p) => ({ ...p, name: "" }));
+                          setShowDropdown(true);
+                        }}
+                        onFocus={() => setShowDropdown(true)}
+                        placeholder="Search existing or create new..."
+                        className={`h-10 pl-9 ${errors.name ? "border-destructive" : ""}`}
+                      />
+                    </div>
+                    
+                    {/* Dropdown */}
+                    {showDropdown && (
+                      <div
+                        ref={dropdownRef}
+                        className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
+                      >
+                        <div className="max-h-[240px] overflow-y-auto">
+                          {/* Existing roles */}
+                          {filteredRoles.length > 0 && (
+                            <div className="py-1">
+                              <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                                Use as template
+                              </p>
+                              {filteredRoles.map((r) => (
+                                <button
+                                  key={r.id}
+                                  type="button"
+                                  onClick={() => handleSelectTemplate(r)}
+                                  className="w-full px-3 py-2 text-left hover:bg-muted/50 flex items-center gap-2 transition-colors"
+                                >
+                                  <Copy className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate">{r.name}</p>
+                                    <p className="text-xs text-muted-foreground truncate">
+                                      {r.description || getPermissionSummary(r.permissions)}
+                                    </p>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {/* Create new option */}
+                          {searchQuery.trim() && !exactMatch && (
+                            <>
+                              {filteredRoles.length > 0 && (
+                                <div className="border-t border-border/50" />
+                              )}
+                              <button
+                                type="button"
+                                onClick={handleCreateNew}
+                                className="w-full px-3 py-2.5 text-left hover:bg-muted/50 flex items-center gap-2 transition-colors"
+                              >
+                                <Plus className="h-4 w-4 text-primary shrink-0" />
+                                <span className="text-sm">
+                                  Create "<span className="font-medium">{searchQuery}</span>"
+                                </span>
+                              </button>
+                            </>
+                          )}
+                          
+                          {/* Empty state */}
+                          {filteredRoles.length === 0 && !searchQuery.trim() && (
+                            <div className="px-3 py-4 text-center">
+                              <p className="text-sm text-muted-foreground">
+                                Type a name to create a new role
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {selectedTemplate && !isEditMode && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Copy className="h-3 w-3" />
+                    Based on "{selectedTemplate.name}" permissions
+                  </p>
+                )}
                 {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
               </div>
 
