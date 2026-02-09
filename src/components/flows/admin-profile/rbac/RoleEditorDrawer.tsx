@@ -282,7 +282,15 @@ export function RoleEditorDrawer({
                         errors.name && "border-destructive"
                       )}
                     >
-                      <span className={formData.name ? "text-foreground" : "text-muted-foreground"}>
+                      <span
+                        className={cn(
+                          showDropdown
+                            ? "text-background"
+                            : formData.name
+                              ? "text-foreground"
+                              : "text-muted-foreground"
+                        )}
+                      >
                         {formData.name || "Select role..."}
                       </span>
                       <ChevronDown className={cn(
