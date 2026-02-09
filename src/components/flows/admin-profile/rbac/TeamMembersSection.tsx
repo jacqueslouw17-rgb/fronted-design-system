@@ -233,12 +233,14 @@ export function TeamMembersSection({ onBack }: TeamMembersSectionProps) {
           </AnimatePresence>
 
           {teamMembers.length === 0 && (
-            <div className="py-10 text-center">
-              <UserPlus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
-              <p className="text-base font-medium text-foreground mb-1">No team members yet</p>
-              <p className="text-sm text-muted-foreground">
-                Invite someone to start assigning roles and permissions.
-              </p>
+            <div className="py-12 flex items-center justify-center">
+              <div className="bg-card/80 border border-border/30 rounded-xl px-10 py-8 text-center shadow-sm">
+                <UserPlus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                <p className="text-base font-medium text-foreground mb-1">No team members yet</p>
+                <p className="text-sm text-muted-foreground">
+                  Invite someone to start assigning roles and permissions.
+                </p>
+              </div>
             </div>
           )}
         </div>
