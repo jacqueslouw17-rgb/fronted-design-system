@@ -1001,8 +1001,18 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
                     <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
                       {/* EARNINGS Section */}
-                      {(!showPendingOnly || earningAdjCounts.pending > 0) && (
-                        <CollapsibleSection title="Earnings" defaultOpen={false} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
+                      {(() => {
+                        const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
+                        const payChangeSubtitle = payChangeFlag ? (
+                          <p className="text-[10px] text-muted-foreground/70">
+                            {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period
+                            {payChangeFlag.payChangeDelta != null && (
+                              <span> ({(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}{formatCurrency(Math.abs(payChangeFlag.payChangeDelta || 0), currency)})</span>
+                            )}
+                          </p>
+                        ) : undefined;
+                        return (!showPendingOnly || earningAdjCounts.pending > 0) ? (
+                        <CollapsibleSection title="Earnings" defaultOpen={false} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved} subtitle={payChangeSubtitle}>
                           {!showPendingOnly && earnings.map((item, idx) => (
                             <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
                           ))}
