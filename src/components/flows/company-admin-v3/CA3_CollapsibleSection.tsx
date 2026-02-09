@@ -28,6 +28,7 @@ export const CollapsibleSection = ({
   totalCount,
   className,
   subtitle,
+  headerBadge,
 }: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   
