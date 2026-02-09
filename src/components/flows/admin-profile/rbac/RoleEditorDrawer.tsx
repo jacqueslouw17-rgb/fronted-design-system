@@ -99,10 +99,15 @@ export function RoleEditorDrawer({
     );
   }, [existingRoles, searchQuery]);
 
-  // Check if search matches any existing role exactly
-  const exactMatch = useMemo(() => {
-    return existingRoles.find(r => r.name.toLowerCase() === searchQuery.toLowerCase());
-  }, [existingRoles, searchQuery]);
+  // Check if name matches any existing role (excluding current role in edit mode)
+  const isDuplicateName = useMemo(() => {
+    if (!formData.name.trim()) return false;
+    const nameToCheck = formData.name.toLowerCase();
+    return existingRoles.some(r => 
+      r.name.toLowerCase() === nameToCheck && 
+      r.id !== role?.id // Exclude current role being edited
+    );
+  }, [existingRoles, formData.name, role?.id]);
 
   // Handle clicking outside dropdown
   useEffect(() => {
@@ -122,14 +127,24 @@ export function RoleEditorDrawer({
 
   // Handle selecting a template role
   const handleSelectTemplate = (templateRole: RoleWithPermissions) => {
-    setSelectedTemplate(templateRole);
-    setFormData(prev => ({
-      ...prev,
-      name: `${templateRole.name} (Copy)`,
-      description: templateRole.description || "",
-      permissions: { ...templateRole.permissions },
-    }));
-    setSearchQuery(`${templateRole.name} (Copy)`);
+    // In edit mode, selecting an existing role = error (duplicate)
+    if (isEditMode) {
+      setFormData(prev => ({
+        ...prev,
+        name: templateRole.name,
+      }));
+      setErrors({ name: "This role name already exists. Please choose a different name." });
+    } else {
+      // In create mode, use as template with "(Copy)" suffix
+      setSelectedTemplate(templateRole);
+      setFormData(prev => ({
+        ...prev,
+        name: `${templateRole.name} (Copy)`,
+        description: templateRole.description || "",
+        permissions: { ...templateRole.permissions },
+      }));
+    }
+    setSearchQuery("");
     setShowDropdown(false);
   };
 
@@ -210,7 +225,8 @@ export function RoleEditorDrawer({
   const validate = () => {
     const next: Record<string, string> = {};
     if (!formData.name.trim()) next.name = "Role name is required";
-    if (formData.name.length > 50) next.name = "Role name must be 50 characters or less";
+    else if (formData.name.length > 50) next.name = "Role name must be 50 characters or less";
+    else if (isDuplicateName) next.name = "This role name already exists. Please choose a different name.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
