@@ -150,6 +150,9 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { type: "bonus", amount: 6500, description: "Q4 Performance Bonus", status: "pending" },
     ],
     pendingLeaves: [],
+    flags: [
+      { type: "pay_change", payChangePercent: 18 },
+    ],
   },
   { 
     id: "4", 
