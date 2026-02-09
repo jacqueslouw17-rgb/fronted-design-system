@@ -237,14 +237,14 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!roleToDelete} onOpenChange={() => setRoleToDelete(null)}>
-        <AlertDialogContent className="relative">
-          <button
-            onClick={() => setRoleToDelete(null)}
-            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
-          >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <AlertDialogHeader>
+        <AlertDialogContent>
+          <AlertDialogHeader className="pr-8">
+            <button
+              onClick={() => setRoleToDelete(null)}
+              className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
             <AlertDialogTitle>Delete role?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete the "{roleToDelete?.name}" role? This action cannot be
@@ -266,14 +266,14 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
 
       {/* Cannot Delete Warning */}
       <AlertDialog open={!!roleWithMembers} onOpenChange={() => setRoleWithMembers(null)}>
-        <AlertDialogContent className="relative">
-          <button
-            onClick={() => setRoleWithMembers(null)}
-            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
-          >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <AlertDialogHeader>
+        <AlertDialogContent>
+          <AlertDialogHeader className="pr-8">
+            <button
+              onClick={() => setRoleWithMembers(null)}
+              className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
             <AlertDialogTitle>Cannot delete role</AlertDialogTitle>
             <AlertDialogDescription>
               The "{roleWithMembers?.role.name}" role is assigned to {roleWithMembers?.count} member{roleWithMembers?.count !== 1 ? "s" : ""}. 
@@ -288,14 +288,14 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
 
       {/* Duplicate Dialog */}
       <Dialog open={!!roleToDuplicate} onOpenChange={() => setRoleToDuplicate(null)}>
-        <DialogContent className="sm:max-w-md relative">
-          <button
-            onClick={() => setRoleToDuplicate(null)}
-            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors z-10"
-          >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <DialogHeader>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="pr-8">
+            <button
+              onClick={() => setRoleToDuplicate(null)}
+              className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors z-10"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
             <DialogTitle>Duplicate Role</DialogTitle>
             <DialogDescription>
               Create a copy of "{roleToDuplicate?.name}" with a new name.
