@@ -230,12 +230,14 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
             </AnimatePresence>
           </div>
         ) : (
-          <div className="py-10 text-center">
-            <Plus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
-            <p className="text-base font-medium text-foreground mb-1">No custom roles yet</p>
-            <p className="text-sm text-muted-foreground">
-              Create a custom role tailored to your team's needs.
-            </p>
+          <div className="py-12 flex items-center justify-center">
+            <div className="bg-card/80 border border-border/30 rounded-xl px-10 py-8 text-center shadow-sm">
+              <Plus className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-base font-medium text-foreground mb-1">No custom roles yet</p>
+              <p className="text-sm text-muted-foreground">
+                Create a custom role tailored to your team's needs.
+              </p>
+            </div>
           </div>
         )}
       </div>
