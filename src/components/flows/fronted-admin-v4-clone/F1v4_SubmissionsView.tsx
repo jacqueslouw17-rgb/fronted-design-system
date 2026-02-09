@@ -89,6 +89,7 @@ export interface WorkerFlag {
   endDate?: string; // For Flag 1
   endReason?: "Termination" | "Resignation" | "End contract"; // For Flag 1
   payChangePercent?: number; // For Flag 2 (positive = increase, negative = decrease)
+  payChangeDelta?: number; // For Flag 2 absolute amount difference
 }
 
 export interface WorkerSubmission {
