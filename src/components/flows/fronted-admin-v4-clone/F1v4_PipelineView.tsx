@@ -1435,10 +1435,22 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       role: selectedForDoneDetail.role,
       salary: selectedForDoneDetail.salary,
       employmentType: selectedForDoneDetail.employmentType || "contractor",
-      email: selectedForDoneDetail.email
+      email: selectedForDoneDetail.email,
+      workerStatus: selectedForDoneDetail.workerStatus || "active",
+      endDate: selectedForDoneDetail.endDate,
+      endReason: selectedForDoneDetail.endReason,
     } : null} onGoToDataCollection={workerId => {
       setDoneDetailDrawerOpen(false);
       toast.info("Redirecting to data collection...");
+    }} onLifecycleAction={(workerId, action, endDate, reason) => {
+      setContractors(current => current.map(c => 
+        c.id === workerId ? { ...c, workerStatus: action, endDate, endReason: reason } : c
+      ));
+      // Update the selected worker too so the drawer reflects the change
+      setSelectedForDoneDetail(prev => prev ? { ...prev, workerStatus: action, endDate, endReason: reason } : null);
+      setDoneDetailDrawerOpen(false);
+      const actionLabel = action === "terminated" ? "terminated" : action === "resigned" ? "marked as resigned" : "contract ended";
+      toast.success(`${selectedForDoneDetail?.name} has been ${actionLabel}.`);
     }} />
     </div>;
 };
