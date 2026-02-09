@@ -1130,15 +1130,15 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       
                       // Show "Mark as Ready" when no pending items and not yet finalized
                       if (!isFinalized) {
-                        const hasFlags = selectedSubmission.flags && selectedSubmission.flags.length > 0;
+                        const hasEndDateFlags = selectedSubmission.flags?.some(f => f.type === "end_date");
                         return (
                           <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
                             <Button size="sm" className="w-full h-10 text-sm gap-2" onClick={() => setShowMarkAsReadyDialog(true)}>
                               <CheckCircle2 className="h-4 w-4" />
-                              {hasFlags ? "Confirm & Mark as Ready" : "Mark as Ready"}
+                              {hasEndDateFlags ? "Confirm & Mark as Ready" : "Mark as Ready"}
                             </Button>
                             <p className="text-[11px] text-muted-foreground text-center mt-2">
-                              {hasFlags
+                              {hasEndDateFlags
                                 ? "By continuing, you confirm you've reviewed the heads up items."
                                 : "This will finalize the review and lock all decisions"}
                             </p>
