@@ -44,11 +44,11 @@ interface RoleEditorDrawerProps {
 }
 
 const LEVEL_CONFIG: Record<PermissionLevel, { label: string; shortLabel: string; tooltip: string }> = {
-  none: { label: "None", shortLabel: "—", tooltip: "No access" },
-  view: { label: "View", shortLabel: "View", tooltip: "Read-only access" },
-  manage: { label: "Manage", shortLabel: "Manage", tooltip: "Create, edit, and manage" },
-  approve: { label: "Approve", shortLabel: "Approve", tooltip: "Approve high-impact actions" },
-  admin: { label: "Admin", shortLabel: "Admin", tooltip: "Full control including RBAC" },
+  none: { label: "None", shortLabel: "—", tooltip: "No access to this module" },
+  view: { label: "View", shortLabel: "View", tooltip: "Read-only — can see data but not change anything" },
+  manage: { label: "Manage", shortLabel: "Manage", tooltip: "Day-to-day ops — create, edit, move items" },
+  approve: { label: "Approve", shortLabel: "Approve", tooltip: "Sign-off authority — approve payroll, finalize contracts" },
+  admin: { label: "Admin", shortLabel: "Admin", tooltip: "Full control — includes role & user management" },
 };
 
 export function RoleEditorDrawer({
