@@ -195,14 +195,14 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
                     {member.role?.name || "No role"}
                   </Badge>
 
-                  {/* Actions Menu */}
+                  {/* Actions Menu - always visible */}
                   {(canManageRoles || (canInviteUsers && member.status === "pending")) && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-7 w-7"
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
