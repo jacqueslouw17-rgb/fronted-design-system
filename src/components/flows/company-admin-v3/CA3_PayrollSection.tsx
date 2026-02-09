@@ -80,6 +80,9 @@ const mockSubmissions: WorkerSubmission[] = [
     status: "pending",
     totalImpact: 4712,
     currency: "PHP",
+    flags: [
+      { type: "pay_change", payChangePercent: 22 },
+    ],
   },
   {
     id: "sub-4",
@@ -134,6 +137,9 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     status: "ready",
     currency: "NOK",
+    flags: [
+      { type: "end_date", endDate: "Feb 15, 2026", endReason: "End contract" },
+    ],
   },
   {
     id: "sub-6",

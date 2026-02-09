@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +78,14 @@ export interface PendingLeaveItem {
   dailyRate?: number; // For calculating unpaid leave deduction
 }
 
+// Flag types for "Heads up" indicators
+export interface WorkerFlag {
+  type: "end_date" | "pay_change";
+  endDate?: string; // For Flag 1
+  endReason?: "Termination" | "Resignation" | "End contract"; // For Flag 1
+  payChangePercent?: number; // For Flag 2 (positive = increase, negative = decrease)
+}
+
 export interface WorkerSubmission {
   id: string;
   workerId: string;
@@ -98,6 +106,7 @@ export interface WorkerSubmission {
   currency?: string;
   flagged?: boolean;
   flagReason?: string;
+  flags?: WorkerFlag[];
 }
 
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
@@ -1126,7 +1135,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             </span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] text-muted-foreground leading-tight">
               {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
@@ -1135,6 +1144,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 · 1 day to resubmit
               </span>
             )}
+            {submission.flags?.map((flag, fi) => (
+              <Badge key={fi} variant="outline" className={cn(
+                "text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium",
+                flag.type === "end_date" 
+                  ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20" 
+                  : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+              )}>
+                <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
+                {flag.type === "end_date" ? "Heads up: End date" : "Heads up: Pay change"}
+              </Badge>
+            ))}
           </div>
         </div>
 
@@ -1483,6 +1503,45 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </div>
                   )}
                 </SheetHeader>
+
+                {/* Heads up flags */}
+                {selectedSubmission.flags && selectedSubmission.flags.length > 0 && (
+                  <div className="px-5 py-3 space-y-2 border-b border-border/20">
+                    {selectedSubmission.flags.map((flag, fi) => (
+                      <div key={fi} className={cn(
+                        "flex items-start gap-2.5 p-3 rounded-lg border",
+                        flag.type === "end_date"
+                          ? "bg-amber-500/5 border-amber-500/15"
+                          : "bg-blue-500/5 border-blue-500/15"
+                      )}>
+                        <AlertTriangle className={cn(
+                          "h-4 w-4 mt-0.5 shrink-0",
+                          flag.type === "end_date" ? "text-amber-600 dark:text-amber-400" : "text-blue-600 dark:text-blue-400"
+                        )} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-foreground">Heads up</p>
+                          {flag.type === "end_date" ? (
+                            <>
+                              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                                This worker's status ends on <span className="font-medium text-foreground">{flag.endDate || "TBD"}</span>. Please confirm they should be included in this payroll run.
+                              </p>
+                              {flag.endReason && (
+                                <p className="text-[10px] text-muted-foreground/70 mt-1">Status: {flag.endReason}</p>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                                This payroll is <span className="font-medium text-foreground">{Math.abs(flag.payChangePercent || 0)}% {(flag.payChangePercent || 0) > 0 ? "higher" : "lower"}</span> than last period. Please confirm this is expected before submitting.
+                              </p>
+                              <p className="text-[10px] text-muted-foreground/50 mt-1 italic">Explanation: (Kurt will add details later)</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
