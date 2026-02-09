@@ -1647,7 +1647,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       />
                     )}
                   </CollapsibleSection>
-                  )}
+                  ) : null;
+                  })()}
                   {/* DEDUCTIONS Section - Collapsed by default */}
                   {deductions.length > 0 && !showPendingOnly && (
                     <CollapsibleSection
