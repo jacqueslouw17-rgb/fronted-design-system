@@ -237,7 +237,7 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!roleToDelete} onOpenChange={() => setRoleToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent onOverlayClick={() => setRoleToDelete(null)}>
           <AlertDialogHeader className="pr-8">
             <button
               onClick={() => setRoleToDelete(null)}
@@ -266,7 +266,7 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
 
       {/* Cannot Delete Warning */}
       <AlertDialog open={!!roleWithMembers} onOpenChange={() => setRoleWithMembers(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent onOverlayClick={() => setRoleWithMembers(null)}>
           <AlertDialogHeader className="pr-8">
             <button
               onClick={() => setRoleWithMembers(null)}

@@ -273,7 +273,7 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
       />
 
       <AlertDialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent onOverlayClick={() => setMemberToRemove(null)}>
           <AlertDialogHeader className="pr-8">
             <button
               onClick={() => setMemberToRemove(null)}
