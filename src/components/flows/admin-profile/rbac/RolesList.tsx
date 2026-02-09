@@ -228,7 +228,7 @@ export function RolesList({
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!roleToDelete} onOpenChange={() => setRoleToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent onOverlayClick={() => setRoleToDelete(null)}>
           <AlertDialogHeader className="pr-8">
             <button
               onClick={() => setRoleToDelete(null)}
