@@ -719,13 +719,34 @@ export function useRBAC(): UseRBACReturn {
       const targetRole = roles.find(r => r.id === roleId);
       if (!targetRole) throw new Error('Role not found');
 
+      // Prevent changing own role
+      if (DEMO_MODE && member.id === 'demo-member-owner') {
+        toast.error('You cannot change your own role');
+        return false;
+      }
+
       // Escalation check (skip in demo mode)
       if (!DEMO_MODE) {
+        if (member.user_id === currentUserId) {
+          toast.error('You cannot change your own role');
+          return false;
+        }
         const userPrivilege = currentUserRole?.privilege_level || 0;
         if (targetRole.privilege_level > userPrivilege) {
           toast.error('Cannot assign a role with higher privileges than your own');
           return false;
         }
+      }
+
+      // Demo mode: update member locally
+      if (DEMO_MODE) {
+        setTeamMembers(prev => prev.map(m => 
+          m.id === memberId 
+            ? { ...m, role_id: roleId, role: targetRole, updated_at: new Date().toISOString() }
+            : m
+        ));
+        toast.success(`Role updated for ${member.name || member.email}`);
+        return true;
       }
 
       const { error } = await supabase
@@ -751,9 +772,20 @@ export function useRBAC(): UseRBACReturn {
       if (!member) throw new Error('Member not found');
 
       // Prevent removing self
-      if (member.user_id === currentUserId) {
+      if (DEMO_MODE && member.id === 'demo-member-owner') {
         toast.error('You cannot remove yourself');
         return false;
+      }
+      if (!DEMO_MODE && member.user_id === currentUserId) {
+        toast.error('You cannot remove yourself');
+        return false;
+      }
+
+      // Demo mode: remove member locally
+      if (DEMO_MODE) {
+        setTeamMembers(prev => prev.filter(m => m.id !== memberId));
+        toast.success(`${member.name || member.email} removed from team`);
+        return true;
       }
 
       const { error } = await supabase
