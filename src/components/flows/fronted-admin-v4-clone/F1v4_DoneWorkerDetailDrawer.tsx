@@ -622,13 +622,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       value={worker.salary} 
                     />
                     <DetailRow label="Payment schedule" value={paymentSchedule} />
-                    {isPhilippines && payFrequency === "fortnightly" && worker.workerStatus !== "active" && (
-                      <div className="mt-2 p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/10">
-                        <p className="text-[11px] text-blue-600 leading-relaxed">
-                          <strong>Note:</strong> In PH fortnightly schedules, a worker may still be paid after their end date depending on payout timing. Review before excluding.
-                        </p>
-                      </div>
-                    )}
                     {worker.firstPayrollNote && (
                       <div className="mt-2 p-2.5 rounded-lg bg-muted/50">
                         <p className="text-[11px] text-muted-foreground">{worker.firstPayrollNote}</p>
