@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRBAC } from "@/hooks/useRBAC";
+import { useRBACContext } from "@/contexts/RBACContext";
 import { RoleEditorDrawer } from "./RoleEditorDrawer";
 import { cn } from "@/lib/utils";
 import type { RoleWithPermissions } from "@/types/rbac";
@@ -27,6 +27,7 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
   const {
     modules,
     roles,
+    deletedRoleTemplates,
     loading,
     canManageRoles,
     createRole,
@@ -35,7 +36,10 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
     duplicateRole,
     getMemberCountForRole,
     getPermissionSummary,
-  } = useRBAC();
+  } = useRBACContext();
+
+  // Combine active roles and deleted role templates for the editor dropdown
+  const allRoleTemplates = [...roles, ...deletedRoleTemplates];
 
   const [showRoleEditor, setShowRoleEditor] = useState(false);
   const [editingRole, setEditingRole] = useState<RoleWithPermissions | null>(null);
@@ -226,6 +230,7 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
         modules={modules}
         role={editingRole}
         existingRoles={roles}
+        allRoleTemplates={allRoleTemplates}
         onSave={handleSaveRole}
         getPermissionSummary={getPermissionSummary}
       />

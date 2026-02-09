@@ -44,7 +44,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { useRBAC } from "@/hooks/useRBAC";
+import { useRBACContext } from "@/contexts/RBACContext";
 import type { RBACTeamMember } from "@/types/rbac";
 import { InviteMemberDrawer } from "./InviteMemberDrawer";
 
@@ -66,7 +66,7 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
     removeMember,
     resendInvite,
     getPermissionSummary,
-  } = useRBAC();
+  } = useRBACContext();
 
   const [inviteOpen, setInviteOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<RBACTeamMember | null>(null);
