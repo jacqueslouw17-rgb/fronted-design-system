@@ -191,7 +191,7 @@ export function RoleEditorDrawer({
                 </p>
               </div>
 
-              <TooltipProvider delayDuration={200}>
+              <TooltipProvider delayDuration={100}>
                 <div className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden divide-y divide-border/30">
                   {modules.length === 0 ? (
                     <div className="p-4">
@@ -225,7 +225,7 @@ export function RoleEditorDrawer({
                               const config = LEVEL_CONFIG[level];
 
                               return (
-                                <Tooltip key={level}>
+                                <Tooltip key={level} delayDuration={0}>
                                   <TooltipTrigger asChild>
                                     <button
                                       type="button"
@@ -245,7 +245,7 @@ export function RoleEditorDrawer({
                                       {config.shortLabel}
                                     </button>
                                   </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-xs px-2 py-1">
+                                  <TooltipContent side="top" sideOffset={4} className="z-[100] bg-popover text-popover-foreground text-xs px-2.5 py-1.5 rounded-md shadow-md border border-border">
                                     {config.tooltip}
                                   </TooltipContent>
                                 </Tooltip>

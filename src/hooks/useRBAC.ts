@@ -231,7 +231,7 @@ export function useRBAC(): UseRBACReturn {
         {
           id: "demo-module-user_management",
           key: "user_management",
-          name: "User Management (RBAC)",
+          name: "User Management",
           description: "Invite users and manage roles & access",
           available_permissions: ["view", "manage", "admin"],
           display_order: 7,
