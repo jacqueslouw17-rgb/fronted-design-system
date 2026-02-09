@@ -94,15 +94,33 @@ export function RoleEditorDrawer({
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Filter dropdown roles based on search (includes deleted templates)
+  // Get set of active role names (for exclusion in create mode)
+  const activeRoleNames = useMemo(() => {
+    return new Set(existingRoles.map(r => r.name.toLowerCase()));
+  }, [existingRoles]);
+
+  // Filter dropdown roles: exclude roles whose names already exist as active roles
+  const availableTemplates = useMemo(() => {
+    return dropdownRoles.filter(r => {
+      const nameLower = r.name.toLowerCase();
+      // In edit mode, allow the current role's name
+      if (isEditMode && role && r.name.toLowerCase() === role.name.toLowerCase()) {
+        return false; // Don't show current role in dropdown
+      }
+      // Exclude if name already exists in active roles
+      return !activeRoleNames.has(nameLower);
+    });
+  }, [dropdownRoles, activeRoleNames, isEditMode, role]);
+
+  // Filter available templates based on search
   const filteredRoles = useMemo(() => {
-    if (!searchQuery.trim()) return dropdownRoles;
+    if (!searchQuery.trim()) return availableTemplates;
     const query = searchQuery.toLowerCase();
-    return dropdownRoles.filter(r => 
+    return availableTemplates.filter(r => 
       r.name.toLowerCase().includes(query) || 
       r.description?.toLowerCase().includes(query)
     );
-  }, [dropdownRoles, searchQuery]);
+  }, [availableTemplates, searchQuery]);
 
   // Check if name matches any existing role exactly (excluding current role in edit mode)
   const isDuplicateName = useMemo(() => {
