@@ -141,38 +141,20 @@ export function RoleEditorDrawer({
 
   // Handle selecting a template role
   const handleSelectTemplate = (templateRole: RoleWithPermissions) => {
-    // In both modes, selecting an existing role sets name = duplicate error
-    // In edit mode: direct name assignment causes error
-    // In create mode: use as template with "(Copy)" suffix, but also validate
-    if (isEditMode) {
-      setFormData(prev => ({
-        ...prev,
-        name: templateRole.name,
-      }));
-      setErrors({ name: "This role name already exists. Please choose a different name." });
-    } else {
-      // In create mode, use as template with "(Copy)" suffix
-      const copyName = `${templateRole.name} (Copy)`;
-      const copyNameLower = copyName.toLowerCase();
-      const isCopyDuplicate = existingRoles.some(r => r.name.toLowerCase() === copyNameLower);
-      
-      setSelectedTemplate(templateRole);
-      setFormData(prev => ({
-        ...prev,
-        name: copyName,
-        description: templateRole.description || "",
-        permissions: { ...templateRole.permissions },
-      }));
-      
-      // If even the copy name is duplicate, show error
-      if (isCopyDuplicate) {
-        setErrors({ name: "This role name already exists. Please choose a different name." });
-      } else {
-        setErrors({});
-      }
-    }
+    // In both modes, selecting an existing role sets name directly = duplicate error
+    setFormData(prev => ({
+      ...prev,
+      name: templateRole.name,
+      description: isEditMode ? prev.description : (templateRole.description || ""),
+      permissions: isEditMode ? prev.permissions : { ...templateRole.permissions },
+    }));
+    setErrors({ name: "This role name already exists. Please choose a different name." });
     setSearchQuery("");
     setShowDropdown(false);
+    
+    if (!isEditMode) {
+      setSelectedTemplate(templateRole);
+    }
   };
 
   // Handle creating new from scratch
