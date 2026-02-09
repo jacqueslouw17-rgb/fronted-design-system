@@ -255,8 +255,8 @@ export function RoleEditorDrawer({
               {/* Role Name - Select with search pattern */}
               <div className="space-y-2">
                 <Label htmlFor="role-name" className="text-sm">Role name</Label>
-                {isManualEntry || selectedTemplate ? (
-                  /* Direct input mode - after selection or manual entry */
+                {isManualEntry ? (
+                  /* Direct input mode - only after clicking "Add New Role" */
                   <Input
                     id="role-name"
                     value={formData.name}
