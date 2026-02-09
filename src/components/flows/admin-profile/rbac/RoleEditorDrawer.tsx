@@ -96,19 +96,26 @@ export function RoleEditorDrawer({
 
   // Get set of active role names (for exclusion in create mode)
   const activeRoleNames = useMemo(() => {
-    return new Set(existingRoles.map(r => r.name.toLowerCase()));
+    return new Set(existingRoles.map((r) => r.name.toLowerCase()));
   }, [existingRoles]);
 
-  // Filter dropdown roles: exclude roles whose names already exist as active roles
+  // Dropdown templates:
+  // - Create mode: only show templates that are NOT already active (prevents duplicate errors)
+  // - Edit mode: allow browsing any template (active or deleted), but never show the current role itself
   const availableTemplates = useMemo(() => {
-    return dropdownRoles.filter(r => {
+    return dropdownRoles.filter((r) => {
       const nameLower = r.name.toLowerCase();
-      // In edit mode, allow the current role's name
-      if (isEditMode && role && r.name.toLowerCase() === role.name.toLowerCase()) {
-        return false; // Don't show current role in dropdown
+
+      const isCurrentRole = isEditMode && role && nameLower === role.name.toLowerCase();
+      if (isCurrentRole) return false;
+
+      if (!isEditMode) {
+        // Create role: hide templates that already exist as active roles
+        return !activeRoleNames.has(nameLower);
       }
-      // Exclude if name already exists in active roles
-      return !activeRoleNames.has(nameLower);
+
+      // Edit role: show everything (validation will handle duplicates)
+      return true;
     });
   }, [dropdownRoles, activeRoleNames, isEditMode, role]);
 
@@ -116,9 +123,8 @@ export function RoleEditorDrawer({
   const filteredRoles = useMemo(() => {
     if (!searchQuery.trim()) return availableTemplates;
     const query = searchQuery.toLowerCase();
-    return availableTemplates.filter(r => 
-      r.name.toLowerCase().includes(query) || 
-      r.description?.toLowerCase().includes(query)
+    return availableTemplates.filter(
+      (r) => r.name.toLowerCase().includes(query) || r.description?.toLowerCase().includes(query)
     );
   }, [availableTemplates, searchQuery]);
 
@@ -164,20 +170,32 @@ export function RoleEditorDrawer({
 
   // Handle selecting a template role
   const handleSelectTemplate = (templateRole: RoleWithPermissions) => {
-    // In both modes, selecting an existing role sets name directly = duplicate error
-    setFormData(prev => ({
-      ...prev,
-      name: templateRole.name,
-      description: isEditMode ? prev.description : (templateRole.description || ""),
-      permissions: isEditMode ? prev.permissions : { ...templateRole.permissions },
-    }));
-    setErrors({ name: "This role name already exists. Please choose a different name." });
+    const selectedNameLower = templateRole.name.toLowerCase();
+    const wouldBeDuplicate = existingRoles.some(
+      (r) => r.name.toLowerCase() === selectedNameLower && r.id !== role?.id
+    );
+
+    if (isEditMode) {
+      // Editing: selecting an existing active role name should error; deleted templates should be allowed
+      setFormData((prev) => ({
+        ...prev,
+        name: templateRole.name,
+      }));
+      setErrors(wouldBeDuplicate ? { name: "This role name already exists. Please choose a different name." } : {});
+    } else {
+      // Creating: selecting a template should NOT trigger an error (we hide active duplicates in the list)
+      setSelectedTemplate(templateRole);
+      setFormData((prev) => ({
+        ...prev,
+        name: templateRole.name,
+        description: templateRole.description || "",
+        permissions: { ...templateRole.permissions },
+      }));
+      setErrors({});
+    }
+
     setSearchQuery("");
     setShowDropdown(false);
-    
-    if (!isEditMode) {
-      setSelectedTemplate(templateRole);
-    }
   };
 
   // Handle creating new from scratch
