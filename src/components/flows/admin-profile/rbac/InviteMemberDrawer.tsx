@@ -183,9 +183,6 @@ export function InviteMemberDrawer({
                         <div className="flex items-center gap-2">
                           <Shield className="h-3.5 w-3.5 text-muted-foreground" />
                           <span>{role.name}</span>
-                          {role.is_system_role && (
-                            <span className="text-xs text-muted-foreground">(System)</span>
-                          )}
                         </div>
                       </SelectItem>
                     ))}
@@ -210,7 +207,11 @@ export function InviteMemberDrawer({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={sending} className="gap-1.5">
+            <Button 
+              onClick={handleSubmit} 
+              disabled={sending || !formData.email.trim() || !formData.role_id} 
+              className="gap-1.5"
+            >
               <Send className="h-4 w-4" />
               {sending ? "Sending…" : "Send invite"}
             </Button>
