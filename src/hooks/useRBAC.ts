@@ -22,6 +22,7 @@ interface UseRBACReturn {
   // Data
   modules: RBACModule[];
   roles: RoleWithPermissions[];
+  deletedRoleTemplates: RoleWithPermissions[]; // Roles deleted but kept as templates
   teamMembers: RBACTeamMember[];
   currentUserRole: RoleWithPermissions | null;
   
@@ -62,6 +63,7 @@ const DEMO_USER_ID = 'demo-admin-user';
 export function useRBAC(): UseRBACReturn {
   const [modules, setModules] = useState<RBACModule[]>([]);
   const [roles, setRoles] = useState<RoleWithPermissions[]>([]);
+  const [deletedRoleTemplates, setDeletedRoleTemplates] = useState<RoleWithPermissions[]>([]);
   const [teamMembers, setTeamMembers] = useState<RBACTeamMember[]>([]);
   const [currentUserRole, setCurrentUserRole] = useState<RoleWithPermissions | null>(null);
   const [loading, setLoading] = useState(true);
@@ -599,7 +601,9 @@ export function useRBAC(): UseRBACReturn {
       }
 
       // Demo mode: delete locally without hitting the database
+      // Keep the role as a template for future use
       if (DEMO_MODE) {
+        setDeletedRoleTemplates(prev => [...prev, role]);
         setRoles(prev => prev.filter(r => r.id !== roleId));
         toast.success(`Role "${role.name}" deleted successfully`);
         return true;
@@ -803,6 +807,7 @@ export function useRBAC(): UseRBACReturn {
   return {
     modules,
     roles,
+    deletedRoleTemplates,
     teamMembers,
     currentUserRole,
     loading,

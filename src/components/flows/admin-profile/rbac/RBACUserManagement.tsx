@@ -23,6 +23,7 @@ export function RBACUserManagement({ onBack }: RBACUserManagementProps) {
   const {
     modules,
     roles,
+    deletedRoleTemplates,
     teamMembers,
     currentUserRole,
     loading,
@@ -39,6 +40,9 @@ export function RBACUserManagement({ onBack }: RBACUserManagementProps) {
     getMemberCountForRole,
     getPermissionSummary,
   } = useRBAC();
+
+  // Combine active roles and deleted role templates for the editor dropdown
+  const allRoleTemplates = [...roles, ...deletedRoleTemplates];
 
   const [activeTab, setActiveTab] = useState<"members" | "roles">("members");
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -150,6 +154,7 @@ export function RBACUserManagement({ onBack }: RBACUserManagementProps) {
         modules={modules}
         role={editingRole}
         existingRoles={roles}
+        allRoleTemplates={allRoleTemplates}
         onSave={handleSaveRole}
         getPermissionSummary={getPermissionSummary}
       />
