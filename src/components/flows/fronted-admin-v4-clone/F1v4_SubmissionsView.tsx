@@ -16,7 +16,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, 
   ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, 
-  ChevronLeft, Download, Plus, Undo2, XCircle, Eye, ArrowLeft
+  ChevronLeft, Download, Plus, Undo2, XCircle, Eye, ArrowLeft,
+  AlertTriangle, TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
