@@ -244,9 +244,27 @@ export function useRBAC(): UseRBACReturn {
         return false;
       }
 
+      // Demo mode: create role locally without hitting the database (RLS would block)
+      if (DEMO_MODE) {
+        const newRole: RoleWithPermissions = {
+          id: `demo-${Date.now()}`,
+          name: data.name,
+          description: data.description,
+          is_system_role: false,
+          privilege_level: 30,
+          created_by: null,
+          organization_id: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          permissions: data.permissions,
+        };
+        setRoles(prev => [...prev, newRole]);
+        toast.success(`Role "${data.name}" created successfully`);
+        return true;
+      }
+
       // Get current user's privilege level for escalation check
-      // In demo mode, currentUserRole might be null initially, default to max privilege
-      const userPrivilege = DEMO_MODE ? 100 : (currentUserRole?.privilege_level || 0);
+      const userPrivilege = currentUserRole?.privilege_level || 0;
 
       // Insert role
       const { data: newRole, error: roleError } = await supabase
@@ -255,8 +273,8 @@ export function useRBAC(): UseRBACReturn {
           name: data.name,
           description: data.description,
           is_system_role: false,
-          privilege_level: Math.max(1, Math.min(userPrivilege - 1, 50)), // cannot create role higher than self
-          created_by: DEMO_MODE ? null : currentUserId, // null in demo mode since it's not a valid UUID
+          privilege_level: Math.max(1, Math.min(userPrivilege - 1, 50)),
+          created_by: currentUserId,
         })
         .select()
         .single();
@@ -301,6 +319,17 @@ export function useRBAC(): UseRBACReturn {
       if (role.is_system_role) {
         toast.error('System roles cannot be edited');
         return false;
+      }
+
+      // Demo mode: update locally without hitting the database
+      if (DEMO_MODE) {
+        setRoles(prev => prev.map(r => 
+          r.id === roleId 
+            ? { ...r, name: data.name, description: data.description, permissions: data.permissions, updated_at: new Date().toISOString() }
+            : r
+        ));
+        toast.success(`Role "${data.name}" updated successfully`);
+        return true;
       }
 
       // Update role
@@ -363,6 +392,13 @@ export function useRBAC(): UseRBACReturn {
       if (assignedCount > 0) {
         toast.error(`Cannot delete role. ${assignedCount} member(s) are assigned to this role.`);
         return false;
+      }
+
+      // Demo mode: delete locally without hitting the database
+      if (DEMO_MODE) {
+        setRoles(prev => prev.filter(r => r.id !== roleId));
+        toast.success(`Role "${role.name}" deleted successfully`);
+        return true;
       }
 
       const { error } = await supabase
