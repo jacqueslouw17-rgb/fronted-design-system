@@ -1537,6 +1537,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   {/* EARNINGS Section - Collapsed by default, only force open when pending filter or newly added */}
                   {(() => {
                     const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
+                    const payChangeBadge = payChangeFlag ? (
+                      <span className="text-[9px] font-medium text-blue-600 dark:text-blue-400 normal-case tracking-normal">
+                        {(payChangeFlag.payChangePercent || 0) > 0 ? "+" : ""}{payChangeFlag.payChangePercent}% vs last period
+                      </span>
+                    ) : undefined;
                     const payChangeSubtitle = payChangeFlag ? (
                       <p className="text-[10px] text-muted-foreground/70">
                         {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period
@@ -1553,6 +1558,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                       subtitle={payChangeSubtitle}
+                      headerBadge={payChangeBadge}
                     >
                     {/* Base earnings */}
                     {!showPendingOnly && earnings.map((item, idx) => (
