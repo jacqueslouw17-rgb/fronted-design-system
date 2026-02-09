@@ -137,6 +137,9 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     status: "ready",
     currency: "NOK",
+    flags: [
+      { type: "end_date", endDate: "Feb 15, 2026", endReason: "End contract" },
+    ],
   },
   {
     id: "sub-6",
