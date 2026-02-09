@@ -12,7 +12,7 @@ import { useRBAC } from "@/hooks/useRBAC";
 import { TeamMembersList } from "./TeamMembersList";
 import { RolesList } from "./RolesList";
 import { InviteMemberModal } from "./InviteMemberModal";
-import { RoleEditorModal } from "./RoleEditorModal";
+import { RoleEditorDrawer } from "./RoleEditorDrawer";
 import type { RoleWithPermissions, RoleFormData } from "@/types/rbac";
 
 interface RBACUserManagementProps {
@@ -144,7 +144,7 @@ export function RBACUserManagement({ onBack }: RBACUserManagementProps) {
         getPermissionSummary={getPermissionSummary}
       />
 
-      <RoleEditorModal
+      <RoleEditorDrawer
         open={showRoleEditor}
         onOpenChange={setShowRoleEditor}
         modules={modules}

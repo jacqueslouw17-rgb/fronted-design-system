@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRBAC } from "@/hooks/useRBAC";
-import { RoleEditorModal } from "./RoleEditorModal";
+import { RoleEditorDrawer } from "./RoleEditorDrawer";
 import type { RoleWithPermissions } from "@/types/rbac";
 
 interface RolesPermissionsSectionProps {
@@ -240,8 +240,8 @@ export function RolesPermissionsSection({ onBack }: RolesPermissionsSectionProps
         )}
       </div>
 
-      {/* Role Editor Modal */}
-      <RoleEditorModal
+      {/* Role Editor Drawer */}
+      <RoleEditorDrawer
         open={showRoleEditor}
         onOpenChange={setShowRoleEditor}
         modules={modules}
