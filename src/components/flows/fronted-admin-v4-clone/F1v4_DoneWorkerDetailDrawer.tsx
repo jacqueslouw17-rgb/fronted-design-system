@@ -2,10 +2,11 @@
  * F1v4_DoneWorkerDetailDrawer - Right-side panel for Done workers
  * 
  * Shows a clean, scannable summary of collected onboarding data
- * organized into logical sections.
+ * organized into logical sections. Includes lifecycle actions
+ * (terminate, resign, end contract).
  */
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -43,7 +44,23 @@ import {
   CreditCard,
   Clock,
   Award,
+  UserX,
+  LogOut,
+  CalendarOff,
+  ChevronDown,
+  ArrowLeft,
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+export type WorkerLifecycleStatus = "active" | "contract-ended" | "resigned" | "terminated";
 
 export interface DoneWorkerData {
   id: string;
@@ -53,6 +70,10 @@ export interface DoneWorkerData {
   role: string;
   salary: string;
   employmentType: "contractor" | "employee";
+  // Lifecycle
+  workerStatus?: WorkerLifecycleStatus;
+  endDate?: string;
+  endReason?: string;
   // Personal details
   email?: string;
   phone?: string;
@@ -93,6 +114,7 @@ interface F1v4_DoneWorkerDetailDrawerProps {
   onOpenChange: (open: boolean) => void;
   worker: DoneWorkerData | null;
   onGoToDataCollection?: (workerId: string) => void;
+  onLifecycleAction?: (workerId: string, action: WorkerLifecycleStatus, endDate: string, reason: string) => void;
 }
 
 const countryPayFrequencyDefaults: Record<string, { frequency: "monthly" | "fortnightly"; schedule: string }> = {
@@ -105,6 +127,32 @@ const countryPayFrequencyDefaults: Record<string, { frequency: "monthly" | "fort
   "France": { frequency: "monthly", schedule: "Last business day of month" },
   "Italy": { frequency: "monthly", schedule: "Last business day of month" },
   "Poland": { frequency: "monthly", schedule: "Last business day of month" },
+  "Ireland": { frequency: "monthly", schedule: "Last business day of month" },
+};
+
+type ActionType = "terminated" | "resigned" | "contract-ended";
+
+const lifecycleStatusConfig: Record<WorkerLifecycleStatus, { label: string; badgeClass: string; icon: React.ElementType }> = {
+  "active": {
+    label: "Active",
+    badgeClass: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+    icon: CheckCircle2,
+  },
+  "contract-ended": {
+    label: "Contract ended",
+    badgeClass: "bg-muted text-muted-foreground border-border",
+    icon: CalendarOff,
+  },
+  "resigned": {
+    label: "Resigned",
+    badgeClass: "bg-amber-500/10 text-amber-700 border-amber-500/20",
+    icon: LogOut,
+  },
+  "terminated": {
+    label: "Terminated",
+    badgeClass: "bg-destructive/10 text-destructive border-destructive/20",
+    icon: UserX,
+  },
 };
 
 export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerProps> = ({
@@ -112,8 +160,35 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   onOpenChange,
   worker,
   onGoToDataCollection,
+  onLifecycleAction,
 }) => {
+  const [actionView, setActionView] = useState<ActionType | null>(null);
+  const [actionDate, setActionDate] = useState("");
+  const [actionReason, setActionReason] = useState("");
+
   if (!worker) return null;
+
+  const workerStatus = worker.workerStatus || "active";
+  const isActive = workerStatus === "active";
+  const isEmployee = worker.employmentType === "employee";
+  const statusConfig = lifecycleStatusConfig[workerStatus];
+
+  const resetActionView = () => {
+    setActionView(null);
+    setActionDate("");
+    setActionReason("");
+  };
+
+  const handleSubmitAction = () => {
+    if (!actionView || !actionDate) return;
+    onLifecycleAction?.(worker.id, actionView, actionDate, actionReason);
+    resetActionView();
+  };
+
+  const handleClose = (open: boolean) => {
+    if (!open) resetActionView();
+    onOpenChange(open);
+  };
 
   const getInitials = (name: string) => {
     return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
@@ -125,15 +200,11 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     return "••••" + accountNumber.slice(-4);
   };
 
-  // Get country-specific pay frequency defaults
   const countryDefaults = countryPayFrequencyDefaults[worker.country] || { frequency: "monthly", schedule: "Last business day of month" };
   const payFrequency = worker.payFrequency || countryDefaults.frequency;
   const paymentSchedule = worker.paymentSchedule || countryDefaults.schedule;
-
-  // Check if worker is from Philippines (for special fortnightly note)
   const isPhilippines = worker.country === "Philippines";
 
-  // Mock data for demonstration
   const mockData = {
     email: worker.email || `${worker.name.toLowerCase().replace(" ", ".")}@email.com`,
     phone: worker.phone || "+63 917 123 4567",
@@ -144,7 +215,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     contractStatus: worker.contractStatus || "completed",
     workLocation: worker.workLocation || worker.country,
     bankCountry: worker.bankCountry || worker.country,
-    bankName: worker.bankName || (worker.country === "Philippines" ? "BDO Unibank" : worker.country === "Norway" ? "DNB Bank" : "Local Bank"),
+    bankName: worker.bankName || (worker.country === "Philippines" ? "BDO Unibank" : worker.country === "Ireland" ? "AIB" : "Local Bank"),
     accountHolder: worker.accountHolder || worker.name,
     accountNumber: worker.accountNumber || "1234567890",
     swiftBic: worker.swiftBic || "BNORPHMM",
@@ -180,14 +251,160 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     return <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4", c.className)}>{c.label}</Badge>;
   };
 
+  // Action labels
+  const actionLabels: Record<ActionType, { title: string; description: string; dateLabel: string; buttonLabel: string; buttonClass: string }> = {
+    "terminated": {
+      title: "Terminate worker",
+      description: `Confirm termination of ${worker.name}. This will end their employment and remove them from future payroll runs.`,
+      dateLabel: "Termination date",
+      buttonLabel: "Confirm termination",
+      buttonClass: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+    },
+    "resigned": {
+      title: "Record resignation",
+      description: `Record that ${worker.name} has resigned. They will be included in payroll up to their last working day.`,
+      dateLabel: "Last working day",
+      buttonLabel: "Confirm resignation",
+      buttonClass: "bg-amber-600 text-white hover:bg-amber-700",
+    },
+    "contract-ended": {
+      title: "End contract",
+      description: `Mark ${worker.name}'s contract as ended. They will be removed from future payroll runs after the end date.`,
+      dateLabel: "Contract end date",
+      buttonLabel: "Confirm end date",
+      buttonClass: "bg-muted-foreground text-background hover:bg-muted-foreground/90",
+    },
+  };
+
+  // If action view is open, show the confirmation form
+  if (actionView) {
+    const labels = actionLabels[actionView];
+    const ActionIcon = actionView === "terminated" ? UserX : actionView === "resigned" ? LogOut : CalendarOff;
+    return (
+      <Sheet open={open} onOpenChange={handleClose}>
+        <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
+          <SheetHeader className="px-6 py-5 border-b border-border/40 shrink-0 bg-background pt-12">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={resetActionView}
+                className="p-1.5 rounded-md hover:bg-muted transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "h-10 w-10 rounded-full flex items-center justify-center",
+                  actionView === "terminated" && "bg-destructive/10",
+                  actionView === "resigned" && "bg-amber-500/10",
+                  actionView === "contract-ended" && "bg-muted",
+                )}>
+                  <ActionIcon className={cn(
+                    "h-5 w-5",
+                    actionView === "terminated" && "text-destructive",
+                    actionView === "resigned" && "text-amber-600",
+                    actionView === "contract-ended" && "text-muted-foreground",
+                  )} />
+                </div>
+                <div>
+                  <SheetTitle className="text-base">{labels.title}</SheetTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">{worker.name} · {worker.countryFlag} {worker.country}</p>
+                </div>
+              </div>
+            </div>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* Description */}
+            <div className="p-4 rounded-xl border border-border/40 bg-muted/30">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {labels.description}
+              </p>
+            </div>
+
+            {/* Date input */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">{labels.dateLabel}</Label>
+              <Input
+                type="date"
+                value={actionDate}
+                onChange={(e) => setActionDate(e.target.value)}
+                className="h-10"
+              />
+            </div>
+
+            {/* Reason */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                Reason
+                <span className="text-muted-foreground font-normal ml-1">(optional)</span>
+              </Label>
+              <Textarea
+                placeholder={
+                  actionView === "terminated" 
+                    ? "e.g. Performance issues, end of project..." 
+                    : actionView === "resigned" 
+                    ? "e.g. Personal reasons, new opportunity..." 
+                    : "e.g. Contract period completed, project ended..."
+                }
+                value={actionReason}
+                onChange={(e) => setActionReason(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Worker summary */}
+            <div className="p-4 rounded-xl border border-border/40 bg-card/50 space-y-2">
+              <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Worker summary</h4>
+              <div className="space-y-1">
+                <DetailRow label="Name" value={worker.name} />
+                <DetailRow label="Role" value={worker.role} />
+                <DetailRow label="Type" value={isEmployee ? "Employee (EOR)" : "Contractor (COR)"} />
+                <DetailRow label="Compensation" value={worker.salary} />
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-border/40 shrink-0 bg-background flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={resetActionView}
+            >
+              Cancel
+            </Button>
+            <Button
+              className={cn("flex-1", labels.buttonClass)}
+              disabled={!actionDate}
+              onClick={handleSubmitAction}
+            >
+              {labels.buttonLabel}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
         {/* Header */}
         <SheetHeader className="px-6 py-5 border-b border-border/40 shrink-0 bg-background pt-12">
           <div className="flex items-start gap-4">
-            <Avatar className="h-14 w-14 border-2 border-accent-green-outline/30">
-              <AvatarFallback className="bg-accent-green-fill/20 text-accent-green-text text-lg font-semibold">
+            <Avatar className={cn(
+              "h-14 w-14 border-2",
+              isActive 
+                ? "border-accent-green-outline/30" 
+                : "border-border/40"
+            )}>
+              <AvatarFallback className={cn(
+                "text-lg font-semibold",
+                isActive 
+                  ? "bg-accent-green-fill/20 text-accent-green-text" 
+                  : "bg-muted text-muted-foreground"
+              )}>
                 {getInitials(worker.name)}
               </AvatarFallback>
             </Avatar>
@@ -199,24 +416,88 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 <span className="text-xl">{worker.countryFlag}</span>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
+                {/* Lifecycle status badge */}
                 <Badge 
                   variant="outline" 
-                  className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 text-xs gap-1"
+                  className={cn("text-xs gap-1", statusConfig.badgeClass)}
                 >
-                  <CheckCircle2 className="h-3 w-3" />
-                  Payroll ready
+                  <statusConfig.icon className="h-3 w-3" />
+                  {statusConfig.label}
                 </Badge>
                 <Badge variant="outline" className="text-xs bg-muted/30">
-                  {worker.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
+                  {isEmployee ? "Employee (EOR)" : "Contractor (COR)"}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                All required details collected and verified.
-              </p>
+
+              {/* End date/reason if not active */}
+              {!isActive && worker.endDate && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  {workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Terminated on" : "Contract ended"}: {worker.endDate}
+                </p>
+              )}
+              {!isActive && worker.endReason && (
+                <p className="text-[11px] text-muted-foreground/70 mt-0.5">
+                  Reason: {worker.endReason}
+                </p>
+              )}
+
+              {isActive && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  All required details collected and verified.
+                </p>
+              )}
               {mockData.completedOn && (
                 <p className="text-[11px] text-muted-foreground/70 mt-1">
                   Completed on: {mockData.completedOn}
                 </p>
+              )}
+
+              {/* Actions dropdown - only for active workers */}
+              {isActive && (
+                <div className="mt-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                        Actions
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuItem 
+                        onClick={() => setActionView("terminated")}
+                        className="gap-2 text-destructive focus:text-destructive"
+                      >
+                        <UserX className="h-4 w-4" />
+                        <div>
+                          <p className="text-sm font-medium">Terminate</p>
+                          <p className="text-xs text-muted-foreground">End employment immediately</p>
+                        </div>
+                      </DropdownMenuItem>
+                      {isEmployee && (
+                        <DropdownMenuItem 
+                          onClick={() => setActionView("resigned")}
+                          className="gap-2 text-amber-700 focus:text-amber-700"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          <div>
+                            <p className="text-sm font-medium">Record resignation</p>
+                            <p className="text-xs text-muted-foreground">Employee has resigned</p>
+                          </div>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem 
+                        onClick={() => setActionView("contract-ended")}
+                        className="gap-2"
+                      >
+                        <CalendarOff className="h-4 w-4" />
+                        <div>
+                          <p className="text-sm font-medium">End contract</p>
+                          <p className="text-xs text-muted-foreground">Contract period has ended</p>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               )}
             </div>
           </div>
@@ -290,10 +571,17 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                   <div className="space-y-0.5">
                     <DetailRow 
                       label="Worker type" 
-                      value={worker.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"} 
+                      value={isEmployee ? "Employee (EOR)" : "Contractor (COR)"} 
                     />
                     <DetailRow label="Role / title" value={worker.role} />
                     <DetailRow label="Start date" value={mockData.startDate} icon={Calendar} />
+                    {!isActive && worker.endDate && (
+                      <DetailRow 
+                        label={workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Termination date" : "End date"} 
+                        value={worker.endDate} 
+                        icon={CalendarOff} 
+                      />
+                    )}
                     <div className="flex items-center justify-between gap-4 py-1.5">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <FileText className="h-3.5 w-3.5" />
@@ -303,12 +591,13 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                         variant="outline" 
                         className={cn(
                           "text-[10px] px-1.5 py-0 h-4 capitalize",
-                          mockData.contractStatus === "completed" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
-                          mockData.contractStatus === "signed" && "bg-blue-500/10 text-blue-600 border-blue-500/20",
-                          mockData.contractStatus === "drafted" && "bg-muted text-muted-foreground border-border"
+                          !isActive && "bg-muted text-muted-foreground border-border",
+                          isActive && mockData.contractStatus === "completed" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                          isActive && mockData.contractStatus === "signed" && "bg-blue-500/10 text-blue-600 border-blue-500/20",
+                          isActive && mockData.contractStatus === "drafted" && "bg-muted text-muted-foreground border-border"
                         )}
                       >
-                        {mockData.contractStatus}
+                        {!isActive ? workerStatus.replace("-", " ") : mockData.contractStatus}
                       </Badge>
                     </div>
                     <DetailRow label="Work location" value={mockData.workLocation} icon={MapPin} />
@@ -339,7 +628,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       </Badge>
                     </div>
                     <DetailRow 
-                      label={worker.employmentType === "employee" ? "Salary" : "Consultancy fee"} 
+                      label={isEmployee ? "Salary" : "Consultancy fee"} 
                       value={worker.salary} 
                     />
                     <DetailRow label="Payment schedule" value={paymentSchedule} />
@@ -431,6 +720,13 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     <DetailRow label="Details submitted on" value={mockData.detailsSubmittedOn} icon={Calendar} />
                     <DetailRow label="Verified by" value={mockData.verifiedBy} icon={Award} />
                     <DetailRow label="Last updated" value={mockData.lastUpdated} icon={Clock} />
+                    {!isActive && worker.endDate && (
+                      <DetailRow 
+                        label={`${statusConfig.label} on`} 
+                        value={worker.endDate} 
+                        icon={CalendarOff} 
+                      />
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>

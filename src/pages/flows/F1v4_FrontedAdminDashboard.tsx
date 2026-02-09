@@ -115,6 +115,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     dataReceived: true,
     bankDetails: "BDO Unibank ••••4521",
     payFrequency: "Fortnightly",
+    workerStatus: "active",
   },
   {
     id: "done-2",
@@ -129,6 +130,9 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     dataReceived: true,
     bankDetails: "AIB ••••8734",
     payFrequency: "Monthly",
+    workerStatus: "contract-ended",
+    endDate: "January 31, 2026",
+    endReason: "Contract period completed",
   },
 ];
 
@@ -174,9 +178,9 @@ const AdminContractingMultiCompany = () => {
     const saved = localStorage.getItem('adminflow-company-contractors');
     const version = localStorage.getItem('adminflow-data-version');
     // Bust cache when default data changes
-    if (saved && version === '2') return JSON.parse(saved);
+    if (saved && version === '3') return JSON.parse(saved);
     localStorage.removeItem('adminflow-company-contractors');
-    localStorage.setItem('adminflow-data-version', '2');
+    localStorage.setItem('adminflow-data-version', '3');
     return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   

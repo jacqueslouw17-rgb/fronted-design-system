@@ -60,6 +60,12 @@ interface Contractor {
   payrollChecklist?: PayrollChecklistItem[];
   payrollProgress?: number;
   payrollMonth?: "last" | "current" | "next";
+  // Worker lifecycle
+  workerStatus?: "active" | "contract-ended" | "resigned" | "terminated";
+  endDate?: string;
+  endReason?: string;
+  bankDetails?: string;
+  payFrequency?: string;
 }
 interface PayrollChecklistItem {
   id: string;
@@ -1074,7 +1080,12 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   duration: 0.2
                 }
               }}>
-                <Card className="border border-border/40 bg-card cursor-pointer" onClick={() => {
+                <Card className={cn(
+                  "border border-border/40 cursor-pointer",
+                  status === "CERTIFIED" && contractor.workerStatus && contractor.workerStatus !== "active"
+                    ? "bg-muted/30 opacity-75"
+                    : "bg-card"
+                )} onClick={() => {
                   if (status === "awaiting-signature") {
                     handleOpenSignatureWorkflow(contractor);
                   } else if (status === "CERTIFIED") {
@@ -1142,16 +1153,41 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           </div>
                           {/* Enhanced fields for CERTIFIED/Done status */}
                           {status === "CERTIFIED" && <>
+                              {/* Lifecycle status badge */}
+                              <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Status</span>
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn(
+                                    "text-[10px] px-1.5 py-0 h-4",
+                                    (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                                    contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
+                                    contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                    contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
+                                  )}
+                                >
+                                  {contractor.workerStatus === "contract-ended" ? "Ended" 
+                                    : contractor.workerStatus === "resigned" ? "Resigned"
+                                    : contractor.workerStatus === "terminated" ? "Terminated"
+                                    : "Active"}
+                                </Badge>
+                              </div>
+                              {contractor.workerStatus && contractor.workerStatus !== "active" && contractor.endDate && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-muted-foreground">End date</span>
+                                  <span className="font-medium text-foreground text-[10px]">{contractor.endDate}</span>
+                                </div>
+                              )}
                               <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Pay frequency</span>
                                 <span className="font-medium text-foreground">
-                                  {contractor.country === "Philippines" ? "Fortnightly" : "Monthly"}
+                                  {contractor.payFrequency || (contractor.country === "Philippines" ? "Fortnightly" : "Monthly")}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Bank</span>
                                 <span className="font-medium text-foreground">
-                                  {contractor.country === "Philippines" ? "BDO, PH" : contractor.country === "Norway" ? "DNB, NO" : `Local Bank, ${contractor.countryFlag}`}
+                                  {contractor.bankDetails || (contractor.country === "Philippines" ? "BDO, PH" : contractor.country === "Norway" ? "DNB, NO" : contractor.country === "Ireland" ? "AIB, IE" : `Local Bank, ${contractor.countryFlag}`)}
                                 </span>
                               </div>
                             </>}
@@ -1399,10 +1435,22 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       role: selectedForDoneDetail.role,
       salary: selectedForDoneDetail.salary,
       employmentType: selectedForDoneDetail.employmentType || "contractor",
-      email: selectedForDoneDetail.email
+      email: selectedForDoneDetail.email,
+      workerStatus: selectedForDoneDetail.workerStatus || "active",
+      endDate: selectedForDoneDetail.endDate,
+      endReason: selectedForDoneDetail.endReason,
     } : null} onGoToDataCollection={workerId => {
       setDoneDetailDrawerOpen(false);
       toast.info("Redirecting to data collection...");
+    }} onLifecycleAction={(workerId, action, endDate, reason) => {
+      setContractors(current => current.map(c => 
+        c.id === workerId ? { ...c, workerStatus: action, endDate, endReason: reason } : c
+      ));
+      // Update the selected worker too so the drawer reflects the change
+      setSelectedForDoneDetail(prev => prev ? { ...prev, workerStatus: action, endDate, endReason: reason } : null);
+      setDoneDetailDrawerOpen(false);
+      const actionLabel = action === "terminated" ? "terminated" : action === "resigned" ? "marked as resigned" : "contract ended";
+      toast.success(`${selectedForDoneDetail?.name} has been ${actionLabel}.`);
     }} />
     </div>;
 };
