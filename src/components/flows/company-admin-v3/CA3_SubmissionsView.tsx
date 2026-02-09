@@ -84,6 +84,7 @@ export interface WorkerFlag {
   endDate?: string; // For Flag 1
   endReason?: "Termination" | "Resignation" | "End contract"; // For Flag 1
   payChangePercent?: number; // For Flag 2 (positive = increase, negative = decrease)
+  payChangeDelta?: number; // For Flag 2 absolute amount difference
 }
 
 export interface WorkerSubmission {
@@ -1504,31 +1505,20 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </SheetHeader>
 
-                {/* Heads up flags - single consolidated banner */}
-                {selectedSubmission.flags && selectedSubmission.flags.length > 0 && (
+                {/* Heads up flags - only show banner for end_date (Flag 1) */}
+                {selectedSubmission.flags && selectedSubmission.flags.filter(f => f.type === "end_date").length > 0 && (
                   <div className="px-5 py-3 border-b border-border/20">
                     <div className="flex items-start gap-2.5 p-3 rounded-lg border bg-amber-500/5 border-amber-500/15">
                       <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
                       <div className="flex-1 min-w-0 space-y-1.5">
                         <p className="text-xs font-semibold text-foreground">Heads up</p>
-                        {selectedSubmission.flags.map((flag, fi) => (
+                        {selectedSubmission.flags.filter(f => f.type === "end_date").map((flag, fi) => (
                           <div key={fi}>
-                            {flag.type === "end_date" ? (
-                              <>
-                                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                  This worker's status ends on <span className="font-medium text-foreground">{flag.endDate || "TBD"}</span>. Please confirm they should be included in this payroll run.
-                                </p>
-                                {flag.endReason && (
-                                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">Status: {flag.endReason}</p>
-                                )}
-                              </>
-                            ) : (
-                              <>
-                                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                  This payroll is <span className="font-medium text-foreground">{Math.abs(flag.payChangePercent || 0)}% {(flag.payChangePercent || 0) > 0 ? "higher" : "lower"}</span> than last period. Please confirm this is expected before submitting.
-                                </p>
-                                <p className="text-[10px] text-muted-foreground/50 mt-0.5 italic">Explanation: (Kurt will add details later)</p>
-                              </>
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                              This worker's status ends on <span className="font-medium text-foreground">{flag.endDate || "TBD"}</span>. Please confirm they should be included in this payroll run.
+                            </p>
+                            {flag.endReason && (
+                              <p className="text-[10px] text-muted-foreground/70 mt-0.5">Status: {flag.endReason}</p>
                             )}
                           </div>
                         ))}
@@ -1545,13 +1535,30 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <>
                   
                   {/* EARNINGS Section - Collapsed by default, only force open when pending filter or newly added */}
-                  {(!showPendingOnly || earningAdjCounts.pending > 0) && (
+                  {(() => {
+                    const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
+                    const payChangeBadge = payChangeFlag ? (
+                      <span className="text-[9px] font-medium text-blue-600 dark:text-blue-400 normal-case tracking-normal">
+                        {(payChangeFlag.payChangePercent || 0) > 0 ? "+" : ""}{payChangeFlag.payChangePercent}% vs last period
+                      </span>
+                    ) : undefined;
+                    const payChangeSubtitle = payChangeFlag ? (
+                      <p className="text-[10px] text-muted-foreground/70">
+                        {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period
+                        {payChangeFlag.payChangeDelta != null && (
+                          <span> ({(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}{formatCurrency(Math.abs(payChangeFlag.payChangeDelta || 0), currency)})</span>
+                        )}
+                      </p>
+                    ) : undefined;
+                    return (!showPendingOnly || earningAdjCounts.pending > 0) ? (
                     <CollapsibleSection
                       title="Earnings"
                       defaultOpen={false}
                       forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
+                      subtitle={payChangeSubtitle}
+                      headerBadge={payChangeBadge}
                     >
                     {/* Base earnings */}
                     {!showPendingOnly && earnings.map((item, idx) => (
@@ -1646,7 +1653,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       />
                     )}
                   </CollapsibleSection>
-                  )}
+                  ) : null;
+                  })()}
                   {/* DEDUCTIONS Section - Collapsed by default */}
                   {deductions.length > 0 && !showPendingOnly && (
                     <CollapsibleSection
@@ -1910,7 +1918,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   
                   // Show "Mark as Ready" when no pending items and not yet finalized
                   if (!isFinalized) {
-                    const hasFlags = selectedSubmission.flags && selectedSubmission.flags.length > 0;
+                    const hasEndDateFlags = selectedSubmission.flags?.some(f => f.type === "end_date");
                     return (
                       <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
                         <Button 
@@ -1919,10 +1927,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           onClick={() => setShowMarkAsReadyDialog(true)}
                         >
                           <CheckCircle2 className="h-4 w-4" />
-                          {hasFlags ? "Confirm & Mark as Ready" : "Mark as Ready"}
+                          {hasEndDateFlags ? "Confirm & Mark as Ready" : "Mark as Ready"}
                         </Button>
                         <p className="text-[11px] text-muted-foreground text-center mt-2">
-                          {hasFlags
+                          {hasEndDateFlags
                             ? "By continuing, you confirm you've reviewed the heads up items."
                             : "This will finalize the review and lock all decisions"}
                         </p>

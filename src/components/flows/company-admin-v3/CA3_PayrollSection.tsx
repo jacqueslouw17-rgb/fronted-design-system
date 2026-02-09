@@ -81,7 +81,7 @@ const mockSubmissions: WorkerSubmission[] = [
     totalImpact: 4712,
     currency: "PHP",
     flags: [
-      { type: "pay_change", payChangePercent: 22 },
+      { type: "pay_change", payChangePercent: 22, payChangeDelta: 8500 },
     ],
   },
   {
