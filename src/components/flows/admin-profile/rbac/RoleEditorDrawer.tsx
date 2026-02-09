@@ -99,7 +99,7 @@ export function RoleEditorDrawer({
     );
   }, [existingRoles, searchQuery]);
 
-  // Check if name matches any existing role (excluding current role in edit mode)
+  // Check if name matches any existing role exactly (excluding current role in edit mode)
   const isDuplicateName = useMemo(() => {
     if (!formData.name.trim()) return false;
     const nameToCheck = formData.name.toLowerCase();
@@ -108,6 +108,20 @@ export function RoleEditorDrawer({
       r.id !== role?.id // Exclude current role being edited
     );
   }, [existingRoles, formData.name, role?.id]);
+
+  // Check if form is valid for submission
+  const hasErrors = useMemo(() => {
+    if (!formData.name.trim()) return true;
+    if (formData.name.length > 50) return true;
+    if (isDuplicateName) return true;
+    return false;
+  }, [formData.name, isDuplicateName]);
+
+  // For create mode: require name and description
+  const isCreateFormValid = useMemo(() => {
+    if (isEditMode) return true;
+    return formData.name.trim().length > 0 && formData.description.trim().length > 0 && !hasErrors;
+  }, [isEditMode, formData.name, formData.description, hasErrors]);
 
   // Handle clicking outside dropdown
   useEffect(() => {
@@ -127,7 +141,9 @@ export function RoleEditorDrawer({
 
   // Handle selecting a template role
   const handleSelectTemplate = (templateRole: RoleWithPermissions) => {
-    // In edit mode, selecting an existing role = error (duplicate)
+    // In both modes, selecting an existing role sets name = duplicate error
+    // In edit mode: direct name assignment causes error
+    // In create mode: use as template with "(Copy)" suffix, but also validate
     if (isEditMode) {
       setFormData(prev => ({
         ...prev,
@@ -136,13 +152,24 @@ export function RoleEditorDrawer({
       setErrors({ name: "This role name already exists. Please choose a different name." });
     } else {
       // In create mode, use as template with "(Copy)" suffix
+      const copyName = `${templateRole.name} (Copy)`;
+      const copyNameLower = copyName.toLowerCase();
+      const isCopyDuplicate = existingRoles.some(r => r.name.toLowerCase() === copyNameLower);
+      
       setSelectedTemplate(templateRole);
       setFormData(prev => ({
         ...prev,
-        name: `${templateRole.name} (Copy)`,
+        name: copyName,
         description: templateRole.description || "",
         permissions: { ...templateRole.permissions },
       }));
+      
+      // If even the copy name is duplicate, show error
+      if (isCopyDuplicate) {
+        setErrors({ name: "This role name already exists. Please choose a different name." });
+      } else {
+        setErrors({});
+      }
     }
     setSearchQuery("");
     setShowDropdown(false);
@@ -492,7 +519,11 @@ export function RoleEditorDrawer({
               </Button>
               <Button 
                 onClick={handleSubmit} 
-                disabled={saving || (isEditMode && !hasChanges)} 
+                disabled={
+                  saving || 
+                  hasErrors ||
+                  (isEditMode ? !hasChanges : !isCreateFormValid)
+                } 
                 className="gap-1.5"
               >
                 <Save className="h-4 w-4" />
