@@ -10,7 +10,9 @@ import {
   Loader2,
   Mail,
   MoreHorizontal,
+  Pencil,
   RefreshCw,
+  Shield,
   Trash2,
   UserPlus,
 } from "lucide-react";
@@ -43,6 +45,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 import { useRBACContext } from "@/contexts/RBACContext";
 import type { RBACTeamMember } from "@/types/rbac";
@@ -70,6 +79,7 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
 
   const [inviteOpen, setInviteOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<RBACTeamMember | null>(null);
+  const [memberToEdit, setMemberToEdit] = useState<RBACTeamMember | null>(null);
   const [processing, setProcessing] = useState(false);
 
   const currentUserPrivilege = currentUserRole?.privilege_level || 0;
@@ -78,6 +88,7 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
   const handleRoleChange = async (memberId: string, roleId: string) => {
     setProcessing(true);
     await updateMemberRole(memberId, roleId);
+    setMemberToEdit(null);
     setProcessing(false);
   };
 
@@ -127,7 +138,7 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-1.5">
           <AnimatePresence mode="popLayout">
             {teamMembers.map((member) => (
               <motion.div
@@ -135,99 +146,95 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -60 }}
-                className="bg-card/60 border border-border/30 rounded-lg p-4"
+                className="group flex items-center justify-between gap-3 bg-card border border-border/40 rounded-lg px-4 py-3 hover:bg-muted/30 transition-colors"
               >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5 mb-1">
-                      <span className="font-medium text-foreground truncate">
-                        {member.name || "Unnamed"}
-                      </span>
-                      {member.status === "active" ? (
-                        <Badge
-                          variant="secondary"
-                          className="gap-1 bg-primary/10 text-primary border-primary/20"
-                        >
-                          <Check className="h-3 w-3" />
-                          Active
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="gap-1 bg-muted/30 text-muted-foreground border-border/40"
-                        >
-                          <Clock className="h-3 w-3" />
-                          Pending
-                        </Badge>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Mail className="h-3.5 w-3.5" />
-                      <span className="truncate">{member.email}</span>
-                      {member.status === "pending" && (
-                        <span className="text-xs ml-2 shrink-0">
-                          · Invited{" "}
-                          {formatDistanceToNow(new Date(member.invited_at), { addSuffix: true })}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    {canManageRoles ? (
-                      <Select
-                        value={member.role_id}
-                        onValueChange={(value) => handleRoleChange(member.id, value)}
-                        disabled={processing}
+                {/* Member Info - Left side */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-sm text-foreground truncate">
+                      {member.name || "Unnamed"}
+                    </span>
+                    {member.status === "active" ? (
+                      <Badge
+                        variant="secondary"
+                        className="gap-1 bg-primary/10 text-primary border-primary/20 text-xs px-2 py-0.5"
                       >
-                        <SelectTrigger className="w-44 h-9 text-sm">
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {assignableRoles.map((role) => (
-                            <SelectItem key={role.id} value={role.id} className="text-sm">
-                              {role.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <Check className="h-3 w-3" />
+                        Active
+                      </Badge>
                     ) : (
-                      <Badge variant="secondary" className="h-8 px-3 text-sm">
-                        {member.role?.name || "No role"}
+                      <Badge
+                        variant="outline"
+                        className="gap-1 bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs px-2 py-0.5"
+                      >
+                        <Clock className="h-3 w-3" />
+                        Pending
                       </Badge>
                     )}
+                  </div>
 
-                    {(canManageRoles || (canInviteUsers && member.status === "pending")) && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {member.status === "pending" && (
-                            <DropdownMenuItem onClick={() => handleResend(member.id)}>
-                              <RefreshCw className="h-4 w-4 mr-2" />
-                              Resend invite
-                            </DropdownMenuItem>
-                          )}
-                          {canManageRoles && (
-                            <>
-                              {member.status === "pending" && <DropdownMenuSeparator />}
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => setMemberToRemove(member)}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                  <div className="flex items-center gap-3 mt-0.5">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Mail className="h-3 w-3" />
+                      <span className="truncate">{member.email}</span>
+                    </div>
+                    {member.status === "pending" && (
+                      <span className="text-xs text-muted-foreground">
+                        · Invited{" "}
+                        {formatDistanceToNow(new Date(member.invited_at), { addSuffix: true })}
+                      </span>
                     )}
                   </div>
+                </div>
+
+                {/* Role Badge & Actions - Right side */}
+                <div className="flex items-center gap-3 shrink-0">
+                  {/* Role display as badge */}
+                  <Badge variant="outline" className="gap-1 text-xs px-2 py-1">
+                    <Shield className="h-3 w-3 text-muted-foreground" />
+                    {member.role?.name || "No role"}
+                  </Badge>
+
+                  {/* Actions Menu */}
+                  {(canManageRoles || (canInviteUsers && member.status === "pending")) && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        {canManageRoles && (
+                          <DropdownMenuItem onClick={() => setMemberToEdit(member)}>
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit Role
+                          </DropdownMenuItem>
+                        )}
+                        {member.status === "pending" && (
+                          <DropdownMenuItem onClick={() => handleResend(member.id)}>
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Resend Invite
+                          </DropdownMenuItem>
+                        )}
+                        {canManageRoles && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setMemberToRemove(member)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -255,19 +262,57 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
         onNavigateToRoles={onNavigateToRoles}
       />
 
+      {/* Edit Role Drawer */}
+      <Sheet open={!!memberToEdit} onOpenChange={() => setMemberToEdit(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Edit Role</SheetTitle>
+            <SheetDescription>
+              Change role for {memberToEdit?.name || memberToEdit?.email}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Role</label>
+              <Select
+                value={memberToEdit?.role_id}
+                onValueChange={(value) => memberToEdit && handleRoleChange(memberToEdit.id, value)}
+                disabled={processing}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {assignableRoles.map((role) => (
+                    <SelectItem key={role.id} value={role.id}>
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+                        {role.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <AlertDialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove team member?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to remove {memberToRemove?.name || memberToRemove?.email}?
-              They’ll lose access to this workspace.
+              They'll lose access to this workspace.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRemove}
+              disabled={processing}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Remove
