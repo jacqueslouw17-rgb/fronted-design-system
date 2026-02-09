@@ -80,6 +80,9 @@ const mockSubmissions: WorkerSubmission[] = [
     status: "pending",
     totalImpact: 4712,
     currency: "PHP",
+    flags: [
+      { type: "pay_change", payChangePercent: 22 },
+    ],
   },
   {
     id: "sub-4",
