@@ -665,6 +665,30 @@ export function useRBAC(): UseRBACReturn {
         return false;
       }
 
+      // Demo mode: add member locally without hitting the database
+      if (DEMO_MODE) {
+        const now = new Date().toISOString();
+        const newMember: RBACTeamMember = {
+          id: `demo-member-${Date.now()}`,
+          user_id: null,
+          email: data.email,
+          name: data.name || null,
+          role_id: data.role_id,
+          organization_id: null,
+          status: 'pending',
+          invited_by: null,
+          invited_at: now,
+          activated_at: null,
+          last_active_at: null,
+          created_at: now,
+          updated_at: now,
+          role: targetRole,
+        };
+        setTeamMembers(prev => [newMember, ...prev]);
+        toast.success(`Invitation sent to ${data.email}`);
+        return true;
+      }
+
       const { error } = await supabase
         .from('rbac_team_members')
         .insert({
