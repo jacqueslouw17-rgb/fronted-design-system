@@ -394,7 +394,7 @@ export function RoleEditorDrawer({
                     )}
                   </div>
                 )}
-                {selectedTemplate && !isEditMode && (
+                {selectedTemplate && !isEditMode && !errors.name && (
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     Based on "{selectedTemplate.name}" permissions
                   </p>
