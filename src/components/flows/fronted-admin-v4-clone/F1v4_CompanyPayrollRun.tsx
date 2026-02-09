@@ -151,7 +151,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     ],
     pendingLeaves: [],
     flags: [
-      { type: "pay_change", payChangePercent: 18 },
+      { type: "pay_change", payChangePercent: 18, payChangeDelta: 8100 },
     ],
   },
   { 
