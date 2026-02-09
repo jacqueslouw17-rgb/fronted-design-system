@@ -1535,13 +1535,24 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <>
                   
                   {/* EARNINGS Section - Collapsed by default, only force open when pending filter or newly added */}
-                  {(!showPendingOnly || earningAdjCounts.pending > 0) && (
+                  {(() => {
+                    const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
+                    const payChangeSubtitle = payChangeFlag ? (
+                      <p className="text-[10px] text-muted-foreground/70">
+                        {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period
+                        {payChangeFlag.payChangeDelta != null && (
+                          <span> ({(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}{formatCurrency(Math.abs(payChangeFlag.payChangeDelta || 0), currency)})</span>
+                        )}
+                      </p>
+                    ) : undefined;
+                    return (!showPendingOnly || earningAdjCounts.pending > 0) ? (
                     <CollapsibleSection
                       title="Earnings"
                       defaultOpen={false}
                       forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
+                      subtitle={payChangeSubtitle}
                     >
                     {/* Base earnings */}
                     {!showPendingOnly && earnings.map((item, idx) => (
