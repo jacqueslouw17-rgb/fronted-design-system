@@ -707,29 +707,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 </AccordionContent>
               </AccordionItem>
 
-              {/* F) Audit / Status Trail */}
-              <AccordionItem value="audit" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
-                <AccordionTrigger className="hover:no-underline py-3">
-                  <div className="flex items-center gap-2">
-                    <History className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Audit trail</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-4">
-                  <div className="space-y-0.5">
-                    <DetailRow label="Details submitted on" value={mockData.detailsSubmittedOn} icon={Calendar} />
-                    <DetailRow label="Verified by" value={mockData.verifiedBy} icon={Award} />
-                    <DetailRow label="Last updated" value={mockData.lastUpdated} icon={Clock} />
-                    {!isActive && worker.endDate && (
-                      <DetailRow 
-                        label={`${statusConfig.label} on`} 
-                        value={worker.endDate} 
-                        icon={CalendarOff} 
-                      />
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+              {/* Audit trail hidden for now */}
             </Accordion>
           </div>
         </div>
