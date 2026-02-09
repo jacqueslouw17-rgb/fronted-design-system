@@ -15,6 +15,7 @@ import {
   Shield,
   Trash2,
   UserPlus,
+  X,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
@@ -272,7 +273,13 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
       />
 
       <AlertDialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="relative">
+          <button
+            onClick={() => setMemberToRemove(null)}
+            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove team member?</AlertDialogTitle>
             <AlertDialogDescription>
