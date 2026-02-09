@@ -276,7 +276,7 @@ export function RoleEditorDrawer({
                         "w-full h-10 px-3 flex items-center justify-between rounded-md border text-sm transition-colors",
                         showDropdown 
                           ? "bg-foreground text-background border-foreground" 
-                          : "bg-background border-input hover:bg-accent hover:text-accent-foreground",
+                          : "bg-background border-input hover:bg-muted/50",
                         errors.name && "border-destructive"
                       )}
                     >
@@ -324,11 +324,11 @@ export function RoleEditorDrawer({
                                   key={r.id}
                                   type="button"
                                   onClick={() => handleSelectTemplate(r)}
-                                  className="w-full px-3 py-2.5 text-left hover:bg-muted/50 flex items-center justify-between gap-2 transition-colors"
+                                  className="w-full px-3 py-2.5 text-left hover:bg-muted/50 flex flex-col gap-0.5 transition-colors"
                                 >
                                   <span className="text-sm font-medium truncate">{r.name}</span>
-                                  <span className="text-xs text-muted-foreground shrink-0">
-                                    {getPermissionSummary(r.permissions)}
+                                  <span className="text-xs text-muted-foreground truncate">
+                                    {r.description || getPermissionSummary(r.permissions)}
                                   </span>
                                 </button>
                               ))}
