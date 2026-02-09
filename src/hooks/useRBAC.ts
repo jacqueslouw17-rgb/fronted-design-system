@@ -528,10 +528,6 @@ export function useRBAC(): UseRBACReturn {
     try {
       const role = roles.find(r => r.id === roleId);
       if (!role) throw new Error('Role not found');
-      if (role.is_system_role) {
-        toast.error('System roles cannot be edited');
-        return false;
-      }
 
       // Demo mode: update locally without hitting the database
       if (DEMO_MODE) {
@@ -594,10 +590,6 @@ export function useRBAC(): UseRBACReturn {
     try {
       const role = roles.find(r => r.id === roleId);
       if (!role) throw new Error('Role not found');
-      if (role.is_system_role) {
-        toast.error('System roles cannot be deleted');
-        return false;
-      }
 
       // Check if role is assigned to any members
       const assignedCount = getMemberCountForRole(roleId);
