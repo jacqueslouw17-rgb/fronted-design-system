@@ -31,6 +31,7 @@ interface InviteMemberDrawerProps {
   currentUserPrivilege: number;
   onInvite: (data: InviteFormData) => Promise<boolean>;
   getPermissionSummary: (permissions: PermissionMatrix) => string;
+  onNavigateToRoles?: () => void;
 }
 
 export function InviteMemberDrawer({
@@ -40,6 +41,7 @@ export function InviteMemberDrawer({
   currentUserPrivilege,
   onInvite,
   getPermissionSummary,
+  onNavigateToRoles,
 }: InviteMemberDrawerProps) {
   const assignableRoles = useMemo(
     () => roles.filter((r) => r.privilege_level <= currentUserPrivilege),
@@ -110,7 +112,7 @@ export function InviteMemberDrawer({
           <div className="space-y-2">
             <Label htmlFor="invite-name" className="text-sm flex items-center gap-1.5">
               <User className="h-3.5 w-3.5" />
-              Name <span className="text-muted-foreground">(optional)</span>
+              Name
             </Label>
             <Input
               id="invite-name"
@@ -145,31 +147,53 @@ export function InviteMemberDrawer({
               <Shield className="h-3.5 w-3.5" />
               Role
             </Label>
-            <Select
-              value={formData.role_id}
-              onValueChange={(value) => {
-                setFormData((p) => ({ ...p, role_id: value }));
-                if (errors.role_id) setErrors((p) => ({ ...p, role_id: "" }));
-              }}
-            >
-              <SelectTrigger className={`h-11 ${errors.role_id ? "border-destructive" : ""}`}>
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                {assignableRoles.map((role) => (
-                  <SelectItem key={role.id} value={role.id}>
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span>{role.name}</span>
-                      {role.is_system_role && (
-                        <span className="text-xs text-muted-foreground">(System)</span>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.role_id && <p className="text-xs text-destructive">{errors.role_id}</p>}
+            {assignableRoles.length === 0 ? (
+              <div className="rounded-lg border border-border/40 bg-muted/30 p-4 space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  No roles available yet. Create a role first to invite team members.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    onOpenChange(false);
+                    onNavigateToRoles?.();
+                  }}
+                  className="gap-1.5"
+                >
+                  <Shield className="h-3.5 w-3.5" />
+                  Go to Roles & Permissions
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Select
+                  value={formData.role_id}
+                  onValueChange={(value) => {
+                    setFormData((p) => ({ ...p, role_id: value }));
+                    if (errors.role_id) setErrors((p) => ({ ...p, role_id: "" }));
+                  }}
+                >
+                  <SelectTrigger className={`h-11 ${errors.role_id ? "border-destructive" : ""}`}>
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assignableRoles.map((role) => (
+                      <SelectItem key={role.id} value={role.id}>
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span>{role.name}</span>
+                          {role.is_system_role && (
+                            <span className="text-xs text-muted-foreground">(System)</span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.role_id && <p className="text-xs text-destructive">{errors.role_id}</p>}
+              </>
+            )}
           </div>
 
           {selectedRole && (

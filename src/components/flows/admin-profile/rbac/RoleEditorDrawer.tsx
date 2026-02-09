@@ -176,7 +176,7 @@ export function RoleEditorDrawer({
 
               <div className="space-y-2">
                 <Label htmlFor="role-desc" className="text-sm">
-                  Description <span className="text-muted-foreground">(optional)</span>
+                  Description
                 </Label>
                 <Textarea
                   id="role-desc"

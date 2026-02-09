@@ -50,9 +50,10 @@ import { InviteMemberDrawer } from "./InviteMemberDrawer";
 
 interface TeamMembersSectionProps {
   onBack: () => void;
+  onNavigateToRoles?: () => void;
 }
 
-export function TeamMembersSection({ onBack }: TeamMembersSectionProps) {
+export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSectionProps) {
   const {
     roles,
     teamMembers,
@@ -251,6 +252,7 @@ export function TeamMembersSection({ onBack }: TeamMembersSectionProps) {
         currentUserPrivilege={currentUserPrivilege}
         onInvite={inviteMember}
         getPermissionSummary={getPermissionSummary}
+        onNavigateToRoles={onNavigateToRoles}
       />
 
       <AlertDialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>

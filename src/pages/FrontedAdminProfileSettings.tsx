@@ -176,6 +176,7 @@ const FrontedAdminProfileSettings = () => {
                 >
                   <TeamMembersSection
                     onBack={() => setCurrentSection("overview")}
+                    onNavigateToRoles={() => setCurrentSection("roles-permissions")}
                   />
                 </motion.div>
               )}
