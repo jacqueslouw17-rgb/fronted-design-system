@@ -1127,7 +1127,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             <Badge 
                               variant="outline" 
                               className={cn(
-                                "text-[10px] px-1.5 py-0 h-4 flex-shrink-0",
+                                "text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none",
                                 (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
                                 contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
                                 contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
