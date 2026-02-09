@@ -214,6 +214,9 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { type: "expenses", amount: 3200, description: "Equipment purchase", status: "rejected", rejectionReason: "Missing receipt - please resubmit with documentation" },
     ],
     pendingLeaves: [],
+    flags: [
+      { type: "end_date", endDate: "Feb 28, 2026", endReason: "End contract" },
+    ],
   },
   { 
     id: "7", 
