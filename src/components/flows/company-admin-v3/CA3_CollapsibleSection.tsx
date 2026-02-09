@@ -13,6 +13,7 @@ interface CollapsibleSectionProps {
   rejectedCount?: number;
   totalCount?: number;
   className?: string;
+  subtitle?: React.ReactNode;
 }
 
 export const CollapsibleSection = ({
