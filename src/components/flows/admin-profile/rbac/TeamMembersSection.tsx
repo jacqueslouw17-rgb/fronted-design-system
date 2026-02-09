@@ -189,8 +189,8 @@ export function TeamMembersSection({ onBack, onNavigateToRoles }: TeamMembersSec
 
                 {/* Role Badge & Actions - Right side */}
                 <div className="flex items-center gap-3 shrink-0">
-                  {/* Role display as badge */}
-                  <Badge variant="outline" className="gap-1 text-xs px-2 py-1">
+                  {/* Role display as badge - no hover state */}
+                  <Badge variant="outline" className="gap-1 text-xs px-2 py-1 pointer-events-none">
                     <Shield className="h-3 w-3 text-muted-foreground" />
                     {member.role?.name || "No role"}
                   </Badge>
