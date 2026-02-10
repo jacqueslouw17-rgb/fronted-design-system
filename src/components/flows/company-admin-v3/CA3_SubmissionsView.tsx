@@ -1094,8 +1094,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
     } else if (hasEndDateFlag) {
-      // Flagged workers with no pending items show as "reviewed" (Fronted handles the rest)
-      effectiveWorkerStatus = "reviewed";
+      // Flagged workers with no pending items — Fronted takes over
+      effectiveWorkerStatus = "handover";
     } else {
       // All items reviewed but not yet finalized
       effectiveWorkerStatus = "reviewed";
