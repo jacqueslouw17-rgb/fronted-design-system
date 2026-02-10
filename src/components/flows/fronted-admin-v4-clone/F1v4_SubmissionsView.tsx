@@ -485,6 +485,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   // Finalized workers - once finalized, their items are locked
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
+  // Status change decisions (Flag 1) - keyed by worker submission id
+  const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
 
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments(prev => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));

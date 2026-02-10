@@ -804,6 +804,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   
   // Finalized workers - once finalized, their items are locked
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
+  // Status change decisions (Flag 1) - keyed by worker submission id
+  const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
   
   // Bulk action dialogs
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
