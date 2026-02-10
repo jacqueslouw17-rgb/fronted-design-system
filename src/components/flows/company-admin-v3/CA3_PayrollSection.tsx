@@ -452,7 +452,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   
   // Submit state for in-place transition in Submit step
-  const [isPayrollSubmitted, setIsPayrollSubmitted] = useState(true);
+  const [isPayrollSubmitted, setIsPayrollSubmitted] = useState(false);
   
   // Tracking state
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
