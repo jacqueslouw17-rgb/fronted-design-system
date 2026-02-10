@@ -1140,7 +1140,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         {/* Worker Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground truncate">
+            <span className={cn("text-sm font-medium text-foreground truncate", isExcluded && "line-through")}>
               {submission.workerName}
             </span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />

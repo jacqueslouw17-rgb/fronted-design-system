@@ -698,7 +698,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground truncate">{submission.workerName}</span>
+            <span className={cn("text-sm font-medium text-foreground truncate", isExcluded && "line-through")}>{submission.workerName}</span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
