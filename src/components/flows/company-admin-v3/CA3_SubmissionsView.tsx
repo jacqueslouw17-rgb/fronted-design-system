@@ -1940,6 +1940,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
                 {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
                 {!isAddingAdjustment && !expandedItemId && (() => {
+                  const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
+                  const hasDecision = !!statusDecisions[selectedSubmission.id];
+                  // Hide footer until decision is made for Flag 1 workers
+                  if (hasEndDateFlag && !hasDecision) return null;
+
                   const isFinalized = isWorkerFinalized(selectedSubmission.id);
                   
                   // Show bulk actions when pending items exist
@@ -1969,7 +1974,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   
                   // Show "Mark as Ready" when no pending items and not yet finalized
                   if (!isFinalized) {
-                    const hasEndDateFlags = selectedSubmission.flags?.some(f => f.type === "end_date");
                     return (
                       <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
                         <Button 
@@ -1978,12 +1982,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           onClick={() => setShowMarkAsReadyDialog(true)}
                         >
                           <CheckCircle2 className="h-4 w-4" />
-                          {hasEndDateFlags ? "Confirm & Mark as Ready" : "Mark as Ready"}
+                          Mark as Ready
                         </Button>
                         <p className="text-[11px] text-muted-foreground text-center mt-2">
-                          {hasEndDateFlags
-                            ? "By continuing, you confirm you've reviewed the heads up items."
-                            : "This will finalize the review and lock all decisions"}
+                          This will finalize the review and lock all decisions
                         </p>
                       </div>
                     );
