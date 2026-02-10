@@ -69,9 +69,8 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   // Track view calculations
   const employees = trackingWorkers.filter(w => w.type === "employee");
   const contractors = trackingWorkers.filter(w => w.type === "contractor");
-  const completedCount = trackingWorkers.filter(w => w.status === "paid" || w.status === "posted").length;
-  const failedCount = trackingWorkers.filter(w => w.status === "failed").length;
-  const processingCount = trackingWorkers.filter(w => w.status === "processing" || w.status === "queued" || w.status === "sent").length;
+  const completedCount = trackingWorkers.filter(w => w.status === "paid").length;
+  const inProgressCount = trackingWorkers.filter(w => w.status === "in-progress").length;
 
   const filteredWorkers = trackingWorkers.filter(w => 
     w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
