@@ -1540,8 +1540,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     return (!showPendingOnly || earningAdjCounts.pending > 0) ? (
                     <CollapsibleSection
                       title="Earnings"
-                      defaultOpen={false}
-                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'}
+                      defaultOpen={!!payChangeFlag}
+                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || !!payChangeFlag)}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                     >
