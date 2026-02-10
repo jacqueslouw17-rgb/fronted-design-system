@@ -19,6 +19,7 @@ import {
   Receipt,
   Building2,
   TrendingUp,
+  CheckCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -26,6 +27,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
 import { toast } from "sonner";
 import { F1v4_WorkerDetailDrawer, WorkerData } from "./F1v4_WorkerDetailDrawer";
@@ -150,6 +161,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   const [payslipModalOpen, setPayslipModalOpen] = useState(false);
   const [payslipWorker, setPayslipWorker] = useState<WorkerData | null>(null);
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>("current");
+  const [allPaidDialogOpen, setAllPaidDialogOpen] = useState(false);
   const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
   const periodDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -212,6 +224,16 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
       w.id === workerId ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } : w
     ));
     toast.success("Marked as paid");
+  };
+
+  const handleMarkAllPaid = () => {
+    setCurrentWorkers(prev => prev.map(w => 
+      w.paymentStatus !== "paid" 
+        ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } 
+        : w
+    ));
+    setAllPaidDialogOpen(false);
+    toast.success("All workers marked as paid");
   };
 
   const handleViewDetails = (worker: WorkerData) => {
@@ -454,6 +476,17 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
             )}
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            {!isHistorical && inProgressCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs gap-1.5"
+                onClick={() => setAllPaidDialogOpen(true)}
+              >
+                <CheckCheck className="h-3.5 w-3.5" />
+                All Paid
+              </Button>
+            )}
             <div className="flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5" />
               <span className="font-medium text-foreground">{employees.length}</span>
@@ -525,6 +558,23 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           onOpenChange={setPayslipModalOpen}
           worker={payslipWorker}
         />
+
+        <AlertDialog open={allPaidDialogOpen} onOpenChange={setAllPaidDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Mark all as paid?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will mark all {inProgressCount} remaining workers as paid. This action reflects that payments have been completed and cannot be easily undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleMarkAllPaid}>
+                Confirm All Paid
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </>
     );
   }
@@ -550,6 +600,23 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         onOpenChange={setPayslipModalOpen}
         worker={payslipWorker}
       />
+
+      <AlertDialog open={allPaidDialogOpen} onOpenChange={setAllPaidDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark all as paid?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will mark all {inProgressCount} remaining workers as paid. This action reflects that payments have been completed and cannot be easily undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleMarkAllPaid}>
+              Confirm All Paid
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
