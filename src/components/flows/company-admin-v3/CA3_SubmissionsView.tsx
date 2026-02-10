@@ -1101,23 +1101,25 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     const isFinalized = isWorkerFinalized(submission.id);
     
     // Derive effective worker status: 
-    // - excluded = admin chose to exclude from this run
     // - pending = has items needing review
-    // - reviewed = all items approved/rejected, awaiting "Mark as Ready"
+    // - reviewed = all items approved/rejected, awaiting finalization
     // - ready = admin has clicked "Mark as Ready" (finalized)
-    const isExcluded = statusDecisions[submission.id] === "exclude";
+    // For flagged workers (end_date): Fronted handles include/exclude, 
+    // but company admin can still approve/reject adjustments
+    const hasEndDateFlag = submission.flags?.some(f => f.type === "end_date");
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isExcluded) {
-      effectiveWorkerStatus = "ready"; // finalized but we override display below
-    } else if (isFinalized) {
+    if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
+    } else if (hasEndDateFlag) {
+      // Flagged workers with no pending items show as "reviewed" (Fronted handles the rest)
+      effectiveWorkerStatus = "reviewed";
     } else {
       // All items reviewed but not yet finalized
       effectiveWorkerStatus = "reviewed";
     }
-    const status = isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
+    const status = statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
     return (
