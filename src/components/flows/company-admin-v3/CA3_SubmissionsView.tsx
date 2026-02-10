@@ -901,16 +901,20 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const flaggedReadyCount = submissions.filter(s => {
     const hasEndDateFlag = s.flags?.some(f => f.type === "end_date");
     if (!hasEndDateFlag) return false;
-    // Count pending adjustments for this flagged worker
+    // Count pending adjustments for this flagged worker using raw state
     const pendingAdjs = s.submissions.filter((adj, idx) => {
-      const state = getAdjustmentStatus(s.id, idx, adj.status as AdjustmentItemStatus);
-      return state.status === 'pending' && typeof adj.amount === 'number';
+      const key = `${s.id}-${idx}`;
+      const localState = adjustmentStates[key];
+      const effectiveStatus = localState ? localState.status : (adj.status || 'pending');
+      return effectiveStatus === 'pending' && typeof adj.amount === 'number';
     }).length;
     const pendingLeaves = (s.pendingLeaves || []).filter(leave => {
-      const state = getLeaveStatus(s.id, leave.id, leave.status);
-      return state.status === 'pending';
+      const key = `${s.id}-leave-${leave.id}`;
+      const localState = leaveStates[key];
+      const effectiveStatus = localState ? localState.status : (leave.status || 'pending');
+      return effectiveStatus === 'pending';
     }).length;
-    return pendingAdjs + pendingLeaves === 0; // No pending items = Fronted-managed, counts as ready
+    return pendingAdjs + pendingLeaves === 0;
   }).length;
   const readyCount = finalizedWorkers.size + flaggedReadyCount;
   
