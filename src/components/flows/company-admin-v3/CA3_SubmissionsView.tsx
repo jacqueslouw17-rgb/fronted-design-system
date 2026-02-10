@@ -1536,30 +1536,18 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </SheetHeader>
 
-                {/* Flag 1: Status change info banner - Fronted handles the decision */}
+                {/* Flag 1: Status change info - only shown after all adjustments are resolved */}
                 {(() => {
                   const endDateFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
-                  if (!endDateFlag) return null;
-
-                  const reasonMessages: Record<string, string> = {
-                    "Termination": "This worker's termination is being reviewed by the Fronted team. Final pay and offboarding will be handled on their end.",
-                    "Resignation": "This worker's resignation is being processed by the Fronted team. Final settlement and handover will be coordinated.",
-                    "End contract": "This contract ending is being managed by the Fronted team. Final invoice and close-out are in progress.",
-                  };
-                  const message = reasonMessages[endDateFlag.endReason || ""] || "The Fronted team is reviewing this worker's status change and will handle the payroll decision.";
+                  if (!endDateFlag || currentPendingCount > 0) return null;
 
                   return (
-                    <div className="px-5 py-3 border-b border-border/20">
-                      <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3.5 space-y-1.5">
-                        <div className="flex items-start gap-2">
-                          <Clock className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                          <div className="space-y-1">
-                            <p className="text-xs font-semibold text-foreground">Managed by Fronted</p>
-                            <p className="text-[11px] text-muted-foreground leading-relaxed">
-                              {message}
-                            </p>
-                          </div>
-                        </div>
+                    <div className="px-5 py-2.5 border-b border-border/20">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                        <p className="text-[11px]">
+                          Inclusion or exclusion will be handled by Fronted
+                        </p>
                       </div>
                     </div>
                   );
