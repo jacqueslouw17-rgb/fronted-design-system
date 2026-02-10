@@ -1237,7 +1237,24 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                   );
                 })()}
 
-                {/* Receipt Overlay */}
+                {/* Exclude Worker dialog */}
+                {selectedSubmission && (() => {
+                  const endDateFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
+                  return (
+                    <CA3_ExcludeWorkerDialog
+                      open={showExcludeDialog}
+                      onOpenChange={setShowExcludeDialog}
+                      onConfirm={() => {
+                        setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
+                        setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
+                        toast.info(`${selectedSubmission.workerName} excluded from this run`);
+                      }}
+                      workerName={selectedSubmission.workerName}
+                      endReason={endDateFlag?.endReason}
+                    />
+                  );
+                })()}
+
                 <AnimatePresence>
                   {showReceiptView && (
                     <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="absolute inset-0 bg-background z-50 flex flex-col">
