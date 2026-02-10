@@ -336,17 +336,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                 </div>
 
                 <div className="p-5 space-y-4">
-                  {/* Failed notice - subtle, calm banner */}
-                  {failedCount > 0 && (
-                    <div className="flex items-start gap-3 py-3 px-4 rounded-lg bg-amber-500/5 border border-amber-500/10">
-                      <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{failedCount} payment{failedCount > 1 ? "s" : ""} need{failedCount === 1 ? "s" : ""} attention</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Fronted flagged an issue. Review details and contact support if needed.</p>
-                      </div>
-                    </div>
-                  )}
-
                   {/* Search */}
                   <Input
                     placeholder="Search by name or country..."
@@ -369,11 +358,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                         <Briefcase className="h-3 w-3" />
                         Contractors ({contractors.filter(w => filteredWorkers.includes(w)).length})
                       </TabsTrigger>
-                      {failedCount > 0 && (
-                        <TabsTrigger value="attention" className="text-xs h-7 px-3 data-[state=active]:bg-background text-amber-600">
-                          Needs attention ({failedCount})
-                        </TabsTrigger>
-                      )}
                     </TabsList>
 
                     <TabsContent value="all" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
@@ -386,10 +370,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
 
                     <TabsContent value="contractors" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
                       {contractors.filter(w => filteredWorkers.includes(w)).map(renderWorkerRow)}
-                    </TabsContent>
-
-                    <TabsContent value="attention" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
-                      {filteredWorkers.filter(w => w.status === "failed").map(renderWorkerRow)}
                     </TabsContent>
                   </Tabs>
                 </div>
