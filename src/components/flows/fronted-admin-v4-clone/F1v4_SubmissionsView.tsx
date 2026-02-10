@@ -1190,7 +1190,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                               <Button
                                 size="sm"
                                 className="flex-1 h-9 text-xs gap-2"
-                                onClick={() => handleMarkAsReady()}
+                                onClick={() => setShowMarkAsReadyDialog(true)}
                               >
                                 <CheckCircle2 className="h-3.5 w-3.5" />
                                 Mark as ready
