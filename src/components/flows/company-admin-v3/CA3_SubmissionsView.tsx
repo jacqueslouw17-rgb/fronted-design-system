@@ -1904,17 +1904,39 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
                 {!isAddingAdjustment && !expandedItemId && (() => {
                   const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
-                  const hasDecision = !!statusDecisions[selectedSubmission.id];
-                  // Hide footer until decision is made for Flag 1 workers
-                  if (hasEndDateFlag && !hasDecision) return null;
 
-                  // Excluded workers skip the review workflow entirely
-                  if (statusDecisions[selectedSubmission.id] === "exclude") {
+                  // Flagged workers: if they still have pending adjustments, show approve/reject
+                  // Once all adjustments handled, show "Managed by Fronted" message instead of Mark as Ready
+                  if (hasEndDateFlag) {
+                    if (currentPendingCount > 0) {
+                      return (
+                        <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                              onClick={() => setShowBulkRejectDialog(true)}
+                            >
+                              Reject all ({currentPendingCount})
+                            </Button>
+                            <Button 
+                              size="sm"
+                              className="flex-1 h-9 text-xs"
+                              onClick={() => setShowBulkApproveDialog(true)}
+                            >
+                              Approve all ({currentPendingCount})
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    }
+                    // No pending items — show "handled by Fronted" message
                     return (
                       <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                          <X className="h-4 w-4" />
-                          <span className="text-sm font-medium">Excluded from this payroll run</span>
+                        <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400">
+                          <Clock className="h-4 w-4" />
+                          <span className="text-sm font-medium">Being handled by Fronted</span>
                         </div>
                       </div>
                     );
