@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 
-export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued" | "sent";
+export type WorkerPaymentStatus = "paid" | "in-progress";
 
 export interface TrackingWorker {
   id: string;
@@ -69,9 +69,8 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   // Track view calculations
   const employees = trackingWorkers.filter(w => w.type === "employee");
   const contractors = trackingWorkers.filter(w => w.type === "contractor");
-  const completedCount = trackingWorkers.filter(w => w.status === "paid" || w.status === "posted").length;
-  const failedCount = trackingWorkers.filter(w => w.status === "failed").length;
-  const processingCount = trackingWorkers.filter(w => w.status === "processing" || w.status === "queued" || w.status === "sent").length;
+  const completedCount = trackingWorkers.filter(w => w.status === "paid").length;
+  const inProgressCount = trackingWorkers.filter(w => w.status === "in-progress").length;
 
   const filteredWorkers = trackingWorkers.filter(w => 
     w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -85,17 +84,9 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   const getStatusConfig = (status: WorkerPaymentStatus) => {
     switch (status) {
       case "paid":
-        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Completed" };
-      case "posted":
-        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Completed" };
-      case "processing":
-        return { icon: Clock, color: "text-amber-600", label: "Processing" };
-      case "queued":
-        return { icon: Clock, color: "text-muted-foreground", label: "In progress" };
-      case "sent":
-        return { icon: Clock, color: "text-blue-600", label: "Sent to Fronted" };
-      case "failed":
-        return { icon: AlertTriangle, color: "text-amber-600", label: "Needs attention" };
+        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Paid" };
+      case "in-progress":
+        return { icon: Clock, color: "text-amber-600", label: "In progress" };
     }
   };
 
@@ -107,16 +98,12 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   const renderWorkerRow = (worker: TrackingWorker) => {
     const statusConfig = getStatusConfig(worker.status);
     const StatusIcon = statusConfig.icon;
-    const isFailed = worker.status === "failed";
     const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
     return (
       <div 
         key={worker.id}
-        className={cn(
-          "flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-card border border-border/30",
-          isFailed && "border-amber-500/30 bg-amber-500/5"
-        )}
+        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-card border border-border/30"
       >
         {/* Avatar */}
         <Avatar className="h-6 w-6 flex-shrink-0">
@@ -132,9 +119,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
             <span className="text-[11px] text-muted-foreground">· {worker.country}</span>
           </div>
-          {isFailed && worker.errorMessage && (
-            <p className="text-[10px] text-amber-600 truncate leading-tight">{worker.errorMessage}</p>
-          )}
         </div>
 
         {/* Amount */}
@@ -154,7 +138,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   // Determine current step in the timeline (1=submit, 2=review, 3=processing, 4=complete)
   let currentTimelineStep = 1;
   if (isSubmitted) {
-    if (processingCount > 0) {
+    if (inProgressCount > 0) {
       currentTimelineStep = 3;
     } else {
       currentTimelineStep = 4;
@@ -329,18 +313,11 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                           <span className="font-medium">{completedCount}</span>
                           <span className="text-muted-foreground">completed</span>
                         </div>
-                        {processingCount > 0 && (
+                        {inProgressCount > 0 && (
                           <div className="flex items-center gap-1.5 text-xs">
-                            <Clock className="h-3.5 w-3.5 text-blue-500" />
-                            <span className="font-medium">{processingCount}</span>
+                            <Clock className="h-3.5 w-3.5 text-amber-500" />
+                            <span className="font-medium">{inProgressCount}</span>
                             <span className="text-muted-foreground">in progress</span>
-                          </div>
-                        )}
-                        {failedCount > 0 && (
-                          <div className="flex items-center gap-1.5 text-xs">
-                            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
-                            <span className="font-medium">{failedCount}</span>
-                            <span className="text-muted-foreground">needs attention</span>
                           </div>
                         )}
                       </div>
@@ -359,17 +336,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                 </div>
 
                 <div className="p-5 space-y-4">
-                  {/* Failed notice - subtle, calm banner */}
-                  {failedCount > 0 && (
-                    <div className="flex items-start gap-3 py-3 px-4 rounded-lg bg-amber-500/5 border border-amber-500/10">
-                      <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{failedCount} payment{failedCount > 1 ? "s" : ""} need{failedCount === 1 ? "s" : ""} attention</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Fronted flagged an issue. Review details and contact support if needed.</p>
-                      </div>
-                    </div>
-                  )}
-
                   {/* Search */}
                   <Input
                     placeholder="Search by name or country..."
@@ -392,11 +358,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                         <Briefcase className="h-3 w-3" />
                         Contractors ({contractors.filter(w => filteredWorkers.includes(w)).length})
                       </TabsTrigger>
-                      {failedCount > 0 && (
-                        <TabsTrigger value="attention" className="text-xs h-7 px-3 data-[state=active]:bg-background text-amber-600">
-                          Needs attention ({failedCount})
-                        </TabsTrigger>
-                      )}
                     </TabsList>
 
                     <TabsContent value="all" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
@@ -409,10 +370,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
 
                     <TabsContent value="contractors" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
                       {contractors.filter(w => filteredWorkers.includes(w)).map(renderWorkerRow)}
-                    </TabsContent>
-
-                    <TabsContent value="attention" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
-                      {filteredWorkers.filter(w => w.status === "failed").map(renderWorkerRow)}
                     </TabsContent>
                   </Tabs>
                 </div>

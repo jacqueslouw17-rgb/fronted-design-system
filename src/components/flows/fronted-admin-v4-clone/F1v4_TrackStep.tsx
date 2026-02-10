@@ -1,19 +1,18 @@
 /**
  * F1v4_TrackStep - Track & Reconcile with payment status
  * 
- * Layout aligned with CA3_TrackingView: stepper in header, progress hero, dense worker rows
+ * Simplified: Only two statuses - "in-progress" and "paid"
+ * Fronted admin manually marks each worker as paid
  */
 
 import React, { useState, useRef, useEffect } from "react";
 import { 
   CheckCircle2, 
-  XCircle,
   Download, 
   FileText,
   Users,
   Briefcase,
   Clock,
-  AlertTriangle,
   ChevronLeft,
   ChevronDown,
   DollarSign,
@@ -104,30 +103,27 @@ interface F1v4_TrackStepProps {
   hideHeader?: boolean;
   isHistorical?: boolean;
   paidDate?: string;
-  // Stepper props - hidden by default in track step
   showStepper?: boolean;
   currentStep?: F1v4_PayrollStep;
   completedSteps?: F1v4_PayrollStep[];
   onStepClick?: (step: F1v4_PayrollStep) => void;
 }
 
-export type WorkerPaymentStatus = "paid" | "not-paid" | "in-transit" | "posted";
+export type WorkerPaymentStatus = "paid" | "in-progress";
 
 const MOCK_TRACKED_WORKERS: WorkerData[] = [
-  { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2026-001234" },
-  { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500, issues: 0, paymentStatus: "paid", providerRef: "PAY-2026-001235" },
-  { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "ready", netPay: 280000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2026-001236" },
-  { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "ready", netPay: 65000, issues: 0, paymentStatus: "in-transit", providerRef: "PAY-2026-001237" },
-  { id: "5", name: "David Martinez", type: "contractor", country: "Portugal", currency: "EUR", status: "ready", netPay: 4200, issues: 0, paymentStatus: "not-paid" },
-  { id: "6", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "ready", netPay: 72000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2026-001238" },
-  { id: "7", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0, paymentStatus: "posted", providerRef: "PAY-2026-001239" },
+  { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000, issues: 0, paymentStatus: "in-progress" },
+  { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500, issues: 0, paymentStatus: "in-progress" },
+  { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "ready", netPay: 280000, issues: 0, paymentStatus: "in-progress" },
+  { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "ready", netPay: 65000, issues: 0, paymentStatus: "in-progress" },
+  { id: "5", name: "David Martinez", type: "contractor", country: "Portugal", currency: "EUR", status: "ready", netPay: 4200, issues: 0, paymentStatus: "in-progress" },
+  { id: "6", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "ready", netPay: 72000, issues: 0, paymentStatus: "in-progress" },
+  { id: "7", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0, paymentStatus: "in-progress" },
 ];
 
 const paymentStatusConfig: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
   paid: { label: "Paid", icon: CheckCircle2, color: "text-accent-green-text", bg: "bg-accent-green/10" },
-  "not-paid": { label: "Not paid", icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-500/10" },
-  "in-transit": { label: "In transit", icon: Clock, color: "text-blue-600", bg: "bg-blue-500/10" },
-  posted: { label: "Posted", icon: CheckCircle2, color: "text-blue-600", bg: "bg-blue-500/10" },
+  "in-progress": { label: "In progress", icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10" },
 };
 
 const countryFlags: Record<string, string> = {
@@ -157,27 +153,22 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
   const periodDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Period options
   const periods: PayrollPeriod[] = [
-    { id: "current", label: "January 2026", status: "paid" },
+    { id: "current", label: "January 2026", status: "processing" },
     { id: "dec-2025", label: "December 2025", status: "paid" },
     { id: "nov-2025", label: "November 2025", status: "paid" },
   ];
 
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
-  
-  // Determine if viewing historical period
   const isViewingHistorical = selectedPeriodId !== "current";
   const selectedHistoricalPayroll = isViewingHistorical 
     ? HISTORICAL_PAYROLLS.find(p => p.id === selectedPeriodId) 
     : null;
   
-  // Get workers based on selected period
   const workers = isViewingHistorical && selectedHistoricalPayroll 
     ? selectedHistoricalPayroll.workers 
     : currentWorkers;
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (periodDropdownRef.current && !periodDropdownRef.current.contains(event.target as Node)) {
@@ -197,22 +188,21 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
 
   const employees = workers.filter(w => w.type === "employee");
   const contractors = workers.filter(w => w.type === "contractor");
-  const paidCount = workers.filter(w => w.paymentStatus === "paid" || w.paymentStatus === "posted").length;
-  const notPaidCount = workers.filter(w => w.paymentStatus === "not-paid").length;
-  const inTransitCount = workers.filter(w => w.paymentStatus === "in-transit").length;
+  const paidCount = workers.filter(w => w.paymentStatus === "paid").length;
+  const inProgressCount = workers.filter(w => w.paymentStatus === "in-progress").length;
   const progressPercent = workers.length > 0 ? Math.round((paidCount / workers.length) * 100) : 0;
+  const allPaid = paidCount === workers.length && workers.length > 0;
 
   const filteredWorkers = workers.filter(w =>
     w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     w.country.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Sort: attention first, then in-transit, then completed
+  // Sort: in-progress first, then paid
   const sortedWorkers = [...filteredWorkers].sort((a, b) => {
     const priority = (status: string | undefined) => {
-      if (status === "not-paid") return 0;
-      if (status === "in-transit") return 1;
-      return 2;
+      if (status === "in-progress") return 0;
+      return 1;
     };
     return priority(a.paymentStatus) - priority(b.paymentStatus);
   });
@@ -222,13 +212,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
       w.id === workerId ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } : w
     ));
     toast.success("Marked as paid");
-  };
-
-  const handleRetryPayout = (workerId: string) => {
-    setCurrentWorkers(prev => prev.map(w => 
-      w.id === workerId ? { ...w, paymentStatus: "in-transit" as const } : w
-    ));
-    toast.success("Payout retry initiated");
   };
 
   const handleViewDetails = (worker: WorkerData) => {
@@ -246,18 +229,14 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   const handleDownloadAuditPDF = () => toast.success("Audit PDF downloaded");
 
   const renderWorkerRow = (worker: WorkerData) => {
-    const config = paymentStatusConfig[worker.paymentStatus || "not-paid"];
+    const config = paymentStatusConfig[worker.paymentStatus || "in-progress"];
     const StatusIcon = config.icon;
     const TypeIcon = worker.type === "employee" ? Users : Briefcase;
-    const needsAttention = worker.paymentStatus === "not-paid";
 
     return (
       <div 
         key={worker.id}
-        className={cn(
-          "flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20 cursor-pointer hover:bg-muted/50 transition-colors",
-          needsAttention && "border-amber-500/30 bg-amber-500/5"
-        )}
+        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20 cursor-pointer hover:bg-muted/50 transition-colors"
         onClick={() => handleViewDetails(worker)}
       >
         <Avatar className="h-6 w-6 flex-shrink-0">
@@ -290,11 +269,9 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
     );
   };
 
-  // Computed values based on period selection
   const isHistorical = isViewingHistorical;
   const paidDate = selectedHistoricalPayroll?.paidDate;
   
-  // KPI metrics for this payroll month - use historical data if viewing past period
   const displayMetrics = isViewingHistorical && selectedHistoricalPayroll 
     ? {
         grossPay: selectedHistoricalPayroll.grossPay,
@@ -353,10 +330,12 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
               )}>
                 {period.label}
               </span>
-              <span className="flex items-center gap-1 text-[11px] text-accent-green-text">
-                <CheckCircle2 className="h-3 w-3" />
-                Paid
-              </span>
+              {period.status === "paid" && (
+                <span className="flex items-center gap-1 text-[11px] text-accent-green-text">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Paid
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -371,16 +350,22 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             {renderPeriodDropdown()}
-            <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
-              <CheckCircle2 className="h-3 w-3 mr-1" />
-              {isHistorical ? "Paid" : "Approved"}
-            </Badge>
+            {isHistorical || allPaid ? (
+              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Paid
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                <Clock className="h-3 w-3 mr-1" />
+                Processing
+              </Badge>
+            )}
           </div>
         </div>
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          {/* Gross Pay */}
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <DollarSign className="h-4 w-4 text-primary" />
@@ -390,7 +375,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
             <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
           </div>
 
-          {/* Total Adjustments */}
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <Receipt className="h-4 w-4 text-primary" />
@@ -400,7 +384,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
             <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
           </div>
 
-          {/* Fronted Fees */}
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <Building2 className="h-4 w-4 text-primary" />
@@ -410,7 +393,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
             <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
           </div>
 
-          {/* Total Cost */}
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <TrendingUp className="h-4 w-4 text-primary" />
@@ -461,13 +443,24 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
               <>
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-sm text-muted-foreground">Payment Status</p>
+                  {allPaid ? (
+                    <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Paid
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      Processing
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
                   <span className="text-lg text-muted-foreground">of {workers.length}</span>
                   <span className="text-sm text-muted-foreground">payments reconciled</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Mark payments as paid or retry failed payouts</p>
+                <p className="text-xs text-muted-foreground mt-1">Click a worker to view breakdown and mark as paid</p>
               </>
             )}
           </div>
@@ -485,7 +478,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           </div>
         </div>
         
-        {/* Progress bar - hidden for historical view */}
+        {/* Progress bar */}
         {!isHistorical && (
           <div className="space-y-2">
             <Progress value={progressPercent} className="h-1" />
@@ -494,16 +487,10 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                 <div className="h-2 w-2 rounded-full bg-accent-green" />
                 <span className="text-muted-foreground">{paidCount} paid</span>
               </div>
-              {inTransitCount > 0 && (
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full bg-blue-500" />
-                  <span className="text-muted-foreground">{inTransitCount} in transit</span>
-                </div>
-              )}
-              {notPaidCount > 0 && (
+              {inProgressCount > 0 && (
                 <div className="flex items-center gap-1.5">
                   <div className="h-2 w-2 rounded-full bg-amber-500" />
-                  <span className="text-muted-foreground">{notPaidCount} not paid</span>
+                  <span className="text-muted-foreground">{inProgressCount} in progress</span>
                 </div>
               )}
             </div>
@@ -527,7 +514,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
     </div>
   );
 
-  // When hideHeader is true, render content without outer wrapper
   if (hideHeader) {
     return (
       <>
@@ -543,7 +529,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           onPayslipPreview={handlePayslipPreview}
           isTrackStep={true}
           onMarkAsPaid={handleMarkAsPaid}
-          onRetryPayout={handleRetryPayout}
         />
 
         <F1v4_PayslipPreviewModal
@@ -569,7 +554,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         onPayslipPreview={handlePayslipPreview}
         isTrackStep={true}
         onMarkAsPaid={handleMarkAsPaid}
-        onRetryPayout={handleRetryPayout}
       />
 
       <F1v4_PayslipPreviewModal
