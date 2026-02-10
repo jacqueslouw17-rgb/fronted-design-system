@@ -1101,11 +1101,15 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     const isFinalized = isWorkerFinalized(submission.id);
     
     // Derive effective worker status: 
+    // - excluded = admin chose to exclude from this run
     // - pending = has items needing review
     // - reviewed = all items approved/rejected, awaiting "Mark as Ready"
     // - ready = admin has clicked "Mark as Ready" (finalized)
+    const isExcluded = statusDecisions[submission.id] === "exclude";
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isFinalized) {
+    if (isExcluded) {
+      effectiveWorkerStatus = "ready"; // finalized but we override display below
+    } else if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
@@ -1113,7 +1117,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
       // All items reviewed but not yet finalized
       effectiveWorkerStatus = "reviewed";
     }
-    const status = statusConfig[effectiveWorkerStatus];
+    const status = isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
     return (
@@ -1123,7 +1127,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group"
+        className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExcluded && "opacity-50")}
         onClick={() => handleRowClick(submission)}
       >
         {/* Avatar */}
@@ -1136,7 +1140,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         {/* Worker Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground truncate">
+            <span className={cn("text-sm font-medium text-foreground truncate", isExcluded && "line-through")}>
               {submission.workerName}
             </span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
