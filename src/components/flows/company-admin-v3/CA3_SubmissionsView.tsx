@@ -1516,86 +1516,29 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </SheetHeader>
 
-                {/* Flag 1: Status change decision gate */}
+                {/* Flag 1: Status change info banner - Fronted handles the decision */}
                 {(() => {
                   const endDateFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
-                  const decision = statusDecisions[selectedSubmission.id];
                   if (!endDateFlag) return null;
 
-                  // Show confirmation pill if decision already made
-                  if (decision) {
-                    const opposite = decision === "include" ? "exclude" : "include";
-                    return (
-                      <div className="px-5 py-2.5 border-b border-border/20">
-                        <div
-                          className="group/toggle inline-flex cursor-pointer relative"
-                          onClick={() => {
-                            setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: opposite }));
-                            if (opposite === "exclude") {
-                              setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
-                            } else {
-                              setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
-                            }
-                            toast.info(`${selectedSubmission.workerName} ${opposite === "include" ? "included in" : "excluded from"} this run`);
-                          }}
-                        >
-                          <Badge variant="outline" className={cn(
-                            "gap-1.5 text-xs transition-opacity group-hover/toggle:opacity-0",
-                            decision === "include"
-                              ? "border-accent-green/20 bg-accent-green/5 text-accent-green-text"
-                              : "border-muted-foreground/20 bg-muted/30 text-muted-foreground"
-                          )}>
-                            <CheckCircle2 className="h-3 w-3" />
-                            {decision === "include" ? "Included in this run" : "Excluded from this run"}
-                          </Badge>
-                          <Badge variant="outline" className="gap-1.5 text-xs absolute inset-0 opacity-0 group-hover/toggle:opacity-100 transition-opacity border-primary/30 bg-primary/5 text-primary cursor-pointer">
-                            {opposite === "include" ? "Include in this run" : "Exclude from this run"}
-                          </Badge>
-                        </div>
-                      </div>
-                    );
-                  }
+                  const reasonMessages: Record<string, string> = {
+                    "Termination": "This worker's termination is being reviewed by the Fronted team. Final pay and offboarding will be handled on their end.",
+                    "Resignation": "This worker's resignation is being processed by the Fronted team. Final settlement and handover will be coordinated.",
+                    "End contract": "This contract ending is being managed by the Fronted team. Final invoice and close-out are in progress.",
+                  };
+                  const message = reasonMessages[endDateFlag.endReason || ""] || "The Fronted team is reviewing this worker's status change and will handle the payroll decision.";
 
-                  // Decision card - gates all other actions
                   return (
                     <div className="px-5 py-3 border-b border-border/20">
-                      <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
-                        <div>
+                      <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3.5 space-y-1.5">
+                        <div className="flex items-start gap-2">
+                          <Clock className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                           <div className="space-y-1">
-                            <p className="text-xs font-semibold text-foreground">Status change affects payroll</p>
+                            <p className="text-xs font-semibold text-foreground">Managed by Fronted</p>
                             <p className="text-[11px] text-muted-foreground leading-relaxed">
-                              This worker was marked <span className="font-medium text-foreground">{endDateFlag.endReason || "status change"}</span> on <span className="font-medium text-foreground">{endDateFlag.endDate || "TBD"}</span>. Confirm whether they should be included in this payroll run.
+                              {message}
                             </p>
                           </div>
-                        </div>
-                        <div className="text-[10px] text-muted-foreground/70 space-y-0.5">
-                          {endDateFlag.endReason && <p>Status: {endDateFlag.endReason}</p>}
-                          {endDateFlag.endDate && <p>Effective date: {endDateFlag.endDate}</p>}
-                          {selectedSubmission.periodLabel && <p>Payroll period: {selectedSubmission.periodLabel}</p>}
-                        </div>
-                        <div className="flex items-center gap-2 pt-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
-                            onClick={() => {
-                              setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
-                              setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
-                              toast.info(`${selectedSubmission.workerName} excluded from this run`);
-                            }}
-                          >
-                            Exclude from this run
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
-                            onClick={() => {
-                              setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "include" }));
-                              toast.success(`${selectedSubmission.workerName} included in this run`);
-                            }}
-                          >
-                            Include in this run
-                          </Button>
                         </div>
                       </div>
                     </div>
