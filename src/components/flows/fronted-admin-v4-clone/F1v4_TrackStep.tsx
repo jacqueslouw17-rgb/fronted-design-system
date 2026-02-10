@@ -476,6 +476,17 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
             )}
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            {!isHistorical && inProgressCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs gap-1.5"
+                onClick={() => setAllPaidDialogOpen(true)}
+              >
+                <CheckCheck className="h-3.5 w-3.5" />
+                All Paid
+              </Button>
+            )}
             <div className="flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5" />
               <span className="font-medium text-foreground">{employees.length}</span>
