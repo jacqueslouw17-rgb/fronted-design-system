@@ -1888,6 +1888,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       ))}
                     </CollapsibleSection>
                   )}
+                    </>
+                    );
+                  })()}
                   </>
                   )}
 
