@@ -1180,11 +1180,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                 variant="outline"
                                 size="sm"
                                 className="flex-1 h-9 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-                                onClick={() => {
-                                  setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
-                                  setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
-                                  toast.info(`${selectedSubmission.workerName} excluded from this run`);
-                                }}
+                                onClick={() => setShowExcludeDialog(true)}
                               >
                                 Exclude this
                               </Button>
