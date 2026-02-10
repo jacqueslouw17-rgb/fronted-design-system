@@ -1068,7 +1068,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       );
                     })()}
 
-                    <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
+                    <div className={cn("px-5 py-4 space-y-0.5", statusDecisions[selectedSubmission.id] === "exclude" && "opacity-40 pointer-events-none line-through")} onClick={() => setExpandedItemId(null)}>
                       {/* Gate content behind status decision when Flag 1 is present */}
                       {(() => {
                         const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
