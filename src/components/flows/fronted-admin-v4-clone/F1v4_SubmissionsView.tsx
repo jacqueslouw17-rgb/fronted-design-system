@@ -479,6 +479,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
   const [showBulkRejectDialog, setShowBulkRejectDialog] = useState(false);
   const [showMarkAsReadyDialog, setShowMarkAsReadyDialog] = useState(false);
+  const [showExcludeDialog, setShowExcludeDialog] = useState(false);
   const [showReceiptView, setShowReceiptView] = useState(false);
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
