@@ -1536,22 +1536,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </SheetHeader>
 
-                {/* Flag 1: Status change info - only shown after all adjustments are resolved */}
-                {(() => {
-                  const endDateFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
-                  if (!endDateFlag || currentPendingCount > 0) return null;
-
-                  return (
-                    <div className="px-5 py-2.5 border-b border-border/20">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                        <p className="text-[11px]">
-                          Inclusion or exclusion will be handled by Fronted
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })()}
+                {/* Top banner removed — message moved to footer */}
 
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
