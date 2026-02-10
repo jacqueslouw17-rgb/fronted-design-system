@@ -1004,7 +1004,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       {(() => {
                         const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
                         return (!showPendingOnly || earningAdjCounts.pending > 0) ? (
-                        <CollapsibleSection title="Earnings" defaultOpen={false} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
+                        <CollapsibleSection title="Earnings" defaultOpen={!!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || !!payChangeFlag)} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
                           {!showPendingOnly && earnings.map((item, idx) => (
                             <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
                           ))}
