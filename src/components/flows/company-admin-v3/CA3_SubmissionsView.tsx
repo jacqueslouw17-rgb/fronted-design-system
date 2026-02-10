@@ -1962,6 +1962,18 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   // Hide footer until decision is made for Flag 1 workers
                   if (hasEndDateFlag && !hasDecision) return null;
 
+                  // Excluded workers skip the review workflow entirely
+                  if (statusDecisions[selectedSubmission.id] === "exclude") {
+                    return (
+                      <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                          <X className="h-4 w-4" />
+                          <span className="text-sm font-medium">Excluded from this payroll run</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   const isFinalized = isWorkerFinalized(selectedSubmission.id);
                   
                   // Show bulk actions when pending items exist
