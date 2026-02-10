@@ -180,6 +180,9 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     pendingLeaves: [
       { id: "leave-1", leaveType: "Unpaid", startDate: "2026-01-20", endDate: "2026-01-21", totalDays: 2, daysInThisPeriod: 2, status: "pending", dailyRate: 2955 },
     ],
+    flags: [
+      { type: "end_date", endDate: "Feb 14, 2026", endReason: "Resignation" },
+    ],
   },
   { 
     id: "5", 
