@@ -40,7 +40,7 @@ const countryFlags: Record<string, string> = {
 // can also be reviewed here if admin missed them
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
 // Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
-export type SubmissionStatus = "pending" | "reviewed" | "ready";
+export type SubmissionStatus = "pending" | "reviewed" | "ready" | "handover";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 // Only unpaid leave flows through payroll submissions - other leave types handled in Leaves tab
 type LeaveTypeLocal = "Unpaid";
@@ -195,6 +195,11 @@ const statusConfig: Record<SubmissionStatus, {
     icon: Eye,
     label: "Reviewed",
     color: "text-blue-600"
+  },
+  handover: {
+    icon: Clock,
+    label: "Handover",
+    color: "text-purple-600"
   },
   ready: {
     icon: CheckCircle2,
@@ -1089,8 +1094,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
     } else if (hasEndDateFlag) {
-      // Flagged workers with no pending items show as "reviewed" (Fronted handles the rest)
-      effectiveWorkerStatus = "reviewed";
+      // Flagged workers with no pending items — Fronted takes over
+      effectiveWorkerStatus = "handover";
     } else {
       // All items reviewed but not yet finalized
       effectiveWorkerStatus = "reviewed";
@@ -1147,7 +1152,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   {workerPendingCount}
                 </span>
                 <span className="hidden sm:inline">{status.label}</span>
-              </> : effectiveWorkerStatus === 'reviewed' ? <>
+              </> : (effectiveWorkerStatus === 'reviewed' || effectiveWorkerStatus === 'handover') ? <>
                 <StatusIcon className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{status.label}</span>
                 {workerRejectedCount > 0 && <span className="flex items-center justify-center h-4 w-4 rounded-full bg-destructive/15 text-destructive text-[10px] font-semibold ml-0.5">
