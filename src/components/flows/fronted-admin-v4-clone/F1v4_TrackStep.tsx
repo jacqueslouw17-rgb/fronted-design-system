@@ -226,6 +226,16 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
     toast.success("Marked as paid");
   };
 
+  const handleMarkAllPaid = () => {
+    setCurrentWorkers(prev => prev.map(w => 
+      w.paymentStatus !== "paid" 
+        ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } 
+        : w
+    ));
+    setAllPaidDialogOpen(false);
+    toast.success("All workers marked as paid");
+  };
+
   const handleViewDetails = (worker: WorkerData) => {
     const idx = workers.findIndex(w => w.id === worker.id);
     setSelectedWorkerIndex(idx >= 0 ? idx : 0);
