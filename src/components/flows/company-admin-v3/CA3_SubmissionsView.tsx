@@ -1150,7 +1150,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 · 1 day to resubmit
               </span>
             )}
-            {submission.flags?.map((flag, fi) => (
+            {!isFinalized && submission.flags?.map((flag, fi) => (
               <Badge key={fi} variant="outline" className={cn(
                 "text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium",
                 flag.type === "end_date" 

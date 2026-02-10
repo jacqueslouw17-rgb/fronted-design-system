@@ -702,7 +702,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             {workerRejectedCount > 0 && workerPendingCount === 0 && (
               <span className="text-[10px] text-destructive/80">· 1 day to resubmit</span>
             )}
-            {submission.flags?.map((flag, fi) => (
+            {!isFinalized && submission.flags?.map((flag, fi) => (
               <Badge key={fi} variant="outline" className={cn(
                 "text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium",
                 flag.type === "end_date" 
