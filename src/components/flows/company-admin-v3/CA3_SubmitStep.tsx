@@ -138,7 +138,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   // Determine current step in the timeline (1=submit, 2=review, 3=processing, 4=complete)
   let currentTimelineStep = 1;
   if (isSubmitted) {
-    if (processingCount > 0) {
+    if (inProgressCount > 0) {
       currentTimelineStep = 3;
     } else {
       currentTimelineStep = 4;
