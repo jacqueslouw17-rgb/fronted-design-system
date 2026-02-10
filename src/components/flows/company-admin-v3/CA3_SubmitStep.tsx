@@ -205,14 +205,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
               /* Batch Overview - Pre-submit */
               <>
                 <div className="p-5 space-y-5">
-                  {/* Pre-flight validation message */}
-                  <div className="flex items-center gap-2.5 py-3 px-4 rounded-lg bg-accent-green-fill/5 border border-accent-green-outline/20">
-                    <ShieldCheck className="h-4 w-4 text-accent-green-text flex-shrink-0" />
-                    <div>
-                      <p className="text-sm text-foreground">Pre-flight validation complete</p>
-                      <p className="text-xs text-muted-foreground">Fronted will run final compliance + payment checks after you submit.</p>
-                    </div>
-                  </div>
 
                   {/* Total payout - Hero with breakdown */}
                   <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">

@@ -73,13 +73,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
       <div className="p-5 space-y-5">
         {/* Pre-flight validation message */}
-        <div className="flex items-center gap-2.5 py-3 px-4 rounded-lg bg-accent-green-fill/5 border border-accent-green-outline/20">
-          <ShieldCheck className="h-4 w-4 text-accent-green-text flex-shrink-0" />
-          <div>
-            <p className="text-sm text-foreground">All exceptions resolved</p>
-            <p className="text-xs text-muted-foreground">Numbers validated, ready for approval.</p>
-          </div>
-        </div>
 
         {/* Total payout - Hero with breakdown */}
         <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
