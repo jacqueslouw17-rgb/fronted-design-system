@@ -1130,9 +1130,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           ))}
                         </CollapsibleSection>
                       )}
-                        </>
-                        );
-                      })()}
+                           </>
+
                     </div>
 
                     {/* Footer - gated behind status decision when Flag 1 present */}
