@@ -1138,6 +1138,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                     {/* Footer */}
                     {!expandedItemId && (() => {
                       // Excluded workers - no footer needed, tag shows status
+                      if (statusDecisions[selectedSubmission.id] === "exclude") return null;
 
                       const isFinalized = isWorkerFinalized(selectedSubmission.id);
                       
