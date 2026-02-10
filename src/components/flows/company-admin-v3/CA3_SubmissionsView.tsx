@@ -87,6 +87,9 @@ export interface WorkerFlag {
   payChangeDelta?: number; // For Flag 2 absolute amount difference
 }
 
+// Status change decision for Flag 1
+export type StatusDecision = "include" | "exclude";
+
 export interface WorkerSubmission {
   id: string;
   workerId: string;
