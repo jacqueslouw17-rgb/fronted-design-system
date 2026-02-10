@@ -324,17 +324,6 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                 <>
                   <div className="flex items-center gap-2 mb-1">
                     <p className="text-sm text-muted-foreground">Payment Progress</p>
-                    {allPaid ? (
-                      <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Paid
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        Processing
-                      </span>
-                    )}
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
