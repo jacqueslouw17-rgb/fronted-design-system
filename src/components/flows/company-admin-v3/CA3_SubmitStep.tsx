@@ -98,16 +98,12 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   const renderWorkerRow = (worker: TrackingWorker) => {
     const statusConfig = getStatusConfig(worker.status);
     const StatusIcon = statusConfig.icon;
-    const isFailed = worker.status === "failed";
     const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
     return (
       <div 
         key={worker.id}
-        className={cn(
-          "flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-card border border-border/30",
-          isFailed && "border-amber-500/30 bg-amber-500/5"
-        )}
+        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-card border border-border/30"
       >
         {/* Avatar */}
         <Avatar className="h-6 w-6 flex-shrink-0">
