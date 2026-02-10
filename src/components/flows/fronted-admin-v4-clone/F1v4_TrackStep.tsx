@@ -558,13 +558,23 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           onOpenChange={setPayslipModalOpen}
           worker={payslipWorker}
         />
-      </>
-    );
-  }
 
-  return (
-    <>
-      {renderContent()}
+        <AlertDialog open={allPaidDialogOpen} onOpenChange={setAllPaidDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Mark all as paid?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will mark all {inProgressCount} remaining workers as paid. This action reflects that payments have been completed and cannot be easily undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleMarkAllPaid}>
+                Confirm All Paid
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
       <F1v4_WorkerDetailDrawer
         open={drawerOpen}
