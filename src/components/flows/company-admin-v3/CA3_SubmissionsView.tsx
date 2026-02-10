@@ -196,6 +196,11 @@ const statusConfig: Record<SubmissionStatus, {
     label: "Reviewed",
     color: "text-blue-600"
   },
+  handover: {
+    icon: Clock,
+    label: "Handover",
+    color: "text-purple-600"
+  },
   ready: {
     icon: CheckCircle2,
     label: "Ready",
