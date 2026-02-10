@@ -1009,8 +1009,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       return (
                         <div className="px-5 py-3 border-b border-border/20">
                           <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
-                            <div className="flex items-start gap-2.5">
-                              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                            <div>
                               <div className="space-y-1">
                                 <p className="text-xs font-semibold text-foreground">Status change affects payroll</p>
                                 <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -1018,7 +1017,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                 </p>
                               </div>
                             </div>
-                            <div className="text-[10px] text-muted-foreground/70 space-y-0.5 pl-6.5">
+                            <div className="text-[10px] text-muted-foreground/70 space-y-0.5">
                               {endDateFlag.endReason && <p>Status: {endDateFlag.endReason}</p>}
                               {endDateFlag.endDate && <p>Effective date: {endDateFlag.endDate}</p>}
                               {selectedSubmission.periodLabel && <p>Payroll period: {selectedSubmission.periodLabel}</p>}
