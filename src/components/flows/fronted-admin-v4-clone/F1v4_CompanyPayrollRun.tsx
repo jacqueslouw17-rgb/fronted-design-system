@@ -210,9 +210,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     lineItems: [
       { label: "Base Contract Fee", amount: 72000, type: "Earnings" },
     ],
-    submissions: [
-      { type: "expenses", amount: 3200, description: "Equipment purchase", status: "rejected", rejectionReason: "Missing receipt - please resubmit with documentation" },
-    ],
+    submissions: [],
     pendingLeaves: [],
     flags: [
       { type: "end_date", endDate: "Feb 28, 2026", endReason: "End contract" },

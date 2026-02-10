@@ -134,10 +134,8 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "timesheet", hours: 168, description: "October 2024", status: "approved" },
-      { type: "expenses", amount: 3200, description: "Equipment purchase", status: "rejected", rejectionReason: "Missing receipt - please resubmit with documentation" },
     ],
     status: "pending",
-    totalImpact: 3200,
     currency: "NOK",
     flags: [
       { type: "end_date", endDate: "Feb 15, 2026", endReason: "End contract" },
