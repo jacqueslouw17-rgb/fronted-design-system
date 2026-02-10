@@ -1171,6 +1171,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           ))}
                         </CollapsibleSection>
                       )}
+                        </>
+                        );
+                      })()}
                     </div>
 
                     {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
