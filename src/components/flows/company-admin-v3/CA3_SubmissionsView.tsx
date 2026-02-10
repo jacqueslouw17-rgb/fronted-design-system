@@ -1546,17 +1546,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 })()}
 
                 {/* Content with collapsible sections */}
-                <div className={cn("px-5 py-4 space-y-0.5", statusDecisions[selectedSubmission.id] === "exclude" && "opacity-40 pointer-events-none line-through")} onClick={() => setExpandedItemId(null)}>
+                <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
                   
                   {/* Breakdown sections - hidden when adding adjustment */}
                   {!isAddingAdjustment && (
                     <>
                   
-                  {/* Gate content behind status decision when Flag 1 is present */}
+                  {/* Breakdown always visible */}
                   {(() => {
-                    const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
-                    const hasDecision = !!statusDecisions[selectedSubmission.id];
-                    if (hasEndDateFlag && !hasDecision) return null;
                     return (
                       <>
                   {(() => {

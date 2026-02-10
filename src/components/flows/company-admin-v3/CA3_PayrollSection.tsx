@@ -140,8 +140,11 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "timesheet", hours: 168, description: "October 2024", status: "approved" },
+      { type: "expenses", amount: 3200, currency: "NOK", description: "Software licenses", status: "pending" },
+      { type: "bonus", amount: 5000, currency: "NOK", description: "Project completion bonus", status: "pending" },
     ],
     status: "pending",
+    totalImpact: 8200,
     currency: "NOK",
     flags: [
       { type: "end_date", endDate: "Feb 15, 2026", endReason: "End contract" },
