@@ -33,7 +33,7 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
+import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "@/components/flows/company-admin-v3/CA3_AdminAddAdjustment";
 import { F1v4_PayrollStepper } from "./F1v4_PayrollStepper";
@@ -479,6 +479,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
   const [showBulkRejectDialog, setShowBulkRejectDialog] = useState(false);
   const [showMarkAsReadyDialog, setShowMarkAsReadyDialog] = useState(false);
+  const [showExcludeDialog, setShowExcludeDialog] = useState(false);
   const [showReceiptView, setShowReceiptView] = useState(false);
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
@@ -1179,11 +1180,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                 variant="outline"
                                 size="sm"
                                 className="flex-1 h-9 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-                                onClick={() => {
-                                  setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
-                                  setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
-                                  toast.info(`${selectedSubmission.workerName} excluded from this run`);
-                                }}
+                                onClick={() => setShowExcludeDialog(true)}
                               >
                                 Exclude this
                               </Button>
@@ -1240,7 +1237,24 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                   );
                 })()}
 
-                {/* Receipt Overlay */}
+                {/* Exclude Worker dialog */}
+                {selectedSubmission && (() => {
+                  const endDateFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
+                  return (
+                    <CA3_ExcludeWorkerDialog
+                      open={showExcludeDialog}
+                      onOpenChange={setShowExcludeDialog}
+                      onConfirm={() => {
+                        setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
+                        setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
+                        toast.info(`${selectedSubmission.workerName} excluded from this run`);
+                      }}
+                      workerName={selectedSubmission.workerName}
+                      endReason={endDateFlag?.endReason}
+                    />
+                  );
+                })()}
+
                 <AnimatePresence>
                   {showReceiptView && (
                     <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="absolute inset-0 bg-background z-50 flex flex-col">
