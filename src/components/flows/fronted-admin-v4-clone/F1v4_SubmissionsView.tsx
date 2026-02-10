@@ -1134,14 +1134,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
                     </div>
 
-                    {/* Footer - gated behind status decision when Flag 1 present */}
+                    {/* Footer */}
                     {!expandedItemId && (() => {
-                      const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
-                      const hasDecision = !!statusDecisions[selectedSubmission.id];
-                      // Hide footer until decision is made for Flag 1 workers
-                      if (hasEndDateFlag && !hasDecision) return null;
-
-                      // Excluded workers skip the review workflow entirely
+                      // Excluded workers - show excluded footer
                       if (statusDecisions[selectedSubmission.id] === "exclude") {
                         return (
                           <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
@@ -1170,8 +1165,42 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           </div>
                         );
                       }
+
+                      // For flagged workers: show minimal status change action
+                      const endDateFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
+                      if (endDateFlag && !isFinalized) {
+                        return (
+                          <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-3">
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                              <span className="font-medium text-foreground">{endDateFlag.endReason}</span> effective <span className="font-medium text-foreground">{endDateFlag.endDate}</span>
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 h-9 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                                onClick={() => {
+                                  setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
+                                  setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
+                                  toast.info(`${selectedSubmission.workerName} excluded from this run`);
+                                }}
+                              >
+                                Exclude this
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="flex-1 h-9 text-xs gap-2"
+                                onClick={() => handleMarkAsReady()}
+                              >
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                Mark as ready
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      }
                       
-                      // Show "Mark as Ready" when no pending items and not yet finalized
+                      // Regular workers: Show "Mark as Ready" when no pending items and not yet finalized
                       if (!isFinalized) {
                         return (
                           <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
