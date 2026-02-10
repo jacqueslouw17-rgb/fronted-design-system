@@ -167,6 +167,16 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
             />
           </div>
           <div className="flex items-center gap-3">
+            {!isSubmitted && (
+              <Button
+                size="sm"
+                onClick={onRequestSubmit}
+                className="h-9 text-xs gap-1.5"
+              >
+                <Send className="h-3.5 w-3.5" />
+                Submit to Fronted
+              </Button>
+            )}
             {onClose && (
               <Button
                 size="sm"
@@ -291,13 +301,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                     </div>
                   </div>
 
-                  {/* CTA - Single primary action */}
-                  <div className="pt-2">
-                    <Button onClick={onRequestSubmit} size="lg" className="h-11 px-6 gap-2">
-                      <Send className="h-4 w-4" />
-                      Submit to Fronted
-                    </Button>
-                  </div>
                 </div>
               </>
             ) : (
