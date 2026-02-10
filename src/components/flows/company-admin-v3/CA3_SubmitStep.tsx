@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 
-export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued" | "sent";
+export type WorkerPaymentStatus = "paid" | "in-progress";
 
 export interface TrackingWorker {
   id: string;
