@@ -102,7 +102,10 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
           {/* Receipt-style breakdown */}
           <div className="mt-4 pt-3 border-t border-primary/10 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Base salaries & fees</span>
+              <div>
+                <span className="text-muted-foreground">Total Compensation before fees</span>
+                <p className="text-[10px] text-muted-foreground/60">Incl. statutory earnings & deductions</p>
+              </div>
               <span className="text-foreground tabular-nums">$118,500</span>
             </div>
             
