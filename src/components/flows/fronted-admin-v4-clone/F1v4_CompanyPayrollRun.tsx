@@ -110,6 +110,9 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     ],
     submissions: [],
     pendingLeaves: [],
+    flags: [
+      { type: "end_date", endDate: "Jan 31, 2026", endReason: "Termination" },
+    ],
   },
   { 
     id: "2", 
