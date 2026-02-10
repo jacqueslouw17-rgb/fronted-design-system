@@ -92,6 +92,9 @@ export interface WorkerFlag {
   payChangeDelta?: number; // For Flag 2 absolute amount difference
 }
 
+// Status change decision for Flag 1
+export type StatusDecision = "include" | "exclude";
+
 export interface WorkerSubmission {
   id: string;
   workerId: string;
@@ -482,6 +485,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   // Finalized workers - once finalized, their items are locked
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
+  // Status change decisions (Flag 1) - keyed by worker submission id
+  const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
 
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments(prev => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));
@@ -705,7 +710,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                   : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
               )}>
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
-                {flag.type === "end_date" ? "Heads up: Status end date" : "Heads up: Pay change"}
+                {flag.type === "end_date" ? "Heads up: Status change" : "Heads up: Pay change"}
               </Badge>
             ))}
           </div>
@@ -977,29 +982,83 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                     </SheetHeader>
 
-                    {/* Heads up flags - only show banner for end_date (Flag 1) */}
-                    {selectedSubmission.flags && selectedSubmission.flags.filter(f => f.type === "end_date").length > 0 && (
-                      <div className="px-5 py-3 border-b border-border/20">
-                        <div className="flex items-start gap-2.5 p-3 rounded-lg border bg-amber-500/5 border-amber-500/15">
-                          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
-                          <div className="flex-1 min-w-0 space-y-1.5">
-                            <p className="text-xs font-semibold text-foreground">Heads up</p>
-                            {selectedSubmission.flags.filter(f => f.type === "end_date").map((flag, fi) => (
-                              <div key={fi}>
+                    {/* Flag 1: Status change decision gate */}
+                    {(() => {
+                      const endDateFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
+                      const decision = statusDecisions[selectedSubmission.id];
+                      if (!endDateFlag) return null;
+
+                      // Show confirmation pill if decision already made
+                      if (decision) {
+                        return (
+                          <div className="px-5 py-2.5 border-b border-border/20">
+                            <Badge variant="outline" className={cn(
+                              "gap-1.5 text-xs",
+                              decision === "include"
+                                ? "border-accent-green/20 bg-accent-green/5 text-accent-green-text"
+                                : "border-muted-foreground/20 bg-muted/30 text-muted-foreground"
+                            )}>
+                              <CheckCircle2 className="h-3 w-3" />
+                              {decision === "include" ? "Included in this run" : "Excluded from this run"}
+                            </Badge>
+                          </div>
+                        );
+                      }
+
+                      // Decision card - gates all other actions
+                      return (
+                        <div className="px-5 py-3 border-b border-border/20">
+                          <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
+                            <div className="flex items-start gap-2.5">
+                              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                              <div className="space-y-1">
+                                <p className="text-xs font-semibold text-foreground">Status change affects payroll</p>
                                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                  This worker's status ends on <span className="font-medium text-foreground">{flag.endDate || "TBD"}</span>. Please confirm they should be included in this payroll run.
+                                  This worker was marked <span className="font-medium text-foreground">{endDateFlag.endReason || "status change"}</span> on <span className="font-medium text-foreground">{endDateFlag.endDate || "TBD"}</span>. Confirm whether they should be included in this payroll run.
                                 </p>
-                                {flag.endReason && (
-                                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">Status: {flag.endReason}</p>
-                                )}
                               </div>
-                            ))}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground/70 space-y-0.5 pl-6.5">
+                              {endDateFlag.endReason && <p>Status: {endDateFlag.endReason}</p>}
+                              {endDateFlag.endDate && <p>Effective date: {endDateFlag.endDate}</p>}
+                              {selectedSubmission.periodLabel && <p>Payroll period: {selectedSubmission.periodLabel}</p>}
+                            </div>
+                            <div className="flex items-center gap-2 pt-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
+                                onClick={() => {
+                                  setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
+                                  toast.info(`${selectedSubmission.workerName} excluded from this run`);
+                                }}
+                              >
+                                Exclude from this run
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
+                                onClick={() => {
+                                  setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "include" }));
+                                  toast.success(`${selectedSubmission.workerName} included in this run`);
+                                }}
+                              >
+                                Include in this run
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
 
                     <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
+                      {/* Gate content behind status decision when Flag 1 is present */}
+                      {(() => {
+                        const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
+                        const hasDecision = !!statusDecisions[selectedSubmission.id];
+                        if (hasEndDateFlag && !hasDecision) return null; // Block content until decision
+                        return (
+                          <>
                       {/* EARNINGS Section */}
                       {(() => {
                         const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
@@ -1114,10 +1173,18 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           ))}
                         </CollapsibleSection>
                       )}
+                        </>
+                        );
+                      })()}
                     </div>
 
-                    {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
+                    {/* Footer - gated behind status decision when Flag 1 present */}
                     {!expandedItemId && (() => {
+                      const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
+                      const hasDecision = !!statusDecisions[selectedSubmission.id];
+                      // Hide footer until decision is made for Flag 1 workers
+                      if (hasEndDateFlag && !hasDecision) return null;
+
                       const isFinalized = isWorkerFinalized(selectedSubmission.id);
                       
                       // Show bulk actions when pending items exist
@@ -1138,17 +1205,14 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       
                       // Show "Mark as Ready" when no pending items and not yet finalized
                       if (!isFinalized) {
-                        const hasEndDateFlags = selectedSubmission.flags?.some(f => f.type === "end_date");
                         return (
                           <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
                             <Button size="sm" className="w-full h-10 text-sm gap-2" onClick={() => setShowMarkAsReadyDialog(true)}>
                               <CheckCircle2 className="h-4 w-4" />
-                              {hasEndDateFlags ? "Confirm & Mark as Ready" : "Mark as Ready"}
+                              Mark as Ready
                             </Button>
                             <p className="text-[11px] text-muted-foreground text-center mt-2">
-                              {hasEndDateFlags
-                                ? "By continuing, you confirm you've reviewed the heads up items."
-                                : "This will finalize the review and lock all decisions"}
+                              This will finalize the review and lock all decisions
                             </p>
                           </div>
                         );
