@@ -161,6 +161,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   const [payslipModalOpen, setPayslipModalOpen] = useState(false);
   const [payslipWorker, setPayslipWorker] = useState<WorkerData | null>(null);
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>("current");
+  const [allPaidDialogOpen, setAllPaidDialogOpen] = useState(false);
   const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
   const periodDropdownRef = useRef<HTMLDivElement>(null);
 
