@@ -715,8 +715,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
               )}>
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
                 {flag.type === "end_date" 
-                  ? `Heads up: ${flag.endReason === "Termination" ? "Terminated" : flag.endReason === "Resignation" ? "Resigned" : "Contract ended"}` 
-                  : "Heads up: Pay change"}
+                  ? (flag.endReason === "Termination" ? "Terminated" : flag.endReason === "Resignation" ? "Resigned" : "Contract ended")
+                  : "Pay change"}
               </Badge>
             ))}
           </div>
