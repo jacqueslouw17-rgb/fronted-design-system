@@ -1059,6 +1059,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         if (hasEndDateFlag && !hasDecision) return null; // Block content until decision
                         return (
                           <>
+                      {/* EARNINGS Section */}
+                      {(() => {
                         const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
                         return (!showPendingOnly || earningAdjCounts.pending > 0) ? (
                         <CollapsibleSection title="Earnings" defaultOpen={!!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || !!payChangeFlag)} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
