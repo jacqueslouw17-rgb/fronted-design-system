@@ -1383,9 +1383,21 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             <span className="text-[10px] text-muted-foreground">Pending</span>
                           </label>}
                       </div>
-                      <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                        {selectedSubmission.workerCountry} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
-                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <p className="text-[11px] text-muted-foreground/70">
+                          {selectedSubmission.workerCountry} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
+                        </p>
+                        {(() => {
+                          const endFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
+                          if (!endFlag) return null;
+                          const label = endFlag.endReason === "Termination" ? "Terminated" : endFlag.endReason === "Resignation" ? "Resigned" : "Contract ended";
+                          return (
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
+                              {label}
+                            </Badge>
+                          );
+                        })()}
+                      </div>
                     </div>
                   </div>
                   
