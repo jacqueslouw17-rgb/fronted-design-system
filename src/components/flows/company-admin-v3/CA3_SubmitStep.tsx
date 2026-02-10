@@ -119,9 +119,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
             <span className="text-[11px] text-muted-foreground">· {worker.country}</span>
           </div>
-          {isFailed && worker.errorMessage && (
-            <p className="text-[10px] text-amber-600 truncate leading-tight">{worker.errorMessage}</p>
-          )}
         </div>
 
         {/* Amount */}
