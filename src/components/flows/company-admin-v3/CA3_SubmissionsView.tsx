@@ -897,11 +897,29 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   
   const internalPendingCount = submissions.filter(s => s.status === "pending").length;
   const pendingCount = externalPendingCount ?? dynamicPendingCount;
-  // Ready count = workers that have been finalized (marked as ready)
-  const readyCount = finalizedWorkers.size;
+  // Ready count = workers that have been finalized (marked as ready) + flagged workers with no pending items
+  const flaggedReadyCount = submissions.filter(s => {
+    const hasEndDateFlag = s.flags?.some(f => f.type === "end_date");
+    if (!hasEndDateFlag) return false;
+    // Count pending adjustments for this flagged worker using raw state
+    const pendingAdjs = s.submissions.filter((adj, idx) => {
+      const key = `${s.id}-${idx}`;
+      const localState = adjustmentStates[key];
+      const effectiveStatus = localState ? localState.status : (adj.status || 'pending');
+      return effectiveStatus === 'pending' && typeof adj.amount === 'number';
+    }).length;
+    const pendingLeaves = (s.pendingLeaves || []).filter(leave => {
+      const key = `${s.id}-leave-${leave.id}`;
+      const localState = leaveStates[key];
+      const effectiveStatus = localState ? localState.status : (leave.status || 'pending');
+      return effectiveStatus === 'pending';
+    }).length;
+    return pendingAdjs + pendingLeaves === 0;
+  }).length;
+  const readyCount = finalizedWorkers.size + flaggedReadyCount;
   
-  // Can continue only when ALL workers have been marked as ready
-  const canContinue = finalizedWorkers.size === submissions.length && submissions.length > 0;
+  // Can continue only when ALL workers have been marked as ready (or flagged workers are handled)
+  const canContinue = readyCount >= submissions.length && submissions.length > 0;
 
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
@@ -1101,23 +1119,25 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     const isFinalized = isWorkerFinalized(submission.id);
     
     // Derive effective worker status: 
-    // - excluded = admin chose to exclude from this run
     // - pending = has items needing review
-    // - reviewed = all items approved/rejected, awaiting "Mark as Ready"
+    // - reviewed = all items approved/rejected, awaiting finalization
     // - ready = admin has clicked "Mark as Ready" (finalized)
-    const isExcluded = statusDecisions[submission.id] === "exclude";
+    // For flagged workers (end_date): Fronted handles include/exclude, 
+    // but company admin can still approve/reject adjustments
+    const hasEndDateFlag = submission.flags?.some(f => f.type === "end_date");
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isExcluded) {
-      effectiveWorkerStatus = "ready"; // finalized but we override display below
-    } else if (isFinalized) {
+    if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
+    } else if (hasEndDateFlag) {
+      // Flagged workers with no pending items show as "reviewed" (Fronted handles the rest)
+      effectiveWorkerStatus = "reviewed";
     } else {
       // All items reviewed but not yet finalized
       effectiveWorkerStatus = "reviewed";
     }
-    const status = isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
+    const status = statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
     return (
@@ -1127,7 +1147,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExcluded && "opacity-50")}
+        className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group")}
         onClick={() => handleRowClick(submission)}
       >
         {/* Avatar */}
@@ -1140,7 +1160,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         {/* Worker Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className={cn("text-sm font-medium text-foreground truncate", isExcluded && "line-through")}>
+            <span className="text-sm font-medium text-foreground truncate">
               {submission.workerName}
             </span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
@@ -1459,8 +1479,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         <SheetTitle className="text-sm font-semibold text-foreground leading-tight">
                           {selectedSubmission.workerName}
                         </SheetTitle>
-                        {/* Inline actions - next to name */}
-                        {!showPendingOnly && (
+                        {/* Inline actions - next to name (hidden for flagged workers) */}
+                        {!showPendingOnly && !selectedSubmission.flags?.some(f => f.type === "end_date") && (
                           <button
                             onClick={() => setIsAddingAdjustment(true)}
                             className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
@@ -1516,86 +1536,29 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </SheetHeader>
 
-                {/* Flag 1: Status change decision gate */}
+                {/* Flag 1: Status change info banner - Fronted handles the decision */}
                 {(() => {
                   const endDateFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
-                  const decision = statusDecisions[selectedSubmission.id];
                   if (!endDateFlag) return null;
 
-                  // Show confirmation pill if decision already made
-                  if (decision) {
-                    const opposite = decision === "include" ? "exclude" : "include";
-                    return (
-                      <div className="px-5 py-2.5 border-b border-border/20">
-                        <div
-                          className="group/toggle inline-flex cursor-pointer relative"
-                          onClick={() => {
-                            setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: opposite }));
-                            if (opposite === "exclude") {
-                              setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
-                            } else {
-                              setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
-                            }
-                            toast.info(`${selectedSubmission.workerName} ${opposite === "include" ? "included in" : "excluded from"} this run`);
-                          }}
-                        >
-                          <Badge variant="outline" className={cn(
-                            "gap-1.5 text-xs transition-opacity group-hover/toggle:opacity-0",
-                            decision === "include"
-                              ? "border-accent-green/20 bg-accent-green/5 text-accent-green-text"
-                              : "border-muted-foreground/20 bg-muted/30 text-muted-foreground"
-                          )}>
-                            <CheckCircle2 className="h-3 w-3" />
-                            {decision === "include" ? "Included in this run" : "Excluded from this run"}
-                          </Badge>
-                          <Badge variant="outline" className="gap-1.5 text-xs absolute inset-0 opacity-0 group-hover/toggle:opacity-100 transition-opacity border-primary/30 bg-primary/5 text-primary cursor-pointer">
-                            {opposite === "include" ? "Include in this run" : "Exclude from this run"}
-                          </Badge>
-                        </div>
-                      </div>
-                    );
-                  }
+                  const reasonMessages: Record<string, string> = {
+                    "Termination": "This worker's termination is being reviewed by the Fronted team. Final pay and offboarding will be handled on their end.",
+                    "Resignation": "This worker's resignation is being processed by the Fronted team. Final settlement and handover will be coordinated.",
+                    "End contract": "This contract ending is being managed by the Fronted team. Final invoice and close-out are in progress.",
+                  };
+                  const message = reasonMessages[endDateFlag.endReason || ""] || "The Fronted team is reviewing this worker's status change and will handle the payroll decision.";
 
-                  // Decision card - gates all other actions
                   return (
                     <div className="px-5 py-3 border-b border-border/20">
-                      <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
-                        <div>
+                      <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3.5 space-y-1.5">
+                        <div className="flex items-start gap-2">
+                          <Clock className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                           <div className="space-y-1">
-                            <p className="text-xs font-semibold text-foreground">Status change affects payroll</p>
+                            <p className="text-xs font-semibold text-foreground">Managed by Fronted</p>
                             <p className="text-[11px] text-muted-foreground leading-relaxed">
-                              This worker was marked <span className="font-medium text-foreground">{endDateFlag.endReason || "status change"}</span> on <span className="font-medium text-foreground">{endDateFlag.endDate || "TBD"}</span>. Confirm whether they should be included in this payroll run.
+                              {message}
                             </p>
                           </div>
-                        </div>
-                        <div className="text-[10px] text-muted-foreground/70 space-y-0.5">
-                          {endDateFlag.endReason && <p>Status: {endDateFlag.endReason}</p>}
-                          {endDateFlag.endDate && <p>Effective date: {endDateFlag.endDate}</p>}
-                          {selectedSubmission.periodLabel && <p>Payroll period: {selectedSubmission.periodLabel}</p>}
-                        </div>
-                        <div className="flex items-center gap-2 pt-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
-                            onClick={() => {
-                              setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
-                              setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
-                              toast.info(`${selectedSubmission.workerName} excluded from this run`);
-                            }}
-                          >
-                            Exclude from this run
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
-                            onClick={() => {
-                              setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "include" }));
-                              toast.success(`${selectedSubmission.workerName} included in this run`);
-                            }}
-                          >
-                            Include in this run
-                          </Button>
                         </div>
                       </div>
                     </div>
@@ -1603,17 +1566,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 })()}
 
                 {/* Content with collapsible sections */}
-                <div className={cn("px-5 py-4 space-y-0.5", statusDecisions[selectedSubmission.id] === "exclude" && "opacity-40 pointer-events-none line-through")} onClick={() => setExpandedItemId(null)}>
+                <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
                   
                   {/* Breakdown sections - hidden when adding adjustment */}
                   {!isAddingAdjustment && (
                     <>
                   
-                  {/* Gate content behind status decision when Flag 1 is present */}
+                  {/* Breakdown always visible */}
                   {(() => {
-                    const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
-                    const hasDecision = !!statusDecisions[selectedSubmission.id];
-                    if (hasEndDateFlag && !hasDecision) return null;
                     return (
                       <>
                   {(() => {
@@ -1964,17 +1924,39 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
                 {!isAddingAdjustment && !expandedItemId && (() => {
                   const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
-                  const hasDecision = !!statusDecisions[selectedSubmission.id];
-                  // Hide footer until decision is made for Flag 1 workers
-                  if (hasEndDateFlag && !hasDecision) return null;
 
-                  // Excluded workers skip the review workflow entirely
-                  if (statusDecisions[selectedSubmission.id] === "exclude") {
+                  // Flagged workers: if they still have pending adjustments, show approve/reject
+                  // Once all adjustments handled, show "Managed by Fronted" message instead of Mark as Ready
+                  if (hasEndDateFlag) {
+                    if (currentPendingCount > 0) {
+                      return (
+                        <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                              onClick={() => setShowBulkRejectDialog(true)}
+                            >
+                              Reject all ({currentPendingCount})
+                            </Button>
+                            <Button 
+                              size="sm"
+                              className="flex-1 h-9 text-xs"
+                              onClick={() => setShowBulkApproveDialog(true)}
+                            >
+                              Approve all ({currentPendingCount})
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    }
+                    // No pending items — show "handled by Fronted" message
                     return (
                       <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                          <X className="h-4 w-4" />
-                          <span className="text-sm font-medium">Excluded from this payroll run</span>
+                        <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400">
+                          <Clock className="h-4 w-4" />
+                          <span className="text-sm font-medium">Being handled by Fronted</span>
                         </div>
                       </div>
                     );
