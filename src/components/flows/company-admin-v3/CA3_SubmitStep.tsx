@@ -313,18 +313,11 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                           <span className="font-medium">{completedCount}</span>
                           <span className="text-muted-foreground">completed</span>
                         </div>
-                        {processingCount > 0 && (
+                        {inProgressCount > 0 && (
                           <div className="flex items-center gap-1.5 text-xs">
-                            <Clock className="h-3.5 w-3.5 text-blue-500" />
-                            <span className="font-medium">{processingCount}</span>
+                            <Clock className="h-3.5 w-3.5 text-amber-500" />
+                            <span className="font-medium">{inProgressCount}</span>
                             <span className="text-muted-foreground">in progress</span>
-                          </div>
-                        )}
-                        {failedCount > 0 && (
-                          <div className="flex items-center gap-1.5 text-xs">
-                            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
-                            <span className="font-medium">{failedCount}</span>
-                            <span className="text-muted-foreground">needs attention</span>
                           </div>
                         )}
                       </div>
