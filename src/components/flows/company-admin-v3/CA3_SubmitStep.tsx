@@ -84,17 +84,9 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   const getStatusConfig = (status: WorkerPaymentStatus) => {
     switch (status) {
       case "paid":
-        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Completed" };
-      case "posted":
-        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Completed" };
-      case "processing":
-        return { icon: Clock, color: "text-amber-600", label: "Processing" };
-      case "queued":
-        return { icon: Clock, color: "text-muted-foreground", label: "In progress" };
-      case "sent":
-        return { icon: Clock, color: "text-blue-600", label: "Sent to Fronted" };
-      case "failed":
-        return { icon: AlertTriangle, color: "text-amber-600", label: "Needs attention" };
+        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Paid" };
+      case "in-progress":
+        return { icon: Clock, color: "text-amber-600", label: "In progress" };
     }
   };
 
