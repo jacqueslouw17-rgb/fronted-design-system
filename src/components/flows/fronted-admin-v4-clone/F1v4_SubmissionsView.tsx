@@ -982,31 +982,83 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                     </SheetHeader>
 
-                    {/* Heads up flags - only show banner for end_date (Flag 1) */}
-                    {selectedSubmission.flags && selectedSubmission.flags.filter(f => f.type === "end_date").length > 0 && (
-                      <div className="px-5 py-3 border-b border-border/20">
-                        <div className="flex items-start gap-2.5 p-3 rounded-lg border bg-amber-500/5 border-amber-500/15">
-                          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
-                          <div className="flex-1 min-w-0 space-y-1.5">
-                            <p className="text-xs font-semibold text-foreground">Heads up</p>
-                            {selectedSubmission.flags.filter(f => f.type === "end_date").map((flag, fi) => (
-                              <div key={fi}>
+                    {/* Flag 1: Status change decision gate */}
+                    {(() => {
+                      const endDateFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
+                      const decision = statusDecisions[selectedSubmission.id];
+                      if (!endDateFlag) return null;
+
+                      // Show confirmation pill if decision already made
+                      if (decision) {
+                        return (
+                          <div className="px-5 py-2.5 border-b border-border/20">
+                            <Badge variant="outline" className={cn(
+                              "gap-1.5 text-xs",
+                              decision === "include"
+                                ? "border-accent-green/20 bg-accent-green/5 text-accent-green-text"
+                                : "border-muted-foreground/20 bg-muted/30 text-muted-foreground"
+                            )}>
+                              <CheckCircle2 className="h-3 w-3" />
+                              {decision === "include" ? "Included in this run" : "Excluded from this run"}
+                            </Badge>
+                          </div>
+                        );
+                      }
+
+                      // Decision card - gates all other actions
+                      return (
+                        <div className="px-5 py-3 border-b border-border/20">
+                          <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
+                            <div className="flex items-start gap-2.5">
+                              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                              <div className="space-y-1">
+                                <p className="text-xs font-semibold text-foreground">Status change affects payroll</p>
                                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                  This worker's status ends on <span className="font-medium text-foreground">{flag.endDate || "TBD"}</span>. Please confirm they should be included in this payroll run.
+                                  This worker was marked <span className="font-medium text-foreground">{endDateFlag.endReason || "status change"}</span> on <span className="font-medium text-foreground">{endDateFlag.endDate || "TBD"}</span>. Confirm whether they should be included in this payroll run.
                                 </p>
-                                {flag.endReason && (
-                                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">Status: {flag.endReason}</p>
-                                )}
                               </div>
-                            ))}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground/70 space-y-0.5 pl-6.5">
+                              {endDateFlag.endReason && <p>Status: {endDateFlag.endReason}</p>}
+                              {endDateFlag.endDate && <p>Effective date: {endDateFlag.endDate}</p>}
+                              {selectedSubmission.periodLabel && <p>Payroll period: {selectedSubmission.periodLabel}</p>}
+                            </div>
+                            <div className="flex items-center gap-2 pt-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
+                                onClick={() => {
+                                  setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
+                                  toast.info(`${selectedSubmission.workerName} excluded from this run`);
+                                }}
+                              >
+                                Exclude from this run
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
+                                onClick={() => {
+                                  setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "include" }));
+                                  toast.success(`${selectedSubmission.workerName} included in this run`);
+                                }}
+                              >
+                                Include in this run
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
 
                     <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
-                      {/* EARNINGS Section */}
+                      {/* Gate content behind status decision when Flag 1 is present */}
                       {(() => {
+                        const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
+                        const hasDecision = !!statusDecisions[selectedSubmission.id];
+                        if (hasEndDateFlag && !hasDecision) return null; // Block content until decision
+                        return (
+                          <>
                         const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
                         return (!showPendingOnly || earningAdjCounts.pending > 0) ? (
                         <CollapsibleSection title="Earnings" defaultOpen={!!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || !!payChangeFlag)} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
