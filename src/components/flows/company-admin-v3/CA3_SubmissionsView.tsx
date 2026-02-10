@@ -1545,7 +1545,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             </p>
                           </div>
                         </div>
-                        <div className="text-[10px] text-muted-foreground/70 space-y-0.5 pl-6.5">
+                        <div className="text-[10px] text-muted-foreground/70 space-y-0.5">
                           {endDateFlag.endReason && <p>Status: {endDateFlag.endReason}</p>}
                           {endDateFlag.endDate && <p>Effective date: {endDateFlag.endDate}</p>}
                           {selectedSubmission.periodLabel && <p>Payroll period: {selectedSubmission.periodLabel}</p>}
