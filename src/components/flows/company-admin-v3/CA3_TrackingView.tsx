@@ -240,19 +240,17 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                   {formatCurrency(Math.round(netTotal), selectedWorker.currency)}
                 </p>
               </div>
-            </div>
-          </div>
 
-          {/* Footer - Download */}
-          <div className="p-6 border-t border-border/40 bg-background shrink-0">
-            <Button
-              variant="outline"
-              className="w-full gap-2"
-              onClick={() => toast.success(`${isContractor ? "Invoice" : "Payslip"} downloaded`)}
-            >
-              <Download className="h-4 w-4" />
-              Download {documentLabel}
-            </Button>
+              {/* Download - contextually below total */}
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => toast.success(`${isContractor ? "Invoice" : "Payslip"} downloaded`)}
+              >
+                <Download className="h-4 w-4" />
+                Download {documentLabel}
+              </Button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
