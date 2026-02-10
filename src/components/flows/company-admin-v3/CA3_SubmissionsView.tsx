@@ -897,11 +897,25 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   
   const internalPendingCount = submissions.filter(s => s.status === "pending").length;
   const pendingCount = externalPendingCount ?? dynamicPendingCount;
-  // Ready count = workers that have been finalized (marked as ready)
-  const readyCount = finalizedWorkers.size;
+  // Ready count = workers that have been finalized (marked as ready) + flagged workers with no pending items
+  const flaggedReadyCount = submissions.filter(s => {
+    const hasEndDateFlag = s.flags?.some(f => f.type === "end_date");
+    if (!hasEndDateFlag) return false;
+    // Count pending adjustments for this flagged worker
+    const pendingAdjs = s.submissions.filter((adj, idx) => {
+      const state = getAdjustmentStatus(s.id, idx, adj.status as AdjustmentItemStatus);
+      return state.status === 'pending' && typeof adj.amount === 'number';
+    }).length;
+    const pendingLeaves = (s.pendingLeaves || []).filter(leave => {
+      const state = getLeaveStatus(s.id, leave.id, leave.status);
+      return state.status === 'pending';
+    }).length;
+    return pendingAdjs + pendingLeaves === 0; // No pending items = Fronted-managed, counts as ready
+  }).length;
+  const readyCount = finalizedWorkers.size + flaggedReadyCount;
   
-  // Can continue only when ALL workers have been marked as ready
-  const canContinue = finalizedWorkers.size === submissions.length && submissions.length > 0;
+  // Can continue only when ALL workers have been marked as ready (or flagged workers are handled)
+  const canContinue = readyCount >= submissions.length && submissions.length > 0;
 
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
