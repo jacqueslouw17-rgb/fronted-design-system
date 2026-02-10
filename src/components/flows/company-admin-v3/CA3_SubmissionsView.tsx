@@ -1574,6 +1574,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             className="flex-1 h-8 text-xs shadow-none hover:shadow-none hover:translate-y-0"
                             onClick={() => {
                               setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: "exclude" }));
+                              setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
                               toast.info(`${selectedSubmission.workerName} excluded from this run`);
                             }}
                           >
