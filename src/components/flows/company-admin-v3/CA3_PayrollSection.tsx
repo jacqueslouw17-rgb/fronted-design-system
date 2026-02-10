@@ -32,6 +32,9 @@ const mockSubmissions: WorkerSubmission[] = [
     status: "pending",
     totalImpact: 245,
     currency: "EUR",
+    flags: [
+      { type: "end_date", endDate: "Jan 31, 2026", endReason: "Termination" },
+    ],
   },
   {
     id: "sub-2",
@@ -53,6 +56,9 @@ const mockSubmissions: WorkerSubmission[] = [
     status: "pending",
     totalImpact: 500,
     currency: "EUR",
+    flags: [
+      { type: "end_date", endDate: "Feb 14, 2026", endReason: "Resignation" },
+    ],
   },
   {
     id: "sub-3",
