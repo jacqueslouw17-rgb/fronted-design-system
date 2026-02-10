@@ -1518,17 +1518,34 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
                   // Show confirmation pill if decision already made
                   if (decision) {
+                    const opposite = decision === "include" ? "exclude" : "include";
                     return (
                       <div className="px-5 py-2.5 border-b border-border/20">
-                        <Badge variant="outline" className={cn(
-                          "gap-1.5 text-xs",
-                          decision === "include"
-                            ? "border-accent-green/20 bg-accent-green/5 text-accent-green-text"
-                            : "border-muted-foreground/20 bg-muted/30 text-muted-foreground"
-                        )}>
-                          <CheckCircle2 className="h-3 w-3" />
-                          {decision === "include" ? "Included in this run" : "Excluded from this run"}
-                        </Badge>
+                        <div
+                          className="group/toggle inline-flex cursor-pointer relative"
+                          onClick={() => {
+                            setStatusDecisions(prev => ({ ...prev, [selectedSubmission.id]: opposite }));
+                            if (opposite === "exclude") {
+                              setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
+                            } else {
+                              setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
+                            }
+                            toast.info(`${selectedSubmission.workerName} ${opposite === "include" ? "included in" : "excluded from"} this run`);
+                          }}
+                        >
+                          <Badge variant="outline" className={cn(
+                            "gap-1.5 text-xs transition-opacity group-hover/toggle:opacity-0",
+                            decision === "include"
+                              ? "border-accent-green/20 bg-accent-green/5 text-accent-green-text"
+                              : "border-muted-foreground/20 bg-muted/30 text-muted-foreground"
+                          )}>
+                            <CheckCircle2 className="h-3 w-3" />
+                            {decision === "include" ? "Included in this run" : "Excluded from this run"}
+                          </Badge>
+                          <Badge variant="outline" className="gap-1.5 text-xs absolute inset-0 opacity-0 group-hover/toggle:opacity-100 transition-opacity border-primary/30 bg-primary/5 text-primary cursor-pointer">
+                            {opposite === "include" ? "Include in this run" : "Exclude from this run"}
+                          </Badge>
+                        </div>
                       </div>
                     );
                   }
