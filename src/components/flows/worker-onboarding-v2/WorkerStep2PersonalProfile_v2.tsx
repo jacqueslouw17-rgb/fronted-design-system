@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, AlertCircle, Lock, Upload, FileText, X } from "lucide-react";
-import { ArrowRight, AlertCircle, Lock, Upload, FileText, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { personalInfoSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
