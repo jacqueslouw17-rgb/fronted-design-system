@@ -59,6 +59,22 @@ const StepCard = ({
     return (
       <div className="transition-all duration-300 ease-out overflow-hidden relative z-10 motion-reduce:transition-none">
         <Card className={`pt-2 pb-4 px-4 sm:pt-2 sm:pb-5 sm:px-5 ${borderClass} ${activeClass} backdrop-blur-md hover:bg-[rgba(240,245,255,0.3)] transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none animate-fade-in origin-top`}>
+          {/* Clickable header to collapse */}
+          {onClick && (
+            <div 
+              className="flex items-center space-x-2 sm:space-x-3 mb-3 cursor-pointer group/header -mx-1 px-1 py-1 rounded-md hover:bg-black/[0.03] transition-colors"
+              onClick={onClick}
+            >
+              {status === "completed" ? (
+                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" aria-hidden />
+              ) : (
+                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium flex-shrink-0">
+                  {stepNumber}
+                </div>
+              )}
+              <h3 className="text-sm font-medium text-foreground/90">{title}</h3>
+            </div>
+          )}
           <div className="space-y-4 animate-fade-in motion-reduce:animate-none">
             {children}
           </div>
