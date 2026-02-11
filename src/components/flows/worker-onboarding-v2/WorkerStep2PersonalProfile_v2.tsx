@@ -10,7 +10,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowRight, AlertCircle, Lock, Upload, FileText, X } from "lucide-react";
 import { ArrowRight, AlertCircle, Lock, Upload, FileText, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { personalInfoSchema } from "@/lib/validation-schemas";
