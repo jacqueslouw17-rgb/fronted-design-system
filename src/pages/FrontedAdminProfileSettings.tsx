@@ -27,8 +27,8 @@ const OVERVIEW_CARDS = [
   {
     id: "company-administrators" as Section,
     icon: Mail,
-    title: "Company Administrators",
-    description: "Manage Fronted admin users who can access this workspace."
+    title: "End-client Administrators",
+    description: "Manage End-client admin users who can access this workspace."
   },
   {
     id: "team-members" as Section,
