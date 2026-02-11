@@ -270,39 +270,53 @@ const F41v6_ProfileSettings = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="space-y-3 pb-20 sm:pb-8"
+                  className="pb-20 sm:pb-8"
                 >
-                  {PROFILE_SECTIONS.map((section, index) => {
-                    const isExpanded = expandedAccordion === section.id;
-                    
-                    return (
-                      <StepCard
-                        key={section.id}
-                        stepNumber={index + 1}
-                        title={section.title}
-                        status="completed"
-                        isExpanded={isExpanded}
-                        onClick={() => handleAccordionToggle(section.id)}
-                      >
-                        <AnimatePresence mode="wait">
-                          {isExpanded && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              {renderAccordionContent(section.id)}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </StepCard>
-                    );
-                  })}
+                  <div className="space-y-6 max-w-3xl mx-auto">
+                    <div className="bg-card/40 border border-border/40 rounded-lg p-6">
+                      <div className="flex items-start justify-between gap-4 mb-5">
+                        <div>
+                          <h3 className="text-lg font-semibold text-foreground">Profile Details</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Update your personal, bank, and work details
+                          </p>
+                        </div>
+                        <Button variant="outline" onClick={() => setCurrentSection("overview")} size="sm">
+                          Back
+                        </Button>
+                      </div>
 
-                  <Button variant="outline" onClick={() => setCurrentSection("overview")} className="mt-4">
-                    Back to settings
-                  </Button>
+                      <div className="space-y-3">
+                        {PROFILE_SECTIONS.map((section, index) => {
+                          const isExpanded = expandedAccordion === section.id;
+                          
+                          return (
+                            <StepCard
+                              key={section.id}
+                              stepNumber={index + 1}
+                              title={section.title}
+                              status="completed"
+                              isExpanded={isExpanded}
+                              onClick={() => handleAccordionToggle(section.id)}
+                            >
+                              <AnimatePresence mode="wait">
+                                {isExpanded && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                  >
+                                    {renderAccordionContent(section.id)}
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </StepCard>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
               )}
 
