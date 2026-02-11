@@ -1,6 +1,6 @@
 /**
  * Flow 3 – Candidate Onboarding v2
- * Step 5: Work Setup & Agreements
+ * Step 5: Work Setup & Agreements (final step)
  * 
  * DETACHED CLONE of v1 - changes here do NOT affect v1
  */
