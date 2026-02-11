@@ -22,9 +22,10 @@ interface Step2Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  buttonText?: string;
 }
 
-const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing }: Step2Props) => {
+const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText }: Step2Props) => {
   const country = formData.country || "Philippines";
 
   const [data, setData] = useState({
