@@ -22,7 +22,7 @@ import WorkerStep1Welcome_v2 from "@/components/flows/worker-onboarding-v2/Worke
 import WorkerStep2PersonalProfile_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2PersonalProfile_v2";
 import WorkerStep3RolePay_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep3RolePay_v2";
 import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
-import WorkerStep7Finish_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep7Finish_v2";
+import WorkerStep5WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
 import WorkerCompletionScreen_v2 from "@/components/flows/worker-onboarding-v2/WorkerCompletionScreen_v2";
 
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
@@ -32,7 +32,7 @@ const FLOW_STEPS = [
   { id: "personal_profile", title: "Personal Profile", icon: "👤" },
   { id: "role_pay", title: "Role & Pay", icon: "💼" },
   { id: "bank_details", title: "Bank Details", icon: "🏦" },
-  { id: "finish", title: "All Set!", icon: "🎉" }
+  { id: "work_setup", title: "Work Setup & Agreements", icon: "💼" },
 ];
 
 const WorkerOnboardingV2 = () => {
@@ -188,7 +188,7 @@ const WorkerOnboardingV2 = () => {
                           {step.id === "personal_profile" && <WorkerStep2PersonalProfile_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                           {step.id === "role_pay" && <WorkerStep3RolePay_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                           {step.id === "bank_details" && <WorkerStep4BankDetails_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
-                          {step.id === "finish" && <WorkerStep7Finish_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
+                          {step.id === "work_setup" && <WorkerStep5WorkSetup_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                         </motion.div>
                       )}
                     </AnimatePresence>

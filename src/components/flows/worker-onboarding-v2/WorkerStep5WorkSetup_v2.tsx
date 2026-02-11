@@ -1,6 +1,6 @@
 /**
  * Flow 3 – Candidate Onboarding v2
- * Step 5: Work Setup & Agreements
+ * Step 5: Work Setup & Agreements (final step)
  * 
  * DETACHED CLONE of v1 - changes here do NOT affect v1
  */
@@ -175,7 +175,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         className="w-full"
         size="lg"
       >
-        {isProcessing ? "Saving..." : "Continue"}
+        {isProcessing ? "Saving..." : "Go to Dashboard"}
         <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
     </div>
