@@ -764,15 +764,16 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
           </div>
         </div>
       </SheetContent>
-
-      {/* Agreement Viewer Overlay */}
-      <AgreementViewerSheet 
-        open={showAgreement} 
-        onClose={() => setShowAgreement(false)} 
-        worker={worker}
-        isEmployee={isEmployee}
-      />
     </Sheet>
+
+    {/* Agreement Viewer Overlay - rendered outside parent Sheet */}
+    <AgreementViewerSheet 
+      open={showAgreement} 
+      onClose={() => setShowAgreement(false)} 
+      worker={worker}
+      isEmployee={isEmployee}
+    />
+    </>
   );
 };
 
