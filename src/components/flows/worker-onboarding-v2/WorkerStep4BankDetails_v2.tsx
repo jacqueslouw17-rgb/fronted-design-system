@@ -168,8 +168,8 @@ const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonT
           className="w-full"
           size="lg"
         >
-          {isProcessing ? "Saving..." : "Continue"}
-          <ArrowRight className="ml-2 h-4 w-4" />
+          {isProcessing ? "Saving..." : (buttonText || "Continue")}
+          {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
         </Button>
       </motion.div>
     </AnimatePresence>
