@@ -22,7 +22,6 @@ import WorkerStep1Welcome_v2 from "@/components/flows/worker-onboarding-v2/Worke
 import WorkerStep2PersonalProfile_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2PersonalProfile_v2";
 import WorkerStep3BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
 import WorkerStep4WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
-import WorkerCompletionScreen_v2 from "@/components/flows/worker-onboarding-v2/WorkerCompletionScreen_v2";
 
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 
@@ -41,7 +40,7 @@ const WorkerOnboardingV2 = () => {
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
-  const [showCompletionScreen, setShowCompletionScreen] = useState(false);
+  
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   const hasInitialized = useRef(false);
@@ -91,7 +90,7 @@ const WorkerOnboardingV2 = () => {
     
     if (isFinalStep) {
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      setShowCompletionScreen(true);
+      navigate("/candidate-dashboard-employee-v6");
     } else {
       const nextStep = FLOW_STEPS[currentIndex + 1];
       if (nextStep) {
@@ -116,10 +115,6 @@ const WorkerOnboardingV2 = () => {
     }
   };
 
-  if (showCompletionScreen) {
-    const workerName = state.formData[state.currentStep]?.workerName || state.formData.workerName || "Maria";
-    return <WorkerCompletionScreen_v2 workerName={workerName} />;
-  }
 
   const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
 
