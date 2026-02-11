@@ -58,7 +58,17 @@ const StepCard = ({
       
     return (
       <div className="transition-all duration-300 ease-out overflow-hidden relative z-10 motion-reduce:transition-none">
-        <Card className={`pt-2 pb-4 px-4 sm:pt-2 sm:pb-5 sm:px-5 ${borderClass} ${activeClass} backdrop-blur-md hover:bg-[rgba(240,245,255,0.3)] transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none animate-fade-in origin-top`}>
+        <Card 
+          className={`pt-2 pb-4 px-4 sm:pt-2 sm:pb-5 sm:px-5 ${borderClass} ${activeClass} backdrop-blur-md hover:bg-[rgba(240,245,255,0.3)] transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none animate-fade-in origin-top`}
+        >
+          {onClick && (
+            <div 
+              className="flex items-center justify-center py-1 -mx-1 mb-1 cursor-pointer rounded-md hover:bg-black/[0.03] transition-colors"
+              onClick={onClick}
+            >
+              <div className="w-8 h-1 rounded-full bg-muted-foreground/20" />
+            </div>
+          )}
           <div className="space-y-4 animate-fade-in motion-reduce:animate-none">
             {children}
           </div>
