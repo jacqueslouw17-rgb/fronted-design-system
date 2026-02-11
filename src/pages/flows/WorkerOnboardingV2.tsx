@@ -22,7 +22,7 @@ import WorkerStep1Welcome_v2 from "@/components/flows/worker-onboarding-v2/Worke
 import WorkerStep2PersonalProfile_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2PersonalProfile_v2";
 import WorkerStep3RolePay_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep3RolePay_v2";
 import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
-import WorkerStep7Finish_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep7Finish_v2";
+import WorkerStep5WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
 import WorkerCompletionScreen_v2 from "@/components/flows/worker-onboarding-v2/WorkerCompletionScreen_v2";
 
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
