@@ -10,11 +10,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, AlertCircle, Lock, Upload, FileText, X } from "lucide-react";
+import { ArrowRight, AlertCircle, Lock, Upload, FileText, X, Download } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { personalInfoSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import NationalitySelect from "@/components/shared/NationalitySelect";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Step2Props {
@@ -186,7 +187,7 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
                 <Lock className="h-3 w-3 text-muted-foreground" />
               </Label>
               <Input
-                value={data.nationality === 'PH' ? '🇵🇭 Filipino' : data.nationality}
+                value={data.nationality === 'PH' ? '🇵🇭 Filipino' : data.nationality === 'US' ? '🇺🇸 American' : data.nationality === 'NO' ? '🇳🇴 Norwegian' : data.nationality}
                 disabled
                 className="bg-muted/50 cursor-not-allowed"
               />
@@ -219,10 +220,37 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
               </div>
             ))}
 
-            {/* Identity Document Upload */}
+            {/* Identity Document */}
             <div className="space-y-2">
               <Label>Identity document (JPG, PNG, or PDF)</Label>
-              {identityFileName ? (
+              {data.identityDocUploaded && identityFileName ? (
+                <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/40 bg-card/30">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 bg-accent-green-fill/10">
+                      <FileText className="h-4 w-4 text-accent-green-text" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-medium text-foreground truncate">{identityFileName}</p>
+                        <span className="inline-flex items-center rounded-full bg-accent-green-fill/10 px-2 py-0.5 text-[10px] font-medium text-accent-green-text border border-accent-green-fill/20">
+                          Verified
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
+                    onClick={() => {
+                      toast.info("Downloading identity document...");
+                    }}
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Download
+                  </Button>
+                </div>
+              ) : identityFileName ? (
                 <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted">
                   <FileText className="h-4 w-4 text-primary" />
                   <span className="text-sm flex-1 truncate">{identityFileName}</span>
