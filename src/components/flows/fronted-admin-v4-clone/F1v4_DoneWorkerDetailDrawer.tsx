@@ -252,9 +252,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   const actionLabels: Record<ActionType, { title: string; description: string; dateLabel: string; buttonLabel: string; buttonClass: string }> = {
     "terminated": {
       title: "Terminate worker",
-      description: `Confirm termination of ${worker.name}. This will end their employment and remove them from future payroll runs.`,
-      dateLabel: "Termination date",
-      buttonLabel: "Confirm termination",
+      dateLabel: "Last working day",
       buttonClass: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
     },
     "resigned": {
