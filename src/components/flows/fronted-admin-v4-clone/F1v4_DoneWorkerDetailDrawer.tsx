@@ -348,18 +348,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 rows={3}
                 className="resize-none"
               />
-            </div>
-
-            {/* Worker summary */}
-            <div className="p-4 rounded-xl border border-border/40 bg-card/50 space-y-2">
-              <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Worker summary</h4>
-              <div className="space-y-1">
-                <DetailRow label="Name" value={worker.name} />
-                <DetailRow label="Role" value={worker.role} />
-                <DetailRow label="Type" value={isEmployee ? "Employee (EOR)" : "Contractor (COR)"} />
-                <DetailRow label="Compensation" value={worker.salary} />
-              </div>
-            </div>
+          </div>
           </div>
 
           {/* Footer */}
