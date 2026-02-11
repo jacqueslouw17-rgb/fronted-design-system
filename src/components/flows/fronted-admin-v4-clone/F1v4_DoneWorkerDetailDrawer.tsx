@@ -348,25 +348,25 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 rows={3}
                 className="resize-none"
               />
-          </div>
-          </div>
+            </div>
 
-          {/* Footer */}
-          <div className="px-6 py-4 border-t border-border/40 shrink-0 bg-background flex gap-3">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={resetActionView}
-            >
-              Cancel
-            </Button>
-            <Button
-              className={cn("flex-1", labels.buttonClass)}
-              disabled={!actionDate}
-              onClick={handleSubmitAction}
-            >
-              {labels.buttonLabel}
-            </Button>
+            {/* Action buttons - contextually close to last field */}
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={resetActionView}
+              >
+                Cancel
+              </Button>
+              <Button
+                className={cn("flex-1", labels.buttonClass)}
+                disabled={!actionDate}
+                onClick={handleSubmitAction}
+              >
+                {labels.buttonLabel}
+              </Button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
