@@ -50,7 +50,7 @@ const getEmploymentAgreement = (worker: DoneWorkerData): AgreementSection[] => [
   { heading: "Signatures", text: "", isSignatureBlock: true },
 ];
 
-const getContractorAgreement = (worker: DoneWorkerData) => [
+const getContractorAgreement = (worker: DoneWorkerData): AgreementSection[] => [
   { heading: "Contractor Agreement", text: "" },
   { heading: "", text: `This Contract is between Fronted AS, a Norwegian Company, and ${worker.name}, ${worker.country} (the "Contractor"). Any reference to the "Client" in the following is a reference to Fronted AS. Any reference to "End Client" in the following is a reference to the Client Company.` },
   { heading: "1. WORK AND PAYMENT", text: "" },
