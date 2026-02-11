@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -1058,8 +1059,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 
                 {/* Payroll Summary Card - Removed for certified column */}
                 
+                {/* For CERTIFIED (Done) column: group active on top, inactive in collapsible section */}
+                {(() => {
+                  const activeItems = status === "CERTIFIED" 
+                    ? items.filter(c => !c.workerStatus || c.workerStatus === "active")
+                    : items;
+                  const inactiveItems = status === "CERTIFIED"
+                    ? items.filter(c => c.workerStatus && c.workerStatus !== "active")
+                    : [];
+                  
+                  return <>
                 <AnimatePresence mode="popLayout">
-                  {items.map((contractor, index) => <motion.div key={contractor.id} layout initial={{
+                  {activeItems.map((contractor, index) => <motion.div key={contractor.id} layout initial={{
                 opacity: 0,
                 scale: 0.8
               }} animate={{
@@ -1082,9 +1093,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               }}>
                 <Card className={cn(
                   "border border-border/40 cursor-pointer",
-                  status === "CERTIFIED" && contractor.workerStatus && contractor.workerStatus !== "active"
-                    ? "bg-muted/30 opacity-75"
-                    : "bg-card"
+                  "bg-card"
                 )} onClick={() => {
                   if (status === "awaiting-signature") {
                     handleOpenSignatureWorkflow(contractor);
@@ -1305,6 +1314,98 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     </Card>
                     </motion.div>)}
                 </AnimatePresence>
+
+                {/* Inactive workers collapsible section - Done column only */}
+                {status === "CERTIFIED" && inactiveItems.length > 0 && (
+                  <Collapsible className="mt-4">
+                    <CollapsibleTrigger className="flex items-center gap-2 w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 group">
+                      <div className="h-px flex-1 bg-border/60" />
+                      <span className="flex items-center gap-1 font-medium shrink-0">
+                        Inactive ({inactiveItems.length})
+                        <ChevronDown className="h-3 w-3 transition-transform group-data-[state=open]:rotate-180" />
+                      </span>
+                      <div className="h-px flex-1 bg-border/60" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="space-y-3 pt-2">
+                      <AnimatePresence mode="popLayout">
+                        {inactiveItems.map((contractor) => (
+                          <motion.div key={contractor.id} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                            <Card 
+                              className="border border-border/30 cursor-pointer bg-muted/20 hover:bg-muted/30 transition-colors"
+                              onClick={() => {
+                                setSelectedForDoneDetail(contractor);
+                                setDoneDetailDrawerOpen(true);
+                              }}
+                            >
+                              <CardContent className="p-3 space-y-2">
+                                <div className="flex items-start gap-2">
+                                  <Avatar className="h-8 w-8 bg-muted/40">
+                                    <AvatarFallback className="text-xs text-muted-foreground">
+                                      {contractor.name.split(' ').map(n => n[0]).join('')}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1">
+                                      <span className="font-medium text-sm text-foreground truncate">
+                                        {contractor.name}
+                                      </span>
+                                      <span className="text-base">{contractor.countryFlag}</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground truncate">
+                                      {contractor.role}
+                                    </p>
+                                  </div>
+                                  <Badge 
+                                    variant="outline" 
+                                    className={cn(
+                                      "text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none",
+                                      contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
+                                      contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                      contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
+                                    )}
+                                  >
+                                    {contractor.workerStatus === "contract-ended" ? "Ended" 
+                                      : contractor.workerStatus === "resigned" ? "Resigned"
+                                      : "Terminated"}
+                                  </Badge>
+                                </div>
+                                <div className="flex flex-col gap-1.5 text-[11px]">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">Type</span>
+                                    <span className="font-medium text-foreground">
+                                      {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
+                                    </span>
+                                  </div>
+                                  {contractor.endDate && (
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-muted-foreground">End date</span>
+                                      <span className="font-medium text-foreground text-[10px]">{contractor.endDate}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="w-full text-xs h-7 gap-1"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    setSelectedForDoneDetail(contractor);
+                                    setDoneDetailDrawerOpen(true);
+                                  }}
+                                >
+                                  <Eye className="h-3 w-3" />
+                                  View details
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </CollapsibleContent>
+                  </Collapsible>
+                )}
+                </>;
+                })()}
                 
                 {/* Add Candidate Button - Always visible in offer-accepted column */}
                 {status === "offer-accepted" && items.length > 0 && onAddCandidate && <Button variant="outline" size="sm" onClick={onAddCandidate} className="w-full gap-2 border-dashed hover:bg-primary/5 hover:border-primary/50 hover:text-primary">
