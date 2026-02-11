@@ -90,7 +90,7 @@ const WorkerOnboardingV2 = () => {
     
     if (isFinalStep) {
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      setShowCompletionScreen(true);
+      navigate("/candidate-dashboard-employee-v6");
     } else {
       const nextStep = FLOW_STEPS[currentIndex + 1];
       if (nextStep) {
