@@ -17,6 +17,7 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import { TeamMembersSection, RolesPermissionsSection } from "@/components/flows/admin-profile/rbac";
+import { RBACProvider } from "@/contexts/RBACContext";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import frontedLogo from "@/assets/fronted-logo.png";
 import CompanyAdministratorsDetail from "@/components/flows/fronted-admin-v4/FrontedAdminV4CompanyAdministratorsDetail";
