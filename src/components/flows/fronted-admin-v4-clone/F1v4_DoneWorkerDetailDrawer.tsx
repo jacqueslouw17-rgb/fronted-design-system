@@ -609,6 +609,10 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       </Badge>
                     </div>
                     <DetailRow label="Work location" value={mockData.workLocation} icon={MapPin} />
+                    <DetailRow 
+                      label={isEmployee ? "Salary" : "Consultancy fee"} 
+                      value={worker.salary} 
+                    />
                   </div>
                 </AccordionContent>
               </AccordionItem>
