@@ -533,14 +533,14 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             )}
 
             {/* Accordion Sections */}
-            <Accordion type="multiple" defaultValue={["personal", "employment", "payroll", "bank"]} className="space-y-2">
+            <Accordion type="multiple" defaultValue={["personal-profile", "working-engagement", "payroll-parameters", "payout-destination"]} className="space-y-2">
               
-              {/* A) Personal Details */}
-              <AccordionItem value="personal" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
+              {/* 1) Personal Profile */}
+              <AccordionItem value="personal-profile" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
                 <AccordionTrigger className="hover:no-underline py-3">
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Personal details</span>
+                    <span className="text-sm font-medium">Personal Profile</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pb-4">
@@ -551,16 +551,31 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     <DetailRow label="Date of birth" value={mockData.dateOfBirth} icon={Calendar} />
                     <DetailRow label="Nationality" value={mockData.nationality} icon={Globe} />
                     <DetailRow label="Residential address" value={mockData.address} icon={MapPin} />
+                    <DetailRow label="TIN" value={mockData.tin} />
+                    {isPhilippines && mockData.philHealthNumber && (
+                      <DetailRow label="PhilHealth number" value={mockData.philHealthNumber} />
+                    )}
+                    <DetailRow label="National ID / Government ID" value={mockData.nationalId} />
+                    <div className="flex items-center justify-between gap-4 py-1.5">
+                      <span className="text-sm text-muted-foreground">Identity document</span>
+                      <StatusBadge status={mockData.idDocumentStatus} />
+                    </div>
+                    {worker.optionalUploads?.map((upload, idx) => (
+                      <div key={idx} className="flex items-center justify-between gap-4 py-1.5">
+                        <span className="text-sm text-muted-foreground">{upload.name}</span>
+                        <StatusBadge status={upload.status} />
+                      </div>
+                    ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>
 
-              {/* B) Employment & Contract */}
-              <AccordionItem value="employment" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
+              {/* 2) Working Engagement */}
+              <AccordionItem value="working-engagement" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
                 <AccordionTrigger className="hover:no-underline py-3">
                   <div className="flex items-center gap-2">
                     <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Employment & contract</span>
+                    <span className="text-sm font-medium">Working Engagement</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pb-4">
@@ -598,12 +613,12 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 </AccordionContent>
               </AccordionItem>
 
-              {/* C) Payroll Details */}
-              <AccordionItem value="payroll" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
+              {/* 3) Payroll Parameters */}
+              <AccordionItem value="payroll-parameters" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
                 <AccordionTrigger className="hover:no-underline py-3">
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Payroll details</span>
+                    <span className="text-sm font-medium">Payroll Parameters</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pb-4">
@@ -631,12 +646,12 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 </AccordionContent>
               </AccordionItem>
 
-              {/* D) Bank Details */}
-              <AccordionItem value="bank" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
+              {/* 4) Payout Destination */}
+              <AccordionItem value="payout-destination" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
                 <AccordionTrigger className="hover:no-underline py-3">
                   <div className="flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Bank details</span>
+                    <span className="text-sm font-medium">Payout Destination</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pb-4">
@@ -648,38 +663,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     {mockData.swiftBic && (
                       <DetailRow label="SWIFT / BIC" value={mockData.swiftBic} />
                     )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* E) Compliance (Country-specific) */}
-              <AccordionItem value="compliance" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
-                <AccordionTrigger className="hover:no-underline py-3">
-                  <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Compliance</span>
-                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-muted/50">
-                      {worker.country}
-                    </Badge>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-4">
-                  <div className="space-y-0.5">
-                    <DetailRow label="TIN" value={mockData.tin} />
-                    {isPhilippines && mockData.philHealthNumber && (
-                      <DetailRow label="PhilHealth number" value={mockData.philHealthNumber} />
-                    )}
-                    <DetailRow label="National ID / Government ID" value={mockData.nationalId} />
-                    <div className="flex items-center justify-between gap-4 py-1.5">
-                      <span className="text-sm text-muted-foreground">Identity document</span>
-                      <StatusBadge status={mockData.idDocumentStatus} />
-                    </div>
-                    {worker.optionalUploads?.map((upload, idx) => (
-                      <div key={idx} className="flex items-center justify-between gap-4 py-1.5">
-                        <span className="text-sm text-muted-foreground">{upload.name}</span>
-                        <StatusBadge status={upload.status} />
-                      </div>
-                    ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>
