@@ -100,7 +100,7 @@ const WorkerCompletionScreen_v2 = ({ workerName = "there" }: WorkerCompletionScr
               className="pt-2"
             >
               <Button
-                onClick={() => navigate("/flows/candidate-dashboard-v2")}
+                onClick={() => navigate("/candidate-dashboard-employee-v6")}
                 size="lg"
                 className="w-full"
               >
