@@ -68,7 +68,7 @@ const getContractorAgreement = (worker: DoneWorkerData) => [
   { heading: "8. CONFIDENTIAL INFORMATION", text: "This Contract imposes special restrictions on how the End Client and the Contractor must handle confidential information." },
   { heading: "9. LIMITATION OF LIABILITY", text: "Neither party is liable for breach-loss that the breaching party could not reasonably have foreseen when it entered into this Contract." },
   { heading: "10. INDEMNITY", text: "Each party agrees to indemnify the other party against damages arising from a breach of this Contract." },
-  { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING AS EVIDENCED BY THEIR SIGNATURES BELOW.\n\n___________________          ___________________\nMa Angelo Bartolome          ${worker.name}\nCOO, Fronted AS              Contractor` },
+  { heading: "Signatures", text: "", isSignatureBlock: true },
 ];
 
 export const AgreementViewerSheet: React.FC<AgreementViewerSheetProps> = ({
