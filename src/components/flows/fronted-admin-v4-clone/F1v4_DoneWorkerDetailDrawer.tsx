@@ -636,10 +636,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                         {payFrequency}
                       </Badge>
                     </div>
-                    <DetailRow 
-                      label={isEmployee ? "Salary" : "Consultancy fee"} 
-                      value={worker.salary} 
-                    />
                     <DetailRow label="Payment schedule" value={paymentSchedule} />
                     {worker.firstPayrollNote && (
                       <div className="mt-2 p-2.5 rounded-lg bg-muted/50">
