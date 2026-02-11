@@ -40,6 +40,8 @@ import F42v6_ContractorDashboardPage from "./pages/flows/F42v6_ContractorDashboa
 import CandidateProfileSettingsV2 from "./pages/CandidateProfileSettingsV2";
 import F41v4_ProfileSettings from "./pages/flows/F41v4_ProfileSettings";
 import F42v4_ProfileSettings from "./pages/flows/F42v4_ProfileSettings";
+import F41v6_ProfileSettings from "./pages/flows/F41v6_ProfileSettings";
+import F42v6_ProfileSettings from "./pages/flows/F42v6_ProfileSettings";
 import EmployeePayroll from "./pages/flows/EmployeePayroll";
 import ContractorPayroll from "./pages/flows/ContractorPayroll";
 import CompanyAdminOnboarding from "./pages/flows/CompanyAdminOnboarding";
@@ -158,6 +160,8 @@ const App = () => (
         <Route path="/candidate/profile-settings-v2" element={<CandidateProfileSettingsV2 />} />
         <Route path="/flows/employee-profile-settings-v4" element={<F41v4_ProfileSettings />} />
         <Route path="/flows/contractor-profile-settings-v4" element={<F42v4_ProfileSettings />} />
+        <Route path="/flows/employee-profile-settings-v6" element={<F41v6_ProfileSettings />} />
+        <Route path="/flows/contractor-profile-settings-v6" element={<F42v6_ProfileSettings />} />
         <Route path="/flows/employee-payroll" element={<EmployeePayroll />} />
         <Route path="/flows/contractor-payroll" element={<ContractorPayroll />} />
         <Route path="/flows/company-admin-onboarding" element={<CompanyAdminOnboarding />} />
