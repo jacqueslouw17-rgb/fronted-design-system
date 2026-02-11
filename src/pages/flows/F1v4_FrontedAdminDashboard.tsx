@@ -755,7 +755,7 @@ const AdminContractingMultiCompany = () => {
           userName={`${userData.firstName} ${userData.lastName}`}
           isDrawerOpen={isDrawerOpen}
           onDrawerToggle={toggleDrawer}
-          profileSettingsUrl="/fronted-admin/profile-settings"
+          profileSettingsUrl="/flow-1-v4/profile-settings"
           profileMenuLabel="Profile Settings"
           onBackClick={handleBackToFlows}
           companySwitcher={hasNoCompanies ? undefined : {
