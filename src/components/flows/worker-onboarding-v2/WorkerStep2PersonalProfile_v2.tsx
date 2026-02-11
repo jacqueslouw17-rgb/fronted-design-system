@@ -224,31 +224,44 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
             <div className="space-y-2">
               <Label>Identity document (JPG, PNG, or PDF)</Label>
               {data.identityDocUploaded && identityFileName ? (
-                <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/40 bg-card/30">
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 bg-accent-green-fill/10">
-                      <FileText className="h-4 w-4 text-accent-green-text" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-medium text-foreground truncate">{identityFileName}</p>
-                        <span className="inline-flex items-center rounded-full bg-accent-green-fill/10 px-2 py-0.5 text-[10px] font-medium text-accent-green-text border border-accent-green-fill/20">
-                          Verified
-                        </span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/40 bg-card/30">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 bg-accent-green-fill/10">
+                        <FileText className="h-4 w-4 text-accent-green-text" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-medium text-foreground truncate">{identityFileName}</p>
+                          <span className="inline-flex items-center rounded-full bg-accent-green-fill/10 px-2 py-0.5 text-[10px] font-medium text-accent-green-text border border-accent-green-fill/20">
+                            Verified
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                          toast.info("Downloading identity document...");
+                        }}
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                        Download
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-destructive"
+                        onClick={handleRemoveFile}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        Remove
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
-                    onClick={() => {
-                      toast.info("Downloading identity document...");
-                    }}
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    Download
-                  </Button>
                 </div>
               ) : identityFileName ? (
                 <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted">
