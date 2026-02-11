@@ -26,7 +26,9 @@ interface AgreementViewerSheetProps {
   isEmployee: boolean;
 }
 
-const getEmploymentAgreement = (worker: DoneWorkerData) => [
+type AgreementSection = { heading: string; text: string; isSignatureBlock?: boolean };
+
+const getEmploymentAgreement = (worker: DoneWorkerData): AgreementSection[] => [
   { heading: "Employment Agreement", text: "" },
   { heading: "", text: `This employment agreement (the «Employment Agreement») is entered into on the date hereof between:\n\n1. Fronted Sweden AB (NewCo 8634 Sweden AB), reg. no. 559548-9914, with a registered address at Ekensbergsvägen 113 4 Tr, 171 41 Solna, (the «Company» or «Employer»); and\n2. ${worker.name}, born ${worker.startDate || "February 1, 2026"}, with residence at ${worker.country} (the «Employee»)\n\nThe Company and the Employee are jointly referred to as the «Parties» and each is a «Party».` },
   { heading: "Key Terms of the Employment (the \"Terms\"):", text: `A. Job Role: ${worker.role}\nB. Job Description: Annex A\nC. Place of Work: ${worker.country}\nD. Annual Gross Salary: ${worker.salary}\nE. Variable Salary Elements: Addendum B\nF. Start Date: ${worker.startDate || "February 1, 2026"}\nG. Contract Term: Indefinite Employment\nH. Probationary Period: 6 months\nI. Notice Period:\n   a. Employer: Per the Employment Protection Act\n   b. Employee: 3 months\nJ. Employment Status: Full-time\nK. Working Hours: 40 hours per week\nL. Holiday: 25 days\nM. Pension: Public Pension + 4.5% Occupational Pension\nN. Other benefits: Per company policy` },
@@ -45,10 +47,10 @@ const getEmploymentAgreement = (worker: DoneWorkerData) => [
   { heading: "13. Non-solicitation of Clients", text: "13.1. During the term of employment, and for 12 months after the termination of employment, the Employee is prohibited from contacting clients whom the Employee has had contact with during their employment during the last 12 months, for the purpose of obtaining their business or partnership." },
   { heading: "14. Non-solicitation of Employees", text: "14.1. During the term of employment, and for 12 months after termination of employment, the Employee is prohibited from directly or indirectly influencing or attempting to influence any of the Company's employees or consultants to leave the Company." },
   { heading: "15. Disputes and Governing Law", text: `15.1. This Employment Agreement is signed digitally and governed by ${worker.country} law, including the applicable Employment Protection Act.\n\n15.2. No collective bargaining agreement applies to this employment.` },
-  { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING AS EVIDENCED BY THEIR SIGNATURES BELOW.\n\n___________________          ___________________\nMa Angelo Bartolome          ${worker.name}\nCOO, Fronted AS              Employee` },
+  { heading: "Signatures", text: "", isSignatureBlock: true },
 ];
 
-const getContractorAgreement = (worker: DoneWorkerData) => [
+const getContractorAgreement = (worker: DoneWorkerData): AgreementSection[] => [
   { heading: "Contractor Agreement", text: "" },
   { heading: "", text: `This Contract is between Fronted AS, a Norwegian Company, and ${worker.name}, ${worker.country} (the "Contractor"). Any reference to the "Client" in the following is a reference to Fronted AS. Any reference to "End Client" in the following is a reference to the Client Company.` },
   { heading: "1. WORK AND PAYMENT", text: "" },
@@ -68,7 +70,7 @@ const getContractorAgreement = (worker: DoneWorkerData) => [
   { heading: "8. CONFIDENTIAL INFORMATION", text: "This Contract imposes special restrictions on how the End Client and the Contractor must handle confidential information." },
   { heading: "9. LIMITATION OF LIABILITY", text: "Neither party is liable for breach-loss that the breaching party could not reasonably have foreseen when it entered into this Contract." },
   { heading: "10. INDEMNITY", text: "Each party agrees to indemnify the other party against damages arising from a breach of this Contract." },
-  { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING AS EVIDENCED BY THEIR SIGNATURES BELOW.\n\n___________________          ___________________\nMa Angelo Bartolome          ${worker.name}\nCOO, Fronted AS              Contractor` },
+  { heading: "Signatures", text: "", isSignatureBlock: true },
 ];
 
 export const AgreementViewerSheet: React.FC<AgreementViewerSheetProps> = ({
@@ -122,23 +124,66 @@ export const AgreementViewerSheet: React.FC<AgreementViewerSheetProps> = ({
             {/* Document-style container */}
             <div className="bg-background border border-border/60 rounded-xl shadow-sm">
               <div className="px-8 py-8 space-y-4">
-                {sections.map((section, idx) => (
-                  <div key={idx}>
-                    {section.heading && (
-                      <h3 className={cn(
-                        "font-semibold text-foreground mb-1.5",
-                        idx === 0 ? "text-lg text-center mb-4" : "text-sm"
-                      )}>
-                        {section.heading}
-                      </h3>
-                    )}
-                    {section.text && (
-                      <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-                        {section.text}
-                      </p>
-                    )}
-                  </div>
-                ))}
+                {sections.map((section, idx) => {
+                  if (section.isSignatureBlock) {
+                    return (
+                      <div key={idx} className="mt-8 pt-6 border-t border-border/40">
+                        <h3 className="text-sm font-semibold text-foreground mb-1">Signatures</h3>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          THE PARTIES HERETO AGREE TO THE FOREGOING AS EVIDENCED BY THEIR SIGNATURES BELOW.
+                        </p>
+                        <div className="grid grid-cols-2 gap-8">
+                          {/* Fronted signatory */}
+                          <div className="space-y-2">
+                            <div className="h-16 flex items-end">
+                              <span className="font-['Caveat',_cursive] text-2xl text-foreground italic">
+                                Ma Angelo Bartolome
+                              </span>
+                            </div>
+                            <Separator />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">Ma Angelo Bartolome</p>
+                              <p className="text-xs text-muted-foreground">COO, Fronted AS</p>
+                              <p className="text-[10px] text-muted-foreground/60 mt-1">Signed Jan 28, 2026 · 14:32 UTC</p>
+                            </div>
+                          </div>
+                          {/* Worker signatory */}
+                          <div className="space-y-2">
+                            <div className="h-16 flex items-end">
+                              <span className="font-['Caveat',_cursive] text-2xl text-foreground italic">
+                                {worker.name}
+                              </span>
+                            </div>
+                            <Separator />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{worker.name}</p>
+                              <p className="text-xs text-muted-foreground">{isEmployee ? "Employee" : "Contractor"}</p>
+                              <p className="text-[10px] text-muted-foreground/60 mt-1">Signed Jan 29, 2026 · 09:15 UTC</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={idx}>
+                      {section.heading && (
+                        <h3 className={cn(
+                          "font-semibold text-foreground mb-1.5",
+                          idx === 0 ? "text-lg text-center mb-4" : "text-sm"
+                        )}>
+                          {section.heading}
+                        </h3>
+                      )}
+                      {section.text && (
+                        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                          {section.text}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
