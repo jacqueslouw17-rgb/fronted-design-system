@@ -15,8 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
-import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManagement";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
+import { RBACUserManagement } from "@/components/flows/admin-profile/rbac";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import frontedLogo from "@/assets/fronted-logo.png";
 import CompanyAdministratorsDetail from "@/components/flows/fronted-admin-v4/FrontedAdminV4CompanyAdministratorsDetail";
@@ -223,20 +223,9 @@ const FrontedAdminV4ProfileSettings = () => {
                   exit={{ opacity: 0, y: -20 }}
                   className="pb-20 sm:pb-8"
                 >
-                  <div className="space-y-6">
-                    <AdminUserManagement
-                      formData={{ users: formData.users }}
-                      onComplete={handleUserManagementSave}
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentSection("overview")}
-                      className="w-full sm:w-auto"
-                      size="lg"
-                    >
-                      Back to Overview
-                    </Button>
-                  </div>
+                  <RBACUserManagement
+                    onBack={() => setCurrentSection("overview")}
+                  />
                 </motion.div>
               )}
 
