@@ -184,9 +184,8 @@ const WorkerOnboardingV2 = () => {
                         >
                           {step.id === "welcome" && <WorkerStep1Welcome_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                           {step.id === "personal_profile" && <WorkerStep2PersonalProfile_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
-                          {step.id === "role_pay" && <WorkerStep3RolePay_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
-                          {step.id === "bank_details" && <WorkerStep4BankDetails_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
-                          {step.id === "work_setup" && <WorkerStep5WorkSetup_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
+                          {step.id === "bank_details" && <WorkerStep3BankDetails_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
+                          {step.id === "work_setup" && <WorkerStep4WorkSetup_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                         </motion.div>
                       )}
                     </AnimatePresence>
