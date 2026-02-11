@@ -737,6 +737,14 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       status={mockData.idDocumentStatus}
                       fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
                     />
+                    {/* Signed Agreement */}
+                    <DocumentRow 
+                      name={isEmployee ? "Employment agreement" : "Contractor agreement"}
+                      status="verified"
+                      fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement_Signed.pdf`}
+                      actionType="view"
+                      onView={() => setShowAgreement(true)}
+                    />
                     {/* Additional uploaded docs */}
                     {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
                       <DocumentRow
@@ -755,6 +763,14 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
           </div>
         </div>
       </SheetContent>
+
+      {/* Agreement Viewer Overlay */}
+      <AgreementViewerSheet 
+        open={showAgreement} 
+        onClose={() => setShowAgreement(false)} 
+        worker={worker}
+        isEmployee={isEmployee}
+      />
     </Sheet>
   );
 };
