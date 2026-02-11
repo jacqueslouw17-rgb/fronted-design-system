@@ -29,7 +29,6 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 const FLOW_STEPS = [
   { id: "welcome", title: "Welcome and setup", icon: "👋" },
   { id: "personal_profile", title: "Personal Profile", icon: "👤" },
-  { id: "role_pay", title: "Role & Pay", icon: "💼" },
   { id: "bank_details", title: "Bank Details", icon: "🏦" },
   { id: "work_setup", title: "Work Setup & Agreements", icon: "💼" },
 ];
