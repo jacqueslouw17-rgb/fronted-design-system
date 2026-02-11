@@ -655,6 +655,35 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 </AccordionContent>
               </AccordionItem>
 
+              {/* 5) Documents */}
+              <AccordionItem value="documents" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
+                <AccordionTrigger className="hover:no-underline py-3">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Documents</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-4">
+                  <div className="space-y-2">
+                    {/* Identity Document */}
+                    <DocumentRow 
+                      name="Identity document"
+                      status={mockData.idDocumentStatus}
+                      fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
+                    />
+                    {/* Additional uploaded docs */}
+                    {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
+                      <DocumentRow
+                        key={idx}
+                        name={upload.name}
+                        status={upload.status}
+                        fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
+                      />
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
               {/* Audit trail hidden for now */}
             </Accordion>
           </div>
