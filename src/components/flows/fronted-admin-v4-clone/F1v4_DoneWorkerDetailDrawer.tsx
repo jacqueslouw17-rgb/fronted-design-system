@@ -167,6 +167,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   const [actionView, setActionView] = useState<ActionType | null>(null);
   const [actionDate, setActionDate] = useState("");
   const [actionReason, setActionReason] = useState("");
+  const [showAgreement, setShowAgreement] = useState(false);
 
   if (!worker) return null;
 
