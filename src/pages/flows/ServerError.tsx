@@ -157,7 +157,7 @@ const ServerError: React.FC = () => {
                 >
                   <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
                     <HelpCircle className="w-4 h-4 text-primary" />
-                    <span>Need help?</span>
+                    <span>We couldn't restore the connection</span>
                   </div>
                   <p className="text-xs text-center text-muted-foreground leading-relaxed">
                     We weren't able to recover automatically. Please contact support 
