@@ -276,25 +276,24 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             )} />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{name}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-medium text-foreground truncate">{name}</p>
+              <StatusBadge status={status} />
+            </div>
             <p className="text-[11px] text-muted-foreground">{fileName}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          <StatusBadge status={status} />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
-            onClick={() => {
-              // In production, this would trigger a secure download via signed URL
-              console.log(`Download: ${fileName}`);
-            }}
-          >
-            <Download className="h-3.5 w-3.5" />
-            Download
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
+          onClick={() => {
+            console.log(`Download: ${fileName}`);
+          }}
+        >
+          <Download className="h-3.5 w-3.5" />
+          Download
+        </Button>
       </div>
     );
   };
