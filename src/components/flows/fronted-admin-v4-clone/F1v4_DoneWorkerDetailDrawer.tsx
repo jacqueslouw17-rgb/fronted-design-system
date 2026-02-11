@@ -444,6 +444,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   }
 
   return (
+    <>
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
         {/* Header */}
