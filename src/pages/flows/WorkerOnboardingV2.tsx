@@ -185,10 +185,9 @@ const WorkerOnboardingV2 = () => {
                           transition={{ duration: 0.3 }}
                         >
                           {step.id === "welcome" && <WorkerStep1Welcome_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
-                          {step.id === "personal" && <WorkerStep2Personal_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
-                          {step.id === "compliance" && <WorkerStep3Compliance_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
-                          {step.id === "payroll" && <WorkerStep4Payroll_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
-                          {step.id === "work_setup" && <WorkerStep5WorkSetup_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
+                          {step.id === "personal_profile" && <WorkerStep2PersonalProfile_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
+                          {step.id === "role_pay" && <WorkerStep3RolePay_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
+                          {step.id === "bank_details" && <WorkerStep4BankDetails_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                           {step.id === "finish" && <WorkerStep7Finish_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                         </motion.div>
                       )}
