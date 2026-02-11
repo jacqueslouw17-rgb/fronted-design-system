@@ -175,7 +175,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         className="w-full"
         size="lg"
       >
-        {isProcessing ? "Saving..." : "Continue"}
+        {isProcessing ? "Saving..." : "Go to Dashboard"}
         <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
     </div>
