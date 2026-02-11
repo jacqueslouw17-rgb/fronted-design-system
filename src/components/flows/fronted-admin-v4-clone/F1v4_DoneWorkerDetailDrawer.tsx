@@ -252,11 +252,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   };
 
   const DocumentRow = ({ name, status, fileName }: { name: string; status: "uploaded" | "verified" | "missing"; fileName: string }) => {
-    const [revealed, setRevealed] = React.useState(false);
-    const maskedName = fileName.length > 8 
-      ? fileName.slice(0, 4) + "••••" + fileName.slice(fileName.lastIndexOf("."))
-      : fileName;
-
     if (status === "missing") {
       return (
         <div className="flex items-center justify-between gap-4 p-3 rounded-lg border border-border/40 bg-muted/20">
@@ -283,22 +278,23 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium text-foreground truncate">{name}</p>
-            <p className="text-[11px] text-muted-foreground">{revealed ? fileName : maskedName}</p>
+            <p className="text-[11px] text-muted-foreground">{fileName}</p>
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           <StatusBadge status={status} />
-          <button
-            onClick={() => setRevealed(!revealed)}
-            className="p-1.5 rounded-md hover:bg-muted transition-colors"
-            title={revealed ? "Hide filename" : "Reveal filename"}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              // In production, this would trigger a secure download via signed URL
+              console.log(`Download: ${fileName}`);
+            }}
           >
-            {revealed ? (
-              <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-            ) : (
-              <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-            )}
-          </button>
+            <Download className="h-3.5 w-3.5" />
+            Download
+          </Button>
         </div>
       </div>
     );
