@@ -26,7 +26,9 @@ interface AgreementViewerSheetProps {
   isEmployee: boolean;
 }
 
-const getEmploymentAgreement = (worker: DoneWorkerData) => [
+type AgreementSection = { heading: string; text: string; isSignatureBlock?: boolean };
+
+const getEmploymentAgreement = (worker: DoneWorkerData): AgreementSection[] => [
   { heading: "Employment Agreement", text: "" },
   { heading: "", text: `This employment agreement (the «Employment Agreement») is entered into on the date hereof between:\n\n1. Fronted Sweden AB (NewCo 8634 Sweden AB), reg. no. 559548-9914, with a registered address at Ekensbergsvägen 113 4 Tr, 171 41 Solna, (the «Company» or «Employer»); and\n2. ${worker.name}, born ${worker.startDate || "February 1, 2026"}, with residence at ${worker.country} (the «Employee»)\n\nThe Company and the Employee are jointly referred to as the «Parties» and each is a «Party».` },
   { heading: "Key Terms of the Employment (the \"Terms\"):", text: `A. Job Role: ${worker.role}\nB. Job Description: Annex A\nC. Place of Work: ${worker.country}\nD. Annual Gross Salary: ${worker.salary}\nE. Variable Salary Elements: Addendum B\nF. Start Date: ${worker.startDate || "February 1, 2026"}\nG. Contract Term: Indefinite Employment\nH. Probationary Period: 6 months\nI. Notice Period:\n   a. Employer: Per the Employment Protection Act\n   b. Employee: 3 months\nJ. Employment Status: Full-time\nK. Working Hours: 40 hours per week\nL. Holiday: 25 days\nM. Pension: Public Pension + 4.5% Occupational Pension\nN. Other benefits: Per company policy` },
