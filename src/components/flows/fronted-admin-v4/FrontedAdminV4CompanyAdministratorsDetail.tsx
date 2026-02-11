@@ -117,9 +117,9 @@ const FrontedAdminV4CompanyAdministratorsDetail = ({ onCancel }: FrontedAdminV4C
       {/* Header Card */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-6">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Company Administrators</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            View status and manage access for all company admins
+           <h3 className="text-lg font-semibold text-foreground">End-client Administrators</h3>
+           <p className="text-sm text-muted-foreground mt-1">
+             Manage End-client admin users who can access this workspace
           </p>
         </div>
 

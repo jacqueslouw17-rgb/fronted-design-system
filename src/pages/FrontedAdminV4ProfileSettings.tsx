@@ -19,7 +19,7 @@ import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManag
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import frontedLogo from "@/assets/fronted-logo.png";
-import CompanyAdministratorsDetail from "@/components/flows/admin-profile/CompanyAdministratorsDetail";
+import CompanyAdministratorsDetail from "@/components/flows/fronted-admin-v4/FrontedAdminV4CompanyAdministratorsDetail";
 
 type V4Section = "overview" | "company-administrators" | "user-management" | "change-password";
 
@@ -27,8 +27,8 @@ const V4_OVERVIEW_CARDS = [
   {
     id: "company-administrators" as V4Section,
     icon: Mail,
-    title: "Company Administrators",
-    description: "Manage Fronted admin users who can access this workspace."
+    title: "End-client Administrators",
+    description: "Manage End-client admin users who can access this workspace."
   },
   {
     id: "user-management" as V4Section,
