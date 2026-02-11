@@ -178,7 +178,7 @@ const Step1AdminAccountSimplified = ({
       companyName,
       hqCountry
     });
-    navigate("/flows/company-admin-dashboard");
+    navigate("/flows/company-admin-dashboard-v3");
   };
 
   return (
