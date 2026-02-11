@@ -5,19 +5,32 @@
  * server error. Reusable pattern for any page.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Mail, HelpCircle, CheckCircle2, ArrowLeft, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, HelpCircle, CheckCircle2, ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
 import serverErrorIllustration from '@/assets/server-error-500.png';
 import frontedLogo from '@/assets/fronted-logo.png';
 import { Button } from '@/components/ui/button';
 
+const MAX_RETRIES = 2;
+
 const ServerError: React.FC = () => {
   const navigate = useNavigate();
+  const [retryCount, setRetryCount] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const exhausted = retryCount >= MAX_RETRIES;
 
   const handleTryAgain = () => {
-    window.location.reload();
+    if (exhausted || isRetrying) return;
+    setIsRetrying(true);
+    setTimeout(() => {
+      const next = retryCount + 1;
+      setRetryCount(next);
+      setIsRetrying(false);
+      // In production this would reload or retry the failed request
+      // window.location.reload();
+    }, 2000);
   };
 
   return (
@@ -109,27 +122,59 @@ const ServerError: React.FC = () => {
             </motion.div>
 
             {/* Actions */}
-            <motion.div 
-              className="space-y-3"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.4 }}
-            >
-              <Button 
-                onClick={handleTryAgain} 
-                className="w-full"
-                size="lg"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Try again
-              </Button>
-              <button
-                onClick={() => navigate("/")}
-                className="w-full text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2"
-              >
-                Go back
-              </button>
-            </motion.div>
+            <AnimatePresence mode="wait">
+              {!exhausted ? (
+                <motion.div 
+                  key="retry"
+                  className="space-y-1"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ delay: 0.5, duration: 0.4 }}
+                >
+                  <Button 
+                    onClick={handleTryAgain} 
+                    className="w-full"
+                    size="lg"
+                    disabled={isRetrying}
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isRetrying ? 'animate-spin' : ''}`} />
+                    {isRetrying ? 'Retrying…' : `Try again${retryCount > 0 ? ` (${MAX_RETRIES - retryCount} left)` : ''}`}
+                  </Button>
+                  {retryCount > 0 && (
+                    <p className="text-[11px] text-muted-foreground/60 text-center">
+                      Attempt {retryCount} of {MAX_RETRIES} failed
+                    </p>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="exhausted"
+                  className="bg-destructive/[0.06] border border-destructive/20 rounded-xl p-5 space-y-3"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
+                    <AlertTriangle className="w-4 h-4 text-destructive" />
+                    <span>Still not working</span>
+                  </div>
+                  <p className="text-xs text-center text-muted-foreground leading-relaxed">
+                    We weren't able to recover automatically. Please reach out to support 
+                    so we can look into this for you.
+                  </p>
+                  <div className="flex justify-center">
+                    <a 
+                      href="mailto:support@fronted.com?subject=Persistent%20server%20error%20(500)"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors px-4 py-2 rounded-lg hover:bg-primary/5"
+                    >
+                      <Mail className="w-4 h-4" />
+                      Contact support
+                    </a>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Contact section */}
             <motion.div 
