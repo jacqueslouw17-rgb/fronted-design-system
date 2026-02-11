@@ -40,7 +40,7 @@ const WorkerOnboardingV2 = () => {
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
-  const [showCompletionScreen, setShowCompletionScreen] = useState(false);
+  
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   const hasInitialized = useRef(false);
