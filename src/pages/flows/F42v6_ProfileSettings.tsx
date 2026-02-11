@@ -130,6 +130,7 @@ const F42v6_ProfileSettings = () => {
       onComplete: handleAccordionSave,
       isProcessing: isSaving,
       isLoadingFields: false,
+      buttonText: "Save changes",
     };
 
     switch (sectionId) {
