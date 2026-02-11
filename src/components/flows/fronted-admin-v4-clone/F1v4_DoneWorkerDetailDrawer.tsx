@@ -525,7 +525,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             )}
 
             {/* Accordion Sections */}
-            <Accordion type="multiple" defaultValue={["personal-profile", "working-engagement", "payroll-parameters", "payout-destination"]} className="space-y-2">
+            <Accordion type="multiple" defaultValue={["personal-profile", "working-engagement", "payroll-parameters", "payout-destination", "documents"]} className="space-y-2">
               
               {/* 1) Personal Profile */}
               <AccordionItem value="personal-profile" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
