@@ -9,14 +9,14 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, KeyRound, FileText, ChevronRight, ChevronDown, Download, X, CheckCircle2 } from "lucide-react";
+import { User, KeyRound, FileText, ChevronRight, Download, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
-import { Badge } from "@/components/ui/badge";
+import StepCard from "@/components/StepCard";
 import WorkerStep2PersonalProfile_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2PersonalProfile_v2";
 import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
 import WorkerStep5WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
@@ -271,57 +271,31 @@ const F41v6_ProfileSettings = () => {
                   exit={{ opacity: 0, y: -20 }}
                   className="space-y-3 pb-20 sm:pb-8"
                 >
-                  {PROFILE_SECTIONS.map((section) => {
+                  {PROFILE_SECTIONS.map((section, index) => {
                     const isExpanded = expandedAccordion === section.id;
                     
                     return (
-                      <Card
+                      <StepCard
                         key={section.id}
-                        className={cn(
-                          "overflow-hidden transition-all border",
-                          isExpanded 
-                            ? "bg-card/30 border-primary/20" 
-                            : "bg-card/20 border-border/30 hover:bg-card/25 hover:border-border/40"
-                        )}
+                        stepNumber={index + 1}
+                        title={section.title}
+                        status="completed"
+                        isExpanded={isExpanded}
+                        onClick={() => handleAccordionToggle(section.id)}
                       >
-                        <button
-                          onClick={() => handleAccordionToggle(section.id)}
-                          className="w-full flex items-center justify-between px-6 py-4 text-left"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg">{section.icon}</span>
-                            <span className="text-sm font-semibold text-foreground">{section.title}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {!isExpanded && (
-                              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20 text-xs font-medium">
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Complete
-                              </Badge>
-                            )}
-                            <ChevronDown className={cn(
-                              "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                              isExpanded && "rotate-180"
-                            )} />
-                          </div>
-                        </button>
-                        
-                        <AnimatePresence>
+                        <AnimatePresence mode="wait">
                           {isExpanded && (
                             <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.25 }}
-                              className="overflow-hidden"
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3 }}
                             >
-                              <div className="px-6 pb-6 pt-0">
-                                {renderAccordionContent(section.id)}
-                              </div>
+                              {renderAccordionContent(section.id)}
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </Card>
+                      </StepCard>
                     );
                   })}
 
