@@ -223,20 +223,9 @@ const FrontedAdminV4ProfileSettings = () => {
                   exit={{ opacity: 0, y: -20 }}
                   className="pb-20 sm:pb-8"
                 >
-                  <div className="space-y-6">
-                    <AdminUserManagement
-                      formData={{ users: formData.users }}
-                      onComplete={handleUserManagementSave}
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentSection("overview")}
-                      className="w-full sm:w-auto"
-                      size="lg"
-                    >
-                      Back to Overview
-                    </Button>
-                  </div>
+                  <RBACUserManagement
+                    onBack={() => setCurrentSection("overview")}
+                  />
                 </motion.div>
               )}
 
