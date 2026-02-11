@@ -58,13 +58,13 @@ const StepCard = ({
       
     return (
       <div className="transition-all duration-300 ease-out overflow-hidden relative z-10 motion-reduce:transition-none">
-        <Card className={`pt-2 pb-4 px-4 sm:pt-2 sm:pb-5 sm:px-5 ${borderClass} ${activeClass} backdrop-blur-md hover:bg-[rgba(240,245,255,0.3)] transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none animate-fade-in origin-top`}>
-          {/* Clickable header to collapse */}
-          {onClick && (
-            <div 
-              className="flex items-center space-x-2 sm:space-x-3 mb-3 cursor-pointer group/header -mx-1 px-1 py-1 rounded-md hover:bg-black/[0.03] transition-colors"
-              onClick={onClick}
-            >
+        <Card className={`pb-4 px-4 sm:pb-5 sm:px-5 ${borderClass} ${activeClass} backdrop-blur-md transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none animate-fade-in origin-top`}>
+          {/* Clickable collapse header — matches collapsed row style */}
+          <div 
+            className="flex justify-between items-center gap-2 py-3 sm:py-4 cursor-pointer -mx-1 px-1 rounded-md hover:bg-black/[0.03] transition-colors"
+            onClick={onClick}
+          >
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
               {status === "completed" ? (
                 <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" aria-hidden />
               ) : (
@@ -72,9 +72,12 @@ const StepCard = ({
                   {stepNumber}
                 </div>
               )}
-              <h3 className="text-sm font-medium text-foreground/90">{title}</h3>
+              <h3 className="text-sm font-medium text-foreground/90 truncate">{title}</h3>
             </div>
-          )}
+            <div className="flex-shrink-0">
+              {getStatusBadge()}
+            </div>
+          </div>
           <div className="space-y-4 animate-fade-in motion-reduce:animate-none">
             {children}
           </div>
