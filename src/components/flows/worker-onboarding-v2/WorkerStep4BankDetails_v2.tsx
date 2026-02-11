@@ -136,6 +136,14 @@ const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing }: Step4
           </div>
         </div>
 
+        {/* Payment schedule info */}
+        <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-2">
+          <h4 className="font-semibold text-sm">Payment Schedule</h4>
+          <p className="text-sm text-muted-foreground">
+            Salary is paid monthly on the last business day of each month. Your first payment will be prorated based on your start date.
+          </p>
+        </div>
+
         {/* Payment acknowledgement */}
         <div className="flex items-start space-x-2">
           <Checkbox
