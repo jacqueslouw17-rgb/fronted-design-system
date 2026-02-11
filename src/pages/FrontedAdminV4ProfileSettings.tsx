@@ -1,12 +1,12 @@
 /**
  * Flow 1 – Fronted Admin Dashboard v4 - Profile Settings
- * 3-card overview pattern: Company Administrators, User Management, Change Password
- * Uses shared v3 components for profile settings
+ * 4-card overview: End-client Administrators, Team Members, Roles & Permissions, Change Password
+ * Uses shared RBAC components for team/roles sections
  */
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Loader2, Mail, Users, KeyRound, ChevronRight } from "lucide-react";
+import { X, Loader2, Mail, Users, Shield, KeyRound, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -16,12 +16,12 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
-import { RBACUserManagement } from "@/components/flows/admin-profile/rbac";
+import { TeamMembersSection, RolesPermissionsSection } from "@/components/flows/admin-profile/rbac";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import frontedLogo from "@/assets/fronted-logo.png";
 import CompanyAdministratorsDetail from "@/components/flows/fronted-admin-v4/FrontedAdminV4CompanyAdministratorsDetail";
 
-type V4Section = "overview" | "company-administrators" | "user-management" | "change-password";
+type V4Section = "overview" | "company-administrators" | "team-members" | "roles-permissions" | "change-password";
 
 const V4_OVERVIEW_CARDS = [
   {
@@ -31,10 +31,16 @@ const V4_OVERVIEW_CARDS = [
     description: "Manage End-client admin users who can access this workspace."
   },
   {
-    id: "user-management" as V4Section,
+    id: "team-members" as V4Section,
     icon: Users,
-    title: "User Management",
-    description: "View and manage all Fronted admin accounts and roles."
+    title: "Team Members",
+    description: "Invite and manage team members with role assignments."
+  },
+  {
+    id: "roles-permissions" as V4Section,
+    icon: Shield,
+    title: "Roles & Permissions",
+    description: "Create and configure roles with module-level permissions."
   },
   {
     id: "change-password" as V4Section,
@@ -102,12 +108,6 @@ const FrontedAdminV4ProfileSettings = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleUserManagementSave = async (stepId: string, data?: Record<string, any>) => {
-    if (!data) return;
-    setFormData(prev => ({ ...prev, users: data.users }));
-    toast.success("User management settings saved");
   };
 
   if (loading) {
@@ -215,15 +215,30 @@ const FrontedAdminV4ProfileSettings = () => {
                 </motion.div>
               )}
 
-              {currentSection === "user-management" && (
+              {currentSection === "team-members" && (
                 <motion.div
-                  key="v4-user-management"
+                  key="v4-team-members"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className="pb-20 sm:pb-8"
                 >
-                  <RBACUserManagement
+                  <TeamMembersSection
+                    onBack={() => setCurrentSection("overview")}
+                    onNavigateToRoles={() => setCurrentSection("roles-permissions")}
+                  />
+                </motion.div>
+              )}
+
+              {currentSection === "roles-permissions" && (
+                <motion.div
+                  key="v4-roles-permissions"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="pb-20 sm:pb-8"
+                >
+                  <RolesPermissionsSection
                     onBack={() => setCurrentSection("overview")}
                   />
                 </motion.div>
