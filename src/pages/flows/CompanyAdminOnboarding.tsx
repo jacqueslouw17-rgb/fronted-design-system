@@ -125,8 +125,8 @@ const CompanyAdminOnboarding = () => {
               transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }} 
               className="text-center space-y-3 max-w-2xl"
             >
-              <h1 className="text-3xl font-bold text-foreground">Hi Joe! Let's complete your onboarding</h1>
-              <p className="text-sm text-center text-muted-foreground">
+              <h1 className="text-2xl font-bold text-foreground">Hi Joe! Let's complete your onboarding</h1>
+              <p className="text-muted-foreground">
                 You've been invited as a Company Admin. Complete onboarding to access your dashboard.
               </p>
             </motion.div>

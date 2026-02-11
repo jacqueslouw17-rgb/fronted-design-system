@@ -11,9 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, ChevronsUpDown, Check } from "lucide-react";
+import { Loader2, ChevronsUpDown, Check, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -132,7 +132,7 @@ const Step1AdminAccountSimplified = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [countryOpen, setCountryOpen] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsDialogOpen, setTermsDialogOpen] = useState(false);
+  const [termsSheetOpen, setTermsSheetOpen] = useState(false);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -171,7 +171,6 @@ const Step1AdminAccountSimplified = ({
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    // Complete and navigate to dashboard
     onComplete("admin_account", {
       fullName,
       email,
@@ -185,11 +184,8 @@ const Step1AdminAccountSimplified = ({
   return (
     <div className="space-y-6 max-w-xl mx-auto">
       {/* Form */}
-      <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-        {/* Pre-fill notice */}
-        <p className="text-xs text-muted-foreground">
-          We've pre-filled this from your setup. Please review and confirm. All fields are required.
-        </p>
+      <div className="bg-card/40 border border-border/40 rounded-lg p-5 space-y-4">
+        <p className="text-xs text-muted-foreground">All fields are required.</p>
 
         <StandardInput 
           id="fullName" 
@@ -297,73 +293,109 @@ const Step1AdminAccountSimplified = ({
       </div>
 
       {/* Terms & Conditions */}
-      <div className="flex items-start gap-3">
-        <Checkbox
-          id="terms"
-          checked={termsAccepted}
-          onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-          className="mt-0.5"
-        />
-        <label htmlFor="terms" className="text-sm text-muted-foreground leading-snug cursor-pointer">
-          I agree to the Terms &amp; Conditions.{" "}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              setTermsDialogOpen(true);
-            }}
-            className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
-          >
-            Read terms
-          </button>
-        </label>
+      <div className="bg-card/40 border border-border/40 rounded-lg px-5 py-4">
+        <div className="flex items-center gap-3">
+          <Checkbox
+            id="terms"
+            checked={termsAccepted}
+            onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+          />
+          <label htmlFor="terms" className="text-sm text-foreground leading-snug cursor-pointer select-none">
+            I agree to the{" "}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setTermsSheetOpen(true);
+              }}
+              className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+            >
+              Terms &amp; Conditions
+            </button>
+          </label>
+        </div>
       </div>
 
-      {/* Terms Dialog */}
-      <Dialog open={termsDialogOpen} onOpenChange={setTermsDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Terms &amp; Conditions</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-            <p>
-              By accessing and using the Fronted platform, you agree to the following terms and conditions. 
+      {/* Terms Sheet (right-side drawer — consistent with project patterns) */}
+      <Sheet open={termsSheetOpen} onOpenChange={setTermsSheetOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0 [&>button]:hidden">
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/40 px-6 py-5 flex items-center justify-between">
+            <SheetTitle className="text-lg font-semibold">Terms &amp; Conditions</SheetTitle>
+            <button
+              onClick={() => setTermsSheetOpen(false)}
+              className="p-1.5 rounded-lg hover:bg-muted/60 transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          <div className="px-6 py-6 space-y-6">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              By accessing and using the Fronted platform, you agree to the following terms and conditions.
               These terms govern your use of the platform as a Company Admin.
             </p>
-            <h3 className="font-semibold text-foreground">1. Platform Usage</h3>
-            <p>
-              You are granted access to manage payroll, employee data, and compliance workflows 
-              on behalf of your organization. You agree to use the platform responsibly and in 
-              accordance with applicable laws.
-            </p>
-            <h3 className="font-semibold text-foreground">2. Data Privacy</h3>
-            <p>
-              All employee and contractor data processed through the platform is handled in 
-              compliance with GDPR and relevant data protection regulations. You are responsible 
-              for ensuring the accuracy of the data you submit.
-            </p>
-            <h3 className="font-semibold text-foreground">3. Security</h3>
-            <p>
-              You agree to maintain the confidentiality of your login credentials and to notify 
-              us immediately of any unauthorized access to your account.
-            </p>
-            <h3 className="font-semibold text-foreground">4. Liability</h3>
-            <p>
-              The platform is provided "as is." While we take reasonable measures to ensure 
-              accuracy and uptime, we are not liable for any indirect damages arising from 
-              platform use.
-            </p>
-            <h3 className="font-semibold text-foreground">5. Amendments</h3>
-            <p>
-              We reserve the right to update these terms at any time. Continued use of the 
-              platform constitutes acceptance of any changes.
-            </p>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">1. Platform Usage</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You are granted access to manage payroll, employee data, and compliance workflows
+                on behalf of your organization. You agree to use the platform responsibly and in
+                accordance with applicable laws.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">2. Data Privacy</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                All employee and contractor data processed through the platform is handled in
+                compliance with GDPR and relevant data protection regulations. You are responsible
+                for ensuring the accuracy of the data you submit.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">3. Security</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You agree to maintain the confidentiality of your login credentials and to notify
+                us immediately of any unauthorized access to your account.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">4. Liability</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The platform is provided "as is." While we take reasonable measures to ensure
+                accuracy and uptime, we are not liable for any indirect damages arising from
+                platform use.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">5. Amendments</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                We reserve the right to update these terms at any time. Continued use of the
+                platform constitutes acceptance of any changes.
+              </p>
+            </section>
+
+            <div className="pt-4 pb-2">
+              <Button
+                onClick={() => {
+                  setTermsAccepted(true);
+                  setTermsSheetOpen(false);
+                }}
+                className="w-full"
+              >
+                I agree
+              </Button>
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
       {/* Action Button */}
-      <div className="pt-1">
+      <div>
         <Button 
           onClick={handleGoToDashboard} 
           disabled={!isFormValid || isProcessing || isSubmitting} 
