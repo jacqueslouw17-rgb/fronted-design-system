@@ -51,6 +51,7 @@ import FrontedAdminDashboardV4 from "./pages/flows/FrontedAdminDashboardV4";
 import F1v4_FrontedAdminDashboard from "./pages/flows/F1v4_FrontedAdminDashboard";
 import V4_ContractFlow from "./pages/flows/V4_ContractFlow";
 import SecureLinkError from "./pages/flows/SecureLinkError";
+import ServerError from "./pages/flows/ServerError";
 import CandidateProfileSettings from "./pages/CandidateProfileSettings";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -226,6 +227,7 @@ const App = () => (
         
         {/* Shared error pages */}
         <Route path="/secure-link-error" element={<SecureLinkError />} />
+        <Route path="/server-error" element={<ServerError />} />
         
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

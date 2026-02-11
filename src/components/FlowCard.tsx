@@ -533,6 +533,22 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       ],
       additionalCount: 0,
       dataModel: null
+    },
+    'shared-server-error': {
+      path: "/server-error",
+      iconColor: "amber",
+      icon: ShieldAlert,
+      title: "Shared – Server Error (500)",
+      locked: false,
+      deprecated: false,
+      description: "Full-screen error state shown when the platform hits an unexpected server error. Reusable pattern for any page (payroll, onboarding, dashboards).",
+      steps: "1 screen",
+      patterns: "1 pattern",
+      badges: [
+        { label: "Error State", path: "/empty-state" }
+      ],
+      additionalCount: 0,
+      dataModel: null
     }
   };
 
