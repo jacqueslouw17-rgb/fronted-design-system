@@ -252,7 +252,7 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing }: S
               <p className="text-xs text-muted-foreground">Max file size: 10MB</p>
             </div>
           </div>
-        )}
+        </div>
 
         <Button
           onClick={handleContinue}
