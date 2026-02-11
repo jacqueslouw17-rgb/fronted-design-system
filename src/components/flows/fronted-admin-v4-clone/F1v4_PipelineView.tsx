@@ -1059,8 +1059,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 
                 {/* Payroll Summary Card - Removed for certified column */}
                 
+                {/* For CERTIFIED (Done) column: group active on top, inactive in collapsible section */}
+                {(() => {
+                  const activeItems = status === "CERTIFIED" 
+                    ? items.filter(c => !c.workerStatus || c.workerStatus === "active")
+                    : items;
+                  const inactiveItems = status === "CERTIFIED"
+                    ? items.filter(c => c.workerStatus && c.workerStatus !== "active")
+                    : [];
+                  
+                  return <>
                 <AnimatePresence mode="popLayout">
-                  {items.map((contractor, index) => <motion.div key={contractor.id} layout initial={{
+                  {activeItems.map((contractor, index) => <motion.div key={contractor.id} layout initial={{
                 opacity: 0,
                 scale: 0.8
               }} animate={{
