@@ -253,7 +253,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     "terminated": {
       title: "Terminate worker",
       description: `Confirm termination of ${worker.name}. This will end their employment and remove them from future payroll runs.`,
-      dateLabel: "Termination date",
+      dateLabel: "Last working day",
       buttonLabel: "Confirm termination",
       buttonClass: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
     },
@@ -267,7 +267,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     "contract-ended": {
       title: "End contract",
       description: `Mark ${worker.name}'s contract as ended. They will be removed from future payroll runs after the end date.`,
-      dateLabel: "Contract end date",
+      dateLabel: "Last working day",
       buttonLabel: "Confirm end date",
       buttonClass: "bg-muted-foreground text-background hover:bg-muted-foreground/90",
     },
