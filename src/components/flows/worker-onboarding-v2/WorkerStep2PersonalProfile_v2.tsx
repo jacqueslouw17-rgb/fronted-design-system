@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { personalInfoSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import NationalitySelect from "@/components/shared/NationalitySelect";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Step2Props {
