@@ -366,15 +366,11 @@ const F41v6_ProfileSettings = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="space-y-6 pb-20 sm:pb-8"
+                  className="pb-20 sm:pb-8"
                 >
-                  <Card className="p-6 bg-card/20 border-border/30">
-                    <Flow6ChangePassword onCancel={handlePasswordCancel} />
-                  </Card>
-
-                  <Button variant="outline" onClick={() => setCurrentSection("overview")}>
-                    Back to settings
-                  </Button>
+                  <Flow6ChangePassword
+                    onCancel={() => setCurrentSection("overview")}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
