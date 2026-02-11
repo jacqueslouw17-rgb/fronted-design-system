@@ -32,7 +32,7 @@ const FLOW_STEPS = [
   { id: "personal_profile", title: "Personal Profile", icon: "👤" },
   { id: "role_pay", title: "Role & Pay", icon: "💼" },
   { id: "bank_details", title: "Bank Details", icon: "🏦" },
-  { id: "finish", title: "All Set!", icon: "🎉" }
+  { id: "work_setup", title: "Work Setup & Agreements", icon: "💼" },
 ];
 
 const WorkerOnboardingV2 = () => {
