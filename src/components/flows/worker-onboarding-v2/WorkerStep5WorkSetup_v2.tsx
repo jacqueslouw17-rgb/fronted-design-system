@@ -29,8 +29,8 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
     deviceProvided: formData.deviceProvided ?? undefined,
     reimbursementAmount: formData.reimbursementAmount || "",
     receiptFile: formData.receiptFile || null,
-    assetAcknowledged: false,
-    agreementSigned: false
+    assetAcknowledged: formData.assetAcknowledged || false,
+    agreementSigned: formData.agreementSigned || false
   });
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
