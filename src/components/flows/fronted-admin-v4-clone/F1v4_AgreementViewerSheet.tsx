@@ -122,23 +122,66 @@ export const AgreementViewerSheet: React.FC<AgreementViewerSheetProps> = ({
             {/* Document-style container */}
             <div className="bg-background border border-border/60 rounded-xl shadow-sm">
               <div className="px-8 py-8 space-y-4">
-                {sections.map((section, idx) => (
-                  <div key={idx}>
-                    {section.heading && (
-                      <h3 className={cn(
-                        "font-semibold text-foreground mb-1.5",
-                        idx === 0 ? "text-lg text-center mb-4" : "text-sm"
-                      )}>
-                        {section.heading}
-                      </h3>
-                    )}
-                    {section.text && (
-                      <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-                        {section.text}
-                      </p>
-                    )}
-                  </div>
-                ))}
+                {sections.map((section, idx) => {
+                  if (section.isSignatureBlock) {
+                    return (
+                      <div key={idx} className="mt-8 pt-6 border-t border-border/40">
+                        <h3 className="text-sm font-semibold text-foreground mb-1">Signatures</h3>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          THE PARTIES HERETO AGREE TO THE FOREGOING AS EVIDENCED BY THEIR SIGNATURES BELOW.
+                        </p>
+                        <div className="grid grid-cols-2 gap-8">
+                          {/* Fronted signatory */}
+                          <div className="space-y-2">
+                            <div className="h-16 flex items-end">
+                              <span className="font-['Caveat',_cursive] text-2xl text-foreground italic">
+                                Ma Angelo Bartolome
+                              </span>
+                            </div>
+                            <Separator />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">Ma Angelo Bartolome</p>
+                              <p className="text-xs text-muted-foreground">COO, Fronted AS</p>
+                              <p className="text-[10px] text-muted-foreground/60 mt-1">Signed Jan 28, 2026 · 14:32 UTC</p>
+                            </div>
+                          </div>
+                          {/* Worker signatory */}
+                          <div className="space-y-2">
+                            <div className="h-16 flex items-end">
+                              <span className="font-['Caveat',_cursive] text-2xl text-foreground italic">
+                                {worker.name}
+                              </span>
+                            </div>
+                            <Separator />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{worker.name}</p>
+                              <p className="text-xs text-muted-foreground">{isEmployee ? "Employee" : "Contractor"}</p>
+                              <p className="text-[10px] text-muted-foreground/60 mt-1">Signed Jan 29, 2026 · 09:15 UTC</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={idx}>
+                      {section.heading && (
+                        <h3 className={cn(
+                          "font-semibold text-foreground mb-1.5",
+                          idx === 0 ? "text-lg text-center mb-4" : "text-sm"
+                        )}>
+                          {section.heading}
+                        </h3>
+                      )}
+                      {section.text && (
+                        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                          {section.text}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
