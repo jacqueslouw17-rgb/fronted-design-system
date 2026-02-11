@@ -190,15 +190,6 @@ const FrontedAdminV4CompanyAdministratorsDetail = ({ onCancel }: FrontedAdminV4C
         </div>
       </div>
 
-      {/* Back Button */}
-      <Button
-        variant="outline"
-        onClick={onCancel}
-        className="w-full sm:w-auto"
-        size="lg"
-      >
-        Back to Overview
-      </Button>
     </div>
   );
 };
