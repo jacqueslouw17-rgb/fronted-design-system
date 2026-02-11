@@ -263,6 +263,7 @@ const FrontedAdminV4ProfileSettings = () => {
           </div>
         </div>
         <FloatingKurtButton />
+        </RBACProvider>
       </AgentLayout>
     </div>
   );
