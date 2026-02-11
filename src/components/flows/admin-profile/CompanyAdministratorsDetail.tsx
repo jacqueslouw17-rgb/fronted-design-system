@@ -109,7 +109,7 @@ const CompanyAdministratorsDetail = ({
           <div>
             <h3 className="text-lg font-semibold text-foreground">End-Client Administrators</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              View status and manage access for all company admins
+              View status and manage access for all admins
             </p>
           </div>
 
