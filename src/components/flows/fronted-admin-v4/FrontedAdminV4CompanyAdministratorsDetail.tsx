@@ -116,11 +116,16 @@ const FrontedAdminV4CompanyAdministratorsDetail = ({ onCancel }: FrontedAdminV4C
     <div className="space-y-6 max-w-3xl mx-auto">
       {/* Header Card */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-6">
-        <div className="mb-4">
-           <h3 className="text-lg font-semibold text-foreground">End-client Administrators</h3>
-           <p className="text-sm text-muted-foreground mt-1">
-             Manage End-client admin users who can access this workspace
-          </p>
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">End-client Administrators</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage End-client admin users who can access this workspace
+            </p>
+          </div>
+          <Button variant="outline" onClick={onCancel} size="sm" className="shrink-0">
+            Back
+          </Button>
         </div>
 
         {/* Admin List */}
