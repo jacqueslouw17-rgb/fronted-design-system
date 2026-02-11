@@ -9,28 +9,27 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, KeyRound, FileText, ChevronRight, Download, X } from "lucide-react";
+import { User, KeyRound, FileText, ChevronRight, ChevronDown, Download, X, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
-import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
-import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/CandidateStep3Compliance";
-import CandidateStep4Bank from "@/components/flows/candidate-onboarding/CandidateStep4Bank";
-import CandidateStep5WorkSetup from "@/components/flows/candidate-onboarding/CandidateStep5WorkSetup";
+import { Badge } from "@/components/ui/badge";
+import WorkerStep2PersonalProfile_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2PersonalProfile_v2";
+import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
+import WorkerStep5WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 
 type Section = "overview" | "profile-details" | "change-password" | "documents";
-type ProfileStep = 1 | 2 | 3 | 4;
 
 const OVERVIEW_CARDS = [
   {
     id: "profile-details" as Section,
     icon: User,
     title: "Profile Details",
-    description: "View and update your personal, compliance, and work details."
+    description: "View and update your personal, bank, and work details."
   },
   {
     id: "documents" as Section,
@@ -46,36 +45,20 @@ const OVERVIEW_CARDS = [
   }
 ];
 
-const PROFILE_STEPS = [
-  {
-    number: 1,
-    label: "Personal Details",
-    description: "Name, contact information, and basic personal data."
-  },
-  {
-    number: 2,
-    label: "Compliance Documents",
-    description: "Upload and manage identity and compliance documents."
-  },
-  {
-    number: 3,
-    label: "Payroll Details",
-    description: "Banking, payout, and tax-related details."
-  },
-  {
-    number: 4,
-    label: "Work Setup & Agreements",
-    description: "Work arrangements, policies, and contract-related documents."
-  }
+const PROFILE_SECTIONS = [
+  { id: "personal_profile", title: "Personal Profile", icon: "👤" },
+  { id: "bank_details", title: "Bank Details", icon: "🏦" },
+  { id: "work_setup", title: "Work Setup & Agreements", icon: "💼" },
 ];
 
 const F41v6_ProfileSettings = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentSection, setCurrentSection] = useState<Section>("overview");
-  const [currentProfileStep, setCurrentProfileStep] = useState<ProfileStep>(1);
+  const [expandedAccordion, setExpandedAccordion] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Record<string, any>>({
+    workerName: "Maria",
     fullName: "Maria Santos",
     email: "maria.santos@example.com",
     phone: "+63 917 123 4567",
@@ -84,14 +67,15 @@ const F41v6_ProfileSettings = () => {
     address: "123 Makati Avenue, Manila",
     city: "Manila",
     postalCode: "1200",
-    country: "PH",
+    country: "Philippines",
     companyName: "Fronted Inc",
     jobTitle: "Senior Developer",
     role: "Senior Developer",
     startDate: "2024-02-01",
-    employmentType: "contractor",
+    employmentType: "employee",
     taxId: "123-456-789",
     bankName: "BDO Unibank",
+    bankCountry: "Philippines",
     accountNumber: "1234567890",
     routingNumber: "BDOPHPMM",
     currency: "PHP",
@@ -115,76 +99,46 @@ const F41v6_ProfileSettings = () => {
     toast.info("Downloading contract bundle...");
   };
 
-  const handleStepSave = async (stepId: string, data?: Record<string, any>) => {
+  const handleAccordionSave = async (stepId: string, data?: Record<string, any>) => {
     if (data) {
       setFormData(prev => ({ ...prev, ...data }));
     }
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise(resolve => setTimeout(resolve, 600));
     setIsSaving(false);
-    setCurrentSection("overview");
-    setCurrentProfileStep(1);
-    toast.success("✅ Profile details saved successfully", {
+    setExpandedAccordion(null);
+    toast.success("Changes saved", {
       position: "bottom-right",
-      duration: 3000
+      duration: 2500
     });
   };
 
-  const handlePasswordCancel = () => {
-    setCurrentSection("overview");
+  const handleAccordionToggle = (sectionId: string) => {
+    setExpandedAccordion(prev => prev === sectionId ? null : sectionId);
   };
 
   const handleCardClick = (cardId: Section) => {
+    setCurrentSection(cardId);
     if (cardId === "profile-details") {
-      setCurrentSection("profile-details");
-      setCurrentProfileStep(1);
-    } else {
-      setCurrentSection(cardId);
+      setExpandedAccordion(null);
     }
   };
 
-  const renderProfileStepContent = () => {
-    switch (currentProfileStep) {
-      case 1:
-        return (
-          <CandidateStep2PersonalDetails 
-            formData={formData} 
-            onComplete={handleStepSave}
-            isProcessing={isSaving}
-            isLoadingFields={false}
-            buttonText="Save changes"
-          />
-        );
-      case 2:
-        return (
-          <CandidateStep3Compliance 
-            formData={formData} 
-            onComplete={handleStepSave}
-            isProcessing={isSaving}
-            isLoadingFields={false}
-            buttonText="Save changes"
-          />
-        );
-      case 3:
-        return (
-          <CandidateStep4Bank 
-            formData={formData} 
-            onComplete={handleStepSave}
-            isProcessing={isSaving}
-            isLoadingFields={false}
-            buttonText="Save changes"
-          />
-        );
-      case 4:
-        return (
-          <CandidateStep5WorkSetup 
-            formData={formData} 
-            onComplete={handleStepSave}
-            isProcessing={isSaving}
-            isLoadingFields={false}
-            buttonText="Save changes"
-          />
-        );
+  const renderAccordionContent = (sectionId: string) => {
+    const commonProps = {
+      formData,
+      onComplete: handleAccordionSave,
+      isProcessing: isSaving,
+      isLoadingFields: false,
+    };
+
+    switch (sectionId) {
+      case "personal_profile":
+        return <WorkerStep2PersonalProfile_v2 {...commonProps} />;
+      case "bank_details":
+        return <WorkerStep4BankDetails_v2 {...commonProps} />;
+      case "work_setup":
+        return <WorkerStep5WorkSetup_v2 {...commonProps} />;
       default:
         return null;
     }
@@ -227,7 +181,7 @@ const F41v6_ProfileSettings = () => {
                 subtitle={currentSection === "overview" 
                   ? "Manage your profile details and account security." 
                   : currentSection === "profile-details"
-                  ? "Update your personal, compliance, and work details."
+                  ? "Update your personal, bank, and work details."
                   : currentSection === "documents"
                   ? "Your signed documents are stored here."
                   : ""}
@@ -315,46 +269,63 @@ const F41v6_ProfileSettings = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="space-y-6 pb-20 sm:pb-8"
+                  className="space-y-3 pb-20 sm:pb-8"
                 >
-                  <div className="flex flex-wrap items-center gap-2 max-w-4xl mx-auto">
-                    {PROFILE_STEPS.map((step) => {
-                      const isActive = currentProfileStep === step.number;
-                      
-                      return (
+                  {PROFILE_SECTIONS.map((section) => {
+                    const isExpanded = expandedAccordion === section.id;
+                    
+                    return (
+                      <Card
+                        key={section.id}
+                        className={cn(
+                          "overflow-hidden transition-all border",
+                          isExpanded 
+                            ? "bg-card/30 border-primary/20" 
+                            : "bg-card/20 border-border/30 hover:bg-card/25 hover:border-border/40"
+                        )}
+                      >
                         <button
-                          key={step.number}
-                          onClick={() => setCurrentProfileStep(step.number as ProfileStep)}
-                          className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-full transition-all text-left",
-                            isActive && "bg-primary/10 border border-primary/20",
-                            !isActive && "bg-card/40 border border-border/30 hover:bg-card/60 hover:border-primary/10"
-                          )}
+                          onClick={() => handleAccordionToggle(section.id)}
+                          className="w-full flex items-center justify-between px-6 py-4 text-left"
                         >
-                          <div className={cn(
-                            "flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold",
-                            isActive && "bg-primary/20 text-primary",
-                            !isActive && "bg-muted/30 text-muted-foreground"
-                          )}>
-                            {step.number}
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">{section.icon}</span>
+                            <span className="text-sm font-semibold text-foreground">{section.title}</span>
                           </div>
-                          <span className={cn(
-                            "text-sm font-medium whitespace-nowrap",
-                            isActive && "text-primary",
-                            !isActive && "text-muted-foreground"
-                          )}>
-                            {step.label}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            {!isExpanded && (
+                              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20 text-xs font-medium">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Complete
+                              </Badge>
+                            )}
+                            <ChevronDown className={cn(
+                              "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                              isExpanded && "rotate-180"
+                            )} />
+                          </div>
                         </button>
-                      );
-                    })}
-                  </div>
+                        
+                        <AnimatePresence>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.25 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-6 pb-6 pt-0">
+                                {renderAccordionContent(section.id)}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </Card>
+                    );
+                  })}
 
-                  <Card className="p-6 bg-card/20 border-border/30">
-                    {renderProfileStepContent()}
-                  </Card>
-
-                  <Button variant="outline" onClick={() => setCurrentSection("overview")}>
+                  <Button variant="outline" onClick={() => setCurrentSection("overview")} className="mt-4">
                     Back to settings
                   </Button>
                 </motion.div>
