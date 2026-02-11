@@ -22,9 +22,10 @@ interface Step4Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  buttonText?: string;
 }
 
-const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing }: Step4Props) => {
+const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonText }: Step4Props) => {
   const [data, setData] = useState({
     bankCountry: formData.bankCountry || formData.country || "",
     bankName: formData.bankName || "",
@@ -167,8 +168,8 @@ const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing }: Step4
           className="w-full"
           size="lg"
         >
-          {isProcessing ? "Saving..." : "Continue"}
-          <ArrowRight className="ml-2 h-4 w-4" />
+          {isProcessing ? "Saving..." : (buttonText || "Continue")}
+          {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
         </Button>
       </motion.div>
     </AnimatePresence>

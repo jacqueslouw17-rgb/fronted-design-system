@@ -22,9 +22,10 @@ interface Step2Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  buttonText?: string;
 }
 
-const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing }: Step2Props) => {
+const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText }: Step2Props) => {
   const country = formData.country || "Philippines";
 
   const [data, setData] = useState({
@@ -259,8 +260,8 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing }: S
           className="w-full"
           size="lg"
         >
-          {isProcessing ? "Saving..." : "Continue"}
-          <ArrowRight className="ml-2 h-4 w-4" />
+          {isProcessing ? "Saving..." : (buttonText || "Continue")}
+          {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
         </Button>
       </motion.div>
     </AnimatePresence>

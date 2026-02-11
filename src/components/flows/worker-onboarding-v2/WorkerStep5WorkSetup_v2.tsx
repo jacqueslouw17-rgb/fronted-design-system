@@ -21,9 +21,10 @@ interface Step5Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  buttonText?: string;
 }
 
-const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields }: Step5Props) => {
+const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields, buttonText }: Step5Props) => {
   const [data, setData] = useState({
     deviceProvided: formData.deviceProvided ?? undefined,
     reimbursementAmount: formData.reimbursementAmount || "",
@@ -175,8 +176,8 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         className="w-full"
         size="lg"
       >
-        {isProcessing ? "Saving..." : "Go to Dashboard"}
-        <ArrowRight className="ml-2 h-4 w-4" />
+        {isProcessing ? "Saving..." : (buttonText || "Go to Dashboard")}
+        {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
       </Button>
     </div>
   );
