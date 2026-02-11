@@ -156,7 +156,6 @@ const ServerError: React.FC = () => {
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
-                    <HelpCircle className="w-4 h-4 text-primary" />
                     <span>We couldn't restore the connection</span>
                   </div>
                   <p className="text-xs text-center text-muted-foreground leading-relaxed">
