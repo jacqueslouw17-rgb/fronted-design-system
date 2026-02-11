@@ -7,6 +7,7 @@
  */
 
 import React, { useState } from "react";
+import { AgreementViewerSheet } from "./F1v4_AgreementViewerSheet";
 import {
   Sheet,
   SheetContent,
@@ -167,6 +168,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   const [actionView, setActionView] = useState<ActionType | null>(null);
   const [actionDate, setActionDate] = useState("");
   const [actionReason, setActionReason] = useState("");
+  const [showAgreement, setShowAgreement] = useState(false);
 
   if (!worker) return null;
 
@@ -250,7 +252,13 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     return <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4", c.className)}>{c.label}</Badge>;
   };
 
-  const DocumentRow = ({ name, status, fileName }: { name: string; status: "uploaded" | "verified" | "missing"; fileName: string }) => {
+  const DocumentRow = ({ name, status, fileName, actionType = "download", onView }: { 
+    name: string; 
+    status: "uploaded" | "verified" | "missing"; 
+    fileName: string;
+    actionType?: "download" | "view";
+    onView?: () => void;
+  }) => {
     if (status === "missing") {
       return (
         <div className="flex items-center justify-between gap-4 p-3 rounded-lg border border-border/40 bg-muted/20">
@@ -283,17 +291,29 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <p className="text-[11px] text-muted-foreground">{fileName}</p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
-          onClick={() => {
-            console.log(`Download: ${fileName}`);
-          }}
-        >
-          <Download className="h-3.5 w-3.5" />
-          Download
-        </Button>
+        {actionType === "view" ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
+            onClick={onView}
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            View
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
+            onClick={() => {
+              console.log(`Download: ${fileName}`);
+            }}
+          >
+            <Download className="h-3.5 w-3.5" />
+            Download
+          </Button>
+        )}
       </div>
     );
   };
@@ -424,6 +444,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   }
 
   return (
+    <>
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
         {/* Header */}
@@ -718,6 +739,14 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       status={mockData.idDocumentStatus}
                       fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
                     />
+                    {/* Signed Agreement */}
+                    <DocumentRow 
+                      name={isEmployee ? "Employment agreement" : "Contractor agreement"}
+                      status="verified"
+                      fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement_Signed.pdf`}
+                      actionType="view"
+                      onView={() => setShowAgreement(true)}
+                    />
                     {/* Additional uploaded docs */}
                     {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
                       <DocumentRow
@@ -737,6 +766,15 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
         </div>
       </SheetContent>
     </Sheet>
+
+    {/* Agreement Viewer Overlay - rendered outside parent Sheet */}
+    <AgreementViewerSheet 
+      open={showAgreement} 
+      onClose={() => setShowAgreement(false)} 
+      worker={worker}
+      isEmployee={isEmployee}
+    />
+    </>
   );
 };
 
