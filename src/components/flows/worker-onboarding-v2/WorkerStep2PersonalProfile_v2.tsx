@@ -187,7 +187,7 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
                 <Lock className="h-3 w-3 text-muted-foreground" />
               </Label>
               <Input
-                value={data.nationality === 'PH' ? '🇵🇭 Filipino' : data.nationality}
+                value={data.nationality === 'PH' ? '🇵🇭 Filipino' : data.nationality === 'US' ? '🇺🇸 American' : data.nationality === 'NO' ? '🇳🇴 Norwegian' : data.nationality}
                 disabled
                 className="bg-muted/50 cursor-not-allowed"
               />
