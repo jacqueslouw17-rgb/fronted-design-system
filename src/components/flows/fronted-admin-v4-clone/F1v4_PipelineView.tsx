@@ -1331,27 +1331,23 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         {inactiveItems.map((contractor) => (
                           <motion.div key={contractor.id} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
                             <Card 
-                              className="border border-border/30 cursor-pointer bg-muted/20 hover:bg-muted/30 transition-colors"
-                              onClick={() => {
-                                setSelectedForDoneDetail(contractor);
-                                setDoneDetailDrawerOpen(true);
-                              }}
+                              className="border border-border/40 cursor-pointer bg-card hover:shadow-md transition-all"
                             >
                               <CardContent className="p-3 space-y-2">
                                 <div className="flex items-start gap-2">
-                                  <Avatar className="h-8 w-8 bg-muted/40">
-                                    <AvatarFallback className="text-xs text-muted-foreground">
+                                  <Avatar className="h-8 w-8 bg-primary/10">
+                                    <AvatarFallback className="text-xs text-muted-foreground/60">
                                       {contractor.name.split(' ').map(n => n[0]).join('')}
                                     </AvatarFallback>
                                   </Avatar>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-1">
-                                      <span className="font-medium text-sm text-foreground truncate">
+                                      <span className="font-medium text-sm text-muted-foreground truncate">
                                         {contractor.name}
                                       </span>
                                       <span className="text-base">{contractor.countryFlag}</span>
                                     </div>
-                                    <p className="text-xs text-muted-foreground truncate">
+                                    <p className="text-xs text-muted-foreground/60 truncate">
                                       {contractor.role}
                                     </p>
                                   </div>
@@ -1371,15 +1367,15 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 </div>
                                 <div className="flex flex-col gap-1.5 text-[11px]">
                                   <div className="flex justify-between items-center">
-                                    <span className="text-muted-foreground">Type</span>
-                                    <span className="font-medium text-foreground">
+                                    <span className="text-muted-foreground/60">Type</span>
+                                    <span className="font-medium text-muted-foreground">
                                       {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
                                     </span>
                                   </div>
                                   {contractor.endDate && (
                                     <div className="flex justify-between items-center">
-                                      <span className="text-muted-foreground">End date</span>
-                                      <span className="font-medium text-foreground text-[10px]">{contractor.endDate}</span>
+                                      <span className="text-muted-foreground/60">End date</span>
+                                      <span className="font-medium text-muted-foreground text-[10px]">{contractor.endDate}</span>
                                     </div>
                                   )}
                                 </div>
