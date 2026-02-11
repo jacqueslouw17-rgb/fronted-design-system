@@ -123,16 +123,7 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing }: S
           </Alert>
         )}
 
-        {isLoading || isLoadingFields ? (
-          <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        ) : (
+        <div className="space-y-4">
           <div className="space-y-4">
             {/* Full Name (locked) */}
             <div className="space-y-2">
