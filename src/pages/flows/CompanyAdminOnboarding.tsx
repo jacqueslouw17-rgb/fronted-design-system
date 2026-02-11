@@ -126,8 +126,8 @@ const CompanyAdminOnboarding = () => {
               className="text-center space-y-3 max-w-2xl"
             >
               <h1 className="text-3xl font-bold text-foreground">Hi Joe! Let's complete your onboarding</h1>
-              <p className="text-base text-center text-muted-foreground">
-                Complete your admin setup to access your dashboard
+              <p className="text-sm text-center text-muted-foreground">
+                You've been invited as a Company Admin. Complete onboarding to access your dashboard.
               </p>
             </motion.div>
           </div>

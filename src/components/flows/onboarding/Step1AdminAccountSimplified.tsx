@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, ChevronsUpDown, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -105,11 +107,13 @@ const COUNTRIES = [
   { value: "US", label: "United States", flag: "🇺🇸" },
   { value: "VN", label: "Vietnam", flag: "🇻🇳" },
 ];
+
 interface Step1SimplifiedProps {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
 }
+
 const Step1AdminAccountSimplified = ({
   formData,
   onComplete,
@@ -126,8 +130,9 @@ const Step1AdminAccountSimplified = ({
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [countryOpen, setCountryOpen] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsDialogOpen, setTermsDialogOpen] = useState(false);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -151,7 +156,8 @@ const Step1AdminAccountSimplified = ({
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && 
     companyName.trim().length > 0 && 
     hqCountry.length > 0 &&
-    password.length >= 8;
+    password.length >= 8 &&
+    termsAccepted;
 
   const handleGoToDashboard = async () => {
     if (!validate()) {
@@ -178,21 +184,19 @@ const Step1AdminAccountSimplified = ({
 
   return (
     <div className="space-y-6 max-w-xl mx-auto">
-      {/* Sign In Header */}
-      <div className="space-y-2">
-        
-        
-      </div>
-
       {/* Form */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
+        {/* Pre-fill notice */}
+        <p className="text-xs text-muted-foreground">
+          We've pre-filled this from your setup. Please review and confirm. All fields are required.
+        </p>
+
         <StandardInput 
           id="fullName" 
           label="Full Name" 
           value={fullName} 
           onChange={setFullName} 
           type="text" 
-          required 
           error={errors.fullName} 
           placeholder="John Doe" 
         />
@@ -203,7 +207,6 @@ const Step1AdminAccountSimplified = ({
           value={email} 
           onChange={() => {}} 
           type="email" 
-          required 
           error={errors.email} 
           placeholder="you@company.com"
           disabled
@@ -212,7 +215,7 @@ const Step1AdminAccountSimplified = ({
 
         <div className="space-y-2">
           <Label htmlFor="companyName" className="text-sm">
-            Company Name <span className="text-destructive">*</span>
+            Company Name
           </Label>
           <Input 
             id="companyName" 
@@ -226,7 +229,7 @@ const Step1AdminAccountSimplified = ({
 
         <div className="space-y-2">
           <Label htmlFor="hqCountry" className="text-sm">
-            HQ Country <span className="text-destructive">*</span>
+            HQ Country
           </Label>
           <Popover open={countryOpen} onOpenChange={setCountryOpen}>
             <PopoverTrigger asChild>
@@ -283,16 +286,81 @@ const Step1AdminAccountSimplified = ({
           value={password} 
           onChange={setPassword} 
           type="password" 
-          required 
           error={errors.password} 
           helpText="Minimum 8 characters" 
           placeholder="••••••••" 
         />
 
-        <p className="text-xs text-center text-[#A0A0A0] pt-2">
+        <p className="text-xs text-center text-muted-foreground pt-2">
           🔒 Secure sign-in. Your credentials are never shared.
         </p>
       </div>
+
+      {/* Terms & Conditions */}
+      <div className="flex items-start gap-3">
+        <Checkbox
+          id="terms"
+          checked={termsAccepted}
+          onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+          className="mt-0.5"
+        />
+        <label htmlFor="terms" className="text-sm text-muted-foreground leading-snug cursor-pointer">
+          I agree to the Terms &amp; Conditions.{" "}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              setTermsDialogOpen(true);
+            }}
+            className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+          >
+            Read terms
+          </button>
+        </label>
+      </div>
+
+      {/* Terms Dialog */}
+      <Dialog open={termsDialogOpen} onOpenChange={setTermsDialogOpen}>
+        <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Terms &amp; Conditions</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+            <p>
+              By accessing and using the Fronted platform, you agree to the following terms and conditions. 
+              These terms govern your use of the platform as a Company Admin.
+            </p>
+            <h3 className="font-semibold text-foreground">1. Platform Usage</h3>
+            <p>
+              You are granted access to manage payroll, employee data, and compliance workflows 
+              on behalf of your organization. You agree to use the platform responsibly and in 
+              accordance with applicable laws.
+            </p>
+            <h3 className="font-semibold text-foreground">2. Data Privacy</h3>
+            <p>
+              All employee and contractor data processed through the platform is handled in 
+              compliance with GDPR and relevant data protection regulations. You are responsible 
+              for ensuring the accuracy of the data you submit.
+            </p>
+            <h3 className="font-semibold text-foreground">3. Security</h3>
+            <p>
+              You agree to maintain the confidentiality of your login credentials and to notify 
+              us immediately of any unauthorized access to your account.
+            </p>
+            <h3 className="font-semibold text-foreground">4. Liability</h3>
+            <p>
+              The platform is provided "as is." While we take reasonable measures to ensure 
+              accuracy and uptime, we are not liable for any indirect damages arising from 
+              platform use.
+            </p>
+            <h3 className="font-semibold text-foreground">5. Amendments</h3>
+            <p>
+              We reserve the right to update these terms at any time. Continued use of the 
+              platform constitutes acceptance of any changes.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Action Button */}
       <div className="pt-1">
