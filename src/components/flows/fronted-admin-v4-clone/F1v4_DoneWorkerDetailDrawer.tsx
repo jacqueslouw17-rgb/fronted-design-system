@@ -251,6 +251,59 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     return <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4", c.className)}>{c.label}</Badge>;
   };
 
+  const DocumentRow = ({ name, status, fileName }: { name: string; status: "uploaded" | "verified" | "missing"; fileName: string }) => {
+    const [revealed, setRevealed] = React.useState(false);
+    const maskedName = fileName.length > 8 
+      ? fileName.slice(0, 4) + "••••" + fileName.slice(fileName.lastIndexOf("."))
+      : fileName;
+
+    if (status === "missing") {
+      return (
+        <div className="flex items-center justify-between gap-4 p-3 rounded-lg border border-border/40 bg-muted/20">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm text-muted-foreground truncate">{name}</span>
+          </div>
+          <StatusBadge status="missing" />
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/40 bg-card/30">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className={cn(
+            "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
+            status === "verified" ? "bg-accent-green-fill/10" : "bg-primary/5"
+          )}>
+            <FileCheck className={cn(
+              "h-4 w-4",
+              status === "verified" ? "text-accent-green-text" : "text-primary"
+            )} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{name}</p>
+            <p className="text-[11px] text-muted-foreground">{revealed ? fileName : maskedName}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <StatusBadge status={status} />
+          <button
+            onClick={() => setRevealed(!revealed)}
+            className="p-1.5 rounded-md hover:bg-muted transition-colors"
+            title={revealed ? "Hide filename" : "Reveal filename"}
+          >
+            {revealed ? (
+              <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+            ) : (
+              <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   // Action labels
   const actionLabels: Record<ActionType, { title: string; description: string; dateLabel: string; buttonLabel: string; buttonClass: string }> = {
     "terminated": {
