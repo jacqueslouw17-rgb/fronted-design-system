@@ -115,10 +115,6 @@ const WorkerOnboardingV2 = () => {
     }
   };
 
-  if (showCompletionScreen) {
-    const workerName = state.formData[state.currentStep]?.workerName || state.formData.workerName || "Maria";
-    return <WorkerCompletionScreen_v2 workerName={workerName} />;
-  }
 
   const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
 
