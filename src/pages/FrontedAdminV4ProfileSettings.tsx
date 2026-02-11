@@ -17,6 +17,7 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import { TeamMembersSection, RolesPermissionsSection } from "@/components/flows/admin-profile/rbac";
+import { RBACProvider } from "@/contexts/RBACContext";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import frontedLogo from "@/assets/fronted-logo.png";
 import CompanyAdministratorsDetail from "@/components/flows/fronted-admin-v4/FrontedAdminV4CompanyAdministratorsDetail";
@@ -137,6 +138,7 @@ const FrontedAdminV4ProfileSettings = () => {
       </Button>
       
       <AgentLayout context="admin-profile-settings-v4">
+        <RBACProvider>
         <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
           {/* Static background */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -261,6 +263,7 @@ const FrontedAdminV4ProfileSettings = () => {
           </div>
         </div>
         <FloatingKurtButton />
+        </RBACProvider>
       </AgentLayout>
     </div>
   );
