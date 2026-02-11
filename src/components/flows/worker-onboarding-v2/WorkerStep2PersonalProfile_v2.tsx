@@ -25,48 +25,24 @@ interface Step2Props {
   isLoadingFields?: boolean;
 }
 
-const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, isLoadingFields }: Step2Props) => {
-  const hasPersistedData = formData && Object.keys(formData).length > 0 && formData.fullName;
+const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing }: Step2Props) => {
   const country = formData.country || "Philippines";
 
   const [data, setData] = useState({
-    fullName: formData.fullName || formData.workerName || "",
-    email: formData.email || "",
-    phone: formData.phone || "",
-    dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined,
-    nationality: formData.nationality || "",
-    address: formData.address || "",
-    tinNumber: formData.tinNumber || "",
-    philHealthNumber: formData.philHealthNumber || "",
-    nationalId: formData.nationalId || "",
+    fullName: formData.fullName || formData.workerName || "Maria Santos",
+    email: formData.email || "maria.santos@example.com",
+    phone: formData.phone || "+63 912 345 6789",
+    dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : new Date(1995, 5, 15),
+    nationality: formData.nationality || "PH",
+    address: formData.address || "123 Main St, Manila",
+    tinNumber: formData.tinNumber || "123-456-789-000",
+    philHealthNumber: formData.philHealthNumber || "12-345678901-2",
+    nationalId: formData.nationalId || "1234-5678-9012-3456",
     identityDocUploaded: formData.identityDocUploaded || false,
   });
 
   const [identityFileName, setIdentityFileName] = useState<string>(formData.identityFileName || "");
   const [validationError, setValidationError] = useState("");
-  const [isLoading, setIsLoading] = useState(!hasPersistedData);
-
-  // Simulate data retrieval
-  useEffect(() => {
-    if (isLoading && !hasPersistedData) {
-      const timer = setTimeout(() => {
-        setData({
-          fullName: "Maria Santos",
-          email: "maria.santos@example.com",
-          phone: "+63 912 345 6789",
-          dateOfBirth: new Date(1995, 5, 15),
-          nationality: "PH",
-          address: "123 Main St, Manila",
-          tinNumber: "123-456-789-000",
-          philHealthNumber: "12-345678901-2",
-          nationalId: "1234-5678-9012-3456",
-          identityDocUploaded: false,
-        });
-        setIsLoading(false);
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, hasPersistedData]);
 
   const handleInputChange = (fieldName: string, value: string) => {
     setData({ ...data, [fieldName]: value });
