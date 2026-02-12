@@ -175,6 +175,7 @@ export const F42v6_AdjustmentDrawer = ({
     setCommissionItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
     setCorrectionDescription('');
     setCorrectionAttachment(null);
+    setExpenseTags([]);
     setErrors({});
   };
 
