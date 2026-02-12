@@ -495,7 +495,26 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
   // Get current run metrics and submissions
   const currentRunMetrics = RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"];
-  const currentRunSubmissions = RUN_SUBMISSIONS[selectedPeriodId] || mockSubmissions;
+  const currentRunSubmissionsRaw = RUN_SUBMISSIONS[selectedPeriodId] || mockSubmissions;
+
+  // Deduplicate: 1 invoice/payslip per worker per pay period
+  const STATUS_PRIORITY: Record<string, number> = { ready: 3, reviewed: 2, pending: 1, handover: 1, expired: 0 };
+  const currentRunSubmissions = useMemo(() => {
+    const seen = new Map<string, WorkerSubmission>();
+    for (const w of currentRunSubmissionsRaw) {
+      const existing = seen.get(w.workerId);
+      if (!existing) {
+        seen.set(w.workerId, w);
+      } else {
+        const existingPriority = STATUS_PRIORITY[existing.status] ?? 0;
+        const newPriority = STATUS_PRIORITY[w.status] ?? 0;
+        if (newPriority > existingPriority) {
+          seen.set(w.workerId, w);
+        }
+      }
+    }
+    return Array.from(seen.values());
+  }, [currentRunSubmissionsRaw]);
 
   // Computed values for submissions
   const pendingSubmissions = useMemo(() => currentRunSubmissions.filter(s => s.status === "pending").length, [currentRunSubmissions]);
