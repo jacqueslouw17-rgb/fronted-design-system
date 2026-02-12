@@ -1450,13 +1450,22 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </div>}
                 </SheetHeader>
 
-                {/* Top banner removed — message moved to footer */}
+                {/* Expired invoice banner */}
+                {selectedSubmission.status === "expired" && (
+                  <div className="mx-5 mt-4 p-3 rounded-lg bg-muted/40 border border-border/40">
+                    <p className="text-sm text-muted-foreground font-medium">Not ready by cutoff</p>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">
+                      This {selectedSubmission.workerType === "employee" ? "payslip" : "invoice"} expired and will be carried into the next payroll as an adjustment.
+                      {selectedSubmission.invoiceNumber && ` ${selectedSubmission.invoiceNumber} expired because it wasn't ready by cutoff.`}
+                    </p>
+                  </div>
+                )}
 
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
                   
-                  {/* Breakdown sections - hidden when adding adjustment */}
-                  {!isAddingAdjustment && <>
+                  {/* Breakdown sections - hidden when adding adjustment or expired */}
+                  {!isAddingAdjustment && selectedSubmission.status !== "expired" && <>
                   
                   {/* Breakdown always visible */}
                   {(() => {
