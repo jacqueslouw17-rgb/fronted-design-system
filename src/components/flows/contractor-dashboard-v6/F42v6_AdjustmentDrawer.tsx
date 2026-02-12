@@ -33,6 +33,7 @@ import { toast } from 'sonner';
 import { useF42v6_DashboardStore, type F42v6_ContractType } from '@/stores/F42v6_DashboardStore';
 import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle } from 'lucide-react';
+import { TagInput } from '@/components/flows/shared/TagInput';
 import { F41v6_TimeInput } from '@/components/flows/employee-dashboard-v6/F41v6_TimeInput';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
