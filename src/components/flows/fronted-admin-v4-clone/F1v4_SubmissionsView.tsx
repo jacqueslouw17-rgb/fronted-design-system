@@ -1180,6 +1180,19 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
                     {/* Footer */}
                     {!expandedItemId && (() => {
+                      // Expired workers - read-only, no actions
+                      if (selectedSubmission.status === "expired") {
+                        return (
+                          <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                              <XCircle className="h-4 w-4" />
+                              <span className="text-sm font-medium">Expired</span>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground text-center mt-1.5">Voided by system · Will carry over to next period</p>
+                          </div>
+                        );
+                      }
+
                       // Excluded workers - no footer needed, tag shows status
                       if (statusDecisions[selectedSubmission.id] === "exclude") return null;
 
