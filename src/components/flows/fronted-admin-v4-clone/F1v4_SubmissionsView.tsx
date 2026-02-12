@@ -138,6 +138,7 @@ const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: s
   pending: { icon: Clock, label: "Pending", color: "text-orange-600" },
   reviewed: { icon: Eye, label: "Reviewed", color: "text-blue-600" },
   ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
+  expired: { icon: XCircle, label: "Expired", color: "text-muted-foreground" },
 };
 
 // AdjustmentRow - Interactive adjustment with 2-step review flow (direct approve/reject, reversible with Undo)
