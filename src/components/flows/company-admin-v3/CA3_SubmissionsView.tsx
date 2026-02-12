@@ -1456,15 +1456,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </div>}
                 </SheetHeader>
 
-                {/* Expired adjustments info banner */}
-                {selectedSubmission.status === "expired" && (
-                  <div className="mx-5 mt-4 rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
-                    <p className="text-[15px] font-medium text-muted-foreground/80">Adjustments expired (not approved by cutoff)</p>
-                    <p className="text-[13px] text-muted-foreground/60 mt-1 leading-relaxed">
-                      Base pay will be processed this period. Unapproved adjustments were not included because they missed the cutoff.
-                    </p>
-                  </div>
-                )}
+                {/* Expired adjustments info banner removed for cleaner layout */}
 
                 {/* Expired worker: show base pay + expired adjustments breakdown */}
                 {selectedSubmission.status === "expired" && (
@@ -1498,7 +1490,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         );
                       })}
                       <div className="flex items-center justify-between py-2 pt-3 mt-1 border-t border-dashed border-border/50">
-                        <span className="text-sm font-medium text-muted-foreground">Not included</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-sm font-medium text-muted-foreground cursor-help underline decoration-dotted underline-offset-2">Not included · Why?</span>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-[260px]">
+                            <p className="text-xs">Base pay will be processed this period. These adjustments were not approved by cutoff and are excluded from this batch.</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
                           +{formatCurrency(selectedSubmission.expiredAdjustments?.reduce((sum, a) => sum + (a.amount || 0), 0) || 0, currency)}
                         </span>
