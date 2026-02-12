@@ -691,7 +691,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExcluded && "opacity-50", isExpired && "opacity-60")}
+        className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExcluded && "opacity-50")}
         onClick={() => handleRowClick(submission)}>
 
         <Avatar className="h-7 w-7 flex-shrink-0">
