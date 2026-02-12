@@ -47,8 +47,8 @@ const countryFlags: Record<string, string> = {
 
 // Types - matching CA3_SubmissionsView exactly
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
-export type SubmissionStatus = "pending" | "reviewed" | "ready";
+// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized, expired = not ready by cutoff
+export type SubmissionStatus = "pending" | "reviewed" | "ready" | "expired";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 type LeaveTypeLocal = "Unpaid";
 
@@ -111,6 +111,8 @@ export interface WorkerSubmission {
   totalImpact?: number;
   currency?: string;
   flags?: WorkerFlag[];
+  invoiceNumber?: string;
+  carryOverFrom?: { period: string; amount: number; invoiceNumber?: string };
 }
 
 interface F1v4_SubmissionsViewProps {
@@ -136,6 +138,7 @@ const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: s
   pending: { icon: Clock, label: "Pending", color: "text-orange-600" },
   reviewed: { icon: Eye, label: "Reviewed", color: "text-blue-600" },
   ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
+  expired: { icon: XCircle, label: "Expired", color: "text-muted-foreground" },
 };
 
 // AdjustmentRow - Interactive adjustment with 2-step review flow (direct approve/reject, reversible with Undo)
@@ -507,6 +510,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   // Dynamic pending count
   const dynamicPendingCount = useMemo(() => {
     return submissions.reduce((count, submission) => {
+      if (submission.status === "expired") return count;
       const pendingAdjustments = submission.submissions.filter((adj, idx) => {
         const key = `${submission.id}-${idx}`;
         const localState = adjustmentStates[key];
@@ -535,10 +539,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     }, 0);
   }, [submissions, adjustmentStates, leaveStates]);
 
-  // Ready count = workers that have been finalized (marked as ready)
-  const readyCount = finalizedWorkers.size;
-  // Can continue only when ALL workers have been marked as ready
-  const canContinue = finalizedWorkers.size === submissions.length && submissions.length > 0;
+  const expiredCount = submissions.filter(s => s.status === "expired").length;
+  const readyCount = finalizedWorkers.size + expiredCount;
+  const canContinue = readyCount >= submissions.length && submissions.length > 0;
 
   const filteredSubmissions = useMemo(() => {
     if (!searchQuery) return submissions;
@@ -663,24 +666,21 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     // Check if worker is finalized
     const isFinalized = isWorkerFinalized(submission.id);
     
-    // Derive effective worker status: 
-    // - excluded = admin chose to exclude from this run
-    // - pending = has items needing review
-    // - reviewed = all items approved/rejected, awaiting "Mark as Ready"
-    // - ready = admin has clicked "Mark as Ready" (finalized)
+    const isExpired = submission.status === "expired";
     const isExcluded = statusDecisions[submission.id] === "exclude";
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isExcluded) {
-      effectiveWorkerStatus = "ready"; // finalized but we override display below
+    if (isExpired) {
+      effectiveWorkerStatus = "expired";
+    } else if (isExcluded) {
+      effectiveWorkerStatus = "ready";
     } else if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
     } else {
-      // All items reviewed but not yet finalized
       effectiveWorkerStatus = "reviewed";
     }
-    const status = isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
+    const status = isExpired ? statusConfig["expired"] : isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
     return (
@@ -690,7 +690,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExcluded && "opacity-50")}
+        className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExcluded && "opacity-50", isExpired && "opacity-60")}
         onClick={() => handleRowClick(submission)}
       >
         <Avatar className="h-7 w-7 flex-shrink-0">
@@ -704,7 +704,10 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[submission.workerCountry] || ""} {submission.workerCountry}</span>
-            {workerRejectedCount > 0 && workerPendingCount === 0 && (
+            {isExpired && (
+              <span className="text-[10px] text-muted-foreground/60">· Not ready by cutoff</span>
+            )}
+            {!isExpired && workerRejectedCount > 0 && workerPendingCount === 0 && (
               <span className="text-[10px] text-destructive/80">· 1 day to resubmit</span>
             )}
             {!isFinalized && submission.flags?.map((flag, fi) => (
@@ -952,7 +955,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <SheetTitle className="text-sm font-semibold text-foreground leading-tight">{selectedSubmission.workerName}</SheetTitle>
-                            {!showPendingOnly && (
+                            {!showPendingOnly && selectedSubmission.status !== "expired" && (
                               <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
                                 <Plus className="h-2.5 w-2.5" /><span>Add</span>
                               </button>
@@ -1001,6 +1004,34 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                     </SheetHeader>
 
+                    {/* Expired invoice info banner */}
+                    {selectedSubmission.status === "expired" && (
+                      <div className="mx-5 mt-4 rounded-lg border border-border/40 bg-muted/30 p-3.5">
+                        <div className="flex items-start gap-2.5">
+                          <AlertTriangle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-sm text-foreground font-medium leading-snug">
+                              Not ready by cutoff. This invoice expired and will be carried into the next payroll as an adjustment.
+                            </p>
+                            {selectedSubmission.invoiceNumber && (
+                              <p className="text-[11px] text-muted-foreground mt-1">
+                                {selectedSubmission.invoiceNumber} expired because it wasn't ready by cutoff.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Carry-over note */}
+                    {selectedSubmission.carryOverFrom && (
+                      <div className="mx-5 mt-3 rounded-lg border border-border/30 bg-primary/[0.03] px-3.5 py-2.5">
+                        <p className="text-[11px] text-muted-foreground">
+                          Includes carry-over from previous payroll ({selectedSubmission.carryOverFrom.period}).
+                        </p>
+                      </div>
+                    )}
+
                     {/* Excluded state toggle */}
                     {statusDecisions[selectedSubmission.id] === "exclude" && (
                       <div className="px-5 py-2.5 border-b border-border/20">
@@ -1037,6 +1068,16 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           {!showPendingOnly && earnings.map((item, idx) => (
                             <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
                           ))}
+                          {/* Carry-over adjustment from expired previous period */}
+                          {!showPendingOnly && selectedSubmission.carryOverFrom && (
+                            <div className="flex items-center justify-between py-2 -mx-3 px-3 rounded bg-primary/[0.04] border border-primary/10">
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm text-foreground">Carry-over adjustment</span>
+                                <span className="text-[10px] text-muted-foreground/70">From {selectedSubmission.carryOverFrom.period}{selectedSubmission.carryOverFrom.invoiceNumber ? ` · ${selectedSubmission.carryOverFrom.invoiceNumber}` : ''}</span>
+                              </div>
+                              <span className="text-sm tabular-nums font-mono text-foreground">+{formatCurrency(selectedSubmission.carryOverFrom.amount, currency)}</span>
+                            </div>
+                          )}
                           {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus').filter(({ adj, originalIdx }) => shouldShowItem(getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status)).map(({ adj, originalIdx }) => {
                             const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                             const itemId = `adj-${originalIdx}`;
@@ -1149,6 +1190,19 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
                     {/* Footer */}
                     {!expandedItemId && (() => {
+                      // Expired workers - read-only, no actions
+                      if (selectedSubmission.status === "expired") {
+                        return (
+                          <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                              <XCircle className="h-4 w-4" />
+                              <span className="text-sm font-medium">Expired</span>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground text-center mt-1.5">Voided by system · Will carry over to next period</p>
+                          </div>
+                        );
+                      }
+
                       // Excluded workers - no footer needed, tag shows status
                       if (statusDecisions[selectedSubmission.id] === "exclude") return null;
 
