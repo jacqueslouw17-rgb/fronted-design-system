@@ -39,8 +39,8 @@ const countryFlags: Record<string, string> = {
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
-export type SubmissionStatus = "pending" | "reviewed" | "ready" | "handover";
+// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized, expired = not ready by cutoff
+export type SubmissionStatus = "pending" | "reviewed" | "ready" | "handover" | "expired";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 // Only unpaid leave flows through payroll submissions - other leave types handled in Leaves tab
 type LeaveTypeLocal = "Unpaid";
