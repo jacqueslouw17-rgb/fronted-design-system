@@ -1706,6 +1706,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
                 {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
                 {!isAddingAdjustment && !expandedItemId && (() => {
+                // Expired workers - read-only, no actions
+                if (selectedSubmission.status === "expired") {
+                  return null;
+                }
                 const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
 
                 // Flagged workers: if they still have pending adjustments, show approve/reject
