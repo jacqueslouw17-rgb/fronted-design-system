@@ -1147,9 +1147,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             <span className="text-[11px] text-muted-foreground leading-tight">
               {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
-            {isExpired && <span className="text-[10px] text-muted-foreground/70">
-                · Not ready by cutoff
-              </span>}
+            {isExpired && (() => {
+              const expiredCount = submission.expiredAdjustments?.length || 0;
+              return (
+                <span className="text-[10px] text-muted-foreground/70">
+                  · Base pay: Included{expiredCount > 0 && ` · ${expiredCount} adjustment${expiredCount !== 1 ? 's' : ''} expired`}
+                </span>
+              );
+            })()}
             {workerRejectedCount > 0 && workerPendingCount === 0 && !isExpired && <span className="text-[10px] text-destructive/80">
                 · 1 day to resubmit
               </span>}
