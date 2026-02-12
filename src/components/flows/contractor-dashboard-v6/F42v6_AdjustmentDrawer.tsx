@@ -431,6 +431,7 @@ export const F42v6_AdjustmentDrawer = ({
         amount: parseFloat(item.amount),
         category: item.category,
         receiptUrl: item.receipt ? URL.createObjectURL(item.receipt) : undefined,
+        tags: expenseTags.length > 0 ? expenseTags : undefined,
       });
     });
 
