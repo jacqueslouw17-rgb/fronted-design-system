@@ -393,6 +393,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         amount: parseFloat(item.amount),
         category: item.category,
         receiptUrl: item.receipt ? URL.createObjectURL(item.receipt) : undefined,
+        tags: expenseTags.length > 0 ? expenseTags : undefined,
       });
     });
 
