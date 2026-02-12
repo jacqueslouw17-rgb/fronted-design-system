@@ -1104,7 +1104,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     // but company admin can still approve/reject adjustments
     const hasEndDateFlag = submission.flags?.some(f => f.type === "end_date");
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isFinalized) {
+    if (submission.status === "expired") {
+      effectiveWorkerStatus = "expired";
+    } else if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
