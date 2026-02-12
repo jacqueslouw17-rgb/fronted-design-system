@@ -190,8 +190,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
             >
               Terms &amp; Conditions
             </button>
-          </label>
-        </div>
+        </label>
       </div>
 
       {/* Terms Sheet */}
