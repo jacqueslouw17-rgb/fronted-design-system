@@ -249,29 +249,34 @@ const F41v6_ProfileSettings = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="space-y-6 pb-20 sm:pb-8"
+                  className="pb-20 sm:pb-8"
                 >
-                  <Card className="p-6 bg-card/20 border-border/30">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 rounded-lg border border-border/40 bg-card/30">
-                        <div className="flex items-center gap-3 flex-1">
-                          <FileText className="h-5 w-5 text-accent-green-text flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground">Signed Contract Bundle</p>
-                            <p className="text-xs text-muted-foreground">Your final HR-approved contract bundle.</p>
-                          </div>
+                  <div className="space-y-6 max-w-3xl mx-auto">
+                    <div className="bg-card/40 border border-border/40 rounded-lg p-6">
+                      <div className="flex items-start justify-between gap-4 mb-5">
+                        <div>
+                          <h3 className="text-lg font-semibold text-foreground">Documents</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Your signed documents are stored here
+                          </p>
                         </div>
-                        <Button size="sm" variant="outline" onClick={handleDownloadContract} className="flex-shrink-0 ml-4">
-                          <Download className="h-4 w-4 mr-1.5" />
+                        <Button variant="outline" onClick={() => setCurrentSection("overview")} size="sm">
+                          Back
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/30">
+                        <div className="flex items-center gap-2.5">
+                          <FileText className="h-4 w-4 text-primary" />
+                          <p className="text-sm font-medium text-foreground">Your Contract</p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={handleDownloadContract}>
+                          <Download className="h-3.5 w-3.5 mr-1" />
                           Download
                         </Button>
                       </div>
                     </div>
-                  </Card>
-
-                  <Button variant="outline" onClick={() => setCurrentSection("overview")}>
-                    Back to settings
-                  </Button>
+                  </div>
                 </motion.div>
               )}
 
