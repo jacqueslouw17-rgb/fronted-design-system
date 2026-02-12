@@ -111,6 +111,13 @@ export interface WorkerSubmission {
   flagged?: boolean;
   flagReason?: string;
   flags?: WorkerFlag[];
+  // Expired invoice support
+  invoiceNumber?: string;
+  carryOverFrom?: {
+    period: string;
+    amount: number;
+    invoiceNumber?: string;
+  };
 }
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 interface CA3_SubmissionsViewProps {
