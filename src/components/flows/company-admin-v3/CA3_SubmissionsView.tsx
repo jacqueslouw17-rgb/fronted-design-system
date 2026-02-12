@@ -1466,6 +1466,48 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   </div>
                 )}
 
+                {/* Expired worker: show base pay + expired adjustments breakdown */}
+                {selectedSubmission.status === "expired" && (
+                <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
+                  <CollapsibleSection title="Base Pay (Included in this batch)" defaultOpen={true} approvedCount={earnings.length}>
+                    {earnings.map((item, idx) =>
+                      <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
+                    )}
+                    {deductions.length > 0 && deductions.map((item, idx) =>
+                      <BreakdownRow key={`ded-${idx}`} label={item.label} amount={Math.abs(item.amount)} currency={currency} isLocked={item.locked} isPositive={false} />
+                    )}
+                    <BreakdownRow label="Included in this batch" amount={selectedSubmission.estimatedNet || selectedSubmission.basePay || 0} currency={currency} isPositive isTotal />
+                  </CollapsibleSection>
+                  {(selectedSubmission.expiredAdjustments?.length || 0) > 0 && (
+                    <CollapsibleSection title="Adjustments (Expired for this period)" defaultOpen={true} approvedCount={0}>
+                      {selectedSubmission.expiredAdjustments?.map((adj, idx) => {
+                        const config = submissionTypeConfig[adj.type as SubmissionType];
+                        return (
+                          <div key={idx} className="flex items-center justify-between py-2 opacity-60">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <XCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="text-sm text-muted-foreground">{adj.description || config?.label || 'Adjustment'}</span>
+                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-medium bg-muted/50 text-muted-foreground border-border/40">
+                                Expired
+                              </Badge>
+                            </div>
+                            <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through ml-3">
+                              +{formatCurrency(adj.amount || 0, currency)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      <div className="flex items-center justify-between py-2 pt-3 mt-1 border-t border-dashed border-border/50">
+                        <span className="text-sm font-medium text-muted-foreground">Not included</span>
+                        <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
+                          +{formatCurrency(selectedSubmission.expiredAdjustments?.reduce((sum, a) => sum + (a.amount || 0), 0) || 0, currency)}
+                        </span>
+                      </div>
+                    </CollapsibleSection>
+                  )}
+                </div>
+                )}
+
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
                   
