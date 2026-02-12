@@ -18,7 +18,6 @@ interface InvoiceBreakdownDrawerProps {
   currency: string;
   invoiceTotal: number;
   periodLabel: string;
-  carryOverFrom?: string;
 }
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -81,7 +80,6 @@ export const F42v6_InvoiceBreakdownDrawer = ({
   currency,
   invoiceTotal,
   periodLabel,
-  carryOverFrom,
 }: InvoiceBreakdownDrawerProps) => {
   
   const earnings = lineItems.filter(item => item.type === 'Earnings');
@@ -104,15 +102,6 @@ export const F42v6_InvoiceBreakdownDrawer = ({
         </SheetHeader>
 
         <div className="px-6 py-5 space-y-6">
-          {/* Carry-over helper note */}
-          {carryOverFrom && (
-            <div className="rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
-              <p className="text-[13px] text-muted-foreground/60 leading-relaxed">
-                Includes carry-over from previous payroll.
-              </p>
-            </div>
-          )}
-
           <section>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
               Earnings

@@ -28,9 +28,6 @@ interface PayslipData {
   earnings: { label: string; amount: number }[];
   deductions: { label: string; amount: number }[];
   netPay: number;
-  status?: 'paid';
-  carryOverFrom?: string;
-  carryOverAmount?: number;
 }
 
 const payslipsData: PayslipData[] = [
@@ -42,7 +39,6 @@ const payslipsData: PayslipData[] = [
       { label: "Base Salary", amount: 50000 },
       { label: "Overtime (8 hrs)", amount: 2500 },
       { label: "Performance Bonus", amount: 5000 },
-      { label: "Carry-over adjustment", amount: 3500 },
     ],
     deductions: [
       { label: "SSS Contribution", amount: 1125 },
@@ -51,9 +47,7 @@ const payslipsData: PayslipData[] = [
       { label: "Withholding Tax", amount: 8608.33 },
       { label: "Company Benefits", amount: 5000 },
     ],
-    netPay: 45666.67,
-    carryOverFrom: "Nov 2025",
-    carryOverAmount: 3500,
+    netPay: 42166.67,
   },
   {
     id: "1",
@@ -245,7 +239,6 @@ const F41v6_EmployeeDashboardPage = () => {
             earnings={selectedPayslip.earnings}
             deductions={selectedPayslip.deductions}
             netPay={selectedPayslip.netPay}
-            carryOverFrom={selectedPayslip.carryOverFrom}
           />
 
           {/* Adjustment Modal */}

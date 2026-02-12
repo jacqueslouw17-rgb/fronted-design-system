@@ -200,8 +200,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     estimatedNet: 4200,
     periodLabel: "Jan 1 – Jan 31",
     invoiceNumber: "INV-2026-005",
-    // Demo carry-over from Dec expired invoice
-    carryOverFrom: { period: "Dec 2025", amount: 1200, invoiceNumber: "INV-2025-042" },
+    
     lineItems: [
       { label: "Base Contract Fee", amount: 4200, type: "Earnings" },
     ],
@@ -253,35 +252,12 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     submissions: [],
     pendingLeaves: [],
   },
-  // Worker with expired adjustments - base pay still included
-  {
-    id: "8",
-    workerId: "8",
-    workerName: "Luca Bianchi",
-    workerType: "contractor",
-    workerCountry: "Portugal",
-    currency: "EUR",
-    status: "expired",
-    basePay: 3800,
-    estimatedNet: 3800,
-    periodLabel: "Jan 1 – Jan 31",
-    invoiceNumber: "INV-2026-008",
-    lineItems: [
-      { label: "Base Contract Fee", amount: 3800, type: "Earnings" },
-    ],
-    submissions: [],
-    pendingLeaves: [],
-    expiredAdjustments: [
-      { type: "expenses" as const, amount: 450, description: "Travel reimbursement", status: "pending" as const },
-      { type: "overtime" as const, amount: 620, hours: 8, description: "8h overtime", status: "pending" as const },
-    ],
-  },
 ];
 
 // Deduplicate: enforce 1 invoice/payslip per worker per pay period
-// If backend data contains duplicates, keep the most advanced status (ready > pending > expired)
+// If backend data contains duplicates, keep the most advanced status (ready > pending)
 // Mark extras as hidden — only the primary is shown
-const STATUS_PRIORITY: Record<string, number> = { ready: 3, reviewed: 2, pending: 1, expired: 0 };
+const STATUS_PRIORITY: Record<string, number> = { ready: 3, reviewed: 2, pending: 1 };
 const deduplicateByWorker = (workers: WorkerSubmission[]): WorkerSubmission[] => {
   const seen = new Map<string, WorkerSubmission>();
   for (const w of workers) {

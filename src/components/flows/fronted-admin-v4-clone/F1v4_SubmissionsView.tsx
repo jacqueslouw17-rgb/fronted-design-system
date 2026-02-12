@@ -47,8 +47,8 @@ const countryFlags: Record<string, string> = {
 
 // Types - matching CA3_SubmissionsView exactly
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized, expired = not ready by cutoff
-export type SubmissionStatus = "pending" | "reviewed" | "ready" | "expired";
+// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
+export type SubmissionStatus = "pending" | "reviewed" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 type LeaveTypeLocal = "Unpaid";
 
@@ -112,8 +112,6 @@ export interface WorkerSubmission {
   currency?: string;
   flags?: WorkerFlag[];
   invoiceNumber?: string;
-  carryOverFrom?: {period: string;amount: number;invoiceNumber?: string;};
-  expiredAdjustments?: SubmittedAdjustment[];
 }
 
 interface F1v4_SubmissionsViewProps {
@@ -139,7 +137,6 @@ const statusConfig: Record<SubmissionStatus, {icon: React.ElementType;label: str
   pending: { icon: Clock, label: "Pending", color: "text-orange-600" },
   reviewed: { icon: Eye, label: "Reviewed", color: "text-blue-600" },
   ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
-  expired: { icon: XCircle, label: "Expired", color: "text-muted-foreground" }
 };
 
 // AdjustmentRow - Interactive adjustment with 2-step review flow (direct approve/reject, reversible with Undo)
@@ -511,7 +508,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   // Dynamic pending count
   const dynamicPendingCount = useMemo(() => {
     return submissions.reduce((count, submission) => {
-      if (submission.status === "expired") return count;
       const pendingAdjustments = submission.submissions.filter((adj, idx) => {
         const key = `${submission.id}-${idx}`;
         const localState = adjustmentStates[key];
@@ -540,8 +536,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     }, 0);
   }, [submissions, adjustmentStates, leaveStates]);
 
-  const expiredCount = submissions.filter((s) => s.status === "expired").length;
-  const readyCount = finalizedWorkers.size + expiredCount;
+  const readyCount = finalizedWorkers.size;
   const canContinue = readyCount >= submissions.length && submissions.length > 0;
 
   const filteredSubmissions = useMemo(() => {
@@ -667,12 +662,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     // Check if worker is finalized
     const isFinalized = isWorkerFinalized(submission.id);
 
-    const isExpired = submission.status === "expired";
     const isExcluded = statusDecisions[submission.id] === "exclude";
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isExpired) {
-      effectiveWorkerStatus = "expired";
-    } else if (isExcluded) {
+    if (isExcluded) {
       effectiveWorkerStatus = "ready";
     } else if (isFinalized) {
       effectiveWorkerStatus = "ready";
@@ -681,7 +673,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     } else {
       effectiveWorkerStatus = "reviewed";
     }
-    const status = isExpired ? statusConfig["expired"] : isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
+    const status = isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
     return (
@@ -705,17 +697,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[submission.workerCountry] || ""} {submission.workerCountry}</span>
-            {isExpired && (() => {
-              const expiredCount = submission.expiredAdjustments?.length || 0;
-              const expiredTotal = submission.expiredAdjustments?.reduce((sum, a) => sum + (a.amount || 0), 0) || 0;
-              return (
-                <span className="text-[10px] text-muted-foreground/70">
-                  · Base pay: Included{expiredCount > 0 && ` · ${expiredCount} adjustment${expiredCount !== 1 ? 's' : ''} expired`}
-                </span>
-              );
-            })()
-            }
-            {!isExpired && workerRejectedCount > 0 && workerPendingCount === 0 &&
+            {workerRejectedCount > 0 && workerPendingCount === 0 &&
             <span className="text-[10px] text-destructive/80">· 1 day to resubmit</span>
             }
             {!isFinalized && submission.flags?.map((flag, fi) =>
@@ -963,7 +945,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <SheetTitle className="text-sm font-semibold text-foreground leading-tight">{selectedSubmission.workerName}</SheetTitle>
-                            {!showPendingOnly && selectedSubmission.status !== "expired" &&
+                            {!showPendingOnly &&
                           <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
                                 <Plus className="h-2.5 w-2.5" /><span>Add</span>
                               </button>
@@ -1012,16 +994,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                     </SheetHeader>
 
-                    {/* Expired adjustments info banner removed for cleaner layout */}
 
-                    {/* Carry-over note */}
-                    {selectedSubmission.carryOverFrom &&
-                  <div className="mx-5 mt-3 rounded-lg border border-border/30 bg-primary/[0.03] px-3.5 py-2.5">
-                        <p className="text-[11px] text-muted-foreground">
-                          Includes carry-over from previous payroll ({selectedSubmission.carryOverFrom.period}).
-                        </p>
-                      </div>
-                  }
 
                     {/* Excluded state toggle */}
                     {statusDecisions[selectedSubmission.id] === "exclude" &&
@@ -1049,62 +1022,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                   }
 
-                    {/* Expired worker: show base pay + expired adjustments breakdown */}
-                    {selectedSubmission.status === "expired" && (
-                    <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
-                      {/* Base Pay Section - Included */}
-                      <CollapsibleSection title="Base Pay (Included in this batch)" defaultOpen={true} approvedCount={earnings.length}>
-                        {earnings.map((item, idx) =>
-                          <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
-                        )}
-                        {deductions.length > 0 && deductions.map((item, idx) =>
-                          <BreakdownRow key={`ded-${idx}`} label={item.label} amount={Math.abs(item.amount)} currency={currency} isLocked={item.locked} isPositive={false} />
-                        )}
-                        <BreakdownRow label="Included in this batch" amount={selectedSubmission.estimatedNet || selectedSubmission.basePay || 0} currency={currency} isPositive isTotal />
-                      </CollapsibleSection>
-
-                      {/* Expired Adjustments Section */}
-                      {(selectedSubmission.expiredAdjustments?.length || 0) > 0 && (
-                        <CollapsibleSection title="Adjustments (Expired for this period)" defaultOpen={true} approvedCount={0}>
-                          {selectedSubmission.expiredAdjustments?.map((adj, idx) => {
-                            const config = submissionTypeConfig[adj.type as SubmissionType];
-                            return (
-                              <Tooltip key={idx}>
-                                <TooltipTrigger asChild>
-                                  <div className="flex items-center justify-between py-2 opacity-60">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                      <XCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                      <span className="text-sm text-muted-foreground">{adj.description || config?.label || 'Adjustment'}</span>
-                                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-medium bg-muted/50 text-muted-foreground border-border/40">
-                                        Expired
-                                      </Badge>
-                                    </div>
-                                    <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through ml-3">
-                                      +{formatCurrency(adj.amount || 0, currency)}
-                                    </span>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="left" className="max-w-[220px]">
-                                  <p className="text-xs">Missed approval cutoff. Not included in this payroll.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            );
-                          })}
-                          <div className="py-2 pt-3 mt-1 border-t border-dashed border-border/50">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-muted-foreground">Not included</span>
-                              <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
-                                +{formatCurrency(selectedSubmission.expiredAdjustments?.reduce((sum, a) => sum + (a.amount || 0), 0) || 0, currency)}
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-muted-foreground/50 mt-0.5">Not approved by cutoff — excluded from this batch</p>
-                          </div>
-                        </CollapsibleSection>
-                      )}
-                    </div>
-                    )}
-
-                    {selectedSubmission.status !== "expired" && (
                     <div className={cn("px-5 py-4 space-y-0.5", statusDecisions[selectedSubmission.id] === "exclude" && "opacity-40 pointer-events-none line-through")} onClick={() => setExpandedItemId(null)}>
                            <>
                       {/* EARNINGS Section */}
@@ -1115,16 +1032,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           {!showPendingOnly && earnings.map((item, idx) =>
                           <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
                           )}
-                          {/* Carry-over adjustment from expired previous period */}
-                          {!showPendingOnly && selectedSubmission.carryOverFrom &&
-                          <div className="flex items-center justify-between py-2 -mx-3 px-3 rounded bg-primary/[0.04] border border-primary/10">
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-sm text-foreground">Carry-over adjustment</span>
-                                <span className="text-[10px] text-muted-foreground/70">From {selectedSubmission.carryOverFrom.period}{selectedSubmission.carryOverFrom.invoiceNumber ? ` · ${selectedSubmission.carryOverFrom.invoiceNumber}` : ''}</span>
-                              </div>
-                              <span className="text-sm tabular-nums font-mono text-foreground">+{formatCurrency(selectedSubmission.carryOverFrom.amount, currency)}</span>
-                            </div>
-                          }
+                          
                           {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus').filter(({ adj, originalIdx }) => shouldShowItem(getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status)).map(({ adj, originalIdx }) => {
                             const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                             const itemId = `adj-${originalIdx}`;
@@ -1231,23 +1139,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                            </>
 
                     </div>
-                    )}
 
                     {/* Footer */}
                     {!expandedItemId && (() => {
-                    // Expired workers - read-only, no actions
-                    if (selectedSubmission.status === "expired") {
-                      return;
-
-
-
-
-
-
-
-
-                    }
-
                     // Excluded workers - no footer needed, tag shows status
                     if (statusDecisions[selectedSubmission.id] === "exclude") return null;
 
