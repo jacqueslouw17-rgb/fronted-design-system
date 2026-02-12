@@ -45,6 +45,8 @@ export const F41v6_PayoutBreakdownDrawer = ({
     { label: "Company Benefits", amount: 5000 },
   ],
   netPay,
+  isExpired = false,
+  carryOverFrom,
 }: F41v6_PayoutBreakdownDrawerProps) => {
   const currencySymbol = currency === "PHP" ? "₱" : "$";
 
