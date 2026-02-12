@@ -253,7 +253,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     submissions: [],
     pendingLeaves: [],
   },
-  // Expired worker - invoice wasn't ready by cutoff
+  // Worker with expired adjustments - base pay still included
   {
     id: "8",
     workerId: "8",
@@ -271,6 +271,10 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     ],
     submissions: [],
     pendingLeaves: [],
+    expiredAdjustments: [
+      { type: "expenses" as const, amount: 450, description: "Travel reimbursement", status: "pending" as const },
+      { type: "overtime" as const, amount: 620, hours: 8, description: "8h overtime", status: "pending" as const },
+    ],
   },
 ];
 

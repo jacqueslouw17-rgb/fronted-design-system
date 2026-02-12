@@ -118,6 +118,7 @@ export interface WorkerSubmission {
     amount: number;
     invoiceNumber?: string;
   };
+  expiredAdjustments?: SubmittedAdjustment[];
 }
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 interface CA3_SubmissionsViewProps {
@@ -1126,7 +1127,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
       opacity: 1
     }} exit={{
       opacity: 0
-    }} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExpired && "opacity-60")} onClick={() => handleRowClick(submission)}>
+    }} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group")} onClick={() => handleRowClick(submission)}>
         {/* Avatar */}
         <Avatar className="h-7 w-7 flex-shrink-0">
           <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
@@ -1146,9 +1147,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             <span className="text-[11px] text-muted-foreground leading-tight">
               {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
-            {isExpired && <span className="text-[10px] text-muted-foreground/70">
-                · Not ready by cutoff
-              </span>}
+            {isExpired && (() => {
+              const expiredCount = submission.expiredAdjustments?.length || 0;
+              return (
+                <span className="text-[10px] text-muted-foreground/70">
+                  · Base pay: Included{expiredCount > 0 && ` · ${expiredCount} adjustment${expiredCount !== 1 ? 's' : ''} expired`}
+                </span>
+              );
+            })()}
             {workerRejectedCount > 0 && workerPendingCount === 0 && !isExpired && <span className="text-[10px] text-destructive/80">
                 · 1 day to resubmit
               </span>}
@@ -1450,15 +1456,56 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </div>}
                 </SheetHeader>
 
-                {/* Expired invoice banner */}
+                {/* Expired adjustments info banner */}
                 {selectedSubmission.status === "expired" && (
-                  <div className="mx-5 mt-4 p-3 rounded-lg bg-muted/40 border border-border/40">
-                    <p className="text-sm text-muted-foreground font-medium">Not ready by cutoff</p>
-                    <p className="text-xs text-muted-foreground/70 mt-0.5">
-                      This {selectedSubmission.workerType === "employee" ? "payslip" : "invoice"} expired and will be carried into the next payroll as an adjustment.
-                      {selectedSubmission.invoiceNumber && ` ${selectedSubmission.invoiceNumber} expired because it wasn't ready by cutoff.`}
+                  <div className="mx-5 mt-4 rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
+                    <p className="text-[15px] font-medium text-muted-foreground/80">Adjustments expired (not approved by cutoff)</p>
+                    <p className="text-[13px] text-muted-foreground/60 mt-1 leading-relaxed">
+                      Base pay will be processed this period. Unapproved adjustments were not included because they missed the cutoff.
                     </p>
                   </div>
+                )}
+
+                {/* Expired worker: show base pay + expired adjustments breakdown */}
+                {selectedSubmission.status === "expired" && (
+                <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
+                  <CollapsibleSection title="Base Pay (Included in this batch)" defaultOpen={true} approvedCount={earnings.length}>
+                    {earnings.map((item, idx) =>
+                      <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
+                    )}
+                    {deductions.length > 0 && deductions.map((item, idx) =>
+                      <BreakdownRow key={`ded-${idx}`} label={item.label} amount={Math.abs(item.amount)} currency={currency} isLocked={item.locked} isPositive={false} />
+                    )}
+                    <BreakdownRow label="Included in this batch" amount={selectedSubmission.estimatedNet || selectedSubmission.basePay || 0} currency={currency} isPositive isTotal />
+                  </CollapsibleSection>
+                  {(selectedSubmission.expiredAdjustments?.length || 0) > 0 && (
+                    <CollapsibleSection title="Adjustments (Expired for this period)" defaultOpen={true} approvedCount={0}>
+                      {selectedSubmission.expiredAdjustments?.map((adj, idx) => {
+                        const config = submissionTypeConfig[adj.type as SubmissionType];
+                        return (
+                          <div key={idx} className="flex items-center justify-between py-2 opacity-60">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <XCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="text-sm text-muted-foreground">{adj.description || config?.label || 'Adjustment'}</span>
+                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-medium bg-muted/50 text-muted-foreground border-border/40">
+                                Expired
+                              </Badge>
+                            </div>
+                            <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through ml-3">
+                              +{formatCurrency(adj.amount || 0, currency)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      <div className="flex items-center justify-between py-2 pt-3 mt-1 border-t border-dashed border-border/50">
+                        <span className="text-sm font-medium text-muted-foreground">Not included</span>
+                        <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
+                          +{formatCurrency(selectedSubmission.expiredAdjustments?.reduce((sum, a) => sum + (a.amount || 0), 0) || 0, currency)}
+                        </span>
+                      </div>
+                    </CollapsibleSection>
+                  )}
+                </div>
                 )}
 
                 {/* Content with collapsible sections */}
