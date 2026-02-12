@@ -70,6 +70,25 @@ export const F41v6_PayoutBreakdownDrawer = ({
         </SheetHeader>
 
         <div className="px-6 py-5 space-y-6">
+          {/* Expired info note */}
+          {isExpired && (
+            <div className="rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
+              <p className="text-[15px] font-medium text-muted-foreground/80">Not ready by cutoff</p>
+              <p className="text-[13px] text-muted-foreground/60 mt-1 leading-relaxed">
+                This payslip wasn't finalized by cutoff. Any pending amount will be included in your next payslip as an adjustment.
+              </p>
+            </div>
+          )}
+
+          {/* Carry-over helper note */}
+          {carryOverFrom && !isExpired && (
+            <div className="rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
+              <p className="text-[13px] text-muted-foreground/60 leading-relaxed">
+                Includes carry-over from previous payroll.
+              </p>
+            </div>
+          )}
+
           {/* Earnings Section */}
           <section>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Earnings</h3>

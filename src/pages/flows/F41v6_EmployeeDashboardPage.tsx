@@ -262,6 +262,8 @@ const F41v6_EmployeeDashboardPage = () => {
             earnings={selectedPayslip.earnings}
             deductions={selectedPayslip.deductions}
             netPay={selectedPayslip.netPay}
+            isExpired={selectedPayslip.status === 'expired'}
+            carryOverFrom={selectedPayslip.carryOverFrom}
           />
 
           {/* Adjustment Modal */}
