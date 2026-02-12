@@ -1127,7 +1127,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
       opacity: 1
     }} exit={{
       opacity: 0
-    }} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExpired && "opacity-60")} onClick={() => handleRowClick(submission)}>
+    }} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group")} onClick={() => handleRowClick(submission)}>
         {/* Avatar */}
         <Avatar className="h-7 w-7 flex-shrink-0">
           <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
