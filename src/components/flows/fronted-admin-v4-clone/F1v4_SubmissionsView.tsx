@@ -539,10 +539,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     }, 0);
   }, [submissions, adjustmentStates, leaveStates]);
 
-  // Ready count = workers that have been finalized (marked as ready)
-  const readyCount = finalizedWorkers.size;
-  // Can continue only when ALL workers have been marked as ready
-  const canContinue = finalizedWorkers.size === submissions.length && submissions.length > 0;
+  const expiredCount = submissions.filter(s => s.status === "expired").length;
+  const readyCount = finalizedWorkers.size + expiredCount;
+  const canContinue = readyCount >= submissions.length && submissions.length > 0;
 
   const filteredSubmissions = useMemo(() => {
     if (!searchQuery) return submissions;
