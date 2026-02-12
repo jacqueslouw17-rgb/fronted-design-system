@@ -39,8 +39,8 @@ const countryFlags: Record<string, string> = {
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
-export type SubmissionStatus = "pending" | "reviewed" | "ready" | "handover";
+// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized, expired = not ready by cutoff
+export type SubmissionStatus = "pending" | "reviewed" | "ready" | "handover" | "expired";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 // Only unpaid leave flows through payroll submissions - other leave types handled in Leaves tab
 type LeaveTypeLocal = "Unpaid";
@@ -111,6 +111,13 @@ export interface WorkerSubmission {
   flagged?: boolean;
   flagReason?: string;
   flags?: WorkerFlag[];
+  // Expired invoice support
+  invoiceNumber?: string;
+  carryOverFrom?: {
+    period: string;
+    amount: number;
+    invoiceNumber?: string;
+  };
 }
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 interface CA3_SubmissionsViewProps {
@@ -205,6 +212,11 @@ const statusConfig: Record<SubmissionStatus, {
     icon: CheckCircle2,
     label: "Ready",
     color: "text-accent-green-text"
+  },
+  expired: {
+    icon: Clock,
+    label: "Expired",
+    color: "text-muted-foreground"
   }
 };
 
@@ -809,6 +821,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   // Computed counts - dynamically calculate based on local state overrides
   const dynamicPendingCount = useMemo(() => {
     return submissions.reduce((count, submission) => {
+      // Expired workers don't count as pending
+      if (submission.status === "expired") return count;
       // Count pending adjustments considering local overrides
       // Only count adjustments with amounts (timesheets without amounts are informational only)
       const pendingAdjustments = submission.submissions.filter((adj, idx) => {
@@ -867,9 +881,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     }).length;
     return pendingAdjs + pendingLeaves === 0;
   }).length;
-  const readyCount = finalizedWorkers.size + flaggedReadyCount;
+  const expiredCount = submissions.filter(s => s.status === "expired").length;
+  const readyCount = finalizedWorkers.size + flaggedReadyCount + expiredCount;
 
-  // Can continue only when ALL workers have been marked as ready (or flagged workers are handled)
+  // Can continue only when ALL workers have been marked as ready (or flagged/expired workers are handled)
   const canContinue = readyCount >= submissions.length && submissions.length > 0;
 
   // Filtered submissions
@@ -1089,7 +1104,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     // but company admin can still approve/reject adjustments
     const hasEndDateFlag = submission.flags?.some(f => f.type === "end_date");
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isFinalized) {
+    if (submission.status === "expired") {
+      effectiveWorkerStatus = "expired";
+    } else if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
@@ -1102,13 +1119,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     }
     const status = statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
+    const isExpired = effectiveWorkerStatus === "expired";
     return <motion.div key={submission.id} layout initial={{
       opacity: 0
     }} animate={{
       opacity: 1
     }} exit={{
       opacity: 0
-    }} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group")} onClick={() => handleRowClick(submission)}>
+    }} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExpired && "opacity-60")} onClick={() => handleRowClick(submission)}>
         {/* Avatar */}
         <Avatar className="h-7 w-7 flex-shrink-0">
           <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
@@ -1128,10 +1146,13 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             <span className="text-[11px] text-muted-foreground leading-tight">
               {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
-            {workerRejectedCount > 0 && workerPendingCount === 0 && <span className="text-[10px] text-destructive/80">
+            {isExpired && <span className="text-[10px] text-muted-foreground/70">
+                · Not ready by cutoff
+              </span>}
+            {workerRejectedCount > 0 && workerPendingCount === 0 && !isExpired && <span className="text-[10px] text-destructive/80">
                 · 1 day to resubmit
               </span>}
-            {!isFinalized && submission.flags?.map((flag, fi) => <Badge key={fi} variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium", flag.type === "end_date" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20" : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20")}>
+            {!isFinalized && !isExpired && submission.flags?.map((flag, fi) => <Badge key={fi} variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium", flag.type === "end_date" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20" : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20")}>
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
                 {flag.type === "end_date" ? flag.endReason === "Termination" ? "Terminated" : flag.endReason === "Resignation" ? "Resigned" : "Contract ended" : "Pay change"}
               </Badge>)}
@@ -1378,8 +1399,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         <SheetTitle className="text-sm font-semibold text-foreground leading-tight">
                           {selectedSubmission.workerName}
                         </SheetTitle>
-                        {/* Inline actions - next to name (hidden for flagged workers) */}
-                        {!showPendingOnly && !selectedSubmission.flags?.some(f => f.type === "end_date") && <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
+                        {/* Inline actions - next to name (hidden for flagged/expired workers) */}
+                        {!showPendingOnly && selectedSubmission.status !== "expired" && !selectedSubmission.flags?.some(f => f.type === "end_date") && <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
                             <Plus className="h-2.5 w-2.5" />
                             <span>Add</span>
                           </button>}
@@ -1429,13 +1450,22 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </div>}
                 </SheetHeader>
 
-                {/* Top banner removed — message moved to footer */}
+                {/* Expired invoice banner */}
+                {selectedSubmission.status === "expired" && (
+                  <div className="mx-5 mt-4 p-3 rounded-lg bg-muted/40 border border-border/40">
+                    <p className="text-sm text-muted-foreground font-medium">Not ready by cutoff</p>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">
+                      This {selectedSubmission.workerType === "employee" ? "payslip" : "invoice"} expired and will be carried into the next payroll as an adjustment.
+                      {selectedSubmission.invoiceNumber && ` ${selectedSubmission.invoiceNumber} expired because it wasn't ready by cutoff.`}
+                    </p>
+                  </div>
+                )}
 
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
                   
-                  {/* Breakdown sections - hidden when adding adjustment */}
-                  {!isAddingAdjustment && <>
+                  {/* Breakdown sections - hidden when adding adjustment or expired */}
+                  {!isAddingAdjustment && selectedSubmission.status !== "expired" && <>
                   
                   {/* Breakdown always visible */}
                   {(() => {
@@ -1445,6 +1475,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         return !showPendingOnly || earningAdjCounts.pending > 0 ? <CollapsibleSection title="Earnings" defaultOpen={!!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings' || !!payChangeFlag} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
                     {/* Base earnings */}
                     {!showPendingOnly && earnings.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />)}
+                    {/* Carry-over adjustment from expired previous period */}
+                    {!showPendingOnly && selectedSubmission.carryOverFrom && <div className="flex items-center justify-between py-2 -mx-3 px-3 rounded bg-primary/[0.04] border border-primary/10">
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm text-foreground">Carry-over adjustment</span>
+                          <span className="text-[10px] text-muted-foreground/70">From {selectedSubmission.carryOverFrom.period}{selectedSubmission.carryOverFrom.invoiceNumber ? ` · ${selectedSubmission.carryOverFrom.invoiceNumber}` : ''}</span>
+                        </div>
+                        <span className="text-sm tabular-nums font-mono text-foreground">+{formatCurrency(selectedSubmission.carryOverFrom.amount, currency)}</span>
+                      </div>}
                     {/* Adjustments (Expenses, Bonus) - no wrapper div */}
                     {allAdjustments.map((adj, originalIdx) => ({
                             adj,
@@ -1676,6 +1714,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
                 {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
                 {!isAddingAdjustment && !expandedItemId && (() => {
+                // Expired workers - read-only, no actions
+                if (selectedSubmission.status === "expired") {
+                  return null;
+                }
                 const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
 
                 // Flagged workers: if they still have pending adjustments, show approve/reject
