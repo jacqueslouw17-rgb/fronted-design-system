@@ -881,9 +881,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     }).length;
     return pendingAdjs + pendingLeaves === 0;
   }).length;
-  const readyCount = finalizedWorkers.size + flaggedReadyCount;
+  const expiredCount = submissions.filter(s => s.status === "expired").length;
+  const readyCount = finalizedWorkers.size + flaggedReadyCount + expiredCount;
 
-  // Can continue only when ALL workers have been marked as ready (or flagged workers are handled)
+  // Can continue only when ALL workers have been marked as ready (or flagged/expired workers are handled)
   const canContinue = readyCount >= submissions.length && submissions.length > 0;
 
   // Filtered submissions
