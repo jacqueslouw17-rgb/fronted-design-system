@@ -1006,20 +1006,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
                     {/* Expired invoice info banner */}
                     {selectedSubmission.status === "expired" &&
-                  <div className="mx-5 mt-4 rounded-lg border border-border/40 bg-muted/30 p-3.5">
-                        <div className="flex items-start gap-2.5">
-                          <AlertTriangle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                          <div>
-                            <p className="text-sm text-foreground font-medium leading-snug">
-                              Not ready by cutoff. This invoice expired and will be carried into the next payroll as an adjustment.
-                            </p>
-                            {selectedSubmission.invoiceNumber &&
-                        <p className="text-[11px] text-muted-foreground mt-1">
-                                {selectedSubmission.invoiceNumber} expired because it wasn't ready by cutoff.
-                              </p>
-                        }
-                          </div>
-                        </div>
+                  <div className="mx-5 mt-4 rounded-xl border border-border/40 bg-muted/20 p-5">
+                        <p className="text-sm font-semibold text-foreground">Not ready by cutoff</p>
+                        <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+                          This invoice expired and will be carried into the next payroll as an adjustment.{selectedSubmission.invoiceNumber && ` ${selectedSubmission.invoiceNumber} expired because it wasn't ready by cutoff.`}
+                        </p>
                       </div>
                   }
 
