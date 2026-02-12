@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { type F42v6_Adjustment } from '@/stores/F42v6_DashboardStore';
 import { FileText, Clock, AlertTriangle } from 'lucide-react';
+import { TagChips } from '@/components/flows/shared/TagInput';
 
 interface F42v6_AdjustmentDetailDrawerProps {
   adjustment: F42v6_Adjustment | null;
