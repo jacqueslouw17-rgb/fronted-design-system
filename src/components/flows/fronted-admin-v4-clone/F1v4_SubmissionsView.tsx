@@ -1012,12 +1012,12 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                     </SheetHeader>
 
-                    {/* Expired invoice info banner */}
+                    {/* Expired adjustments info banner */}
                     {selectedSubmission.status === "expired" &&
                   <div className="mx-5 mt-4 rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
-                        <p className="text-[15px] font-medium text-muted-foreground/80">Not ready by cutoff</p>
+                        <p className="text-[15px] font-medium text-muted-foreground/80">Adjustments expired (not approved by cutoff)</p>
                         <p className="text-[13px] text-muted-foreground/60 mt-1 leading-relaxed">
-                          This invoice expired and will be carried into the next payroll as an adjustment.{selectedSubmission.invoiceNumber && ` ${selectedSubmission.invoiceNumber} expired because it wasn't ready by cutoff.`}
+                          Base pay will be processed this period. Unapproved adjustments were not included because they missed the cutoff.
                         </p>
                       </div>
                   }
