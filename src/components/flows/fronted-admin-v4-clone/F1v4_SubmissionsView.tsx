@@ -1068,6 +1068,16 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           {!showPendingOnly && earnings.map((item, idx) => (
                             <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
                           ))}
+                          {/* Carry-over adjustment from expired previous period */}
+                          {!showPendingOnly && selectedSubmission.carryOverFrom && (
+                            <div className="flex items-center justify-between py-2 -mx-3 px-3 rounded bg-primary/[0.04] border border-primary/10">
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm text-foreground">Carry-over adjustment</span>
+                                <span className="text-[10px] text-muted-foreground/70">From {selectedSubmission.carryOverFrom.period}{selectedSubmission.carryOverFrom.invoiceNumber ? ` · ${selectedSubmission.carryOverFrom.invoiceNumber}` : ''}</span>
+                              </div>
+                              <span className="text-sm tabular-nums font-mono text-foreground">+{formatCurrency(selectedSubmission.carryOverFrom.amount, currency)}</span>
+                            </div>
+                          )}
                           {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus').filter(({ adj, originalIdx }) => shouldShowItem(getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status)).map(({ adj, originalIdx }) => {
                             const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                             const itemId = `adj-${originalIdx}`;
