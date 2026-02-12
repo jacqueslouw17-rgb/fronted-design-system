@@ -224,6 +224,8 @@ const F42v6_ContractorDashboardPage = () => {
             lineItems={selectedInvoice.lineItems}
             invoiceTotal={selectedInvoice.invoiceTotal}
             periodLabel={selectedInvoice.period}
+            isExpired={selectedInvoice.status === 'expired'}
+            carryOverFrom={selectedInvoice.carryOverFrom}
           />
 
           {/* Adjustment Drawer */}
