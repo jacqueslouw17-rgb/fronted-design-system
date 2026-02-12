@@ -22,6 +22,8 @@ interface F41v6_PayoutBreakdownDrawerProps {
   earnings?: { label: string; amount: number }[];
   deductions?: { label: string; amount: number }[];
   netPay?: number;
+  isExpired?: boolean;
+  carryOverFrom?: string;
 }
 
 export const F41v6_PayoutBreakdownDrawer = ({
