@@ -18,7 +18,6 @@ interface InvoiceBreakdownDrawerProps {
   currency: string;
   invoiceTotal: number;
   periodLabel: string;
-  isExpired?: boolean;
   carryOverFrom?: string;
 }
 
@@ -82,7 +81,6 @@ export const F42v6_InvoiceBreakdownDrawer = ({
   currency,
   invoiceTotal,
   periodLabel,
-  isExpired = false,
   carryOverFrom,
 }: InvoiceBreakdownDrawerProps) => {
   
@@ -106,18 +104,8 @@ export const F42v6_InvoiceBreakdownDrawer = ({
         </SheetHeader>
 
         <div className="px-6 py-5 space-y-6">
-          {/* Expired info note */}
-          {isExpired && (
-            <div className="rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
-              <p className="text-[15px] font-medium text-muted-foreground/80">Not ready by cutoff</p>
-              <p className="text-[13px] text-muted-foreground/60 mt-1 leading-relaxed">
-                This invoice wasn't ready by cutoff and expired. Any pending amount will be added to your next invoice as an adjustment.
-              </p>
-            </div>
-          )}
-
           {/* Carry-over helper note */}
-          {carryOverFrom && !isExpired && (
+          {carryOverFrom && (
             <div className="rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
               <p className="text-[13px] text-muted-foreground/60 leading-relaxed">
                 Includes carry-over from previous payroll.
