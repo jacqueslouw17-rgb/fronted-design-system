@@ -212,6 +212,11 @@ const statusConfig: Record<SubmissionStatus, {
     icon: CheckCircle2,
     label: "Ready",
     color: "text-accent-green-text"
+  },
+  expired: {
+    icon: Clock,
+    label: "Expired",
+    color: "text-muted-foreground"
   }
 };
 
