@@ -704,7 +704,10 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[submission.workerCountry] || ""} {submission.workerCountry}</span>
-            {workerRejectedCount > 0 && workerPendingCount === 0 && (
+            {isExpired && (
+              <span className="text-[10px] text-muted-foreground/60">· Not ready by cutoff</span>
+            )}
+            {!isExpired && workerRejectedCount > 0 && workerPendingCount === 0 && (
               <span className="text-[10px] text-destructive/80">· 1 day to resubmit</span>
             )}
             {!isFinalized && submission.flags?.map((flag, fi) => (
