@@ -185,7 +185,7 @@ export const TagChips = ({
       {visible.map((tag, i) => (
         <span
           key={`${tag}-${i}`}
-          className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-primary/8 text-primary/80 text-[10px] font-medium max-w-[100px] truncate"
+          className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium max-w-[100px] truncate"
         >
           {tag}
         </span>
