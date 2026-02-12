@@ -12,7 +12,7 @@ interface Invoice {
   period: string;
   paidDate: string;
   amount: number;
-  status: 'paid' | 'pending';
+  status: 'paid' | 'pending' | 'expired';
 }
 
 interface F42v6_InvoicesSectionProps {
@@ -30,6 +30,7 @@ export const F42v6_InvoicesSection = ({
   
   // Mock data
   const invoices: Invoice[] = [
+    { id: "expired-nov", period: "November 2025", paidDate: "", amount: 5250.00, status: 'expired' },
     { id: "1", period: "November 2025", paidDate: "Dec 5", amount: 5250.00, status: 'paid' },
     { id: "2", period: "October 2025", paidDate: "Nov 5", amount: 5100.00, status: 'paid' },
     { id: "3", period: "September 2025", paidDate: "Oct 5", amount: 5250.00, status: 'paid' },
