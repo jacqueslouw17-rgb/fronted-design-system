@@ -543,8 +543,6 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     </div>
   );
 
-              {/* Tags (optional) */}
-              <TagInput tags={expenseTags} onChange={setExpenseTags} />
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
