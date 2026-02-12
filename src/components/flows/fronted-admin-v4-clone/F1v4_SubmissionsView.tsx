@@ -510,6 +510,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   // Dynamic pending count
   const dynamicPendingCount = useMemo(() => {
     return submissions.reduce((count, submission) => {
+      if (submission.status === "expired") return count;
       const pendingAdjustments = submission.submissions.filter((adj, idx) => {
         const key = `${submission.id}-${idx}`;
         const localState = adjustmentStates[key];
