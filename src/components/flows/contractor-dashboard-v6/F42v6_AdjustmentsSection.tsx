@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { X, RotateCcw, Receipt, Sparkles } from 'lucide-react';
+import { TagChips } from '@/components/flows/shared/TagInput';
 import { useF42v6_DashboardStore, type F42v6_Adjustment } from '@/stores/F42v6_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
