@@ -711,9 +711,9 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                       </div>
                     )}
 
-                    {/* Supporting documents - multi upload */}
+                    {/* Attachments - multi upload */}
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Supporting documents</Label>
+                      <Label className="text-xs">Attachments</Label>
                       {/* Uploaded files list */}
                       {item.receipt.length > 0 && (
                         <div className="space-y-1.5">
