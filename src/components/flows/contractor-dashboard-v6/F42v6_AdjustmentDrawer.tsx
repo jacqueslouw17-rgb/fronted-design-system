@@ -800,6 +800,9 @@ export const F42v6_AdjustmentDrawer = ({
                 </button>
               </div>
 
+              {/* Tags (optional) */}
+              <TagInput tags={expenseTags} onChange={setExpenseTags} />
+
               {/* Session total - always show when items have amounts */}
               {expenseItems.length > 0 && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
