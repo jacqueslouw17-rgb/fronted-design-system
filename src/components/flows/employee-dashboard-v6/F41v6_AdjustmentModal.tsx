@@ -58,7 +58,7 @@ interface ExpenseLineItem {
   category: string;
   otherCategory: string;
   amount: string;
-  receipt: File | null;
+  receipt: File[];
 }
 
 interface OvertimeLineItem {
@@ -117,7 +117,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   
   const [selectedType, setSelectedType] = useState<RequestType>(null);
   const [expenseItems, setExpenseItems] = useState<ExpenseLineItem[]>([
-    { id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }
+    { id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: [] }
   ]);
   const [expenseCategory, setExpenseCategory] = useState('');
   const [expenseAmount, setExpenseAmount] = useState('');
@@ -137,7 +137,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
   const resetForm = () => {
     setSelectedType(initialType);
-    setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
+    setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: [] }]);
     setExpenseCategory(initialExpenseCategory);
     setExpenseAmount(initialExpenseAmount);
     setExpenseDescription('');
@@ -151,7 +151,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   };
 
   const addExpenseItem = () => {
-    setExpenseItems(prev => [...prev, { id: crypto.randomUUID(), category: '', otherCategory: '', amount: '', receipt: null }]);
+    setExpenseItems(prev => [...prev, { id: crypto.randomUUID(), category: '', otherCategory: '', amount: '', receipt: [] }]);
   };
 
   const removeExpenseItem = (id: string) => {
@@ -159,7 +159,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setExpenseItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateExpenseItem = (id: string, field: keyof ExpenseLineItem, value: string | File | null) => {
+  const updateExpenseItem = (id: string, field: keyof ExpenseLineItem, value: string | File[] | null) => {
     setExpenseItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -247,7 +247,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       setSelectedType(initialType);
     }
     if (open && initialType === 'expense' && (initialExpenseCategory || initialExpenseAmount)) {
-      setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
+      setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: [] }]);
     }
     // Pre-fill bonus amount for resubmissions
     if (open && initialType === 'bonus-correction' && initialExpenseAmount) {
@@ -317,8 +317,8 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         newErrors[`expense_${index}_amount`] = 'Required';
         hasError = true;
       }
-      if (!item.receipt) {
-        newErrors[`expense_${index}_receipt`] = 'Receipt required';
+      if (item.receipt.length === 0) {
+        newErrors[`expense_${index}_receipt`] = 'At least one document required';
         hasError = true;
       }
     });
@@ -392,7 +392,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         label: item.category,
         amount: parseFloat(item.amount),
         category: item.category,
-        receiptUrl: item.receipt ? URL.createObjectURL(item.receipt) : undefined,
+        receiptUrl: item.receipt.length > 0 ? URL.createObjectURL(item.receipt[0]) : undefined,
         tags: expenseTags.length > 0 ? expenseTags : undefined,
       });
     });
@@ -711,45 +711,65 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                       </div>
                     )}
 
-                    {/* Receipt upload - compact */}
+                    {/* Supporting documents - multi upload */}
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Receipt</Label>
-                      {item.receipt ? (
-                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
-                          {item.receipt.type.startsWith('image/') ? (
-                            <Image className="h-4 w-4 text-primary" />
-                          ) : (
-                            <FileText className="h-4 w-4 text-primary" />
-                          )}
-                          <span className="text-xs flex-1 truncate">{item.receipt.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => updateExpenseItem(item.id, 'receipt', null)}
-                            className="p-0.5 hover:bg-muted rounded"
-                          >
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          </button>
+                      <Label className="text-xs">Supporting documents</Label>
+                      {/* Uploaded files list */}
+                      {item.receipt.length > 0 && (
+                        <div className="space-y-1.5">
+                          {item.receipt.map((file, fileIdx) => (
+                            <div key={fileIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                              {file.type.startsWith('image/') ? (
+                                <Image className="h-4 w-4 text-primary shrink-0" />
+                              ) : (
+                                <FileText className="h-4 w-4 text-primary shrink-0" />
+                              )}
+                              <span className="text-xs flex-1 truncate">{file.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = item.receipt.filter((_, i) => i !== fileIdx);
+                                  updateExpenseItem(item.id, 'receipt', updated);
+                                }}
+                                className="p-0.5 hover:bg-muted rounded shrink-0"
+                              >
+                                <X className="h-3 w-3 text-muted-foreground" />
+                              </button>
+                            </div>
+                          ))}
                         </div>
-                      ) : (
-                        <label className={cn(
-                          "flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed cursor-pointer transition-colors",
-                          errors[`expense_${index}_receipt`] 
-                            ? "border-destructive bg-destructive/5" 
-                            : "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]"
-                        )}>
-                          <Upload className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">Upload receipt</span>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) updateExpenseItem(item.id, 'receipt', file);
-                            }}
-                          />
-                        </label>
                       )}
+                      {/* Upload trigger */}
+                      <label className={cn(
+                        "flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed cursor-pointer transition-colors",
+                        errors[`expense_${index}_receipt`] 
+                          ? "border-destructive bg-destructive/5" 
+                          : "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]"
+                      )}>
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {item.receipt.length === 0 ? 'Upload documents' : 'Add more'}
+                        </span>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+                            if (files.length > 0) {
+                              updateExpenseItem(item.id, 'receipt', [...item.receipt, ...files]);
+                              setErrors(prev => {
+                                const { [`expense_${index}_receipt`]: _, ...rest } = prev;
+                                return rest;
+                              });
+                            }
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+                      {errors[`expense_${index}_receipt`] && <p className="text-[11px] text-destructive">{errors[`expense_${index}_receipt`]}</p>}
+                      <p className="text-[11px] text-muted-foreground/70">Receipts, invoices, or any proof of purchase — PDF, JPG, PNG</p>
                     </div>
                   </div>
                 ))}
