@@ -105,6 +105,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     estimatedNet: 12000,
     totalImpact: 500,
     periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-001",
     lineItems: [
       { label: "Base Contract Fee", amount: 12000, type: "Earnings" },
     ],
@@ -125,6 +126,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     basePay: 6500,
     estimatedNet: 6500,
     periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-002",
     lineItems: [
       { label: "Base Contract Fee", amount: 6500, type: "Earnings" },
     ],
@@ -143,6 +145,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     estimatedNet: 238000,
     totalImpact: 15000,
     periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-003",
     lineItems: [
       { label: "Base Salary", amount: 280000, type: "Earnings" },
       { label: "Income Tax", amount: -28000, type: "Deduction", locked: true },
@@ -169,6 +172,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     estimatedNet: 52000,
     totalImpact: 4500,
     periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-004",
     lineItems: [
       { label: "Base Salary", amount: 65000, type: "Earnings" },
       { label: "Income Tax", amount: -9750, type: "Deduction", locked: true },
@@ -195,6 +199,9 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     basePay: 4200,
     estimatedNet: 4200,
     periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-005",
+    // Demo carry-over from Dec expired invoice
+    carryOverFrom: { period: "Dec 2025", amount: 1200, invoiceNumber: "INV-2025-042" },
     lineItems: [
       { label: "Base Contract Fee", amount: 4200, type: "Earnings" },
     ],
@@ -213,6 +220,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     estimatedNet: 72000,
     totalImpact: 3200,
     periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-006",
     lineItems: [
       { label: "Base Contract Fee", amount: 72000, type: "Earnings" },
     ],
@@ -236,6 +244,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     basePay: 5800,
     estimatedNet: 4350,
     periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-007",
     lineItems: [
       { label: "Base Salary", amount: 5800, type: "Earnings" },
       { label: "Income Tax", amount: -1160, type: "Deduction", locked: true },
@@ -244,7 +253,47 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     submissions: [],
     pendingLeaves: [],
   },
+  // Expired worker - invoice wasn't ready by cutoff
+  {
+    id: "8",
+    workerId: "8",
+    workerName: "Luca Bianchi",
+    workerType: "contractor",
+    workerCountry: "Portugal",
+    currency: "EUR",
+    status: "expired",
+    basePay: 3800,
+    estimatedNet: 3800,
+    periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-008",
+    lineItems: [
+      { label: "Base Contract Fee", amount: 3800, type: "Earnings" },
+    ],
+    submissions: [],
+    pendingLeaves: [],
+  },
 ];
+
+// Deduplicate: enforce 1 invoice/payslip per worker per pay period
+// If backend data contains duplicates, keep the most advanced status (ready > pending > expired)
+// Mark extras as hidden — only the primary is shown
+const STATUS_PRIORITY: Record<string, number> = { ready: 3, reviewed: 2, pending: 1, expired: 0 };
+const deduplicateByWorker = (workers: WorkerSubmission[]): WorkerSubmission[] => {
+  const seen = new Map<string, WorkerSubmission>();
+  for (const w of workers) {
+    const existing = seen.get(w.workerId);
+    if (!existing) {
+      seen.set(w.workerId, w);
+    } else {
+      const existingPriority = STATUS_PRIORITY[existing.status] ?? 0;
+      const newPriority = STATUS_PRIORITY[w.status] ?? 0;
+      if (newPriority > existingPriority) {
+        seen.set(w.workerId, w); // keep higher-priority status
+      }
+    }
+  }
+  return Array.from(seen.values());
+};
 
 // Per-run KPI metrics
 const RUN_METRICS: Record<string, { grossPay: string; adjustments: string; fees: string; totalCost: string; employeeCount: number; contractorCount: number; currencyCount: number }> = {
