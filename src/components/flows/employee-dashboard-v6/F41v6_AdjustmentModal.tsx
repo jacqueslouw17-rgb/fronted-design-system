@@ -28,6 +28,7 @@ import { toast } from 'sonner';
 import { useF41v6_DashboardStore } from '@/stores/F41v6_DashboardStore';
 import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle, CalendarOff } from 'lucide-react';
+import { TagInput } from '@/components/flows/shared/TagInput';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { F41v6_TimeInput } from './F41v6_TimeInput';
