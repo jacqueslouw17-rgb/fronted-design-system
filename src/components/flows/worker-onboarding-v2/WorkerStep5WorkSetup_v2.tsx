@@ -146,7 +146,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
                           className="h-6 w-6"
                           onClick={handleRemoveFile}
                         >
-                          <X className="h-4 w-4" />
+                          <XIcon className="h-4 w-4" />
                         </Button>
                       </div>
                     ) : (
