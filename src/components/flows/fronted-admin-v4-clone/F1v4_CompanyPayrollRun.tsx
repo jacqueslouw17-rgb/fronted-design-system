@@ -454,7 +454,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
 
   // Get current run metrics and submissions
   const currentRunMetrics = RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"];
-  const currentRunSubmissions = RUN_SUBMISSIONS[selectedPeriodId] || MOCK_SUBMISSIONS;
+  const currentRunSubmissions = deduplicateByWorker(RUN_SUBMISSIONS[selectedPeriodId] || MOCK_SUBMISSIONS);
 
   const employees = currentRunSubmissions.filter(w => w.workerType === "employee");
   const contractors = currentRunSubmissions.filter(w => w.workerType === "contractor");
