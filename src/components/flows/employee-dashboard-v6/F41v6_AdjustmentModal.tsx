@@ -72,7 +72,7 @@ interface OvertimeLineItem {
 interface BonusLineItem {
   id: string;
   amount: string;
-  attachment: File | null;
+  attachment: File[];
 }
 
 
@@ -128,7 +128,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     { id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }
   ]);
   const [bonusItems, setBonusItems] = useState<BonusLineItem[]>([
-    { id: crypto.randomUUID(), amount: '', attachment: null }
+    { id: crypto.randomUUID(), amount: '', attachment: [] }
   ]);
   const [unpaidLeaveDays, setUnpaidLeaveDays] = useState<string>('');
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
@@ -145,7 +145,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setExpenseNotes('');
     setExpenseTags([]);
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
-    setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
+    setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: [] }]);
     setUnpaidLeaveDays(initialDays?.toString() || '');
     setErrors({});
   };
@@ -207,7 +207,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   };
 
   const addBonusItem = () => {
-    setBonusItems(prev => [...prev, { id: crypto.randomUUID(), amount: '', attachment: null }]);
+    setBonusItems(prev => [...prev, { id: crypto.randomUUID(), amount: '', attachment: [] }]);
   };
 
   const removeBonusItem = (id: string) => {
@@ -215,7 +215,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setBonusItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateBonusItem = (id: string, field: keyof BonusLineItem, value: string | File | null) => {
+  const updateBonusItem = (id: string, field: keyof BonusLineItem, value: string | File[] | null) => {
     setBonusItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -251,7 +251,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     }
     // Pre-fill bonus amount for resubmissions
     if (open && initialType === 'bonus-correction' && initialExpenseAmount) {
-      setBonusItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount, attachment: null }]);
+      setBonusItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount, attachment: [] }]);
     }
     // Pre-fill overtime hours for resubmissions
     if (open && initialType === 'overtime') {
@@ -447,7 +447,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         type: 'Bonus',
         label: bonusItems.length > 1 ? `Bonus request #${index + 1}` : 'Bonus request',
         amount: parseFloat(item.amount),
-        receiptUrl: item.attachment ? URL.createObjectURL(item.attachment) : undefined,
+        receiptUrl: item.attachment.length > 0 ? URL.createObjectURL(item.attachment[0]) : undefined,
       });
     });
 
@@ -983,40 +983,52 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                       )}
                     </div>
 
-                    {/* Attachment upload - optional */}
+                    {/* Attachment upload - optional, multi */}
                     <div className="space-y-1.5">
                       <Label className="text-xs">Attachment (optional)</Label>
-                      {item.attachment ? (
-                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
-                          {item.attachment.type.startsWith('image/') ? (
-                            <Image className="h-4 w-4 text-primary" />
-                          ) : (
-                            <FileText className="h-4 w-4 text-primary" />
-                          )}
-                          <span className="text-xs flex-1 truncate">{item.attachment.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => updateBonusItem(item.id, 'attachment', null)}
-                            className="p-0.5 hover:bg-muted rounded"
-                          >
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          </button>
+                      {item.attachment.length > 0 && (
+                        <div className="space-y-1.5">
+                          {item.attachment.map((file, fileIdx) => (
+                            <div key={fileIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                              {file.type.startsWith('image/') ? (
+                                <Image className="h-4 w-4 text-primary shrink-0" />
+                              ) : (
+                                <FileText className="h-4 w-4 text-primary shrink-0" />
+                              )}
+                              <span className="text-xs flex-1 truncate">{file.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = item.attachment.filter((_, i) => i !== fileIdx);
+                                  updateBonusItem(item.id, 'attachment', updated);
+                                }}
+                                className="p-0.5 hover:bg-muted rounded shrink-0"
+                              >
+                                <X className="h-3 w-3 text-muted-foreground" />
+                              </button>
+                            </div>
+                          ))}
                         </div>
-                      ) : (
-                        <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
-                          <Upload className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">Upload file</span>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) updateBonusItem(item.id, 'attachment', file);
-                            }}
-                          />
-                        </label>
                       )}
+                      <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {item.attachment.length === 0 ? 'Upload files' : 'Add more'}
+                        </span>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+                            if (files.length > 0) {
+                              updateBonusItem(item.id, 'attachment', [...item.attachment, ...files]);
+                            }
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
                     </div>
                   </div>
                 ))}

@@ -82,7 +82,7 @@ interface AdditionalHoursLineItem {
 interface CommissionLineItem {
   id: string;
   amount: string;
-  attachment: File | null;
+  attachment: File[];
 }
 const getRequestTypeOptions = (contractType: F42v6_ContractType) => {
   const options = [
@@ -153,7 +153,7 @@ export const F42v6_AdjustmentDrawer = ({
   
   // Commission form state - multiple line items
   const [commissionItems, setCommissionItems] = useState<CommissionLineItem[]>([
-    { id: crypto.randomUUID(), amount: '', attachment: null }
+    { id: crypto.randomUUID(), amount: '', attachment: [] }
   ]);
   
   // Correction form state
@@ -172,7 +172,7 @@ export const F42v6_AdjustmentDrawer = ({
     setSelectedType(initialType);
     setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: [] }]);
     setAdditionalHoursItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
-    setCommissionItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
+    setCommissionItems([{ id: crypto.randomUUID(), amount: '', attachment: [] }]);
     setCorrectionDescription('');
     setCorrectionAttachment(null);
     setExpenseTags([]);
@@ -224,7 +224,7 @@ export const F42v6_AdjustmentDrawer = ({
 
   // Commission line item helpers
   const addCommissionItem = () => {
-    setCommissionItems(prev => [...prev, { id: crypto.randomUUID(), amount: '', attachment: null }]);
+    setCommissionItems(prev => [...prev, { id: crypto.randomUUID(), amount: '', attachment: [] }]);
   };
 
   const removeCommissionItem = (id: string) => {
@@ -232,7 +232,7 @@ export const F42v6_AdjustmentDrawer = ({
     setCommissionItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateCommissionItem = (id: string, field: keyof CommissionLineItem, value: string | File | null) => {
+  const updateCommissionItem = (id: string, field: keyof CommissionLineItem, value: string | File[] | null) => {
     setCommissionItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -293,7 +293,7 @@ export const F42v6_AdjustmentDrawer = ({
     }
     // Pre-fill commission amount for resubmissions
     if (open && initialType === 'bonus' && initialExpenseAmount) {
-      setCommissionItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount, attachment: null }]);
+      setCommissionItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount, attachment: [] }]);
     }
     // Pre-fill additional hours for resubmissions
     if (open && initialType === 'additional-hours') {
@@ -493,7 +493,7 @@ export const F42v6_AdjustmentDrawer = ({
         type: 'Bonus',
         label: 'Commission',
         amount: parseFloat(item.amount),
-        receiptUrl: item.attachment ? URL.createObjectURL(item.attachment) : undefined,
+        receiptUrl: item.attachment.length > 0 ? URL.createObjectURL(item.attachment[0]) : undefined,
       });
     });
 
@@ -1019,40 +1019,52 @@ export const F42v6_AdjustmentDrawer = ({
                       )}
                     </div>
 
-                    {/* Attachment upload - optional */}
+                    {/* Attachment upload - optional, multi */}
                     <div className="space-y-1.5">
                       <Label className="text-xs">Attachment (optional)</Label>
-                      {item.attachment ? (
-                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
-                          {item.attachment.type.startsWith('image/') ? (
-                            <Image className="h-4 w-4 text-primary" />
-                          ) : (
-                            <FileText className="h-4 w-4 text-primary" />
-                          )}
-                          <span className="text-xs flex-1 truncate">{item.attachment.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => updateCommissionItem(item.id, 'attachment', null)}
-                            className="p-0.5 hover:bg-muted rounded"
-                          >
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          </button>
+                      {item.attachment.length > 0 && (
+                        <div className="space-y-1.5">
+                          {item.attachment.map((file, fileIdx) => (
+                            <div key={fileIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                              {file.type.startsWith('image/') ? (
+                                <Image className="h-4 w-4 text-primary shrink-0" />
+                              ) : (
+                                <FileText className="h-4 w-4 text-primary shrink-0" />
+                              )}
+                              <span className="text-xs flex-1 truncate">{file.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = item.attachment.filter((_, i) => i !== fileIdx);
+                                  updateCommissionItem(item.id, 'attachment', updated);
+                                }}
+                                className="p-0.5 hover:bg-muted rounded shrink-0"
+                              >
+                                <X className="h-3 w-3 text-muted-foreground" />
+                              </button>
+                            </div>
+                          ))}
                         </div>
-                      ) : (
-                        <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
-                          <Upload className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">Upload file</span>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) updateCommissionItem(item.id, 'attachment', file);
-                            }}
-                          />
-                        </label>
                       )}
+                      <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {item.attachment.length === 0 ? 'Upload files' : 'Add more'}
+                        </span>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+                            if (files.length > 0) {
+                              updateCommissionItem(item.id, 'attachment', [...item.attachment, ...files]);
+                            }
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
                     </div>
                   </div>
                 ))}
