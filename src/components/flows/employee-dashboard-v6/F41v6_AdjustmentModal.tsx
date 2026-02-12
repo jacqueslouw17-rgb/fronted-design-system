@@ -131,6 +131,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     { id: crypto.randomUUID(), amount: '', attachment: null }
   ]);
   const [unpaidLeaveDays, setUnpaidLeaveDays] = useState<string>('');
+  const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
 
