@@ -955,7 +955,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <SheetTitle className="text-sm font-semibold text-foreground leading-tight">{selectedSubmission.workerName}</SheetTitle>
-                            {!showPendingOnly && (
+                            {!showPendingOnly && selectedSubmission.status !== "expired" && (
                               <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
                                 <Plus className="h-2.5 w-2.5" /><span>Add</span>
                               </button>
