@@ -111,6 +111,8 @@ export interface WorkerSubmission {
   totalImpact?: number;
   currency?: string;
   flags?: WorkerFlag[];
+  invoiceNumber?: string;
+  carryOverFrom?: { period: string; amount: number; invoiceNumber?: string };
 }
 
 interface F1v4_SubmissionsViewProps {
