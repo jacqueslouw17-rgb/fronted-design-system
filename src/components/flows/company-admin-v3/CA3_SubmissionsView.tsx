@@ -821,6 +821,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   // Computed counts - dynamically calculate based on local state overrides
   const dynamicPendingCount = useMemo(() => {
     return submissions.reduce((count, submission) => {
+      // Expired workers don't count as pending
+      if (submission.status === "expired") return count;
       // Count pending adjustments considering local overrides
       // Only count adjustments with amounts (timesheets without amounts are informational only)
       const pendingAdjustments = submission.submissions.filter((adj, idx) => {
