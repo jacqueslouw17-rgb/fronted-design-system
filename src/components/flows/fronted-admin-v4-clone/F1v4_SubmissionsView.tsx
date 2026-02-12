@@ -47,8 +47,8 @@ const countryFlags: Record<string, string> = {
 
 // Types - matching CA3_SubmissionsView exactly
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
-export type SubmissionStatus = "pending" | "reviewed" | "ready";
+// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized, expired = not ready by cutoff
+export type SubmissionStatus = "pending" | "reviewed" | "ready" | "expired";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 type LeaveTypeLocal = "Unpaid";
 
