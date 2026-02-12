@@ -172,13 +172,12 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
       </div>
 
       {/* Terms & Conditions */}
-      <div className="bg-card/40 border border-border/40 rounded-lg px-5 py-4">
-        <div className="flex items-center gap-3">
-          <Checkbox
-            id="terms"
-            checked={termsAccepted}
-            onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-          />
+      <div className="flex items-center gap-3">
+        <Checkbox
+          id="terms"
+          checked={termsAccepted}
+          onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+        />
           <label htmlFor="terms" className="text-sm text-foreground leading-snug cursor-pointer select-none">
             I agree to the{" "}
             <button
@@ -191,8 +190,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
             >
               Terms &amp; Conditions
             </button>
-          </label>
-        </div>
+        </label>
       </div>
 
       {/* Terms Sheet */}
