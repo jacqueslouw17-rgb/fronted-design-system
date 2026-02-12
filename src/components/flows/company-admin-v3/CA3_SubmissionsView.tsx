@@ -1489,19 +1489,15 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           </div>
                         );
                       })}
-                      <div className="flex items-center justify-between py-2 pt-3 mt-1 border-t border-dashed border-border/50">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="text-sm font-medium text-muted-foreground cursor-help underline decoration-dotted underline-offset-2">Not included · Why?</span>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="max-w-[260px]">
-                            <p className="text-xs">Base pay will be processed this period. These adjustments were not approved by cutoff and are excluded from this batch.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
-                          +{formatCurrency(selectedSubmission.expiredAdjustments?.reduce((sum, a) => sum + (a.amount || 0), 0) || 0, currency)}
-                        </span>
-                      </div>
+                        <div className="py-2 pt-3 mt-1 border-t border-dashed border-border/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-muted-foreground">Not included</span>
+                            <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
+                              +{formatCurrency(selectedSubmission.expiredAdjustments?.reduce((sum, a) => sum + (a.amount || 0), 0) || 0, currency)}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground/50 mt-0.5">Not approved by cutoff — excluded from this batch</p>
+                        </div>
                     </CollapsibleSection>
                   )}
                 </div>
