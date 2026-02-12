@@ -82,6 +82,8 @@ export const F42v6_InvoiceBreakdownDrawer = ({
   currency,
   invoiceTotal,
   periodLabel,
+  isExpired = false,
+  carryOverFrom,
 }: InvoiceBreakdownDrawerProps) => {
   
   const earnings = lineItems.filter(item => item.type === 'Earnings');
