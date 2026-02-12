@@ -30,6 +30,9 @@ interface InvoiceData {
   paidDate: string;
   lineItems: F42v5_LineItem[];
   invoiceTotal: number;
+  status?: 'paid' | 'expired';
+  carryOverFrom?: string;
+  carryOverAmount?: number;
 }
 
 const invoicesData: InvoiceData[] = [
@@ -40,8 +43,22 @@ const invoicesData: InvoiceData[] = [
     lineItems: [
       { type: 'Earnings', label: 'Consulting Services', meta: '40 hrs @ $125/hr', amount: 5000 },
       { type: 'Earnings', label: 'Project Milestone Bonus', meta: 'Q4 completion', amount: 250 },
+      { type: 'Earnings', label: 'Carry-over adjustment', meta: 'From previous payroll period', amount: 800 },
+    ],
+    invoiceTotal: 6050,
+    carryOverFrom: "Nov 2025",
+    carryOverAmount: 800,
+  },
+  {
+    id: "expired-nov",
+    period: "Nov 2025",
+    paidDate: "",
+    lineItems: [
+      { type: 'Earnings', label: 'Consulting Services', meta: '40 hrs @ $125/hr', amount: 5000 },
+      { type: 'Earnings', label: 'Bug Fix Sprint', meta: 'Additional work', amount: 250 },
     ],
     invoiceTotal: 5250,
+    status: 'expired',
   },
   {
     id: "1",
