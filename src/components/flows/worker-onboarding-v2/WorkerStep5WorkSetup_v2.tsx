@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight, FileText, Upload, X } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { ArrowRight, FileText, Upload, X as XIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CurrencyInput from "@/components/shared/CurrencyInput";
 
@@ -32,6 +33,8 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
     assetAcknowledged: formData.assetAcknowledged || false,
     agreementSigned: formData.agreementSigned || false
   });
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsSheetOpen, setTermsSheetOpen] = useState(false);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -48,11 +51,12 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
     onComplete("work_setup", data);
   };
 
-  const isValid = data.deviceProvided === undefined
+  const deviceValid = data.deviceProvided === undefined
     ? true
     : data.deviceProvided 
       ? data.assetAcknowledged
       : true;
+  const isValid = deviceValid && termsAccepted;
 
 
   return (
@@ -142,7 +146,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
                           className="h-6 w-6"
                           onClick={handleRemoveFile}
                         >
-                          <X className="h-4 w-4" />
+                          <XIcon className="h-4 w-4" />
                         </Button>
                       </div>
                     ) : (
@@ -167,8 +171,107 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         )}
       </div>
 
+      {/* Terms & Conditions */}
+      <div className="bg-card/40 border border-border/40 rounded-lg px-5 py-4">
+        <div className="flex items-center gap-3">
+          <Checkbox
+            id="terms"
+            checked={termsAccepted}
+            onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+          />
+          <label htmlFor="terms" className="text-sm text-foreground leading-snug cursor-pointer select-none">
+            I agree to the{" "}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setTermsSheetOpen(true);
+              }}
+              className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+            >
+              Terms &amp; Conditions
+            </button>
+          </label>
+        </div>
+      </div>
 
+      {/* Terms Sheet */}
+      <Sheet open={termsSheetOpen} onOpenChange={setTermsSheetOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0 [&>button]:hidden">
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/40 px-6 py-5 flex items-center justify-between">
+            <SheetTitle className="text-lg font-semibold">Terms &amp; Conditions</SheetTitle>
+            <button
+              onClick={() => setTermsSheetOpen(false)}
+              className="p-1.5 rounded-lg hover:bg-muted/60 transition-colors"
+              aria-label="Close"
+            >
+              <XIcon className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
 
+          <div className="px-6 py-6 space-y-6">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              By accessing and using the Fronted platform, you agree to the following terms and conditions.
+              These terms govern your use of the platform as a Candidate.
+            </p>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">1. Platform Usage</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You are granted access to manage your personal profile, payroll information, and employment
+                workflows through the platform. You agree to use the platform responsibly and in
+                accordance with applicable laws.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">2. Data Privacy</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                All personal and employment data processed through the platform is handled in
+                compliance with GDPR and relevant data protection regulations. You are responsible
+                for ensuring the accuracy of the data you submit.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">3. Security</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You agree to maintain the confidentiality of your login credentials and to notify
+                us immediately of any unauthorized access to your account.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">4. Liability</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The platform is provided "as is." While we take reasonable measures to ensure
+                accuracy and uptime, we are not liable for any indirect damages arising from
+                platform use.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">5. Amendments</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                We reserve the right to update these terms at any time. Continued use of the
+                platform constitutes acceptance of any changes.
+              </p>
+            </section>
+
+            <div className="pt-4 pb-2">
+              <Button
+                onClick={() => {
+                  setTermsAccepted(true);
+                  setTermsSheetOpen(false);
+                }}
+                className="w-full"
+              >
+                I agree
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <Button
         onClick={handleContinue}
