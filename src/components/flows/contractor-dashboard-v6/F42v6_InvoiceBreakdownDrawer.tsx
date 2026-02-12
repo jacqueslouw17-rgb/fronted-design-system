@@ -18,6 +18,8 @@ interface InvoiceBreakdownDrawerProps {
   currency: string;
   invoiceTotal: number;
   periodLabel: string;
+  isExpired?: boolean;
+  carryOverFrom?: string;
 }
 
 const formatCurrency = (amount: number, currency: string) => {
