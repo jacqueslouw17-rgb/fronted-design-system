@@ -1006,9 +1006,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
                     {/* Expired invoice info banner */}
                     {selectedSubmission.status === "expired" &&
-                  <div className="mx-5 mt-4 rounded-xl border border-border/40 bg-muted/20 p-5">
-                        <p className="text-sm font-semibold text-foreground">Not ready by cutoff</p>
-                        <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+                  <div className="mx-5 mt-4 rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
+                        <p className="text-[15px] font-medium text-muted-foreground/80">Not ready by cutoff</p>
+                        <p className="text-[13px] text-muted-foreground/60 mt-1 leading-relaxed">
                           This invoice expired and will be carried into the next payroll as an adjustment.{selectedSubmission.invoiceNumber && ` ${selectedSubmission.invoiceNumber} expired because it wasn't ready by cutoff.`}
                         </p>
                       </div>
