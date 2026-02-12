@@ -7,9 +7,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, ArrowRight, Sparkles, Loader2, Info } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { CheckCircle2, ArrowRight, Sparkles, Loader2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { motion } from "framer-motion";
 interface Step7Props {
   formData: Record<string, any>;
