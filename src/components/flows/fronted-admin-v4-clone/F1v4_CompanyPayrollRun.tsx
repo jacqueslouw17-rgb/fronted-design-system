@@ -272,8 +272,8 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     submissions: [],
     pendingLeaves: [],
     expiredAdjustments: [
-      { type: "expenses" as SubmissionType, amount: 450, description: "Travel reimbursement", status: "pending" as AdjustmentItemStatus },
-      { type: "overtime" as SubmissionType, amount: 620, hours: 8, description: "8h overtime", status: "pending" as AdjustmentItemStatus },
+      { type: "expenses" as const, amount: 450, description: "Travel reimbursement", status: "pending" as const },
+      { type: "overtime" as const, amount: 620, hours: 8, description: "8h overtime", status: "pending" as const },
     ],
   },
 ];
