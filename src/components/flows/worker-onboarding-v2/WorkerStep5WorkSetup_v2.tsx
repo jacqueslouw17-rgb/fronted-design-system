@@ -33,6 +33,8 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
     assetAcknowledged: formData.assetAcknowledged || false,
     agreementSigned: formData.agreementSigned || false
   });
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsSheetOpen, setTermsSheetOpen] = useState(false);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
