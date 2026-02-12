@@ -160,6 +160,7 @@ export const F42v6_AdjustmentDrawer = ({
   const [correctionDescription, setCorrectionDescription] = useState('');
   const [correctionAttachment, setCorrectionAttachment] = useState<File | null>(null);
   
+  const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
   // Track which date popover is open (by item id)
