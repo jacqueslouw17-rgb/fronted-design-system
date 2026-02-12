@@ -12,17 +12,18 @@ import { Label } from '@/components/ui/label';
 const MAX_TAGS = 10;
 const MAX_TAG_LENGTH = 24;
 
-// Shared "recent tags" pool (simulates persisted recent tags)
-const RECENT_TAGS_POOL = [
-  'NY trip',
-  'Client dinner',
-  'Q1 offsite',
-  'Home office',
-  'Conference',
-  'Team event',
-  'Travel',
-  'Onboarding',
-];
+// Per-worker recent tags pool — starts empty, accumulates as the worker adds tags during the session.
+// In a real app this would be persisted per worker; here it's module-level so it survives modal re-opens.
+const workerRecentTags: string[] = [];
+
+const addToRecentPool = (tag: string) => {
+  const norm = tag.trim().toLowerCase();
+  if (!norm) return;
+  if (workerRecentTags.some((t) => t.toLowerCase() === norm)) return;
+  workerRecentTags.unshift(tag.trim());
+  // Keep pool reasonable
+  if (workerRecentTags.length > 20) workerRecentTags.pop();
+};
 
 interface TagInputProps {
   tags: string[];
@@ -37,14 +38,14 @@ export const TagInput = ({ tags, onChange, className }: TagInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const addTag = useCallback(
+    const addTag = useCallback(
     (raw: string) => {
       const trimmed = raw.trim().slice(0, MAX_TAG_LENGTH);
       if (!trimmed) return;
       if (tags.length >= MAX_TAGS) return;
-      // Case-insensitive dedup
       if (tags.some((t) => normalise(t) === normalise(trimmed))) return;
       onChange([...tags, trimmed]);
+      addToRecentPool(trimmed);
       setInputValue('');
     },
     [tags, onChange],
@@ -68,15 +69,15 @@ export const TagInput = ({ tags, onChange, className }: TagInputProps) => {
   };
 
   // Filter recent suggestions
-  const suggestions =
+    const suggestions =
     isFocused && inputValue.length > 0
-      ? RECENT_TAGS_POOL.filter(
+      ? workerRecentTags.filter(
           (s) =>
             normalise(s).includes(normalise(inputValue)) &&
             !tags.some((t) => normalise(t) === normalise(s)),
         ).slice(0, 5)
       : isFocused && inputValue.length === 0
-        ? RECENT_TAGS_POOL.filter(
+        ? workerRecentTags.filter(
             (s) => !tags.some((t) => normalise(t) === normalise(s)),
           ).slice(0, 4)
         : [];
