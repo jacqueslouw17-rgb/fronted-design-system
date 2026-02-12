@@ -117,6 +117,14 @@ export const F42v6_AdjustmentDetailDrawer = ({
             </div>
           )}
 
+          {/* Tags */}
+          {adjustment.tags && adjustment.tags.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Tags</p>
+              <TagChips tags={adjustment.tags} max={10} />
+            </div>
+          )}
+
           {/* Description */}
           {adjustment.description && (
             <div className="space-y-1">
