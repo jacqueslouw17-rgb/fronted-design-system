@@ -51,11 +51,12 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
     onComplete("work_setup", data);
   };
 
-  const isValid = data.deviceProvided === undefined
+  const deviceValid = data.deviceProvided === undefined
     ? true
     : data.deviceProvided 
       ? data.assetAcknowledged
       : true;
+  const isValid = deviceValid && termsAccepted;
 
 
   return (
