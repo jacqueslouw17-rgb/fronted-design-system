@@ -28,15 +28,18 @@ const WorkerStep7Finish_v2 = ({
   isProcessing: externalProcessing
 }: Step7Props) => {
   const navigate = useNavigate();
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsSheetOpen, setTermsSheetOpen] = useState(false);
+
   const handleFinish = useCallback(() => {
+    if (!termsAccepted) return;
     onComplete("finish");
-    // Navigate to dashboard - stays within v2 context
-    navigate('/flows/candidate-dashboard-v2', {
+    navigate('/flows/employee-dashboard-v6', {
       state: {
         fromOnboarding: true
       }
     });
-  }, [navigate, onComplete]);
+  }, [navigate, onComplete, termsAccepted]);
 
   // v2: Payroll details removed - collected later via separate secure form
   const completedItems = [{
