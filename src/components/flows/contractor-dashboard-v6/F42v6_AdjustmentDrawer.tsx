@@ -33,6 +33,7 @@ import { toast } from 'sonner';
 import { useF42v6_DashboardStore, type F42v6_ContractType } from '@/stores/F42v6_DashboardStore';
 import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle } from 'lucide-react';
+import { TagInput } from '@/components/flows/shared/TagInput';
 import { F41v6_TimeInput } from '@/components/flows/employee-dashboard-v6/F41v6_TimeInput';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
@@ -159,6 +160,7 @@ export const F42v6_AdjustmentDrawer = ({
   const [correctionDescription, setCorrectionDescription] = useState('');
   const [correctionAttachment, setCorrectionAttachment] = useState<File | null>(null);
   
+  const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
   // Track which date popover is open (by item id)
@@ -173,6 +175,7 @@ export const F42v6_AdjustmentDrawer = ({
     setCommissionItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
     setCorrectionDescription('');
     setCorrectionAttachment(null);
+    setExpenseTags([]);
     setErrors({});
   };
 
@@ -428,6 +431,7 @@ export const F42v6_AdjustmentDrawer = ({
         amount: parseFloat(item.amount),
         category: item.category,
         receiptUrl: item.receipt ? URL.createObjectURL(item.receipt) : undefined,
+        tags: expenseTags.length > 0 ? expenseTags : undefined,
       });
     });
 
@@ -795,6 +799,9 @@ export const F42v6_AdjustmentDrawer = ({
                   Add another expense
                 </button>
               </div>
+
+              {/* Tags (optional) */}
+              <TagInput tags={expenseTags} onChange={setExpenseTags} />
 
               {/* Session total - always show when items have amounts */}
               {expenseItems.length > 0 && (

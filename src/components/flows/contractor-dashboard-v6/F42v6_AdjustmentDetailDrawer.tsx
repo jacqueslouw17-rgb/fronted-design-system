@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { type F42v6_Adjustment } from '@/stores/F42v6_DashboardStore';
 import { FileText, Clock, AlertTriangle } from 'lucide-react';
+import { TagChips } from '@/components/flows/shared/TagInput';
 
 interface F42v6_AdjustmentDetailDrawerProps {
   adjustment: F42v6_Adjustment | null;
@@ -113,6 +114,14 @@ export const F42v6_AdjustmentDetailDrawer = ({
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Category</p>
               <p className="text-foreground">{adjustment.category}</p>
+            </div>
+          )}
+
+          {/* Tags */}
+          {adjustment.tags && adjustment.tags.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Tags</p>
+              <TagChips tags={adjustment.tags} max={10} />
             </div>
           )}
 

@@ -28,6 +28,7 @@ import { toast } from 'sonner';
 import { useF41v6_DashboardStore } from '@/stores/F41v6_DashboardStore';
 import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle, CalendarOff } from 'lucide-react';
+import { TagInput } from '@/components/flows/shared/TagInput';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { F41v6_TimeInput } from './F41v6_TimeInput';
@@ -130,6 +131,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     { id: crypto.randomUUID(), amount: '', attachment: null }
   ]);
   const [unpaidLeaveDays, setUnpaidLeaveDays] = useState<string>('');
+  const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
 
@@ -141,6 +143,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setExpenseDescription('');
     setExpenseReceipt(null);
     setExpenseNotes('');
+    setExpenseTags([]);
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
     setUnpaidLeaveDays(initialDays?.toString() || '');
@@ -390,6 +393,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         amount: parseFloat(item.amount),
         category: item.category,
         receiptUrl: item.receipt ? URL.createObjectURL(item.receipt) : undefined,
+        tags: expenseTags.length > 0 ? expenseTags : undefined,
       });
     });
 
@@ -760,6 +764,9 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 <span className="text-lg leading-none">+</span>
                 Add another expense
               </button>
+
+              {/* Tags (optional) */}
+              <TagInput tags={expenseTags} onChange={setExpenseTags} />
 
               {expenseItems.length > 0 && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { X, RotateCcw, Receipt, Sparkles } from 'lucide-react';
+import { TagChips } from '@/components/flows/shared/TagInput';
 import { useF42v6_DashboardStore, type F42v6_Adjustment } from '@/stores/F42v6_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -142,6 +143,10 @@ export const F42v6_AdjustmentsSection = ({ onRequestAdjustment }: F42v6_Adjustme
           </span>
           
           {getStatusBadge(adj.status)}
+
+          {adj.tags && adj.tags.length > 0 && (
+            <TagChips tags={adj.tags} max={3} />
+          )}
           
           <div className="flex-1" />
           

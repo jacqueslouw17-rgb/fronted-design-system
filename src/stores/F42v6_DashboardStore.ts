@@ -38,6 +38,7 @@ export interface F42v6_Adjustment {
   startTime?: string;
   endTime?: string;
   receiptUrl?: string;
+  tags?: string[]; // Optional expense tags
   submittedAt: string;
   rejectionReason?: string; // Reason for rejection from admin
 }
@@ -111,6 +112,7 @@ const initialState: F42v6_DashboardState = {
       amount: 85,
       status: 'Pending' as F42v6_AdjustmentStatus,
       category: 'Meals',
+      tags: ['Client dinner', 'NY trip'],
       submittedAt: '2026-01-20T10:00:00.000Z',
     },
     // Mock rejected adjustment with reason
