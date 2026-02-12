@@ -666,24 +666,21 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     // Check if worker is finalized
     const isFinalized = isWorkerFinalized(submission.id);
     
-    // Derive effective worker status: 
-    // - excluded = admin chose to exclude from this run
-    // - pending = has items needing review
-    // - reviewed = all items approved/rejected, awaiting "Mark as Ready"
-    // - ready = admin has clicked "Mark as Ready" (finalized)
+    const isExpired = submission.status === "expired";
     const isExcluded = statusDecisions[submission.id] === "exclude";
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isExcluded) {
-      effectiveWorkerStatus = "ready"; // finalized but we override display below
+    if (isExpired) {
+      effectiveWorkerStatus = "expired";
+    } else if (isExcluded) {
+      effectiveWorkerStatus = "ready";
     } else if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
     } else {
-      // All items reviewed but not yet finalized
       effectiveWorkerStatus = "reviewed";
     }
-    const status = isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
+    const status = isExpired ? statusConfig["expired"] : isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
     return (
