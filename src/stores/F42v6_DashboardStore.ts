@@ -38,6 +38,7 @@ export interface F42v6_Adjustment {
   startTime?: string;
   endTime?: string;
   receiptUrl?: string;
+  tags?: string[]; // Optional expense tags
   submittedAt: string;
   rejectionReason?: string; // Reason for rejection from admin
 }

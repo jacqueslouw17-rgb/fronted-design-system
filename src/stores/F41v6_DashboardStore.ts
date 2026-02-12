@@ -44,6 +44,7 @@ export interface F41v6_Adjustment {
   startTime?: string;
   endTime?: string;
   receiptUrl?: string;
+  tags?: string[]; // Optional expense tags
   submittedAt: string;
   rejectionReason?: string;
 }
