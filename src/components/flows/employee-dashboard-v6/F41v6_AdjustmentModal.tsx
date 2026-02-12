@@ -765,6 +765,9 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 Add another expense
               </button>
 
+              {/* Tags (optional) */}
+              <TagInput tags={expenseTags} onChange={setExpenseTags} />
+
               {expenseItems.length > 0 && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
                   <div className="flex items-center justify-between">
