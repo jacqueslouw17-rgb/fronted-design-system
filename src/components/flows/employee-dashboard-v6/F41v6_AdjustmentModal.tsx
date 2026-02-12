@@ -143,6 +143,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setExpenseDescription('');
     setExpenseReceipt(null);
     setExpenseNotes('');
+    setExpenseTags([]);
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
     setUnpaidLeaveDays(initialDays?.toString() || '');
