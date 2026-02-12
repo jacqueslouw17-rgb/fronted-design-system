@@ -113,6 +113,7 @@ export interface WorkerSubmission {
   flags?: WorkerFlag[];
   invoiceNumber?: string;
   carryOverFrom?: {period: string;amount: number;invoiceNumber?: string;};
+  expiredAdjustments?: SubmittedAdjustment[];
 }
 
 interface F1v4_SubmissionsViewProps {

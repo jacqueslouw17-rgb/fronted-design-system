@@ -220,7 +220,7 @@ const mockSubmissions: WorkerSubmission[] = [
     totalImpact: 5000,
     currency: "SEK",
   },
-  // Expired worker - not ready by cutoff
+  // Worker with expired adjustments - base pay still included
   {
     id: "sub-9",
     workerId: "10",
@@ -238,6 +238,10 @@ const mockSubmissions: WorkerSubmission[] = [
     status: "expired" as const,
     totalImpact: 0,
     currency: "EUR",
+    expiredAdjustments: [
+      { type: "expenses" as any, amount: 450, description: "Travel reimbursement", status: "pending" as any },
+      { type: "overtime" as any, amount: 620, hours: 8, description: "8h overtime", status: "pending" as any },
+    ],
   },
 ];
 

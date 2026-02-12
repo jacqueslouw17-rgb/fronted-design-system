@@ -118,6 +118,7 @@ export interface WorkerSubmission {
     amount: number;
     invoiceNumber?: string;
   };
+  expiredAdjustments?: SubmittedAdjustment[];
 }
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 interface CA3_SubmissionsViewProps {
