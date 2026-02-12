@@ -615,7 +615,8 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                 </div>
               )}
 
-              {/* Payslip Preview */}
+              {/* Payslip Preview - hidden for expired */}
+              {worker.status !== "expired" && (
               <div className="p-5 rounded-xl border border-border/40 bg-card/50">
                 <div className="text-center mb-4">
                   <p className="text-xs text-muted-foreground mb-1">Net Pay · This Cycle</p>
@@ -680,8 +681,10 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                   </p>
                 )}
               </div>
+              )}
 
-              {/* Payment Breakdown (Collapsible) */}
+              {/* Payment Breakdown (Collapsible) - hidden for expired */}
+              {worker.status !== "expired" && (
               <Collapsible open={breakdownOpen} onOpenChange={setBreakdownOpen}>
                 <CollapsibleTrigger asChild>
                   <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
@@ -744,8 +747,10 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                   </div>
                 </CollapsibleContent>
               </Collapsible>
+              )}
 
-              {/* Overrides & Adjustments */}
+              {/* Overrides & Adjustments - hidden for expired */}
+              {worker.status !== "expired" && (
               <Collapsible open={overridesOpen} onOpenChange={setOverridesOpen}>
                 <CollapsibleTrigger asChild>
                   <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
@@ -944,6 +949,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                   )}
                 </CollapsibleContent>
               </Collapsible>
+              )}
 
               {/* Previous Payslips */}
               <Collapsible>
