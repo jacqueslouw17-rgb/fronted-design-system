@@ -143,6 +143,10 @@ export const F42v6_AdjustmentsSection = ({ onRequestAdjustment }: F42v6_Adjustme
           </span>
           
           {getStatusBadge(adj.status)}
+
+          {adj.tags && adj.tags.length > 0 && (
+            <TagChips tags={adj.tags} max={3} />
+          )}
           
           <div className="flex-1" />
           
