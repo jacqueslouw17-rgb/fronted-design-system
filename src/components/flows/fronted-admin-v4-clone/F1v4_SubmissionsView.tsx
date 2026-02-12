@@ -1057,14 +1057,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                   }
 
-                    {selectedSubmission.status !== "expired" && (
-                    <div className={cn("px-5 py-4 space-y-0.5", statusDecisions[selectedSubmission.id] === "exclude" && "opacity-40 pointer-events-none line-through")} onClick={() => setExpandedItemId(null)}>
-
                     {/* Expired worker: show base pay + expired adjustments breakdown */}
                     {selectedSubmission.status === "expired" && (
                     <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
                       {/* Base Pay Section - Included */}
-                      <CollapsibleSection title="Base Pay" defaultOpen={true} approvedCount={earnings.length}>
+                      <CollapsibleSection title="Base Pay (Included in this batch)" defaultOpen={true} approvedCount={earnings.length}>
                         {earnings.map((item, idx) =>
                           <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
                         )}
@@ -1111,6 +1108,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       )}
                     </div>
                     )}
+
+                    {selectedSubmission.status !== "expired" && (
+                    <div className={cn("px-5 py-4 space-y-0.5", statusDecisions[selectedSubmission.id] === "exclude" && "opacity-40 pointer-events-none line-through")} onClick={() => setExpandedItemId(null)}>
                            <>
                       {/* EARNINGS Section */}
                       {(() => {
@@ -1136,7 +1136,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                             return (
                               <AdjustmentRow key={itemId} label={adj.description || submissionTypeConfig[adj.type]?.label || 'Adjustment'} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} />);
-
                           })}
                           {/* Admin-added expenses */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'expense').map((adj) =>
@@ -1184,7 +1183,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                           return (
                             <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved overtime');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected overtime');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} />);
-
                         })}
                           {/* Admin-added overtime */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'overtime').map((adj) =>
@@ -1215,7 +1213,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                           return (
                             <LeaveRow key={itemId} leave={{ ...leave, status: leaveState.status, rejectionReason: leaveState.rejectionReason || leave.rejectionReason }} currency={currency} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });toast.success('Approved leave');}} onReject={(reason) => {updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });toast.info('Rejected leave');}} onUndo={() => undoLeaveStatus(selectedSubmission.id, leave.id)} isFinalized={workerIsFinalized} />);
-
                         })}
                           {/* Admin-added unpaid leave */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').map((adj) =>
