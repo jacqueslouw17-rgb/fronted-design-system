@@ -71,7 +71,7 @@ export interface WorkerData {
   type: "employee" | "contractor";
   country: string;
   currency: string;
-  status: "ready" | "auto-generated" | "missing-submission" | "needs-attention" | "blocking";
+  status: "ready" | "auto-generated" | "missing-submission" | "needs-attention" | "blocking" | "expired";
   netPay: number;
   issues: number;
   grossPay?: number;
