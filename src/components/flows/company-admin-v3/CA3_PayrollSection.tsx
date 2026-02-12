@@ -220,29 +220,6 @@ const mockSubmissions: WorkerSubmission[] = [
     totalImpact: 5000,
     currency: "SEK",
   },
-  // Worker with expired adjustments - base pay still included
-  {
-    id: "sub-9",
-    workerId: "10",
-    workerName: "Luca Bianchi",
-    workerCountry: "Italy",
-    workerType: "contractor",
-    periodLabel: "Jan 1 – Jan 31",
-    basePay: 3800,
-    estimatedNet: 3800,
-    invoiceNumber: "INV-2026-010",
-    lineItems: [
-      { type: "Earnings" as const, label: "Consulting Fee", amount: 3800, locked: false },
-    ],
-    submissions: [],
-    status: "expired" as const,
-    totalImpact: 0,
-    currency: "EUR",
-    expiredAdjustments: [
-      { type: "expenses" as any, amount: 450, description: "Travel reimbursement", status: "pending" as any },
-      { type: "overtime" as any, amount: 620, hours: 8, description: "8h overtime", status: "pending" as any },
-    ],
-  },
 ];
 
 const mockTrackingWorkers: TrackingWorker[] = [

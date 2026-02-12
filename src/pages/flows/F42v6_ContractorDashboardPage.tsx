@@ -30,9 +30,6 @@ interface InvoiceData {
   paidDate: string;
   lineItems: F42v5_LineItem[];
   invoiceTotal: number;
-  status?: 'paid';
-  carryOverFrom?: string;
-  carryOverAmount?: number;
 }
 
 const invoicesData: InvoiceData[] = [
@@ -43,11 +40,8 @@ const invoicesData: InvoiceData[] = [
     lineItems: [
       { type: 'Earnings', label: 'Consulting Services', meta: '40 hrs @ $125/hr', amount: 5000 },
       { type: 'Earnings', label: 'Project Milestone Bonus', meta: 'Q4 completion', amount: 250 },
-      { type: 'Earnings', label: 'Carry-over adjustment', meta: 'From previous payroll period', amount: 800 },
     ],
-    invoiceTotal: 6050,
-    carryOverFrom: "Nov 2025",
-    carryOverAmount: 800,
+    invoiceTotal: 5250,
   },
   {
     id: "1",
@@ -213,7 +207,6 @@ const F42v6_ContractorDashboardPage = () => {
             lineItems={selectedInvoice.lineItems}
             invoiceTotal={selectedInvoice.invoiceTotal}
             periodLabel={selectedInvoice.period}
-            carryOverFrom={selectedInvoice.carryOverFrom}
           />
 
           {/* Adjustment Drawer */}

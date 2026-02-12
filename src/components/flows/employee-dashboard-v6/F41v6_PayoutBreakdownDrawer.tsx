@@ -22,7 +22,6 @@ interface F41v6_PayoutBreakdownDrawerProps {
   earnings?: { label: string; amount: number }[];
   deductions?: { label: string; amount: number }[];
   netPay?: number;
-  carryOverFrom?: string;
 }
 
 export const F41v6_PayoutBreakdownDrawer = ({
@@ -44,7 +43,6 @@ export const F41v6_PayoutBreakdownDrawer = ({
     { label: "Company Benefits", amount: 5000 },
   ],
   netPay,
-  carryOverFrom,
 }: F41v6_PayoutBreakdownDrawerProps) => {
   const currencySymbol = currency === "PHP" ? "₱" : "$";
 
@@ -68,15 +66,6 @@ export const F41v6_PayoutBreakdownDrawer = ({
         </SheetHeader>
 
         <div className="px-6 py-5 space-y-6">
-          {/* Carry-over helper note */}
-          {carryOverFrom && (
-            <div className="rounded-xl border border-border/30 bg-muted/10 px-5 py-4">
-              <p className="text-[13px] text-muted-foreground/60 leading-relaxed">
-                Includes carry-over from previous payroll.
-              </p>
-            </div>
-          )}
-
           {/* Earnings Section */}
           <section>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Earnings</h3>
