@@ -12,7 +12,7 @@ interface Payslip {
   period: string;
   paidDate: string;
   amount: number;
-  status: 'paid' | 'pending' | 'expired';
+  status: 'paid' | 'pending';
 }
 
 interface F41v6_PayslipsSectionProps {
@@ -30,7 +30,6 @@ export const F41v6_PayslipsSection = ({
   
   // Mock data
   const payslips: Payslip[] = [
-    { id: "expired-nov", period: "November 2025", paidDate: "", amount: 41500.00, status: 'expired' },
     { id: "1", period: "November 2025", paidDate: "Dec 5", amount: 42166.67, status: 'paid' },
     { id: "2", period: "October 2025", paidDate: "Nov 5", amount: 41500.00, status: 'paid' },
     { id: "3", period: "September 2025", paidDate: "Oct 5", amount: 42166.67, status: 'paid' },
@@ -47,12 +46,10 @@ export const F41v6_PayslipsSection = ({
       </CardHeader>
       <CardContent className="px-5 pt-0 pb-4">
         <div className="divide-y divide-border/30">
-          {payslips.map((payslip) => {
-            const isExpired = payslip.status === 'expired';
-            return (
+          {payslips.map((payslip) => (
               <div
                 key={payslip.id}
-                className={`flex items-center gap-3 py-3 first:pt-0 last:pb-0 group ${isExpired ? 'opacity-60' : ''}`}
+                className="flex items-center gap-3 py-3 first:pt-0 last:pb-0 group"
               >
                 {/* Icon */}
                 <div className="flex-shrink-0 w-8 h-8 rounded-md bg-primary/[0.06] border border-primary/20 flex items-center justify-center">
@@ -62,9 +59,7 @@ export const F41v6_PayslipsSection = ({
                 {/* Period & Date */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{payslip.period}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {isExpired ? 'Not ready by cutoff' : `Paid ${payslip.paidDate}`}
-                  </p>
+                  <p className="text-xs text-muted-foreground">Paid {payslip.paidDate}</p>
                 </div>
 
                 {/* Amount */}
@@ -73,21 +68,12 @@ export const F41v6_PayslipsSection = ({
                 </p>
 
                 {/* Status */}
-                {isExpired ? (
-                  <Badge 
-                    variant="outline" 
-                    className="bg-muted/50 text-muted-foreground border-border/40 text-xs px-2 py-0.5 flex-shrink-0"
-                  >
-                    Expired
-                  </Badge>
-                ) : (
-                  <Badge 
-                    variant="outline" 
-                    className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-xs px-2 py-0.5 flex-shrink-0"
-                  >
-                    Paid
-                  </Badge>
-                )}
+                <Badge 
+                  variant="outline" 
+                  className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-xs px-2 py-0.5 flex-shrink-0"
+                >
+                  Paid
+                </Badge>
 
                 {/* Actions */}
                 <div className="flex items-center gap-1 flex-shrink-0">
@@ -98,19 +84,16 @@ export const F41v6_PayslipsSection = ({
                     Details
                     <ChevronRight className="h-3 w-3" />
                   </button>
-                  {!isExpired && (
-                    <button
-                      onClick={() => onDownload?.(payslip.id)}
-                      className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-                      aria-label="Download payslip"
-                    >
-                      <Download className="h-4 w-4" />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => onDownload?.(payslip.id)}
+                    className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                    aria-label="Download payslip"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
-            );
-          })}
+            ))}
         </div>
       </CardContent>
     </Card>

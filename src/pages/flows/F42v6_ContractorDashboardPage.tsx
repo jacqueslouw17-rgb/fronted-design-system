@@ -30,7 +30,7 @@ interface InvoiceData {
   paidDate: string;
   lineItems: F42v5_LineItem[];
   invoiceTotal: number;
-  status?: 'paid' | 'expired';
+  status?: 'paid';
   carryOverFrom?: string;
   carryOverAmount?: number;
 }
@@ -48,17 +48,6 @@ const invoicesData: InvoiceData[] = [
     invoiceTotal: 6050,
     carryOverFrom: "Nov 2025",
     carryOverAmount: 800,
-  },
-  {
-    id: "expired-nov",
-    period: "Nov 2025",
-    paidDate: "",
-    lineItems: [
-      { type: 'Earnings', label: 'Consulting Services', meta: '40 hrs @ $125/hr', amount: 5000 },
-      { type: 'Earnings', label: 'Bug Fix Sprint', meta: 'Additional work', amount: 250 },
-    ],
-    invoiceTotal: 5250,
-    status: 'expired',
   },
   {
     id: "1",
@@ -224,7 +213,6 @@ const F42v6_ContractorDashboardPage = () => {
             lineItems={selectedInvoice.lineItems}
             invoiceTotal={selectedInvoice.invoiceTotal}
             periodLabel={selectedInvoice.period}
-            isExpired={selectedInvoice.status === 'expired'}
             carryOverFrom={selectedInvoice.carryOverFrom}
           />
 

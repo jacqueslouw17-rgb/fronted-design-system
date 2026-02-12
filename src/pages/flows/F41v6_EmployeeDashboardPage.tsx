@@ -28,7 +28,7 @@ interface PayslipData {
   earnings: { label: string; amount: number }[];
   deductions: { label: string; amount: number }[];
   netPay: number;
-  status?: 'paid' | 'expired';
+  status?: 'paid';
   carryOverFrom?: string;
   carryOverAmount?: number;
 }
@@ -54,23 +54,6 @@ const payslipsData: PayslipData[] = [
     netPay: 45666.67,
     carryOverFrom: "Nov 2025",
     carryOverAmount: 3500,
-  },
-  {
-    id: "expired-nov",
-    period: "Nov 2025",
-    paidDate: "",
-    earnings: [
-      { label: "Base Salary", amount: 50000 },
-      { label: "Overtime (4 hrs)", amount: 1250 },
-    ],
-    deductions: [
-      { label: "SSS Contribution", amount: 1125 },
-      { label: "PhilHealth", amount: 500 },
-      { label: "Pag-IBIG", amount: 100 },
-      { label: "Withholding Tax", amount: 8025 },
-    ],
-    netPay: 41500.00,
-    status: 'expired',
   },
   {
     id: "1",
@@ -262,7 +245,6 @@ const F41v6_EmployeeDashboardPage = () => {
             earnings={selectedPayslip.earnings}
             deductions={selectedPayslip.deductions}
             netPay={selectedPayslip.netPay}
-            isExpired={selectedPayslip.status === 'expired'}
             carryOverFrom={selectedPayslip.carryOverFrom}
           />
 
