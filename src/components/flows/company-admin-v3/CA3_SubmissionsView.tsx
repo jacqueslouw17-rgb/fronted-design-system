@@ -1146,10 +1146,13 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             <span className="text-[11px] text-muted-foreground leading-tight">
               {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
-            {workerRejectedCount > 0 && workerPendingCount === 0 && <span className="text-[10px] text-destructive/80">
+            {isExpired && <span className="text-[10px] text-muted-foreground/70">
+                · Not ready by cutoff
+              </span>}
+            {workerRejectedCount > 0 && workerPendingCount === 0 && !isExpired && <span className="text-[10px] text-destructive/80">
                 · 1 day to resubmit
               </span>}
-            {!isFinalized && submission.flags?.map((flag, fi) => <Badge key={fi} variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium", flag.type === "end_date" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20" : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20")}>
+            {!isFinalized && !isExpired && submission.flags?.map((flag, fi) => <Badge key={fi} variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium", flag.type === "end_date" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20" : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20")}>
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
                 {flag.type === "end_date" ? flag.endReason === "Termination" ? "Terminated" : flag.endReason === "Resignation" ? "Resigned" : "Contract ended" : "Pay change"}
               </Badge>)}
