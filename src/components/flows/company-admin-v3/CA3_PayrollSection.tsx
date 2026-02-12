@@ -220,6 +220,25 @@ const mockSubmissions: WorkerSubmission[] = [
     totalImpact: 5000,
     currency: "SEK",
   },
+  // Expired worker - not ready by cutoff
+  {
+    id: "sub-9",
+    workerId: "10",
+    workerName: "Luca Bianchi",
+    workerCountry: "Italy",
+    workerType: "contractor",
+    periodLabel: "Jan 1 – Jan 31",
+    basePay: 3800,
+    estimatedNet: 3800,
+    invoiceNumber: "INV-2026-010",
+    lineItems: [
+      { type: "Earnings" as const, label: "Consulting Fee", amount: 3800, locked: false },
+    ],
+    submissions: [],
+    status: "expired" as const,
+    totalImpact: 0,
+    currency: "EUR",
+  },
 ];
 
 const mockTrackingWorkers: TrackingWorker[] = [
