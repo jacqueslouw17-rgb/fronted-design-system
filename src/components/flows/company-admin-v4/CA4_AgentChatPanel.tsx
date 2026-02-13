@@ -664,10 +664,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
       return;
     }
 
-    // SPECIAL FLOW: "Mark all as ready" - close panel, show staggered row animations
+    // SPECIAL FLOW: "Mark all as ready" - keep chat open, show staggered row animations
     if (actionType === 'mark_ready' && !workerId) {
-      // Close the chat panel
-      setOpen(false);
+      // Keep chat open so user can see progress
+      setOpen(true);
       
       // Navigate to submissions
       setRequestedStep('submissions');
