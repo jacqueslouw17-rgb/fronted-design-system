@@ -33,9 +33,9 @@ const WORKER_MAP: Record<string, { id: string; name: string }> = {
 const WORKERS_DATA = [
   { id: '1', name: 'David Martinez', pendingItems: 2, status: 'pending' },
   { id: '2', name: 'Sophie Laurent', pendingItems: 1, status: 'pending' },
-  { id: '4', name: 'Alex Hansen', pendingItems: 0, status: 'reviewed' },
+  { id: '4', name: 'Alex Hansen', pendingItems: 2, status: 'pending' },
   { id: '5', name: 'Emma Wilson', pendingItems: 1, status: 'pending' },
-  { id: '6', name: 'Maria Santos', pendingItems: 0, status: 'reviewed' },
+  { id: '6', name: 'Maria Santos', pendingItems: 2, status: 'pending' },
   { id: '7', name: 'Jonas Schmidt', pendingItems: 2, status: 'pending' },
   { id: '8', name: 'Priya Sharma', pendingItems: 1, status: 'pending' },
   { id: '9', name: 'Lisa Chen', pendingItems: 0, status: 'ready' },
