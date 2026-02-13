@@ -1486,21 +1486,22 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         console.log('[SubmissionsView] Agent triggered mark ready for:', workerId);
         const worker = submissions.find(s => s.workerId === workerId);
         if (worker) {
-          // Auto-approve any remaining pending items before marking ready
-          worker.submissions.forEach((adj, idx) => {
+          // Only finalize if the worker has no pending items (i.e., already "reviewed")
+          // This ensures the Pending → Reviewed → Ready progression is respected
+          const hasPendingAdjs = worker.submissions.some((adj, idx) => {
             const currentState = getAdjustmentStatus(worker.id, idx, adj.status as AdjustmentItemStatus);
-            if (currentState.status === 'pending') {
-              updateAdjustmentStatus(worker.id, idx, { status: 'approved' });
-            }
+            return currentState.status === 'pending';
           });
-          (worker.pendingLeaves || []).forEach((leave) => {
+          const hasPendingLeaves = (worker.pendingLeaves || []).some((leave) => {
             const currentState = getLeaveStatus(worker.id, leave.id, leave.status);
-            if (currentState.status === 'pending') {
-              updateLeaveStatus(worker.id, leave.id, { status: 'approved' });
-            }
+            return currentState.status === 'pending';
           });
 
-          setFinalizedWorkers(prev => new Set(prev).add(worker.id));
+          if (!hasPendingAdjs && !hasPendingLeaves) {
+            setFinalizedWorkers(prev => new Set(prev).add(worker.id));
+          } else {
+            console.log('[SubmissionsView] Worker', workerId, 'still has pending items, skipping finalization');
+          }
           // No toast - Kurt chat provides feedback instead
         }
       },
