@@ -29,6 +29,21 @@ import { CollapsibleSection } from "./CA4_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA4_AdminAddAdjustment";
 import { useCA4Agent } from "./CA4_AgentContext";
 
+// Country flag map for consistent display
+const countryFlags: Record<string, string> = {
+  Singapore: "🇸🇬",
+  Spain: "🇪🇸",
+  Philippines: "🇵🇭",
+  Norway: "🇳🇴",
+  Portugal: "🇵🇹",
+  Germany: "🇩🇪",
+  France: "🇫🇷",
+  USA: "🇺🇸",
+  "United States": "🇺🇸",
+  UK: "🇬🇧",
+  "United Kingdom": "🇬🇧"
+};
+
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
@@ -957,11 +972,29 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   
   const internalPendingCount = submissions.filter(s => s.status === "pending").length;
   const pendingCount = externalPendingCount ?? dynamicPendingCount;
-  // Ready count = workers that have been finalized (marked as ready)
-  const readyCount = finalizedWorkers.size;
+  // Ready count = workers that have been finalized (marked as ready) + flagged workers with no pending items
+  const flaggedReadyCount = submissions.filter(s => {
+    const hasEndDateFlag = s.flags?.some(f => f.type === "end_date");
+    if (!hasEndDateFlag) return false;
+    // Count pending adjustments for this flagged worker using raw state
+    const pendingAdjs = s.submissions.filter((adj, idx) => {
+      const key = `${s.id}-${idx}`;
+      const localState = adjustmentStates[key];
+      const effectiveStatus = localState ? localState.status : adj.status || 'pending';
+      return effectiveStatus === 'pending' && typeof adj.amount === 'number';
+    }).length;
+    const pendingLvs = (s.pendingLeaves || []).filter(leave => {
+      const key = `${s.id}-leave-${leave.id}`;
+      const localState = leaveStates[key];
+      const effectiveStatus = localState ? localState.status : leave.status || 'pending';
+      return effectiveStatus === 'pending';
+    }).length;
+    return pendingAdjs + pendingLvs === 0;
+  }).length;
+  const readyCount = finalizedWorkers.size + flaggedReadyCount;
   
-  // Can continue only when ALL workers have been marked as ready
-  const canContinue = finalizedWorkers.size === submissions.length && submissions.length > 0;
+  // Can continue only when ALL workers have been marked as ready (or flagged workers are handled)
+  const canContinue = readyCount >= submissions.length && submissions.length > 0;
 
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
@@ -1185,15 +1218,19 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     
     // Derive effective worker status: 
     // - pending = has items needing review
-    // - reviewed = all items approved/rejected, awaiting "Mark as Ready"
+    // - reviewed = all items approved/rejected, awaiting finalization
     // - ready = admin has clicked "Mark as Ready" (finalized)
+    // For flagged workers (end_date): Fronted handles include/exclude, 
+    // but company admin can still approve/reject adjustments
+    const hasEndDateFlag = submission.flags?.some(f => f.type === "end_date");
     let effectiveWorkerStatus: SubmissionStatus;
     if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
+    } else if (hasEndDateFlag) {
+      effectiveWorkerStatus = "handover";
     } else {
-      // All items reviewed but not yet finalized
       effectiveWorkerStatus = "reviewed";
     }
     const status = statusConfig[effectiveWorkerStatus];
@@ -1280,15 +1317,28 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
             </span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] text-muted-foreground leading-tight">
-              {submission.workerCountry}
+              {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
             {workerRejectedCount > 0 && workerPendingCount === 0 && (
               <span className="text-[10px] text-destructive/80">
                 · 1 day to resubmit
               </span>
             )}
+            {!isFinalized && submission.flags?.map((flag, fi) => (
+              <Badge key={fi} variant="outline" className={cn(
+                "text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium",
+                flag.type === "end_date"
+                  ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+                  : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+              )}>
+                <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
+                {flag.type === "end_date"
+                  ? flag.endReason === "Termination" ? "Terminated" : flag.endReason === "Resignation" ? "Resigned" : "Contract ended"
+                  : "Pay change"}
+              </Badge>
+            ))}
           </div>
         </div>
 
@@ -1312,7 +1362,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                 </span>
                 <span className="hidden sm:inline">{status.label}</span>
               </>
-            ) : effectiveWorkerStatus === 'reviewed' ? (
+            ) : (effectiveWorkerStatus === 'reviewed' || effectiveWorkerStatus === 'handover') ? (
               <>
                 <StatusIcon className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{status.label}</span>
@@ -1879,8 +1929,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         <h2 className="text-sm font-semibold text-foreground leading-tight">
                           {selectedSubmission.workerName}
                         </h2>
-                        {/* Inline actions - next to name */}
-                        {!showPendingOnly && (
+                        {/* Inline actions - next to name (hidden for flagged workers) */}
+                        {!showPendingOnly && !selectedSubmission.flags?.some(f => f.type === "end_date") && (
                           <button
                             onClick={() => setIsAddingAdjustment(true)}
                             className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
@@ -1900,9 +1950,21 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                           </label>
                         )}
                       </div>
-                      <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                        {selectedSubmission.workerCountry} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
-                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <p className="text-[11px] text-muted-foreground/70">
+                          {selectedSubmission.workerCountry} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
+                        </p>
+                        {(() => {
+                          const endFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
+                          if (!endFlag) return null;
+                          const label = endFlag.endReason === "Termination" ? "Terminated" : endFlag.endReason === "Resignation" ? "Resigned" : "Contract ended";
+                          return (
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
+                              {label}
+                            </Badge>
+                          );
+                        })()}
+                      </div>
                     </div>
                   </div>
                   
@@ -1944,11 +2006,13 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                     <>
                   
                   {/* EARNINGS Section - Collapsed by default, only force open when pending filter, newly added, or agent-driven */}
-                  {(!showPendingOnly || earningAdjCounts.pending > 0) && (
+                  {(() => {
+                    const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
+                    return (!showPendingOnly || earningAdjCounts.pending > 0) ? (
                     <CollapsibleSection
                       title="Earnings"
-                      defaultOpen={false}
-                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || forceOpenSections.has('earnings'))}
+                      defaultOpen={!!payChangeFlag}
+                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || forceOpenSections.has('earnings') || !!payChangeFlag)}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                     >
@@ -2051,8 +2115,15 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         isTotal
                       />
                     )}
+                    {payChangeFlag && !showPendingOnly && (
+                      <p className="text-[10px] text-muted-foreground/60 text-right tabular-nums">
+                        {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period
+                        {payChangeFlag.payChangeDelta != null && ` (${(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}${formatCurrency(Math.abs(payChangeFlag.payChangeDelta || 0), currency)})`}
+                      </p>
+                    )}
                   </CollapsibleSection>
-                  )}
+                  ) : null;
+                  })()}
                   {/* DEDUCTIONS Section - Collapsed by default */}
                   {deductions.length > 0 && !showPendingOnly && (
                     <CollapsibleSection
@@ -2294,6 +2365,61 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
 
                 {/* Footer - Show bulk actions when pending items exist, or "Mark as Ready" when all reviewed */}
                 {!isAddingAdjustment && !expandedItemId && (() => {
+                  const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
+
+                  // Flagged workers: if they still have pending adjustments, show approve/reject
+                  // Once all adjustments handled, show "Managed by Fronted" message instead of Mark as Ready
+                  if (hasEndDateFlag) {
+                    if (currentPendingCount > 0) {
+                      return (
+                        <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                              onClick={() => setShowBulkRejectDialog(true)}
+                              disabled={isRejectAllLoading}
+                            >
+                              {isRejectAllLoading ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-3 h-3 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                                  Processing...
+                                </div>
+                              ) : (
+                                `Reject all (${currentPendingCount})`
+                              )}
+                            </Button>
+                            <Button 
+                              size="sm"
+                              className="flex-1 h-9 text-xs"
+                              onClick={() => setShowBulkApproveDialog(true)}
+                              disabled={isApproveAllLoading}
+                            >
+                              {isApproveAllLoading ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-3 h-3 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                                  Approving...
+                                </div>
+                              ) : (
+                                `Approve all (${currentPendingCount})`
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    }
+                    // No pending items — show "handled by Fronted" message
+                    return (
+                      <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                          <Clock className="h-4 w-4" />
+                          <span className="text-sm">Fronted will handle final pay calculation</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   const isFinalized = isWorkerFinalized(selectedSubmission.id);
                   
                   // Show bulk actions when pending items exist
