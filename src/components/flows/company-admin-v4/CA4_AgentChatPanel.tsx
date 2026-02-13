@@ -991,6 +991,32 @@ export const CA4_AgentChatPanel: React.FC = () => {
         return;
       }
       
+      // SUBMIT_PAYROLL: Navigate to submit step immediately, keep Kurt open
+      if (actionType === 'submit_payroll') {
+        setOpen(true);
+        
+        // Close any open worker drawer
+        closeDrawer();
+        setOpenWorkerId(undefined);
+        
+        // Navigate to submit step
+        setTimeout(() => {
+          executeCallback('submit_payroll');
+        }, 300);
+        
+        // Show confirmation message
+        setTimeout(() => {
+          setMessages(prev => [...prev, createChatMessage({
+            role: 'assistant',
+            content: '✓ **Done!** Navigated to the submit step. You can review the payroll summary and submit when ready.',
+          })]);
+          setIsLoading(false);
+          setShowRetrieving(false);
+        }, 800);
+        
+        return;
+      }
+      
       // OTHER ACTIONS: Ask for confirmation
       setOpen(true);
       setButtonLoading(true);
