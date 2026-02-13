@@ -77,6 +77,36 @@ interface SuggestedAction {
 function detectWorkerIntent(query: string): { workerId?: string; workerName?: string; wantsNavigation?: boolean } {
   const lowerQuery = query.toLowerCase();
   
+  // Informational queries should NOT trigger navigation even if they mention a worker name
+  const isInformationalQuery = lowerQuery.includes('compare') ||
+    lowerQuery.includes('difference') ||
+    lowerQuery.includes('how much') ||
+    lowerQuery.includes('what is') ||
+    lowerQuery.includes('what are') ||
+    lowerQuery.includes('what was') ||
+    lowerQuery.includes('tell me about') ||
+    lowerQuery.includes('summary') ||
+    lowerQuery.includes('total') ||
+    lowerQuery.includes('history') ||
+    lowerQuery.includes('trend') ||
+    lowerQuery.includes('change') ||
+    lowerQuery.includes('breakdown') ||
+    lowerQuery.includes('november') ||
+    lowerQuery.includes('december') ||
+    lowerQuery.includes('month') ||
+    lowerQuery.includes('last') ||
+    lowerQuery.includes('previous') ||
+    lowerQuery.includes('cost') ||
+    lowerQuery.includes('gross') ||
+    lowerQuery.includes('net') ||
+    lowerQuery.includes('pay') ||
+    lowerQuery.includes('salary') ||
+    lowerQuery.includes('earnings');
+
+  if (isInformationalQuery) {
+    return {}; // No navigation for data questions
+  }
+
   // Check for navigation intent
   const wantsNavigation = lowerQuery.includes('open') || 
     lowerQuery.includes('show') || 
