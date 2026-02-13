@@ -147,9 +147,8 @@ function inferActionRequiredApproveItem(content: string): {
 } | null {
   const lower = content.toLowerCase();
 
-  const mentionsActionRequired = lower.includes('action required');
-  const asksToApprove = /would you like me to approve|do you want.*approve|approve this submission|approve this item/i.test(content);
-  if (!mentionsActionRequired || !asksToApprove) return null;
+  const asksToApprove = /would you like me to approve|do you want.*approve|approve this submission|approve this item|shall i approve/i.test(content);
+  if (!asksToApprove) return null;
 
   const worker = Object.values(WORKER_MAP).find(w => lower.includes(w.name.toLowerCase()));
   if (!worker) return null;
