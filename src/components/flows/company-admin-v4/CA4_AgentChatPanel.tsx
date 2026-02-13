@@ -672,7 +672,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       setRequestedStep('submissions');
       
       // Get list of workers not yet ready
-      const workersToMark = WORKERS_DATA.filter(w => w.status !== 'ready').map(w => w.id);
+      const workersToMark = WORKERS_DATA.map(w => w.id);
       
       // Start staggered marking - set all workers as "marking" state
       setTimeout(() => {
@@ -869,9 +869,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
           } else {
             // All workers
             WORKERS_DATA.forEach(w => {
-              if (w.status !== 'ready') {
-                executeCallback('mark_ready', w.id);
-              }
+              executeCallback('mark_ready', w.id);
             });
           }
         }, 1200);
