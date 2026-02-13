@@ -1501,7 +1501,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           });
 
           setFinalizedWorkers(prev => new Set(prev).add(worker.id));
-          toast.success(`${worker.workerName} marked as ready`);
+          // No toast - Kurt chat provides feedback instead
         }
       },
       onSubmitPayroll: () => {
