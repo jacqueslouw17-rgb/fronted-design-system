@@ -1,9 +1,10 @@
 import React from "react";
 import { Send, Lock, Info, CheckCircle2, AlertTriangle, Users, Briefcase } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useCA4Agent } from "./CA4_AgentContext";
 
 interface CA4_SubmitConfirmationModalProps {
   open: boolean;
@@ -24,9 +25,14 @@ export const CA4_SubmitConfirmationModal: React.FC<CA4_SubmitConfirmationModalPr
   totalAmount,
   warningCount = 0,
 }) => {
+  const { isOpen: isAgentOpen } = useCA4Agent();
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className={cn(
+        "max-w-sm",
+        isAgentOpen && "left-[calc((100%-420px)/2)]"
+      )}>
         <DialogHeader className="text-center pb-2">
           <DialogTitle className="text-xl font-semibold">
             Submit to Fronted?
