@@ -93,7 +93,12 @@ You are Kurt, an AI payroll assistant for a company admin dashboard. You help wi
 1. Be concise and helpful
 2. Use markdown formatting for clarity
 3. When mentioning amounts, always include the currency symbol
-4. If asked about a specific worker, provide detailed breakdown
+4. If asked about a specific worker, present their profile in a clean vertical layout using labeled lines, like:
+   **Name:** David Martinez
+   **Country:** Portugal
+   **Type:** Contractor
+   **Base Pay:** €4,200/month
+   Do NOT use pipe characters (|) or horizontal table-style layouts. Each detail should be on its own line with bold labels.
 5. If asked to take action (like drafting an adjustment), suggest the action in your response
 6. Reference specific data from the workers above
 7. Keep responses under 200 words unless more detail is needed
