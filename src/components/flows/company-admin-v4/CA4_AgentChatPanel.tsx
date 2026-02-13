@@ -945,11 +945,13 @@ export const CA4_AgentChatPanel: React.FC = () => {
         const workersToApprove = WORKERS_DATA.filter(w => w.pendingItems > 0).map(w => w.id);
         
         // Start staggered approving - set all workers as "approving" state
+        // Use longer delay to ensure SubmissionsView has mounted and registered callbacks
         setTimeout(() => {
           setWorkersApproving(new Set(workersToApprove));
-        }, 400);
+        }, 800);
         
         // Execute approve for each worker with staggered delays
+        // Base delay of 1200ms ensures callbacks are registered after navigation at 300ms
         workersToApprove.forEach((wId, index) => {
           setTimeout(() => {
             executeCallback('approve_all', wId);
@@ -959,11 +961,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
               next.delete(wId);
               return next;
             });
-          }, 600 + index * 400); // Stagger: 600ms base + 400ms per worker
+          }, 1200 + index * 400); // Stagger: 1200ms base + 400ms per worker
         });
         
         // After all done, add success message
-        const totalTime = 600 + workersToApprove.length * 400 + 300;
+        const totalTime = 1200 + workersToApprove.length * 400 + 300;
         setTimeout(() => {
           // Suggest marking workers as ready next
           const nextAction: SuggestedAction = {
