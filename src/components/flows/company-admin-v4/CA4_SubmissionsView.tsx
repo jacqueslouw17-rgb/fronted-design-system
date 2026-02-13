@@ -1052,13 +1052,13 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   };
 
   // Close drawer handler
-  const handleCloseDrawer = () => {
+  const handleCloseDrawer = useCallback(() => {
     setDrawerOpen(false);
     setSelectedSubmission(null);
     // Reset agent-driven states
     setForceOpenSections(new Set());
     setShowPendingOnly(false);
-  };
+  }, []);
 
   // Close expanded item when clicking outside
   const handleRowClick = (submission: WorkerSubmission) => {
@@ -1557,8 +1557,12 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         console.log('[SubmissionsView] No matching pending item found');
         return false;
       },
+      onCloseDrawer: () => {
+        console.log('[SubmissionsView] Agent triggered close drawer');
+        handleCloseDrawer();
+      },
     });
-  }, [submissions, registerActionCallbacks, handleGlobalApproveAll, handleGlobalRejectAll, onContinue, getAdjustmentStatus, updateAdjustmentStatus, getLeaveStatus, updateLeaveStatus]);
+  }, [submissions, registerActionCallbacks, handleGlobalApproveAll, handleGlobalRejectAll, onContinue, getAdjustmentStatus, updateAdjustmentStatus, getLeaveStatus, updateLeaveStatus, handleCloseDrawer]);
 
   // Check if buttons should show loading from agent
   const isApproveAllLoading = loadingButtons['approve_all'];

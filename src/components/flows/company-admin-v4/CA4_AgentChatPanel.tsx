@@ -371,6 +371,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setProcessingItem,
     setWorkersMarkingReady,
     setWorkersApproving,
+    closeDrawer,
   } = useCA4Agent();
 
   const [input, setInput] = useState('');
@@ -606,7 +607,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
     // SPECIAL FLOW: "Approve all" bulk sequence - run staggered row animations
     if (actionType === 'approve_all' && !workerId) {
-      // Close any open worker drawer
+      // Close any open worker drawer (uses registered callback to close local drawer state)
+      closeDrawer();
       setOpenWorkerId(undefined);
 
       // Keep chat open during the sequence
@@ -779,7 +781,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
       completeAction(actionType, workerId, workerName);
     }, 1800);
-  }, [pendingAction, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction, setProcessingItem, setWorkersMarkingReady]);
+  }, [pendingAction, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction, setProcessingItem, setWorkersMarkingReady, closeDrawer]);
 
   const handleSubmit = async (query: string) => {
     const trimmed = query.trim();
@@ -931,7 +933,8 @@ export const CA4_AgentChatPanel: React.FC = () => {
       
       // APPROVE_ALL: Execute immediately with staggered row animations
       if (actionType === 'approve_all') {
-        // Close any open worker drawer
+        // Close any open worker drawer (uses registered callback to close local drawer state)
+        closeDrawer();
         setOpenWorkerId(undefined);
         
         setOpen(true);
