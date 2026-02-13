@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle, Loader2 } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle, Loader2, AlertTriangle, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "./CA4_ConfirmationDialogs";
+import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "./CA4_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA4_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA4_AdminAddAdjustment";
 import { useCA4Agent } from "./CA4_AgentContext";
@@ -33,7 +33,7 @@ import { useCA4Agent } from "./CA4_AgentContext";
 // can also be reviewed here if admin missed them
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
 // Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
-export type SubmissionStatus = "pending" | "reviewed" | "ready";
+export type SubmissionStatus = "pending" | "reviewed" | "ready" | "handover";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 // Only unpaid leave flows through payroll submissions - other leave types handled in Leaves tab
 type LeaveTypeLocal = "Unpaid";
@@ -92,7 +92,21 @@ export interface WorkerSubmission {
   currency?: string;
   flagged?: boolean;
   flagReason?: string;
+  flags?: WorkerFlag[];
+  invoiceNumber?: string;
 }
+
+// Flag types for "Heads up" indicators
+export interface WorkerFlag {
+  type: "end_date" | "pay_change";
+  endDate?: string; // For Flag 1
+  endReason?: "Termination" | "Resignation" | "End contract"; // For Flag 1
+  payChangePercent?: number; // For Flag 2 (positive = increase, negative = decrease)
+  payChangeDelta?: number; // For Flag 2 absolute amount difference
+}
+
+// Status change decision for Flag 1
+export type StatusDecision = "include" | "exclude";
 
 import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
 
@@ -133,6 +147,7 @@ const leaveTypeConfig: Record<LeaveTypeLocal, { icon: React.ElementType; label: 
 const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: string; color: string }> = {
   pending: { icon: Clock, label: "Pending", color: "text-orange-600" },
   reviewed: { icon: Eye, label: "Reviewed", color: "text-blue-600" },
+  handover: { icon: Clock, label: "Handover", color: "text-purple-600" },
   ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
 };
 

@@ -338,3 +338,66 @@ export const CA3_MarkAsReadyDialog = ({
     </AlertDialog>
   );
 };
+
+// Exclude Worker Confirmation Dialog
+interface CA3_ExcludeWorkerDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  workerName: string;
+  endReason?: string;
+}
+
+export const CA3_ExcludeWorkerDialog = ({
+  open,
+  onOpenChange,
+  onConfirm,
+  workerName,
+  endReason,
+}: CA3_ExcludeWorkerDialogProps) => {
+  const handleConfirm = () => {
+    onConfirm();
+    onOpenChange(false);
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent 
+        className="sm:max-w-md"
+        onOverlayClick={() => onOpenChange(false)}
+      >
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        
+        <AlertDialogHeader>
+          <AlertDialogTitle>Exclude {workerName}?</AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div className="space-y-3">
+              <p>
+                {workerName} will be removed from this payroll run and deferred to the next cycle.
+              </p>
+              <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md p-2.5 border border-border/30">
+                <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" />
+                <span>No payment will be processed for this worker in the current period.</span>
+              </div>
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirm}
+            className="bg-red-600 text-white hover:bg-red-700"
+          >
+            Exclude from this run
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
