@@ -59,6 +59,7 @@ interface AgentContextType extends AgentState {
     onMarkReady?: (workerId: string) => void;
     onSubmitPayroll?: () => void;
     onApproveItem?: (workerId: string, itemType: string, amount?: number) => boolean; // Returns true if item found/approved
+    onCloseDrawer?: () => void; // Close the worker detail drawer
   };
   registerActionCallbacks: (callbacks: AgentContextType['actionCallbacks']) => void;
   // Execute callback by type - uses ref for latest callbacks
@@ -75,6 +76,8 @@ interface AgentContextType extends AgentState {
   // NEW: Staggered "approving" state for worker rows (pending → reviewed)
   workersApproving: Set<string>;
   setWorkersApproving: React.Dispatch<React.SetStateAction<Set<string>>>;
+  // Close the submissions drawer via registered callback
+  closeDrawer: () => void;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -270,6 +273,10 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setMessages([]);
   }, []);
 
+  const closeDrawer = useCallback(() => {
+    actionCallbacksRef.current.onCloseDrawer?.();
+  }, []);
+
   return (
     <AgentContext.Provider
       value={{
@@ -309,6 +316,7 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         registerActionCallbacks,
         executeCallback,
         setButtonLoadingState,
+        closeDrawer,
       }}
     >
       {children}
