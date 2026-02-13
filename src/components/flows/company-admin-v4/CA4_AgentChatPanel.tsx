@@ -690,14 +690,14 @@ export const CA4_AgentChatPanel: React.FC = () => {
       // Navigate to submissions
       setTimeout(() => {
         setRequestedStep('submissions');
-      }, 5300);
+      }, 300);
 
       const workersToApprove = WORKERS_DATA.filter(w => w.pendingItems > 0).map(w => w.id);
 
       // Start staggered approving - set all workers as "approving" state
       setTimeout(() => {
         setWorkersApproving(new Set(workersToApprove));
-      }, 5400);
+      }, 400);
 
       // Execute approve for each worker with staggered delays
       workersToApprove.forEach((wId, index) => {
@@ -708,10 +708,10 @@ export const CA4_AgentChatPanel: React.FC = () => {
             next.delete(wId);
             return next;
           });
-        }, 5600 + index * 400);
+        }, 600 + index * 400);
       });
 
-      const totalTime = 5600 + workersToApprove.length * 400 + 300;
+      const totalTime = 600 + workersToApprove.length * 400 + 300;
       setTimeout(() => {
         const nextAction: SuggestedAction = {
           type: 'mark_ready',
@@ -751,7 +751,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       // Start staggered marking - set all workers as "marking" state
       setTimeout(() => {
         setWorkersMarkingReady(new Set(workersToMark));
-      }, 5300);
+      }, 300);
       
       // Execute mark ready for each worker with staggered delays
       workersToMark.forEach((wId, index) => {
@@ -763,11 +763,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
             next.delete(wId);
             return next;
           });
-        }, 5500 + index * 400); // Stagger: 5500ms base + 400ms per worker
+        }, 500 + index * 400); // Stagger: 500ms base + 400ms per worker
       });
       
       // After all done, add success message and reopen chat
-      const totalTime = 5500 + workersToMark.length * 400 + 300;
+      const totalTime = 500 + workersToMark.length * 400 + 300;
       setTimeout(() => {
         setMessages(prev => [...prev, createChatMessage({
           role: 'assistant',
@@ -804,32 +804,32 @@ export const CA4_AgentChatPanel: React.FC = () => {
     // Keep chat open and navigate to submissions
     setOpen(true);
     
-    // Step 1: Navigate to submissions (5300ms)
+    // Step 1: Navigate to submissions (300ms)
     setTimeout(() => {
       setRequestedStep('submissions');
-    }, 5300);
+    }, 300);
     
-    // Step 2: Open worker drawer (5800ms)
+    // Step 2: Open worker drawer (600ms)
     setTimeout(() => {
       if (workerId) setOpenWorkerId(workerId);
-    }, 5800);
+    }, 600);
 
-    // Step 3: Show processing indicator on the targeted item (6200ms)
+    // Step 3: Show processing indicator on the targeted item (1000ms)
     setTimeout(() => {
       if (actionType === 'approve_item' && targetedItem) {
         setProcessingItem(targetedItem);
       }
       setButtonLoadingState(actionType, true);
       setButtonLoading(true);
-    }, 6200);
+    }, 1000);
 
-    // Step 4: Execute the action (6800ms - longer delay for visual feedback)
+    // Step 4: Execute the action (1500ms)
     setTimeout(() => {
       let ok = false;
       if (actionType === 'approve_item' && targetedItem) {
         ok = executeCallback('approve_item', workerId, targetedItem);
         // Clear processing indicator after a short delay for visual feedback
-        setTimeout(() => setProcessingItem(undefined), 5500);
+        setTimeout(() => setProcessingItem(undefined), 500);
       } else {
         ok = executeCallback(actionType, workerId);
       }
