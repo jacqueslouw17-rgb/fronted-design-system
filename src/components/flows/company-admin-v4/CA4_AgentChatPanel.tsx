@@ -1118,6 +1118,44 @@ export const CA4_AgentChatPanel: React.FC = () => {
       return;
     }
 
+    // SPECIAL FLOW: "Let Fronted always run payroll" — skip straight to Track
+    const lowerQueryForFronted = query.toLowerCase();
+    if (
+      (lowerQueryForFronted.includes('fronted') && lowerQueryForFronted.includes('run')) ||
+      (lowerQueryForFronted.includes('fronted') && lowerQueryForFronted.includes('always')) ||
+      (lowerQueryForFronted.includes('autopilot') && lowerQueryForFronted.includes('payroll')) ||
+      (lowerQueryForFronted.includes('delegate') && lowerQueryForFronted.includes('payroll'))
+    ) {
+      setOpen(true);
+      setNavigating(true, 'Setting up Fronted-managed payroll…');
+
+      // Step 1: Show navigating state
+      setTimeout(() => {
+        setNavigating(true, 'Fronted is taking over — skipping to tracking…');
+      }, 2000);
+
+      // Step 2: Navigate directly to Track step
+      setTimeout(() => {
+        setRequestedStep('track');
+        setNavigating(false);
+      }, 5300);
+
+      // Step 3: Add confirmation message
+      setTimeout(() => {
+        setIsLoading(false);
+        setShowRetrieving(false);
+        setMessages(prev => [
+          ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
+          createChatMessage({
+            role: 'assistant',
+            content: `✓ **Fronted is now running payroll for you.**\n\nAll submissions have been auto-approved, reviewed, and submitted. You can sit back and track payment progress here.\n\nWorkers will be marked as **paid** once Fronted processes each payment.`,
+          }),
+        ]);
+      }, 6500);
+
+      return;
+    }
+
     // Detect worker intent and trigger UI orchestration
     const intent = detectWorkerIntent(query);
     
@@ -1405,6 +1443,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
                       'Approve all pending items',
                       'Show David Martinez',
                       'Mark all workers as ready',
+                      'Let Fronted always run payroll',
                     ].map((suggestion, i) => (
                       <button
                         key={i}
