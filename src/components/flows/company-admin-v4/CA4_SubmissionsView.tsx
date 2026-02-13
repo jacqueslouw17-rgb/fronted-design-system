@@ -882,7 +882,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
             // Auto-expand earnings section and show pending only
             setForceOpenSections(new Set(['earnings']));
             setShowPendingOnly(true);
-          }, 1200);
+          }, 6200);
         } else {
           // Drawer already open for this worker - just expand earnings and show pending
           console.log('[CA4_SubmissionsView] Drawer already open, expanding sections');
@@ -917,7 +917,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     setTimeout(() => {
       setNewlyAddedId(null);
       setNewlyAddedSection(null);
-    }, 2000);
+    }, 7000);
   };
   
   // Remove admin-added adjustment
@@ -1074,7 +1074,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     // Extended loading for smooth transition feel
     setTimeout(() => {
       setIsDrawerLoading(false);
-    }, 1200);
+    }, 6200);
   };
 
   const handleApproveFromDrawer = () => {
