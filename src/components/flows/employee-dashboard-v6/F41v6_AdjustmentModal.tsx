@@ -386,15 +386,20 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const handleSubmitExpenses = () => {
     if (!validateExpenseItems()) return;
 
-    expenseItems.forEach(item => {
-      addAdjustment({
-        type: 'Expense',
-        label: item.category,
-        amount: parseFloat(item.amount),
-        category: item.category,
-        receiptUrl: item.receipt.length > 0 ? URL.createObjectURL(item.receipt[0]) : undefined,
-        tags: expenseTags.length > 0 ? expenseTags : undefined,
-      });
+    const totalAmount = expenseItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+    const count = expenseItems.length;
+    const categories = [...new Set(expenseItems.map(i => i.category))];
+    const label = count === 1
+      ? expenseItems[0].category
+      : `${count} expenses (${categories.join(', ')})`;
+
+    addAdjustment({
+      type: 'Expense',
+      label,
+      amount: totalAmount,
+      category: categories[0],
+      receiptUrl: expenseItems[0].receipt.length > 0 ? URL.createObjectURL(expenseItems[0].receipt[0]) : undefined,
+      tags: expenseTags.length > 0 ? expenseTags : undefined,
     });
 
     // Mark the rejected item as resubmitted if this was a resubmission
@@ -402,7 +407,6 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       markRejectionResubmitted(rejectedId);
     }
 
-    const count = expenseItems.length;
     toast.success(`${count} expense${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
     
@@ -414,18 +418,20 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const handleSubmitOvertime = () => {
     if (!validateOvertimeItems()) return;
 
-    overtimeItems.forEach(item => {
-      const dateLabel = item.date ? format(item.date, 'MMM d') : '';
-      addAdjustment({
-        type: 'Overtime',
-        label: `${item.calculatedHours}h on ${dateLabel}`,
-        amount: null,
-        description: `${item.startTime} – ${item.endTime}`,
-        hours: item.calculatedHours,
-        date: item.date ? format(item.date, 'yyyy-MM-dd') : undefined,
-        startTime: item.startTime,
-        endTime: item.endTime,
-      });
+    const totalHours = overtimeItems.reduce((sum, item) => sum + item.calculatedHours, 0);
+    const count = overtimeItems.length;
+    const label = count === 1
+      ? `${overtimeItems[0].calculatedHours}h on ${overtimeItems[0].date ? format(overtimeItems[0].date, 'MMM d') : ''}`
+      : `${totalHours}h overtime (${count} entries)`;
+
+    addAdjustment({
+      type: 'Overtime',
+      label,
+      amount: null,
+      hours: totalHours,
+      date: overtimeItems[0].date ? format(overtimeItems[0].date, 'yyyy-MM-dd') : undefined,
+      startTime: overtimeItems[0].startTime,
+      endTime: overtimeItems[0].endTime,
     });
 
     // Mark the rejected item as resubmitted if this was a resubmission
@@ -433,8 +439,6 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       markRejectionResubmitted(rejectedId);
     }
 
-    const totalHours = overtimeItems.reduce((sum, item) => sum + item.calculatedHours, 0);
-    const count = overtimeItems.length;
     toast.success(`${count} overtime entr${count > 1 ? 'ies' : 'y'} submitted (${totalHours}h total).`);
     handleClose();
   };
@@ -442,13 +446,15 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const handleSubmitBonus = () => {
     if (!validateBonusItems()) return;
 
-    bonusItems.forEach((item, index) => {
-      addAdjustment({
-        type: 'Bonus',
-        label: bonusItems.length > 1 ? `Bonus request #${index + 1}` : 'Bonus request',
-        amount: parseFloat(item.amount),
-        receiptUrl: item.attachment.length > 0 ? URL.createObjectURL(item.attachment[0]) : undefined,
-      });
+    const totalAmount = bonusItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+    const count = bonusItems.length;
+    const label = count === 1 ? 'Bonus request' : `${count} bonus requests`;
+
+    addAdjustment({
+      type: 'Bonus',
+      label,
+      amount: totalAmount,
+      receiptUrl: bonusItems[0].attachment.length > 0 ? URL.createObjectURL(bonusItems[0].attachment[0]) : undefined,
     });
 
     // Mark the rejected item as resubmitted if this was a resubmission
@@ -456,7 +462,6 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       markRejectionResubmitted(rejectedId);
     }
 
-    const count = bonusItems.length;
     toast.success(`${count} bonus request${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
   };

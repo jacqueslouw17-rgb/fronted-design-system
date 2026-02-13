@@ -423,16 +423,20 @@ export const F42v6_AdjustmentDrawer = ({
   const handleSubmitExpenses = () => {
     if (!validateExpenseItems()) return;
 
-    // Submit each expense item
-    expenseItems.forEach(item => {
-      addAdjustment({
-        type: 'Expense',
-        label: item.category,
-        amount: parseFloat(item.amount),
-        category: item.category,
-        receiptUrl: item.receipt.length > 0 ? URL.createObjectURL(item.receipt[0]) : undefined,
-        tags: expenseTags.length > 0 ? expenseTags : undefined,
-      });
+    const totalAmount = expenseItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+    const count = expenseItems.length;
+    const categories = [...new Set(expenseItems.map(i => i.category))];
+    const label = count === 1
+      ? expenseItems[0].category
+      : `${count} expenses (${categories.join(', ')})`;
+
+    addAdjustment({
+      type: 'Expense',
+      label,
+      amount: totalAmount,
+      category: categories[0],
+      receiptUrl: expenseItems[0].receipt.length > 0 ? URL.createObjectURL(expenseItems[0].receipt[0]) : undefined,
+      tags: expenseTags.length > 0 ? expenseTags : undefined,
     });
 
     // Mark the rejected item as resubmitted if this was a resubmission
@@ -440,7 +444,6 @@ export const F42v6_AdjustmentDrawer = ({
       markRejectionResubmitted(rejectedId);
     }
 
-    const count = expenseItems.length;
     toast.success(`${count} expense${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
     
@@ -453,19 +456,20 @@ export const F42v6_AdjustmentDrawer = ({
   const handleSubmitAdditionalHours = () => {
     if (!validateAdditionalHoursItems()) return;
 
-    // Submit each additional hours item
-    additionalHoursItems.forEach((item, index) => {
-      addAdjustment({
-        type: 'Additional hours',
-        label: additionalHoursItems.length > 1 
-          ? `${item.calculatedHours}h (Entry #${index + 1})`
-          : `${item.calculatedHours}h`,
-        amount: null,
-        hours: item.calculatedHours,
-        date: item.date ? format(item.date, 'yyyy-MM-dd') : undefined,
-        startTime: item.startTime,
-        endTime: item.endTime,
-      });
+    const totalHrs = totalAdditionalHours;
+    const count = additionalHoursItems.length;
+    const label = count === 1
+      ? `${additionalHoursItems[0].calculatedHours}h`
+      : `${totalHrs}h additional (${count} entries)`;
+
+    addAdjustment({
+      type: 'Additional hours',
+      label,
+      amount: null,
+      hours: totalHrs,
+      date: additionalHoursItems[0].date ? format(additionalHoursItems[0].date, 'yyyy-MM-dd') : undefined,
+      startTime: additionalHoursItems[0].startTime,
+      endTime: additionalHoursItems[0].endTime,
     });
 
     // Mark the rejected item as resubmitted if this was a resubmission
@@ -473,8 +477,6 @@ export const F42v6_AdjustmentDrawer = ({
       markRejectionResubmitted(rejectedId);
     }
 
-    const count = additionalHoursItems.length;
-    const totalHrs = totalAdditionalHours;
     toast.success(`${count} time entr${count > 1 ? 'ies' : 'y'} submitted (${totalHrs}h total).`);
     handleClose();
     
@@ -487,14 +489,15 @@ export const F42v6_AdjustmentDrawer = ({
   const handleSubmitBonus = () => {
     if (!validateCommission()) return;
 
-    // Submit each commission item
-    commissionItems.forEach(item => {
-      addAdjustment({
-        type: 'Bonus',
-        label: 'Commission',
-        amount: parseFloat(item.amount),
-        receiptUrl: item.attachment.length > 0 ? URL.createObjectURL(item.attachment[0]) : undefined,
-      });
+    const totalAmount = commissionItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+    const count = commissionItems.length;
+    const label = count === 1 ? 'Commission' : `${count} commissions`;
+
+    addAdjustment({
+      type: 'Bonus',
+      label,
+      amount: totalAmount,
+      receiptUrl: commissionItems[0].attachment.length > 0 ? URL.createObjectURL(commissionItems[0].attachment[0]) : undefined,
     });
 
     // Mark the rejected item as resubmitted if this was a resubmission
@@ -502,7 +505,6 @@ export const F42v6_AdjustmentDrawer = ({
       markRejectionResubmitted(rejectedId);
     }
 
-    const count = commissionItems.length;
     toast.success(`${count} commission${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
   };
