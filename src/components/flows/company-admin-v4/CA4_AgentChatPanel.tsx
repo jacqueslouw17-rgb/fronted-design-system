@@ -381,6 +381,50 @@ function getNextSuggestedAction(completedAction: PendingActionType, workerId?: s
   }
 }
 
+const SUGGESTIONS = [
+  'Approve all pending items',
+  'Show David Martinez',
+  'Mark all workers as ready',
+  'Let Fronted always run payroll',
+];
+
+const SuggestionList: React.FC<{ onSelect: (s: string) => void }> = ({ onSelect }) => {
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  return (
+    <div className="pt-2">
+      <p className="text-[13px] text-muted-foreground/70">
+        Ask about payroll, workers, or submissions. Try:
+      </p>
+      <div className="mt-3 space-y-1.5">
+        {SUGGESTIONS.map((suggestion, i) => {
+          const isHovered = hovered === i;
+          const hasSiblingHover = hovered !== null && hovered !== i;
+
+          return (
+            <button
+              key={i}
+              onClick={() => onSelect(suggestion)}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              className={cn(
+                "block w-full text-left px-3.5 py-2.5 rounded-xl text-[12.5px] transition-all duration-300 ease-out border",
+                isHovered
+                  ? "bg-primary/[0.06] text-foreground border-primary/20 shadow-[0_0_12px_-4px_hsl(var(--primary)/0.15)] scale-[1.01]"
+                  : hasSiblingHover
+                    ? "bg-muted/20 text-muted-foreground/40 border-transparent scale-[0.99]"
+                    : "bg-muted/30 text-muted-foreground border-transparent"
+              )}
+            >
+              {suggestion}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export const CA4_AgentChatPanel: React.FC = () => {
   const {
     isOpen,
@@ -1434,27 +1478,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
           >
             <div className="px-4 py-4 space-y-4">
               {messages.length === 0 && !showRetrieving ? (
-                <div className="pt-2">
-                  <p className="text-[13px] text-muted-foreground/70">
-                    Ask about payroll, workers, or submissions. Try:
-                  </p>
-                  <div className="mt-3 space-y-2">
-                    {[
-                      'Approve all pending items',
-                      'Show David Martinez',
-                      'Mark all workers as ready',
-                      'Let Fronted always run payroll',
-                    ].map((suggestion, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSubmit(suggestion)}
-                        className="block w-full text-left px-3 py-2 rounded-lg text-[12px] text-muted-foreground bg-muted/30 hover:bg-muted/50 transition-colors"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <SuggestionList onSelect={handleSubmit} />
               ) : (
                 messages.map((message) => {
                   // Show confirmation buttons inline on the latest assistant bubble whenever a
