@@ -785,7 +785,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       if (actionType === 'approve_item' && targetedItem) {
         ok = executeCallback('approve_item', workerId, targetedItem);
         // Clear processing indicator after a short delay for visual feedback
-        setTimeout(() => setProcessingItem(undefined), 500);
+        setTimeout(() => setProcessingItem(undefined), 5500);
       } else {
         ok = executeCallback(actionType, workerId);
       }
