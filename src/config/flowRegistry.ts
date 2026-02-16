@@ -336,6 +336,23 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/components/flows/fronted-admin-v4-clone/F1v4_StartOnboardingConfirmation.tsx'
     ]
   },
+  'f1-fronted-admin-v5-clone': {
+    id: 'f1-fronted-admin-v5-clone',
+    title: 'Flow 1 — Fronted Admin Dashboard v5',
+    path: '/flows/fronted-admin-dashboard-v5-clone',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/F1v5_FrontedAdminDashboard.tsx',
+      'src/components/flows/fronted-admin-v5-clone/F1v5_PipelineView.tsx',
+      'src/components/flows/fronted-admin-v5-clone/F1v5_AddCandidateDrawer.tsx',
+      'src/components/flows/fronted-admin-v5-clone/F1v5_OnboardingFormDrawer.tsx',
+      'src/components/flows/fronted-admin-v5-clone/F1v5_EmbeddedAdminOnboarding.tsx',
+      'src/components/flows/fronted-admin-v5-clone/F1v5_SignatureWorkflowDrawer.tsx',
+      'src/components/flows/fronted-admin-v5-clone/F1v5_StartOnboardingConfirmation.tsx'
+    ]
+  },
   'f6-company-admin-dashboard-v4': {
     id: 'f6-company-admin-dashboard-v4',
     title: 'Flow 6 — Company Admin Dashboard v4 (Agent)',
