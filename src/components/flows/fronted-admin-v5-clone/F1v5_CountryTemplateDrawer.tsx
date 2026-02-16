@@ -345,9 +345,16 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                   <div className="max-w-3xl mx-auto">
                     {/* Document paper */}
                     <div className="rounded-lg border border-border/20 bg-background/60 shadow-sm p-8">
-                      <pre className="text-sm leading-relaxed text-foreground whitespace-pre-wrap font-sans">
-                        {activeDoc?.content}
-                      </pre>
+                      {activeDoc?.content && activeDoc.content.includes("<") ? (
+                        <div
+                          className="prose prose-sm max-w-none text-foreground [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:leading-relaxed [&_p]:mb-3"
+                          dangerouslySetInnerHTML={{ __html: activeDoc.content }}
+                        />
+                      ) : (
+                        <pre className="text-sm leading-relaxed text-foreground whitespace-pre-wrap font-sans">
+                          {activeDoc?.content}
+                        </pre>
+                      )}
                     </div>
 
                     {/* Document meta */}
