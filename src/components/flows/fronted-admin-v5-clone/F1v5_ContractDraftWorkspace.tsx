@@ -532,7 +532,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   className="flex items-center gap-1.5 h-7 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
                 >
                   <RotateCcw className={`h-3.5 w-3.5 ${isResetting ? 'animate-spin' : ''}`} />
-                  Reset
+                  Reset {documents.find(d => d.id === activeDocument)?.shortLabel}
                 </Button>
                 <Button
                   variant="outline" size="sm"
@@ -541,7 +541,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   className="flex items-center gap-1.5 h-7 text-xs"
                 >
                   <Pencil className="h-3.5 w-3.5" />
-                  Edit
+                  Edit {documents.find(d => d.id === activeDocument)?.shortLabel}
                 </Button>
               </div>
             )}
