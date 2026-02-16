@@ -22,10 +22,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 // Tabs replaced with custom button-based tab UI for stronger active state
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw, X, ChevronLeft, ChevronRight, ChevronDown, Cpu, Scale, Car, HeartPulse, Home, BookOpen } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
 import { ContractCarousel } from "@/components/contract-flow/ContractCarousel";
@@ -37,7 +43,7 @@ import { useGlobalContractAuditLog } from "@/hooks/useContractAuditLog";
 import { ContractRichTextEditor } from "@/components/contract-flow/ContractRichTextEditor";
 import { cn } from "@/lib/utils";
 
-type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance";
+type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance" | "ip-addendum" | "restrictive-covenants" | "equipment-addendum" | "health-safety" | "home-office" | "personnel-handbook";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -151,6 +157,66 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType): S
         { heading: "11. Amendments", text: "11.1 The Company reserves the right to update this Addendum from time to time to reflect changes in applicable data protection laws or the Company's data processing practices.\n\n11.2 The Data Subject will be notified of any material changes to this Addendum in writing at least 30 days before the changes take effect." },
         { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING AS EVIDENCED BY THEIR SIGNATURES BELOW.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Data Subject` }
       ];
+    case "ip-addendum":
+      return [
+        { heading: "Intellectual property addendum", text: "" },
+        { heading: "", text: `This IP Addendum ("Addendum") supplements the Employment/Contractor Agreement between Fronted Sweden AB ("Company") and ${hl(candidate.name)} ("Worker") and governs intellectual property rights and any IP carve-outs.` },
+        { heading: "1. Assignment of intellectual property", text: `1.1 The Worker agrees that all inventions, works of authorship, software, designs, discoveries, and other intellectual property ("Work Product") created during the course of engagement shall be the exclusive property of the Company.\n\n1.2 The Worker hereby irrevocably assigns to the Company all rights, title, and interest in any Work Product, including all patent rights, copyrights, trade secret rights, and other intellectual property rights.` },
+        { heading: "2. IP carve-outs", text: `2.1 The following pre-existing intellectual property owned by the Worker prior to the engagement is expressly excluded from the assignment above ("Excluded IP"):\n\n(a) ${hl("None declared")} — The Worker confirms they have no pre-existing IP relevant to the Company's business.\n\n2.2 Any additions to the Excluded IP list must be agreed in writing by both Parties prior to creation or incorporation.` },
+        { heading: "3. Moral rights", text: "3.1 To the extent permitted by applicable law, the Worker waives all moral rights in the Work Product, including the right of attribution and the right of integrity.\n\n3.2 Where moral rights cannot be waived under applicable law, the Worker agrees not to assert such rights against the Company." },
+        { heading: "4. Cooperation", text: "4.1 The Worker agrees to cooperate with the Company in obtaining and enforcing intellectual property protection, including executing any documents and providing assistance necessary for patent, trademark, or copyright registration.\n\n4.2 This obligation survives termination of the engagement." },
+        { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
+      ];
+    case "restrictive-covenants":
+      return [
+        { heading: "Restrictive covenants addendum", text: "" },
+        { heading: "", text: `This Restrictive Covenants Addendum ("Addendum") supplements the Agreement between Fronted Sweden AB ("Company") and ${hl(candidate.name)} ("Worker") and sets out post-termination restrictions.` },
+        { heading: "1. Non-compete", text: `1.1 For a period of ${hl("12 months")} following termination, the Worker shall not directly or indirectly engage in, own, manage, or operate any business that competes with the Company's core business activities in ${hl(candidate.country)}.\n\n1.2 The Company shall pay the Worker reasonable compensation during the non-compete period as required by applicable ${hl(candidate.country)} law.` },
+        { heading: "2. Non-solicitation of clients", text: `2.1 For a period of ${hl("12 months")} following termination, the Worker shall not solicit, contact, or attempt to do business with any client or prospective client of the Company with whom the Worker had material contact during the last 12 months of engagement.` },
+        { heading: "3. Non-solicitation of employees", text: `3.1 For a period of ${hl("12 months")} following termination, the Worker shall not directly or indirectly recruit, solicit, or hire any employee or contractor of the Company.` },
+        { heading: "4. Enforceability", text: `4.1 If any restriction is found unenforceable by a court of competent jurisdiction, the restriction shall be modified to the minimum extent necessary to make it enforceable under ${hl(candidate.country)} law.\n\n4.2 The Worker acknowledges receiving independent legal advice regarding these restrictions.` },
+        { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
+      ];
+    case "equipment-addendum":
+      return [
+        { heading: "Equipment and benefits addendum", text: "" },
+        { heading: "", text: `This Equipment Addendum supplements the Agreement between Fronted Sweden AB ("Company") and ${hl(candidate.name)} ("Worker") regarding company-provided equipment and related benefits.` },
+        { heading: "1. Equipment provided", text: `1.1 The Company shall provide the following equipment for the Worker's use during the engagement:\n\n(a) Laptop computer (specification per company standard)\n(b) Monitor and peripherals as required\n(c) Mobile phone or phone allowance: ${hl("Per company policy")}\n\n1.2 All equipment remains the property of the Company and must be returned upon termination.` },
+        { heading: "2. Car lease / transport allowance", text: `2.1 ${hl("Not applicable")} — No company car or transport allowance is included in this engagement.\n\n2.2 If a car lease or transport benefit is subsequently agreed, it shall be documented as a written amendment to this Addendum.` },
+        { heading: "3. Care and maintenance", text: "3.1 The Worker shall take reasonable care of all Company equipment and report any damage, loss, or malfunction promptly.\n\n3.2 The Worker shall not use Company equipment for unlawful purposes or install unauthorized software." },
+        { heading: "4. Return of equipment", text: `4.1 Upon termination of the engagement, all Company equipment must be returned within ${hl("5 business days")} in good working condition, reasonable wear and tear excepted.\n\n4.2 Failure to return equipment may result in deduction from final payments as permitted by applicable law.` },
+        { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
+      ];
+    case "health-safety":
+      return [
+        { heading: "Health and safety document", text: "" },
+        { heading: "", text: `This Health and Safety Document supplements the Agreement between Fronted Sweden AB ("Company") and ${hl(candidate.name)} ("Worker") in accordance with applicable occupational health and safety legislation in ${hl(candidate.country)}.` },
+        { heading: "1. Employer obligations", text: `1.1 The Company shall provide a safe working environment and comply with all applicable health and safety regulations in ${hl(candidate.country)}.\n\n1.2 The Company shall conduct regular risk assessments and implement appropriate preventive measures.` },
+        { heading: "2. Worker obligations", text: "2.1 The Worker shall comply with all health and safety policies and procedures established by the Company.\n\n2.2 The Worker shall report any workplace hazards, accidents, or near-misses promptly to their supervisor.\n\n2.3 The Worker shall participate in mandatory health and safety training as required." },
+        { heading: "3. Incident reporting", text: "3.1 All workplace incidents must be reported within 24 hours using the Company's incident reporting system.\n\n3.2 The Company shall investigate all reported incidents and implement corrective actions as appropriate." },
+        { heading: "4. Acknowledgment", text: `4.1 The Worker acknowledges having received and understood the Company's health and safety policies applicable to their workplace in ${hl(candidate.country)}.` },
+        { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
+      ];
+    case "home-office":
+      return [
+        { heading: "Home office policy", text: "" },
+        { heading: "", text: `This Home Office Policy Addendum supplements the Agreement between Fronted Sweden AB ("Company") and ${hl(candidate.name)} ("Worker") and governs remote/hybrid working arrangements.` },
+        { heading: "1. Remote work eligibility", text: "1.1 The Worker is authorized to perform duties remotely from their designated home office, subject to the terms of this policy.\n\n1.2 Remote work is a privilege, not a right, and may be revoked at the Company's discretion with reasonable notice." },
+        { heading: "2. Workspace requirements", text: `2.1 The Worker shall maintain a dedicated workspace that meets the following minimum requirements:\n\n(a) Adequate lighting and ventilation\n(b) Ergonomic desk and chair setup\n(c) Reliable internet connection (minimum ${hl("50 Mbps")})\n(d) A quiet environment suitable for video calls and focused work` },
+        { heading: "3. Working hours and availability", text: `3.1 The Worker shall maintain regular working hours as defined in the Employment Agreement and be available during core hours (${hl("10:00–15:00 CET")}).\n\n3.2 The Worker shall use Company-approved communication tools and respond to messages within reasonable timeframes.` },
+        { heading: "4. Data security", text: "4.1 The Worker shall ensure all Company data is handled securely when working remotely, including:\n\n(a) Using encrypted VPN connections for Company systems\n(b) Locking screens when away from the workspace\n(c) Not allowing unauthorized persons access to Company information\n(d) Following the Company's information security policy at all times" },
+        { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
+      ];
+    case "personnel-handbook":
+      return [
+        { heading: "Personnel handbook acknowledgment", text: "" },
+        { heading: "", text: `This acknowledgment confirms that ${hl(candidate.name)} ("Worker") has received and reviewed the Fronted Sweden AB Personnel Handbook ("Handbook"), effective as of ${hl(candidate.startDate)}.` },
+        { heading: "1. Scope of the handbook", text: "1.1 The Handbook outlines the Company's policies, procedures, and expectations regarding workplace conduct, benefits, leave, and general employment practices.\n\n1.2 The Handbook supplements but does not replace the terms of the Employment Agreement. In case of conflict, the Employment Agreement shall prevail." },
+        { heading: "2. Key policies covered", text: "2.1 The Handbook covers the following key areas:\n\n(a) Code of conduct and workplace behaviour\n(b) Anti-discrimination and harassment policies\n(c) Leave policies (annual, sick, parental, compassionate)\n(d) Expense reimbursement procedures\n(e) Performance management and development\n(f) Grievance and disciplinary procedures\n(g) IT and acceptable use policies\n(h) Social media policy" },
+        { heading: "3. Updates and amendments", text: "3.1 The Company reserves the right to update or amend the Handbook at any time. Workers will be notified of material changes and may be required to acknowledge receipt of updated versions.\n\n3.2 The most current version of the Handbook is always available on the Company's internal portal." },
+        { heading: "4. Worker acknowledgment", text: `4.1 By signing below, ${hl(candidate.name)} confirms:\n\n(a) Receipt of the Personnel Handbook\n(b) Understanding of the policies and procedures contained therein\n(c) Agreement to comply with all Company policies as a condition of employment` },
+        { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
+      ];
   }
 };
 
@@ -197,14 +263,19 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
     if (employmentType === "employee") {
       return [
         { id: "employment-agreement" as DocumentType, label: "Employment Agreement", icon: FileText, shortLabel: "Agreement" },
-        { id: "country-compliance" as DocumentType, label: `Country Compliance (${candidate.countryCode})`, icon: Shield, shortLabel: "Compliance" },
-        { id: "nda-policy" as DocumentType, label: "NDA / Policy Docs", icon: Handshake, shortLabel: "NDA/Policy" },
+        { id: "ip-addendum" as DocumentType, label: "IP Assignment & Carve-outs", icon: Cpu, shortLabel: "IP" },
+        { id: "restrictive-covenants" as DocumentType, label: "Restrictive Covenants", icon: Scale, shortLabel: "Covenants" },
+        { id: "nda" as DocumentType, label: "Non-Disclosure Agreement", icon: Handshake, shortLabel: "NDA" },
+        { id: "data-privacy" as DocumentType, label: `Data Privacy (${candidate.countryCode})`, icon: ScrollText, shortLabel: "Privacy" },
+        { id: "home-office" as DocumentType, label: "Home Office Policy", icon: Home, shortLabel: "Home Office" },
       ];
     }
     return [
       { id: "contractor-agreement" as DocumentType, label: "Contractor Agreement", icon: FileText, shortLabel: "Agreement" },
       { id: "nda" as DocumentType, label: "Non-Disclosure Agreement", icon: Handshake, shortLabel: "NDA" },
       { id: "data-privacy" as DocumentType, label: `Data Privacy (${candidate.countryCode})`, icon: ScrollText, shortLabel: "Privacy" },
+      { id: "ip-addendum" as DocumentType, label: "IP Assignment & Carve-outs", icon: Cpu, shortLabel: "IP" },
+      { id: "restrictive-covenants" as DocumentType, label: "Restrictive Covenants", icon: Scale, shortLabel: "Covenants" },
     ];
   }, [employmentType, candidate.countryCode]);
 
@@ -415,6 +486,13 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   const showTabs = documents.length > 1;
   const showPagination = totalPages > 1 && !isEditMode;
 
+  // Overflow: show first 4 tabs inline, rest in a "More" dropdown
+  const MAX_VISIBLE_TABS = 4;
+  const visibleDocs = documents.slice(0, MAX_VISIBLE_TABS);
+  const overflowDocs = documents.slice(MAX_VISIBLE_TABS);
+  const activeInOverflow = overflowDocs.some(d => d.id === activeDocument);
+  const confirmedOverflowCount = overflowDocs.filter(d => confirmedDocs.has(d.id)).length;
+
   // Document confirmation flow: must scroll each doc (last page if multi-page) before confirming
   const currentDocIndex = documents.findIndex(d => d.id === activeDocument);
   const isLastDocument = currentDocIndex === documents.length - 1;
@@ -520,7 +598,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
             ) : showTabs ? (
               <div className="min-w-0">
                 <div className="flex items-center gap-1">
-                  {documents.map((doc) => {
+                  {visibleDocs.map((doc) => {
                     const isActive = activeDocument === doc.id;
                     const isConfirmed = confirmedDocs.has(doc.id);
                     return (
@@ -555,6 +633,49 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                       </TooltipProvider>
                     );
                   })}
+                  {overflowDocs.length > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className={cn(
+                            "inline-flex items-center gap-1 text-xs h-7 px-2.5 rounded-md transition-all duration-200",
+                            activeInOverflow
+                              ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
+                              : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                          )}
+                        >
+                          {confirmedOverflowCount > 0 && !activeInOverflow && (
+                            <CheckCircle2 className="h-3 w-3 flex-shrink-0 text-primary" />
+                          )}
+                          <span>{activeInOverflow ? documents.find(d => d.id === activeDocument)?.shortLabel : `+${overflowDocs.length} more`}</span>
+                          <ChevronDown className="h-3 w-3" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="min-w-[200px]">
+                        {overflowDocs.map((doc) => {
+                          const isConfirmed = confirmedDocs.has(doc.id);
+                          const isActive = activeDocument === doc.id;
+                          return (
+                            <DropdownMenuItem
+                              key={doc.id}
+                              onClick={() => handleDocumentSwitch(doc.id)}
+                              className={cn(
+                                "flex items-center gap-2 text-xs cursor-pointer",
+                                isActive && "bg-muted font-medium"
+                              )}
+                            >
+                              {isConfirmed ? (
+                                <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+                              ) : (
+                                <doc.icon className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+                              )}
+                              <span>{doc.label}</span>
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
               </div>
             ) : (
