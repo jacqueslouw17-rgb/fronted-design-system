@@ -179,15 +179,11 @@ const F1v5_Step2OrgProfile = ({
 
           {/* Country templates — embedded inside card, below HQ Country, edit mode only */}
           {isEditMode && companyId && (
-            <>
-              <div className="border-t border-border/30 pt-4">
-                <F1v5_CountryTemplatesSection
-                  companyId={companyId}
-                  companyName={resolvedCompanyName}
-                  isEmbedded
-                />
-              </div>
-            </>
+            <F1v5_CountryTemplatesSection
+              companyId={companyId}
+              companyName={resolvedCompanyName}
+              isEmbedded
+            />
           )}
         </div>
       </div>
