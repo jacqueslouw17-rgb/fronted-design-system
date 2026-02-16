@@ -494,7 +494,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                               className={cn(
                                 "inline-flex items-center gap-1.5 text-xs h-7 px-3 rounded-md transition-all duration-200 max-w-[150px] truncate",
                                 isActive
-                                  ? "bg-foreground text-background font-semibold shadow-sm"
+                                  ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
                                   : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
                               )}
                             >
