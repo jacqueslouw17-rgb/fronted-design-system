@@ -619,32 +619,32 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
               >
                 Previous
               </Button>
-            </div>
 
-            {/* Pagination controls - centered */}
-            {showPagination && (
-              <div className="flex items-center gap-1.5">
-                <Button
-                  variant="ghost" size="sm"
-                  onClick={() => handlePageChange(activePageIndex - 1)}
-                  disabled={activePageIndex === 0}
-                  className="h-7 w-7 p-0"
-                >
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                </Button>
-                <span className="text-xs text-muted-foreground whitespace-nowrap min-w-[80px] text-center">
-                  Page {activePageIndex + 1} of {totalPages}
-                </span>
-                <Button
-                  variant="ghost" size="sm"
-                  onClick={() => handlePageChange(activePageIndex + 1)}
-                  disabled={activePageIndex >= totalPages - 1}
-                  className="h-7 w-7 p-0"
-                >
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            )}
+              {/* Pagination controls - next to Previous */}
+              {showPagination && (
+                <div className="flex items-center gap-1.5 ml-1">
+                  <Button
+                    variant="ghost" size="sm"
+                    onClick={() => handlePageChange(activePageIndex - 1)}
+                    disabled={activePageIndex === 0}
+                    className="h-7 w-7 p-0"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap min-w-[80px] text-center">
+                    Page {activePageIndex + 1} of {totalPages}
+                  </span>
+                  <Button
+                    variant="ghost" size="sm"
+                    onClick={() => handlePageChange(activePageIndex + 1)}
+                    disabled={activePageIndex >= totalPages - 1}
+                    className="h-7 w-7 p-0"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              )}
+            </div>
 
             <div className="flex items-center gap-2">
               {isEditMode ? (
