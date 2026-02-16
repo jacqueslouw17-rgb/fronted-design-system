@@ -170,6 +170,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
         return isEditMode ? (
           <F1v5_Step2OrgProfile 
             {...stepProps} 
+            formData={{ ...initialData, ...stepProps.formData }}
             isEditMode={isEditMode}
             hasSignedContract={hasSignedContract}
             hasCandidates={hasCandidates}
