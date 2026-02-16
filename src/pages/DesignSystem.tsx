@@ -279,6 +279,7 @@ const DesignSystem = () => {
     // 'flow-1.1-fronted-admin-v3',  // Flow 1 Fronted Admin Dashboard v3 (hidden)
     'flow-1-fronted-admin-v3',       // Flow 1 Fronted Admin Dashboard v3
     'flow-1-fronted-admin-v4',       // Flow 1 Fronted Admin Dashboard v4
+    'flow-1-fronted-admin-v5',       // Flow 1 Fronted Admin Dashboard v5
     'flow-3-candidate-data',         // Flow 2 Candidate Data Collection v1
     // 'flow-3-candidate-data-v2',   // Flow 2 Candidate Data Collection v2 (hidden)
     'flow-4-candidate-onboarding',   // Flow 3 Candidate Onboarding v1
