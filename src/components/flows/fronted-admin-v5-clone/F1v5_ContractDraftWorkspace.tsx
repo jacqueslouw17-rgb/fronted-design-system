@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// Tabs replaced with custom button-based tab UI for stronger active state
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -481,32 +481,36 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 </p>
               </div>
             ) : showTabs ? (
-              <Tabs value={activeDocument} onValueChange={handleDocumentSwitch} className="min-w-0">
-                <TabsList className="bg-transparent p-0 h-auto gap-1">
-                  {documents.map((doc) => (
-                    <TooltipProvider key={doc.id} delayDuration={300}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <TabsTrigger 
-                            value={doc.id} 
-                            className={cn(
-                              "max-w-[140px] truncate text-xs gap-1.5 h-7 px-3 rounded-md transition-all",
-                              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted/50",
-                              "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:font-medium data-[state=active]:border data-[state=active]:border-border/60"
-                            )}
-                          >
-                            <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
-                            <span className="truncate">{doc.shortLabel}</span>
-                          </TabsTrigger>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="text-xs">
-                          {doc.label}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ))}
-                </TabsList>
-              </Tabs>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1">
+                  {documents.map((doc) => {
+                    const isActive = activeDocument === doc.id;
+                    return (
+                      <TooltipProvider key={doc.id} delayDuration={300}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => handleDocumentSwitch(doc.id)}
+                              className={cn(
+                                "inline-flex items-center gap-1.5 text-xs h-7 px-3 rounded-md transition-all duration-200 max-w-[150px] truncate",
+                                isActive
+                                  ? "bg-foreground text-background font-semibold shadow-sm"
+                                  : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                              )}
+                            >
+                              <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
+                              <span className="truncate">{doc.shortLabel}</span>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="text-xs">
+                            {doc.label}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })}
+                </div>
+              </div>
             ) : (
               <p className="text-sm text-foreground pl-1">
                 {isResetting ? "Regenerating contract from template..." : "Review the contract details carefully before proceeding."}
