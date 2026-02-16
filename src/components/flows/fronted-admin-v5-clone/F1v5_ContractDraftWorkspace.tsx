@@ -708,7 +708,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 disabled={!canConfirmCurrentDoc}
               >
                 {isLastDocument
-                  ? (index === total - 1 ? "Confirm & Continue" : `Confirm ${activeDocLabel}`)
+                  ? "Confirm & Continue"
                   : `Confirm ${activeDocLabel}`
                 }
               </Button>
