@@ -320,22 +320,22 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                 </SheetDescription>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0 -mt-1">
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
+                <TooltipProvider delayDuration={400}>
+                  <Tooltip disableHoverableContent>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasPrev} onClick={onNavigatePrev}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasPrev} onClick={onNavigatePrev} onFocus={(e) => e.preventDefault()}>
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" className="text-xs">Previous country</TooltipContent>
+                    <TooltipContent side="bottom" className="text-xs" onPointerDownOutside={(e) => e.preventDefault()}>Previous country</TooltipContent>
                   </Tooltip>
-                  <Tooltip>
+                  <Tooltip disableHoverableContent>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasNext} onClick={onNavigateNext}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasNext} onClick={onNavigateNext} onFocus={(e) => e.preventDefault()}>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" className="text-xs">Next country</TooltipContent>
+                    <TooltipContent side="bottom" className="text-xs" onPointerDownOutside={(e) => e.preventDefault()}>Next country</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 <div className="w-px h-5 bg-border/40 mx-0.5" />
