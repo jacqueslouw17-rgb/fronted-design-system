@@ -6,10 +6,11 @@
  */
 
 import React, { useState, useMemo, useCallback } from "react";
-import { Search, Globe, Clock, User, ChevronRight } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Globe, ChevronRight, ChevronsUpDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { F1v5_CountryTemplateDrawer } from "./F1v5_CountryTemplateDrawer";
 
 // ── Types ──
@@ -305,16 +306,7 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
   const [templates, setTemplates] = useState<CountryTemplate[]>(() =>
     isNewCompany ? [] : createMockTemplates(companyId)
   );
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-
-  const filteredTemplates = useMemo(() => {
-    if (!searchQuery.trim()) return templates;
-    const q = searchQuery.toLowerCase();
-    return templates.filter(t =>
-      t.countryName.toLowerCase().includes(q) || t.countryCode.toLowerCase().includes(q)
-    );
-  }, [templates, searchQuery]);
 
   const selectedTemplate = useMemo(
     () => templates.find(t => t.id === selectedTemplateId) || null,
@@ -386,14 +378,11 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
     }));
   }, []);
 
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
   const content = (
-    <div className="space-y-3">
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-foreground">Country templates</label>
-        <p className="text-xs text-muted-foreground">
-          Base contract templates by country. Worker-specific edits are separate.
-        </p>
-      </div>
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-foreground">Country templates</label>
 
       {templates.length === 0 ? (
         <div className="rounded-md border border-dashed border-border/40 bg-muted/10 py-6 flex flex-col items-center gap-2">
@@ -401,64 +390,58 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
           <p className="text-xs text-muted-foreground">No templates yet</p>
         </div>
       ) : (
-        <>
-          {templates.length > 3 && (
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                placeholder="Search countries…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 text-sm bg-background/60"
-              />
-            </div>
-          )}
-
-          <div className="rounded-md border border-border/30 overflow-y-auto divide-y divide-border/20" style={{ maxHeight: '220px' }}>
-            {filteredTemplates.map((tpl) => {
-              const editedCount = tpl.documents.filter(d => d.content !== d.defaultContent).length;
-              return (
-                <button
-                  key={tpl.id}
-                  onClick={() => setSelectedTemplateId(tpl.id)}
-                  className="w-full flex items-center gap-3 px-3.5 py-2.5 hover:bg-muted/30 transition-colors text-left group"
-                >
-                  <span className="text-base flex-shrink-0">{tpl.flag}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-foreground">{tpl.countryName}</span>
-                      <span className="text-[11px] text-muted-foreground">{tpl.documents.length} docs</span>
-                      <span className="text-[11px] text-muted-foreground">·</span>
-                      <span className="text-[11px] text-muted-foreground">{tpl.workerCount} {tpl.workerCount === 1 ? 'worker' : 'workers'}</span>
-                      {editedCount > 0 && (
-                        <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
-                          {editedCount} edited
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 mt-0.5 text-[11px] text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDate(tpl.updatedAt)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {tpl.updatedBy}
-                      </span>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                </button>
-              );
-            })}
-
-            {filteredTemplates.length === 0 && searchQuery && (
-              <div className="px-4 py-4 text-center text-xs text-muted-foreground">
-                No templates match your search.
-              </div>
-            )}
-          </div>
-        </>
+        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-muted-foreground hover:bg-muted/20 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Globe className="h-3.5 w-3.5" />
+                Select country to edit template…
+              </span>
+              <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search countries…" />
+              <CommandList>
+                <CommandEmpty>No countries found.</CommandEmpty>
+                <CommandGroup>
+                  {templates.map((tpl) => {
+                    const editedCount = tpl.documents.filter(d => d.content !== d.defaultContent).length;
+                    return (
+                      <CommandItem
+                        key={tpl.id}
+                        value={`${tpl.countryName} ${tpl.countryCode}`}
+                        onSelect={() => {
+                          setSelectedTemplateId(tpl.id);
+                          setPopoverOpen(false);
+                        }}
+                        className="flex items-center gap-3 px-3 py-2.5 cursor-pointer"
+                      >
+                        <span className="text-base flex-shrink-0">{tpl.flag}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-foreground">{tpl.countryName}</span>
+                            <span className="text-[11px] text-muted-foreground">{tpl.documents.length} docs · {tpl.workerCount} {tpl.workerCount === 1 ? 'worker' : 'workers'}</span>
+                            {editedCount > 0 && (
+                              <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
+                                {editedCount} edited
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       )}
     </div>
   );
