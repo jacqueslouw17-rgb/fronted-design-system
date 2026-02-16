@@ -469,62 +469,26 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         {/* Right: Contract viewer with tabs + editor */}
         <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col h-[600px] min-h-0">
           
-          {/* Info bar / Edit controls */}
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.3 }} className="rounded-lg border border-border bg-muted/30 p-3 mb-4 flex-shrink-0 flex items-center justify-between">
+          {/* Unified toolbar: tabs + actions in one row */}
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.3 }} className="rounded-lg border border-border bg-muted/30 p-2 mb-4 flex-shrink-0 flex items-center justify-between gap-3">
+            {/* Left: Document tabs */}
             {isEditMode ? (
-              <>
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isContentEmpty ? 'bg-destructive' : 'bg-warning'}`} />
-                  <p className="text-sm text-foreground truncate">
-                    {isContentEmpty ? "Contract cannot be empty" : "Making edits to the contract. Remember to save your changes."}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Button variant="outline" size="sm" onClick={handleCancelEdit}>Cancel</Button>
-                  <Button size="sm" onClick={handleSaveChanges} disabled={isContentEmpty}>Save Changes</Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-foreground">
-                  {isResetting ? "Regenerating contract from template..." : "Review the contract details carefully before proceeding."}
+              <div className="flex items-center gap-2 min-w-0">
+                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isContentEmpty ? 'bg-destructive' : 'bg-warning'}`} />
+                <p className="text-sm text-foreground truncate">
+                  {isContentEmpty ? "Contract cannot be empty" : "Editing — remember to save your changes."}
                 </p>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost" size="sm"
-                    onClick={() => setIsResetDialogOpen(true)}
-                    disabled={isResetting || !hasChangesSinceReset}
-                    className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground disabled:opacity-50"
-                  >
-                    <RotateCcw className={`h-3.5 w-3.5 ${isResetting ? 'animate-spin' : ''}`} />
-                    {isResetting ? "Resetting..." : "Reset"}
-                  </Button>
-                  <Button
-                    variant="outline" size="sm"
-                    onClick={handleEnterEditMode}
-                    disabled={isResetting}
-                    className="flex items-center gap-1.5"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Edit Contract
-                  </Button>
-                </div>
-              </>
-            )}
-          </motion.div>
-
-          {/* Document Tabs - only show when multiple documents */}
-          {showTabs && (
-            <div className="flex-shrink-0 mb-3">
-              <Tabs value={activeDocument} onValueChange={handleDocumentSwitch}>
-                <TabsList className="w-full justify-start bg-muted/30 border border-border/40">
+              </div>
+            ) : showTabs ? (
+              <Tabs value={activeDocument} onValueChange={handleDocumentSwitch} className="min-w-0">
+                <TabsList className="bg-transparent p-0 h-auto gap-0.5">
                   {documents.map((doc) => (
                     <TooltipProvider key={doc.id} delayDuration={300}>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <TabsTrigger 
                             value={doc.id} 
-                            className="max-w-[160px] truncate text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                            className="max-w-[140px] truncate text-xs gap-1.5 h-7 px-2.5 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
                           >
                             <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
                             <span className="truncate">{doc.shortLabel}</span>
@@ -538,8 +502,41 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   ))}
                 </TabsList>
               </Tabs>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-foreground pl-1">
+                {isResetting ? "Regenerating contract from template..." : "Review the contract details carefully before proceeding."}
+              </p>
+            )}
+
+            {/* Right: Actions */}
+            {isEditMode ? (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={handleCancelEdit}>Cancel</Button>
+                <Button size="sm" className="h-7 text-xs" onClick={handleSaveChanges} disabled={isContentEmpty}>Save Changes</Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <Button
+                  variant="ghost" size="sm"
+                  onClick={() => setIsResetDialogOpen(true)}
+                  disabled={isResetting || !hasChangesSinceReset}
+                  className="flex items-center gap-1.5 h-7 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+                >
+                  <RotateCcw className={`h-3.5 w-3.5 ${isResetting ? 'animate-spin' : ''}`} />
+                  Reset
+                </Button>
+                <Button
+                  variant="outline" size="sm"
+                  onClick={handleEnterEditMode}
+                  disabled={isResetting}
+                  className="flex items-center gap-1.5 h-7 text-xs"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Edit Contract
+                </Button>
+              </div>
+            )}
+          </motion.div>
 
           {/* Contract content - Editor or Preview */}
           {isEditMode ? (
