@@ -296,24 +296,6 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
             )}
           </div>
 
-          {/* ── Info bar when editing ── */}
-          <AnimatePresence>
-            {isEditing && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden flex-shrink-0"
-              >
-                <div className="px-6 py-2 border-b border-border/10">
-                  <div className="flex items-start gap-2 text-[11px] text-muted-foreground bg-muted/20 rounded-md px-3 py-2">
-                    <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-primary" />
-                    <span>Changes to this <strong>{activeDoc?.shortLabel}</strong> template apply to <strong>future contracts</strong> for {template.countryName}. Worker-specific edits made during contract preparation are separate.</span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* ── Document content ── */}
           <div className="flex-1 overflow-y-auto px-6 py-5">
