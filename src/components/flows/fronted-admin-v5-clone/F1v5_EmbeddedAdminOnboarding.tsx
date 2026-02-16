@@ -284,14 +284,15 @@ const F1v4_EmbeddedAdminOnboarding = ({
               </div>
             </div>
           ))}
+        </div>
 
-          {/* Country Templates — edit mode only */}
-          {isEditMode && companyId && (
-            <F1v5_CountryTemplatesSection
-              companyId={companyId}
-              companyName={companyNameProp || initialData?.companyName || "Company"}
-            />
-          )}
+        {/* Country Templates — inline within the form area */}
+        <div className="max-w-xl mx-auto w-full">
+          <F1v5_CountryTemplatesSection
+            companyId={isEditMode && companyId ? companyId : "__new__"}
+            companyName={companyNameProp || initialData?.companyName || "New Company"}
+            isNewCompany={!isEditMode}
+          />
         </div>
       </div>
     </div>
