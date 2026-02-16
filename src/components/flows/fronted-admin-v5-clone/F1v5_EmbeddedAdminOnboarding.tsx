@@ -269,7 +269,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
           </motion.div>
         </div>
 
-        {/* Step Content - Render directly without StepCard wrapper */}
+        {/* Step Content */}
         <div className="space-y-3">
           {stepsToShow.map((step) => (
             <div 
@@ -277,22 +277,20 @@ const F1v4_EmbeddedAdminOnboarding = ({
               data-step={step.id}
               role="region"
             >
-              <div 
-                ref={(el) => stepRefs.current[step.id] = el}
-              >
+              <div ref={(el) => stepRefs.current[step.id] = el}>
                 {renderStepContent(step.id)}
               </div>
+              {/* Country templates — edit mode only, below the company details form */}
+              {step.id === "org_profile" && isEditMode && companyId && (
+                <div className="max-w-xl mx-auto w-full mt-3">
+                  <F1v5_CountryTemplatesSection
+                    companyId={companyId}
+                    companyName={companyNameProp || initialData?.companyName || "Company"}
+                  />
+                </div>
+              )}
             </div>
           ))}
-        </div>
-
-        {/* Country Templates — inline within the form area */}
-        <div className="max-w-xl mx-auto w-full">
-          <F1v5_CountryTemplatesSection
-            companyId={isEditMode && companyId ? companyId : "__new__"}
-            companyName={companyNameProp || initialData?.companyName || "New Company"}
-            isNewCompany={!isEditMode}
-          />
         </div>
       </div>
     </div>

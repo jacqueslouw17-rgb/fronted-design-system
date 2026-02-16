@@ -170,12 +170,15 @@ interface CountryTemplatesSectionProps {
   companyId: string;
   companyName: string;
   isNewCompany?: boolean;
+  /** When true, renders without its own card wrapper (used when embedded inside another card) */
+  isEmbedded?: boolean;
 }
 
 export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps> = ({
   companyId,
   companyName,
   isNewCompany = false,
+  isEmbedded = false,
 }) => {
   const [templates, setTemplates] = useState<CountryTemplate[]>(() =>
     isNewCompany ? [] : createMockTemplates(companyId)
@@ -236,88 +239,93 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
     }));
   }, []);
 
-  return (
-    <>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.15 }}
-        className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3"
-      >
-        {/* Header */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Globe className="h-4 w-4 text-muted-foreground" />
-            <label className="text-sm font-medium text-foreground">Country templates</label>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {isNewCompany
-              ? "You'll be able to upload and manage base contract templates per country after setup."
-              : "Base contract templates by country. Worker-specific edits are separate."}
-          </p>
+  const content = (
+    <div className="space-y-3">
+      {/* Header */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <Globe className="h-4 w-4 text-muted-foreground" />
+          <label className="text-sm font-medium text-foreground">Country templates</label>
         </div>
+        <p className="text-xs text-muted-foreground">
+          Base contract templates by country. Worker-specific edits are separate.
+        </p>
+      </div>
 
-        {templates.length === 0 ? (
-          /* Empty state */
-          <div className="rounded-md border border-dashed border-border/40 bg-muted/10 py-6 flex flex-col items-center gap-2">
-            <Globe className="h-5 w-5 text-muted-foreground/50" />
-            <p className="text-xs text-muted-foreground">No templates yet</p>
-          </div>
-        ) : (
-          <>
-            {/* Search */}
-            {templates.length > 3 && (
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  placeholder="Search countries…"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 h-8 text-xs bg-background/60"
-                />
+      {templates.length === 0 ? (
+        <div className="rounded-md border border-dashed border-border/40 bg-muted/10 py-6 flex flex-col items-center gap-2">
+          <Globe className="h-5 w-5 text-muted-foreground/50" />
+          <p className="text-xs text-muted-foreground">No templates yet</p>
+        </div>
+      ) : (
+        <>
+          {templates.length > 3 && (
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Search countries…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 h-8 text-xs bg-background/60"
+              />
+            </div>
+          )}
+
+          <div className="rounded-md border border-border/30 overflow-hidden divide-y divide-border/20">
+            {filteredTemplates.map((tpl) => (
+              <button
+                key={tpl.id}
+                onClick={() => setSelectedTemplateId(tpl.id)}
+                className="w-full flex items-center gap-3 px-3.5 py-2.5 hover:bg-muted/30 transition-colors text-left group"
+              >
+                <span className="text-base flex-shrink-0">{tpl.flag}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground">{tpl.countryName}</span>
+                    <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-muted/60">
+                      Active
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-3 mt-0.5 text-[11px] text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatDate(tpl.updatedAt)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      {tpl.updatedBy}
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+              </button>
+            ))}
+
+            {filteredTemplates.length === 0 && searchQuery && (
+              <div className="px-4 py-4 text-center text-xs text-muted-foreground">
+                No templates match your search.
               </div>
             )}
+          </div>
+        </>
+      )}
+    </div>
+  );
 
-            {/* Country list */}
-            <div className="rounded-md border border-border/30 overflow-hidden divide-y divide-border/20">
-              {filteredTemplates.map((tpl) => (
-                <button
-                  key={tpl.id}
-                  onClick={() => setSelectedTemplateId(tpl.id)}
-                  className="w-full flex items-center gap-3 px-3.5 py-2.5 hover:bg-muted/30 transition-colors text-left group"
-                >
-                  <span className="text-base flex-shrink-0">{tpl.flag}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-foreground">{tpl.countryName}</span>
-                      <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-muted/60">
-                        Active
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-3 mt-0.5 text-[11px] text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDate(tpl.updatedAt)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {tpl.updatedBy}
-                      </span>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                </button>
-              ))}
-
-              {filteredTemplates.length === 0 && searchQuery && (
-                <div className="px-4 py-4 text-center text-xs text-muted-foreground">
-                  No templates match your search.
-                </div>
-              )}
-            </div>
-          </>
-        )}
-      </motion.div>
+  return (
+    <>
+      {isEmbedded ? (
+        content
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+          className="bg-card/40 border border-border/40 rounded-lg p-4"
+        >
+          {content}
+        </motion.div>
+      )}
 
       {/* Drawer */}
       <F1v5_CountryTemplateDrawer
