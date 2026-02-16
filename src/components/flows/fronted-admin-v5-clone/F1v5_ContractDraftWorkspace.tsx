@@ -471,24 +471,29 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
           
           {/* Unified toolbar: tabs + actions in one row */}
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.3 }} className="rounded-lg border border-border bg-muted/30 p-2 mb-4 flex-shrink-0 flex items-center justify-between gap-3">
-            {/* Left: Document tabs */}
+            {/* Left: Document tabs or edit context */}
             {isEditMode ? (
               <div className="flex items-center gap-2 min-w-0">
-                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isContentEmpty ? 'bg-destructive' : 'bg-warning'}`} />
+                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isContentEmpty ? 'bg-destructive' : 'bg-warning animate-pulse'}`} />
                 <p className="text-sm text-foreground truncate">
-                  {isContentEmpty ? "Contract cannot be empty" : "Editing — remember to save your changes."}
+                  Editing <span className="font-medium">{documents.find(d => d.id === activeDocument)?.shortLabel ?? 'document'}</span>
+                  {isContentEmpty && <span className="text-destructive ml-1">— cannot be empty</span>}
                 </p>
               </div>
             ) : showTabs ? (
               <Tabs value={activeDocument} onValueChange={handleDocumentSwitch} className="min-w-0">
-                <TabsList className="bg-transparent p-0 h-auto gap-0.5">
+                <TabsList className="bg-transparent p-0 h-auto gap-1">
                   {documents.map((doc) => (
                     <TooltipProvider key={doc.id} delayDuration={300}>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <TabsTrigger 
                             value={doc.id} 
-                            className="max-w-[140px] truncate text-xs gap-1.5 h-7 px-2.5 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                            className={cn(
+                              "max-w-[140px] truncate text-xs gap-1.5 h-7 px-3 rounded-md transition-all",
+                              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted/50",
+                              "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:font-medium data-[state=active]:border data-[state=active]:border-border/60"
+                            )}
                           >
                             <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
                             <span className="truncate">{doc.shortLabel}</span>
