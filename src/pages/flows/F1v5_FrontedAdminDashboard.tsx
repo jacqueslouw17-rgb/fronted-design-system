@@ -873,6 +873,8 @@ const AdminContractingMultiCompany = () => {
                       onCancel={handleCancelEditCompany}
                       isEditMode={true}
                       editModeTitle={`Change ${editingCompany?.name || 'Company'} details`}
+                      companyId={editingCompanyId}
+                      companyName={editingCompany?.name}
                       initialData={{
                         companyName: editingCompany?.name || "",
                         adminName: editingCompany?.adminName || "",
