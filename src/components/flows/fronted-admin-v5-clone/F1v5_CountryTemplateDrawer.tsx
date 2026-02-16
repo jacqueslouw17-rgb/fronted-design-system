@@ -49,6 +49,12 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   onSaveDocument: (templateId: string, documentId: string, newContent: string) => void;
   onResetDocument: (templateId: string, documentId: string) => void;
+  onNavigatePrev?: () => void;
+  onNavigateNext?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
+  currentIndex?: number;
+  totalCount?: number;
 }
 
 // ── Helpers ──
@@ -155,6 +161,12 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
   onOpenChange,
   onSaveDocument,
   onResetDocument,
+  onNavigatePrev,
+  onNavigateNext,
+  hasPrev = false,
+  hasNext = false,
+  currentIndex,
+  totalCount,
 }) => {
   const [activeDocId, setActiveDocId] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
@@ -299,14 +311,38 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                   <SheetTitle className="text-base font-semibold">
                     {template.countryName} templates
                   </SheetTitle>
+                  {totalCount !== undefined && currentIndex !== undefined && (
+                    <span className="text-[11px] text-muted-foreground">{currentIndex + 1} / {totalCount}</span>
+                  )}
                 </div>
                 <SheetDescription className="text-xs">
                   Base contract documents for {template.countryName} in {companyName}. Changes apply to all future contracts.
                 </SheetDescription>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 -mt-1" onClick={() => onOpenChange(false)}>
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1 flex-shrink-0 -mt-1">
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasPrev} onClick={onNavigatePrev}>
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">Previous country</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasNext} onClick={onNavigateNext}>
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">Next country</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <div className="w-px h-5 bg-border/40 mx-0.5" />
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onOpenChange(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
