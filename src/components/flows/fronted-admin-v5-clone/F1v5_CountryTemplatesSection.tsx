@@ -40,6 +40,7 @@ export interface CountryTemplate {
   countryName: string;
   flag: string;
   documents: DocumentTemplate[];
+  workerCount: number;
   updatedAt: string; // ISO (latest across all docs)
   updatedBy: string;
   audit: TemplateAuditEntry[];
@@ -203,6 +204,13 @@ const createDocuments = (country: string): DocumentTemplate[] => {
   ];
 };
 
+/** Smaller doc set for countries with fewer requirements */
+const createLimitedDocuments = (country: string, count: 2 | 3): DocumentTemplate[] => {
+  const all = createDocuments(country);
+  if (count === 2) return [all[0], all[1]]; // Agreement + NDA
+  return [all[0], all[1], all[2]]; // Agreement + NDA + Privacy
+};
+
 const createMockTemplates = (companyId: string): CountryTemplate[] => {
   const now = new Date();
 
@@ -218,7 +226,7 @@ const createMockTemplates = (companyId: string): CountryTemplate[] => {
     return [
       {
         id: "tpl-sg", countryCode: "SG", countryName: "Singapore", flag: "🇸🇬",
-        documents: sgDocs,
+        documents: sgDocs, workerCount: 8,
         updatedAt: new Date(now.getTime() - 2 * 86400000).toISOString(),
         updatedBy: "Sarah Johnson",
         audit: [
@@ -228,7 +236,7 @@ const createMockTemplates = (companyId: string): CountryTemplate[] => {
       },
       {
         id: "tpl-es", countryCode: "ES", countryName: "Spain", flag: "🇪🇸",
-        documents: esDocs,
+        documents: esDocs, workerCount: 3,
         updatedAt: new Date(now.getTime() - 5 * 86400000).toISOString(),
         updatedBy: "Joe User",
         audit: [
@@ -237,14 +245,14 @@ const createMockTemplates = (companyId: string): CountryTemplate[] => {
       },
       {
         id: "tpl-ph", countryCode: "PH", countryName: "Philippines", flag: "🇵🇭",
-        documents: createDocuments("Philippines"),
+        documents: createLimitedDocuments("Philippines", 2), workerCount: 12,
         updatedAt: new Date(now.getTime() - 10 * 86400000).toISOString(),
         updatedBy: "David Park",
         audit: [],
       },
       {
         id: "tpl-ie", countryCode: "IE", countryName: "Ireland", flag: "🇮🇪",
-        documents: createDocuments("Ireland"),
+        documents: createLimitedDocuments("Ireland", 3), workerCount: 5,
         updatedAt: new Date(now.getTime() - 7 * 86400000).toISOString(),
         updatedBy: "Emily Rodriguez",
         audit: [
@@ -257,14 +265,14 @@ const createMockTemplates = (companyId: string): CountryTemplate[] => {
   return [
     {
       id: "tpl-us", countryCode: "US", countryName: "United States", flag: "🇺🇸",
-      documents: createDocuments("United States"),
+      documents: createDocuments("United States"), workerCount: 15,
       updatedAt: new Date(now.getTime() - 3 * 86400000).toISOString(),
       updatedBy: "Joe User",
       audit: [],
     },
     {
       id: "tpl-gb", countryCode: "GB", countryName: "United Kingdom", flag: "🇬🇧",
-      documents: createDocuments("United Kingdom"),
+      documents: createDocuments("United Kingdom"), workerCount: 6,
       updatedAt: new Date(now.getTime() - 1 * 86400000).toISOString(),
       updatedBy: "Joe User",
       audit: [],
@@ -407,6 +415,8 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-foreground">{tpl.countryName}</span>
                       <span className="text-[11px] text-muted-foreground">{tpl.documents.length} docs</span>
+                      <span className="text-[11px] text-muted-foreground">·</span>
+                      <span className="text-[11px] text-muted-foreground">{tpl.workerCount} {tpl.workerCount === 1 ? 'worker' : 'workers'}</span>
                       {editedCount > 0 && (
                         <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
                           {editedCount} edited
