@@ -243,10 +243,7 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
     <div className="space-y-3">
       {/* Header */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <Globe className="h-4 w-4 text-muted-foreground" />
-          <label className="text-sm font-medium text-foreground">Country templates</label>
-        </div>
+        <label className="text-sm font-medium text-foreground">Country templates</label>
         <p className="text-xs text-muted-foreground">
           Base contract templates by country. Worker-specific edits are separate.
         </p>
