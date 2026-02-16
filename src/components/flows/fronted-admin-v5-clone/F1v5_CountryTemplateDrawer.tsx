@@ -87,7 +87,6 @@ const parseContentToSections = (content: string): Section[] => {
   for (const block of blocks) {
     const trimmed = block.trim();
     if (!trimmed) continue;
-    // Detect headings: numbered sections (e.g. "1. Position") or title-case short lines
     const isHeading = /^\d+\.\s/.test(trimmed) && trimmed.length < 80 && !trimmed.includes("\n");
     const isTitleLine = !trimmed.includes(".") && trimmed.length < 60 && !trimmed.match(/^\d+\.\d+/);
 
@@ -99,6 +98,23 @@ const parseContentToSections = (content: string): Section[] => {
     }
   }
   flush();
+  return sections;
+};
+
+/** Parse HTML content into sections by splitting on headings */
+const parseHtmlToSections = (html: string): Section[] => {
+  const sections: Section[] = [];
+  // Split by <h2> or <h3> tags
+  const parts = html.split(/(?=<h[23][^>]*>)/i);
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    sections.push({ heading: "", text: trimmed });
+  }
+  // If no splits happened, treat the whole content as one section
+  if (sections.length === 0 && html.trim()) {
+    sections.push({ heading: "", text: html });
+  }
   return sections;
 };
 
@@ -148,10 +164,13 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
   const [pageByDoc, setPageByDoc] = useState<Record<string, number>>({});
   const activePageIndex = pageByDoc[activeDocId] ?? 0;
 
+  const isHtmlContent = activeDoc?.content?.includes("<") ?? false;
+
   const sections = useMemo(() => {
-    if (!activeDoc || activeDoc.content.includes("<")) return []; // HTML content, no section parsing
+    if (!activeDoc) return [];
+    if (isHtmlContent) return parseHtmlToSections(activeDoc.content);
     return parseContentToSections(activeDoc.content);
-  }, [activeDoc]);
+  }, [activeDoc, isHtmlContent]);
 
   const pages = useMemo(() => {
     if (sections.length === 0) return [[]];
@@ -415,11 +434,16 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                 <motion.div key={`view-${activeDocId}-${activePageIndex}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <div className="rounded-lg border border-border/20 bg-background/60 shadow-sm">
                     <div className="p-6">
-                      {activeDoc?.content && activeDoc.content.includes("<") ? (
-                        <div
-                          className="prose prose-sm max-w-none text-foreground [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:leading-relaxed [&_p]:mb-3"
-                          dangerouslySetInnerHTML={{ __html: activeDoc.content }}
-                        />
+                      {isHtmlContent ? (
+                        <div className="space-y-0">
+                          {currentPageContent.map((section, idx) => (
+                            <div
+                              key={idx}
+                              className="prose prose-sm max-w-none text-foreground [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:leading-relaxed [&_p]:mb-3"
+                              dangerouslySetInnerHTML={{ __html: section.text }}
+                            />
+                          ))}
+                        </div>
                       ) : (
                         <div className="space-y-4">
                           {currentPageContent.map((section, idx) => (
