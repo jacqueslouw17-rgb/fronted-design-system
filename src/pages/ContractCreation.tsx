@@ -95,7 +95,9 @@ const ContractCreation: React.FC = () => {
   // Only override navigation when the launching flow explicitly asks for it.
   // (Keeps existing default behavior unchanged.)
   const closePath =
-    returnTo === "f1v4"
+    returnTo === "f1v5"
+      ? "/flows/fronted-admin-dashboard-v5-clone"
+      : returnTo === "f1v4"
       ? "/flows/fronted-admin-dashboard-v4-clone"
       : "/flows/contract-flow-multi-company";
 
@@ -296,6 +298,15 @@ const ContractCreation: React.FC = () => {
                           ...(companyParam && { company: companyParam })
                         }).toString();
                         navigate(`/flows/contract-flow-multi-company?${params}`);
+                      } else if (returnTo === 'f1v5') {
+                        // Return to Flow 1 v5 clone with company context and candidate IDs preserved
+                        const candidateIds = selected.map(c => c.id).join(',');
+                        const params = new URLSearchParams({
+                          phase: 'drafting',
+                          ids: candidateIds,
+                          ...(companyParam && { company: companyParam }),
+                        }).toString();
+                        navigate(`/flows/fronted-admin-dashboard-v5-clone?${params}`);
                       } else if (returnTo === 'f1v4') {
                         // Return to Flow 1 v4 clone with company context and candidate IDs preserved
                         const candidateIds = selected.map(c => c.id).join(',');
