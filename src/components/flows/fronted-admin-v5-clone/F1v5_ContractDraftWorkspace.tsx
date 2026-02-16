@@ -541,7 +541,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   className="flex items-center gap-1.5 h-7 text-xs"
                 >
                   <Pencil className="h-3.5 w-3.5" />
-                  Edit Contract
+                  Edit
                 </Button>
               </div>
             )}
