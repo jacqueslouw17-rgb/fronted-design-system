@@ -524,11 +524,13 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                               onClick={() => handleDocumentSwitch(doc.id)}
                               className={cn(
                                 "inline-flex items-center gap-1.5 text-xs h-7 px-3 rounded-md transition-all duration-200 max-w-[160px] truncate",
-                                isActive
-                                  ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
-                                  : isConfirmed
-                                    ? "text-foreground/70 hover:text-foreground hover:bg-muted/40"
-                                    : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                                isActive && isConfirmed
+                                  ? "bg-primary/10 text-primary font-medium shadow-sm border border-primary/20"
+                                  : isActive
+                                    ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
+                                    : isConfirmed
+                                      ? "bg-primary/5 text-primary/80 hover:bg-primary/10 hover:text-primary border border-primary/10"
+                                      : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
                               )}
                             >
                               {isConfirmed ? (
