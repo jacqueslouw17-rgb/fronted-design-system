@@ -17,6 +17,7 @@ import { useAgentState } from "@/hooks/useAgentState";
 import { motion } from "framer-motion";
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { F1v5_CountryTemplatesSection } from "./F1v5_CountryTemplatesSection";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
@@ -38,6 +39,8 @@ interface EmbeddedAdminOnboardingProps {
   initialData?: Record<string, any>;
   hasSignedContract?: boolean;
   hasCandidates?: boolean;
+  companyId?: string;
+  companyName?: string;
 }
 
 const F1v4_EmbeddedAdminOnboarding = ({ 
@@ -48,6 +51,8 @@ const F1v4_EmbeddedAdminOnboarding = ({
   initialData,
   hasSignedContract = false,
   hasCandidates = false,
+  companyId,
+  companyName: companyNameProp,
 }: EmbeddedAdminOnboardingProps) => {
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
   const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus, getStepData } = useAdminFlowBridge();
@@ -279,6 +284,14 @@ const F1v4_EmbeddedAdminOnboarding = ({
               </div>
             </div>
           ))}
+
+          {/* Country Templates — edit mode only */}
+          {isEditMode && companyId && (
+            <F1v5_CountryTemplatesSection
+              companyId={companyId}
+              companyName={companyNameProp || initialData?.companyName || "Company"}
+            />
+          )}
         </div>
       </div>
     </div>
