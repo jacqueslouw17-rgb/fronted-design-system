@@ -509,9 +509,12 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
             {isEditMode ? (
               <div className="flex items-center gap-2 min-w-0">
                 <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isContentEmpty ? 'bg-destructive' : 'bg-warning animate-pulse'}`} />
-                <p className="text-sm text-foreground truncate">
-                  Editing <span className="font-medium">{documents.find(d => d.id === activeDocument)?.shortLabel ?? 'document'}</span>
-                  {isContentEmpty && <span className="text-destructive ml-1">— cannot be empty</span>}
+                <p className="text-sm text-muted-foreground truncate">
+                  {isContentEmpty ? (
+                    <>Editing <span className="font-medium text-foreground">{activeDocLabel}</span><span className="text-destructive ml-1">— cannot be empty</span></>
+                  ) : (
+                    <>Edits to this <span className="font-medium text-foreground">{activeDocLabel}</span> apply only to {candidate.name}. To update your base template, <a href="#" onClick={(e) => e.preventDefault()} className="text-primary hover:underline font-medium">edit country defaults</a>.</>
+                  )}
                 </p>
               </div>
             ) : showTabs ? (
