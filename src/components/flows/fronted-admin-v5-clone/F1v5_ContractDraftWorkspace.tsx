@@ -415,7 +415,9 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   const currentDocIndex = documents.findIndex(d => d.id === activeDocument);
   const isLastDocument = currentDocIndex === documents.length - 1;
   const isOnLastPage = activePageIndex >= totalPages - 1;
-  const canConfirmCurrentDoc = hasScrolledToBottom && isOnLastPage && !isEditMode;
+  // All prior documents must be confirmed before the current one can be confirmed
+  const allPriorDocsConfirmed = documents.slice(0, currentDocIndex).every(d => confirmedDocs.has(d.id));
+  const canConfirmCurrentDoc = hasScrolledToBottom && isOnLastPage && !isEditMode && allPriorDocsConfirmed;
   const activeDocLabel = documents.find(d => d.id === activeDocument)?.shortLabel ?? "document";
 
   const handleConfirmDocument = useCallback(() => {
