@@ -263,12 +263,12 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
                 placeholder="Search countries…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-8 text-xs bg-background/60"
+                className="pl-8 text-sm bg-background/60"
               />
             </div>
           )}
 
-          <div className="rounded-md border border-border/30 overflow-hidden divide-y divide-border/20">
+          <div className="rounded-md border border-border/30 overflow-y-auto divide-y divide-border/20" style={{ maxHeight: '220px' }}>
             {filteredTemplates.map((tpl) => (
               <button
                 key={tpl.id}
