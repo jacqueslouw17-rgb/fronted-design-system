@@ -143,6 +143,7 @@ const AdminContractingMultiCompany = () => {
   const { toast } = useToast();
   const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
   const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
+  const [cameFromReview, setCameFromReview] = React.useState(false);
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const { setOpen, addMessage, setLoading, isSpeaking: isAgentSpeaking } = useAgentState();
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
@@ -1123,7 +1124,8 @@ const AdminContractingMultiCompany = () => {
                       <F1v5_ContractDraftWorkspace
                         candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]} 
                         index={contractFlow.currentDraftIndex} 
-                        total={contractFlow.selectedCandidates.length} 
+                        total={contractFlow.selectedCandidates.length}
+                        allDocsPreConfirmed={cameFromReview}
                         onNext={() => { 
                           const isLast =
                             contractFlow.currentDraftIndex >=
@@ -1136,6 +1138,7 @@ const AdminContractingMultiCompany = () => {
                           });
 
                           contractFlow.nextDraft();
+                          setCameFromReview(false);
 
                           // Ensure "Confirm & Continue" lands on the final review screen (Send for Signature)
                           if (isLast) {
@@ -1159,7 +1162,8 @@ const AdminContractingMultiCompany = () => {
                     <ContractReviewBoard 
                       candidates={contractFlow.selectedCandidates} 
                       onBack={() => {
-                        // Go back to the last candidate in drafting
+                        // Go back to the last candidate in drafting with docs pre-confirmed
+                        setCameFromReview(true);
                         contractFlow.backToDrafting();
                       }}
                       onStartSigning={() => { 

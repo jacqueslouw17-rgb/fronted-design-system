@@ -45,6 +45,7 @@ interface ContractDraftWorkspaceProps {
   total: number;
   onNext: () => void;
   onPrevious: () => void;
+  allDocsPreConfirmed?: boolean;
 }
 
 // Helper to wrap variable data with highlight markers
@@ -182,7 +183,8 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   index,
   total,
   onNext,
-  onPrevious
+  onPrevious,
+  allDocsPreConfirmed = false,
 }) => {
   const employmentType = candidate.employmentType || "contractor";
   
@@ -226,7 +228,9 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   
   // Track which documents have been confirmed (scrolled through)
-  const [confirmedDocs, setConfirmedDocs] = useState<Set<string>>(new Set());
+  const [confirmedDocs, setConfirmedDocs] = useState<Set<string>>(() =>
+    allDocsPreConfirmed ? new Set(documents.map(d => d.id)) : new Set()
+  );
   
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
@@ -354,7 +358,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
     const agreementDoc = documents.find(d => d.label.toLowerCase().includes("agreement"));
     setActiveDocument(agreementDoc?.id || documents[0]?.id || "contractor-agreement");
     setPageByDoc({});
-    setConfirmedDocs(new Set());
+    setConfirmedDocs(allDocsPreConfirmed ? new Set(documents.map(d => d.id)) : new Set());
     setHasScrolledToBottom(false);
     scrollAgreementToTop("auto");
     const timer = setTimeout(() => {
