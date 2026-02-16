@@ -22,6 +22,7 @@ import { F1v5_CountryTemplatesSection } from "./F1v5_CountryTemplatesSection";
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
 import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
+import F1v5_Step2OrgProfile from "./F1v5_Step2OrgProfile";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
@@ -166,10 +167,19 @@ const F1v4_EmbeddedAdminOnboarding = ({
 
     switch (stepId) {
       case "org_profile":
-        return (
-          <Step2OrgProfileSimplified 
+        return isEditMode ? (
+          <F1v5_Step2OrgProfile 
             {...stepProps} 
             isEditMode={isEditMode}
+            hasSignedContract={hasSignedContract}
+            hasCandidates={hasCandidates}
+            companyId={companyId}
+            companyName={companyNameProp || initialData?.companyName}
+          />
+        ) : (
+          <Step2OrgProfileSimplified 
+            {...stepProps} 
+            isEditMode={false}
             hasSignedContract={hasSignedContract}
             hasCandidates={hasCandidates}
           />
@@ -280,15 +290,6 @@ const F1v4_EmbeddedAdminOnboarding = ({
               <div ref={(el) => stepRefs.current[step.id] = el}>
                 {renderStepContent(step.id)}
               </div>
-              {/* Country templates — edit mode only, below the company details form */}
-              {step.id === "org_profile" && isEditMode && companyId && (
-                <div className="max-w-xl mx-auto w-full mt-3">
-                  <F1v5_CountryTemplatesSection
-                    companyId={companyId}
-                    companyName={companyNameProp || initialData?.companyName || "Company"}
-                  />
-                </div>
-              )}
             </div>
           ))}
         </div>
