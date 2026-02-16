@@ -19,7 +19,7 @@ import { useContractFlow } from "@/hooks/useContractFlow";
 import { ContractFlowNotification } from "@/components/contract-flow/ContractFlowNotification";
 import { CandidateConfirmationScreen } from "@/components/contract-flow/CandidateConfirmationScreen";
 import { DocumentBundleCarousel } from "@/components/contract-flow/DocumentBundleCarousel";
-import { ContractDraftWorkspace } from "@/components/contract-flow/ContractDraftWorkspace";
+import { F1v5_ContractDraftWorkspace } from "@/components/flows/fronted-admin-v5-clone/F1v5_ContractDraftWorkspace";
 import { ContractReviewBoard } from "@/components/contract-flow/ContractReviewBoard";
 import { ContractSignaturePhase } from "@/components/contract-flow/ContractSignaturePhase";
 import { ContractFlowSummary } from "@/components/contract-flow/ContractFlowSummary";
@@ -1120,7 +1120,7 @@ const AdminContractingMultiCompany = () => {
 
                   <div className="flex-1 flex flex-col items-center p-8">
                     <div className="w-full max-w-7xl space-y-8">
-                      <ContractDraftWorkspace
+                      <F1v5_ContractDraftWorkspace
                         candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]} 
                         index={contractFlow.currentDraftIndex} 
                         total={contractFlow.selectedCandidates.length} 

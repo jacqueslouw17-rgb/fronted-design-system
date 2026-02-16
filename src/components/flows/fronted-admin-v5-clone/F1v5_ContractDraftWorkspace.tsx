@@ -1,0 +1,674 @@
+/**
+ * F1v5_ContractDraftWorkspace - Contract Draft Workspace for Flow 1 v5
+ * 
+ * ISOLATED: Independent copy of ContractDraftWorkspace with multi-document
+ * tabs and pagination support. Changes here do NOT affect any other flow.
+ */
+
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ClauseTooltip } from "@/components/ClauseTooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
+import type { Candidate } from "@/hooks/useContractFlow";
+import { toast } from "sonner";
+import { ContractCarousel } from "@/components/contract-flow/ContractCarousel";
+import { AgentHeader } from "@/components/agent/AgentHeader";
+import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
+import { useAgentState } from "@/hooks/useAgentState";
+import { ContractAuditLog } from "@/components/contract-flow/ContractAuditLog";
+import { useGlobalContractAuditLog } from "@/hooks/useContractAuditLog";
+import { ContractRichTextEditor } from "@/components/contract-flow/ContractRichTextEditor";
+import { cn } from "@/lib/utils";
+
+type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance";
+
+interface ContractDraftWorkspaceProps {
+  candidate: Candidate;
+  index: number;
+  total: number;
+  onNext: () => void;
+  onPrevious: () => void;
+}
+
+// Helper to wrap variable data with highlight markers
+const hl = (value: string) => `{{hl}}${value}{{/hl}}`;
+
+type Section = { heading: string; text: string };
+
+const getContractContent = (candidate: Candidate, documentType: DocumentType): Section[] => {
+  switch (documentType) {
+    case "employment-agreement":
+      return [
+        { heading: "Employment Agreement", text: "" },
+        { heading: "", text: `This employment agreement (the «Employment Agreement») is entered into on the date hereof between:\n\n1. Fronted Sweden AB (NewCo 8634 Sweden AB), reg. no. 559548-9914, with a registered address at Ekensbergsvägen 113 4 Tr, 171 41 Solna, (the «Company» or «Employer»); and\n2. ${hl(candidate.name)}, born ${hl(candidate.startDate)}, with residence at ${hl(candidate.country)} (the «Employee»)\n\nThe Company and the Employee are jointly referred to as the «Parties» and each is a «Party».` },
+        { heading: "Key Terms of the Employment (the \"Terms\"):", text: `A. Job Role: ${hl(candidate.role)}\nB. Job Description: Annex A\nC. Place of Work: ${hl(candidate.country)}\nD. Annual Gross Salary: ${hl(candidate.salary)}\nE. Variable Salary Elements: Addendum B\nF. Start Date: ${hl(candidate.startDate)}\nG. Contract Term: Indefinite Employment\nH. Probationary Period: ${hl("6 months")}\nI. Notice Period:\n   a. Employer: Per the Employment Protection Act\n   b. Employee: ${hl(candidate.noticePeriod)}\nJ. Employment Status: Full-time\nK. Working Hours: ${hl("40 hours per week")}\nL. Holiday: ${hl(candidate.pto)}\nM. Pension: Public Pension + 4.5% Occupational Pension\nN. Other benefits: Per company policy` },
+        { heading: "Detailed Terms of the Employment (the \"Detailed Terms\"):", text: "" },
+        { heading: "1. Position and assignments", text: `1.1. The Employee is employed as ${hl(candidate.role)}, effective from ${hl(candidate.startDate)}.\n\n1.2. Unless otherwise defined in (G) and (H), the employment term is indefinite.\n\n1.3. Their work shall be performed in accordance with the framework of the instructions provided by the Company and their clients. The Employee shall perform their duties in accordance with the applicable job description, policies and work rules of the Company and their clients, which may be amended from time to time.\n\n1.4. The Employee shall ensure that the interests of the Company and their clients are safeguarded and promoted in accordance with principles that are ethically and commercially accepted, and in accordance with applicable legislation.\n\n1.5. The Employee shall place their working capacity at the disposal of the Company according to their employment status (J) and working hours (K), and shall, to the extent permissible by law, not engage in other employment that could interfere with obligations that stem from this Agreement.` },
+        { heading: "2. Place of work – working hours", text: `2.1. The principal place of work shall be ${hl(candidate.country)}.\n\n2.2. If the Employee is working remotely from home, the Employee confirms that, as of the date of this agreement, their home office is safe and suitable for the performance of the job duties contemplated under this agreement - and undertakes to notify the Company at any time during the employment if the work environment ceases to be considered fully satisfactory.\n\n2.3. The normal working hours are ${hl("eight hours a day")}, totalling ${hl("forty hours per week")}, unless otherwise specified in (K). Unless otherwise agreed, the Employee's ordinary working hours are scheduled Monday to Friday during normal office hours.\n\n2.4. The Employee's salary is intended to compensate for all work performed, including reasonable overtime. The Employee is therefore not entitled to separate overtime compensation unless expressly agreed in writing.\n\n2.5. The Employee is not permitted to work outside of the designated country for more than fourteen days at a time, and no more than 30 days per calendar year, without prior written approval by the Company.` },
+        { heading: "3. Salary", text: `3.1. The Employee's gross annual salary shall be ${hl(candidate.salary)}, payable in monthly arrears in accordance with the Company's ordinary payroll practices and subject to statutory deductions. The payroll date of the Company is the 25th of each month, or the business day prior if the 25th of the month is a bank holiday.\n\n3.2. If the compensation plan for the Employee consists of a variable element, such as commission or result-based bonuses (E), this shall be regulated by an addendum.\n\n3.3. Notwithstanding the foregoing, the Company may decide to pay bonuses at the full discretion of the Company. Previously paid discretionary bonuses does not represent a fixed part of the compensation of the Employee, and does not guarantee any future payments of such discretionary bonuses.\n\n3.4. If incorrect salary or bonuses are paid, the Company is entitled to correct such errors in accordance with applicable law, including by set-off where legally permitted.` },
+        { heading: "4. Other benefits", text: "4.1. The Employee may be entitled to other benefits according to the Company's applicable policies as may be implemented by the Company from time to time. Any such benefits shall be taxed in accordance with prevailing laws and regulations." },
+        { heading: "5. Expenses", text: "5.1. The Company shall cover all pre-approved expenses in connection with business activities in accordance with the Company's applicable expense reimbursement policy." },
+        { heading: "6. Pension and insurance", text: `6.1. The Employee is entitled to the statutory public pension in accordance with applicable social security and pension legislation as amended from time to time. The Employer shall make all mandatory employer social security contributions required by law, including those forming the basis for the Employee's statutory public pension. Nothing in this Agreement limits the Employee's rights under mandatory pension legislation.\n\n6.2. In addition to the statutory public pension, the Employee shall be entitled to an occupational pension. The Employer shall, during the term of employment, pay pension contributions corresponding to ${hl("4.5%")} of the Employee's current base salary to an occupational pension arrangement designated by the Employer, in accordance with the terms and conditions of such pension plan.` },
+        { heading: "7. Holiday and holiday allowance", text: "7.1. The Employee is entitled to annual holiday in accordance with the applicable Holiday Act." },
+        { heading: "8. Sick leave", text: "8.1. In case of absence due to illness, the Employee is entitled to sick pay in accordance with the applicable Sick Pay Act." },
+        { heading: "9. Confidentiality", text: "The Employee shall keep confidential all business related and internal information that is not generally known concerning the Company, any group companies and/or any of the Company's clients, vendors, suppliers or other third parties. This confidentiality obligation includes, but is not limited to, trade secrets, business plans/strategies, commercial contract terms such as price structure/rebates, financial information, information regarding customers/suppliers or other employees, including personal data, as well as ideas, concepts, and know-how. The Employee shall not disclose information to other employees of the Company if this is not necessary for such other employees' work. The confidentiality obligations described shall apply both during and after the employment period." },
+        { heading: "10. Intellectual Property Rights", text: "The Company shall, free of charge unless otherwise regulated by law, become the owner of all intellectual property created or developed by the Employee in connection with the employment, irrespective of whether these have been created or developed outside working hours, and with or without the Employee's personal equipment or devices." },
+        { heading: "11. Termination", text: `Following the expiry of the probationary period (if applicable), termination of employment and notice periods under this Agreement shall comply with the relevant and mandatory provisions of the applicable Employment Protection Act, as amended from time to time.\n\nIf the Employee gives notice of resignation, the Employer is entitled to a notice period of ${hl(candidate.noticePeriod)}.` },
+        { heading: "12. Probationary period", text: `12.1. The Parties agree that the employment shall commence with a probationary period of ${hl("six (6) months")}. During this probationary period, either party may terminate the employment by giving ${hl("fourteen (14) days")}' written notice.` },
+        { heading: "13. Non-solicitation of Clients", text: "13.1. During the term of employment, and for 12 months after the termination of employment, the Employee is prohibited from contacting clients whom the Employee has had contact with during their employment during the last 12 months, for the purpose of obtaining their business or partnership." },
+        { heading: "14. Non-solicitation of Employees", text: "14.1. During the term of employment, and for 12 months after termination of employment, the Employee is prohibited from directly or indirectly influencing or attempting to influence any of the Company's employees or consultants to leave the Company." },
+        { heading: "15. Disputes and Governing Law", text: `15.1. This Employment Agreement is signed digitally and governed by ${hl(candidate.country)} law, including the applicable Employment Protection Act.\n\n15.2. No collective bargaining agreement applies to this employment.` },
+        { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING AS EVIDENCED BY THEIR SIGNATURES BELOW.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Employee` }
+      ];
+    case "contractor-agreement":
+      return [
+        { heading: "Contractor Agreement", text: "" },
+        { heading: "", text: `This Contract is between Fronted AS, a Norwegian Company, and ${hl(candidate.name)}, ${hl(candidate.country)} (the "Contractor"). Any reference to the "Client" in the following is a reference to Fronted AS. Any reference to "End Client" in the following is a reference to the Client Company.` },
+        { heading: "1. WORK AND PAYMENT", text: "" },
+        { heading: "1.1 Project.", text: `The Client is contracting the services of the Contractor to do the following: ${hl(candidate.role)}.` },
+        { heading: "1.2 Schedule.", text: `The Contractor will begin performing their services on ${hl(candidate.startDate)} and will continue until termination of this Contract. This Contract can be ended by either Client or Contractor at any time, pursuant to the terms of Section 6, Term and Termination.` },
+        { heading: "1.2.1 Work hours.", text: `Work hours are ${hl("8 hours per day")}, with flexibility, but availability during CET business hours is required.` },
+        { heading: "1.3 Payment.", text: `The Client shall pay the Contractor a fixed consultancy fee of ${hl(candidate.salary)} per month, payable against invoice, for the Services.` },
+        { heading: "1.4 Expenses.", text: "The Contractor shall be responsible for all expenses incurred in the performance of the Services, except for any expenses expressly pre-approved in writing by the Client, which shall be reimbursed against valid receipts." },
+        { heading: "1.5 Invoices.", text: "The Contractor will invoice Fronted AS. Fronted AS agrees to pay the amount owed at the end of each month of receiving the invoice. Under the condition the invoice is not contested by the End Client. Invoices must reflect actual work performed during the invoiced period. Submitting an invoice for a period when no services were rendered, or retaining payment for such period, constitutes unjust enrichment and a breach of this Contract, and the Client shall have the right to claim restitution." },
+        { heading: "2. OWNERSHIP AND LICENSES", text: "" },
+        { heading: "2.1 Client Owns All Work Product.", text: "As part of this consultancy, the Contractor is creating a \"work product\" for the Client. The Contractor hereby gives the End Client this work product once the End Client pays for it in full to Client. This means the Contractor is giving the End Client all of its rights, titles, and interests in and to the work product (including intellectual property rights), and the End Client will be the sole owner of it." },
+        { heading: "3. COMPETITIVE ENGAGEMENTS", text: "The Contractor won't work for a competitor of the End Client until this Contract ends. To avoid confusion, a competitor is any third party that develops, manufactures, promotes, sells, licenses, distributes, or provides products or services that are substantially similar to the End Client's products or services." },
+        { heading: "4. NON-SOLICITATION", text: "Until this Contract ends, the Contractor won't encourage End Client employees or service providers to stop working for the End Client for any reason." },
+        { heading: "5. REPRESENTATIONS", text: "" },
+        { heading: "5.1 Overview.", text: "This section contains important promises between the parties." },
+        { heading: "6. TERM AND TERMINATION", text: `This Contract is ongoing, until ended by the Client or the Contractor. Either party may end this Contract for any reason by sending an email or letter to the other party, informing the recipient that the sender is ending the Contract and that the Contract will end in ${hl(candidate.noticePeriod)}.` },
+        { heading: "7. INDEPENDENT CONTRACTOR", text: "On behalf of the End Client, the Client is contracting the services of the Contractor as an independent contractor. The Contractor will use its own equipment, tools, and material to do the work. Neither the Client, nor the End Client, will control the details of how the services are performed on a day-to-day basis." },
+        { heading: "8. CONFIDENTIAL INFORMATION", text: "This Contract imposes special restrictions on how the End Client and the Contractor must handle confidential information." },
+        { heading: "9. LIMITATION OF LIABILITY", text: "Neither party is liable for breach-loss that the breaching party could not reasonably have foreseen when it entered into this Contract." },
+        { heading: "10. INDEMNITY", text: "Each party agrees to indemnify the other party against damages arising from a breach of this Contract." },
+        { heading: "Signatures", text: "THE PARTIES HERETO AGREE TO THE FOREGOING AS EVIDENCED BY THEIR SIGNATURES BELOW.\n\n___________________          ___________________\nMa Angelo Bartolome          " + candidate.name + "\nCOO, Fronted AS              Contractor" }
+      ];
+    case "country-compliance":
+      return [
+        { heading: `COUNTRY COMPLIANCE ATTACHMENTS (${candidate.countryCode})`, text: "" },
+        { heading: "", text: `This attachment supplements the Employment Agreement and includes mandatory clauses for ${candidate.country}.` },
+        { heading: "1. LOCAL LABOR LAW COMPLIANCE", text: `This employment relationship is governed by ${candidate.country} labor laws including regulations on working hours, overtime, holidays, and termination procedures.` },
+        { heading: "2. STATUTORY BENEFITS", text: `Employee is entitled to all statutory benefits required under ${candidate.country} law, including but not limited to: government-mandated insurance, pension contributions, and statutory leave entitlements.` },
+        { heading: "3. MANDATORY CLAUSES", text: `In accordance with ${candidate.country} employment regulations, this Agreement includes all mandatory clauses required by local law regarding: workplace safety, anti-discrimination, harassment prevention, and dispute resolution.` },
+        { heading: "4. LOCAL LANGUAGE REQUIREMENTS", text: `This Agreement has been prepared in English. In accordance with local requirements, a certified translation in the official language of ${candidate.country} shall be provided if required by law.` }
+      ];
+    case "nda":
+      return [
+        { heading: "NON-DISCLOSURE AGREEMENT", text: "" },
+        { heading: "", text: `This Non-Disclosure Agreement ("Agreement") is made between Fronted AS ("Company") and ${candidate.name} ("Recipient").` },
+        { heading: "1. CONFIDENTIAL INFORMATION", text: "Recipient acknowledges that during the relationship, they may have access to confidential and proprietary information including but not limited to: trade secrets, business strategies, client lists, technical data, and other information that is private." },
+        { heading: "2. OBLIGATIONS", text: "Recipient agrees to: (a) maintain confidentiality of all proprietary information, (b) not disclose such information to third parties, (c) use information solely for authorized purposes, (d) return all materials upon termination." },
+        { heading: "3. EXCLUSIONS", text: "This Agreement does not apply to information that: (a) is publicly available, (b) was known prior to disclosure, (c) is independently developed, or (d) is required to be disclosed by law." },
+        { heading: "4. TERM", text: "The obligations under this Agreement shall remain in effect during the relationship and for 3 years following termination." }
+      ];
+    case "nda-policy":
+      return [
+        { heading: "NDA & COMPANY POLICY ACKNOWLEDGMENT", text: "" },
+        { heading: "", text: `This document serves as acknowledgment by ${candidate.name} of receipt and understanding of Company policies and confidentiality obligations.` },
+        { heading: "1. CONFIDENTIALITY AGREEMENT", text: "Employee/Contractor agrees to maintain confidentiality of all Company proprietary information, trade secrets, client data, and business strategies. This obligation extends beyond termination of the relationship." },
+        { heading: "2. COMPANY POLICIES", text: "I acknowledge receipt of and agree to comply with all Company policies including: Code of Conduct, Information Security Policy, Anti-Harassment Policy, and Data Protection Guidelines." },
+        { heading: "3. INTELLECTUAL PROPERTY", text: "I understand that all work product, inventions, and intellectual property created during my engagement with the Company belongs exclusively to the Company." },
+        { heading: "4. POLICY ACKNOWLEDGMENT", text: "I confirm that I have read, understood, and agree to abide by all Company policies. I understand that violation of these policies may result in disciplinary action up to and including termination." }
+      ];
+    case "data-privacy":
+      return [
+        { heading: `DATA PRIVACY ADDENDUM (${candidate.countryCode})`, text: "" },
+        { heading: "", text: `This Data Privacy Addendum supplements the Agreement between Fronted AS ("Company") and ${candidate.name}.` },
+        { heading: "1. DATA COLLECTION", text: `Company collects and processes personal data in accordance with ${candidate.country} data protection laws, including: contact information, identification documents, banking details, and work records.` },
+        { heading: "2. PURPOSE OF PROCESSING", text: "Personal data is processed for: administration, payroll processing, compliance with legal obligations, benefits administration, and performance management." },
+        { heading: "3. DATA RIGHTS", text: "You have the right to: access personal data, request corrections, request deletion (subject to legal requirements), object to processing, and lodge complaints with supervisory authorities." },
+        { heading: "4. DATA SECURITY", text: "Company implements appropriate technical and organizational measures to protect personal data against unauthorized access, alteration, disclosure, or destruction." },
+        { heading: "5. DATA RETENTION", text: "Personal data will be retained for the duration of the relationship and as required by law, typically 7 years after termination for tax and employment law purposes." }
+      ];
+  }
+};
+
+// Split sections into pages of ~5 sections each for pagination
+const SECTIONS_PER_PAGE = 5;
+
+const splitIntoPages = (sections: Section[]): Section[][] => {
+  if (sections.length <= SECTIONS_PER_PAGE) return [sections];
+  const pages: Section[][] = [];
+  for (let i = 0; i < sections.length; i += SECTIONS_PER_PAGE) {
+    pages.push(sections.slice(i, i + SECTIONS_PER_PAGE));
+  }
+  return pages;
+};
+
+interface DocumentDef {
+  id: DocumentType;
+  label: string;
+  icon: React.FC<{ className?: string }>;
+  shortLabel: string;
+}
+
+export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
+  candidate,
+  index,
+  total,
+  onNext,
+  onPrevious
+}) => {
+  const employmentType = candidate.employmentType || "contractor";
+  
+  const { getEditEvents, recordEdit } = useGlobalContractAuditLog();
+  const contractId = `${candidate.name.toLowerCase().replace(/\s+/g, '-')}-${candidate.countryCode?.toLowerCase() || 'unknown'}`;
+  const editEvents = getEditEvents(contractId, candidate.name);
+
+  // Build documents list
+  const documents: DocumentDef[] = useMemo(() => {
+    if (employmentType === "employee") {
+      return [
+        { id: "employment-agreement" as DocumentType, label: "Employment Agreement", icon: FileText, shortLabel: "Agreement" },
+        { id: "country-compliance" as DocumentType, label: `Country Compliance (${candidate.countryCode})`, icon: Shield, shortLabel: "Compliance" },
+        { id: "nda-policy" as DocumentType, label: "NDA / Policy Docs", icon: Handshake, shortLabel: "NDA/Policy" },
+      ];
+    }
+    return [
+      { id: "contractor-agreement" as DocumentType, label: "Contractor Agreement", icon: FileText, shortLabel: "Agreement" },
+      { id: "nda" as DocumentType, label: "Non-Disclosure Agreement", icon: Handshake, shortLabel: "NDA" },
+      { id: "data-privacy" as DocumentType, label: `Data Privacy (${candidate.countryCode})`, icon: ScrollText, shortLabel: "Privacy" },
+    ];
+  }, [employmentType, candidate.countryCode]);
+
+  // Active document & page state
+  const [activeDocument, setActiveDocument] = useState<DocumentType>(() => {
+    // Default to "Agreement" doc if present
+    const agreementDoc = documents.find(d => d.label.toLowerCase().includes("agreement"));
+    return agreementDoc?.id || documents[0]?.id || "contractor-agreement";
+  });
+
+  // Per-document page tracking
+  const [pageByDoc, setPageByDoc] = useState<Record<string, number>>({});
+  const activePageIndex = pageByDoc[activeDocument] ?? 0;
+
+  const fullContent = getContractContent(candidate, activeDocument);
+  const pages = useMemo(() => splitIntoPages(fullContent), [fullContent]);
+  const totalPages = pages.length;
+  const currentPageContent = pages[activePageIndex] || pages[0] || [];
+
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  
+  // Edit mode state
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedContent, setEditedContent] = useState<string>("");
+  const [originalContent, setOriginalContent] = useState<string>("");
+
+  const convertSectionsToHtml = useCallback((sections: Section[]) => {
+    return sections.map(section => {
+      let html = "";
+      if (section.heading) html += `<h2>${section.heading}</h2>`;
+      if (section.text) {
+        const paragraphs = section.text.split("\n\n");
+        html += paragraphs.map(p => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
+      }
+      return html;
+    }).join("");
+  }, []);
+
+  const handleEnterEditMode = useCallback(() => {
+    // Edit the FULL document content (all pages), not just current page
+    const htmlContent = convertSectionsToHtml(fullContent);
+    setEditedContent(htmlContent);
+    setOriginalContent(htmlContent);
+    setIsEditMode(true);
+  }, [fullContent, convertSectionsToHtml]);
+
+  const handleCancelEdit = useCallback(() => {
+    setEditedContent(originalContent);
+    setIsEditMode(false);
+  }, [originalContent]);
+
+  const isContentEmpty = useMemo(() => {
+    if (!editedContent) return true;
+    const textContent = editedContent.replace(/<[^>]*>/g, '').trim();
+    return textContent.length === 0;
+  }, [editedContent]);
+
+  const handleSaveChanges = useCallback(() => {
+    if (isContentEmpty) {
+      toast.error("Contract cannot be empty", { description: "Please add content before saving." });
+      return;
+    }
+    toast.success("Contract changes saved");
+    setIsEditMode(false);
+    setHasChangesSinceReset(true);
+    recordEdit(contractId, "You", candidate.name, 'edit');
+  }, [isContentEmpty, recordEdit, contractId, candidate.name]);
+
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [hasChangesSinceReset, setHasChangesSinceReset] = useState(true);
+
+  const handleResetContract = useCallback(() => {
+    setIsResetDialogOpen(false);
+    setIsResetting(true);
+    setTimeout(() => {
+      const regeneratedHtml = convertSectionsToHtml(fullContent);
+      setEditedContent(regeneratedHtml);
+      setOriginalContent(regeneratedHtml);
+      setIsEditMode(false);
+      setIsResetting(false);
+      setHasChangesSinceReset(false);
+      recordEdit(contractId, "You", candidate.name, 'reset');
+      toast.success("Contract reset to original", { description: "The contract has been regenerated using the current candidate data." });
+    }, 4000);
+  }, [convertSectionsToHtml, fullContent, recordEdit, contractId, candidate.name]);
+
+  // Audit log slot
+  const auditLogSlotRef = useRef<HTMLDivElement>(null);
+  const [auditLogSlotHeight, setAuditLogSlotHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = auditLogSlotRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setAuditLogSlotHeight(el.clientHeight));
+    ro.observe(el);
+    setAuditLogSlotHeight(el.clientHeight);
+    return () => ro.disconnect();
+  }, [candidate.id]);
+
+  const renderHighlightedText = useCallback((text: string) => {
+    const parts = text.split(/(\{\{hl\}\}.*?\{\{\/hl\}\})/g);
+    return parts.map((part, i) => {
+      if (part.startsWith("{{hl}}") && part.endsWith("{{/hl}}")) {
+        const content = part.slice(6, -7);
+        return <span key={i} className="bg-yellow-200 text-foreground px-0.5">{content}</span>;
+      }
+      return part;
+    });
+  }, []);
+
+  const getViewportEl = useCallback(() => scrollAreaRef.current, []);
+
+  const scrollAgreementToTop = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const viewport = getViewportEl();
+    viewport?.scrollTo({ top: 0, behavior });
+  }, [getViewportEl]);
+
+  const checkScrolledToBottom = useCallback(() => {
+    const viewport = getViewportEl();
+    if (!viewport) return;
+    const thresholdPx = 24;
+    const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+    setHasScrolledToBottom(remaining <= thresholdPx);
+  }, [getViewportEl]);
+
+  useEffect(() => {
+    const viewport = getViewportEl();
+    if (!viewport) return;
+    const onScroll = () => checkScrolledToBottom();
+    viewport.addEventListener("scroll", onScroll, { passive: true });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const vp = getViewportEl();
+        if (!vp) return;
+        const remaining = vp.scrollHeight - vp.scrollTop - vp.clientHeight;
+        setHasScrolledToBottom(remaining <= 24);
+      });
+    });
+    return () => viewport.removeEventListener("scroll", onScroll);
+  }, [getViewportEl, checkScrolledToBottom, candidate.id, activeDocument, activePageIndex]);
+
+  // Reset on candidate change
+  useEffect(() => {
+    const agreementDoc = documents.find(d => d.label.toLowerCase().includes("agreement"));
+    setActiveDocument(agreementDoc?.id || documents[0]?.id || "contractor-agreement");
+    setPageByDoc({});
+    setHasScrolledToBottom(false);
+    scrollAgreementToTop("auto");
+    const timer = setTimeout(() => {
+      const viewport = getViewportEl();
+      if (!viewport) return;
+      const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+      setHasScrolledToBottom(remaining <= 24);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [candidate.id, documents, scrollAgreementToTop, getViewportEl]);
+
+  const { setOpen, addMessage, isSpeaking: isAgentSpeaking } = useAgentState();
+
+  // Handle document tab switch
+  const handleDocumentSwitch = useCallback((docId: string) => {
+    setActiveDocument(docId as DocumentType);
+    // Reset page to 0 for new document (unless we have a remembered page)
+    scrollAgreementToTop("auto");
+    setHasScrolledToBottom(false);
+    // Check scroll after content renders
+    setTimeout(() => {
+      const viewport = getViewportEl();
+      if (!viewport) return;
+      const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+      setHasScrolledToBottom(remaining <= 24);
+    }, 100);
+  }, [scrollAgreementToTop, getViewportEl]);
+
+  // Page navigation
+  const handlePageChange = useCallback((newPage: number) => {
+    setPageByDoc(prev => ({ ...prev, [activeDocument]: newPage }));
+    scrollAgreementToTop("auto");
+    setHasScrolledToBottom(false);
+    setTimeout(() => {
+      const viewport = getViewportEl();
+      if (!viewport) return;
+      const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+      setHasScrolledToBottom(remaining <= 24);
+    }, 100);
+  }, [activeDocument, scrollAgreementToTop, getViewportEl]);
+
+  // Candidate stepper
+  const candidateStepper = total > 1 ? (
+    <div className="flex items-center justify-center gap-3">
+      <span className="text-sm text-muted-foreground">Candidate</span>
+      <span className="text-lg font-bold text-foreground">{index + 1}</span>
+      <span className="text-sm text-muted-foreground">/ {total}</span>
+      <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden ml-1">
+        <div className="h-full bg-primary rounded-full transition-all duration-300" style={{ width: `${((index + 1) / total) * 100}%` }} />
+      </div>
+    </div>
+  ) : null;
+
+  const showTabs = documents.length > 1;
+  const showPagination = totalPages > 1 && !isEditMode;
+
+  return (
+    <div className="space-y-6">
+      <AgentHeader 
+        title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} 
+        subtitle="Preview how this contract will appear to the candidate before sending for signature." 
+        showPulse={true} 
+        isActive={isAgentSpeaking} 
+        showInput={false}
+        progressIndicator={candidateStepper}
+      />
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="h-full flex gap-4 items-start">
+        {/* Left: Candidate card + Audit Log */}
+        <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1, duration: 0.3 }} className="w-80 flex-shrink-0 flex flex-col h-[600px]">
+          <Card className="p-6 border border-border/40 bg-card/50 backdrop-blur-sm flex-shrink-0">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-4xl">{candidate.flag}</span>
+              <div className="flex-1">
+                <h3 className="font-semibold text-foreground">{candidate.name}</h3>
+                <p className="text-sm text-muted-foreground">{candidate.role}</p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <span className="text-xs text-muted-foreground">Template</span>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Localized – {candidate.countryCode} {candidate.flag}
+                </Badge>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Salary</span>
+                  <span className="font-medium text-foreground">{candidate.salary}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Start Date</span>
+                  <span className="font-medium text-foreground">{candidate.startDate}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Notice Period</span>
+                  <span className="font-medium text-foreground">{candidate.noticePeriod}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">PTO</span>
+                  <span className="font-medium text-foreground">{candidate.pto}</span>
+                </div>
+              </div>
+            </div>
+          </Card>
+          <div ref={auditLogSlotRef} className="flex-1 min-h-0 overflow-hidden">
+            <ContractAuditLog
+              contractId={contractId}
+              workerName={candidate.name}
+              editEvents={editEvents}
+              maxHeightPx={auditLogSlotHeight}
+            />
+          </div>
+        </motion.div>
+
+        {/* Right: Contract viewer with tabs + editor */}
+        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col h-[600px] min-h-0">
+          
+          {/* Info bar / Edit controls */}
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.3 }} className="rounded-lg border border-border bg-muted/30 p-3 mb-4 flex-shrink-0 flex items-center justify-between">
+            {isEditMode ? (
+              <>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isContentEmpty ? 'bg-destructive' : 'bg-warning'}`} />
+                  <p className="text-sm text-foreground truncate">
+                    {isContentEmpty ? "Contract cannot be empty" : "Making edits to the contract. Remember to save your changes."}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button variant="outline" size="sm" onClick={handleCancelEdit}>Cancel</Button>
+                  <Button size="sm" onClick={handleSaveChanges} disabled={isContentEmpty}>Save Changes</Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-foreground">
+                  {isResetting ? "Regenerating contract from template..." : "Review the contract details carefully before proceeding."}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost" size="sm"
+                    onClick={() => setIsResetDialogOpen(true)}
+                    disabled={isResetting || !hasChangesSinceReset}
+                    className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  >
+                    <RotateCcw className={`h-3.5 w-3.5 ${isResetting ? 'animate-spin' : ''}`} />
+                    {isResetting ? "Resetting..." : "Reset"}
+                  </Button>
+                  <Button
+                    variant="outline" size="sm"
+                    onClick={handleEnterEditMode}
+                    disabled={isResetting}
+                    className="flex items-center gap-1.5"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit Contract
+                  </Button>
+                </div>
+              </>
+            )}
+          </motion.div>
+
+          {/* Document Tabs - only show when multiple documents */}
+          {showTabs && (
+            <div className="flex-shrink-0 mb-3">
+              <Tabs value={activeDocument} onValueChange={handleDocumentSwitch}>
+                <TabsList className="w-full justify-start bg-muted/30 border border-border/40">
+                  {documents.map((doc) => (
+                    <TooltipProvider key={doc.id} delayDuration={300}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <TabsTrigger 
+                            value={doc.id} 
+                            className="max-w-[160px] truncate text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                          >
+                            <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span className="truncate">{doc.shortLabel}</span>
+                          </TabsTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="text-xs">
+                          {doc.label}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
+          )}
+
+          {/* Contract content - Editor or Preview */}
+          {isEditMode ? (
+            <div className="flex-1 min-h-0 rounded-t-lg border border-b-0 border-border bg-background flex flex-col overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div key="editor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="h-full flex flex-col">
+                  <ContractRichTextEditor
+                    content={editedContent}
+                    onChange={setEditedContent}
+                    className="border-0 rounded-none flex-1 min-h-0"
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div ref={scrollAreaRef} className="flex-1 min-h-0 overflow-y-auto rounded-t-lg border border-b-0 border-border bg-background">
+              <AnimatePresence mode="wait">
+                {isResetting ? (
+                  <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex justify-center"><Skeleton className="h-6 w-48" /></div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-11/12" />
+                        <Skeleton className="h-4 w-10/12" />
+                      </div>
+                      <Skeleton className="h-5 w-40 mt-6" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-9/12" />
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : documents.length === 0 ? (
+                  <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center h-full p-6">
+                    <div className="text-center text-muted-foreground">
+                      <FileText className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                      <p className="text-sm font-medium">No documents available</p>
+                      <p className="text-xs mt-1">No documents have been generated for this candidate yet.</p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div key={`${activeDocument}-${activePageIndex}`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+                    <div className="p-6">
+                      <div className="space-y-4 select-none">
+                        {currentPageContent.map((section, idx) => (
+                          <div key={idx}>
+                            {section.heading && (
+                              <h3 className={`${idx === 0 && activePageIndex === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
+                                {section.heading}
+                              </h3>
+                            )}
+                            {section.text && (
+                              <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                                {renderHighlightedText(section.text)}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+
+          {/* Bottom bar - step navigation + pagination */}
+          <div className="flex-shrink-0 p-4 flex gap-3 justify-between items-center bg-background border border-t-0 border-border rounded-b-lg">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                onClick={() => { scrollAgreementToTop(); onPrevious(); }}
+                size="lg"
+                disabled={isEditMode}
+              >
+                Previous
+              </Button>
+
+              {/* Pagination controls - inline with Previous */}
+              {showPagination && (
+                <div className="flex items-center gap-1.5 ml-1">
+                  <Button
+                    variant="ghost" size="sm"
+                    onClick={() => handlePageChange(activePageIndex - 1)}
+                    disabled={activePageIndex === 0}
+                    className="h-7 w-7 p-0"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap min-w-[80px] text-center">
+                    Page {activePageIndex + 1} of {totalPages}
+                  </span>
+                  <Button
+                    variant="ghost" size="sm"
+                    onClick={() => handlePageChange(activePageIndex + 1)}
+                    disabled={activePageIndex >= totalPages - 1}
+                    className="h-7 w-7 p-0"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {isEditMode ? (
+                <span className="text-xs text-primary">Save or cancel your edits to continue</span>
+              ) : !hasScrolledToBottom ? (
+                <span className="text-xs text-muted-foreground">Scroll to bottom to confirm</span>
+              ) : null}
+              <Button
+                onClick={() => { scrollAgreementToTop(); onNext(); }}
+                size="lg"
+                disabled={!hasScrolledToBottom || isEditMode}
+              >
+                {index === total - 1 ? "Confirm & Continue" : "Confirm"}
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Reset Confirmation Dialog */}
+      <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+        <AlertDialogContent>
+          <button
+            onClick={() => setIsResetDialogOpen(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset contract to original?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will regenerate the contract using the current candidate data and discard all manual edits. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleResetContract}>Reset Contract</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};

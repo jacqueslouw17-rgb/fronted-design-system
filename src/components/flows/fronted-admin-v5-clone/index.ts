@@ -15,3 +15,4 @@ export { F1v4_OnboardingFormDrawer } from './F1v5_OnboardingFormDrawer';
 export { F1v4_SignatureWorkflowDrawer } from './F1v5_SignatureWorkflowDrawer';
 export { F1v4_StartOnboardingConfirmation } from './F1v5_StartOnboardingConfirmation';
 export { default as F1v4_EmbeddedAdminOnboarding } from './F1v5_EmbeddedAdminOnboarding';
+export { F1v5_ContractDraftWorkspace } from './F1v5_ContractDraftWorkspace';
