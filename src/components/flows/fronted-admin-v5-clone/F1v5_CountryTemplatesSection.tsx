@@ -321,6 +321,19 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
     [templates, selectedTemplateId]
   );
 
+  const selectedIndex = useMemo(
+    () => templates.findIndex(t => t.id === selectedTemplateId),
+    [templates, selectedTemplateId]
+  );
+
+  const handleNavigatePrev = useCallback(() => {
+    if (selectedIndex > 0) setSelectedTemplateId(templates[selectedIndex - 1].id);
+  }, [selectedIndex, templates]);
+
+  const handleNavigateNext = useCallback(() => {
+    if (selectedIndex < templates.length - 1) setSelectedTemplateId(templates[selectedIndex + 1].id);
+  }, [selectedIndex, templates]);
+
   const handleSaveDocument = useCallback((templateId: string, documentId: string, newContent: string) => {
     setTemplates(prev => prev.map(t => {
       if (t.id !== templateId) return t;
@@ -472,6 +485,12 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
         onOpenChange={(open) => { if (!open) setSelectedTemplateId(null); }}
         onSaveDocument={handleSaveDocument}
         onResetDocument={handleResetDocument}
+        onNavigatePrev={handleNavigatePrev}
+        onNavigateNext={handleNavigateNext}
+        hasPrev={selectedIndex > 0}
+        hasNext={selectedIndex < templates.length - 1}
+        currentIndex={selectedIndex}
+        totalCount={templates.length}
       />
     </>
   );
