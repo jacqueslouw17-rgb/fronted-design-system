@@ -403,7 +403,7 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
               <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start" side="bottom" avoidCollisions={false}>
             <Command>
               <CommandInput placeholder="Search countries…" />
               <CommandList>
