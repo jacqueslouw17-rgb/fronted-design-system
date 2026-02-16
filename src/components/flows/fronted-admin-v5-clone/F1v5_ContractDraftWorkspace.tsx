@@ -371,16 +371,15 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   // Handle document tab switch
   const handleDocumentSwitch = useCallback((docId: string) => {
     setActiveDocument(docId as DocumentType);
-    // Reset page to 0 for new document (unless we have a remembered page)
     scrollAgreementToTop("auto");
     setHasScrolledToBottom(false);
-    // Check scroll after content renders
+    // Delay must exceed framer-motion exit+enter animation (200ms each)
     setTimeout(() => {
       const viewport = getViewportEl();
       if (!viewport) return;
       const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
       setHasScrolledToBottom(remaining <= 24);
-    }, 100);
+    }, 450);
   }, [scrollAgreementToTop, getViewportEl]);
 
   // Page navigation
@@ -388,12 +387,13 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
     setPageByDoc(prev => ({ ...prev, [activeDocument]: newPage }));
     scrollAgreementToTop("auto");
     setHasScrolledToBottom(false);
+    // Delay must exceed framer-motion exit+enter animation (200ms each)
     setTimeout(() => {
       const viewport = getViewportEl();
       if (!viewport) return;
       const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
       setHasScrolledToBottom(remaining <= 24);
-    }, 100);
+    }, 450);
   }, [activeDocument, scrollAgreementToTop, getViewportEl]);
 
   // Candidate stepper
