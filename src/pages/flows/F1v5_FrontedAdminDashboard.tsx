@@ -1037,7 +1037,7 @@ const AdminContractingMultiCompany = () => {
                                 onDraftContract={(ids) => {
                                   const params = new URLSearchParams({ 
                                     ids: ids.join(','),
-                                    returnTo: 'f1v4',
+                                    returnTo: 'f1v5',
                                     company: selectedCompany
                                   }).toString();
                                   navigate(`/flows/contract-creation?${params}`);
