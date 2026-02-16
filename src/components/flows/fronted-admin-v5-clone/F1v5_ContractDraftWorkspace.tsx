@@ -532,7 +532,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                               )}
                             >
                               {isConfirmed ? (
-                                <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-green-600 dark:text-green-400" />
+                                <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
                               ) : (
                                 <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
                               )}
