@@ -12,6 +12,8 @@ export interface ContractEditEvent {
   timestamp: string; // UTC ISO string
   workerName: string;
   eventType?: ContractEditEventType; // 'edit' (default) or 'reset'
+  documentName?: string; // e.g. "Agreement", "NDA"
+  changeSummary?: string; // e.g. "Updated compensation clause"
 }
 
 interface ContractAuditLogProps {
@@ -193,7 +195,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
               <div className="flex items-center gap-1.5 pl-7 text-[11px] text-muted-foreground">
                 <Clock className="h-3 w-3 flex-shrink-0" />
                 <span className="truncate">
-                  {mostRecentEdit.editorName} · {formatRelativeTime(mostRecentEdit.timestamp)}
+                  {mostRecentEdit.editorName}{mostRecentEdit.documentName ? ` · ${mostRecentEdit.documentName}` : ''} · {formatRelativeTime(mostRecentEdit.timestamp)}
                 </span>
               </div>
             )}
@@ -261,6 +263,13 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                                         </Badge>
                                       )}
                                     </div>
+                                    {(event.documentName || event.changeSummary) && (
+                                      <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                                        {event.documentName && <span className="font-medium text-foreground/70">{event.documentName}</span>}
+                                        {event.documentName && event.changeSummary && <span> · </span>}
+                                        {event.changeSummary}
+                                      </p>
+                                    )}
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                       <Clock className="h-3 w-3 text-muted-foreground" />
                                       <span className="text-[10px] text-muted-foreground">
@@ -309,6 +318,13 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
                                     </Badge>
                                   )}
                                 </div>
+                                {(event.documentName || event.changeSummary) && (
+                                  <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                                    {event.documentName && <span className="font-medium text-foreground/70">{event.documentName}</span>}
+                                    {event.documentName && event.changeSummary && <span> · </span>}
+                                    {event.changeSummary}
+                                  </p>
+                                )}
                                 <div className="flex items-center gap-1.5 mt-0.5">
                                   <Clock className="h-3 w-3 text-muted-foreground" />
                                   <span className="text-[10px] text-muted-foreground">
