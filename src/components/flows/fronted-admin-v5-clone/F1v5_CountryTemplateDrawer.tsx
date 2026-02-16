@@ -87,10 +87,11 @@ const parseContentToSections = (content: string): Section[] => {
   for (const block of blocks) {
     const trimmed = block.trim();
     if (!trimmed) continue;
-    const isHeading = /^\d+\.\s/.test(trimmed) && trimmed.length < 80 && !trimmed.includes("\n");
-    const isTitleLine = !trimmed.includes(".") && trimmed.length < 60 && !trimmed.match(/^\d+\.\d+/);
+    // Detect headings: numbered sections (e.g. "1. Position") or short title-case lines
+    const isNumberedHeading = /^\d+\.\s/.test(trimmed) && trimmed.length < 80 && !trimmed.includes("\n");
+    const isTitleLine = !trimmed.includes(". ") && trimmed.length < 60 && !trimmed.match(/^\d+\.\d+/) && !trimmed.includes("\n");
 
-    if (isHeading || (isTitleLine && sections.length > 0)) {
+    if (isNumberedHeading || isTitleLine) {
       flush();
       currentHeading = trimmed;
     } else {
