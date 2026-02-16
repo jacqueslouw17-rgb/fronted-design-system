@@ -396,33 +396,43 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                     {allAuditEntries.length === 0 ? (
                       <p className="text-center py-4 text-xs text-muted-foreground">No edits recorded yet.</p>
                     ) : (
-                      <div className="space-y-1">
+                      <div className="divide-y divide-border/20">
                         {allAuditEntries.map((entry, i) => {
                           const isReset = entry.actionType === "RESET";
                           return (
-                            <div key={entry.id} className="flex items-start gap-2.5 px-3 py-2 rounded-lg hover:bg-muted/20 transition-colors">
+                            <div key={entry.id} className="px-3 py-2 flex items-start gap-2 hover:bg-muted/10 transition-colors">
                               <div className="flex-shrink-0 mt-0.5">
                                 <div className={`h-5 w-5 rounded-full flex items-center justify-center ${isReset ? 'bg-primary/10' : 'bg-muted/50'}`}>
                                   {isReset ? <RotateCcw className="h-3 w-3 text-primary" /> : <User className="h-3 w-3 text-muted-foreground" />}
                                 </div>
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className="text-xs font-medium text-foreground">{entry.actor}</span>
-                                  <Badge variant="outline" className="h-4 px-1.5 text-[9px]">{entry.documentLabel}</Badge>
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-xs text-foreground font-medium truncate">
+                                    {entry.actor}
+                                  </p>
                                   {isReset && (
-                                    <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">Reset</Badge>
-                                  )}
-                                  {i === 0 && (
-                                    <Badge variant="outline" className="h-4 px-1.5 text-[9px]">Latest</Badge>
+                                    <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
+                                      Reset to original
+                                    </Badge>
                                   )}
                                 </div>
-                                <p className="text-[11px] text-muted-foreground mt-0.5">{entry.summary}</p>
-                                <div className="flex items-center gap-1 mt-0.5">
+                                <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                                  <span className="font-medium text-foreground/70">{entry.documentLabel}</span>
+                                  {entry.summary && <span> · {entry.summary}</span>}
+                                </p>
+                                <div className="flex items-center gap-1.5 mt-0.5">
                                   <Clock className="h-3 w-3 text-muted-foreground" />
-                                  <span className="text-[10px] text-muted-foreground">{formatRelative(entry.timestamp)}</span>
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {formatRelative(entry.timestamp)}
+                                  </span>
                                 </div>
                               </div>
+                              {i === 0 && (
+                                <Badge variant="outline" className="h-4 px-1.5 text-[9px] flex-shrink-0">
+                                  Latest
+                                </Badge>
+                              )}
                             </div>
                           );
                         })}
