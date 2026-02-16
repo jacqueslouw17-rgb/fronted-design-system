@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import { ContractRichTextEditor } from "@/components/contract-flow/ContractRichTextEditor";
 import {
   FileText, Handshake, ScrollText, Cpu, Scale, Home,
-  Pencil, RotateCcw, Save, X, Clock, User, Info,
-  ChevronDown, ChevronUp,
+  Pencil, RotateCcw, Save, X, Clock, User,
+  ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -64,6 +64,57 @@ const formatRelative = (iso: string) => {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 };
 
+// ── Section parsing & pagination ──
+type Section = { heading: string; text: string };
+
+const SECTIONS_PER_PAGE = 7;
+
+/** Parse plain-text template content into heading+text sections */
+const parseContentToSections = (content: string): Section[] => {
+  const blocks = content.split("\n\n");
+  const sections: Section[] = [];
+  let currentHeading = "";
+  let currentText: string[] = [];
+
+  const flush = () => {
+    if (currentHeading || currentText.length > 0) {
+      sections.push({ heading: currentHeading, text: currentText.join("\n\n") });
+      currentHeading = "";
+      currentText = [];
+    }
+  };
+
+  for (const block of blocks) {
+    const trimmed = block.trim();
+    if (!trimmed) continue;
+    // Detect headings: numbered sections (e.g. "1. Position") or title-case short lines
+    const isHeading = /^\d+\.\s/.test(trimmed) && trimmed.length < 80 && !trimmed.includes("\n");
+    const isTitleLine = !trimmed.includes(".") && trimmed.length < 60 && !trimmed.match(/^\d+\.\d+/);
+
+    if (isHeading || (isTitleLine && sections.length > 0)) {
+      flush();
+      currentHeading = trimmed;
+    } else {
+      currentText.push(trimmed);
+    }
+  }
+  flush();
+  return sections;
+};
+
+const isAgreementDoc = (type: string) =>
+  type === "employment-agreement" || type === "contractor-agreement";
+
+const splitIntoPages = (sections: Section[], docType: string): Section[][] => {
+  if (isAgreementDoc(docType)) return [sections];
+  if (sections.length <= SECTIONS_PER_PAGE) return [sections];
+  const pages: Section[][] = [];
+  for (let i = 0; i < sections.length; i += SECTIONS_PER_PAGE) {
+    pages.push(sections.slice(i, i + SECTIONS_PER_PAGE));
+  }
+  return pages;
+};
+
 export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
   template,
   companyName,
@@ -92,6 +143,28 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
     () => template?.documents.find(d => d.id === activeDocId) || template?.documents[0] || null,
     [template, activeDocId]
   );
+
+  // Pagination
+  const [pageByDoc, setPageByDoc] = useState<Record<string, number>>({});
+  const activePageIndex = pageByDoc[activeDocId] ?? 0;
+
+  const sections = useMemo(() => {
+    if (!activeDoc || activeDoc.content.includes("<")) return []; // HTML content, no section parsing
+    return parseContentToSections(activeDoc.content);
+  }, [activeDoc]);
+
+  const pages = useMemo(() => {
+    if (sections.length === 0) return [[]];
+    return splitIntoPages(sections, activeDoc?.type || "");
+  }, [sections, activeDoc?.type]);
+
+  const totalPages = pages.length;
+  const currentPageContent = pages[activePageIndex] || pages[0] || [];
+  const showPagination = totalPages > 1 && !isEditing;
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setPageByDoc(prev => ({ ...prev, [activeDocId]: newPage }));
+  }, [activeDocId]);
 
   const isModified = useMemo(() => {
     if (!activeDoc) return false;
@@ -152,11 +225,9 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
   }, [template, activeDoc, onResetDocument]);
 
   const handleDocSwitch = useCallback((docId: string) => {
-    if (isEditing) {
-      // Discard edits when switching
-      setIsEditing(false);
-    }
+    if (isEditing) setIsEditing(false);
     setActiveDocId(docId);
+    setPageByDoc(prev => ({ ...prev, [docId]: 0 }));
   }, [isEditing]);
 
   if (!template) return null;
@@ -322,10 +393,10 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
 
 
           {/* ── Document content ── */}
-          <div className={cn("flex-1 overflow-hidden", isEditing ? "flex flex-col px-0 py-0" : "overflow-y-auto px-6 py-5")}>
+          <div className={cn("flex-1 overflow-hidden", isEditing ? "flex flex-col px-0 py-0" : "overflow-y-auto px-6 py-3")}>
             <AnimatePresence mode="wait">
               {isResetting ? (
-                <motion.div key="resetting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+                <motion.div key="resetting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3 p-3">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <div key={i} className="space-y-1.5">
                       <div className={`h-3 bg-muted/40 rounded animate-pulse ${i === 0 ? 'w-2/3' : 'w-full'}`} />
@@ -341,30 +412,57 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                   />
                 </motion.div>
               ) : (
-                <motion.div key={`view-${activeDocId}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <div className="max-w-3xl mx-auto">
-                    {/* Document paper */}
-                    <div className="rounded-lg border border-border/20 bg-background/60 shadow-sm p-8">
+                <motion.div key={`view-${activeDocId}-${activePageIndex}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div className="rounded-lg border border-border/20 bg-background/60 shadow-sm">
+                    <div className="p-6">
                       {activeDoc?.content && activeDoc.content.includes("<") ? (
                         <div
                           className="prose prose-sm max-w-none text-foreground [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:leading-relaxed [&_p]:mb-3"
                           dangerouslySetInnerHTML={{ __html: activeDoc.content }}
                         />
                       ) : (
-                        <pre className="text-sm leading-relaxed text-foreground whitespace-pre-wrap font-sans">
-                          {activeDoc?.content}
-                        </pre>
+                        <div className="space-y-4">
+                          {currentPageContent.map((section, idx) => (
+                            <div key={idx}>
+                              {section.heading && (
+                                <h3 className={`${idx === 0 && activePageIndex === 0 ? 'text-lg font-medium mb-4' : 'text-sm font-medium mb-2'} text-foreground`}>
+                                  {section.heading}
+                                </h3>
+                              )}
+                              {section.text && (
+                                <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                                  {section.text}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Inline pagination */}
+                      {showPagination && (
+                        <div className="flex items-center justify-center gap-2 pt-6 pb-2 border-t border-border/40 mt-6">
+                          <Button variant="ghost" size="sm" onClick={() => handlePageChange(activePageIndex - 1)} disabled={activePageIndex === 0} className="h-7 w-7 p-0">
+                            <ChevronLeft className="h-3.5 w-3.5" />
+                          </Button>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap min-w-[80px] text-center">
+                            Page {activePageIndex + 1} of {totalPages}
+                          </span>
+                          <Button variant="ghost" size="sm" onClick={() => handlePageChange(activePageIndex + 1)} disabled={activePageIndex >= totalPages - 1} className="h-7 w-7 p-0">
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       )}
                     </div>
-
-                    {/* Document meta */}
-                    {activeDoc?.lastEditedAt && (
-                      <div className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>Last edited by {activeDoc.lastEditedBy} · {formatRelative(activeDoc.lastEditedAt)}</span>
-                      </div>
-                    )}
                   </div>
+
+                  {/* Document meta */}
+                  {activeDoc?.lastEditedAt && (
+                    <div className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span>Last edited by {activeDoc.lastEditedBy} · {formatRelative(activeDoc.lastEditedAt)}</span>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
