@@ -225,6 +225,9 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   
+  // Track which documents have been confirmed (scrolled through)
+  const [confirmedDocs, setConfirmedDocs] = useState<Set<string>>(new Set());
+  
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedContent, setEditedContent] = useState<string>("");
@@ -351,6 +354,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
     const agreementDoc = documents.find(d => d.label.toLowerCase().includes("agreement"));
     setActiveDocument(agreementDoc?.id || documents[0]?.id || "contractor-agreement");
     setPageByDoc({});
+    setConfirmedDocs(new Set());
     setHasScrolledToBottom(false);
     scrollAgreementToTop("auto");
     const timer = setTimeout(() => {
@@ -406,6 +410,30 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
 
   const showTabs = documents.length > 1;
   const showPagination = totalPages > 1 && !isEditMode;
+
+  // Document confirmation flow: must scroll each doc (last page if multi-page) before confirming
+  const currentDocIndex = documents.findIndex(d => d.id === activeDocument);
+  const isLastDocument = currentDocIndex === documents.length - 1;
+  const isOnLastPage = activePageIndex >= totalPages - 1;
+  const canConfirmCurrentDoc = hasScrolledToBottom && isOnLastPage && !isEditMode;
+  const activeDocLabel = documents.find(d => d.id === activeDocument)?.shortLabel ?? "document";
+
+  const handleConfirmDocument = useCallback(() => {
+    // Mark current document as confirmed
+    setConfirmedDocs(prev => new Set([...prev, activeDocument]));
+
+    if (isLastDocument) {
+      // All documents confirmed, proceed to next step
+      scrollAgreementToTop();
+      onNext();
+    } else {
+      // Move to next document
+      const nextDoc = documents[currentDocIndex + 1];
+      if (nextDoc) {
+        handleDocumentSwitch(nextDoc.id);
+      }
+    }
+  }, [activeDocument, isLastDocument, currentDocIndex, documents, handleDocumentSwitch, scrollAgreementToTop, onNext]);
 
   return (
     <div className="space-y-6">
@@ -485,6 +513,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 <div className="flex items-center gap-1">
                   {documents.map((doc) => {
                     const isActive = activeDocument === doc.id;
+                    const isConfirmed = confirmedDocs.has(doc.id);
                     return (
                       <TooltipProvider key={doc.id} delayDuration={300}>
                         <Tooltip>
@@ -492,13 +521,19 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                             <button
                               onClick={() => handleDocumentSwitch(doc.id)}
                               className={cn(
-                                "inline-flex items-center gap-1.5 text-xs h-7 px-3 rounded-md transition-all duration-200 max-w-[150px] truncate",
+                                "inline-flex items-center gap-1.5 text-xs h-7 px-3 rounded-md transition-all duration-200 max-w-[160px] truncate",
                                 isActive
                                   ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
-                                  : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                                  : isConfirmed
+                                    ? "text-foreground/70 hover:text-foreground hover:bg-muted/40"
+                                    : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
                               )}
                             >
-                              <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
+                              {isConfirmed ? (
+                                <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-green-600 dark:text-green-400" />
+                              ) : (
+                                <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
+                              )}
                               <span className="truncate">{doc.shortLabel}</span>
                             </button>
                           </TooltipTrigger>
@@ -657,11 +692,14 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 <span className="text-xs text-primary">Save or cancel your edits to continue</span>
               ) : null}
               <Button
-                onClick={() => { scrollAgreementToTop(); onNext(); }}
+                onClick={handleConfirmDocument}
                 size="lg"
-                disabled={!hasScrolledToBottom || isEditMode}
+                disabled={!canConfirmCurrentDoc}
               >
-                {index === total - 1 ? "Confirm & Continue" : "Confirm"}
+                {isLastDocument
+                  ? (index === total - 1 ? "Confirm & Continue" : `Confirm ${activeDocLabel}`)
+                  : `Confirm ${activeDocLabel}`
+                }
               </Button>
             </div>
           </div>
