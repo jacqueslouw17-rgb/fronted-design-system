@@ -154,7 +154,7 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType): S
 };
 
 // Split sections into pages — agreements stay single-page, other docs paginate
-const SECTIONS_PER_PAGE = 6;
+const SECTIONS_PER_PAGE = 7;
 
 const isAgreementType = (docType: DocumentType): boolean =>
   docType === "employment-agreement" || docType === "contractor-agreement";
