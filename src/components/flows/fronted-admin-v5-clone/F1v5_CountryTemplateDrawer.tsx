@@ -9,7 +9,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { ContractRichTextEditor } from "@/components/contract-flow/ContractRichTextEditor";
 import {
   FileText, Handshake, ScrollText, Cpu, Scale, Home,
   Pencil, RotateCcw, Save, X, Clock, User, Info,
@@ -103,17 +103,33 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
     return activeDoc.content === activeDoc.defaultContent;
   }, [activeDoc]);
 
+  // Convert plain text to HTML for the rich text editor
+  const textToHtml = useCallback((text: string) => {
+    const paragraphs = text.split("\n\n");
+    return paragraphs.map(p => {
+      const lines = p.split("\n");
+      // Check if first line looks like a heading (no period at end, short)
+      if (lines[0] && lines[0].length < 80 && !lines[0].endsWith(".") && !lines[0].match(/^\d+\.\d+/)) {
+        const heading = lines[0];
+        const rest = lines.slice(1).join("<br>");
+        if (rest) return `<h2>${heading}</h2><p>${rest}</p>`;
+        return `<h2>${heading}</h2>`;
+      }
+      return `<p>${lines.join("<br>")}</p>`;
+    }).join("");
+  }, []);
+
   const handleStartEdit = useCallback(() => {
     if (!activeDoc) return;
-    setEditContent(activeDoc.content);
+    setEditContent(textToHtml(activeDoc.content));
     setIsEditing(true);
-  }, [activeDoc]);
+  }, [activeDoc, textToHtml]);
 
   const handleCancel = useCallback(() => {
     if (!activeDoc) return;
-    setEditContent(activeDoc.content);
+    setEditContent(textToHtml(activeDoc.content));
     setIsEditing(false);
-  }, [activeDoc]);
+  }, [activeDoc, textToHtml]);
 
   const handleSave = useCallback(() => {
     if (!template || !activeDoc || !editContent.trim()) return;
@@ -298,7 +314,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
 
 
           {/* ── Document content ── */}
-          <div className="flex-1 overflow-y-auto px-6 py-5">
+          <div className={cn("flex-1 overflow-hidden", isEditing ? "flex flex-col px-0 py-0" : "overflow-y-auto px-6 py-5")}>
             <AnimatePresence mode="wait">
               {isResetting ? (
                 <motion.div key="resetting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
@@ -310,11 +326,10 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                   ))}
                 </motion.div>
               ) : isEditing ? (
-                <motion.div key={`edit-${activeDocId}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <Textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    className="min-h-[500px] text-sm leading-relaxed font-mono resize-none bg-background/60 border-border/30"
+                <motion.div key={`edit-${activeDocId}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
+                  <ContractRichTextEditor
+                    content={editContent}
+                    onChange={setEditContent}
                   />
                 </motion.div>
               ) : (
