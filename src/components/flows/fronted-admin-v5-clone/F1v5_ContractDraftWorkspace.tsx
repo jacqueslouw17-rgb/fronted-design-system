@@ -607,6 +607,30 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                           </div>
                         ))}
                       </div>
+                      {/* Inline pagination at bottom of document content */}
+                      {showPagination && (
+                        <div className="flex items-center justify-center gap-2 pt-6 pb-2 border-t border-border/40 mt-6">
+                          <Button
+                            variant="ghost" size="sm"
+                            onClick={() => handlePageChange(activePageIndex - 1)}
+                            disabled={activePageIndex === 0}
+                            className="h-7 w-7 p-0"
+                          >
+                            <ChevronLeft className="h-3.5 w-3.5" />
+                          </Button>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap min-w-[80px] text-center">
+                            Page {activePageIndex + 1} of {totalPages}
+                          </span>
+                          <Button
+                            variant="ghost" size="sm"
+                            onClick={() => handlePageChange(activePageIndex + 1)}
+                            disabled={activePageIndex >= totalPages - 1}
+                            className="h-7 w-7 p-0"
+                          >
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}
@@ -626,30 +650,6 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 Previous
               </Button>
 
-              {/* Pagination controls - next to Previous */}
-              {showPagination && (
-                <div className="flex items-center gap-1.5 ml-1">
-                  <Button
-                    variant="ghost" size="sm"
-                    onClick={() => handlePageChange(activePageIndex - 1)}
-                    disabled={activePageIndex === 0}
-                    className="h-7 w-7 p-0"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                  </Button>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap min-w-[80px] text-center">
-                    Page {activePageIndex + 1} of {totalPages}
-                  </span>
-                  <Button
-                    variant="ghost" size="sm"
-                    onClick={() => handlePageChange(activePageIndex + 1)}
-                    disabled={activePageIndex >= totalPages - 1}
-                    className="h-7 w-7 p-0"
-                  >
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              )}
             </div>
 
             <div className="flex items-center gap-2">
