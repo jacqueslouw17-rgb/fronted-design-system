@@ -464,7 +464,11 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
 
 
           {/* ── Document content ── */}
-          <div className={cn("flex-1 overflow-hidden", isEditing ? "flex flex-col px-0 py-0" : "overflow-y-auto px-6 py-3")}>
+          <div
+            className={cn("flex-1 overflow-hidden", isEditing ? "flex flex-col px-0 py-0" : "overflow-y-auto px-6 py-3")}
+            onClick={() => showAuditLog && setShowAuditLog(false)}
+            onScroll={() => showAuditLog && setShowAuditLog(false)}
+          >
             <AnimatePresence mode="wait">
               {isResetting ? (
                 <motion.div key="resetting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3 p-3">
