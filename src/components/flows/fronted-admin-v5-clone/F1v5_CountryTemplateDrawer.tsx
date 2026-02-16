@@ -87,7 +87,23 @@ const parseContentToSections = (content: string): Section[] => {
   for (const block of blocks) {
     const trimmed = block.trim();
     if (!trimmed) continue;
-    // Detect headings: numbered sections (e.g. "1. Position") or short title-case lines
+
+    // Check if the block starts with a heading line followed by body text (single \n separator)
+    const firstNewline = trimmed.indexOf("\n");
+    if (firstNewline > 0) {
+      const firstLine = trimmed.slice(0, firstNewline).trim();
+      const restOfBlock = trimmed.slice(firstNewline + 1).trim();
+      const isNumberedHeading = /^\d+\.\s/.test(firstLine) && firstLine.length < 80;
+
+      if (isNumberedHeading && restOfBlock) {
+        flush();
+        currentHeading = firstLine;
+        currentText.push(restOfBlock);
+        continue;
+      }
+    }
+
+    // Single-line block checks
     const isNumberedHeading = /^\d+\.\s/.test(trimmed) && trimmed.length < 80 && !trimmed.includes("\n");
     const isTitleLine = !trimmed.includes(". ") && trimmed.length < 60 && !trimmed.match(/^\d+\.\d+/) && !trimmed.includes("\n");
 
@@ -169,8 +185,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
 
   const sections = useMemo(() => {
     if (!activeDoc) return [];
-    if (isHtmlContent) return parseHtmlToSections(activeDoc.content);
-    return parseContentToSections(activeDoc.content);
+    return isHtmlContent ? parseHtmlToSections(activeDoc.content) : parseContentToSections(activeDoc.content);
   }, [activeDoc, isHtmlContent]);
 
   const pages = useMemo(() => {
