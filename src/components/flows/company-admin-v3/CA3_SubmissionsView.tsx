@@ -339,7 +339,7 @@ const AdjustmentRow = ({
           </div>
         </div>
         {rejectionReason && (
-          <div className="pb-2 -mt-0.5">
+          <div className="-mt-1 pb-0.5">
             <p className="text-[10px] text-destructive/70 leading-relaxed">
               <span className="font-medium">Rejected:</span> {rejectionReason}
             </p>
@@ -626,7 +626,7 @@ const LeaveRow = ({
           </div>
         </div>
         {leave.rejectionReason && (
-          <div className="pb-2 -mt-0.5">
+          <div className="-mt-1 pb-0.5">
             <p className="text-[10px] text-destructive/70 leading-relaxed">
               <span className="font-medium">Rejected:</span> {leave.rejectionReason}
             </p>
