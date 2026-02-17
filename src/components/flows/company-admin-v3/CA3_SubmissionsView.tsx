@@ -1198,8 +1198,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span>
-                    <Button size="sm" onClick={onContinue} disabled={!canContinue} className="h-8 sm:h-9 text-xs flex-1 sm:flex-none">
-                      Continue to Submit
+                    <Button size="sm" onClick={onContinue} disabled={!canContinue} className="h-8 sm:h-9 text-xs">
+                      <span className="sm:hidden">Continue</span>
+                      <span className="hidden sm:inline">Continue to Submit</span>
                     </Button>
                   </span>
                 </TooltipTrigger>
