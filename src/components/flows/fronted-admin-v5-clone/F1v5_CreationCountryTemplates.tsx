@@ -307,75 +307,18 @@ export const F1v5_CreationCountryTemplates: React.FC<Props> = ({
         </Label>
 
         {selectedCountries.length === 0 ? (
-          <div className="rounded-md border border-dashed border-border/40 bg-muted/10 py-5 flex flex-col items-center gap-2">
-            <Globe className="h-5 w-5 text-muted-foreground/40" />
-            <p className="text-xs text-muted-foreground/60 text-center max-w-[260px]">
-              Attach country templates now to generate compliant contracts per country.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            {selectedCountries.map((entry) => {
-              const attached = entry.slots.filter(s => s.status !== "empty").length;
-              const total = entry.slots.length;
-              const requiredMet = entry.slots.filter(s => s.required).every(s => s.status !== "empty");
-
-              return (
-                <div
-                  key={entry.countryCode}
-                  className="flex items-center gap-2.5 rounded-md border border-border/30 bg-background/60 px-3 py-2 group"
-                >
-                  <span className="text-base shrink-0">{entry.flag}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-foreground">{entry.countryName}</span>
-                      {attached > 0 ? (
-                        <Badge variant="secondary" className="h-4 px-1.5 text-[9px] border-0 bg-emerald-500/10 text-emerald-600">
-                          {attached} template{attached !== 1 ? "s" : ""} attached
-                        </Badge>
-                      ) : (
-                        <span className="text-[10px] text-muted-foreground/50">No templates attached</span>
-                      )}
-                      {!requiredMet && attached > 0 && (
-                        <span className="text-[9px] text-destructive">Missing required</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-[11px] text-muted-foreground hover:text-foreground"
-                      onClick={() => setManagingCountry(entry.countryCode)}
-                    >
-                      Manage
-                      <ChevronRight className="h-3 w-3 ml-0.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleRemoveCountry(entry.countryCode)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Add country button */}
-        {availableForSelection.length > 0 && (
           <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild>
               <button
                 type="button"
-                className="flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary transition-colors mt-1"
+                className="w-full rounded-md border border-dashed border-border/40 bg-muted/10 hover:bg-muted/20 hover:border-primary/30 py-5 flex flex-col items-center gap-2 transition-colors cursor-pointer group"
               >
-                <Plus className="h-3 w-3" />
-                Add country
+                <div className="h-8 w-8 rounded-full border border-dashed border-muted-foreground/30 group-hover:border-primary/50 flex items-center justify-center transition-colors">
+                  <Plus className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary/70 transition-colors" />
+                </div>
+                <p className="text-xs text-muted-foreground/60 group-hover:text-muted-foreground text-center max-w-[260px] transition-colors">
+                  Add a country to attach compliant contract templates.
+                </p>
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-[280px] p-0" align="start" side="bottom" sideOffset={4}>
@@ -400,6 +343,94 @@ export const F1v5_CreationCountryTemplates: React.FC<Props> = ({
               </Command>
             </PopoverContent>
           </Popover>
+        ) : (
+          <>
+            <div className="space-y-1.5">
+              {selectedCountries.map((entry) => {
+                const attached = entry.slots.filter(s => s.status !== "empty").length;
+                const requiredMet = entry.slots.filter(s => s.required).every(s => s.status !== "empty");
+
+                return (
+                  <div
+                    key={entry.countryCode}
+                    className="flex items-center gap-2.5 rounded-md border border-border/30 bg-background/60 px-3 py-2 group"
+                  >
+                    <span className="text-base shrink-0">{entry.flag}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-foreground">{entry.countryName}</span>
+                        {attached > 0 ? (
+                          <Badge variant="secondary" className="h-4 px-1.5 text-[9px] border-0 bg-emerald-500/10 text-emerald-600">
+                            {attached} template{attached !== 1 ? "s" : ""} attached
+                          </Badge>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground/50">No templates attached</span>
+                        )}
+                        {!requiredMet && attached > 0 && (
+                          <span className="text-[9px] text-destructive">Missing required</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-[11px] text-muted-foreground hover:text-foreground"
+                        onClick={() => setManagingCountry(entry.countryCode)}
+                      >
+                        Manage
+                        <ChevronRight className="h-3 w-3 ml-0.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleRemoveCountry(entry.countryCode)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Add another country */}
+            {availableForSelection.length > 0 && (
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary transition-colors mt-1"
+                  >
+                    <Plus className="h-3 w-3" />
+                    Add country
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[280px] p-0" align="start" side="bottom" sideOffset={4}>
+                  <Command>
+                    <CommandInput placeholder="Search countries…" />
+                    <CommandList>
+                      <CommandEmpty>No countries found.</CommandEmpty>
+                      <CommandGroup>
+                        {availableForSelection.map(country => (
+                          <CommandItem
+                            key={country.code}
+                            value={`${country.name} ${country.code}`}
+                            onSelect={() => handleAddCountry(country.code)}
+                            className="flex items-center gap-2.5 px-3 py-2 cursor-pointer text-sm"
+                          >
+                            <span>{country.flag}</span>
+                            <span>{country.name}</span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            )}
+          </>
         )}
 
         {error && <p className="text-xs text-destructive">{error}</p>}
