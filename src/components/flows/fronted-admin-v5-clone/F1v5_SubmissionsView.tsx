@@ -20,6 +20,7 @@ import {
   AlertTriangle, TrendingUp, Paperclip } from
 "lucide-react";
 import { AttachmentsList, AttachmentIndicator, type AttachmentItem } from "@/components/flows/shared/AttachmentsList";
+import { TagChips } from "@/components/flows/shared/TagInput";
 import { SubmissionTrail, type TrailSubmission } from "@/components/flows/shared/SubmissionTrail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,8 @@ interface SubmittedAdjustment {
   days?: number;
   status?: AdjustmentItemStatus;
   rejectionReason?: string;
+  // Grouping tags
+  tags?: string[];
   // Attachments
   attachments?: AttachmentItem[];
   attachmentsCount?: number;
@@ -151,8 +154,8 @@ const statusConfig: Record<SubmissionStatus, {icon: React.ElementType;label: str
 const AdjustmentRow = ({
   label, amount, currency, status, rejectionReason,
   onApprove, onReject, onUndo, isExpanded = false, onToggleExpand, isFinalized = false,
-  attachments, previousSubmission, workerName
-}: {label: string;amount: number;currency: string;status: AdjustmentItemStatus;rejectionReason?: string;onApprove: () => void;onReject: (reason: string) => void;onUndo?: () => void;isExpanded?: boolean;onToggleExpand?: () => void;isFinalized?: boolean;attachments?: AttachmentItem[];previousSubmission?: TrailSubmission;workerName?: string;}) => {
+  attachments, previousSubmission, workerName, tags
+}: {label: string;amount: number;currency: string;status: AdjustmentItemStatus;rejectionReason?: string;onApprove: () => void;onReject: (reason: string) => void;onUndo?: () => void;isExpanded?: boolean;onToggleExpand?: () => void;isFinalized?: boolean;attachments?: AttachmentItem[];previousSubmission?: TrailSubmission;workerName?: string;tags?: string[];}) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
   const toggleExpand = onToggleExpand || (() => setLocalExpanded(!localExpanded));
@@ -192,6 +195,7 @@ const AdjustmentRow = ({
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <span className="text-sm text-muted-foreground truncate">{label}</span>
+          {tags && tags.length > 0 && <TagChips tags={tags} max={2} />}
         </div>
         <div className="flex items-center gap-2">
           {!isFinalized && onUndo && isHovered &&
@@ -256,6 +260,7 @@ const AdjustmentRow = ({
       <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-sm text-foreground truncate">{label}</span>
+          {tags && tags.length > 0 && <TagChips tags={tags} max={2} />}
           <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
           {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
           
@@ -1055,7 +1060,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             }} onReject={(reason) => {
                               updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
                               toast.info(`Rejected ${config.label.toLowerCase()}`);
-                            }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />;
+                            }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} tags={adj.tags} />;
                           })}
                     {!showPendingOnly && (workerAdminAdjustments).filter((a) => a.type === 'expense').map((adj) => <motion.div key={adj.id} initial={newlyAddedId === adj.id ? { opacity: 0, y: -8, scale: 0.98 } : false} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.25, ease: "easeOut" }} className={cn("rounded transition-all duration-500 group", newlyAddedId === adj.id ? "bg-primary/5 ring-1 ring-primary/20" : "-mx-3 px-3 hover:bg-muted/50")}>
                           <div className="flex items-center justify-between py-2">

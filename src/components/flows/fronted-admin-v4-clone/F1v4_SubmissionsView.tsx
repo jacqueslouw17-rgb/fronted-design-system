@@ -20,6 +20,7 @@ import {
   AlertTriangle, TrendingUp, Paperclip } from
 "lucide-react";
 import { AttachmentsList, AttachmentIndicator, type AttachmentItem } from "@/components/flows/shared/AttachmentsList";
+import { TagChips } from "@/components/flows/shared/TagInput";
 import { SubmissionTrail, type TrailSubmission } from "@/components/flows/shared/SubmissionTrail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,6 +77,8 @@ interface SubmittedAdjustment {
   // Resubmission trail
   threadId?: string;
   previousSubmission?: TrailSubmission;
+  // Grouping tags
+  tags?: string[];
 }
 
 export interface PendingLeaveItem {
@@ -151,8 +154,8 @@ const statusConfig: Record<SubmissionStatus, {icon: React.ElementType;label: str
 const AdjustmentRow = ({
   label, amount, currency, status, rejectionReason,
   onApprove, onReject, onUndo, isExpanded = false, onToggleExpand, isFinalized = false,
-  attachments, previousSubmission, workerName
-}: {label: string;amount: number;currency: string;status: AdjustmentItemStatus;rejectionReason?: string;onApprove: () => void;onReject: (reason: string) => void;onUndo?: () => void;isExpanded?: boolean;onToggleExpand?: () => void;isFinalized?: boolean;attachments?: AttachmentItem[];previousSubmission?: TrailSubmission;workerName?: string;}) => {
+  attachments, previousSubmission, workerName, tags
+}: {label: string;amount: number;currency: string;status: AdjustmentItemStatus;rejectionReason?: string;onApprove: () => void;onReject: (reason: string) => void;onUndo?: () => void;isExpanded?: boolean;onToggleExpand?: () => void;isFinalized?: boolean;attachments?: AttachmentItem[];previousSubmission?: TrailSubmission;workerName?: string;tags?: string[];}) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
   const toggleExpand = onToggleExpand || (() => setLocalExpanded(!localExpanded));
@@ -192,6 +195,7 @@ const AdjustmentRow = ({
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <span className="text-sm text-muted-foreground truncate">{label}</span>
+          {tags && tags.length > 0 && <TagChips tags={tags} max={2} />}
         </div>
         <div className="flex items-center gap-2">
           {!isFinalized && onUndo && isHovered &&
@@ -256,6 +260,7 @@ const AdjustmentRow = ({
       <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-sm text-foreground truncate">{label}</span>
+          {tags && tags.length > 0 && <TagChips tags={tags} max={2} />}
           <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
           {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
           
@@ -1048,7 +1053,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             const itemId = `adj-${originalIdx}`;
                             const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                             return (
-                              <AdjustmentRow key={itemId} label={adj.description || submissionTypeConfig[adj.type]?.label || 'Adjustment'} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />);
+                              <AdjustmentRow key={itemId} label={adj.description || submissionTypeConfig[adj.type]?.label || 'Adjustment'} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} tags={adj.tags} />);
                           })}
                           {/* Admin-added expenses */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'expense').map((adj) =>

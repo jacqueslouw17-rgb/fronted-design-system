@@ -153,6 +153,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "expenses", amount: 8500, description: "Travel reimbursement", status: "pending",
+        tags: ["NY trip", "Client visit"],
         attachments: [
           { id: "att-v4-1", fileName: "travel_receipt.pdf", fileType: "application/pdf", fileSize: "1.4 MB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "Maria Santos" },
           { id: "att-v4-2", fileName: "taxi_receipts.jpg", fileType: "image/jpeg", fileSize: "2.3 MB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "Maria Santos" },
@@ -160,6 +161,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
         attachmentsCount: 2,
       },
       { type: "bonus", amount: 6500, description: "Q4 Performance Bonus", status: "pending",
+        tags: ["Q4 review"],
         threadId: "thread-bonus-maria-v4",
         previousSubmission: {
           submissionId: "prev-maria-v4-1",
