@@ -108,7 +108,7 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
-        className="space-y-6 p-6"
+        className="space-y-6 p-4 sm:p-6"
       >
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Personal Profile</h3>
@@ -249,7 +249,7 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
                         }}
                       >
                         <Download className="h-3.5 w-3.5" />
-                        Download
+                        <span className="hidden sm:inline">Download</span>
                       </Button>
                       <Button
                         variant="ghost"
@@ -258,7 +258,7 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
                         onClick={handleRemoveFile}
                       >
                         <X className="h-3.5 w-3.5" />
-                        Remove
+                        <span className="hidden sm:inline">Remove</span>
                       </Button>
                     </div>
                   </div>
