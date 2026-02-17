@@ -28,6 +28,7 @@ const mockSubmissions: WorkerSubmission[] = [
     submissions: [
       { type: "timesheet", hours: 160, description: "October 2024" },
       { type: "expenses", amount: 245, currency: "EUR", description: "Travel expenses", status: "pending",
+        tags: ["Lisbon offsite"],
         attachments: [
           { id: "att-1", fileName: "flight_receipt.pdf", fileType: "application/pdf", fileSize: "1.2 MB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "David Martinez" },
           { id: "att-2", fileName: "hotel_invoice.pdf", fileType: "application/pdf", fileSize: "840 KB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "David Martinez" },
@@ -58,6 +59,7 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "bonus", amount: 500, currency: "EUR", description: "Q4 performance bonus", status: "pending",
+        tags: ["Q4 review", "Manager approved"],
         threadId: "thread-bonus-sophie",
         previousSubmission: {
           submissionId: "prev-sophie-1",
@@ -102,7 +104,7 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "overtime", hours: 8, description: "Project deadline", amount: 3500, status: "pending" },
-      { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending" },
+      { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending", tags: ["Client dinner"] },
     ],
     // Pending leave requests for this pay period - only unpaid leave affects payroll
     pendingLeaves: [],

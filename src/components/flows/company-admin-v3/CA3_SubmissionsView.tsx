@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle, AlertTriangle, TrendingUp, Paperclip } from "lucide-react";
 import { AttachmentsList, AttachmentIndicator, type AttachmentItem } from "@/components/flows/shared/AttachmentsList";
+import { TagChips } from "@/components/flows/shared/TagInput";
 import { SubmissionTrail, type TrailSubmission } from "@/components/flows/shared/SubmissionTrail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,8 @@ interface SubmittedAdjustment {
   days?: number;
   status?: AdjustmentItemStatus;
   rejectionReason?: string;
+  // Grouping tags
+  tags?: string[];
   // Attachments
   attachments?: AttachmentItem[];
   attachmentsCount?: number;
@@ -234,7 +237,8 @@ const AdjustmentRow = ({
   isFinalized = false,
   attachments,
   previousSubmission,
-  workerName
+  workerName,
+  tags
 }: {
   label: string;
   amount: number;
@@ -250,6 +254,7 @@ const AdjustmentRow = ({
   attachments?: AttachmentItem[];
   previousSubmission?: TrailSubmission;
   workerName?: string;
+  tags?: string[];
 }) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
@@ -295,6 +300,7 @@ const AdjustmentRow = ({
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <span className="text-sm text-muted-foreground truncate">{label}</span>
+          {tags && tags.length > 0 && <TagChips tags={tags} max={2} />}
         </div>
         <div className="flex items-center gap-2">
           {!isFinalized && onUndo && isHovered && <button onClick={e => {
@@ -359,6 +365,7 @@ const AdjustmentRow = ({
     }}>
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-sm text-foreground truncate">{label}</span>
+          {tags && tags.length > 0 && <TagChips tags={tags} max={2} />}
           <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
             pending
           </span>
@@ -1483,7 +1490,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                                 rejectionReason: reason
                               });
                               toast.info(`Rejected ${config.label.toLowerCase()}`);
-                            }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />;
+                            }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} tags={adj.tags} />;
                           })}
                     {/* Admin-added expenses */}
                     {!showPendingOnly && workerAdminAdjustments.filter(a => a.type === 'expense').map(adj => <motion.div key={adj.id} initial={newlyAddedId === adj.id ? {
