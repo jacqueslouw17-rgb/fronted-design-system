@@ -150,20 +150,9 @@ const statusConfig: Record<SubmissionStatus, {icon: React.ElementType;label: str
 // AdjustmentRow - Interactive adjustment with 2-step review flow (direct approve/reject, reversible with Undo)
 const AdjustmentRow = ({
   label, amount, currency, status, rejectionReason,
-  onApprove, onReject, onUndo, isExpanded = false, onToggleExpand, isFinalized = false
-
-
-
-
-
-
-
-
-
-
-
-
-}: {label: string;amount: number;currency: string;status: AdjustmentItemStatus;rejectionReason?: string;onApprove: () => void;onReject: (reason: string) => void;onUndo?: () => void;isExpanded?: boolean;onToggleExpand?: () => void;isFinalized?: boolean;}) => {
+  onApprove, onReject, onUndo, isExpanded = false, onToggleExpand, isFinalized = false,
+  attachments, previousSubmission, workerName
+}: {label: string;amount: number;currency: string;status: AdjustmentItemStatus;rejectionReason?: string;onApprove: () => void;onReject: (reason: string) => void;onUndo?: () => void;isExpanded?: boolean;onToggleExpand?: () => void;isFinalized?: boolean;attachments?: AttachmentItem[];previousSubmission?: TrailSubmission;workerName?: string;}) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
   const toggleExpand = onToggleExpand || (() => setLocalExpanded(!localExpanded));
@@ -265,19 +254,49 @@ const AdjustmentRow = ({
   }
 
   // Pending state
+  const hasAttachments = attachments && attachments.length > 0;
+  const hasTrail = !!previousSubmission;
   return (
     <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
       <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-sm text-foreground">{label}</span>
           <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
+          {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
+          {!expanded && hasTrail && <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 font-medium bg-blue-500/10 text-blue-600 border-blue-500/20">resubmitted</Badge>}
         </div>
         <span className="text-sm tabular-nums font-mono text-foreground ml-3">+{formatAmount(amount, currency)}</span>
       </div>
       <AnimatePresence>
         {expanded &&
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.12 }} className="overflow-hidden">
-            <div className="pb-3">
+            <div className="pb-3 space-y-2.5">
+              {/* Inline attachments */}
+              {hasAttachments && (
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Paperclip className="h-3 w-3 text-muted-foreground/60" />
+                    <span className="text-[10px] font-medium text-muted-foreground">Attachments ({attachments!.length})</span>
+                  </div>
+                  <AttachmentsList attachments={attachments!} compact />
+                </div>
+              )}
+              {/* Inline submission trail */}
+              {hasTrail && (
+                <SubmissionTrail
+                  currentSubmission={{
+                    submissionId: `current-inline`,
+                    threadId: "inline",
+                    submittedAt: "Jan 24, 2026",
+                    submittedBy: workerName || "Worker",
+                    status: "pending",
+                    payload: { amount, currency, label, type: "adjustment" },
+                    attachments: attachments || [],
+                  }}
+                  previousSubmission={previousSubmission}
+                />
+              )}
+              {/* Action buttons */}
               {!showRejectForm ?
             <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline" onClick={(e) => {e.stopPropagation();setShowRejectForm(true);}} className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shadow-none">
@@ -1035,48 +1054,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                    }
 
-                    {/* Attachments & Submission Trail */}
-                    {(() => {
-                      const allAttachments = selectedSubmission.submissions.flatMap(adj => adj.attachments || []);
-                      const trailAdj = selectedSubmission.submissions.find(adj => adj.previousSubmission && adj.threadId);
-                      const hasAttachments = allAttachments.length > 0;
-                      const hasTrail = !!trailAdj;
-                      if (!hasAttachments && !hasTrail) return null;
-                      return (
-                        <div className="px-5 py-3 border-b border-border/20 space-y-3">
-                          {hasAttachments && (
-                            <div>
-                              <div className="flex items-center gap-1.5 mb-2">
-                                <Paperclip className="h-3.5 w-3.5 text-muted-foreground/60" />
-                                <span className="text-xs font-medium text-muted-foreground">Attachments</span>
-                                <span className="text-[10px] text-muted-foreground/50">({allAttachments.length})</span>
-                              </div>
-                              <AttachmentsList attachments={allAttachments} />
-                            </div>
-                          )}
-                          {hasTrail && trailAdj && (
-                            <SubmissionTrail
-                              currentSubmission={{
-                                submissionId: `current-${trailAdj.threadId}`,
-                                threadId: trailAdj.threadId!,
-                                submittedAt: "Jan 24, 2026",
-                                submittedBy: selectedSubmission.workerName,
-                                status: (trailAdj.status as "pending" | "approved" | "rejected") || "pending",
-                                payload: {
-                                  amount: trailAdj.amount || 0,
-                                  currency: trailAdj.currency || currency,
-                                  label: trailAdj.description || "",
-                                  type: trailAdj.type,
-                                },
-                                attachments: trailAdj.attachments || [],
-                              }}
-                              previousSubmission={trailAdj.previousSubmission}
-                            />
-                          )}
-                        </div>
-                      );
-                    })()}
-
                     <div className={cn("px-5 py-4 space-y-0.5", statusDecisions[selectedSubmission.id] === "exclude" && "opacity-40 pointer-events-none line-through")} onClick={() => setExpandedItemId(null)}>
                            <>
                       {/* EARNINGS Section */}
@@ -1093,7 +1070,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             const itemId = `adj-${originalIdx}`;
                             const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                             return (
-                              <AdjustmentRow key={itemId} label={adj.description || submissionTypeConfig[adj.type]?.label || 'Adjustment'} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} />);
+                              <AdjustmentRow key={itemId} label={adj.description || submissionTypeConfig[adj.type]?.label || 'Adjustment'} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />);
                           })}
                           {/* Admin-added expenses */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'expense').map((adj) =>
@@ -1140,7 +1117,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           const itemId = `overtime-${originalIdx}`;
                           const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                           return (
-                            <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved overtime');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected overtime');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} />);
+                            <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved overtime');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected overtime');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />);
                         })}
                           {/* Admin-added overtime */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'overtime').map((adj) =>

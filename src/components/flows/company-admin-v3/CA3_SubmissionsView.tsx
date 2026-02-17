@@ -231,7 +231,10 @@ const AdjustmentRow = ({
   onUndo,
   isExpanded = false,
   onToggleExpand,
-  isFinalized = false
+  isFinalized = false,
+  attachments,
+  previousSubmission,
+  workerName
 }: {
   label: string;
   amount: number;
@@ -244,6 +247,9 @@ const AdjustmentRow = ({
   isExpanded?: boolean;
   onToggleExpand?: () => void;
   isFinalized?: boolean;
+  attachments?: AttachmentItem[];
+  previousSubmission?: TrailSubmission;
+  workerName?: string;
 }) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
@@ -359,6 +365,8 @@ const AdjustmentRow = ({
   }
 
   // Pending state - wrapped container for unified expanded state
+  const hasAttachments = attachments && attachments.length > 0;
+  const hasTrail = !!previousSubmission;
   return <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
       {/* Header row */}
       <div className="flex items-center justify-between py-2 cursor-pointer" onClick={e => {
@@ -370,6 +378,8 @@ const AdjustmentRow = ({
           <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
             pending
           </span>
+          {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
+          {!expanded && hasTrail && <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 font-medium bg-blue-500/10 text-blue-600 border-blue-500/20">resubmitted</Badge>}
         </div>
         
         <span className="text-sm tabular-nums font-mono text-foreground ml-3">
@@ -377,7 +387,7 @@ const AdjustmentRow = ({
         </span>
       </div>
       
-      {/* Expanded action panel - No confirmation dialogs, direct actions */}
+      {/* Expanded action panel */}
       <AnimatePresence>
         {expanded && <motion.div initial={{
         height: 0,
@@ -392,7 +402,33 @@ const AdjustmentRow = ({
         duration: 0.12,
         ease: "easeOut"
       }} className="overflow-hidden">
-            <div className="pb-3">
+            <div className="pb-3 space-y-2.5">
+              {/* Inline attachments */}
+              {hasAttachments && (
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Paperclip className="h-3 w-3 text-muted-foreground/60" />
+                    <span className="text-[10px] font-medium text-muted-foreground">Attachments ({attachments!.length})</span>
+                  </div>
+                  <AttachmentsList attachments={attachments!} compact />
+                </div>
+              )}
+              {/* Inline submission trail */}
+              {hasTrail && (
+                <SubmissionTrail
+                  currentSubmission={{
+                    submissionId: `current-inline`,
+                    threadId: "inline",
+                    submittedAt: "Jan 24, 2026",
+                    submittedBy: workerName || "Worker",
+                    status: "pending",
+                    payload: { amount, currency, label, type: "adjustment" },
+                    attachments: attachments || [],
+                  }}
+                  previousSubmission={previousSubmission}
+                />
+              )}
+              {/* Action buttons */}
               {!showRejectForm ? <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline" onClick={e => {
               e.stopPropagation();
@@ -1441,49 +1477,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </div>}
                 </SheetHeader>
 
-                {/* Attachments & Submission Trail - shown before pay breakdown */}
-                {!isAddingAdjustment && (() => {
-                  // Collect all attachments from all adjustments for this worker
-                  const allAttachments = selectedSubmission.submissions.flatMap(adj => adj.attachments || []);
-                  // Find any adjustment with a previous submission (resubmission trail)
-                  const trailAdj = selectedSubmission.submissions.find(adj => adj.previousSubmission && adj.threadId);
-                  const hasAttachments = allAttachments.length > 0;
-                  const hasTrail = !!trailAdj;
-                  if (!hasAttachments && !hasTrail) return null;
-                  return (
-                    <div className="px-5 py-3 border-b border-border/20 space-y-3">
-                      {hasAttachments && (
-                        <div>
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <Paperclip className="h-3.5 w-3.5 text-muted-foreground/60" />
-                            <span className="text-xs font-medium text-muted-foreground">Attachments</span>
-                            <span className="text-[10px] text-muted-foreground/50">({allAttachments.length})</span>
-                          </div>
-                          <AttachmentsList attachments={allAttachments} />
-                        </div>
-                      )}
-                      {hasTrail && trailAdj && (
-                        <SubmissionTrail
-                          currentSubmission={{
-                            submissionId: `current-${trailAdj.threadId}`,
-                            threadId: trailAdj.threadId!,
-                            submittedAt: "Jan 24, 2026",
-                            submittedBy: selectedSubmission.workerName,
-                            status: (trailAdj.status as "pending" | "approved" | "rejected") || "pending",
-                            payload: {
-                              amount: trailAdj.amount || 0,
-                              currency: trailAdj.currency || currency,
-                              label: trailAdj.description || "",
-                              type: trailAdj.type,
-                            },
-                            attachments: trailAdj.attachments || [],
-                          }}
-                          previousSubmission={trailAdj.previousSubmission}
-                        />
-                      )}
-                    </div>
-                  );
-                })()}
+
 
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
