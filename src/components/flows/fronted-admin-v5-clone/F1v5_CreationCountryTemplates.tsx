@@ -222,17 +222,21 @@ const ManageTemplatesSheet: React.FC<{
           </div>
 
           {/* Contextual action below last slot */}
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-[11px] text-muted-foreground">
-              {attachedCount}/{entry.slots.length} templates attached
-              {!requiredMet && (
-                <span className="ml-1.5 text-destructive">· Agreement required</span>
-              )}
-            </span>
+          <div className="mt-1 rounded-lg border border-border/20 bg-muted/30 px-3.5 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center h-5 w-5 rounded-full bg-primary/10 text-primary">
+                <span className="text-[10px] font-semibold">{attachedCount}</span>
+              </div>
+              <span className="text-[11px] text-muted-foreground">
+                of {entry.slots.length} templates attached
+                {!requiredMet && (
+                  <span className="ml-1.5 text-destructive font-medium">· Agreement required</span>
+                )}
+              </span>
+            </div>
             <Button
               size="sm"
-              variant="outline"
-              className="h-7 text-xs"
+              className="h-7 text-xs px-4"
               onClick={() => onOpenChange(false)}
             >
               Done
