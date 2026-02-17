@@ -1187,18 +1187,18 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   return <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-3 px-3 sm:py-4 sm:px-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
-            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-hide min-w-0">
               {onBack && <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1 flex-shrink-0">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>}
               <CA3_PayrollStepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={onStepClick} pendingSubmissions={pendingSubmissions || dynamicPendingCount} />
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span>
-                    <Button size="sm" onClick={onContinue} disabled={!canContinue} className="h-8 sm:h-9 text-xs">
+                    <Button size="sm" onClick={onContinue} disabled={!canContinue} className="h-8 sm:h-9 text-xs whitespace-nowrap">
                       <span className="sm:hidden">Continue</span>
                       <span className="hidden sm:inline">Continue to Submit</span>
                     </Button>
