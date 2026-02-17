@@ -78,13 +78,30 @@ const createDefaultSlots = (): TemplateSlot[] =>
 
 const SlotRow: React.FC<{
   slot: TemplateSlot;
-  onUpload: (type: string) => void;
+  onUpload: (type: string, file: File) => void;
   onRemove: (type: string) => void;
 }> = ({ slot, onUpload, onRemove }) => {
   const hasFile = slot.status !== "empty";
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onUpload(slot.type, file);
+    }
+    // Reset so same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   return (
     <div className="flex items-center gap-3 py-2.5 px-3 rounded-md border border-border/30 bg-background/60">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.docx,.doc"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div className="flex items-center justify-center h-7 w-7 rounded bg-muted/40 border border-border/20 shrink-0">
         <FileText className="h-3.5 w-3.5 text-muted-foreground" />
       </div>
@@ -109,23 +126,20 @@ const SlotRow: React.FC<{
       </div>
       <div className="flex items-center gap-1 shrink-0">
         {hasFile ? (
-          <>
-            <Check className="h-3.5 w-3.5 text-emerald-500" />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-              onClick={() => onRemove(slot.type)}
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
-          </>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+            onClick={() => onRemove(slot.type)}
+          >
+            <Trash2 className="h-3 w-3" />
+          </Button>
         ) : (
           <Button
             variant="ghost"
             size="sm"
             className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
-            onClick={() => onUpload(slot.type)}
+            onClick={() => fileInputRef.current?.click()}
           >
             <Upload className="h-3 w-3 mr-1" />
             Upload
@@ -149,17 +163,17 @@ const ManageTemplatesSheet: React.FC<{
   const attachedCount = entry.slots.filter(s => s.status !== "empty").length;
   const requiredMet = entry.slots.filter(s => s.required).every(s => s.status !== "empty");
 
-  const handleUpload = (type: string) => {
-    // Simulate file upload
+  const handleUpload = (type: string, file: File) => {
     const slot = entry.slots.find(s => s.type === type);
     if (!slot) return;
+    const sizeKB = Math.round(file.size / 1024);
     const newSlots = entry.slots.map(s =>
       s.type === type
         ? {
             ...s,
             status: "uploaded" as const,
-            fileName: `${s.shortLabel.toLowerCase().replace(/\s+/g, "-")}-${entry.countryCode.toLowerCase()}.pdf`,
-            fileSize: `${Math.floor(Math.random() * 300 + 50)}KB`,
+            fileName: file.name,
+            fileSize: sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)}MB` : `${sizeKB}KB`,
           }
         : s
     );
