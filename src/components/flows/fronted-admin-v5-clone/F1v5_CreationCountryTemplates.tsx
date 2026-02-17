@@ -385,7 +385,7 @@ export const F1v5_CreationCountryTemplates: React.FC<Props> = ({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-6 w-6 p-0 text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="h-6 w-6 p-0 text-muted-foreground/40 hover:text-destructive transition-colors"
                         onClick={() => handleRemoveCountry(entry.countryCode)}
                       >
                         <X className="h-3 w-3" />
