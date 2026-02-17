@@ -157,7 +157,10 @@ export const SubmissionTrail: React.FC<SubmissionTrailProps> = ({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className={className}>
-      <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 -mx-3 rounded-md hover:bg-muted/30 transition-colors group cursor-pointer">
+      <CollapsibleTrigger
+        onClick={(e) => e.stopPropagation()}
+        className="flex items-center gap-2 w-full py-2 px-3 -mx-3 rounded-md hover:bg-muted/30 transition-colors group cursor-pointer"
+      >
         {isOpen ? (
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
         ) : (
