@@ -361,7 +361,7 @@ export const F1v5_CreationCountryTemplates: React.FC<Props> = ({
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium text-foreground">{entry.countryName}</span>
                         {attached > 0 ? (
-                          <Badge variant="secondary" className="h-4 px-1.5 text-[9px] border-0 bg-emerald-500/10 text-emerald-600">
+                          <Badge variant="secondary" className="h-4 px-1.5 text-[9px] border-0 bg-primary/10 text-primary">
                             {attached} template{attached !== 1 ? "s" : ""} attached
                           </Badge>
                         ) : (
