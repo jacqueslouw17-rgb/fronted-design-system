@@ -397,21 +397,7 @@ const AdjustmentRow = ({
                   <AttachmentsList attachments={attachments!} compact />
                 </div>
               )}
-              {/* Inline submission trail */}
-              {hasTrail && (
-                <SubmissionTrail
-                  currentSubmission={{
-                    submissionId: `current-inline`,
-                    threadId: "inline",
-                    submittedAt: "Jan 24, 2026",
-                    submittedBy: workerName || "Worker",
-                    status: "pending",
-                    payload: { amount, currency, label, type: "adjustment" },
-                    attachments: attachments || [],
-                  }}
-                  previousSubmission={previousSubmission}
-                />
-              )}
+              {/* Submission trail removed — post-MVP */}
               {/* Action buttons */}
               {!showRejectForm ? <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline" onClick={e => {
