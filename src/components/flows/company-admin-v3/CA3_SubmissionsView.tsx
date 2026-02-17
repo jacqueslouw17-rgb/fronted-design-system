@@ -1497,7 +1497,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                                 rejectionReason: reason
                               });
                               toast.info(`Rejected ${config.label.toLowerCase()}`);
-                            }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} />;
+                            }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />;
                           })}
                     {/* Admin-added expenses */}
                     {!showPendingOnly && workerAdminAdjustments.filter(a => a.type === 'expense').map(adj => <motion.div key={adj.id} initial={newlyAddedId === adj.id ? {
@@ -1573,7 +1573,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                               rejectionReason: reason
                             });
                             toast.info('Rejected overtime');
-                          }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} />;
+                          }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />;
                         })}
                     {/* Admin-added overtime */}
                     {!showPendingOnly && workerAdminAdjustments.filter(a => a.type === 'overtime').map(adj => <motion.div key={adj.id} initial={newlyAddedId === adj.id ? {
