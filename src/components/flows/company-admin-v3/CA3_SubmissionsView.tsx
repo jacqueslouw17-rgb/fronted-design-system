@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle, AlertTriangle, TrendingUp } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle, AlertTriangle, TrendingUp, Paperclip } from "lucide-react";
+import { AttachmentsList, AttachmentIndicator, type AttachmentItem } from "@/components/flows/shared/AttachmentsList";
+import { SubmissionTrail, type TrailSubmission } from "@/components/flows/shared/SubmissionTrail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -63,6 +65,12 @@ interface SubmittedAdjustment {
   days?: number;
   status?: AdjustmentItemStatus;
   rejectionReason?: string;
+  // Attachments
+  attachments?: AttachmentItem[];
+  attachmentsCount?: number;
+  // Resubmission trail
+  threadId?: string;
+  previousSubmission?: TrailSubmission;
 }
 
 // Leave request that falls within this pay period
@@ -1127,6 +1135,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             <span className="text-[11px] text-muted-foreground leading-tight">
               {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
+            {/* Attachment indicator */}
+            {(() => {
+              const totalAttachments = submission.submissions.reduce((sum, adj) => sum + (adj.attachmentsCount || 0), 0);
+              return totalAttachments > 0 ? <AttachmentIndicator count={totalAttachments} /> : null;
+            })()}
             {workerRejectedCount > 0 && workerPendingCount === 0 && <span className="text-[10px] text-destructive/80">
                 · 1 day to resubmit
               </span>}
@@ -1427,6 +1440,50 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       </div>
                     </div>}
                 </SheetHeader>
+
+                {/* Attachments & Submission Trail - shown before pay breakdown */}
+                {!isAddingAdjustment && (() => {
+                  // Collect all attachments from all adjustments for this worker
+                  const allAttachments = selectedSubmission.submissions.flatMap(adj => adj.attachments || []);
+                  // Find any adjustment with a previous submission (resubmission trail)
+                  const trailAdj = selectedSubmission.submissions.find(adj => adj.previousSubmission && adj.threadId);
+                  const hasAttachments = allAttachments.length > 0;
+                  const hasTrail = !!trailAdj;
+                  if (!hasAttachments && !hasTrail) return null;
+                  return (
+                    <div className="px-5 py-3 border-b border-border/20 space-y-3">
+                      {hasAttachments && (
+                        <div>
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <Paperclip className="h-3.5 w-3.5 text-muted-foreground/60" />
+                            <span className="text-xs font-medium text-muted-foreground">Attachments</span>
+                            <span className="text-[10px] text-muted-foreground/50">({allAttachments.length})</span>
+                          </div>
+                          <AttachmentsList attachments={allAttachments} />
+                        </div>
+                      )}
+                      {hasTrail && trailAdj && (
+                        <SubmissionTrail
+                          currentSubmission={{
+                            submissionId: `current-${trailAdj.threadId}`,
+                            threadId: trailAdj.threadId!,
+                            submittedAt: "Jan 24, 2026",
+                            submittedBy: selectedSubmission.workerName,
+                            status: (trailAdj.status as "pending" | "approved" | "rejected") || "pending",
+                            payload: {
+                              amount: trailAdj.amount || 0,
+                              currency: trailAdj.currency || currency,
+                              label: trailAdj.description || "",
+                              type: trailAdj.type,
+                            },
+                            attachments: trailAdj.attachments || [],
+                          }}
+                          previousSubmission={trailAdj.previousSubmission}
+                        />
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>

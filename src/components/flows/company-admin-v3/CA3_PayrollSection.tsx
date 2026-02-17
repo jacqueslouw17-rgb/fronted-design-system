@@ -27,7 +27,13 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "timesheet", hours: 160, description: "October 2024" },
-      { type: "expenses", amount: 245, currency: "EUR", description: "Travel expenses", status: "pending" },
+      { type: "expenses", amount: 245, currency: "EUR", description: "Travel expenses", status: "pending",
+        attachments: [
+          { id: "att-1", fileName: "flight_receipt.pdf", fileType: "application/pdf", fileSize: "1.2 MB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "David Martinez" },
+          { id: "att-2", fileName: "hotel_invoice.pdf", fileType: "application/pdf", fileSize: "840 KB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "David Martinez" },
+        ],
+        attachmentsCount: 2,
+      },
     ],
     status: "pending",
     totalImpact: 245,
@@ -51,7 +57,24 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Social Security", amount: -580, locked: true },
     ],
     submissions: [
-      { type: "bonus", amount: 500, currency: "EUR", description: "Q4 performance bonus", status: "pending" },
+      { type: "bonus", amount: 500, currency: "EUR", description: "Q4 performance bonus", status: "pending",
+        threadId: "thread-bonus-sophie",
+        previousSubmission: {
+          submissionId: "prev-sophie-1",
+          threadId: "thread-bonus-sophie",
+          versionNumber: 1,
+          submittedAt: "Jan 20, 2026",
+          submittedBy: "Sophie Laurent",
+          status: "rejected",
+          decision: { decidedAt: "Jan 22, 2026", decidedBy: "Admin", reason: "Missing supporting documentation for Q4 bonus claim" },
+          payload: { amount: 750, currency: "EUR", label: "Q4 performance bonus", type: "bonus" },
+          attachments: [],
+        },
+        attachments: [
+          { id: "att-3", fileName: "q4_review.pdf", fileType: "application/pdf", fileSize: "320 KB", url: "#", uploadedAt: "Jan 24, 2026", uploadedBy: "Sophie Laurent" },
+        ],
+        attachmentsCount: 1,
+      },
     ],
     status: "pending",
     totalImpact: 500,
@@ -106,7 +129,14 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "National Insurance", amount: -2600, locked: true },
     ],
     submissions: [
-      { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending" },
+      { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending",
+        attachments: [
+          { id: "att-4", fileName: "ikea_receipt.jpg", fileType: "image/jpeg", fileSize: "2.1 MB", url: "#", uploadedAt: "Jan 25, 2026", uploadedBy: "Alex Hansen" },
+          { id: "att-5", fileName: "monitor_invoice.pdf", fileType: "application/pdf", fileSize: "156 KB", url: "#", uploadedAt: "Jan 25, 2026", uploadedBy: "Alex Hansen" },
+          { id: "att-6", fileName: "desk_receipt.png", fileType: "image/png", fileSize: "1.8 MB", url: "#", uploadedAt: "Jan 25, 2026", uploadedBy: "Alex Hansen" },
+        ],
+        attachmentsCount: 3,
+      },
     ],
     // Pending unpaid leave (affects pay)
     pendingLeaves: [
