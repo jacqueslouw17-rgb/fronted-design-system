@@ -294,7 +294,7 @@ const AdjustmentRow = ({
     return <div className="flex items-center justify-between py-2 -mx-3 px-3 rounded group" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
-          <span className="text-sm text-muted-foreground">{label}</span>
+          <span className="text-sm text-muted-foreground truncate">{label}</span>
         </div>
         <div className="flex items-center gap-2">
           {!isFinalized && onUndo && isHovered && <button onClick={e => {
@@ -320,7 +320,7 @@ const AdjustmentRow = ({
       >
         <div className="flex items-center justify-between py-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="text-sm text-muted-foreground/70 line-through">{label}</span>
+            <span className="text-sm text-muted-foreground/70 line-through truncate">{label}</span>
           </div>
           <div className="flex items-center gap-2">
             {!isFinalized && onUndo && (
@@ -358,7 +358,7 @@ const AdjustmentRow = ({
       toggleExpand();
     }}>
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm text-foreground">{label}</span>
+          <span className="text-sm text-foreground truncate">{label}</span>
           <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
             pending
           </span>
