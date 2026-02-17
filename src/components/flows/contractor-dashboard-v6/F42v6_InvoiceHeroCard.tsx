@@ -19,10 +19,10 @@ export const F42v6_InvoiceHeroCard = ({
   
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/40 shadow-sm">
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Last Invoice Tile - with light purple tint */}
-          <div className="bg-primary/[0.06] rounded-xl p-5 border border-primary/20">
+          <div className="bg-primary/[0.06] rounded-xl p-4 sm:p-5 border border-primary/20">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2 text-primary/80">
                 <FileText className="h-4 w-4" />
@@ -37,7 +37,7 @@ export const F42v6_InvoiceHeroCard = ({
               </button>
             </div>
             <div className="space-y-1">
-              <h2 className="text-3xl font-semibold text-foreground tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
                 Dec 15, 2025
               </h2>
               <p className="text-sm text-muted-foreground">
@@ -47,13 +47,13 @@ export const F42v6_InvoiceHeroCard = ({
           </div>
 
           {/* Next Invoice Tile */}
-          <div className="bg-background rounded-xl p-5 border border-border/30">
+          <div className="bg-background rounded-xl p-4 sm:p-5 border border-border/30">
             <div className="flex items-center gap-2 text-muted-foreground mb-3">
               <Calendar className="h-4 w-4" />
               <span className="text-sm font-medium">Next invoice</span>
             </div>
             <div className="space-y-1">
-              <h2 className="text-3xl font-semibold text-foreground tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
                 Jan 15, 2025
               </h2>
               <p className="text-sm text-muted-foreground">

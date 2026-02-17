@@ -645,50 +645,50 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           </div>
 
           {/* Metrics Grid */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-6">
             {/* Gross Pay */}
-            <div className="bg-primary/[0.04] rounded-xl p-4">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                <DollarSign className="h-4 w-4 text-primary" />
-                <span className="text-sm">Gross Pay</span>
+            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span className="text-xs sm:text-sm">Gross Pay</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
-              <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
+              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
             </div>
 
             {/* Total Adjustments */}
-            <div className="bg-primary/[0.04] rounded-xl p-4">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                <Receipt className="h-4 w-4 text-primary" />
-                <span className="text-sm">Adjustments</span>
+            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span className="text-xs sm:text-sm">Adjustments</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
-              <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
+              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Bonuses, overtime & expenses</p>
             </div>
 
             {/* Fronted Fees */}
-            <div className="bg-primary/[0.04] rounded-xl p-4">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                <Building2 className="h-4 w-4 text-primary" />
-                <span className="text-sm">Fronted Fees</span>
+            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span className="text-xs sm:text-sm">Fronted Fees</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
-              <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Transaction + Service</p>
             </div>
 
             {/* Total Cost */}
-            <div className="bg-primary/[0.04] rounded-xl p-4">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                <span className="text-sm">Total Cost</span>
+            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span className="text-xs sm:text-sm">Total Cost</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
-              <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
+              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Pay + All Fees</p>
             </div>
           </div>
 
           {/* Footer Stats */}
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
+          <div className="flex items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-muted-foreground py-3 border-t border-border/30 flex-wrap">
             <span>Employees: <strong className="text-foreground">{displayMetrics.employeeCount}</strong></span>
             <span className="text-border">·</span>
             <span>Contractors: <strong className="text-foreground">{displayMetrics.contractorCount}</strong></span>
