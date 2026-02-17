@@ -313,8 +313,8 @@ export const F1v5_CreationCountryTemplates: React.FC<Props> = ({
                 type="button"
                 className="w-full rounded-md border border-dashed border-border/40 bg-muted/10 hover:bg-muted/20 hover:border-primary/30 py-5 flex flex-col items-center gap-2 transition-colors cursor-pointer group"
               >
-                <div className="h-8 w-8 rounded-full border border-dashed border-muted-foreground/30 group-hover:border-primary/50 flex items-center justify-center transition-colors">
-                  <Plus className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary/70 transition-colors" />
+                <div className="h-8 w-8 rounded-full border border-dashed border-primary/30 bg-primary/[0.04] group-hover:border-primary/50 group-hover:bg-primary/[0.08] flex items-center justify-center transition-colors">
+                  <Plus className="h-4 w-4 text-primary/50 group-hover:text-primary transition-colors" />
                 </div>
                 <p className="text-xs text-muted-foreground/60 group-hover:text-muted-foreground text-center max-w-[260px] transition-colors">
                   Add a country to attach compliant contract templates.
