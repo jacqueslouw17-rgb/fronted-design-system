@@ -611,9 +611,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     
     return (
       <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-visible">
-        <CardContent className="py-6 px-6 overflow-visible">
+        <CardContent className="py-4 px-4 sm:py-6 sm:px-6 overflow-visible">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6 relative z-[101]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6 relative z-[101]">
             <div className="flex items-center gap-3">
               <CA3_PeriodDropdown 
                 periods={periods}

@@ -56,15 +56,15 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
 
   return (
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-      <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
-        <div className="flex items-center justify-between">
+      <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-3 px-3 sm:py-4 sm:px-5">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5">
             <h2 className="text-base font-medium text-foreground">{payPeriod}</h2>
             <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", statusInfo.className)}>
               {statusInfo.label}
             </Badge>
           </div>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5" />
               <span className="font-medium text-foreground">{employeeCount}</span>
