@@ -1472,7 +1472,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             if (!config) return null;
                             const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                             const itemId = `adj-${originalIdx}`;
-                            return <AdjustmentRow key={itemId} label={config.label} amount={adj.amount || 0} currency={adj.currency || currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
+                            return <AdjustmentRow key={itemId} label={adj.description || config.label} amount={adj.amount || 0} currency={adj.currency || currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
                               updateAdjustmentStatus(selectedSubmission.id, originalIdx, {
                                 status: 'approved'
                               });
