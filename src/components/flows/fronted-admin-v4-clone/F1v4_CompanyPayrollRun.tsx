@@ -152,8 +152,31 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { label: "Social Security", amount: -14000, type: "Deduction", locked: true },
     ],
     submissions: [
-      { type: "expenses", amount: 8500, description: "Travel reimbursement", status: "pending" },
-      { type: "bonus", amount: 6500, description: "Q4 Performance Bonus", status: "pending" },
+      { type: "expenses", amount: 8500, description: "Travel reimbursement", status: "pending",
+        attachments: [
+          { id: "att-v4-1", fileName: "travel_receipt.pdf", fileType: "application/pdf", fileSize: "1.4 MB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "Maria Santos" },
+          { id: "att-v4-2", fileName: "taxi_receipts.jpg", fileType: "image/jpeg", fileSize: "2.3 MB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "Maria Santos" },
+        ],
+        attachmentsCount: 2,
+      },
+      { type: "bonus", amount: 6500, description: "Q4 Performance Bonus", status: "pending",
+        threadId: "thread-bonus-maria-v4",
+        previousSubmission: {
+          submissionId: "prev-maria-v4-1",
+          threadId: "thread-bonus-maria-v4",
+          versionNumber: 1,
+          submittedAt: "Jan 18, 2026",
+          submittedBy: "Maria Santos",
+          status: "rejected",
+          decision: { decidedAt: "Jan 20, 2026", decidedBy: "Admin", reason: "Amount exceeds pre-approved bonus cap. Please resubmit with manager approval." },
+          payload: { amount: 8000, currency: "PHP", label: "Q4 Performance Bonus", type: "bonus" },
+          attachments: [],
+        },
+        attachments: [
+          { id: "att-v4-3", fileName: "manager_approval.pdf", fileType: "application/pdf", fileSize: "250 KB", url: "#", uploadedAt: "Jan 22, 2026", uploadedBy: "Maria Santos" },
+        ],
+        attachmentsCount: 1,
+      },
     ],
     pendingLeaves: [],
     flags: [
@@ -224,7 +247,12 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { label: "Base Contract Fee", amount: 72000, type: "Earnings" },
     ],
     submissions: [
-      { type: "expenses", amount: 2800, description: "Equipment purchase", status: "pending" },
+      { type: "expenses", amount: 2800, description: "Equipment purchase", status: "pending",
+        attachments: [
+          { id: "att-v4-4", fileName: "equipment_invoice.pdf", fileType: "application/pdf", fileSize: "890 KB", url: "#", uploadedAt: "Jan 27, 2026", uploadedBy: "Emma Wilson" },
+        ],
+        attachmentsCount: 1,
+      },
       { type: "timesheet", hours: 160, description: "January 2026", status: "pending" },
     ],
     pendingLeaves: [],
