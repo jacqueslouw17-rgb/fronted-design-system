@@ -295,11 +295,11 @@ export const F42v6_UpcomingInvoiceCard = () => {
 
   return <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-        <CardContent className="px-6 py-6 space-y-6">
+        <CardContent className="px-4 sm:px-6 py-4 sm:py-6 space-y-6">
           {/* Key Numbers Row - Always visible */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Invoice Total Tile - Static historical amount */}
-            <div onClick={() => setBreakdownDrawerOpen(true)} className="p-5 rounded-xl border cursor-pointer transition-all duration-200 bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40 hover:from-primary/[0.12] hover:to-secondary/[0.08] hover:border-border/60">
+            <div onClick={() => setBreakdownDrawerOpen(true)} className="p-4 sm:p-5 rounded-xl border cursor-pointer transition-all duration-200 bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40 hover:from-primary/[0.12] hover:to-secondary/[0.08] hover:border-border/60">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-center gap-2">
                   <Wallet className="h-4 w-4 text-muted-foreground" />
@@ -317,7 +317,7 @@ export const F42v6_UpcomingInvoiceCard = () => {
             </div>
 
             {/* Paid Date Tile */}
-            <div onClick={() => setInvoiceHistoryOpen(true)} className="p-5 rounded-xl bg-muted/30 border border-border/40 cursor-pointer transition-all duration-200 hover:bg-muted/70 hover:border-border/60">
+            <div onClick={() => setInvoiceHistoryOpen(true)} className="p-4 sm:p-5 rounded-xl bg-muted/30 border border-border/40 cursor-pointer transition-all duration-200 hover:bg-muted/70 hover:border-border/60">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />

@@ -200,10 +200,10 @@ export const F42v6_AdjustmentsSection = ({ onRequestAdjustment }: F42v6_Adjustme
   return (
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-        <CardContent className="p-5">
+        <CardContent className="p-4 sm:p-5">
           {visibleAdjustments.length === 0 ? (
             /* Empty state - centered layout with gradient background */
-            <div className="flex flex-col items-center text-center py-8 px-4 -m-5 rounded-lg bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.06]">
+            <div className="flex flex-col items-center text-center py-8 px-4 -m-4 sm:-m-5 rounded-lg bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.06]">
               <div className="w-12 h-12 rounded-full bg-background/80 border border-primary/20 flex items-center justify-center mb-4 shadow-sm">
                 <Sparkles className="h-5 w-5 text-primary" />
               </div>
