@@ -258,7 +258,7 @@ const AdjustmentRow = ({
           <span className="text-sm text-foreground">{label}</span>
           <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
           {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
-          {!expanded && hasTrail && <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 font-medium bg-blue-500/10 text-blue-600 border-blue-500/20">resubmitted</Badge>}
+          
         </div>
         <span className="text-sm tabular-nums font-mono text-foreground ml-3">+{formatAmount(amount, currency)}</span>
       </div>
