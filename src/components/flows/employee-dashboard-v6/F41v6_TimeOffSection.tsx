@@ -265,7 +265,7 @@ export const F41v6_TimeOffSection = ({ onRequestTimeOff }: F41v6_TimeOffSectionP
   return (
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-        <CardContent className="p-5">
+        <CardContent className="p-4 sm:p-5">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h2 className="text-lg font-semibold text-foreground mb-1">Leave Requests</h2>
