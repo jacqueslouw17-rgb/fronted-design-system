@@ -613,33 +613,34 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-visible">
         <CardContent className="py-4 px-4 sm:py-6 sm:px-6 overflow-visible">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6 relative z-[101]">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6 relative z-[101]">
+            <div className="flex items-center gap-3 min-w-0">
               <CA3_PeriodDropdown 
                 periods={periods}
                 selectedPeriodId={selectedPeriodId}
                 onPeriodChange={handlePeriodChange}
               />
               {isViewingPrevious ? (
-                <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
+                <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20 flex-shrink-0">
                   <CheckCircle2 className="h-3 w-3 mr-1" />
                   Paid
                 </Badge>
               ) : isSubmitted ? (
-                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 flex-shrink-0">
                   <Clock className="h-3 w-3 mr-1" />
                   Processing
                 </Badge>
               ) : (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 flex-shrink-0">
                   <Clock className="h-3 w-3 mr-1" />
                   In review
                 </Badge>
               )}
             </div>
             {!isSubmitted && !isViewingPrevious && (
-              <Button onClick={handleEnterWorkflow} size="sm">
-                Continue to submissions
+              <Button onClick={handleEnterWorkflow} size="sm" className="flex-shrink-0 whitespace-nowrap">
+                <span className="sm:hidden">Continue</span>
+                <span className="hidden sm:inline">Continue to submissions</span>
               </Button>
             )}
           </div>
