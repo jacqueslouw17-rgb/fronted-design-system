@@ -311,56 +311,40 @@ const AdjustmentRow = ({
       </div>;
   }
 
-  // Rejected state - show with Undo option (unless finalized) and hover-reveal reason
+  // Rejected state
   if (isRejected) {
-    return <div className="mb-1.5" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-        <div className="rounded-md overflow-hidden border border-destructive/40 bg-destructive/5">
-          {/* Main row */}
-          <div className="flex items-center justify-between py-2.5 px-3">
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-              <span className="text-sm text-muted-foreground line-through">{label}</span>
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-destructive/10 text-destructive border-destructive/40">
-                Rejected
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              {!isFinalized && onUndo && isHovered && <button onClick={e => {
-              e.stopPropagation();
-              onUndo();
-            }} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
-                  <Undo2 className="h-3 w-3" />
-                  Undo
-                </button>}
-              <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
-                +{formatAmount(amount, currency)}
-              </span>
-            </div>
+    return <div
+        className="-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors hover:bg-muted/30"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="flex items-center justify-between py-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <span className="text-sm text-muted-foreground/70 line-through">{label}</span>
           </div>
-          
-          {/* Hover-to-reveal rejection reason */}
-          <AnimatePresence>
-            {isHovered && rejectionReason && <motion.div initial={{
-            height: 0,
-            opacity: 0
-          }} animate={{
-            height: "auto",
-            opacity: 1
-          }} exit={{
-            height: 0,
-            opacity: 0
-          }} transition={{
-            duration: 0.15,
-            ease: "easeOut"
-          }} className="overflow-hidden">
-                <div className="px-3 py-2 bg-destructive/10 border-t border-destructive/30">
-                  <p className="text-xs text-destructive/90">
-                    <span className="font-medium">Reason:</span> {rejectionReason}
-                  </p>
-                </div>
-              </motion.div>}
-          </AnimatePresence>
+          <div className="flex items-center gap-2">
+            {!isFinalized && onUndo && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onUndo(); }}
+                className={cn(
+                  "text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-all duration-150",
+                  isHovered ? "opacity-100" : "opacity-0"
+                )}
+              >
+                <Undo2 className="h-2.5 w-2.5" />
+                Undo
+              </button>
+            )}
+            <span className="text-sm tabular-nums font-mono text-muted-foreground/40 line-through">+{formatAmount(amount, currency)}</span>
+          </div>
         </div>
+        {rejectionReason && (
+          <div className="pb-2 -mt-0.5">
+            <p className="text-[10px] text-destructive/70 leading-relaxed">
+              <span className="font-medium">Rejected:</span> {rejectionReason}
+            </p>
+          </div>
+        )}
       </div>;
   }
 
@@ -614,52 +598,40 @@ const LeaveRow = ({
 
   // Rejected state - show with Undo option (unless finalized) and hover-reveal reason
   if (isRejected) {
-    return <div className="-mx-2 mb-2" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-        <div className="rounded-lg overflow-hidden border border-destructive/30 bg-destructive/5">
-          <div className="flex items-center justify-between py-2.5 px-3">
-            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-                <span className="text-sm text-muted-foreground line-through">{config.label}</span>
-                <Badge variant="outline" className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 pointer-events-none">
-                  Rejected
-                </Badge>
-              </div>
-              <span className="text-xs text-muted-foreground/50 line-through pl-5">
-                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
-              </span>
-            </div>
-            {!isFinalized && onUndo && isHovered && <button onClick={e => {
-            e.stopPropagation();
-            onUndo();
-          }} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors shrink-0">
-                <Undo2 className="h-3 w-3" />
-                Undo
-              </button>}
+    return <div
+        className="-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors hover:bg-muted/30"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="flex items-center justify-between py-2">
+          <div className="flex flex-col gap-0 min-w-0 flex-1">
+            <span className="text-sm text-muted-foreground/70 line-through">{config.label}</span>
+            <span className="text-[10px] text-muted-foreground/40 line-through pl-0">
+              {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+            </span>
           </div>
-          
-          <AnimatePresence>
-            {isHovered && leave.rejectionReason && <motion.div initial={{
-            height: 0,
-            opacity: 0
-          }} animate={{
-            height: "auto",
-            opacity: 1
-          }} exit={{
-            height: 0,
-            opacity: 0
-          }} transition={{
-            duration: 0.15,
-            ease: "easeOut"
-          }} className="overflow-hidden">
-                <div className="px-3 py-2 bg-destructive/10 border-t border-destructive/20">
-                  <p className="text-xs text-destructive/80">
-                    <span className="font-medium">Reason:</span> {leave.rejectionReason}
-                  </p>
-                </div>
-              </motion.div>}
-          </AnimatePresence>
+          <div className="flex items-center gap-2">
+            {!isFinalized && onUndo && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onUndo(); }}
+                className={cn(
+                  "text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-all duration-150",
+                  isHovered ? "opacity-100" : "opacity-0"
+                )}
+              >
+                <Undo2 className="h-2.5 w-2.5" />
+                Undo
+              </button>
+            )}
+          </div>
         </div>
+        {leave.rejectionReason && (
+          <div className="pb-2 -mt-0.5">
+            <p className="text-[10px] text-destructive/70 leading-relaxed">
+              <span className="font-medium">Rejected:</span> {leave.rejectionReason}
+            </p>
+          </div>
+        )}
       </div>;
   }
 
