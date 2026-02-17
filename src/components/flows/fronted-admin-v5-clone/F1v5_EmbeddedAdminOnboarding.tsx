@@ -21,7 +21,7 @@ import { F1v5_CountryTemplatesSection } from "./F1v5_CountryTemplatesSection";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
-import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
+// Step2OrgProfileSimplified no longer used in v5 creation — replaced by F1v5_Step2OrgProfile
 import F1v5_Step2OrgProfile from "./F1v5_Step2OrgProfile";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
@@ -167,22 +167,15 @@ const F1v4_EmbeddedAdminOnboarding = ({
 
     switch (stepId) {
       case "org_profile":
-        return isEditMode ? (
+        return (
           <F1v5_Step2OrgProfile 
             {...stepProps} 
-            formData={{ ...initialData, ...stepProps.formData }}
+            formData={isEditMode ? { ...initialData, ...stepProps.formData } : stepProps.formData}
             isEditMode={isEditMode}
             hasSignedContract={hasSignedContract}
             hasCandidates={hasCandidates}
             companyId={companyId}
             companyName={companyNameProp || initialData?.companyName}
-          />
-        ) : (
-          <Step2OrgProfileSimplified 
-            {...stepProps} 
-            isEditMode={false}
-            hasSignedContract={hasSignedContract}
-            hasCandidates={hasCandidates}
           />
         );
       case "localization_country_blocks":
