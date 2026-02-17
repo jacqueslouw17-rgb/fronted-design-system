@@ -6,11 +6,10 @@
  */
 
 import React, { useState, useMemo, useCallback } from "react";
-import { Globe, ChevronRight, ChevronsUpDown } from "lucide-react";
+import { Globe, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { F1v5_CountryTemplateDrawer } from "./F1v5_CountryTemplateDrawer";
 
 // ── Types ──
@@ -378,7 +377,7 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
     }));
   }, []);
 
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  
 
   const content = (
     <div className="space-y-1.5">
@@ -390,58 +389,41 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
           <p className="text-xs text-muted-foreground">No templates yet</p>
         </div>
       ) : (
-        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-muted-foreground hover:bg-muted/20 transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Globe className="h-3.5 w-3.5" />
-                Select country to edit template…
-              </span>
-              <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start" side="bottom" sideOffset={4}>
-            <Command>
-              <CommandInput placeholder="Search countries…" />
-              <CommandList>
-                <CommandEmpty>No countries found.</CommandEmpty>
-                <CommandGroup>
-                  {templates.map((tpl) => {
-                    const editedCount = tpl.documents.filter(d => d.content !== d.defaultContent).length;
-                    return (
-                      <CommandItem
-                        key={tpl.id}
-                        value={`${tpl.countryName} ${tpl.countryCode}`}
-                        onSelect={() => {
-                          setSelectedTemplateId(tpl.id);
-                          setPopoverOpen(false);
-                        }}
-                        className="flex items-center gap-3 px-3 py-2.5 cursor-pointer"
-                      >
-                        <span className="text-base flex-shrink-0">{tpl.flag}</span>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-foreground">{tpl.countryName}</span>
-                            <span className="text-[11px] text-muted-foreground">{tpl.documents.length} docs · {tpl.workerCount} {tpl.workerCount === 1 ? 'worker' : 'workers'}</span>
-                            {editedCount > 0 && (
-                              <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
-                                {editedCount} edited
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <div className="space-y-1.5">
+          {templates.map((tpl) => {
+            const editedCount = tpl.documents.filter(d => d.content !== d.defaultContent).length;
+            return (
+              <div
+                key={tpl.id}
+                className="flex items-center gap-2.5 rounded-md border border-border/30 bg-background/60 px-3 py-2"
+              >
+                <span className="text-base shrink-0">{tpl.flag}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-foreground">{tpl.countryName}</span>
+                    <span className="text-[10px] text-muted-foreground/50">
+                      {tpl.documents.length} docs · {tpl.workerCount} {tpl.workerCount === 1 ? "worker" : "workers"}
+                    </span>
+                    {editedCount > 0 && (
+                      <Badge variant="secondary" className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-0">
+                        {editedCount} edited
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-[11px] text-muted-foreground hover:text-foreground shrink-0"
+                  onClick={() => setSelectedTemplateId(tpl.id)}
+                >
+                  Manage
+                  <ChevronRight className="h-3 w-3 ml-0.5" />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
