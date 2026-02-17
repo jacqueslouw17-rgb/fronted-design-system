@@ -135,7 +135,7 @@ const WorkerOnboardingV2 = () => {
         </div>
 
         <div 
-          className="flex-shrink-0 flex flex-col min-h-screen p-8 pb-32 space-y-8 relative z-10 mx-auto onboarding-scroll-container"
+          className="flex-shrink-0 flex flex-col min-h-screen p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 sm:space-y-8 relative z-10 mx-auto onboarding-scroll-container"
           style={{ width: '100%', maxWidth: '800px' }}
         >
           <AgentHeader

@@ -60,7 +60,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
 
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 sm:p-6">
       <div className="space-y-2">
         <h3 className="text-lg font-semibold">Work Setup & Agreements</h3>
         <p className="text-sm text-muted-foreground">

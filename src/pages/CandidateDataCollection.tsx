@@ -168,7 +168,7 @@ const CandidateDataCollection: React.FC = () => {
               </div>
 
               {/* Single Step Form */}
-              <div className="space-y-6 bg-card rounded-lg border border-border p-6">
+              <div className="space-y-6 bg-card rounded-lg border border-border p-4 sm:p-6">
                 {/* Prefilled fields */}
                 <div className="space-y-2">
                   <Label>Full Name</Label>
@@ -362,12 +362,12 @@ const CandidateDataCollection: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleCancel}
-                  className="flex-1"
+                  className="flex-1 order-3 sm:order-1"
                 >
                   Cancel
                 </Button>
@@ -375,7 +375,7 @@ const CandidateDataCollection: React.FC = () => {
                   type="button"
                   variant="secondary"
                   onClick={handleSaveDraft}
-                  className="flex-1"
+                  className="flex-1 order-2"
                 >
                   Save as Draft
                 </Button>
@@ -384,7 +384,7 @@ const CandidateDataCollection: React.FC = () => {
                   variant="default"
                   onClick={handleSendForm}
                   disabled={!isFormValid()}
-                  className="flex-1"
+                  className="flex-1 order-1 sm:order-3"
                 >
                   Send Form
                 </Button>
