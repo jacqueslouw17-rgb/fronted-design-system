@@ -220,11 +220,9 @@ const ManageTemplatesSheet: React.FC<{
               />
             ))}
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-border/30 flex-shrink-0">
-          <div className="flex items-center justify-between">
+          {/* Contextual action below last slot */}
+          <div className="flex items-center justify-between pt-2">
             <span className="text-[11px] text-muted-foreground">
               {attachedCount}/{entry.slots.length} templates attached
               {!requiredMet && (
