@@ -161,7 +161,6 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
         attachmentsCount: 2,
       },
       { type: "bonus", amount: 6500, description: "Q4 Performance Bonus", status: "pending",
-        tags: ["Q4 review"],
         threadId: "thread-bonus-maria",
         previousSubmission: {
           submissionId: "prev-maria-1",

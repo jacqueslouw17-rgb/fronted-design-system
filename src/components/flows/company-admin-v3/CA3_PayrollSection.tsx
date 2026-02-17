@@ -59,7 +59,6 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "bonus", amount: 500, currency: "EUR", description: "Q4 performance bonus", status: "pending",
-        tags: ["Q4 review", "Manager approved"],
         threadId: "thread-bonus-sophie",
         previousSubmission: {
           submissionId: "prev-sophie-1",
