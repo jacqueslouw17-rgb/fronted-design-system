@@ -2,7 +2,7 @@
  * Flow 1 v5 — Organization Profile Step (v5-specific clone)
  * 
  * Clone of Step2OrgProfileSimplified with Country Templates embedded
- * inside the form card, below HQ Country. Only shown in edit mode.
+ * inside the form card. Shown in both create and edit modes.
  */
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { F1v5_CountryTemplatesSection } from "./F1v5_CountryTemplatesSection";
+import { F1v5_CreationCountryTemplates, type CreationCountryEntry } from "./F1v5_CreationCountryTemplates";
 
 interface F1v5_Step2Props {
   formData: Record<string, any>;
@@ -54,6 +55,9 @@ const F1v5_Step2OrgProfile = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Creation-mode country templates
+  const [creationCountries, setCreationCountries] = useState<CreationCountryEntry[]>([]);
+
   useEffect(() => {
     if (formData.companyName && formData.companyName !== data.companyName) {
       setData({
@@ -74,6 +78,22 @@ const F1v5_Step2OrgProfile = ({
       newErrors.adminEmail = "Invalid email format";
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
+
+    // Creation mode: validate country templates
+    if (!isEditMode) {
+      if (creationCountries.length === 0) {
+        newErrors.countryTemplates = "At least one country with templates is required";
+      } else {
+        // Check required slots per country
+        const missingRequired = creationCountries.filter(c =>
+          c.slots.some(s => s.required && s.status === "empty")
+        );
+        if (missingRequired.length > 0) {
+          newErrors.countryTemplates = `Required templates missing for: ${missingRequired.map(c => c.countryName).join(", ")}`;
+        }
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -85,7 +105,13 @@ const F1v5_Step2OrgProfile = ({
     }
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 800));
-    onComplete("org_profile", data);
+
+    const submitData = {
+      ...data,
+      ...(!isEditMode && { countryTemplates: creationCountries }),
+    };
+
+    onComplete("org_profile", submitData);
     setIsSubmitting(false);
   };
 
@@ -100,7 +126,15 @@ const F1v5_Step2OrgProfile = ({
     data.hqCountry !== originalData.hqCountry
   ) : true;
 
-  const isFormValid = data.companyName.trim().length > 0 && data.adminName.trim().length > 0 && data.adminEmail.trim().length > 0 && data.hqCountry.trim().length > 0 && hasChanges;
+  const isFormValid = data.companyName.trim().length > 0 &&
+    data.adminName.trim().length > 0 &&
+    data.adminEmail.trim().length > 0 &&
+    data.hqCountry.trim().length > 0 &&
+    hasChanges &&
+    (isEditMode || (
+      creationCountries.length > 0 &&
+      creationCountries.every(c => c.slots.filter(s => s.required).every(s => s.status !== "empty"))
+    ));
 
   const resolvedCompanyName = companyNameProp || data.companyName || "Company";
 
@@ -177,7 +211,16 @@ const F1v5_Step2OrgProfile = ({
             {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
           </div>
 
-          {/* Country templates — embedded inside card, below HQ Country, edit mode only */}
+          {/* Country templates — creation mode: multi-select + manage */}
+          {!isEditMode && (
+            <F1v5_CreationCountryTemplates
+              selectedCountries={creationCountries}
+              onCountriesChange={setCreationCountries}
+              error={errors.countryTemplates}
+            />
+          )}
+
+          {/* Country templates — edit mode: existing editor */}
           {isEditMode && companyId && (
             <F1v5_CountryTemplatesSection
               companyId={companyId}
