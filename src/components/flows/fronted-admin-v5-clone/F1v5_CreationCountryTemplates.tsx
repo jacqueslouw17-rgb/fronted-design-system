@@ -318,7 +318,7 @@ export const F1v5_CreationCountryTemplates: React.FC<Props> = ({
                   <Plus className="h-4 w-4 text-primary/50 group-hover:text-primary transition-colors" />
                 </div>
                 <p className="text-xs text-muted-foreground/60 group-hover:text-muted-foreground text-center max-w-[260px] transition-colors">
-                  Add a country to attach compliant contract templates.
+                  Add a country to attach contract templates.
                 </p>
               </button>
             </PopoverTrigger>
