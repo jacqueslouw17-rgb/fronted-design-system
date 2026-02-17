@@ -188,16 +188,18 @@ const AdjustmentRow = ({
   if (status === 'approved') {
     return (
       <div
-        className="flex items-center justify-between py-2 -mx-3 px-3 rounded group"
+        className="flex items-start justify-between py-2 -mx-3 px-3 rounded group"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}>
 
-        <div className="flex items-center gap-2 min-w-0">
-          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
-          <span className="text-sm text-muted-foreground truncate">{label}</span>
-          {tags && tags.length > 0 && <TagChips tags={tags} max={2} />}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
+            <span className="text-sm text-muted-foreground truncate">{label}</span>
+          </div>
+          {tags && tags.length > 0 && <div className="ml-5.5 mt-0.5"><TagChips tags={tags} max={2} /></div>}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0 ml-3">
           {!isFinalized && onUndo && isHovered &&
           <button
             onClick={(e) => {e.stopPropagation();onUndo();}}
@@ -257,15 +259,16 @@ const AdjustmentRow = ({
   const hasTrail = !!previousSubmission;
   return (
     <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
-      <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm text-foreground truncate">{label}</span>
-          {tags && tags.length > 0 && <TagChips tags={tags} max={2} />}
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
-          {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
-          
+      <div className="flex items-start justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-foreground truncate">{label}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
+            {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
+          </div>
+          {tags && tags.length > 0 && <div className="mt-0.5"><TagChips tags={tags} max={2} /></div>}
         </div>
-        <span className="text-sm tabular-nums font-mono text-foreground ml-3">+{formatAmount(amount, currency)}</span>
+        <span className="text-sm tabular-nums font-mono text-foreground ml-3 shrink-0">+{formatAmount(amount, currency)}</span>
       </div>
       <AnimatePresence>
         {expanded &&
