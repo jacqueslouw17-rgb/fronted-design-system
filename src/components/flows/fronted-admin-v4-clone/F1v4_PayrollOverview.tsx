@@ -127,10 +127,10 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
   }, {} as Record<string, number>);
 
   return (
-    <div className="max-w-6xl mx-auto p-8 pb-32 space-y-8">
+    <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-8">
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm">
           <p className="text-xs text-muted-foreground mb-1">Total Companies</p>
           <p className="text-2xl font-semibold text-foreground">{companies.length}</p>

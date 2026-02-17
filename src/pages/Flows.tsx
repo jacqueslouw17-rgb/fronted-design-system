@@ -320,7 +320,7 @@ const Flows = () => {
               Back
             </Button>
           </Link>
-          <h1 className="text-4xl font-bold mb-2">Flows</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold mb-2">Flows</h1>
           <p className="text-muted-foreground">
             End-to-end workflows showing how patterns compose into complete user journeys
           </p>

@@ -730,7 +730,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Landing view - show summary card, and tracking view for historical periods
   if (!hasEnteredWorkflow) {
     return (
-      <div className="max-w-6xl mx-auto p-8 pb-32 space-y-5">
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-5">
         {renderSummaryCard()}
         {isViewingPrevious && selectedHistoricalPayroll && (
           <F1v4_HistoricalTrackingView
@@ -744,7 +744,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
 
   // Workflow view
   return (
-    <div className="max-w-6xl mx-auto p-8 pb-32 space-y-5">
+    <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-5">
       <motion.div
         key={currentStep}
         initial={{ opacity: 0, y: 10 }}
