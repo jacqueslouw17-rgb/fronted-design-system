@@ -195,21 +195,6 @@ const ManageTemplatesSheet: React.FC<{
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-          {/* Quick action: use defaults */}
-          <button
-            type="button"
-            onClick={handleUseDefaults}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md border border-dashed border-primary/30 bg-primary/[0.03] hover:bg-primary/[0.06] transition-colors text-left group"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-primary/60 group-hover:text-primary shrink-0" />
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-primary/80 group-hover:text-primary">
-                Use default templates for {entry.countryName}
-              </p>
-              <p className="text-[10px] text-muted-foreground">Pre-fills all template slots with Fronted defaults</p>
-            </div>
-          </button>
-
           {/* Template slots */}
           <div className="space-y-1.5">
             {entry.slots.map(slot => (
