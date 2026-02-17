@@ -127,7 +127,7 @@ const CandidateDataCollection: React.FC = () => {
         />
 
         <main className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
-          <div className="max-w-4xl mx-auto p-8 pb-32">
+          <div className="max-w-4xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

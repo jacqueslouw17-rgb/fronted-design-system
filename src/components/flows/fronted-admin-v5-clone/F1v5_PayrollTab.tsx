@@ -104,7 +104,7 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
 
   if (!activeCompany) {
     return (
-      <div className="max-w-6xl mx-auto p-8 text-center text-muted-foreground">
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 text-center text-muted-foreground">
         No companies available
       </div>
     );

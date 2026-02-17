@@ -156,7 +156,7 @@ const F42v6_ContractorDashboardPage = () => {
                   }} />
                 </div>
 
-                <div className="max-w-5xl mx-auto p-8 pb-32 space-y-6 relative z-10">
+                <div className="max-w-5xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 relative z-10">
                   {/* Agent Header */}
                   <AgentHeader 
                     title={`Welcome back, ${candidateProfile.firstName}!`} 
