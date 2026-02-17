@@ -41,15 +41,18 @@ export const F41v6_PayslipsSection = ({
 
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/40 shadow-sm">
-      <CardHeader className="px-5 py-4">
+      <CardHeader className="px-4 sm:px-5 py-4">
         <h2 className="text-lg font-semibold text-foreground">Payslips</h2>
       </CardHeader>
-      <CardContent className="px-5 pt-0 pb-4">
+      <CardContent className="px-4 sm:px-5 pt-0 pb-4">
         <div className="divide-y divide-border/30">
           {payslips.map((payslip) => (
               <div
                 key={payslip.id}
-                className="flex items-center gap-3 py-3 first:pt-0 last:pb-0 group"
+                className="flex items-center gap-2 sm:gap-3 py-3 first:pt-0 last:pb-0 group cursor-pointer sm:cursor-default"
+                onClick={() => {
+                  if (window.innerWidth < 640) onViewDetails?.(payslip.id);
+                }}
               >
                 {/* Icon */}
                 <div className="flex-shrink-0 w-8 h-8 rounded-md bg-primary/[0.06] border border-primary/20 flex items-center justify-center">
@@ -67,30 +70,32 @@ export const F41v6_PayslipsSection = ({
                   {currencySymbol}{formatAmount(payslip.amount)}
                 </p>
 
-                {/* Status */}
+                {/* Status - hidden on mobile */}
                 <Badge 
                   variant="outline" 
-                  className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-xs px-2 py-0.5 flex-shrink-0"
+                  className="hidden sm:inline-flex bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-xs px-2 py-0.5 flex-shrink-0"
                 >
                   Paid
                 </Badge>
 
-                {/* Actions */}
+                {/* Actions - simplified on mobile */}
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <button
-                    onClick={() => onViewDetails?.(payslip.id)}
-                    className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-primary/[0.06]"
+                    onClick={(e) => { e.stopPropagation(); onViewDetails?.(payslip.id); }}
+                    className="hidden sm:flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-primary/[0.06]"
                   >
                     Details
                     <ChevronRight className="h-3 w-3" />
                   </button>
                   <button
-                    onClick={() => onDownload?.(payslip.id)}
+                    onClick={(e) => { e.stopPropagation(); onDownload?.(payslip.id); }}
                     className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
                     aria-label="Download payslip"
                   >
                     <Download className="h-4 w-4" />
                   </button>
+                  {/* Mobile chevron indicator */}
+                  <ChevronRight className="h-4 w-4 text-muted-foreground/50 sm:hidden" />
                 </div>
               </div>
             ))}

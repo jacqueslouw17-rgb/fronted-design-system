@@ -130,22 +130,22 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
     <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-8">
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm">
-          <p className="text-xs text-muted-foreground mb-1">Total Companies</p>
-          <p className="text-2xl font-semibold text-foreground">{companies.length}</p>
+      <div className="grid grid-cols-4 gap-2 sm:gap-4">
+        <div className="p-2.5 sm:p-4 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm">
+          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">Total Companies</p>
+          <p className="text-lg sm:text-2xl font-semibold text-foreground">{companies.length}</p>
         </div>
-        <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/5">
-          <p className="text-xs text-destructive/70 mb-1">Blocked</p>
-          <p className="text-2xl font-semibold text-destructive">{statusCounts.blocked || 0}</p>
+        <div className="p-2.5 sm:p-4 rounded-xl border border-destructive/20 bg-destructive/5">
+          <p className="text-[10px] sm:text-xs text-destructive/70 mb-1">Blocked</p>
+          <p className="text-lg sm:text-2xl font-semibold text-destructive">{statusCounts.blocked || 0}</p>
         </div>
-        <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
-          <p className="text-xs text-amber-600/70 mb-1">Needs Review</p>
-          <p className="text-2xl font-semibold text-amber-600">{statusCounts["needs-review"] || 0}</p>
+        <div className="p-2.5 sm:p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+          <p className="text-[10px] sm:text-xs text-amber-600/70 mb-1">Needs Review</p>
+          <p className="text-lg sm:text-2xl font-semibold text-amber-600">{statusCounts["needs-review"] || 0}</p>
         </div>
-        <div className="p-4 rounded-xl border border-accent-green-outline/20 bg-accent-green-fill/5">
-          <p className="text-xs text-accent-green-text/70 mb-1">Ready to Approve</p>
-          <p className="text-2xl font-semibold text-accent-green-text">{statusCounts.ready || 0}</p>
+        <div className="p-2.5 sm:p-4 rounded-xl border border-accent-green-outline/20 bg-accent-green-fill/5">
+          <p className="text-[10px] sm:text-xs text-accent-green-text/70 mb-1">Ready to Approve</p>
+          <p className="text-lg sm:text-2xl font-semibold text-accent-green-text">{statusCounts.ready || 0}</p>
         </div>
       </div>
 
