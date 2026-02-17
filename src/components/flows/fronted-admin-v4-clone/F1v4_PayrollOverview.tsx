@@ -150,8 +150,8 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
       </div>
 
       {/* Search and Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+        <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search companies..."
@@ -161,13 +161,13 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
           />
         </div>
         
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/30">
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/30 overflow-x-auto scrollbar-hide">
           {filterTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id)}
               className={cn(
-                "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                "px-3 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap",
                 activeFilter === tab.id
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -205,40 +205,51 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
                   : "border-border/40"
               )}
             >
-              <div className="p-5">
-                <div className="flex items-center justify-between">
-                  {/* Left: Company Info */}
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    {/* Company Icon */}
-                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                      <Building2 className="h-5 w-5 text-primary" />
-                    </div>
-
-                    {/* Company Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2.5 mb-1">
-                        <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
-                          {company.name}
-                        </h3>
-                        <Badge 
-                          variant="outline" 
-                          className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", config.className)}
-                        >
-                          {config.label}
-                        </Badge>
-                        {company.blockingExceptions > 0 && (
-                          <span className="flex items-center gap-1 text-[10px] text-destructive">
-                            <AlertCircle className="h-3 w-3" />
-                            {company.blockingExceptions} blocking
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">{company.payPeriod}</p>
-                    </div>
+              <div className="p-3 sm:p-5">
+                {/* Top row: Company info + status */}
+                <div className="flex items-center gap-3 sm:gap-4">
+                  {/* Company Icon */}
+                  <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
 
-                  {/* Center: Metadata Chips */}
-                  <div className="flex items-center gap-5 px-6">
+                  {/* Company Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5 sm:mb-1 flex-wrap">
+                      <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                        {company.name}
+                      </h3>
+                      <Badge 
+                        variant="outline" 
+                        className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", config.className)}
+                      >
+                        {config.label}
+                      </Badge>
+                      {company.blockingExceptions > 0 && (
+                        <span className="flex items-center gap-1 text-[10px] text-destructive">
+                          <AlertCircle className="h-3 w-3" />
+                          {company.blockingExceptions} blocking
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{company.payPeriod}</p>
+                  </div>
+
+                  {/* Total Cost - always visible */}
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-sm font-semibold text-foreground tabular-nums">
+                      {formatCurrency(company.totalCost)}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground hidden sm:block">total cost</p>
+                  </div>
+
+                  {/* Chevron on mobile, CTA button on desktop */}
+                  <ChevronRight className="h-4 w-4 text-muted-foreground/40 flex-shrink-0 sm:hidden" />
+                </div>
+
+                {/* Bottom row: Metadata + CTA (desktop only) */}
+                <div className="hidden sm:flex items-center justify-between mt-3 pl-14">
+                  <div className="flex items-center gap-5">
                     {/* Countries */}
                     <div className="flex items-center gap-1.5">
                       <div className="flex -space-x-1">
@@ -268,38 +279,27 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
                         {company.currencyCount}
                       </span>
                     </div>
-
-                    {/* Total Cost */}
-                    <div className="text-right min-w-[80px]">
-                      <p className="text-sm font-semibold text-foreground tabular-nums">
-                        {formatCurrency(company.totalCost)}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">total cost</p>
-                    </div>
                   </div>
 
-                  {/* Right: Action + Chevron */}
-                  <div className="flex items-center gap-2 ml-4">
+                  <div className="flex items-center gap-2">
                     <Button
                       variant={config.ctaVariant}
                       size="sm"
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent row click
+                        e.stopPropagation();
                         onSelectCompany(company.id, config.targetStep);
                       }}
                       className="gap-1.5 min-w-[130px]"
                     >
                       {config.ctaLabel}
                     </Button>
-                    
-                    {/* Hover chevron indicator */}
                     <ChevronRight className="h-4 w-4 text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
 
                 {/* Last Activity */}
                 {company.lastActivity && (
-                  <p className="text-[10px] text-muted-foreground/60 mt-3 pl-14">
+                  <p className="text-[10px] text-muted-foreground/60 mt-2 sm:mt-3 pl-11 sm:pl-14">
                     Last activity: {company.lastActivity}
                   </p>
                 )}
