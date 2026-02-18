@@ -296,7 +296,7 @@ const AdjustmentRow = ({
 
   // Approved state - show with Undo option (unless finalized)
   if (isApproved) {
-    return <div className="flex items-start justify-between py-2 -mx-3 px-3 rounded group" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+    return <div className="flex items-start justify-between py-2 -mx-3 px-3 rounded group transition-colors hover:bg-muted" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
@@ -308,7 +308,7 @@ const AdjustmentRow = ({
           {!isFinalized && onUndo && isHovered && <button onClick={e => {
           e.stopPropagation();
           onUndo();
-        }} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
+        }} className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium">
               <Undo2 className="h-3 w-3" />
               Undo
             </button>}
@@ -322,7 +322,7 @@ const AdjustmentRow = ({
   // Rejected state
   if (isRejected) {
     return <div
-        className="-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors hover:bg-muted/30"
+        className="-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors hover:bg-muted"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -335,7 +335,7 @@ const AdjustmentRow = ({
               <button
                 onClick={(e) => { e.stopPropagation(); onUndo(); }}
                 className={cn(
-                  "text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-all duration-150",
+                  "text-[10px] text-primary hover:text-primary/80 flex items-center gap-1 transition-all duration-150 font-medium",
                   isHovered ? "opacity-100" : "opacity-0"
                 )}
               >
@@ -567,7 +567,7 @@ const LeaveRow = ({
 
   // Approved state - show with Undo option (unless finalized)
   if (isApproved) {
-    return <div className="flex items-center justify-between py-2.5 -mx-3 px-3 rounded group" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+    return <div className="flex items-center justify-between py-2.5 -mx-3 px-3 rounded group transition-colors hover:bg-muted" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <div className="flex flex-col gap-0.5 min-w-0">
@@ -581,7 +581,7 @@ const LeaveRow = ({
           {!isFinalized && onUndo && isHovered && <button onClick={e => {
           e.stopPropagation();
           onUndo();
-        }} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
+        }} className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium">
               <Undo2 className="h-3 w-3" />
               Undo
             </button>}
@@ -595,7 +595,7 @@ const LeaveRow = ({
   // Rejected state - show with Undo option (unless finalized) and hover-reveal reason
   if (isRejected) {
     return <div
-        className="-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors hover:bg-muted/30"
+        className="-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors hover:bg-muted"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -611,7 +611,7 @@ const LeaveRow = ({
               <button
                 onClick={(e) => { e.stopPropagation(); onUndo(); }}
                 className={cn(
-                  "text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-all duration-150",
+                  "text-[10px] text-primary hover:text-primary/80 flex items-center gap-1 transition-all duration-150 font-medium",
                   isHovered ? "opacity-100" : "opacity-0"
                 )}
               >
