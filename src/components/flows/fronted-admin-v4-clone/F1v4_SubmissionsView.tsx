@@ -39,7 +39,7 @@ import { format } from "date-fns";
 import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "@/components/flows/company-admin-v3/CA3_AdminAddAdjustment";
-import { CurrencyToggle } from "@/components/flows/shared/CurrencyToggle";
+import { CurrencyToggle, convertToUSD } from "@/components/flows/shared/CurrencyToggle";
 import { F1v4_PayrollStepper } from "./F1v4_PayrollStepper";
 
 // Country flag map for consistent display
@@ -876,6 +876,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             const deductions = selectedSubmission.lineItems?.filter((item) => item.type === 'Deduction') || [];
             const allAdjustments = selectedSubmission.submissions;
             const currency = selectedSubmission.currency || 'USD';
+            const dc = showUSD && currency !== "USD" ? "USD" : currency;
+            const cvt = (amt: number) => showUSD && currency !== "USD" ? convertToUSD(amt, currency) : amt;
             const moneyAdjustments = allAdjustments.map((adj, idx) => ({ adj, originalIdx: idx })).filter(({ adj }) => typeof adj.amount === 'number');
             const pendingLeaves = selectedSubmission.pendingLeaves || [];
 
@@ -1052,7 +1054,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         return !showPendingOnly || earningAdjCounts.pending > 0 ?
                         <CollapsibleSection title="Earnings" defaultOpen={!!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings' || !!payChangeFlag} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
                           {!showPendingOnly && earnings.map((item, idx) =>
-                          <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />
+                          <BreakdownRow key={idx} label={item.label} amount={cvt(item.amount)} currency={dc} isLocked={item.locked} isPositive />
                           )}
                           
                           {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus').filter(({ adj, originalIdx }) => shouldShowItem(getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status)).map(({ adj, originalIdx }) => {
@@ -1060,7 +1062,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             const itemId = `adj-${originalIdx}`;
                             const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                             return (
-                              <AdjustmentRow key={itemId} label={adj.description || submissionTypeConfig[adj.type]?.label || 'Adjustment'} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} tags={adj.tags} />);
+                              <AdjustmentRow key={itemId} label={adj.description || submissionTypeConfig[adj.type]?.label || 'Adjustment'} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} tags={adj.tags} />);
                           })}
                           {/* Admin-added expenses */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'expense').map((adj) =>
@@ -1071,7 +1073,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                   <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
                                 </div>
                                 <div className="flex items-center">
-                                  <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">+{formatCurrency(adj.amount || 0, currency)}</span>
+                                  <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">+{formatCurrency(cvt(adj.amount || 0), dc)}</span>
                                   <button onClick={(e) => {e.stopPropagation();handleRemoveAdminAdjustment(selectedSubmission.id, adj.id);}} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
                                     <X className="h-3.5 w-3.5 text-destructive" />
                                   </button>
@@ -1079,10 +1081,10 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                               </div>
                             </motion.div>
                           )}
-                          <BreakdownRow label="Total earnings" amount={totalEarnings + approvedAdjustmentTotal + adminExpenseTotal} currency={currency} isPositive isTotal />
+                          <BreakdownRow label="Total earnings" amount={cvt(totalEarnings + approvedAdjustmentTotal + adminExpenseTotal)} currency={dc} isPositive isTotal />
                           {payChangeFlag && !showPendingOnly &&
                           <p className="text-[10px] text-muted-foreground/60 text-right tabular-nums">
-                              {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period{payChangeFlag.payChangeDelta != null && ` (${(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}${formatCurrency(Math.abs(payChangeFlag.payChangeDelta || 0), currency)})`}
+                              {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period{payChangeFlag.payChangeDelta != null && ` (${(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}${formatCurrency(cvt(Math.abs(payChangeFlag.payChangeDelta || 0)), dc)})`}
                             </p>
                           }
                         </CollapsibleSection> :
@@ -1093,9 +1095,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       {deductions.length > 0 && !showPendingOnly &&
                       <CollapsibleSection title="Deductions" defaultOpen={false} approvedCount={deductions.length}>
                           {deductions.map((item, idx) =>
-                        <BreakdownRow key={idx} label={item.label} amount={Math.abs(item.amount)} currency={currency} isLocked={item.locked} isPositive={false} />
+                        <BreakdownRow key={idx} label={item.label} amount={cvt(Math.abs(item.amount))} currency={dc} isLocked={item.locked} isPositive={false} />
                         )}
-                          <BreakdownRow label="Total deductions" amount={totalDeductions} currency={currency} isPositive={false} isTotal />
+                          <BreakdownRow label="Total deductions" amount={cvt(totalDeductions)} currency={dc} isPositive={false} isTotal />
                         </CollapsibleSection>
                       }
 
@@ -1107,7 +1109,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           const itemId = `overtime-${originalIdx}`;
                           const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                           return (
-                            <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved overtime');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected overtime');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />);
+                            <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved overtime');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected overtime');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />);
                         })}
                           {/* Admin-added overtime */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'overtime').map((adj) =>
@@ -1118,7 +1120,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                   <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
                                 </div>
                                 <div className="flex items-center">
-                                  <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">+{formatCurrency(adj.amount || 0, currency)}</span>
+                                  <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">+{formatCurrency(cvt(adj.amount || 0), dc)}</span>
                                   <button onClick={(e) => {e.stopPropagation();handleRemoveAdminAdjustment(selectedSubmission.id, adj.id);}} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
                                     <X className="h-3.5 w-3.5 text-destructive" />
                                   </button>
@@ -1137,7 +1139,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           const itemId = `leave-${leave.id}`;
                           const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                           return (
-                            <LeaveRow key={itemId} leave={{ ...leave, status: leaveState.status, rejectionReason: leaveState.rejectionReason || leave.rejectionReason }} currency={currency} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });toast.success('Approved leave');}} onReject={(reason) => {updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });toast.info('Rejected leave');}} onUndo={() => undoLeaveStatus(selectedSubmission.id, leave.id)} isFinalized={workerIsFinalized} />);
+                            <LeaveRow key={itemId} leave={{ ...leave, dailyRate: leave.dailyRate ? cvt(leave.dailyRate) : undefined, status: leaveState.status, rejectionReason: leaveState.rejectionReason || leave.rejectionReason }} currency={dc} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });toast.success('Approved leave');}} onReject={(reason) => {updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });toast.info('Rejected leave');}} onUndo={() => undoLeaveStatus(selectedSubmission.id, leave.id)} isFinalized={workerIsFinalized} />);
                         })}
                           {/* Admin-added unpaid leave */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').map((adj) =>
@@ -1148,7 +1150,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                   <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
                                 </div>
                                 <div className="flex items-center">
-                                  <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">−{formatCurrency(adj.amount || 0, currency)}</span>
+                                  <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">−{formatCurrency(cvt(adj.amount || 0), dc)}</span>
                                   <button onClick={(e) => {e.stopPropagation();handleRemoveAdminAdjustment(selectedSubmission.id, adj.id);}} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
                                     <X className="h-3.5 w-3.5 text-destructive" />
                                   </button>

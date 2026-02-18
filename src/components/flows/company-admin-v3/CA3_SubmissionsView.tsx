@@ -23,7 +23,7 @@ import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "./CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA3_AdminAddAdjustment";
-import { CurrencyToggle } from "@/components/flows/shared/CurrencyToggle";
+import { CurrencyToggle, convertToUSD } from "@/components/flows/shared/CurrencyToggle";
 
 // Country flag map for consistent display
 const countryFlags: Record<string, string> = {
@@ -1266,6 +1266,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
           // Get all adjustments (pending, approved, rejected)
           const allAdjustments = selectedSubmission.submissions;
           const currency = selectedSubmission.currency || 'USD';
+          const dc = showUSD && currency !== "USD" ? "USD" : currency;
+          const cvt = (amt: number) => showUSD && currency !== "USD" ? convertToUSD(amt, currency) : amt;
           const adjustmentEntries = allAdjustments.map((adj, originalIdx) => ({
             adj,
             originalIdx
@@ -1463,7 +1465,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
                         return !showPendingOnly || earningAdjCounts.pending > 0 ? <CollapsibleSection title="Earnings" defaultOpen={!!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings' || !!payChangeFlag} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
                     {/* Base earnings */}
-                    {!showPendingOnly && earnings.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isLocked={item.locked} isPositive />)}
+                    {!showPendingOnly && earnings.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={cvt(item.amount)} currency={dc} isLocked={item.locked} isPositive />)}
                     
                     {/* Adjustments (Expenses, Bonus) - no wrapper div */}
                     {allAdjustments.map((adj, originalIdx) => ({
@@ -1485,7 +1487,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             if (!config) return null;
                             const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                             const itemId = `adj-${originalIdx}`;
-                            return <AdjustmentRow key={itemId} label={adj.description || config.label} amount={adj.amount || 0} currency={adj.currency || currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
+                            return <AdjustmentRow key={itemId} label={adj.description || config.label} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
                               updateAdjustmentStatus(selectedSubmission.id, originalIdx, {
                                 status: 'approved'
                               });
@@ -1518,7 +1520,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             </div>
                             <div className="flex items-center">
                               <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">
-                                +{formatCurrency(adj.amount || 0, currency)}
+                                +{formatCurrency(cvt(adj.amount || 0), dc)}
                               </span>
                               <button onClick={e => {
                                   e.stopPropagation();
@@ -1530,16 +1532,16 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           </div>
                         </motion.div>)}
                     {/* Total Earnings */}
-                    {!showPendingOnly && <BreakdownRow label="Total earnings" amount={totalEarnings + approvedAdjustmentTotal} currency={currency} isPositive isTotal />}
+                    {!showPendingOnly && <BreakdownRow label="Total earnings" amount={cvt(totalEarnings + approvedAdjustmentTotal)} currency={dc} isPositive isTotal />}
                     {payChangeFlag && !showPendingOnly && <p className="text-[10px] text-muted-foreground/60 text-right tabular-nums">
-                        {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period{payChangeFlag.payChangeDelta != null && ` (${(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}${formatCurrency(Math.abs(payChangeFlag.payChangeDelta || 0), currency)})`}
+                        {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period{payChangeFlag.payChangeDelta != null && ` (${(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}${formatCurrency(cvt(Math.abs(payChangeFlag.payChangeDelta || 0)), dc)})`}
                       </p>}
                   </CollapsibleSection> : null;
                       })()}
                   {/* DEDUCTIONS Section - Collapsed by default */}
                   {deductions.length > 0 && !showPendingOnly && <CollapsibleSection title="Deductions" defaultOpen={false} approvedCount={deductions.length}>
-                      {deductions.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={Math.abs(item.amount)} currency={currency} isLocked={item.locked} isPositive={false} />)}
-                      <BreakdownRow label="Total deductions" amount={totalDeductions} currency={currency} isPositive={false} isTotal />
+                      {deductions.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={cvt(Math.abs(item.amount))} currency={dc} isLocked={item.locked} isPositive={false} />)}
+                      <BreakdownRow label="Total deductions" amount={cvt(totalDeductions)} currency={dc} isPositive={false} isTotal />
                     </CollapsibleSection>}
 
                   {/* OVERTIME Section - Collapsed by default, only force open when pending filter or newly added */}
@@ -1561,7 +1563,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         }) => {
                           const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                           const itemId = `overtime-${originalIdx}`;
-                          return <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={adj.amount || 0} currency={currency} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
+                          return <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
                             updateAdjustmentStatus(selectedSubmission.id, originalIdx, {
                               status: 'approved'
                             });
@@ -1594,7 +1596,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             </div>
                             <div className="flex items-center">
                               <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">
-                                +{formatCurrency(adj.amount || 0, currency)}
+                                +{formatCurrency(cvt(adj.amount || 0), dc)}
                               </span>
                               <button onClick={e => {
                                 e.stopPropagation();
@@ -1617,9 +1619,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           const itemId = `leave-${leave.id}`;
                           return <LeaveRow key={itemId} leave={{
                             ...leave,
+                            dailyRate: leave.dailyRate ? cvt(leave.dailyRate) : undefined,
                             status: leaveState.status,
                             rejectionReason: leaveState.rejectionReason || leave.rejectionReason
-                          }} currency={currency} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
+                          }} currency={dc} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
                             updateLeaveStatus(selectedSubmission.id, leave.id, {
                               status: 'approved'
                             });
@@ -1652,7 +1655,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             </div>
                             <div className="flex items-center">
                               <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">
-                                −{formatCurrency(adj.amount || 0, currency)}
+                                −{formatCurrency(cvt(adj.amount || 0), dc)}
                               </span>
                               <button onClick={e => {
                                 e.stopPropagation();
