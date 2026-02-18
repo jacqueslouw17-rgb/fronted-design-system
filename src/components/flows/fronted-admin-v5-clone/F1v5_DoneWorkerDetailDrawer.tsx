@@ -6,7 +6,7 @@
  * (terminate, resign, end contract).
  */
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { AgreementViewerSheet } from "./F1v5_AgreementViewerSheet";
 import {
   Sheet,
@@ -60,8 +60,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export type WorkerLifecycleStatus = "active" | "contract-ended" | "resigned" | "terminated";
 
@@ -169,6 +180,35 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   const [actionDate, setActionDate] = useState("");
   const [actionReason, setActionReason] = useState("");
   const [showAgreement, setShowAgreement] = useState(false);
+  const [pendingAction, setPendingAction] = useState<ActionType | null>(null);
+
+  const confirmationLabels: Record<ActionType, { title: string; description: string; buttonLabel: string; buttonClass: string }> = {
+    "terminated": {
+      title: "Terminate this worker?",
+      description: "You're about to mark this worker as terminated. You'll be asked for the termination date and reason next.",
+      buttonLabel: "Yes, terminate",
+      buttonClass: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+    },
+    "resigned": {
+      title: "Record resignation?",
+      description: "You're about to record this worker's resignation. You'll be asked for the last working day next.",
+      buttonLabel: "Yes, record resignation",
+      buttonClass: "bg-amber-600 text-white hover:bg-amber-700",
+    },
+    "contract-ended": {
+      title: "End this contract?",
+      description: "You're about to mark this contract as ended. You'll be asked for the end date next.",
+      buttonLabel: "Yes, end contract",
+      buttonClass: "bg-muted-foreground text-background hover:bg-muted-foreground/90",
+    },
+  };
+
+  const handleConfirmAction = useCallback(() => {
+    if (pendingAction) {
+      setActionView(pendingAction);
+      setPendingAction(null);
+    }
+  }, [pendingAction]);
 
   if (!worker) return null;
 
@@ -479,22 +519,39 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                   </p>
                 </div>
 
-                {/* Status badge / dropdown — top right */}
-                {isActive ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className={cn(
-                        "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-colors cursor-pointer shrink-0",
-                        "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 hover:bg-accent-green-fill/20"
-                      )}>
-                        <CheckCircle2 className="h-3 w-3" />
-                        Active
-                        <ChevronDown className="h-3 w-3 opacity-50" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
+                {/* Status badge / dropdown — always a dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className={cn(
+                      "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-colors cursor-pointer shrink-0",
+                      isActive
+                        ? "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 hover:bg-accent-green-fill/20"
+                        : cn(statusConfig.badgeClass, "hover:opacity-80")
+                    )}>
+                      <statusConfig.icon className="h-3 w-3" />
+                      {statusConfig.label}
+                      <ChevronDown className="h-3 w-3 opacity-50" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    {!isActive && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() => onLifecycleAction?.(worker.id, "active", "", "")}
+                          className="gap-2 text-accent-green-text focus:text-accent-green-text"
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                          <div>
+                            <p className="text-sm font-medium">Reactivate</p>
+                            <p className="text-xs text-muted-foreground">Set back to active status</p>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    {workerStatus !== "terminated" && (
                       <DropdownMenuItem 
-                        onClick={() => setActionView("terminated")}
+                        onClick={() => setPendingAction("terminated")}
                         className="gap-2 text-destructive focus:text-destructive"
                       >
                         <UserX className="h-4 w-4" />
@@ -503,20 +560,22 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                           <p className="text-xs text-muted-foreground">End employment immediately</p>
                         </div>
                       </DropdownMenuItem>
-                      {isEmployee && (
-                        <DropdownMenuItem 
-                          onClick={() => setActionView("resigned")}
-                          className="gap-2 text-amber-700 focus:text-amber-700"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          <div>
-                            <p className="text-sm font-medium">Record resignation</p>
-                            <p className="text-xs text-muted-foreground">Employee has resigned</p>
-                          </div>
-                        </DropdownMenuItem>
-                      )}
+                    )}
+                    {isEmployee && workerStatus !== "resigned" && (
                       <DropdownMenuItem 
-                        onClick={() => setActionView("contract-ended")}
+                        onClick={() => setPendingAction("resigned")}
+                        className="gap-2 text-amber-700 focus:text-amber-700"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <div>
+                          <p className="text-sm font-medium">Record resignation</p>
+                          <p className="text-xs text-muted-foreground">Employee has resigned</p>
+                        </div>
+                      </DropdownMenuItem>
+                    )}
+                    {workerStatus !== "contract-ended" && (
+                      <DropdownMenuItem 
+                        onClick={() => setPendingAction("contract-ended")}
                         className="gap-2"
                       >
                         <CalendarOff className="h-4 w-4" />
@@ -525,17 +584,9 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                           <p className="text-xs text-muted-foreground">Contract period has ended</p>
                         </div>
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <Badge 
-                    variant="outline" 
-                    className={cn("text-xs gap-1 shrink-0", statusConfig.badgeClass)}
-                  >
-                    <statusConfig.icon className="h-3 w-3" />
-                    {statusConfig.label}
-                  </Badge>
-                )}
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {/* End date/reason if not active */}
@@ -774,6 +825,27 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
       worker={worker}
       isEmployee={isEmployee}
     />
+
+    {/* Confirmation dialog */}
+    <AlertDialog open={!!pendingAction} onOpenChange={(open) => { if (!open) setPendingAction(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{pendingAction && confirmationLabels[pendingAction].title}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {pendingAction && confirmationLabels[pendingAction].description}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className={cn(pendingAction && confirmationLabels[pendingAction].buttonClass)}
+            onClick={handleConfirmAction}
+          >
+            {pendingAction && confirmationLabels[pendingAction].buttonLabel}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </>
   );
 };
