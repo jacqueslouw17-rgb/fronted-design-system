@@ -248,7 +248,7 @@ const AdjustmentRow = ({
   if (isApproved) {
     return (
       <div 
-        className="flex items-center justify-between py-2 -mx-3 px-3 rounded group"
+        className={cn("flex items-center justify-between py-2 -mx-3 px-3 rounded group transition-colors", !isFinalized && "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -260,7 +260,7 @@ const AdjustmentRow = ({
           {!isFinalized && onUndo && isHovered && (
             <button
               onClick={(e) => { e.stopPropagation(); onUndo(); }}
-              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+              className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium"
             >
               <Undo2 className="h-3 w-3" />
               Undo
@@ -299,7 +299,7 @@ const AdjustmentRow = ({
               {!isFinalized && onUndo && isHovered && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onUndo(); }}
-                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                  className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium"
                 >
                   <Undo2 className="h-3 w-3" />
                   Undo
@@ -567,7 +567,7 @@ const LeaveRow = ({
   if (isApproved) {
     return (
       <div 
-        className="flex items-center justify-between py-2.5 -mx-3 px-3 rounded group"
+        className={cn("flex items-center justify-between py-2.5 -mx-3 px-3 rounded group transition-colors", !isFinalized && "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -584,7 +584,7 @@ const LeaveRow = ({
           {!isFinalized && onUndo && isHovered && (
             <button
               onClick={(e) => { e.stopPropagation(); onUndo(); }}
-              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+              className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium"
             >
               <Undo2 className="h-3 w-3" />
               Undo
@@ -630,7 +630,7 @@ const LeaveRow = ({
             {!isFinalized && onUndo && isHovered && (
               <button
                 onClick={(e) => { e.stopPropagation(); onUndo(); }}
-                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors shrink-0"
+                className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium shrink-0"
               >
                 <Undo2 className="h-3 w-3" />
                 Undo

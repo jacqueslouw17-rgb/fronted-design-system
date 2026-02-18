@@ -296,7 +296,7 @@ const AdjustmentRow = ({
 
   // Approved state - show with Undo option (unless finalized)
   if (isApproved) {
-    return <div className="flex items-start justify-between py-2 -mx-3 px-3 rounded group transition-colors hover:bg-muted" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+    return <div className={cn("flex items-start justify-between py-2 -mx-3 px-3 rounded group transition-colors", !isFinalized && "hover:bg-muted")} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
@@ -322,7 +322,7 @@ const AdjustmentRow = ({
   // Rejected state
   if (isRejected) {
     return <div
-        className="-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors hover:bg-muted"
+        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", !isFinalized && "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -567,7 +567,7 @@ const LeaveRow = ({
 
   // Approved state - show with Undo option (unless finalized)
   if (isApproved) {
-    return <div className="flex items-center justify-between py-2.5 -mx-3 px-3 rounded group transition-colors hover:bg-muted" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+    return <div className={cn("flex items-center justify-between py-2.5 -mx-3 px-3 rounded group transition-colors", !isFinalized && "hover:bg-muted")} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <div className="flex flex-col gap-0.5 min-w-0">
@@ -595,7 +595,7 @@ const LeaveRow = ({
   // Rejected state - show with Undo option (unless finalized) and hover-reveal reason
   if (isRejected) {
     return <div
-        className="-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors hover:bg-muted"
+        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", !isFinalized && "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
