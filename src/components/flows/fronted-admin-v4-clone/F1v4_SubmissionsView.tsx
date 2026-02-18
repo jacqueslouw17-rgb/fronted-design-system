@@ -968,7 +968,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                 <Plus className="h-2.5 w-2.5" /><span>Add</span>
                               </button>
                           }
-                            {currentPendingCount > 0 &&
+                            {currentPendingCount > 0 && !isWorkerFinalized(selectedSubmission.id) &&
                           <Tooltip>
                                 <TooltipTrigger asChild>
                                   <label className="flex items-center gap-1 cursor-pointer">

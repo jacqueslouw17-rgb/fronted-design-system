@@ -1400,7 +1400,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             <Plus className="h-2.5 w-2.5" />
                             <span>Add</span>
                           </button>}
-                        {currentPendingCount > 0 && <label className="flex items-center gap-1 cursor-pointer">
+                        {currentPendingCount > 0 && !isWorkerFinalized(selectedSubmission.id) && <label className="flex items-center gap-1 cursor-pointer">
                             <Switch checked={showPendingOnly} onCheckedChange={setShowPendingOnly} className="h-3 w-6 data-[state=checked]:bg-primary [&>span]:h-2 [&>span]:w-2 [&>span]:data-[state=checked]:translate-x-3" />
                             <span className="text-[10px] text-muted-foreground">Pending</span>
                           </label>}

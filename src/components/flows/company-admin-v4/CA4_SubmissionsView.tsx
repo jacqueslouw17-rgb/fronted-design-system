@@ -1945,7 +1945,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             <span>Add</span>
                           </button>
                         )}
-                        {currentPendingCount > 0 && (
+                        {currentPendingCount > 0 && !isWorkerFinalized(selectedSubmission.id) && (
                           <label className="flex items-center gap-1 cursor-pointer">
                             <Switch
                               checked={showPendingOnly}
