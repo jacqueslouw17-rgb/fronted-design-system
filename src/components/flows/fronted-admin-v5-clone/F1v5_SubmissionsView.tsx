@@ -1200,10 +1200,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
                             toast.info(`${selectedSubmission.workerName} moved back to review`);
                           }}
-                          className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+                          className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-2 py-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs"
                           title="Undo — return to review"
                         >
-                          <Undo2 className="h-3.5 w-3.5" />
+                          <Undo2 className="h-3 w-3" />
+                          Undo
                         </button>
                       </div>
                     </div>;
