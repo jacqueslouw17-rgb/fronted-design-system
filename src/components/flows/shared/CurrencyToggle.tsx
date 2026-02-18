@@ -93,10 +93,6 @@ export const CurrencyToggle: React.FC<CurrencyToggleProps> = ({
   return (
     <div className={cn("text-right", className)}>
       <div className="flex items-center justify-end gap-1.5">
-        <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
-          {showUSD && !isAlreadyUSD && "≈ "}
-          {formatCurrencyAmount(displayAmount, displayCurrency)}
-        </p>
         {!isAlreadyUSD && (
           <button
             onClick={(e) => { e.stopPropagation(); onToggle(); }}
@@ -112,6 +108,10 @@ export const CurrencyToggle: React.FC<CurrencyToggleProps> = ({
             {showUSD ? "USD" : displayCurrency}
           </button>
         )}
+        <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
+          {showUSD && !isAlreadyUSD && "≈ "}
+          {formatCurrencyAmount(displayAmount, displayCurrency)}
+        </p>
       </div>
       {displayPrevious !== undefined && (
         <p className="text-[10px] text-muted-foreground/60 tabular-nums">
