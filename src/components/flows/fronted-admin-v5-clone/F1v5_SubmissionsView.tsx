@@ -1191,11 +1191,20 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>;
                 }
 
-                return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-2">
                       <div className="flex items-center justify-center gap-2 text-accent-green-text">
                         <CheckCircle2 className="h-4 w-4" />
                         <span className="text-sm font-medium">Ready for payroll</span>
                       </div>
+                      <button
+                        onClick={() => {
+                          setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
+                          toast.info(`${selectedSubmission.workerName} moved back to review`);
+                        }}
+                        className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+                      >
+                        Undo — return to review
+                      </button>
                     </div>;
               })()}
 
