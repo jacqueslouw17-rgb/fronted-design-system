@@ -1936,7 +1936,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                           {selectedSubmission.workerName}
                         </h2>
                         {/* Inline actions - next to name (hidden for flagged workers) */}
-                        {!showPendingOnly && !selectedSubmission.flags?.some(f => f.type === "end_date") && (
+                        {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) && !selectedSubmission.flags?.some(f => f.type === "end_date") && (
                           <button
                             onClick={() => setIsAddingAdjustment(true)}
                             className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
