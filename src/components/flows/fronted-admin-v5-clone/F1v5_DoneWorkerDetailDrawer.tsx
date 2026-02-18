@@ -6,7 +6,7 @@
  * (terminate, resign, end contract).
  */
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { AgreementViewerSheet } from "./F1v5_AgreementViewerSheet";
 import {
   Sheet,
@@ -185,30 +185,23 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   const confirmationLabels: Record<ActionType, { title: string; description: string; buttonLabel: string; buttonClass: string }> = {
     "terminated": {
       title: "Terminate this worker?",
-      description: "You're about to mark this worker as terminated. You'll be asked for the termination date and reason next.",
+      description: `Are you sure you want to terminate ${worker?.name || "this worker"}? This will end their employment and remove them from future payroll runs.`,
       buttonLabel: "Yes, terminate",
       buttonClass: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
     },
     "resigned": {
-      title: "Record resignation?",
-      description: "You're about to record this worker's resignation. You'll be asked for the last working day next.",
+      title: "Confirm resignation?",
+      description: `Are you sure you want to record ${worker?.name || "this worker"}'s resignation? They will be included in payroll up to their last working day.`,
       buttonLabel: "Yes, record resignation",
       buttonClass: "bg-amber-600 text-white hover:bg-amber-700",
     },
     "contract-ended": {
       title: "End this contract?",
-      description: "You're about to mark this contract as ended. You'll be asked for the end date next.",
+      description: `Are you sure you want to mark ${worker?.name || "this worker"}'s contract as ended? They will be removed from future payroll runs after the end date.`,
       buttonLabel: "Yes, end contract",
       buttonClass: "bg-muted-foreground text-background hover:bg-muted-foreground/90",
     },
   };
-
-  const handleConfirmAction = useCallback(() => {
-    if (pendingAction) {
-      setActionView(pendingAction);
-      setPendingAction(null);
-    }
-  }, [pendingAction]);
 
   if (!worker) return null;
 
@@ -472,7 +465,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               <Button
                 className={cn("flex-1", labels.buttonClass)}
                 disabled={!actionDate}
-                onClick={handleSubmitAction}
+                onClick={() => setPendingAction(actionView)}
               >
                 {labels.buttonLabel}
               </Button>
@@ -551,7 +544,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     )}
                     {workerStatus !== "terminated" && (
                       <DropdownMenuItem 
-                        onClick={() => setPendingAction("terminated")}
+                        onClick={() => setActionView("terminated")}
                         className="gap-2 text-destructive focus:text-destructive"
                       >
                         <UserX className="h-4 w-4" />
@@ -563,7 +556,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     )}
                     {isEmployee && workerStatus !== "resigned" && (
                       <DropdownMenuItem 
-                        onClick={() => setPendingAction("resigned")}
+                        onClick={() => setActionView("resigned")}
                         className="gap-2 text-amber-700 focus:text-amber-700"
                       >
                         <LogOut className="h-4 w-4" />
@@ -575,7 +568,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     )}
                     {workerStatus !== "contract-ended" && (
                       <DropdownMenuItem 
-                        onClick={() => setPendingAction("contract-ended")}
+                        onClick={() => setActionView("contract-ended")}
                         className="gap-2"
                       >
                         <CalendarOff className="h-4 w-4" />
@@ -836,10 +829,16 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={() => setPendingAction(null)}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             className={cn(pendingAction && confirmationLabels[pendingAction].buttonClass)}
-            onClick={handleConfirmAction}
+            onClick={() => {
+              if (pendingAction && actionDate) {
+                onLifecycleAction?.(worker.id, pendingAction, actionDate, actionReason);
+                setPendingAction(null);
+                resetActionView();
+              }
+            }}
           >
             {pendingAction && confirmationLabels[pendingAction].buttonLabel}
           </AlertDialogAction>
