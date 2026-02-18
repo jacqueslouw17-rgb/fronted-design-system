@@ -27,6 +27,7 @@ import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "./CA4_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA4_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA4_AdminAddAdjustment";
+import { CurrencyToggle } from "@/components/flows/shared/CurrencyToggle";
 import { useCA4Agent } from "./CA4_AgentContext";
 
 // Country flag map for consistent display
@@ -852,6 +853,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   
   // Admin add adjustment mode
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
+  const [showUSD, setShowUSD] = useState(false);
   
   // Drawer loading state - simulates data fetch synced with animation
   const [isDrawerLoading, setIsDrawerLoading] = useState(false);
@@ -1989,16 +1991,14 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             View receipt →
                           </button>
                         </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
-                            {formatCurrency(adjustedNet, currency)}
-                          </p>
-                          {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments) && (
-                            <p className="text-[10px] text-muted-foreground/60 tabular-nums">
-                              was {formatCurrency(baseNet, currency)}
-                            </p>
-                          )}
-                        </div>
+                          <CurrencyToggle
+                            amount={adjustedNet}
+                            localCurrency={currency}
+                            showUSD={showUSD}
+                            onToggle={() => setShowUSD(!showUSD)}
+                            previousAmount={baseNet}
+                            showPreviousAmount={approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments}
+                          />
                       </div>
                     </div>
                   )}
