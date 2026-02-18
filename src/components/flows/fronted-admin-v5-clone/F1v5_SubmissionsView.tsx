@@ -188,7 +188,7 @@ const AdjustmentRow = ({
   if (status === 'approved') {
     return (
       <div
-        className="flex items-start justify-between py-2 -mx-3 px-3 rounded group"
+        className="flex items-start justify-between py-2 -mx-3 px-3 rounded group transition-colors hover:bg-muted/30"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}>
 
@@ -371,7 +371,7 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
   if (leave.status === 'approved') {
     return (
       <div
-        className="flex items-center justify-between py-2 -mx-3 px-3 rounded group"
+        className="flex items-center justify-between py-2 -mx-3 px-3 rounded group transition-colors hover:bg-muted/30"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}>
 
