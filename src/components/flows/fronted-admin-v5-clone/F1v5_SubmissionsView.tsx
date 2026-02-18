@@ -1191,22 +1191,21 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>;
                 }
 
-                return <div className="group border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                return <div className="group border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-2">
                       <div className="flex items-center justify-center gap-2">
                         <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
                         <span className="text-sm font-medium text-accent-green-text">Ready for payroll</span>
-                        <button
-                          onClick={() => {
-                            setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
-                            toast.info(`${selectedSubmission.workerName} moved back to review`);
-                          }}
-                          className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-2 py-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs"
-                          title="Undo — return to review"
-                        >
-                          <Undo2 className="h-3 w-3" />
-                          Undo
-                        </button>
                       </div>
+                      <button
+                        onClick={() => {
+                          setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
+                          toast.info(`${selectedSubmission.workerName} moved back to review`);
+                        }}
+                        className="mx-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-3 py-1 rounded-full border border-border/50 hover:border-border hover:bg-muted text-muted-foreground hover:text-foreground text-xs"
+                      >
+                        <Undo2 className="h-3 w-3" />
+                        Undo
+                      </button>
                     </div>;
               })()}
 
