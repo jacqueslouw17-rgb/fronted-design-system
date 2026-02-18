@@ -39,6 +39,7 @@ import { format } from "date-fns";
 import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "@/components/flows/company-admin-v3/CA3_AdminAddAdjustment";
+import { CurrencyToggle } from "@/components/flows/shared/CurrencyToggle";
 import { F1v4_PayrollStepper } from "./F1v4_PayrollStepper";
 
 // Country flag map for consistent display
@@ -496,6 +497,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [showExcludeDialog, setShowExcludeDialog] = useState(false);
   const [showReceiptView, setShowReceiptView] = useState(false);
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
+  const [showUSD, setShowUSD] = useState(false);
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   // Finalized workers - once finalized, their items are locked
@@ -1002,12 +1004,14 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-medium">{selectedSubmission.workerType === "employee" ? "Estimated net" : "Invoice total"}</p>
                             <button onClick={() => setShowReceiptView(true)} className="text-[10px] text-muted-foreground/50 hover:text-primary transition-colors mt-0.5">View receipt →</button>
                           </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{formatCurrency(adjustedNet, currency)}</p>
-                            {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments) &&
-                          <p className="text-[10px] text-muted-foreground/60 tabular-nums">was {formatCurrency(baseNet, currency)}</p>
-                          }
-                          </div>
+                          <CurrencyToggle
+                            amount={adjustedNet}
+                            localCurrency={currency}
+                            showUSD={showUSD}
+                            onToggle={() => setShowUSD(!showUSD)}
+                            previousAmount={baseNet}
+                            showPreviousAmount={approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments}
+                          />
                         </div>
                       </div>
                     </SheetHeader>

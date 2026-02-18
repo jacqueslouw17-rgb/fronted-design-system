@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "./CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA3_AdminAddAdjustment";
+import { CurrencyToggle } from "@/components/flows/shared/CurrencyToggle";
 
 // Country flag map for consistent display
 const countryFlags: Record<string, string> = {
@@ -784,6 +785,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
   // Admin add adjustment mode
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
+  const [showUSD, setShowUSD] = useState(false);
 
   // Track newly added adjustment for animation + auto-expand
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
@@ -1434,14 +1436,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             View receipt →
                           </button>
                         </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
-                            {formatCurrency(adjustedNet, currency)}
-                          </p>
-                          {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments) && <p className="text-[10px] text-muted-foreground/60 tabular-nums">
-                              was {formatCurrency(baseNet, currency)}
-                            </p>}
-                        </div>
+                        <CurrencyToggle
+                          amount={adjustedNet}
+                          localCurrency={currency}
+                          showUSD={showUSD}
+                          onToggle={() => setShowUSD(!showUSD)}
+                          previousAmount={baseNet}
+                          showPreviousAmount={approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments}
+                        />
                       </div>
                     </div>}
                 </SheetHeader>
