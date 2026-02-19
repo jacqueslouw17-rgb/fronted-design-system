@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
+import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -645,8 +645,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             )}
           </div>
 
-          {/* Metrics Grid */}
-          <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-6">
+          {/* Metrics Grid - 5 equal tiles */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
             {/* Gross Pay */}
             <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
               <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
@@ -657,7 +657,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
             </div>
 
-            {/* Total Adjustments */}
+            {/* Adjustments */}
             <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
               <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                 <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
@@ -667,34 +667,35 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Bonuses, overtime & expenses</p>
             </div>
 
-            {/* Fronted Fees */}
+            {/* Employees */}
             <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
               <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-xs sm:text-sm">Fronted Fees</span>
+                <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span className="text-xs sm:text-sm">Employees</span>
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Transaction + Service</p>
+              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
             </div>
 
-            {/* Total Cost */}
+            {/* Contractors */}
             <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
               <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-xs sm:text-sm">Total Cost</span>
+                <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span className="text-xs sm:text-sm">Contractors</span>
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Pay + All Fees</p>
+              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
             </div>
-          </div>
 
-          {/* Footer Stats */}
-          <div className="flex items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-muted-foreground py-3 border-t border-border/30 flex-wrap">
-            <span>Employees: <strong className="text-foreground">{displayMetrics.employeeCount}</strong></span>
-            <span className="text-border">·</span>
-            <span>Contractors: <strong className="text-foreground">{displayMetrics.contractorCount}</strong></span>
-            <span className="text-border">·</span>
-            <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
+            {/* Currencies */}
+            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span className="text-xs sm:text-sm">Currencies</span>
+              </div>
+              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Multi-currency run</p>
+            </div>
           </div>
         </CardContent>
       </Card>

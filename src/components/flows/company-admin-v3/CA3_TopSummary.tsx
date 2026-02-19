@@ -84,8 +84,8 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
         </div>
       </CardHeader>
       <CardContent className="p-3 sm:p-5">
-        {/* KPI Cards - individual cards like worker rows */}
-        <div className="grid grid-cols-4 gap-2 sm:gap-3">
+        {/* KPI Cards - 5 equal tiles */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
           <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Gross Pay</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(grossPay)}</p>
@@ -95,12 +95,16 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
             <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(netPay)}</p>
           </div>
           <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Fronted Fees</p>
-            <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(frontedFees)}</p>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Employees</p>
+            <p className="text-sm sm:text-lg font-semibold text-foreground">{employeeCount}</p>
           </div>
-          <div className="p-2.5 sm:p-4 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
-            <p className="text-[10px] sm:text-[11px] text-primary/70 mb-1">Total Cost</p>
-            <p className="text-sm sm:text-lg font-semibold text-primary">{formatCurrency(totalCost)}</p>
+          <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Contractors</p>
+            <p className="text-sm sm:text-lg font-semibold text-foreground">{contractorCount}</p>
+          </div>
+          <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Currencies</p>
+            <p className="text-sm sm:text-lg font-semibold text-foreground">{currencyCount}</p>
           </div>
         </div>
       </CardContent>
