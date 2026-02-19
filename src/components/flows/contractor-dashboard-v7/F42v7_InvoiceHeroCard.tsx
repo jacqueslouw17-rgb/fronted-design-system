@@ -6,15 +6,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Calendar, ChevronRight } from "lucide-react";
 
-interface F42v6_InvoiceHeroCardProps {
+interface F42v7_InvoiceHeroCardProps {
   onViewDetails?: () => void;
   currency?: string;
 }
 
-export const F42v6_InvoiceHeroCard = ({ 
+export const F42v7_InvoiceHeroCard = ({ 
   onViewDetails,
   currency = "USD"
-}: F42v6_InvoiceHeroCardProps) => {
+}: F42v7_InvoiceHeroCardProps) => {
   const currencySymbol = currency === "USD" ? "$" : "₱";
   
   return (

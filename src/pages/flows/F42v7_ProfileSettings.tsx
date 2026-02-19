@@ -51,7 +51,7 @@ const PROFILE_SECTIONS = [
   { id: "work_setup", title: "Work Setup & Agreements", icon: "💼" },
 ];
 
-const F42v6_ProfileSettings = () => {
+const F42v7_ProfileSettings = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentSection, setCurrentSection] = useState<Section>("overview");
@@ -96,7 +96,7 @@ const F42v6_ProfileSettings = () => {
     const searchParams = new URLSearchParams(location.search);
     const returnUrl = searchParams.get('returnUrl') || (location.state as any)?.returnUrl;
     if (returnUrl) return returnUrl;
-    return '/candidate-dashboard-contractor-v6';
+    return '/candidate-dashboard-contractor-v7';
   };
 
   const handleClose = () => {
@@ -172,7 +172,7 @@ const F42v6_ProfileSettings = () => {
         <X className="h-4 w-4 sm:h-5 sm:w-5" />
       </Button>
       
-      <AgentLayout context="contractor-profile-settings-v6">
+      <AgentLayout context="contractor-profile-settings-v7">
         <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
           {/* Static background */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -355,4 +355,4 @@ const F42v6_ProfileSettings = () => {
   );
 };
 
-export default F42v6_ProfileSettings;
+export default F42v7_ProfileSettings;

@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
-interface F41v6_PayoutBreakdownDrawerProps {
+interface F41v7_PayoutBreakdownDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency?: string;
@@ -24,7 +24,7 @@ interface F41v6_PayoutBreakdownDrawerProps {
   netPay?: number;
 }
 
-export const F41v6_PayoutBreakdownDrawer = ({
+export const F41v7_PayoutBreakdownDrawer = ({
   open,
   onOpenChange,
   currency = "PHP",
@@ -43,7 +43,7 @@ export const F41v6_PayoutBreakdownDrawer = ({
     { label: "Company Benefits", amount: 5000 },
   ],
   netPay,
-}: F41v6_PayoutBreakdownDrawerProps) => {
+}: F41v7_PayoutBreakdownDrawerProps) => {
   const currencySymbol = currency === "PHP" ? "₱" : "$";
 
   const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);

@@ -10,15 +10,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronRight, FileText, X, Calendar, Wallet, Clock, AlertCircle, Check } from 'lucide-react';
-import { useF41v6_DashboardStore, type F41v6_PayrollStatus, type F41v6_Adjustment, type F41v6_LeaveRequest } from '@/stores/F41v6_DashboardStore';
-import { F41v6_AdjustmentModal, type RequestType } from './F41v6_AdjustmentModal';
-import { F41v6_ConfirmPayDialog } from './F41v6_ConfirmPayDialog';
-import { F41v6_SubmitNoChangesDialog } from './F41v6_SubmitNoChangesDialog';
-import { F41v6_AdjustmentDetailModal } from './F41v6_AdjustmentDetailModal';
-import { F41v6_PayslipHistoryDrawer } from './F41v6_PayslipHistoryDrawer';
-import { F41v6_WithdrawDialog } from './F41v6_WithdrawDialog';
-import { F41v6_WithdrawSubmissionDialog } from './F41v6_WithdrawSubmissionDialog';
-import { F41v6_PayBreakdownDrawer } from './F41v6_PayBreakdownDrawer';
+import { useF41v7_DashboardStore, type F41v7_PayrollStatus, type F41v7_Adjustment, type F41v7_LeaveRequest } from '@/stores/F41v7_DashboardStore';
+import { F41v7_AdjustmentModal, type RequestType } from './F41v7_AdjustmentModal';
+import { F41v7_ConfirmPayDialog } from './F41v7_ConfirmPayDialog';
+import { F41v7_SubmitNoChangesDialog } from './F41v7_SubmitNoChangesDialog';
+import { F41v7_AdjustmentDetailModal } from './F41v7_AdjustmentDetailModal';
+import { F41v7_PayslipHistoryDrawer } from './F41v7_PayslipHistoryDrawer';
+import { F41v7_WithdrawDialog } from './F41v7_WithdrawDialog';
+import { F41v7_WithdrawSubmissionDialog } from './F41v7_WithdrawSubmissionDialog';
+import { F41v7_PayBreakdownDrawer } from './F41v7_PayBreakdownDrawer';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -52,7 +52,7 @@ const formatSubmittedTimestamp = (dateStr: string) => {
 };
 
 // Status badge configuration
-const getStatusConfig = (status: F41v6_PayrollStatus): {
+const getStatusConfig = (status: F41v7_PayrollStatus): {
   label: string;
   className: string;
   explanation: string;
@@ -123,7 +123,7 @@ const getStatusConfig = (status: F41v6_PayrollStatus): {
   }
 };
 
-const getAdjustmentStatusColor = (status: F41v6_Adjustment['status']) => {
+const getAdjustmentStatusColor = (status: F41v7_Adjustment['status']) => {
   switch (status) {
     case 'Pending':
       return 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-500 dark:border-amber-500/30';
@@ -138,7 +138,7 @@ const getAdjustmentStatusColor = (status: F41v6_Adjustment['status']) => {
   }
 };
 
-const getLeaveStatusColor = (status: F41v6_LeaveRequest['status']) => {
+const getLeaveStatusColor = (status: F41v7_LeaveRequest['status']) => {
   switch (status) {
     case 'Pending':
       return 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-500 dark:border-amber-500/30';
@@ -153,7 +153,7 @@ const getLeaveStatusColor = (status: F41v6_LeaveRequest['status']) => {
   }
 };
 
-export const F41v6_UpcomingPayCard = () => {
+export const F41v7_UpcomingPayCard = () => {
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [adjustmentModalInitialType, setAdjustmentModalInitialType] = useState<RequestType>(null);
   const [adjustmentModalInitialCategory, setAdjustmentModalInitialCategory] = useState('');
@@ -163,7 +163,7 @@ export const F41v6_UpcomingPayCard = () => {
   const [noChangesDialogOpen, setNoChangesDialogOpen] = useState(false);
   const [payslipDrawerOpen, setPayslipDrawerOpen] = useState(false);
   const [breakdownDrawerOpen, setBreakdownDrawerOpen] = useState(false);
-  const [selectedAdjustment, setSelectedAdjustment] = useState<F41v6_Adjustment | null>(null);
+  const [selectedAdjustment, setSelectedAdjustment] = useState<F41v7_Adjustment | null>(null);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTarget, setWithdrawTarget] = useState<{
     type: 'adjustment' | 'leave';
@@ -216,7 +216,7 @@ export const F41v6_UpcomingPayCard = () => {
     setPayrollStatus,
     markRejectionResubmitted,
     addAdjustment
-  } = useF41v6_DashboardStore();
+  } = useF41v7_DashboardStore();
 
   // Auto-transition from 'submitted' to 'approved' after 3 seconds
   useEffect(() => {
@@ -370,20 +370,20 @@ export const F41v6_UpcomingPayCard = () => {
       </Card>
 
       {/* Modals & Drawers */}
-      <F41v6_AdjustmentModal open={adjustmentModalOpen} onOpenChange={handleAdjustmentModalClose} currency={currency} initialType={adjustmentModalInitialType} initialExpenseCategory={adjustmentModalInitialCategory} initialExpenseAmount={adjustmentModalInitialAmount} onBack={adjustmentModalFromBreakdown ? () => setBreakdownDrawerOpen(true) : undefined} />
+      <F41v7_AdjustmentModal open={adjustmentModalOpen} onOpenChange={handleAdjustmentModalClose} currency={currency} initialType={adjustmentModalInitialType} initialExpenseCategory={adjustmentModalInitialCategory} initialExpenseAmount={adjustmentModalInitialAmount} onBack={adjustmentModalFromBreakdown ? () => setBreakdownDrawerOpen(true) : undefined} />
 
-      <F41v6_ConfirmPayDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen} periodLabel={periodLabel} />
+      <F41v7_ConfirmPayDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen} periodLabel={periodLabel} />
 
-      <F41v6_SubmitNoChangesDialog open={noChangesDialogOpen} onOpenChange={setNoChangesDialogOpen} periodLabel={periodLabel} />
+      <F41v7_SubmitNoChangesDialog open={noChangesDialogOpen} onOpenChange={setNoChangesDialogOpen} periodLabel={periodLabel} />
 
-      <F41v6_AdjustmentDetailModal adjustment={selectedAdjustment} onClose={() => setSelectedAdjustment(null)} currency={currency} />
+      <F41v7_AdjustmentDetailModal adjustment={selectedAdjustment} onClose={() => setSelectedAdjustment(null)} currency={currency} />
 
-      <F41v6_PayslipHistoryDrawer open={payslipDrawerOpen} onOpenChange={setPayslipDrawerOpen} />
+      <F41v7_PayslipHistoryDrawer open={payslipDrawerOpen} onOpenChange={setPayslipDrawerOpen} />
 
-      <F41v6_PayBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} estimatedNet={estimatedNet} periodLabel={periodLabel} />
+      <F41v7_PayBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} estimatedNet={estimatedNet} periodLabel={periodLabel} />
 
-      <F41v6_WithdrawDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen} onConfirm={handleConfirmWithdraw} requestType={withdrawTarget?.type || 'adjustment'} />
+      <F41v7_WithdrawDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen} onConfirm={handleConfirmWithdraw} requestType={withdrawTarget?.type || 'adjustment'} />
 
-      <F41v6_WithdrawSubmissionDialog open={withdrawSubmissionDialogOpen} onOpenChange={setWithdrawSubmissionDialogOpen} onConfirm={withdrawSubmission} />
+      <F41v7_WithdrawSubmissionDialog open={withdrawSubmissionDialogOpen} onOpenChange={setWithdrawSubmissionDialogOpen} onConfirm={withdrawSubmission} />
     </>;
 };

@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
-import { useF41v6_DashboardStore, type F41v6_LeaveType } from '@/stores/F41v6_DashboardStore';
+import { useF41v7_DashboardStore, type F41v7_LeaveType } from '@/stores/F41v7_DashboardStore';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Plane, Check, Sun, Sparkles, AlertTriangle, MapPin, Info } from 'lucide-react';
 import { format } from 'date-fns';
@@ -31,7 +31,7 @@ import {
   type Holiday,
 } from '@/utils/countryLeaveUtils';
 
-interface F41v6_TimeOffRequestDrawerProps {
+interface F41v7_TimeOffRequestDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   rejectedId?: string;
@@ -41,7 +41,7 @@ interface F41v6_TimeOffRequestDrawerProps {
   initialEndDate?: string;
 }
 
-const leaveTypes: { value: F41v6_LeaveType; label: string; icon: string }[] = [
+const leaveTypes: { value: F41v7_LeaveType; label: string; icon: string }[] = [
   { value: 'Vacation', label: 'Vacation', icon: '🌴' },
   { value: 'Sick', label: 'Sick', icon: '🤒' },
   { value: 'Compassionate', label: 'Compassionate', icon: '💜' },
@@ -63,7 +63,7 @@ const COUNTRY_NAMES: Record<string, string> = {
   JP: 'Japan',
 };
 
-export const F41v6_TimeOffRequestDrawer = ({ 
+export const F41v7_TimeOffRequestDrawer = ({ 
   open, 
   onOpenChange, 
   rejectedId, 
@@ -71,12 +71,12 @@ export const F41v6_TimeOffRequestDrawer = ({
   initialLeaveType,
   initialStartDate,
   initialEndDate
-}: F41v6_TimeOffRequestDrawerProps) => {
-  const { addLeaveRequest, employeeCountry, leaveRequests, withdrawLeaveRequest } = useF41v6_DashboardStore();
+}: F41v7_TimeOffRequestDrawerProps) => {
+  const { addLeaveRequest, employeeCountry, leaveRequests, withdrawLeaveRequest } = useF41v7_DashboardStore();
   
   const [countryRules, setCountryRules] = useState<CountryRules | null>(null);
   const [isLoadingRules, setIsLoadingRules] = useState(false);
-  const [leaveType, setLeaveType] = useState<F41v6_LeaveType>('Vacation');
+  const [leaveType, setLeaveType] = useState<F41v7_LeaveType>('Vacation');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [isHalfDay, setIsHalfDay] = useState(false);
   const [notes, setNotes] = useState('');

@@ -10,13 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Info, X, RotateCcw, CalendarDays } from 'lucide-react';
-import { useF41v6_DashboardStore, type F41v6_LeaveRequest } from '@/stores/F41v6_DashboardStore';
+import { useF41v7_DashboardStore, type F41v7_LeaveRequest } from '@/stores/F41v7_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { F41v6_WithdrawDialog } from './F41v6_WithdrawDialog';
+import { F41v7_WithdrawDialog } from './F41v7_WithdrawDialog';
 import { toast } from 'sonner';
 
-interface F41v6_TimeOffSectionProps {
+interface F41v7_TimeOffSectionProps {
   onRequestTimeOff: (rejectedId?: string, leaveType?: string, startDate?: string, endDate?: string, rejectionReason?: string) => void;
 }
 
@@ -33,15 +33,15 @@ interface ProcessedLeave {
   totalDays: number;
   daysInCurrentPeriod: number;
   daysInNextPeriod: number;
-  status: F41v6_LeaveRequest['status'];
+  status: F41v7_LeaveRequest['status'];
   spansPeriods: boolean;
   isInCurrentPeriod: boolean;
   isInLater: boolean;
   rejectionReason?: string;
 }
 
-export const F41v6_TimeOffSection = ({ onRequestTimeOff }: F41v6_TimeOffSectionProps) => {
-  const { leaveRequests, withdrawLeaveRequest, payrollStatus } = useF41v6_DashboardStore();
+export const F41v7_TimeOffSection = ({ onRequestTimeOff }: F41v7_TimeOffSectionProps) => {
+  const { leaveRequests, withdrawLeaveRequest, payrollStatus } = useF41v7_DashboardStore();
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
   
@@ -143,7 +143,7 @@ export const F41v6_TimeOffSection = ({ onRequestTimeOff }: F41v6_TimeOffSectionP
     }
   };
 
-  const getStatusBadge = (status: F41v6_LeaveRequest['status']) => {
+  const getStatusBadge = (status: F41v7_LeaveRequest['status']) => {
     switch (status) {
       case 'Pending':
         return (
@@ -309,7 +309,7 @@ export const F41v6_TimeOffSection = ({ onRequestTimeOff }: F41v6_TimeOffSectionP
         </CardContent>
       </Card>
       
-      <F41v6_WithdrawDialog
+      <F41v7_WithdrawDialog
         open={withdrawDialogOpen}
         onOpenChange={setWithdrawDialogOpen}
         onConfirm={handleConfirmWithdraw}

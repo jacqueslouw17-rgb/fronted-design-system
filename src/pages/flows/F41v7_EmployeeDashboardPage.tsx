@@ -14,12 +14,12 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  F41v6_PayoutHeroCard, 
-  F41v6_PayslipsSection, 
-  F41v6_PayoutBreakdownDrawer,
-  F41v6_AdjustmentsSection,
-  F41v6_AdjustmentModal
-} from "@/components/flows/employee-dashboard-v6";
+  F41v7_PayoutHeroCard, 
+  F41v7_PayslipsSection, 
+  F41v7_PayoutBreakdownDrawer,
+  F41v7_AdjustmentsSection,
+  F41v7_AdjustmentModal
+} from "@/components/flows/employee-dashboard-v7";
 
 interface PayslipData {
   id: string;
@@ -103,7 +103,7 @@ const payslipsData: PayslipData[] = [
   },
 ];
 
-const F41v6_EmployeeDashboardPage = () => {
+const F41v7_EmployeeDashboardPage = () => {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [selectedPayslip, setSelectedPayslip] = useState<PayslipData>(payslipsData[0]);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
@@ -168,12 +168,12 @@ const F41v6_EmployeeDashboardPage = () => {
         <div className="flex flex-col min-h-screen bg-background">
           <Topbar 
             userName={candidateProfile.name} 
-            profileSettingsUrl="/flows/employee-profile-settings-v6?returnUrl=/candidate-dashboard-employee-v6" 
-            dashboardUrl="/candidate-dashboard-employee-v6" 
+            profileSettingsUrl="/flows/employee-profile-settings-v7?returnUrl=/candidate-dashboard-employee-v7" 
+            dashboardUrl="/candidate-dashboard-employee-v7" 
           />
 
           <div className="flex-1">
-            <AgentLayout context="Employee Dashboard v6">
+            <AgentLayout context="Employee Dashboard v7">
               <main className="flex-1 min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
                 {/* Static background */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -207,11 +207,11 @@ const F41v6_EmployeeDashboardPage = () => {
 
                     <TabsContent value="payroll" className="mt-0 space-y-6">
                       {/* Hero Card with Last/Next Payout */}
-                      <F41v6_PayoutHeroCard 
+                      <F41v7_PayoutHeroCard 
                         onViewDetails={handleViewDetails}
                         currency={candidateProfile.currency}
                       />
-                      <F41v6_PayslipsSection 
+                      <F41v7_PayslipsSection 
                         currency={candidateProfile.currency}
                         onDownload={handleDownload}
                         onViewDetails={handleViewDetails}
@@ -219,7 +219,7 @@ const F41v6_EmployeeDashboardPage = () => {
                     </TabsContent>
 
                     <TabsContent value="adjustments" className="mt-0">
-                      <F41v6_AdjustmentsSection 
+                      <F41v7_AdjustmentsSection 
                         onRequestAdjustment={handleRequestAdjustment}
                       />
                     </TabsContent>
@@ -262,4 +262,4 @@ const F41v6_EmployeeDashboardPage = () => {
   );
 };
 
-export default F41v6_EmployeeDashboardPage;
+export default F41v7_EmployeeDashboardPage;

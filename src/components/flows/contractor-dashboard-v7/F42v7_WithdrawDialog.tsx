@@ -17,17 +17,17 @@ import {
 } from '@/components/ui/alert-dialog';
 import { X } from 'lucide-react';
 
-interface F42v5_WithdrawDialogProps {
+interface F42v7_WithdrawDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }
 
-export const F42v6_WithdrawDialog = ({
+export const F42v7_WithdrawDialog = ({
   open,
   onOpenChange,
   onConfirm,
-}: F42v5_WithdrawDialogProps) => {
+}: F42v7_WithdrawDialogProps) => {
   const handleConfirm = () => {
     onConfirm();
     onOpenChange(false);

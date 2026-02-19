@@ -15,17 +15,17 @@ interface Invoice {
   status: 'paid' | 'pending';
 }
 
-interface F42v6_InvoicesSectionProps {
+interface F42v7_InvoicesSectionProps {
   currency?: string;
   onDownload?: (invoiceId: string) => void;
   onViewDetails?: (invoiceId: string) => void;
 }
 
-export const F42v6_InvoicesSection = ({ 
+export const F42v7_InvoicesSection = ({ 
   currency = "USD",
   onDownload,
   onViewDetails
-}: F42v6_InvoicesSectionProps) => {
+}: F42v7_InvoicesSectionProps) => {
   const currencySymbol = currency === "USD" ? "$" : "₱";
   
   // Mock data

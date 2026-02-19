@@ -38,7 +38,7 @@ interface Payslip {
   overtimeAmount?: number;
 }
 
-interface F41v6_PayslipHistoryDrawerProps {
+interface F41v7_PayslipHistoryDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -154,10 +154,10 @@ const BreakdownRow = ({
   </div>
 );
 
-export const F41v6_PayslipHistoryDrawer = ({
+export const F41v7_PayslipHistoryDrawer = ({
   open,
   onOpenChange,
-}: F41v6_PayslipHistoryDrawerProps) => {
+}: F41v7_PayslipHistoryDrawerProps) => {
   const [selectedPayslip, setSelectedPayslip] = useState<Payslip | null>(null);
 
   const handleDownload = (payslip: Payslip, e?: React.MouseEvent) => {

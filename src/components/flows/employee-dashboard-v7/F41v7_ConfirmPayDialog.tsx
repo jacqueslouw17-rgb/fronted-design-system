@@ -1,7 +1,7 @@
 /**
- * Flow 4.1 — Employee Dashboard v6
+ * Flow 4.1 — Employee Dashboard v7
  * Confirm Pay Dialog - Review & Submit flow
- * INDEPENDENT from v5 and all other flows.
+ * INDEPENDENT from v6 and all other flows.
  */
 
 import {
@@ -16,16 +16,16 @@ import {
 } from '@/components/ui/alert-dialog';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
-import { useF41v6_DashboardStore } from '@/stores/F41v6_DashboardStore';
+import { useF41v7_DashboardStore } from '@/stores/F41v7_DashboardStore';
 
-interface F41v6_ConfirmPayDialogProps {
+interface F41v7_ConfirmPayDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   periodLabel: string;
 }
 
-export const F41v6_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v6_ConfirmPayDialogProps) => {
-  const { submitForReview, payrollStatus } = useF41v6_DashboardStore();
+export const F41v7_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v7_ConfirmPayDialogProps) => {
+  const { submitForReview, payrollStatus } = useF41v7_DashboardStore();
 
   const isResubmit = payrollStatus === 'returned';
 

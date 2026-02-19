@@ -13,12 +13,12 @@ import {
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { type F42v6_Adjustment } from '@/stores/F42v6_DashboardStore';
+import { type F42v7_Adjustment } from '@/stores/F42v7_DashboardStore';
 import { FileText, Clock, AlertTriangle } from 'lucide-react';
 import { TagChips } from '@/components/flows/shared/TagInput';
 
-interface F42v6_AdjustmentDetailDrawerProps {
-  adjustment: F42v6_Adjustment | null;
+interface F42v7_AdjustmentDetailDrawerProps {
+  adjustment: F42v7_Adjustment | null;
   onClose: () => void;
   onCancelRequest?: (id: string) => void;
   currency: string;
@@ -43,7 +43,7 @@ const formatDate = (dateStr: string) => {
   });
 };
 
-const getStatusBadge = (status: F42v6_Adjustment['status']) => {
+const getStatusBadge = (status: F42v7_Adjustment['status']) => {
   switch (status) {
     case 'Pending':
       return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Pending</Badge>;
@@ -58,13 +58,13 @@ const getStatusBadge = (status: F42v6_Adjustment['status']) => {
   }
 };
 
-export const F42v6_AdjustmentDetailDrawer = ({ 
+export const F42v7_AdjustmentDetailDrawer = ({ 
   adjustment, 
   onClose, 
   onCancelRequest,
   currency,
   isWindowOpen,
-}: F42v6_AdjustmentDetailDrawerProps) => {
+}: F42v7_AdjustmentDetailDrawerProps) => {
   if (!adjustment) return null;
 
   const isImage = adjustment.receiptUrl?.match(/\.(jpg|jpeg|png)$/i);

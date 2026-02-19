@@ -11,11 +11,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { type F41v6_Adjustment } from '@/stores/F41v6_DashboardStore';
+import { type F41v7_Adjustment } from '@/stores/F41v7_DashboardStore';
 import { FileText, Clock, AlertTriangle } from 'lucide-react';
 
-interface F41v6_AdjustmentDetailModalProps {
-  adjustment: F41v6_Adjustment | null;
+interface F41v7_AdjustmentDetailModalProps {
+  adjustment: F41v7_Adjustment | null;
   onClose: () => void;
   currency: string;
 }
@@ -38,7 +38,7 @@ const formatDate = (dateStr: string) => {
   });
 };
 
-const getStatusBadge = (status: F41v6_Adjustment['status']) => {
+const getStatusBadge = (status: F41v7_Adjustment['status']) => {
   switch (status) {
     case 'Pending':
       return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Pending</Badge>;
@@ -53,7 +53,7 @@ const getStatusBadge = (status: F41v6_Adjustment['status']) => {
   }
 };
 
-export const F41v6_AdjustmentDetailModal = ({ adjustment, onClose, currency }: F41v6_AdjustmentDetailModalProps) => {
+export const F41v7_AdjustmentDetailModal = ({ adjustment, onClose, currency }: F41v7_AdjustmentDetailModalProps) => {
   if (!adjustment) return null;
 
   const isImage = adjustment.receiptUrl?.match(/\.(jpg|jpeg|png)$/i);

@@ -30,11 +30,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { useF42v6_DashboardStore, type F42v6_ContractType } from '@/stores/F42v6_DashboardStore';
+import { useF42v7_DashboardStore, type F42v7_ContractType } from '@/stores/F42v7_DashboardStore';
 import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle } from 'lucide-react';
 import { TagInput } from '@/components/flows/shared/TagInput';
-import { F41v6_TimeInput } from '@/components/flows/employee-dashboard-v6/F41v6_TimeInput';
+import { F41v7_TimeInput } from '@/components/flows/employee-dashboard-v7/F41v7_TimeInput';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -42,11 +42,11 @@ import { Badge } from '@/components/ui/badge';
 
 export type ContractorRequestType = 'expense' | 'additional-hours' | 'bonus' | 'correction' | null;
 
-interface F42v6_AdjustmentDrawerProps {
+interface F42v7_AdjustmentDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency: string;
-  contractType: F42v6_ContractType;
+  contractType: F42v7_ContractType;
   initialType?: ContractorRequestType;
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
@@ -84,7 +84,7 @@ interface CommissionLineItem {
   amount: string;
   attachment: File[];
 }
-const getRequestTypeOptions = (contractType: F42v6_ContractType) => {
+const getRequestTypeOptions = (contractType: F42v7_ContractType) => {
   const options = [
     { 
       id: 'expense' as ContractorRequestType, 
@@ -116,22 +116,10 @@ const getRequestTypeOptions = (contractType: F42v6_ContractType) => {
   return options;
 };
 
-export const F42v6_AdjustmentDrawer = ({ 
-  open, 
-  onOpenChange, 
-  currency, 
-  contractType,
-  initialType = null,
-  initialExpenseCategory = '',
-  initialExpenseAmount = '',
-  initialHours,
-  initialDate,
-  initialStartTime,
-  initialEndTime,
-  rejectedId,
-  onBack 
-}: F42v6_AdjustmentDrawerProps) => {
-  const { addAdjustment, markRejectionResubmitted, adjustments } = useF42v6_DashboardStore();
+export const F42v7_AdjustmentDrawer = ({ 
+  open, onOpenChange, currency, contractType, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDate, initialStartTime, initialEndTime, rejectedId, onBack 
+}: F42v7_AdjustmentDrawerProps) => {
+  const { addAdjustment, markRejectionResubmitted, adjustments } = useF42v7_DashboardStore();
 
   const rejectedAdjustment = rejectedId
     ? adjustments.find((adj) => adj.id === rejectedId)
