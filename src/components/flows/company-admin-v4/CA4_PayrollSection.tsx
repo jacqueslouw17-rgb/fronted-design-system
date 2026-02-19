@@ -494,7 +494,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
                 <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                 <span className="text-xs sm:text-sm">Gross Pay</span>
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
+              <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
             </div>
 
@@ -504,7 +504,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
                 <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                 <span className="text-xs sm:text-sm">Adjustments</span>
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
+              <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.adjustments}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Bonuses, overtime & expenses</p>
             </div>
 
