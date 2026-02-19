@@ -65,7 +65,7 @@ const countryCurrencyMap: Record<string, string> = {
  */
 export function getCurrencyCode(country: string, employmentType: "employee" | "contractor"): string {
   if (employmentType === "contractor") {
-    return "USD";
+    return "EUR";
   }
   return countryCurrencyMap[country] || "USD";
 }

@@ -59,6 +59,13 @@ export function convertToUSD(amount: number, fromCurrency: string): number {
   return amount * rate;
 }
 
+export function convertToEUR(amount: number, fromCurrency: string): number {
+  if (fromCurrency === "EUR") return amount;
+  const rateToUSD = fxRatesToUSD[fromCurrency] || 1;
+  const eurToUSD = fxRatesToUSD["EUR"] || 1.08;
+  return (amount * rateToUSD) / eurToUSD;
+}
+
 export function formatCurrencyAmount(amount: number, currency: string): string {
   const symbol = currencySymbols[currency] || currency;
   return `${symbol}${Math.abs(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -83,17 +90,17 @@ export const CurrencyToggle: React.FC<CurrencyToggleProps> = ({
   showPreviousAmount = false,
   className,
 }) => {
-  const isAlreadyUSD = localCurrency === "USD";
-  const displayAmount = showUSD && !isAlreadyUSD ? convertToUSD(amount, localCurrency) : amount;
-  const displayCurrency = showUSD && !isAlreadyUSD ? "USD" : localCurrency;
+  const isAlreadyEUR = localCurrency === "EUR";
+  const displayAmount = showUSD && !isAlreadyEUR ? convertToEUR(amount, localCurrency) : amount;
+  const displayCurrency = showUSD && !isAlreadyEUR ? "EUR" : localCurrency;
   const displayPrevious = previousAmount !== undefined && showPreviousAmount
-    ? (showUSD && !isAlreadyUSD ? convertToUSD(previousAmount, localCurrency) : previousAmount)
+    ? (showUSD && !isAlreadyEUR ? convertToEUR(previousAmount, localCurrency) : previousAmount)
     : undefined;
 
   return (
     <div className={cn("text-right", className)}>
       <div className="flex items-center justify-end gap-1.5">
-        {!isAlreadyUSD && (
+        {!isAlreadyEUR && (
           <button
             onClick={(e) => { e.stopPropagation(); onToggle(); }}
             className={cn(
@@ -105,17 +112,17 @@ export const CurrencyToggle: React.FC<CurrencyToggleProps> = ({
             )}
           >
             <ArrowLeftRight className="h-2.5 w-2.5" />
-            {showUSD ? "USD" : displayCurrency}
+            {showUSD ? "EUR" : displayCurrency}
           </button>
         )}
         <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
-          {showUSD && !isAlreadyUSD && "≈ "}
+          {showUSD && !isAlreadyEUR && "≈ "}
           {formatCurrencyAmount(displayAmount, displayCurrency)}
         </p>
       </div>
       {displayPrevious !== undefined && (
         <p className="text-[10px] text-muted-foreground/60 tabular-nums">
-          was {showUSD && !isAlreadyUSD && "≈ "}{formatCurrencyAmount(displayPrevious, displayCurrency)}
+          was {showUSD && !isAlreadyEUR && "≈ "}{formatCurrencyAmount(displayPrevious, displayCurrency)}
         </p>
       )}
     </div>

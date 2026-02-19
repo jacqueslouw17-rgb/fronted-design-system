@@ -283,10 +283,10 @@ const previousPayrolls: PreviousPayroll[] = [
     id: "dec-2025",
     period: "December 2025",
     paidDate: "Dec 28, 2025",
-    grossPay: "$118.4K",
-    adjustments: "$6.8K",
-    fees: "$3,512",
-    totalCost: "$121.9K",
+    grossPay: "€109.7K",
+    adjustments: "€6.3K",
+    fees: "€3,256",
+    totalCost: "€113.0K",
     employeeCount: 4,
     contractorCount: 5,
     currencyCount: 3,
@@ -304,10 +304,10 @@ const previousPayrolls: PreviousPayroll[] = [
     id: "nov-2025",
     period: "November 2025",
     paidDate: "Nov 28, 2025",
-    grossPay: "$115.2K",
-    adjustments: "$5.4K",
-    fees: "$3,380",
-    totalCost: "$118.6K",
+    grossPay: "€106.8K",
+    adjustments: "€5.0K",
+    fees: "€3,133",
+    totalCost: "€109.9K",
     employeeCount: 4,
     contractorCount: 4,
     currencyCount: 3,
@@ -324,11 +324,11 @@ const previousPayrolls: PreviousPayroll[] = [
 
 // Per-run KPI metrics
 const RUN_METRICS: Record<string, { grossPay: string; adjustments: string; fees: string; totalCost: string; employeeCount: number; contractorCount: number; currencyCount: number }> = {
-  "jan-monthly": { grossPay: "$124.9K", adjustments: "$8.2K", fees: "$3,742", totalCost: "$128.6K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
-  "jan-fortnight-2": { grossPay: "$62.4K", adjustments: "$3.1K", fees: "$1,890", totalCost: "$65.5K", employeeCount: 3, contractorCount: 2, currencyCount: 2 },
-  "jan-fortnight-1": { grossPay: "$58.2K", adjustments: "$2.8K", fees: "$1,750", totalCost: "$61.0K", employeeCount: 2, contractorCount: 3, currencyCount: 2 },
-  "dec-monthly": { grossPay: "$118.4K", adjustments: "$6.8K", fees: "$3,512", totalCost: "$121.9K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
-  "nov-monthly": { grossPay: "$115.2K", adjustments: "$5.4K", fees: "$3,380", totalCost: "$118.6K", employeeCount: 4, contractorCount: 4, currencyCount: 3 },
+  "jan-monthly": { grossPay: "€115.7K", adjustments: "€7.6K", fees: "€3,468", totalCost: "€119.2K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
+  "jan-fortnight-2": { grossPay: "€57.8K", adjustments: "€2.9K", fees: "€1,752", totalCost: "€60.7K", employeeCount: 3, contractorCount: 2, currencyCount: 2 },
+  "jan-fortnight-1": { grossPay: "€53.9K", adjustments: "€2.6K", fees: "€1,622", totalCost: "€56.5K", employeeCount: 2, contractorCount: 3, currencyCount: 2 },
+  "dec-monthly": { grossPay: "€109.7K", adjustments: "€6.3K", fees: "€3,256", totalCost: "€113.0K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
+  "nov-monthly": { grossPay: "€106.8K", adjustments: "€5.0K", fees: "€3,133", totalCost: "€109.9K", employeeCount: 4, contractorCount: 4, currencyCount: 3 },
 };
 
 // Per-run worker submissions (different workers per run)
@@ -796,7 +796,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         }
         return (
           <CA3_SubmitStep
-            totalCost="$128,592"
+            totalCost="€128,592"
             employeeCount={4}
             contractorCount={5}
             currencyCount={3}
@@ -838,7 +838,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           onConfirm={handleConfirmSubmit}
           employeeCount={4}
           contractorCount={5}
-          totalAmount="$128,592"
+          totalAmount="€128,592"
         />
       </>
     );
@@ -859,7 +859,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         onConfirm={handleConfirmSubmit}
         employeeCount={4}
         contractorCount={5}
-        totalAmount="$128,592"
+        totalAmount="€128,592"
       />
     </div>
   );
