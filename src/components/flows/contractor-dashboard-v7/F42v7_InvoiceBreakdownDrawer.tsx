@@ -73,7 +73,7 @@ const BreakdownRow = ({
   </div>
 );
 
-export const F42v6_InvoiceBreakdownDrawer = ({
+export const F42v7_InvoiceBreakdownDrawer = ({
   open,
   onOpenChange,
   lineItems,

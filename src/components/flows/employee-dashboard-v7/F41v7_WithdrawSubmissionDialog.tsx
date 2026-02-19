@@ -1,7 +1,7 @@
 /**
- * Flow 4.1 — Employee Dashboard v6
+ * Flow 4.1 — Employee Dashboard v7
  * Withdraw Submission Confirmation Dialog
- * INDEPENDENT from v5 and all other flows.
+ * INDEPENDENT from v6 and all other flows.
  */
 
 import {
@@ -17,17 +17,17 @@ import {
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface F41v6_WithdrawSubmissionDialogProps {
+interface F41v7_WithdrawSubmissionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }
 
-export const F41v6_WithdrawSubmissionDialog = ({
+export const F41v7_WithdrawSubmissionDialog = ({
   open,
   onOpenChange,
   onConfirm,
-}: F41v6_WithdrawSubmissionDialogProps) => {
+}: F41v7_WithdrawSubmissionDialogProps) => {
   const handleConfirm = () => {
     onConfirm();
     onOpenChange(false);
@@ -37,7 +37,6 @@ export const F41v6_WithdrawSubmissionDialog = ({
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent onOverlayClick={() => onOpenChange(false)}>
-        {/* Close icon */}
         <button
           onClick={() => onOpenChange(false)}
           className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -45,7 +44,6 @@ export const F41v6_WithdrawSubmissionDialog = ({
         >
           <X className="h-4 w-4" />
         </button>
-
         <AlertDialogHeader>
           <AlertDialogTitle>Withdraw your submission?</AlertDialogTitle>
           <AlertDialogDescription>

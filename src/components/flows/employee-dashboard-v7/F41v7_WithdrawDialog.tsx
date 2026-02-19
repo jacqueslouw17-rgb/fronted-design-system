@@ -1,7 +1,7 @@
 /**
- * Flow 4.1 — Employee Dashboard v6
+ * Flow 4.1 — Employee Dashboard v7
  * Withdraw Request Confirmation Dialog
- * INDEPENDENT from v5 and all other flows.
+ * INDEPENDENT from v6 and all other flows.
  */
 
 import {
@@ -16,19 +16,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { X } from 'lucide-react';
 
-interface F41v6_WithdrawDialogProps {
+interface F41v7_WithdrawDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   requestType: 'adjustment' | 'leave';
 }
 
-export const F41v6_WithdrawDialog = ({
+export const F41v7_WithdrawDialog = ({
   open,
   onOpenChange,
   onConfirm,
   requestType,
-}: F41v6_WithdrawDialogProps) => {
+}: F41v7_WithdrawDialogProps) => {
   const handleConfirm = () => {
     onConfirm();
     onOpenChange(false);
@@ -40,7 +40,6 @@ export const F41v6_WithdrawDialog = ({
         className="sm:max-w-md"
         onOverlayClick={() => onOpenChange(false)}
       >
-        {/* Close button */}
         <button
           onClick={() => onOpenChange(false)}
           className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -48,7 +47,6 @@ export const F41v6_WithdrawDialog = ({
         >
           <X className="h-4 w-4" />
         </button>
-        
         <AlertDialogHeader>
           <AlertDialogTitle>Withdraw this request?</AlertDialogTitle>
           <AlertDialogDescription>

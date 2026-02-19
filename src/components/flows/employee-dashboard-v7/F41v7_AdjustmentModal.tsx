@@ -25,17 +25,17 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
-import { useF41v6_DashboardStore } from '@/stores/F41v6_DashboardStore';
+import { useF41v7_DashboardStore } from '@/stores/F41v7_DashboardStore';
 import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle, CalendarOff } from 'lucide-react';
 import { TagInput } from '@/components/flows/shared/TagInput';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { F41v6_TimeInput } from './F41v6_TimeInput';
+import { F41v7_TimeInput } from './F41v7_TimeInput';
 
 export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | 'unpaid-leave' | null;
 
-interface F41v6_AdjustmentModalProps {
+interface F41v7_AdjustmentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency: string;
@@ -107,8 +107,8 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v6_AdjustmentModalProps) => {
-  const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v6_DashboardStore();
+export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v7_AdjustmentModalProps) => {
+  const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v7_DashboardStore();
 
   const rejectedAdjustment = rejectedId
     ? adjustments.find((adj) => adj.id === rejectedId)
@@ -877,7 +877,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                           <Label className="text-xs">Start time</Label>
-                          <F41v6_TimeInput
+                        <F41v7_TimeInput
                             value={item.startTime}
                             onChange={(value) => updateOvertimeItem(item.id, 'startTime', value)}
                             hasError={!!errors[`overtime_${index}_startTime`]}
@@ -886,7 +886,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
                         <div className="space-y-1.5">
                           <Label className="text-xs">End time</Label>
-                          <F41v6_TimeInput
+                          <F41v7_TimeInput
                             value={item.endTime}
                             onChange={(value) => updateOvertimeItem(item.id, 'endTime', value)}
                             hasError={!!errors[`overtime_${index}_endTime`]}

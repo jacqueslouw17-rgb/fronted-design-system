@@ -14,13 +14,13 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  F42v6_InvoiceHeroCard, 
-  F42v6_InvoicesSection, 
-  F42v6_InvoiceBreakdownDrawer,
-  F42v6_AdjustmentsSection,
-  F42v6_AdjustmentDrawer
-} from "@/components/flows/contractor-dashboard-v6";
-import { useF42v6_DashboardStore } from "@/stores/F42v6_DashboardStore";
+  F42v7_InvoiceHeroCard, 
+  F42v7_InvoicesSection, 
+  F42v7_InvoiceBreakdownDrawer,
+  F42v7_AdjustmentsSection,
+  F42v7_AdjustmentDrawer
+} from "@/components/flows/contractor-dashboard-v7";
+import { useF42v7_DashboardStore } from "@/stores/F42v7_DashboardStore";
 
 import type { F42v5_LineItem } from "@/stores/F42v5_DashboardStore";
 
@@ -75,8 +75,8 @@ const invoicesData: InvoiceData[] = [
   },
 ];
 
-const F42v6_ContractorDashboardPage = () => {
-  const { currency } = useF42v6_DashboardStore();
+const F42v7_ContractorDashboardPage = () => {
+  const { currency } = useF42v7_DashboardStore();
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceData>(invoicesData[0]);
   const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
@@ -138,12 +138,12 @@ const F42v6_ContractorDashboardPage = () => {
         <div className="flex flex-col min-h-screen bg-background">
           <Topbar 
             userName={candidateProfile.name} 
-            profileSettingsUrl="/flows/contractor-profile-settings-v6?returnUrl=/candidate-dashboard-contractor-v6" 
-            dashboardUrl="/candidate-dashboard-contractor-v6" 
+            profileSettingsUrl="/flows/contractor-profile-settings-v7?returnUrl=/candidate-dashboard-contractor-v7" 
+            dashboardUrl="/candidate-dashboard-contractor-v7" 
           />
 
           <div className="flex-1">
-            <AgentLayout context="Contractor Dashboard v6">
+            <AgentLayout context="Contractor Dashboard v7">
               <main className="flex-1 min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
                 {/* Static background */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -177,11 +177,11 @@ const F42v6_ContractorDashboardPage = () => {
 
                     <TabsContent value="payroll" className="mt-0 space-y-6">
                       {/* Hero Card with Last/Next Invoice */}
-                      <F42v6_InvoiceHeroCard 
+                      <F42v7_InvoiceHeroCard 
                         onViewDetails={handleViewDetails}
                         currency={currency}
                       />
-                      <F42v6_InvoicesSection 
+                      <F42v7_InvoicesSection 
                         currency={currency}
                         onDownload={handleDownload}
                         onViewDetails={handleViewDetails}
@@ -189,7 +189,7 @@ const F42v6_ContractorDashboardPage = () => {
                     </TabsContent>
 
                     <TabsContent value="adjustments" className="mt-0">
-                      <F42v6_AdjustmentsSection 
+                      <F42v7_AdjustmentsSection 
                         onRequestAdjustment={handleRequestAdjustment}
                       />
                     </TabsContent>
@@ -230,4 +230,4 @@ const F42v6_ContractorDashboardPage = () => {
   );
 };
 
-export default F42v6_ContractorDashboardPage;
+export default F42v7_ContractorDashboardPage;
