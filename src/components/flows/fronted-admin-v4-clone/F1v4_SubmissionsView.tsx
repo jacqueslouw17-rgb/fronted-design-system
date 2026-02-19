@@ -39,7 +39,7 @@ import { format } from "date-fns";
 import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "@/components/flows/company-admin-v3/CA3_AdminAddAdjustment";
-import { CurrencyToggle, convertToUSD } from "@/components/flows/shared/CurrencyToggle";
+import { CurrencyToggle, convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { F1v4_PayrollStepper } from "./F1v4_PayrollStepper";
 
 // Country flag map for consistent display
@@ -875,9 +875,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             const earnings = selectedSubmission.lineItems?.filter((item) => item.type === 'Earnings') || [];
             const deductions = selectedSubmission.lineItems?.filter((item) => item.type === 'Deduction') || [];
             const allAdjustments = selectedSubmission.submissions;
-            const currency = selectedSubmission.currency || 'USD';
-            const dc = showUSD && currency !== "USD" ? "USD" : currency;
-            const cvt = (amt: number) => showUSD && currency !== "USD" ? convertToUSD(amt, currency) : amt;
+            const currency = selectedSubmission.currency || 'EUR';
+            const dc = showUSD && currency !== "EUR" ? "EUR" : currency;
+            const cvt = (amt: number) => showUSD && currency !== "EUR" ? convertToEUR(amt, currency) : amt;
             const moneyAdjustments = allAdjustments.map((adj, idx) => ({ adj, originalIdx: idx })).filter(({ adj }) => typeof adj.amount === 'number');
             const pendingLeaves = selectedSubmission.pendingLeaves || [];
 

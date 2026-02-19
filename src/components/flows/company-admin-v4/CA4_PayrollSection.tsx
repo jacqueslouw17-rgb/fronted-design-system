@@ -240,10 +240,10 @@ const previousPayrolls: PreviousPayroll[] = [
     id: "dec-2025",
     period: "December 2025",
     paidDate: "Dec 28, 2025",
-    grossPay: "$118.4K",
-    adjustments: "$6.8K",
-    fees: "$3,512",
-    totalCost: "$121.9K",
+    grossPay: "€109.7K",
+    adjustments: "€6.3K",
+    fees: "€3,256",
+    totalCost: "€113.0K",
     employeeCount: 4,
     contractorCount: 5,
     currencyCount: 3,
@@ -261,10 +261,10 @@ const previousPayrolls: PreviousPayroll[] = [
     id: "nov-2025",
     period: "November 2025",
     paidDate: "Nov 28, 2025",
-    grossPay: "$115.2K",
-    adjustments: "$5.4K",
-    fees: "$3,380",
-    totalCost: "$118.6K",
+    grossPay: "€106.8K",
+    adjustments: "€5.0K",
+    fees: "€3,133",
+    totalCost: "€109.9K",
     employeeCount: 4,
     contractorCount: 4,
     currencyCount: 3,
@@ -422,10 +422,10 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   // Render summary card (used in both landing and track views)
   const renderSummaryCard = (isSubmitted: boolean = false, metrics?: { grossPay: string; adjustments: string; fees: string; totalCost: string; employeeCount: number; contractorCount: number; currencyCount: number }) => {
     const displayMetrics = metrics || {
-      grossPay: "$124.9K",
-      adjustments: "$8.2K",
-      fees: "$3,742",
-      totalCost: "$128.6K",
+      grossPay: "€115.7K",
+      adjustments: "€7.6K",
+      fees: "€3,468",
+      totalCost: "€119.2K",
       employeeCount: 4,
       contractorCount: 5,
       currencyCount: 3,
@@ -638,7 +638,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
         }
         return (
           <CA4_SubmitStep
-            totalCost="$128,592"
+            totalCost="€128,592"
             employeeCount={4}
             contractorCount={5}
             currencyCount={3}
@@ -680,7 +680,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
           onConfirm={handleConfirmSubmit}
           employeeCount={4}
           contractorCount={5}
-          totalAmount="$128,592"
+          totalAmount="€128,592"
         />
       </>
     );
@@ -701,7 +701,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
         onConfirm={handleConfirmSubmit}
         employeeCount={4}
         contractorCount={5}
-        totalAmount="$128,592"
+        totalAmount="€128,592"
       />
     </div>
   );

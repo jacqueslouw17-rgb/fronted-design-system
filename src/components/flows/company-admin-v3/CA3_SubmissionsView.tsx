@@ -23,7 +23,7 @@ import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "./CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA3_AdminAddAdjustment";
-import { CurrencyToggle, convertToUSD } from "@/components/flows/shared/CurrencyToggle";
+import { CurrencyToggle, convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 
 // Country flag map for consistent display
 const countryFlags: Record<string, string> = {
@@ -1265,9 +1265,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
           const deductions = selectedSubmission.lineItems?.filter(item => item.type === 'Deduction') || [];
           // Get all adjustments (pending, approved, rejected)
           const allAdjustments = selectedSubmission.submissions;
-          const currency = selectedSubmission.currency || 'USD';
-          const dc = showUSD && currency !== "USD" ? "USD" : currency;
-          const cvt = (amt: number) => showUSD && currency !== "USD" ? convertToUSD(amt, currency) : amt;
+          const currency = selectedSubmission.currency || 'EUR';
+          const dc = showUSD && currency !== "EUR" ? "EUR" : currency;
+          const cvt = (amt: number) => showUSD && currency !== "EUR" ? convertToEUR(amt, currency) : amt;
           const adjustmentEntries = allAdjustments.map((adj, originalIdx) => ({
             adj,
             originalIdx
