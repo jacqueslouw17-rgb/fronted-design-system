@@ -386,8 +386,8 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           </div>
         </div>
 
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        {/* Metrics Grid - 5 equal tiles */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <DollarSign className="h-4 w-4 text-primary" />
@@ -408,30 +408,30 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
 
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-              <Building2 className="h-4 w-4 text-primary" />
-              <span className="text-sm">Fronted Fees</span>
+              <Users className="h-4 w-4 text-primary" />
+              <span className="text-sm">Employees</span>
             </div>
-            <p className="text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
-            <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
+            <p className="text-xs text-muted-foreground mt-1">Active this period</p>
           </div>
 
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <span className="text-sm">Total Cost</span>
+              <Briefcase className="h-4 w-4 text-primary" />
+              <span className="text-sm">Contractors</span>
             </div>
-            <p className="text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
-            <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
+            <p className="text-xs text-muted-foreground mt-1">Active this period</p>
           </div>
-        </div>
 
-        {/* Footer Stats */}
-        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
-          <span>Employees: <strong className="text-foreground">{displayMetrics.employeeCount}</strong></span>
-          <span className="text-border">·</span>
-          <span>Contractors: <strong className="text-foreground">{displayMetrics.contractorCount}</strong></span>
-          <span className="text-border">·</span>
-          <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <DollarSign className="h-4 w-4 text-primary" />
+              <span className="text-sm">Currencies</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
+            <p className="text-xs text-muted-foreground mt-1">Multi-currency run</p>
+          </div>
         </div>
       </CardContent>
     </Card>
