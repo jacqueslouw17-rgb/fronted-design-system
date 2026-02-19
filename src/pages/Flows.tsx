@@ -296,6 +296,26 @@ const Flows = () => {
       locked: false
     },
     {
+      id: "f4.1-employee-dashboard-v7",
+      title: "Flow 4.1 — Employee Dashboard v7",
+      description: "Isolated clone of v6: Employee-specific dashboard with T-5 payroll confirmation, adjustments, leaves, and pay breakdown. Changes here do NOT affect v6.",
+      steps: 1,
+      patterns: ["data-cards", "compliance-checklist"],
+      path: "/candidate-dashboard-employee-v7",
+      comingSoon: false,
+      locked: false
+    },
+    {
+      id: "f4.2-contractor-dashboard-v7",
+      title: "Flow 4.2 — Contractor Dashboard v7",
+      description: "Isolated clone of v6: Contractor-specific dashboard with T-5 invoice confirmation, adjustments, and invoice breakdown. Changes here do NOT affect v6.",
+      steps: 1,
+      patterns: ["data-cards", "compliance-checklist"],
+      path: "/candidate-dashboard-contractor-v7",
+      comingSoon: false,
+      locked: false
+    },
+    {
       id: "f6-company-admin-dashboard-v4",
       title: "Flow 6 — Company Admin Dashboard v4 (Agent)",
       description: "Isolated clone of v3 with agent-first design patterns. Independent components (CA4_ prefix) ensure changes do NOT affect v3 or any other versions.",

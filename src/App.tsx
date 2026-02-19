@@ -37,11 +37,15 @@ import F42v4_ContractorDashboardPage from "./pages/flows/F42v4_ContractorDashboa
 import F42v5_ContractorDashboardPage from "./pages/flows/F42v5_ContractorDashboardPage";
 import F41v6_EmployeeDashboardPage from "./pages/flows/F41v6_EmployeeDashboardPage";
 import F42v6_ContractorDashboardPage from "./pages/flows/F42v6_ContractorDashboardPage";
+import F41v7_EmployeeDashboardPage from "./pages/flows/F41v7_EmployeeDashboardPage";
+import F42v7_ContractorDashboardPage from "./pages/flows/F42v7_ContractorDashboardPage";
 import CandidateProfileSettingsV2 from "./pages/CandidateProfileSettingsV2";
 import F41v4_ProfileSettings from "./pages/flows/F41v4_ProfileSettings";
 import F42v4_ProfileSettings from "./pages/flows/F42v4_ProfileSettings";
 import F41v6_ProfileSettings from "./pages/flows/F41v6_ProfileSettings";
 import F42v6_ProfileSettings from "./pages/flows/F42v6_ProfileSettings";
+import F41v7_ProfileSettings from "./pages/flows/F41v7_ProfileSettings";
+import F42v7_ProfileSettings from "./pages/flows/F42v7_ProfileSettings";
 import EmployeePayroll from "./pages/flows/EmployeePayroll";
 import ContractorPayroll from "./pages/flows/ContractorPayroll";
 import CompanyAdminOnboarding from "./pages/flows/CompanyAdminOnboarding";
@@ -158,11 +162,15 @@ const App = () => (
         <Route path="/candidate-dashboard-contractor-v5" element={<F42v5_ContractorDashboardPage />} />
         <Route path="/candidate-dashboard-employee-v6" element={<F41v6_EmployeeDashboardPage />} />
         <Route path="/candidate-dashboard-contractor-v6" element={<F42v6_ContractorDashboardPage />} />
+        <Route path="/candidate-dashboard-employee-v7" element={<F41v7_EmployeeDashboardPage />} />
+        <Route path="/candidate-dashboard-contractor-v7" element={<F42v7_ContractorDashboardPage />} />
         <Route path="/candidate/profile-settings-v2" element={<CandidateProfileSettingsV2 />} />
         <Route path="/flows/employee-profile-settings-v4" element={<F41v4_ProfileSettings />} />
         <Route path="/flows/contractor-profile-settings-v4" element={<F42v4_ProfileSettings />} />
         <Route path="/flows/employee-profile-settings-v6" element={<F41v6_ProfileSettings />} />
         <Route path="/flows/contractor-profile-settings-v6" element={<F42v6_ProfileSettings />} />
+        <Route path="/flows/employee-profile-settings-v7" element={<F41v7_ProfileSettings />} />
+        <Route path="/flows/contractor-profile-settings-v7" element={<F42v7_ProfileSettings />} />
         <Route path="/flows/employee-payroll" element={<EmployeePayroll />} />
         <Route path="/flows/contractor-payroll" element={<ContractorPayroll />} />
         <Route path="/flows/company-admin-onboarding" element={<CompanyAdminOnboarding />} />
