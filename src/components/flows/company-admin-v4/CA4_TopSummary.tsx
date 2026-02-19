@@ -88,7 +88,7 @@ export const CA4_TopSummary: React.FC<CA4_TopSummaryProps> = ({
         <div className="grid grid-cols-4 gap-2 sm:gap-3">
           <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Gross Pay</p>
-            <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(grossPay)}</p>
+            <p className="text-sm sm:text-lg font-semibold text-foreground">≈ {formatCurrency(grossPay)}</p>
           </div>
           <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Net Pay</p>

@@ -585,7 +585,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <DollarSign className="h-4 w-4 text-primary" />
                 <span className="text-sm">Gross Pay</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
+              <p className="text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
               <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
             </div>
 
@@ -595,7 +595,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <Receipt className="h-4 w-4 text-primary" />
                 <span className="text-sm">Adjustments</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
+              <p className="text-2xl font-semibold text-foreground">≈ {displayMetrics.adjustments}</p>
               <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
             </div>
 
