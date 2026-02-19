@@ -894,7 +894,7 @@ export const F42v7_AdjustmentDrawer = ({
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                           <Label className="text-xs">Start time</Label>
-                          <F41v6_TimeInput
+                          <F41v7_TimeInput
                             value={item.startTime}
                             onChange={(val) => updateAdditionalHoursItem(item.id, 'startTime', val)}
                             hasError={!!errors[`additional_${index}_startTime`]}
@@ -903,7 +903,7 @@ export const F42v7_AdjustmentDrawer = ({
 
                         <div className="space-y-1.5">
                           <Label className="text-xs">End time</Label>
-                          <F41v6_TimeInput
+                          <F41v7_TimeInput
                             value={item.endTime}
                             onChange={(val) => updateAdditionalHoursItem(item.id, 'endTime', val)}
                             hasError={!!errors[`additional_${index}_endTime`]}

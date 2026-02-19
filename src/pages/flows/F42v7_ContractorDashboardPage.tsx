@@ -200,7 +200,7 @@ const F42v7_ContractorDashboardPage = () => {
           </div>
 
           {/* Breakdown Drawer */}
-          <F42v6_InvoiceBreakdownDrawer
+          <F42v7_InvoiceBreakdownDrawer
             open={breakdownOpen}
             onOpenChange={setBreakdownOpen}
             currency={currency}
@@ -210,7 +210,7 @@ const F42v7_ContractorDashboardPage = () => {
           />
 
           {/* Adjustment Drawer */}
-          <F42v6_AdjustmentDrawer
+          <F42v7_AdjustmentDrawer
             open={adjustmentDrawerOpen}
             onOpenChange={setAdjustmentDrawerOpen}
             currency={currency}

@@ -230,7 +230,7 @@ const F41v7_EmployeeDashboardPage = () => {
           </div>
 
           {/* Breakdown Drawer */}
-          <F41v6_PayoutBreakdownDrawer
+          <F41v7_PayoutBreakdownDrawer
             open={breakdownOpen}
             onOpenChange={setBreakdownOpen}
             currency={candidateProfile.currency}
@@ -242,7 +242,7 @@ const F41v7_EmployeeDashboardPage = () => {
           />
 
           {/* Adjustment Modal */}
-          <F41v6_AdjustmentModal
+          <F41v7_AdjustmentModal
             open={adjustmentModalOpen}
             onOpenChange={setAdjustmentModalOpen}
             currency={candidateProfile.currency}
