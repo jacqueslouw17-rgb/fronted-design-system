@@ -392,8 +392,8 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     const count = expenseItems.length;
     const categories = [...new Set(expenseItems.map(i => i.category))];
     const label = count === 1
-      ? expenseItems[0].category
-      : `${count} expenses (${categories.join(', ')})`;
+      ? `${expenseItems[0].category === 'Other' ? expenseItems[0].otherCategory : expenseItems[0].category} · ${currency} ${parseFloat(expenseItems[0].amount).toLocaleString()}`
+      : `${count} expenses · ${currency} ${totalAmount.toLocaleString()}`;
 
     addAdjustment({
       type: 'Expense',
@@ -422,8 +422,15 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
     const totalHours = overtimeItems.reduce((sum, item) => sum + item.calculatedHours, 0);
     const count = overtimeItems.length;
+    const item = overtimeItems[0];
+    const dateStr = item.date ? format(item.date, 'MMM d') : '';
+    const timeStr = item.startTime && item.endTime ? `${item.startTime}–${item.endTime}` : '';
     const label = count === 1
-      ? `${overtimeItems[0].calculatedHours}h on ${overtimeItems[0].date ? format(overtimeItems[0].date, 'MMM d') : ''}`
+      ? [
+          `${item.calculatedHours}h`,
+          dateStr,
+          timeStr,
+        ].filter(Boolean).join(' · ')
       : `${totalHours}h overtime (${count} entries)`;
 
     addAdjustment({
@@ -450,7 +457,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
     const totalAmount = bonusItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
     const count = bonusItems.length;
-    const label = count === 1 ? 'Bonus request' : `${count} bonus requests`;
+    const label = `Bonus · ${currency} ${totalAmount.toLocaleString()}`;
 
     addAdjustment({
       type: 'Bonus',
@@ -480,10 +487,10 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     const roundedDays = roundToNearestHalf(rawDays);
     const wasRounded = rawDays !== roundedDays;
 
-    const descSuffix = unpaidLeaveDescription.trim() ? ` — ${unpaidLeaveDescription.trim()}` : '';
+    const descPart = unpaidLeaveDescription.trim() ? ` · ${unpaidLeaveDescription.trim()}` : '';
     addAdjustment({
       type: 'Unpaid Leave',
-      label: `${roundedDays} day${roundedDays !== 1 ? 's' : ''} unpaid leave${descSuffix}`,
+      label: `${roundedDays}d${descPart}`,
       amount: null,
       days: roundedDays,
     });
