@@ -131,6 +131,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     { id: crypto.randomUUID(), amount: '', attachment: [] }
   ]);
   const [unpaidLeaveDays, setUnpaidLeaveDays] = useState<string>('');
+  const [unpaidLeaveDescription, setUnpaidLeaveDescription] = useState<string>('');
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
@@ -147,6 +148,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: [] }]);
     setUnpaidLeaveDays(initialDays?.toString() || '');
+    setUnpaidLeaveDescription('');
     setErrors({});
   };
 
@@ -478,9 +480,10 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     const roundedDays = roundToNearestHalf(rawDays);
     const wasRounded = rawDays !== roundedDays;
 
+    const descSuffix = unpaidLeaveDescription.trim() ? ` — ${unpaidLeaveDescription.trim()}` : '';
     addAdjustment({
       type: 'Unpaid Leave',
-      label: `${roundedDays} day${roundedDays !== 1 ? 's' : ''} unpaid leave`,
+      label: `${roundedDays} day${roundedDays !== 1 ? 's' : ''} unpaid leave${descSuffix}`,
       amount: null,
       days: roundedDays,
     });
@@ -1012,6 +1015,21 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                   )}
                   <p className="text-xs text-muted-foreground">
                     Supports half days (e.g. 1.5)
+                  </p>
+                </div>
+
+                {/* Description / Date details */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Date details</Label>
+                  <Input
+                    type="text"
+                    value={unpaidLeaveDescription}
+                    onChange={(e) => setUnpaidLeaveDescription(e.target.value)}
+                    placeholder="e.g. 22 Feb – 27 Feb 2025"
+                    className="h-9"
+                  />
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Specify the dates for your leave so your admin can process it accurately. Use formats like <span className="font-medium text-foreground/70">"22–27 Feb"</span> or <span className="font-medium text-foreground/70">"Mon 24 Feb – Fri 28 Feb"</span>.
                   </p>
                 </div>
               </div>
