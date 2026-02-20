@@ -89,7 +89,7 @@ export const F41v7_AdjustmentsSection = ({ onRequestAdjustment }: F41v7_Adjustme
   const getTypeLabel = (adj: F41v7_Adjustment) => {
     if (adj.type === 'Expense') {
       if (adj.tags && adj.tags.length > 0) return adj.tags.join(', ');
-      return adj.category ? `Expense ${adj.category}` : 'Expense';
+      return adj.category ? `${adj.category} expense` : 'Expense';
     }
     switch (adj.type) {
       case 'Overtime': return 'Overtime';

@@ -418,7 +418,7 @@ export const F42v7_AdjustmentDrawer = ({
       const tagLabel = expenseTags.join(', ');
       const categories = expenseItems.map(i => i.category === 'Other' ? i.otherCategory : i.category);
       const label = expenseItems.length === 1
-        ? `${categories[0]} · ${currency} ${parseFloat(expenseItems[0].amount).toLocaleString()}`
+        ? `${currency} ${parseFloat(expenseItems[0].amount).toLocaleString()}`
         : `${expenseItems.length} items · ${currency} ${totalAmount.toLocaleString()}`;
 
       addAdjustment({
@@ -435,7 +435,7 @@ export const F42v7_AdjustmentDrawer = ({
         const amt = parseFloat(item.amount);
         addAdjustment({
           type: 'Expense',
-          label: `${cat} · ${currency} ${amt.toLocaleString()}`,
+          label: `${currency} ${amt.toLocaleString()}`,
           amount: amt,
           category: item.category,
           receiptUrl: item.receipt.length > 0 ? URL.createObjectURL(item.receipt[0]) : undefined,
