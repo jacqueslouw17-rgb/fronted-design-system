@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, RotateCcw, Receipt, Sparkles } from 'lucide-react';
+import { X, Receipt, Sparkles } from 'lucide-react';
 import { TagChips } from '@/components/flows/shared/TagInput';
 import { useF41v7_DashboardStore, type F41v7_Adjustment } from '@/stores/F41v7_DashboardStore';
 import { format } from 'date-fns';
@@ -66,26 +66,6 @@ export const F41v7_AdjustmentsSection = ({ onRequestAdjustment }: F41v7_Adjustme
     }
   };
 
-  const handleResubmit = (adj: F41v7_Adjustment) => {
-    // Open adjustment modal with pre-filled data including rejected ID
-    const typeMap: Record<string, string> = {
-      'Expense': 'expense',
-      'Overtime': 'overtime',
-      'Bonus': 'bonus-correction',
-      'Unpaid Leave': 'unpaid-leave'
-    };
-    onRequestAdjustment(
-      typeMap[adj.type] || 'expense',
-      adj.category || '',
-      adj.amount?.toString() || '',
-      adj.id,
-      adj.hours,
-      adj.date,
-      adj.startTime,
-      adj.endTime,
-      adj.days
-    );
-  };
 
   const getStatusBadge = (status: F41v7_Adjustment['status']) => {
     switch (status) {
@@ -175,18 +155,6 @@ export const F41v7_AdjustmentsSection = ({ onRequestAdjustment }: F41v7_Adjustme
             </Tooltip>
           )}
           
-          {/* Rejected: show resubmit button */}
-          {isRejected && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleResubmit(adj)}
-              className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 dark:text-destructive dark:hover:text-destructive dark:hover:bg-destructive/20"
-            >
-              <RotateCcw className="h-3 w-3 mr-1" />
-              Resubmit
-            </Button>
-          )}
         </div>
         
         {/* Rejection reason - hidden by default, shown on hover/focus */}

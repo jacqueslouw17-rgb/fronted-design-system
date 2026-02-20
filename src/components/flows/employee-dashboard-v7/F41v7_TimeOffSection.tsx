@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Info, X, RotateCcw, CalendarDays } from 'lucide-react';
+import { Info, X, CalendarDays } from 'lucide-react';
 import { useF41v7_DashboardStore, type F41v7_LeaveRequest } from '@/stores/F41v7_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -226,24 +226,6 @@ export const F41v7_TimeOffSection = ({ onRequestTimeOff }: F41v7_TimeOffSectionP
             </Tooltip>
           )}
           
-          {/* Rejected: show resubmit button */}
-          {isRejected && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onRequestTimeOff(
-                leave.id,
-                leave.leaveType,
-                format(leave.startDate, 'yyyy-MM-dd'),
-                format(leave.endDate, 'yyyy-MM-dd'),
-                leave.rejectionReason
-              )}
-              className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 dark:text-destructive dark:hover:text-destructive dark:hover:bg-destructive/20"
-            >
-              <RotateCcw className="h-3 w-3 mr-1" />
-              Resubmit
-            </Button>
-          )}
         </div>
         
         {/* Rejection reason - expandable on hover/focus */}
