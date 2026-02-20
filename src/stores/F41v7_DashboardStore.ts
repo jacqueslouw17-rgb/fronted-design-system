@@ -146,7 +146,7 @@ const initialState: F41v7_DashboardState = {
     {
       id: 'adj-demo-pending-1',
       type: 'Expense' as F41v7_AdjustmentType,
-      label: 'PHP 2,500',
+      label: 'Meals · PHP 2,500',
       amount: 2500,
       status: 'Pending' as F41v7_AdjustmentStatus,
       category: 'Meals',
