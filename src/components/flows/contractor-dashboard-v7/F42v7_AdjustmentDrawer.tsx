@@ -415,8 +415,8 @@ export const F42v7_AdjustmentDrawer = ({
     const count = expenseItems.length;
     const categories = [...new Set(expenseItems.map(i => i.category))];
     const label = count === 1
-      ? expenseItems[0].category
-      : `${count} expenses (${categories.join(', ')})`;
+      ? `${expenseItems[0].category === 'Other' ? expenseItems[0].otherCategory : expenseItems[0].category} · ${currency} ${parseFloat(expenseItems[0].amount).toLocaleString()}`
+      : `${count} expenses · ${currency} ${totalAmount.toLocaleString()}`;
 
     addAdjustment({
       type: 'Expense',
@@ -446,8 +446,15 @@ export const F42v7_AdjustmentDrawer = ({
 
     const totalHrs = totalAdditionalHours;
     const count = additionalHoursItems.length;
+    const item = additionalHoursItems[0];
+    const dateStr = item.date ? format(item.date, 'MMM d') : '';
+    const timeStr = item.startTime && item.endTime ? `${item.startTime}–${item.endTime}` : '';
     const label = count === 1
-      ? `${additionalHoursItems[0].calculatedHours}h`
+      ? [
+          `${item.calculatedHours}h`,
+          dateStr,
+          timeStr,
+        ].filter(Boolean).join(' · ')
       : `${totalHrs}h additional (${count} entries)`;
 
     addAdjustment({
@@ -479,7 +486,7 @@ export const F42v7_AdjustmentDrawer = ({
 
     const totalAmount = commissionItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
     const count = commissionItems.length;
-    const label = count === 1 ? 'Commission' : `${count} commissions`;
+    const label = `Commission · ${currency} ${totalAmount.toLocaleString()}`;
 
     addAdjustment({
       type: 'Bonus',
