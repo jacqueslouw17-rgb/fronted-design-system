@@ -893,16 +893,6 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 ))}
               </div>
 
-              {overtimeItems.some(item => item.calculatedHours > 0) && (
-                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Total hours</span>
-                    <span className="text-sm font-semibold tabular-nums">
-                      {overtimeItems.reduce((sum, item) => sum + item.calculatedHours, 0)}h
-                    </span>
-                  </div>
-                </div>
-              )}
 
               <Button onClick={handleSubmitOvertime} className="w-full">
                 Request adjustment
@@ -991,17 +981,6 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 ))}
               </div>
 
-
-              {bonusItems.length > 0 && (
-                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Session total</span>
-                    <span className="text-sm font-semibold tabular-nums">
-                      {currency} {bonusItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
-              )}
 
               <Button onClick={handleSubmitBonus} className="w-full">
                 Request adjustment
