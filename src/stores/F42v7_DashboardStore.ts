@@ -94,7 +94,7 @@ const initialState: F42v7_DashboardState = {
     {
       id: 'adj-demo-pending-1',
       type: 'Expense' as F42v7_AdjustmentType,
-      label: 'Client lunch',
+      label: 'Meals · USD 85',
       amount: 85,
       status: 'Pending' as F42v7_AdjustmentStatus,
       category: 'Meals',
@@ -104,7 +104,7 @@ const initialState: F42v7_DashboardState = {
     {
       id: 'adj-demo-rejected-1',
       type: 'Additional hours' as F42v7_AdjustmentType,
-      label: 'Extra hours',
+      label: '8h · Jan 10 · 18:00–02:00',
       amount: null,
       status: 'Admin rejected' as F42v7_AdjustmentStatus,
       hours: 8,
