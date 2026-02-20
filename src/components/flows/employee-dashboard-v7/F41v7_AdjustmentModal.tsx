@@ -415,7 +415,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         const amt = parseFloat(item.amount);
         addAdjustment({
           type: 'Expense',
-          label: `${currency} ${amt.toLocaleString()}`,
+          label: `${cat} · ${currency} ${amt.toLocaleString()}`,
           amount: amt,
           category: item.category,
           receiptUrl: item.receipt.length > 0 ? URL.createObjectURL(item.receipt[0]) : undefined,
