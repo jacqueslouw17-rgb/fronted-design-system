@@ -1002,18 +1002,6 @@ export const F42v7_AdjustmentDrawer = ({
               </div>
 
 
-              {/* Session total */}
-              {commissionItems.length > 0 && (
-                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Session total</span>
-                    <span className="text-sm font-semibold tabular-nums">
-                      {currency} {commissionItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
-              )}
-
               <Button onClick={handleSubmitBonus} className="w-full">
                 Request adjustment
               </Button>
