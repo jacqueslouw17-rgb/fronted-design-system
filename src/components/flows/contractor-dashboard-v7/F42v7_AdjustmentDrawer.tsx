@@ -501,7 +501,7 @@ export const F42v7_AdjustmentDrawer = ({
 
     const totalAmount = commissionItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
     const count = commissionItems.length;
-    const label = `Commission · ${currency} ${totalAmount.toLocaleString()}`;
+    const label = `${currency} ${totalAmount.toLocaleString()}`;
 
     addAdjustment({
       type: 'Bonus',
