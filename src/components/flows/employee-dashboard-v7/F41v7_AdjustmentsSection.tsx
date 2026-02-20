@@ -126,8 +126,8 @@ export const F41v7_AdjustmentsSection = ({ onRequestAdjustment }: F41v7_Adjustme
           
           <span className="text-muted-foreground/40 text-xs">·</span>
           
-          <span className="text-xs text-foreground font-medium tabular-nums">
-            {getDisplayValue(adj)}
+          <span className="text-xs text-muted-foreground truncate max-w-[220px]">
+            {adj.label}
           </span>
           
           {getStatusBadge(adj.status)}
