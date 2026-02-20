@@ -137,7 +137,7 @@ const initialState: F41v7_DashboardState = {
     {
       id: 'adj-demo-unpaid-leave-1',
       type: 'Unpaid Leave' as F41v7_AdjustmentType,
-      label: '2 days unpaid leave',
+      label: '2d · 22–27 Feb 2026',
       amount: null,
       status: 'Pending' as F41v7_AdjustmentStatus,
       days: 2,
@@ -146,7 +146,7 @@ const initialState: F41v7_DashboardState = {
     {
       id: 'adj-demo-pending-1',
       type: 'Expense' as F41v7_AdjustmentType,
-      label: 'Team lunch',
+      label: 'Meals · PHP 2,500',
       amount: 2500,
       status: 'Pending' as F41v7_AdjustmentStatus,
       category: 'Meals',
@@ -156,7 +156,7 @@ const initialState: F41v7_DashboardState = {
     {
       id: 'adj-demo-rejected-1',
       type: 'Overtime' as F41v7_AdjustmentType,
-      label: 'Weekend work',
+      label: '8h · Jan 11 · 09:00–17:00',
       amount: 3500,
       status: 'Admin rejected' as F41v7_AdjustmentStatus,
       hours: 8,
