@@ -1029,7 +1029,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                     className="h-9"
                   />
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Specify the dates for your leave so your admin can process it accurately. Use formats like <span className="font-medium text-foreground/70">"22–27 Feb"</span> or <span className="font-medium text-foreground/70">"Mon 24 Feb – Fri 28 Feb"</span>.
+                    Help your admin by specifying dates, e.g. <span className="font-medium text-foreground/70">"22–27 Feb"</span> or <span className="font-medium text-foreground/70">"Mon 24 – Fri 28 Feb"</span>.
                   </p>
                 </div>
               </div>
