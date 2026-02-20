@@ -930,25 +930,6 @@ export const F42v7_AdjustmentDrawer = ({
                     key={item.id} 
                     className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
                   >
-                    {/* Remove button */}
-                    {commissionItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeCommissionItem(item.id)}
-                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
-                      >
-                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                      </button>
-                    )}
-
-                    {/* Item number badge */}
-                    {commissionItems.length > 1 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                          Commission {index + 1}
-                        </span>
-                      </div>
-                    )}
 
                     <div className="space-y-1.5">
                       <Label className="text-xs">Amount ({currency})</Label>
@@ -1020,15 +1001,6 @@ export const F42v7_AdjustmentDrawer = ({
                 ))}
               </div>
 
-              {/* Add another commission button */}
-              <button
-                type="button"
-                onClick={addCommissionItem}
-                className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
-              >
-                <span className="text-lg leading-none">+</span>
-                Add another commission
-              </button>
 
               {/* Session total */}
               {commissionItems.length > 0 && (
