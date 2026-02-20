@@ -98,7 +98,6 @@ const initialState: F42v7_DashboardState = {
       amount: 85,
       status: 'Pending' as F42v7_AdjustmentStatus,
       category: 'Meals',
-      tags: ['Client dinner', 'NY trip'],
       submittedAt: '2026-01-20T10:00:00.000Z',
     },
     {

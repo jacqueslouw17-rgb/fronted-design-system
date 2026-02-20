@@ -150,7 +150,6 @@ const initialState: F41v7_DashboardState = {
       amount: 2500,
       status: 'Pending' as F41v7_AdjustmentStatus,
       category: 'Meals',
-      tags: ['Team event', 'Q1 offsite'],
       submittedAt: '2026-01-20T10:00:00.000Z',
     },
     {

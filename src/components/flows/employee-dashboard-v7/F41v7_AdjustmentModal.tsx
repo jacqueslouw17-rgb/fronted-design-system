@@ -388,27 +388,46 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const handleSubmitExpenses = () => {
     if (!validateExpenseItems()) return;
 
-    const totalAmount = expenseItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
-    const count = expenseItems.length;
-    const categories = [...new Set(expenseItems.map(i => i.category))];
-    const label = count === 1
-      ? `${expenseItems[0].category === 'Other' ? expenseItems[0].otherCategory : expenseItems[0].category} · ${currency} ${parseFloat(expenseItems[0].amount).toLocaleString()}`
-      : `${count} expenses · ${currency} ${totalAmount.toLocaleString()}`;
+    const hasTags = expenseTags.length > 0;
+    const now = new Date().toISOString();
 
-    addAdjustment({
-      type: 'Expense',
-      label,
-      amount: totalAmount,
-      category: categories[0],
-      receiptUrl: expenseItems[0].receipt.length > 0 ? URL.createObjectURL(expenseItems[0].receipt[0]) : undefined,
-      tags: expenseTags.length > 0 ? expenseTags : undefined,
-    });
+    if (hasTags) {
+      // Tags present: group all items into one row, use tags as label prefix
+      const totalAmount = expenseItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+      const tagLabel = expenseTags.join(', ');
+      const categories = expenseItems.map(i => i.category === 'Other' ? i.otherCategory : i.category);
+      const label = expenseItems.length === 1
+        ? `${categories[0]} · ${currency} ${parseFloat(expenseItems[0].amount).toLocaleString()}`
+        : `${expenseItems.length} items · ${currency} ${totalAmount.toLocaleString()}`;
 
-    // Mark the rejected item as resubmitted if this was a resubmission
+      addAdjustment({
+        type: 'Expense',
+        label,
+        amount: totalAmount,
+        category: categories[0],
+        receiptUrl: expenseItems[0].receipt.length > 0 ? URL.createObjectURL(expenseItems[0].receipt[0]) : undefined,
+        tags: expenseTags,
+      });
+    } else {
+      // No tags: add each expense as a separate row
+      expenseItems.forEach((item) => {
+        const cat = item.category === 'Other' ? item.otherCategory : item.category;
+        const amt = parseFloat(item.amount);
+        addAdjustment({
+          type: 'Expense',
+          label: `${cat} · ${currency} ${amt.toLocaleString()}`,
+          amount: amt,
+          category: item.category,
+          receiptUrl: item.receipt.length > 0 ? URL.createObjectURL(item.receipt[0]) : undefined,
+        });
+      });
+    }
+
     if (rejectedId) {
       markRejectionResubmitted(rejectedId);
     }
 
+    const count = expenseItems.length;
     toast.success(`${count} expense${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
     
