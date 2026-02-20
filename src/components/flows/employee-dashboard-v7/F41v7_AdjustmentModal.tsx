@@ -476,7 +476,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
     const totalAmount = bonusItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
     const count = bonusItems.length;
-    const label = `Bonus · ${currency} ${totalAmount.toLocaleString()}`;
+    const label = `${currency} ${totalAmount.toLocaleString()}`;
 
     addAdjustment({
       type: 'Bonus',
