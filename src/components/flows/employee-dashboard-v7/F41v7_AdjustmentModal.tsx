@@ -819,25 +819,6 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                     key={item.id} 
                     className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
                   >
-                    {/* Remove button */}
-                    {overtimeItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeOvertimeItem(item.id)}
-                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
-                      >
-                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                      </button>
-                    )}
-
-                    {/* Item number badge */}
-                    {overtimeItems.length > 1 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                          Entry {index + 1}
-                        </span>
-                      </div>
-                    )}
 
                     {/* Date picker */}
                     <div className="space-y-1.5">
@@ -911,16 +892,6 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                   </div>
                 ))}
               </div>
-
-              {/* Add another entry button */}
-              <button
-                type="button"
-                onClick={addOvertimeItem}
-                className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
-              >
-                <span className="text-lg leading-none">+</span>
-                Add another entry
-              </button>
 
               {overtimeItems.some(item => item.calculatedHours > 0) && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
