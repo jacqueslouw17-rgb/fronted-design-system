@@ -911,9 +911,6 @@ export const F42v7_AdjustmentDrawer = ({
 
               </div>
 
-              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                Your rate applies automatically; final amount will be calculated.
-              </p>
 
               <Button onClick={handleSubmitAdditionalHours} className="w-full">
                 Request adjustment
