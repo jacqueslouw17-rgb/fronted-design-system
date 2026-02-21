@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Loader2 } from "lucide-react";
+import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -463,27 +463,6 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
                 </Badge>
               )}
             </div>
-            {!isSubmitted && !isViewingPrevious && (
-              <Button 
-                onClick={handleEnterWorkflow} 
-                size="sm"
-                disabled={isButtonLoading}
-                className="flex-shrink-0 whitespace-nowrap"
-              >
-                {isButtonLoading ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                    <span className="sm:hidden">Loading...</span>
-                    <span className="hidden sm:inline">Navigating...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="sm:hidden">Continue</span>
-                    <span className="hidden sm:inline">Continue to submissions</span>
-                  </>
-                )}
-              </Button>
-            )}
           </div>
 
           {/* Metrics Grid */}
@@ -663,9 +642,9 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
     }
   };
 
-  // Landing view - no stepper, just summary card
-  if (!hasEnteredWorkflow) {
-    return renderLandingView();
+  // Historical view for previous periods
+  if (isViewingPrevious) {
+    return renderPreviousPayrollView();
   }
 
   // Track view - summary card with tracking below
@@ -673,7 +652,6 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
     return (
       <>
         {renderTrackView()}
-        {/* Submit Confirmation Modal */}
         <CA4_SubmitConfirmationModal
           open={submitModalOpen}
           onOpenChange={setSubmitModalOpen}
@@ -686,15 +664,14 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
     );
   }
 
-  // Workflow view - stepper now embedded in each step's card header
+  // Summary card + workflow step content below
   return (
     <div className="space-y-6">
-      {/* Step Content - stepper is now inside each step component */}
+      {!(currentStep === "submit" && isPayrollSubmitted) && renderSummaryCard(false)}
       <div>
         {renderStepContent()}
       </div>
 
-      {/* Submit Confirmation Modal */}
       <CA4_SubmitConfirmationModal
         open={submitModalOpen}
         onOpenChange={setSubmitModalOpen}
