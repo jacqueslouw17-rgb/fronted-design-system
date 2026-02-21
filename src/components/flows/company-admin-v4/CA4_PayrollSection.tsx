@@ -689,7 +689,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
           contractorCount: selectedPrevious?.contractorCount || 0,
           currencyCount: selectedPrevious?.currencyCount || 0,
         })}
-        <div className="max-h-[calc(100vh-30rem)] overflow-y-auto">
+        <div className={isDockedInTopbar ? "max-h-[calc(100vh-30rem)] overflow-y-auto" : ""}>
           {selectedPrevious && (
             <CA4_TrackingView
               workers={selectedPrevious.workers}
@@ -709,7 +709,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
     return (
       <div className="space-y-6">
         {renderSummaryCard(true)}
-        <div className="max-h-[calc(100vh-30rem)] overflow-y-auto">
+        <div className={isDockedInTopbar ? "max-h-[calc(100vh-30rem)] overflow-y-auto" : ""}>
           <CA4_TrackingView
             workers={trackingWorkers}
             onExportCSV={handleExportCSV}
@@ -738,7 +738,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   return (
     <div className="space-y-6">
       {!(currentStep === "submit" && isPayrollSubmitted) && renderSummaryCard(false)}
-      <div className="max-h-[calc(100vh-30rem)] overflow-y-auto">
+      <div className={isDockedInTopbar ? "max-h-[calc(100vh-30rem)] overflow-y-auto" : ""}>
         {renderStepContent()}
       </div>
 
