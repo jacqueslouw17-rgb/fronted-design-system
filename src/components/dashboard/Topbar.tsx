@@ -98,7 +98,9 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
   };
 
   return (
-    <header className="sticky top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-3 sm:px-6">
+    <header className="sticky top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-3 sm:px-6 relative">
+      {/* Portal slot — when a child portals content here, it overlays the header */}
+      <div id="topbar-portal-slot" className="absolute inset-0 z-[60] flex items-center justify-center bg-card pointer-events-none empty:hidden [&:not(:empty)]:pointer-events-auto" />
       {/* Brand */}
       <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
         <Button
