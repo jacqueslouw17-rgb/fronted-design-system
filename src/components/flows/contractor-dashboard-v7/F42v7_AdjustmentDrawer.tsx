@@ -228,7 +228,7 @@ export const F42v7_AdjustmentDrawer = ({
 
   // Calculate hours from start/end time
   const calculateHours = (start: string, end: string): number => {
-    if (!start || !end || start.length < 5 || end.length < 5) return 0;
+    if (!start || !end) return 0;
     
     const [startH, startM] = start.split(':').map(Number);
     const [endH, endM] = end.split(':').map(Number);
