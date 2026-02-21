@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -862,7 +863,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           contractorCount: selectedPrevious?.contractorCount || 0,
           currencyCount: selectedPrevious?.currencyCount || 0,
         })}
-        <div className={isDockedInTopbar ? "max-h-[calc(100vh-30rem)] overflow-y-auto" : ""}>
+        <div className={cn("transition-[max-height] duration-200", isDockedInTopbar ? "max-h-[calc(100vh-16rem)] overflow-y-auto" : "max-h-none overflow-visible")}>
           {selectedPrevious && (
             <CA3_TrackingView
               workers={selectedPrevious.workers}
@@ -882,7 +883,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     return (
       <div className="space-y-6">
         {renderSummaryCard(true)}
-        <div className={isDockedInTopbar ? "max-h-[calc(100vh-30rem)] overflow-y-auto" : ""}>
+        <div className={cn("transition-[max-height] duration-200", isDockedInTopbar ? "max-h-[calc(100vh-16rem)] overflow-y-auto" : "max-h-none overflow-visible")}>
           <CA3_TrackingView
             workers={trackingWorkers}
             onExportCSV={handleExportCSV}
@@ -911,7 +912,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   return (
     <div className="space-y-6">
       {!(currentStep === "submit" && isPayrollSubmitted) && renderSummaryCard(false)}
-      <div className={isDockedInTopbar ? "max-h-[calc(100vh-30rem)] overflow-y-auto" : ""}>
+      <div className={cn("transition-[max-height] duration-200", isDockedInTopbar ? "max-h-[calc(100vh-16rem)] overflow-y-auto" : "max-h-none overflow-visible")}>
         {renderStepContent()}
       </div>
 
