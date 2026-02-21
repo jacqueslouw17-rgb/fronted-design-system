@@ -686,17 +686,19 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   // Historical view for previous periods
   if (isViewingPrevious) {
     return (
-      <div className="space-y-6">
-        {renderSummaryCard(false, {
-          grossPay: selectedPrevious?.grossPay || "€0",
-          adjustments: selectedPrevious?.adjustments || "€0",
-          fees: selectedPrevious?.fees || "€0",
-          totalCost: selectedPrevious?.totalCost || "€0",
-          employeeCount: selectedPrevious?.employeeCount || 0,
-          contractorCount: selectedPrevious?.contractorCount || 0,
-          currencyCount: selectedPrevious?.currencyCount || 0,
-        })}
-        <div>
+      <div>
+        <div className="mb-6">
+          {renderSummaryCard(false, {
+            grossPay: selectedPrevious?.grossPay || "€0",
+            adjustments: selectedPrevious?.adjustments || "€0",
+            fees: selectedPrevious?.fees || "€0",
+            totalCost: selectedPrevious?.totalCost || "€0",
+            employeeCount: selectedPrevious?.employeeCount || 0,
+            contractorCount: selectedPrevious?.contractorCount || 0,
+            currencyCount: selectedPrevious?.currencyCount || 0,
+          })}
+        </div>
+        <div className="sticky top-14 sm:top-16 z-30 bg-background overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
           {selectedPrevious && (
             <CA4_TrackingView
               workers={selectedPrevious.workers}
@@ -714,19 +716,23 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   // Track view - summary card with tracking below
   if (currentStep === "track") {
     return (
-      <div className="space-y-6">
-        {renderSummaryCard(true)}
-        <CA4_TrackingView
-          workers={trackingWorkers}
-          onExportCSV={handleExportCSV}
-          onDownloadAuditPDF={handleDownloadAuditPDF}
-          onClose={() => setHasEnteredWorkflow(false)}
-          onBack={() => setCurrentStep("submit")}
-          showStepper={true}
-          currentStep="track"
-          completedSteps={completedSteps}
-          onStepClick={handleStepClick}
-        />
+      <div>
+        <div className="mb-6">
+          {renderSummaryCard(true)}
+        </div>
+        <div className="sticky top-14 sm:top-16 z-30 bg-background overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
+          <CA4_TrackingView
+            workers={trackingWorkers}
+            onExportCSV={handleExportCSV}
+            onDownloadAuditPDF={handleDownloadAuditPDF}
+            onClose={() => setHasEnteredWorkflow(false)}
+            onBack={() => setCurrentStep("submit")}
+            showStepper={true}
+            currentStep="track"
+            completedSteps={completedSteps}
+            onStepClick={handleStepClick}
+          />
+        </div>
         <CA4_SubmitConfirmationModal
           open={submitModalOpen}
           onOpenChange={setSubmitModalOpen}
@@ -741,9 +747,15 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
 
   // Summary card + workflow step content below
   return (
-    <div className="space-y-6">
-      {!(currentStep === "submit" && isPayrollSubmitted) && renderSummaryCard(false)}
-      {renderStepContent()}
+    <div>
+      {!(currentStep === "submit" && isPayrollSubmitted) && (
+        <div className="mb-6">
+          {renderSummaryCard(false)}
+        </div>
+      )}
+      <div className="sticky top-14 sm:top-16 z-30 bg-background overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
+        {renderStepContent()}
+      </div>
 
       <CA4_SubmitConfirmationModal
         open={submitModalOpen}
