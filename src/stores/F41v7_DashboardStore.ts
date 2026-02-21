@@ -135,6 +135,16 @@ const initialState: F41v7_DashboardState = {
   confirmed: false,
   adjustments: [
     {
+      id: 'adj-demo-tagged-expense-1',
+      type: 'Expense' as F41v7_AdjustmentType,
+      label: 'Transport · PHP 4,200',
+      amount: 4200,
+      status: 'Pending' as F41v7_AdjustmentStatus,
+      category: 'Transport',
+      tags: ['London-trip', 'Richmond'],
+      submittedAt: '2026-01-25T10:00:00.000Z',
+    },
+    {
       id: 'adj-demo-unpaid-leave-1',
       type: 'Unpaid Leave' as F41v7_AdjustmentType,
       label: '2d · 22–27 Feb 2026',
