@@ -490,7 +490,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     if (!sentinel) return;
     const observer = new IntersectionObserver(
       ([entry]) => setIsDockedInTopbar(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "-56px 0px 0px 0px" }
+      { threshold: 0, rootMargin: "0px 0px 0px 0px" }
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
