@@ -754,30 +754,34 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Historical view for previous periods
   if (isViewingPrevious) {
     return (
-      <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-5">
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4 space-y-5">
         {renderSummaryCard()}
-        {selectedHistoricalPayroll && (
-          <F1v4_HistoricalTrackingView
-            workers={selectedHistoricalPayroll.workers}
-            paidDate={selectedHistoricalPayroll.paidDate}
-          />
-        )}
+        <div className="max-h-[calc(100vh-26rem)] overflow-y-auto">
+          {selectedHistoricalPayroll && (
+            <F1v4_HistoricalTrackingView
+              workers={selectedHistoricalPayroll.workers}
+              paidDate={selectedHistoricalPayroll.paidDate}
+            />
+          )}
+        </div>
       </div>
     );
   }
 
   // Summary card + workflow step content below
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-5">
+    <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4 space-y-5">
       {renderSummaryCard()}
-      <motion.div
-        key={currentStep}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-      >
-        {renderStepContent()}
-      </motion.div>
+      <div className="max-h-[calc(100vh-26rem)] overflow-y-auto">
+        <motion.div
+          key={currentStep}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {renderStepContent()}
+        </motion.div>
+      </div>
     </div>
   );
 };

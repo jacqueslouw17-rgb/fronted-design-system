@@ -678,14 +678,50 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
 
   // Historical view for previous periods
   if (isViewingPrevious) {
-    return renderPreviousPayrollView();
+    return (
+      <div className="space-y-6">
+        {renderSummaryCard(false, {
+          grossPay: selectedPrevious?.grossPay || "€0",
+          adjustments: selectedPrevious?.adjustments || "€0",
+          fees: selectedPrevious?.fees || "€0",
+          totalCost: selectedPrevious?.totalCost || "€0",
+          employeeCount: selectedPrevious?.employeeCount || 0,
+          contractorCount: selectedPrevious?.contractorCount || 0,
+          currencyCount: selectedPrevious?.currencyCount || 0,
+        })}
+        <div className="max-h-[calc(100vh-30rem)] overflow-y-auto">
+          {selectedPrevious && (
+            <CA4_TrackingView
+              workers={selectedPrevious.workers}
+              onExportCSV={handleExportCSV}
+              onDownloadAuditPDF={handleDownloadAuditPDF}
+              isHistorical={true}
+              paidDate={selectedPrevious.paidDate}
+            />
+          )}
+        </div>
+      </div>
+    );
   }
 
   // Track view - summary card with tracking below
   if (currentStep === "track") {
     return (
-      <>
-        {renderTrackView()}
+      <div className="space-y-6">
+        {renderSummaryCard(true)}
+        <div className="max-h-[calc(100vh-30rem)] overflow-y-auto">
+          <CA4_TrackingView
+            workers={trackingWorkers}
+            onExportCSV={handleExportCSV}
+            onDownloadAuditPDF={handleDownloadAuditPDF}
+            onClose={() => setHasEnteredWorkflow(false)}
+            onBack={() => setCurrentStep("submit")}
+            showStepper={true}
+            currentStep="track"
+            completedSteps={completedSteps}
+            onStepClick={handleStepClick}
+          />
+        </div>
         <CA4_SubmitConfirmationModal
           open={submitModalOpen}
           onOpenChange={setSubmitModalOpen}
@@ -694,7 +730,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
           contractorCount={5}
           totalAmount="€128,592"
         />
-      </>
+      </div>
     );
   }
 
@@ -702,7 +738,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   return (
     <div className="space-y-6">
       {!(currentStep === "submit" && isPayrollSubmitted) && renderSummaryCard(false)}
-      <div>
+      <div className="max-h-[calc(100vh-30rem)] overflow-y-auto">
         {renderStepContent()}
       </div>
 
