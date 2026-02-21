@@ -870,22 +870,16 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           contractorCount: selectedPrevious?.contractorCount || 0,
           currencyCount: selectedPrevious?.currencyCount || 0,
         })}
-        <div className={cn(
-          isDockedInTopbar
-            ? "fixed top-14 sm:top-16 inset-x-0 bottom-0 overflow-y-auto z-40 bg-background"
-            : ""
-        )}>
-          <div className={isDockedInTopbar ? "px-4 sm:px-8 py-4" : ""}>
-            {selectedPrevious && (
-              <CA3_TrackingView
-                workers={selectedPrevious.workers}
-                onExportCSV={handleExportCSV}
-                onDownloadAuditPDF={handleDownloadAuditPDF}
-                isHistorical={true}
-                paidDate={selectedPrevious.paidDate}
-              />
-            )}
-          </div>
+        <div>
+          {selectedPrevious && (
+            <CA3_TrackingView
+              workers={selectedPrevious.workers}
+              onExportCSV={handleExportCSV}
+              onDownloadAuditPDF={handleDownloadAuditPDF}
+              isHistorical={true}
+              paidDate={selectedPrevious.paidDate}
+            />
+          )}
         </div>
       </div>
     );
@@ -896,25 +890,17 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     return (
       <div className="space-y-6">
         {renderSummaryCard(true)}
-        <div className={cn(
-          isDockedInTopbar
-            ? "fixed top-14 sm:top-16 inset-x-0 bottom-0 overflow-y-auto z-40 bg-background"
-            : ""
-        )}>
-          <div className={isDockedInTopbar ? "px-4 sm:px-8 py-4" : ""}>
-            <CA3_TrackingView
-              workers={trackingWorkers}
-              onExportCSV={handleExportCSV}
-              onDownloadAuditPDF={handleDownloadAuditPDF}
-              onClose={() => setHasEnteredWorkflow(false)}
-              onBack={() => setCurrentStep("submit")}
-              showStepper={true}
-              currentStep="track"
-              completedSteps={completedSteps}
-              onStepClick={handleStepClick}
-            />
-          </div>
-        </div>
+        <CA3_TrackingView
+          workers={trackingWorkers}
+          onExportCSV={handleExportCSV}
+          onDownloadAuditPDF={handleDownloadAuditPDF}
+          onClose={() => setHasEnteredWorkflow(false)}
+          onBack={() => setCurrentStep("submit")}
+          showStepper={true}
+          currentStep="track"
+          completedSteps={completedSteps}
+          onStepClick={handleStepClick}
+        />
         <CA3_SubmitConfirmationModal
           open={submitModalOpen}
           onOpenChange={setSubmitModalOpen}
@@ -931,15 +917,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   return (
     <div className="space-y-6">
       {!(currentStep === "submit" && isPayrollSubmitted) && renderSummaryCard(false)}
-      <div className={cn(
-        isDockedInTopbar
-          ? "fixed top-14 sm:top-16 inset-x-0 bottom-0 overflow-y-auto z-40 bg-background"
-          : ""
-      )}>
-        <div className={isDockedInTopbar ? "px-4 sm:px-8 py-4" : ""}>
-          {renderStepContent()}
-        </div>
-      </div>
+      {renderStepContent()}
 
       <CA3_SubmitConfirmationModal
         open={submitModalOpen}

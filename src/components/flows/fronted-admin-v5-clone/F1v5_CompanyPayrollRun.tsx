@@ -768,19 +768,13 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     return (
       <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4 space-y-5">
         {renderSummaryCard()}
-        <div className={cn(
-          isDockedInTopbar
-            ? "fixed top-14 sm:top-16 inset-x-0 bottom-0 overflow-y-auto z-40 bg-background"
-            : ""
-        )}>
-          <div className={isDockedInTopbar ? "max-w-6xl mx-auto px-4 sm:px-8 py-4" : ""}>
-            {selectedHistoricalPayroll && (
-              <F1v4_HistoricalTrackingView
-                workers={selectedHistoricalPayroll.workers}
-                paidDate={selectedHistoricalPayroll.paidDate}
-              />
-            )}
-          </div>
+        <div>
+          {selectedHistoricalPayroll && (
+            <F1v4_HistoricalTrackingView
+              workers={selectedHistoricalPayroll.workers}
+              paidDate={selectedHistoricalPayroll.paidDate}
+            />
+          )}
         </div>
       </div>
     );
@@ -790,22 +784,14 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4 space-y-5">
       {renderSummaryCard()}
-      <div className={cn(
-        isDockedInTopbar
-          ? "fixed top-14 sm:top-16 inset-x-0 bottom-0 overflow-y-auto z-40 bg-background"
-          : ""
-      )}>
-        <div className={isDockedInTopbar ? "max-w-6xl mx-auto px-4 sm:px-8 py-4" : ""}>
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {renderStepContent()}
-          </motion.div>
-        </div>
-      </div>
+      <motion.div
+        key={currentStep}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        {renderStepContent()}
+      </motion.div>
     </div>
   );
 };
