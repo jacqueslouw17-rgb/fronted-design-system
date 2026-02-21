@@ -768,7 +768,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     return (
       <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4 space-y-5">
         {renderSummaryCard()}
-        <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
+        <div className="sticky top-14 sm:top-16 overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
           {selectedHistoricalPayroll && (
             <F1v4_HistoricalTrackingView
               workers={selectedHistoricalPayroll.workers}
@@ -784,7 +784,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4 space-y-5">
       {renderSummaryCard()}
-      <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
+      <div className="sticky top-14 sm:top-16 overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
         <motion.div
           key={currentStep}
           initial={{ opacity: 0, y: 10 }}
