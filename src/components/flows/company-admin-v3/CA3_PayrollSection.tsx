@@ -637,12 +637,6 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                 </Badge>
               )}
             </div>
-            {!isSubmitted && !isViewingPrevious && (
-              <Button onClick={handleEnterWorkflow} size="sm" className="flex-shrink-0 whitespace-nowrap">
-                <span className="sm:hidden">Continue</span>
-                <span className="hidden sm:inline">Continue to submissions</span>
-              </Button>
-            )}
           </div>
 
           {/* Metrics Grid - 5 equal tiles */}
@@ -821,9 +815,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     }
   };
 
-  // Landing view - no stepper, just summary card
-  if (!hasEnteredWorkflow) {
-    return renderLandingView();
+  // Historical view for previous periods
+  if (isViewingPrevious) {
+    return renderPreviousPayrollView();
   }
 
   // Track view - summary card with tracking below
@@ -831,7 +825,6 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     return (
       <>
         {renderTrackView()}
-        {/* Submit Confirmation Modal */}
         <CA3_SubmitConfirmationModal
           open={submitModalOpen}
           onOpenChange={setSubmitModalOpen}
@@ -844,15 +837,14 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     );
   }
 
-  // Workflow view - stepper now embedded in each step's card header
+  // Summary card + workflow step content below
   return (
     <div className="space-y-6">
-      {/* Step Content - stepper is now inside each step component */}
+      {!(currentStep === "submit" && isPayrollSubmitted) && renderSummaryCard(false)}
       <div>
         {renderStepContent()}
       </div>
 
-      {/* Submit Confirmation Modal */}
       <CA3_SubmitConfirmationModal
         open={submitModalOpen}
         onOpenChange={setSubmitModalOpen}
