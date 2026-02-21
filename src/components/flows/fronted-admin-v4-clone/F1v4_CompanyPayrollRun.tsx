@@ -549,24 +549,26 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const renderSummaryCard = () => {
     return (
       <>
-        {/* Period Selector */}
-        <div className="flex items-center justify-center gap-2.5 relative z-[101] mb-3">
-          <F1v4_PeriodDropdown 
-            periods={MOCK_PERIODS}
-            selectedPeriodId={selectedPeriodId}
-            onPeriodChange={handlePeriodChange}
-          />
-          {isViewingPrevious ? (
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-accent-green-text">
-              <CheckCircle2 className="h-3 w-3" />
-              Paid
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
-              <Clock className="h-3 w-3" />
-              In review
-            </span>
-          )}
+        {/* Period Selector — sticky on scroll */}
+        <div className="sticky top-0 z-[101] -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 bg-background/80 backdrop-blur-md">
+          <div className="flex items-center justify-center gap-2.5">
+            <F1v4_PeriodDropdown 
+              periods={MOCK_PERIODS}
+              selectedPeriodId={selectedPeriodId}
+              onPeriodChange={handlePeriodChange}
+            />
+            {isViewingPrevious ? (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-accent-green-text">
+                <CheckCircle2 className="h-3 w-3" />
+                Paid
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                <Clock className="h-3 w-3" />
+                In review
+              </span>
+            )}
+          </div>
         </div>
 
         {/* KPI Metrics Card */}
