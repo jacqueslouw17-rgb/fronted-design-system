@@ -459,7 +459,7 @@ export const F42v7_AdjustmentDrawer = ({
   const handleSubmitAdditionalHours = () => {
     if (!validateAdditionalHoursItems()) return;
 
-    const totalHrs = totalAdditionalHours;
+    const totalHours = totalAdditionalHours;
     const count = additionalHoursItems.length;
     const item = additionalHoursItems[0];
     const dateStr = item.date ? format(item.date, 'MMM d') : '';
@@ -470,13 +470,13 @@ export const F42v7_AdjustmentDrawer = ({
           dateStr,
           timeStr,
         ].filter(Boolean).join(' · ')
-      : `${totalHrs}h additional (${count} entries)`;
+      : `${totalHours}h additional (${count} entries)`;
 
     addAdjustment({
       type: 'Additional hours',
       label,
       amount: null,
-      hours: totalHrs,
+      hours: totalHours,
       date: additionalHoursItems[0].date ? format(additionalHoursItems[0].date, 'yyyy-MM-dd') : undefined,
       startTime: additionalHoursItems[0].startTime,
       endTime: additionalHoursItems[0].endTime,
@@ -487,13 +487,8 @@ export const F42v7_AdjustmentDrawer = ({
       markRejectionResubmitted(rejectedId);
     }
 
-    toast.success(`${count} time entr${count > 1 ? 'ies' : 'y'} submitted (${totalHrs}h total).`);
+    toast.success(`${count} additional hours entr${count > 1 ? 'ies' : 'y'} submitted (${totalHours}h total).`);
     handleClose();
-    
-    // Return to breakdown drawer if requested
-    if (onBack) {
-      onBack();
-    }
   };
 
   const handleSubmitBonus = () => {
