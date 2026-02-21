@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
@@ -290,6 +291,26 @@ interface CA4_PayrollSectionProps {
 }
 
 export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPeriod }) => {
+  // Period dropdown docking into topbar on scroll
+  const periodSentinelRef = useRef<HTMLDivElement>(null);
+  const [isDockedInTopbar, setIsDockedInTopbar] = useState(false);
+  const portalTargetRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    portalTargetRef.current = document.getElementById("topbar-portal-slot");
+  }, []);
+
+  useEffect(() => {
+    const sentinel = periodSentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsDockedInTopbar(!entry.isIntersecting),
+      { threshold: 0, rootMargin: "-56px 0px 0px 0px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
+
   // Period view state - "current" = current, or previous period id
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>("current");
   
@@ -437,32 +458,42 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
     
     return (
       <>
-        {/* Period Selector — docks below header on scroll */}
-        <div className="sticky top-14 sm:top-16 z-[101] -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 bg-card/95 backdrop-blur-sm border-b border-border/30">
-          <div className="flex items-center justify-center gap-2.5">
-            <CA4_PeriodDropdown 
-              periods={periods}
-              selectedPeriodId={selectedPeriodId}
-              onPeriodChange={handlePeriodChange}
-            />
-            {isViewingPrevious ? (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-accent-green-text">
-                <CheckCircle2 className="h-3 w-3" />
-                Paid
-              </span>
-            ) : isSubmitted ? (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary">
-                <Clock className="h-3 w-3" />
-                Processing
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
-                <Clock className="h-3 w-3" />
-                In review
-              </span>
-            )}
-          </div>
-        </div>
+        {/* Sentinel — when this scrolls out of view, dropdown portals into topbar */}
+        <div ref={periodSentinelRef} className="h-0" />
+        
+        {/* Period Selector — inline when visible, portaled to topbar when scrolled */}
+        {(() => {
+          const dropdownContent = (
+            <div className="flex items-center justify-center gap-2.5 py-2">
+              <CA4_PeriodDropdown 
+                periods={periods}
+                selectedPeriodId={selectedPeriodId}
+                onPeriodChange={handlePeriodChange}
+              />
+              {isViewingPrevious ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-accent-green-text">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Paid
+                </span>
+              ) : isSubmitted ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+                  <Clock className="h-3 w-3" />
+                  Processing
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                  <Clock className="h-3 w-3" />
+                  In review
+                </span>
+              )}
+            </div>
+          );
+          
+          if (isDockedInTopbar && portalTargetRef.current) {
+            return createPortal(dropdownContent, portalTargetRef.current);
+          }
+          return dropdownContent;
+        })()}
 
         {/* KPI Metrics Card */}
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
