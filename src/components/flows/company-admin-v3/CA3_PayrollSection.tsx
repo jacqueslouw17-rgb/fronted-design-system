@@ -870,7 +870,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           contractorCount: selectedPrevious?.contractorCount || 0,
           currencyCount: selectedPrevious?.currencyCount || 0,
         })}
-        <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
+        <div className="sticky top-14 sm:top-16 overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
           {selectedPrevious && (
             <CA3_TrackingView
               workers={selectedPrevious.workers}
@@ -890,7 +890,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     return (
       <div className="space-y-6">
         {renderSummaryCard(true)}
-        <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
+        <div className="sticky top-14 sm:top-16 overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
           <CA3_TrackingView
             workers={trackingWorkers}
             onExportCSV={handleExportCSV}
@@ -919,7 +919,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   return (
     <div className="space-y-6">
       {!(currentStep === "submit" && isPayrollSubmitted) && renderSummaryCard(false)}
-      <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
+      <div className="sticky top-14 sm:top-16 overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
         {renderStepContent()}
       </div>
 
