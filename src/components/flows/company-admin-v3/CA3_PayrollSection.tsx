@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { createPortal } from "react-dom";
+
 import { toast } from "sonner";
 import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -477,32 +477,6 @@ interface CA3_PayrollSectionProps {
 }
 
 export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPeriod }) => {
-  // Period dropdown docking into topbar on scroll
-  const periodSentinelRef = useRef<HTMLDivElement>(null);
-  const [isDockedInTopbar, setIsDockedInTopbar] = useState(false);
-  const isDockedRef = useRef(false);
-  const portalTargetRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    portalTargetRef.current = document.getElementById("topbar-portal-slot");
-  }, []);
-
-  useEffect(() => {
-    const sentinel = periodSentinelRef.current;
-    if (!sentinel) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const shouldDock = !entry.isIntersecting;
-        if (shouldDock !== isDockedRef.current) {
-          isDockedRef.current = shouldDock;
-          setIsDockedInTopbar(shouldDock);
-        }
-      },
-      { threshold: 0, rootMargin: "-1px 0px 0px 0px" }
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, []);
 
   // Period view state - default to first "in-review" run
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>("jan-monthly");
@@ -640,40 +614,30 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     
     return (
       <>
-        {/* Period Selector — inline when visible, portaled to topbar when scrolled */}
-        {(() => {
-          const docked = isDockedInTopbar && portalTargetRef.current;
-          const dropdownContent = (
-            <div className={cn("flex items-center justify-center gap-2.5", docked ? "h-full" : "pt-2 pb-6")}>
-              <CA3_PeriodDropdown 
-                periods={periods}
-                selectedPeriodId={selectedPeriodId}
-                onPeriodChange={handlePeriodChange}
-              />
-              {isViewingPrevious ? (
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-accent-green-text">
-                  <CheckCircle2 className="h-3 w-3" />
-                  Paid
-                </span>
-              ) : isSubmitted ? (
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary">
-                  <Clock className="h-3 w-3" />
-                  Processing
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
-                  <Clock className="h-3 w-3" />
-                  In review
-                </span>
-              )}
-            </div>
-          );
-          
-          if (docked) {
-            return createPortal(dropdownContent, portalTargetRef.current!);
-          }
-          return dropdownContent;
-        })()}
+        {/* Period Selector */}
+        <div className="flex items-center justify-center gap-2.5 pt-2 pb-4">
+          <CA3_PeriodDropdown 
+            periods={periods}
+            selectedPeriodId={selectedPeriodId}
+            onPeriodChange={handlePeriodChange}
+          />
+          {isViewingPrevious ? (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-accent-green-text">
+              <CheckCircle2 className="h-3 w-3" />
+              Paid
+            </span>
+          ) : isSubmitted ? (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+              <Clock className="h-3 w-3" />
+              Processing
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+              <Clock className="h-3 w-3" />
+              In review
+            </span>
+          )}
+        </div>
 
         {/* KPI Metrics Card */}
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
@@ -859,8 +823,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   if (isViewingPrevious) {
     return (
       <div>
-      <div ref={periodSentinelRef} className="h-0" />
-      <div className={cn("mb-6", isDockedInTopbar && "hidden")}>
+      <div className="mb-6">
           {renderSummaryCard(false, {
             grossPay: selectedPrevious?.grossPay || "€0",
             adjustments: selectedPrevious?.adjustments || "€0",
@@ -890,8 +853,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   if (currentStep === "track") {
     return (
       <div>
-        <div ref={periodSentinelRef} className="h-0" />
-        <div className={cn("mb-6", isDockedInTopbar && "hidden")}>
+        <div className="mb-6">
           {renderSummaryCard(true)}
         </div>
         <div>
@@ -922,9 +884,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Summary card + workflow step content below
   return (
     <div>
-      <div ref={periodSentinelRef} className="h-0" />
       {!(currentStep === "submit" && isPayrollSubmitted) && (
-        <div className={cn("mb-6", isDockedInTopbar && "hidden")}>
+        <div className="mb-6">
           {renderSummaryCard(false)}
         </div>
       )}
