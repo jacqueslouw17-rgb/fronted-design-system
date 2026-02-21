@@ -583,7 +583,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         {/* Period Selector — inline when visible, portaled to topbar when scrolled */}
         {(() => {
           const dropdownContent = (
-            <div className="flex items-center justify-center gap-2.5 py-2">
+            <div className="flex items-center justify-center gap-2.5 pt-2 pb-6">
               <F1v4_PeriodDropdown 
                 periods={MOCK_PERIODS}
                 selectedPeriodId={selectedPeriodId}
@@ -767,10 +767,10 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   if (isViewingPrevious) {
     return (
       <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4">
-        <div className="mb-5">
+        <div className={cn("mb-5 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
           {renderSummaryCard()}
         </div>
-        <div className="sticky top-14 sm:top-16 z-30 bg-background overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
+        <div>
           {selectedHistoricalPayroll && (
             <F1v4_HistoricalTrackingView
               workers={selectedHistoricalPayroll.workers}
@@ -785,7 +785,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Summary card + workflow step content below
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4">
-      <div className="mb-5">
+      <div className={cn("mb-5 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
         {renderSummaryCard()}
       </div>
       <motion.div
@@ -793,7 +793,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
-        className="sticky top-14 sm:top-16 z-30 bg-background overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]"
       >
         {renderStepContent()}
       </motion.div>
