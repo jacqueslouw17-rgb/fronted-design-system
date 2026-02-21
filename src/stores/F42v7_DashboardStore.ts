@@ -92,6 +92,16 @@ const initialState: F42v7_DashboardState = {
   resubmitDeadline: undefined,
   adjustments: [
     {
+      id: 'adj-demo-tagged-expense-1',
+      type: 'Expense' as F42v7_AdjustmentType,
+      label: 'Transport · USD 120',
+      amount: 120,
+      status: 'Pending' as F42v7_AdjustmentStatus,
+      category: 'Transport',
+      tags: ['London-trip', 'Richmond'],
+      submittedAt: '2026-01-25T10:00:00.000Z',
+    },
+    {
       id: 'adj-demo-pending-1',
       type: 'Expense' as F42v7_AdjustmentType,
       label: 'Meals · USD 85',
