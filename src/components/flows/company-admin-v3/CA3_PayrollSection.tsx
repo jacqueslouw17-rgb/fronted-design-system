@@ -611,32 +611,29 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     
     return (
       <>
-        {/* Period Selector — elevated header */}
-        <div className="flex flex-col items-center gap-2 relative z-[101] mb-4">
-          <div className="flex items-center gap-3 bg-muted/40 backdrop-blur-sm border border-border/30 rounded-2xl px-5 py-2.5 shadow-sm">
-            <CA3_PeriodDropdown 
-              periods={periods}
-              selectedPeriodId={selectedPeriodId}
-              onPeriodChange={handlePeriodChange}
-            />
-            <div className="w-px h-5 bg-border/50" />
-            {isViewingPrevious ? (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-green-text bg-accent-green/10 rounded-full px-3 py-1">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                Paid
-              </span>
-            ) : isSubmitted ? (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full px-3 py-1">
-                <Clock className="h-3.5 w-3.5" />
-                Processing
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-100/60 dark:bg-amber-500/10 rounded-full px-3 py-1">
-                <Clock className="h-3.5 w-3.5" />
-                In review
-              </span>
-            )}
-          </div>
+        {/* Period Selector */}
+        <div className="flex items-center justify-center gap-2.5 relative z-[101] mb-3">
+          <CA3_PeriodDropdown 
+            periods={periods}
+            selectedPeriodId={selectedPeriodId}
+            onPeriodChange={handlePeriodChange}
+          />
+          {isViewingPrevious ? (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-accent-green-text">
+              <CheckCircle2 className="h-3 w-3" />
+              Paid
+            </span>
+          ) : isSubmitted ? (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+              <Clock className="h-3 w-3" />
+              Processing
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+              <Clock className="h-3 w-3" />
+              In review
+            </span>
+          )}
         </div>
 
         {/* KPI Metrics Card */}
