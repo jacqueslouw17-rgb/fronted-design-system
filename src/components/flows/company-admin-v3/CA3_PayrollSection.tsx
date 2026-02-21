@@ -646,7 +646,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         {/* Period Selector — inline when visible, portaled to topbar when scrolled */}
         {(() => {
           const dropdownContent = (
-            <div className="flex items-center justify-center gap-2.5 py-2">
+            <div className="flex items-center justify-center gap-2.5 pt-2 pb-6">
               <CA3_PeriodDropdown 
                 periods={periods}
                 selectedPeriodId={selectedPeriodId}
@@ -861,7 +861,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   if (isViewingPrevious) {
     return (
       <div>
-        <div className="mb-6">
+        <div className={cn("mb-6 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
           {renderSummaryCard(false, {
             grossPay: selectedPrevious?.grossPay || "€0",
             adjustments: selectedPrevious?.adjustments || "€0",
@@ -872,7 +872,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             currencyCount: selectedPrevious?.currencyCount || 0,
           })}
         </div>
-        <div className="sticky top-14 sm:top-16 z-30 bg-background overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
+        <div>
           {selectedPrevious && (
             <CA3_TrackingView
               workers={selectedPrevious.workers}
@@ -891,10 +891,10 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   if (currentStep === "track") {
     return (
       <div>
-        <div className="mb-6">
+        <div className={cn("mb-6 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
           {renderSummaryCard(true)}
         </div>
-        <div className="sticky top-14 sm:top-16 z-30 bg-background overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
+        <div>
           <CA3_TrackingView
             workers={trackingWorkers}
             onExportCSV={handleExportCSV}
@@ -923,11 +923,11 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   return (
     <div>
       {!(currentStep === "submit" && isPayrollSubmitted) && (
-        <div className="mb-6">
+        <div className={cn("mb-6 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
           {renderSummaryCard(false)}
         </div>
       )}
-      <div className="sticky top-14 sm:top-16 z-30 bg-background overflow-y-auto max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)]">
+      <div>
         {renderStepContent()}
       </div>
 
