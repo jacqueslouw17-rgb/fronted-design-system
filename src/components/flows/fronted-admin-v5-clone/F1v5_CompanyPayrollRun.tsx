@@ -549,8 +549,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const renderSummaryCard = () => {
     return (
       <>
-        {/* Period Selector — sticky on scroll */}
-        <div className="sticky top-0 z-[101] -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 bg-background/80 backdrop-blur-md">
+        {/* Period Selector — docks below header on scroll */}
+        <div className="sticky top-14 sm:top-16 z-[101] -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 bg-card/95 backdrop-blur-sm border-b border-border/30">
           <div className="flex items-center justify-center gap-2.5">
             <F1v4_PeriodDropdown 
               periods={MOCK_PERIODS}
