@@ -989,7 +989,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                       <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
                         <Upload className="h-4 w-4 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">
-                          {item.attachment.length === 0 ? 'Upload files' : 'Add more'}
+                          {item.attachment.length === 0 ? 'Upload documents' : 'Add more'}
                         </span>
                         <input
                           type="file"
