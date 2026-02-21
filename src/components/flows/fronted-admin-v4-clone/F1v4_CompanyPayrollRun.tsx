@@ -459,7 +459,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     if (!sentinel) return;
     const observer = new IntersectionObserver(
       ([entry]) => setIsDockedInTopbar(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "-56px 0px 0px 0px" }
+      { threshold: 0, rootMargin: "0px 0px 0px 0px" }
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
