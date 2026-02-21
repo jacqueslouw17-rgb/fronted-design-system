@@ -82,12 +82,11 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
       <PopoverTrigger asChild>
         <button
           className={cn(
-            "group flex items-center gap-2.5 px-3 py-1.5 rounded-full",
-            "bg-card/80 border border-border/50 shadow-sm",
-            "hover:border-border hover:shadow-md",
-            "transition-all duration-200 ease-out",
+            "group flex items-center gap-2 px-1 py-1 rounded-md",
+            "bg-transparent",
+            "hover:bg-muted/40",
+            "transition-colors duration-150 ease-out",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-            isOpen && "border-primary/40 shadow-md bg-card"
           )}
         >
           {selectedPeriod && <StatusDot status={selectedPeriod.status} size="md" />}
