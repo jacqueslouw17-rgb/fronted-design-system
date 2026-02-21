@@ -580,8 +580,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         
         {/* Period Selector — inline when visible, portaled to topbar when scrolled */}
         {(() => {
+          const docked = isDockedInTopbar && portalTargetRef.current;
           const dropdownContent = (
-            <div className="flex items-center justify-center gap-2.5 pt-2 pb-6">
+            <div className={cn("flex items-center justify-center gap-2.5", docked ? "h-full" : "pt-2 pb-6")}>
               <F1v4_PeriodDropdown 
                 periods={MOCK_PERIODS}
                 selectedPeriodId={selectedPeriodId}
@@ -601,8 +602,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             </div>
           );
           
-          if (isDockedInTopbar && portalTargetRef.current) {
-            return createPortal(dropdownContent, portalTargetRef.current);
+          if (docked) {
+            return createPortal(dropdownContent, portalTargetRef.current!);
           }
           return dropdownContent;
         })()}
@@ -759,7 +760,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Historical view for previous periods
   if (isViewingPrevious) {
     return (
-      <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4">
+      <div className={cn("max-w-6xl mx-auto p-4 sm:p-8 pb-4", isDockedInTopbar && "pt-2 sm:pt-3")}>
         <div ref={periodSentinelRef} className="h-0" />
         <div className={cn("mb-5", isDockedInTopbar && "hidden")}>
           {renderSummaryCard()}
@@ -778,7 +779,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
 
   // Summary card + workflow step content below
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4">
+    <div className={cn("max-w-6xl mx-auto p-4 sm:p-8 pb-4", isDockedInTopbar && "pt-2 sm:pt-3")}>
       <div ref={periodSentinelRef} className="h-0" />
       <div className={cn("mb-5", isDockedInTopbar && "hidden")}>
         {renderSummaryCard()}
