@@ -640,9 +640,6 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     
     return (
       <>
-        {/* Sentinel — when this scrolls out of view, dropdown portals into topbar */}
-        <div ref={periodSentinelRef} className="h-0" />
-        
         {/* Period Selector — inline when visible, portaled to topbar when scrolled */}
         {(() => {
           const dropdownContent = (
@@ -861,7 +858,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   if (isViewingPrevious) {
     return (
       <div>
-        <div className={cn("mb-6 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
+      <div ref={periodSentinelRef} className="h-0" />
+      <div className={cn("mb-6", isDockedInTopbar && "hidden")}>
           {renderSummaryCard(false, {
             grossPay: selectedPrevious?.grossPay || "€0",
             adjustments: selectedPrevious?.adjustments || "€0",
@@ -891,7 +889,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   if (currentStep === "track") {
     return (
       <div>
-        <div className={cn("mb-6 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
+        <div ref={periodSentinelRef} className="h-0" />
+        <div className={cn("mb-6", isDockedInTopbar && "hidden")}>
           {renderSummaryCard(true)}
         </div>
         <div>
@@ -922,8 +921,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Summary card + workflow step content below
   return (
     <div>
+      <div ref={periodSentinelRef} className="h-0" />
       {!(currentStep === "submit" && isPayrollSubmitted) && (
-        <div className={cn("mb-6 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
+        <div className={cn("mb-6", isDockedInTopbar && "hidden")}>
           {renderSummaryCard(false)}
         </div>
       )}

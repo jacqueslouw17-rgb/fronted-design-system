@@ -574,11 +574,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     : currentRunMetrics;
 
   // Render summary card (landing view)
-  const renderSummaryCard = () => {
+   const renderSummaryCard = () => {
     return (
       <>
-        {/* Sentinel — when this scrolls out of view, dropdown portals into topbar */}
-        <div ref={periodSentinelRef} className="h-0" />
         
         {/* Period Selector — inline when visible, portaled to topbar when scrolled */}
         {(() => {
@@ -762,7 +760,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   if (isViewingPrevious) {
     return (
       <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4">
-        <div className={cn("mb-5 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
+        <div ref={periodSentinelRef} className="h-0" />
+        <div className={cn("mb-5", isDockedInTopbar && "hidden")}>
           {renderSummaryCard()}
         </div>
         <div>
@@ -780,7 +779,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Summary card + workflow step content below
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4">
-      <div className={cn("mb-5 transition-all duration-300 ease-in-out", isDockedInTopbar && "max-h-0 overflow-hidden mb-0 opacity-0")}>
+      <div ref={periodSentinelRef} className="h-0" />
+      <div className={cn("mb-5", isDockedInTopbar && "hidden")}>
         {renderSummaryCard()}
       </div>
       <motion.div
