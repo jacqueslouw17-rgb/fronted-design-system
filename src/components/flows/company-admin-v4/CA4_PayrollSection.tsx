@@ -467,8 +467,9 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
       <>
         {/* Period Selector — inline when visible, portaled to topbar when scrolled */}
         {(() => {
+          const docked = isDockedInTopbar && portalTargetRef.current;
           const dropdownContent = (
-            <div className="flex items-center justify-center gap-2.5 pt-2 pb-6">
+            <div className={cn("flex items-center justify-center gap-2.5", docked ? "h-full" : "pt-2 pb-6")}>
               <CA4_PeriodDropdown 
                 periods={periods}
                 selectedPeriodId={selectedPeriodId}
@@ -493,8 +494,8 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
             </div>
           );
           
-          if (isDockedInTopbar && portalTargetRef.current) {
-            return createPortal(dropdownContent, portalTargetRef.current);
+          if (docked) {
+            return createPortal(dropdownContent, portalTargetRef.current!);
           }
           return dropdownContent;
         })()}
