@@ -480,6 +480,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Period dropdown docking into topbar on scroll
   const periodSentinelRef = useRef<HTMLDivElement>(null);
   const [isDockedInTopbar, setIsDockedInTopbar] = useState(false);
+  const isDockedRef = useRef(false);
   const portalTargetRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -490,8 +491,14 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     const sentinel = periodSentinelRef.current;
     if (!sentinel) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setIsDockedInTopbar(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "0px 0px 0px 0px" }
+      ([entry]) => {
+        const shouldDock = !entry.isIntersecting;
+        if (shouldDock !== isDockedRef.current) {
+          isDockedRef.current = shouldDock;
+          setIsDockedInTopbar(shouldDock);
+        }
+      },
+      { threshold: 0, rootMargin: "-1px 0px 0px 0px" }
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
@@ -863,7 +870,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           contractorCount: selectedPrevious?.contractorCount || 0,
           currencyCount: selectedPrevious?.currencyCount || 0,
         })}
-        <div className={cn("transition-[max-height] duration-200", isDockedInTopbar ? "max-h-[calc(100vh-16rem)] overflow-y-auto" : "max-h-none overflow-visible")}>
+        <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
           {selectedPrevious && (
             <CA3_TrackingView
               workers={selectedPrevious.workers}
@@ -883,7 +890,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     return (
       <div className="space-y-6">
         {renderSummaryCard(true)}
-        <div className={cn("transition-[max-height] duration-200", isDockedInTopbar ? "max-h-[calc(100vh-16rem)] overflow-y-auto" : "max-h-none overflow-visible")}>
+        <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
           <CA3_TrackingView
             workers={trackingWorkers}
             onExportCSV={handleExportCSV}
@@ -912,7 +919,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   return (
     <div className="space-y-6">
       {!(currentStep === "submit" && isPayrollSubmitted) && renderSummaryCard(false)}
-      <div className={cn("transition-[max-height] duration-200", isDockedInTopbar ? "max-h-[calc(100vh-16rem)] overflow-y-auto" : "max-h-none overflow-visible")}>
+      <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
         {renderStepContent()}
       </div>
 

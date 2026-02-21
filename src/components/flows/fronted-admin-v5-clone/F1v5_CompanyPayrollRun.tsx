@@ -448,6 +448,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Period dropdown docking into topbar on scroll
   const periodSentinelRef = useRef<HTMLDivElement>(null);
   const [isDockedInTopbar, setIsDockedInTopbar] = useState(false);
+  const isDockedRef = useRef(false);
   const portalTargetRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -458,8 +459,14 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     const sentinel = periodSentinelRef.current;
     if (!sentinel) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setIsDockedInTopbar(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "0px 0px 0px 0px" }
+      ([entry]) => {
+        const shouldDock = !entry.isIntersecting;
+        if (shouldDock !== isDockedRef.current) {
+          isDockedRef.current = shouldDock;
+          setIsDockedInTopbar(shouldDock);
+        }
+      },
+      { threshold: 0, rootMargin: "-1px 0px 0px 0px" }
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
@@ -761,7 +768,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     return (
       <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4 space-y-5">
         {renderSummaryCard()}
-        <div className={cn("transition-[max-height] duration-200", isDockedInTopbar ? "max-h-[calc(100vh-16rem)] overflow-y-auto" : "max-h-none overflow-visible")}>
+        <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
           {selectedHistoricalPayroll && (
             <F1v4_HistoricalTrackingView
               workers={selectedHistoricalPayroll.workers}
@@ -777,7 +784,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4 space-y-5">
       {renderSummaryCard()}
-      <div className={cn("transition-[max-height] duration-200", isDockedInTopbar ? "max-h-[calc(100vh-16rem)] overflow-y-auto" : "max-h-none overflow-visible")}>
+      <div className={cn("overflow-y-auto", isDockedInTopbar ? "max-h-[calc(100vh-16rem)]" : "max-h-[200vh]")}>
         <motion.div
           key={currentStep}
           initial={{ opacity: 0, y: 10 }}
