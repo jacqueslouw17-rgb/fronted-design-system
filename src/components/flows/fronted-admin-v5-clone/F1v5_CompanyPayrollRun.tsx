@@ -551,8 +551,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
       <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-visible">
         <CardContent className="py-6 px-6 overflow-visible">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6 relative z-[101]">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-3 mb-6 relative z-[101]">
               <F1v4_PeriodDropdown 
                 periods={MOCK_PERIODS}
                 selectedPeriodId={selectedPeriodId}
@@ -569,7 +568,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                   In review
                 </Badge>
               )}
-            </div>
           </div>
 
           {/* Metrics Grid */}

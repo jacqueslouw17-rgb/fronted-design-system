@@ -613,8 +613,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-visible">
         <CardContent className="py-4 px-4 sm:py-6 sm:px-6 overflow-visible">
           {/* Header */}
-          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6 relative z-[101]">
-            <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6 relative z-[101]">
               <CA3_PeriodDropdown 
                 periods={periods}
                 selectedPeriodId={selectedPeriodId}
@@ -636,7 +635,6 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                   In review
                 </Badge>
               )}
-            </div>
           </div>
 
           {/* Metrics Grid - 5 equal tiles */}
