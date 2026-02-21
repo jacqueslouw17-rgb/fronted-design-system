@@ -610,87 +610,90 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     const periodLabel = selectedPeriodData?.label || payPeriod;
     
     return (
-      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-visible">
-        <CardContent className="py-4 px-4 sm:py-6 sm:px-6 overflow-visible">
-          {/* Header */}
-          <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6 relative z-[101]">
-              <CA3_PeriodDropdown 
-                periods={periods}
-                selectedPeriodId={selectedPeriodId}
-                onPeriodChange={handlePeriodChange}
-              />
-              {isViewingPrevious ? (
-                <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20 flex-shrink-0">
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Paid
-                </Badge>
-              ) : isSubmitted ? (
-                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 flex-shrink-0">
-                  <Clock className="h-3 w-3 mr-1" />
-                  Processing
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 flex-shrink-0">
-                  <Clock className="h-3 w-3 mr-1" />
-                  In review
-                </Badge>
-              )}
-          </div>
+      <>
+        {/* Period Selector - sits above the card since it controls both KPI and workflow */}
+        <div className="flex items-center justify-center gap-3 relative z-[101] pb-1">
+          <CA3_PeriodDropdown 
+            periods={periods}
+            selectedPeriodId={selectedPeriodId}
+            onPeriodChange={handlePeriodChange}
+          />
+          {isViewingPrevious ? (
+            <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20 flex-shrink-0">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Paid
+            </Badge>
+          ) : isSubmitted ? (
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 flex-shrink-0">
+              <Clock className="h-3 w-3 mr-1" />
+              Processing
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 flex-shrink-0">
+              <Clock className="h-3 w-3 mr-1" />
+              In review
+            </Badge>
+          )}
+        </div>
 
-          {/* Metrics Grid - 5 equal tiles */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
-            {/* Gross Pay */}
-            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
-              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-xs sm:text-sm">Gross Pay</span>
+        {/* KPI Metrics Card */}
+        <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+          <CardContent className="py-4 px-4 sm:py-6 sm:px-6">
+            {/* Metrics Grid - 5 equal tiles */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+              {/* Gross Pay */}
+              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+                <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Gross Pay</span>
+                </div>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
-            </div>
 
-            {/* Adjustments */}
-            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
-              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-xs sm:text-sm">Adjustments</span>
+              {/* Adjustments */}
+              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+                <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Adjustments</span>
+                </div>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.adjustments}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Bonuses, overtime & expenses</p>
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.adjustments}</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Bonuses, overtime & expenses</p>
-            </div>
 
-            {/* Employees */}
-            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
-              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-xs sm:text-sm">Employees</span>
+              {/* Employees */}
+              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+                <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Employees</span>
+                </div>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
-            </div>
 
-            {/* Contractors */}
-            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
-              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-xs sm:text-sm">Contractors</span>
+              {/* Contractors */}
+              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+                <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Contractors</span>
+                </div>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
-            </div>
 
-            {/* Currencies */}
-            <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
-              <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-xs sm:text-sm">Currencies</span>
+              {/* Currencies */}
+              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+                <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Currencies</span>
+                </div>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Multi-currency run</p>
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Multi-currency run</p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </>
     );
   };
 

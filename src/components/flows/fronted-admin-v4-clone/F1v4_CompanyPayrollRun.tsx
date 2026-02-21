@@ -548,82 +548,85 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Render summary card (landing view)
   const renderSummaryCard = () => {
     return (
-      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-visible">
-        <CardContent className="py-6 px-6 overflow-visible">
-          {/* Header */}
-          <div className="flex items-center justify-center gap-3 mb-6 relative z-[101]">
-              <F1v4_PeriodDropdown 
-                periods={MOCK_PERIODS}
-                selectedPeriodId={selectedPeriodId}
-                onPeriodChange={handlePeriodChange}
-              />
-              {isViewingPrevious ? (
-                <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Paid
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
-                  <Clock className="h-3 w-3 mr-1" />
-                  In review
-                </Badge>
-              )}
-          </div>
+      <>
+        {/* Period Selector - sits above the card since it controls both KPI and workflow */}
+        <div className="flex items-center justify-center gap-3 relative z-[101] pb-1">
+          <F1v4_PeriodDropdown 
+            periods={MOCK_PERIODS}
+            selectedPeriodId={selectedPeriodId}
+            onPeriodChange={handlePeriodChange}
+          />
+          {isViewingPrevious ? (
+            <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Paid
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+              <Clock className="h-3 w-3 mr-1" />
+              In review
+            </Badge>
+          )}
+        </div>
 
-          {/* Metrics Grid - 5 equal tiles */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            {/* Gross Pay */}
-            <div className="bg-primary/[0.04] rounded-xl p-4">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                <DollarSign className="h-4 w-4 text-primary" />
-                <span className="text-sm">Gross Pay</span>
+        {/* KPI Metrics Card */}
+        <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+          <CardContent className="py-6 px-6">
+            {/* Metrics Grid - 5 equal tiles */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              {/* Gross Pay */}
+              <div className="bg-primary/[0.04] rounded-xl p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+                  <DollarSign className="h-4 w-4 text-primary" />
+                  <span className="text-sm">Gross Pay</span>
+                </div>
+                <p className="text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
+                <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
               </div>
-              <p className="text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
-              <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
-            </div>
 
-            {/* Adjustments */}
-            <div className="bg-primary/[0.04] rounded-xl p-4">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                <Receipt className="h-4 w-4 text-primary" />
-                <span className="text-sm">Adjustments</span>
+              {/* Adjustments */}
+              <div className="bg-primary/[0.04] rounded-xl p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+                  <Receipt className="h-4 w-4 text-primary" />
+                  <span className="text-sm">Adjustments</span>
+                </div>
+                <p className="text-2xl font-semibold text-foreground">≈ {displayMetrics.adjustments}</p>
+                <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
               </div>
-              <p className="text-2xl font-semibold text-foreground">≈ {displayMetrics.adjustments}</p>
-              <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
-            </div>
 
-            {/* Employees */}
-            <div className="bg-primary/[0.04] rounded-xl p-4">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                <Users className="h-4 w-4 text-primary" />
-                <span className="text-sm">Employees</span>
+              {/* Employees */}
+              <div className="bg-primary/[0.04] rounded-xl p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span className="text-sm">Employees</span>
+                </div>
+                <p className="text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
+                <p className="text-xs text-muted-foreground mt-1">Active this period</p>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
-              <p className="text-xs text-muted-foreground mt-1">Active this period</p>
-            </div>
 
-            {/* Contractors */}
-            <div className="bg-primary/[0.04] rounded-xl p-4">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                <Briefcase className="h-4 w-4 text-primary" />
-                <span className="text-sm">Contractors</span>
+              {/* Contractors */}
+              <div className="bg-primary/[0.04] rounded-xl p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+                  <Briefcase className="h-4 w-4 text-primary" />
+                  <span className="text-sm">Contractors</span>
+                </div>
+                <p className="text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
+                <p className="text-xs text-muted-foreground mt-1">Active this period</p>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
-              <p className="text-xs text-muted-foreground mt-1">Active this period</p>
-            </div>
 
-            {/* Currencies */}
-            <div className="bg-primary/[0.04] rounded-xl p-4">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                <DollarSign className="h-4 w-4 text-primary" />
-                <span className="text-sm">Currencies</span>
+              {/* Currencies */}
+              <div className="bg-primary/[0.04] rounded-xl p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+                  <DollarSign className="h-4 w-4 text-primary" />
+                  <span className="text-sm">Currencies</span>
+                </div>
+                <p className="text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
+                <p className="text-xs text-muted-foreground mt-1">Multi-currency run</p>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
-              <p className="text-xs text-muted-foreground mt-1">Multi-currency run</p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </>
     );
   };
 
