@@ -777,16 +777,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {onClose &&
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onClose}
-                className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1">
-
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              }
               <F1v4_PayrollStepper
                 currentStep="submissions"
                 completedSteps={[]}
@@ -808,9 +798,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                   </TooltipContent>
                 }
               </Tooltip>
-              {onClose &&
-              <Button size="sm" variant="secondary" onClick={onClose} className="h-9 text-xs">Close</Button>
-              }
             </div>
           </div>
         </CardHeader>
