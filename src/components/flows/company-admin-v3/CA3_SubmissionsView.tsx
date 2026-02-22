@@ -358,7 +358,7 @@ const AdjustmentRow = ({
   // Pending state - wrapped container for unified expanded state
   const hasAttachments = attachments && attachments.length > 0;
   const hasTrail = !!previousSubmission;
-  return <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
+  return <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-muted border border-border/30" : "hover:bg-muted")}>
       {/* Header row */}
       <div className="flex items-start justify-between py-2 cursor-pointer" onClick={e => {
       e.stopPropagation();
@@ -632,7 +632,7 @@ const LeaveRow = ({
   }
 
   // Pending state - wrapped container for unified expanded state
-  return <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+  return <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-muted border border-border/30" : "hover:bg-muted")} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       {/* Header row */}
       <div className="flex items-center justify-between py-2 cursor-pointer" onClick={e => {
       e.stopPropagation();

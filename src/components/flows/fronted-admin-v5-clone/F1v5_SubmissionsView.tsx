@@ -265,7 +265,7 @@ const AdjustmentRow = ({
   const hasAttachments = attachments && attachments.length > 0;
   const hasTrail = !!previousSubmission;
   return (
-    <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
+    <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-muted border border-border/30" : "hover:bg-muted")}>
       <div className="flex items-start justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -446,7 +446,7 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
 
   // Pending state
   return (
-    <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
+    <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-muted border border-border/30" : "hover:bg-muted")}>
       <div className="flex items-start justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
