@@ -76,7 +76,7 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Pag-IBIG Employee", amount: -1000, locked: true },
     ],
     submissions: [
-      { type: "overtime", hours: 8, description: "8h · Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
+      { type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
       { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending" },
     ],
     // Pending leave requests for this pay period - only unpaid leave affects payroll
