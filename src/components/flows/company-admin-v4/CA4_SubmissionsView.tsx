@@ -261,7 +261,7 @@ const AdjustmentRow = ({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
-            <span className="text-sm text-muted-foreground">{label}</span>
+            <span className="text-sm font-semibold text-muted-foreground">{label}</span>
           </div>
           {description && <span className="text-[10px] text-muted-foreground/60 ml-5.5 block">{description}</span>}
         </div>
@@ -297,7 +297,7 @@ const AdjustmentRow = ({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2.5">
                 <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-                <span className="text-sm text-muted-foreground line-through">{label}</span>
+                <span className="text-sm font-semibold text-muted-foreground line-through">{label}</span>
                 <Badge 
                   variant="outline" 
                   className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-destructive/10 text-destructive border-destructive/40"
@@ -363,7 +363,7 @@ const AdjustmentRow = ({
       >
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-foreground">{label}</span>
+            <span className="text-sm font-semibold text-foreground">{label}</span>
             <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
               pending
             </span>
@@ -589,7 +589,7 @@ const LeaveRow = ({
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-sm text-muted-foreground">{config.label}</span>
+            <span className="text-sm font-semibold text-muted-foreground">{config.label}</span>
             <span className="text-xs text-muted-foreground/70">
               {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {leave.dateDescription || formatDateRange(leave.startDate, leave.endDate)}
             </span>
@@ -630,7 +630,7 @@ const LeaveRow = ({
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-                <span className="text-sm text-muted-foreground line-through">{config.label}</span>
+                <span className="text-sm font-semibold text-muted-foreground line-through">{config.label}</span>
                 <Badge 
                   variant="outline" 
                   className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 pointer-events-none"
@@ -694,7 +694,7 @@ const LeaveRow = ({
       >
         <div className="flex flex-col gap-0 min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-foreground">{config.label}</span>
+            <span className="text-sm font-semibold text-foreground">{config.label}</span>
             <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
               pending
             </span>
