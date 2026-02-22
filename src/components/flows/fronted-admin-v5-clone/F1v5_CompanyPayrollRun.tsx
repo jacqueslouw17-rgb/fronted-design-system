@@ -204,7 +204,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { label: "Pension", amount: -3250, type: "Deduction", locked: true },
     ],
     submissions: [
-      { type: "overtime", amount: 4500, hours: 12, description: "12h · Jan 11 · 09:00–21:00", status: "pending" },
+      { type: "overtime", amount: 4500, hours: 12, description: "Jan 11 · 09:00–21:00", status: "pending" },
     ],
     pendingLeaves: [
       { id: "leave-1", leaveType: "Unpaid", startDate: "2026-01-20", endDate: "2026-01-21", totalDays: 2, daysInThisPeriod: 2, status: "pending", dailyRate: 2955, dateDescription: "20–21 Jan" },
@@ -348,7 +348,7 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
         { type: "Deduction", label: "Income Tax", amount: -480, locked: true },
         { type: "Deduction", label: "NI", amount: -270, locked: true },
       ],
-      submissions: [{ type: "overtime", hours: 4, description: "4h · Jan 31 · 17:00–21:00", amount: 280, status: "pending" }],
+      submissions: [{ type: "overtime", hours: 4, description: "Jan 31 · 17:00–21:00", amount: 280, status: "pending" }],
       pendingLeaves: [],
       status: "pending",
       totalImpact: 280,

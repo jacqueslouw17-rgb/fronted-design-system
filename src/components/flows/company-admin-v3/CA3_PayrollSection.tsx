@@ -104,7 +104,7 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Pag-IBIG Employee", amount: -1000, locked: true },
     ],
     submissions: [
-      { type: "overtime", hours: 8, description: "8h · Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
+      { type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
       { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending", tags: ["Client dinner"] },
     ],
     // Pending leave requests for this pay period - only unpaid leave affects payroll
@@ -367,7 +367,7 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
         { type: "Deduction", label: "Income Tax", amount: -480, locked: true },
         { type: "Deduction", label: "NI", amount: -270, locked: true },
       ],
-      submissions: [{ type: "overtime", hours: 4, description: "4h · Jan 31 · 17:00–21:00", amount: 280, status: "pending" }],
+      submissions: [{ type: "overtime", hours: 4, description: "Jan 31 · 17:00–21:00", amount: 280, status: "pending" }],
       status: "pending",
       totalImpact: 280,
       currency: "GBP",
