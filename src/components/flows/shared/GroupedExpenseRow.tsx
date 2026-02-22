@@ -65,12 +65,12 @@ export const GroupedExpenseRow = ({
 
   return (
     <div className={cn(
-      "rounded-lg transition-all duration-200 mb-0.5 -mx-2 px-2",
+      "transition-all duration-200 mb-0.5",
       allRejected
-        ? "bg-muted/10 border border-border/15"
+        ? "bg-muted/10"
         : allApproved
-          ? "bg-accent-green/[0.03] border border-accent-green/15"
-          : "bg-card/60 border border-border/30 shadow-sm"
+          ? "bg-accent-green/[0.03]"
+          : ""
     )}>
       {/* Group header — flush with parent row alignment */}
       <div
