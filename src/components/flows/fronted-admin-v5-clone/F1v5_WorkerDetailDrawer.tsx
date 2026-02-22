@@ -166,7 +166,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
   const [overridesEnabled, setOverridesEnabled] = useState(false);
   const [adjustments, setAdjustments] = useState<ManualAdjustment[]>([]);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [showMarkAsPaidConfirm, setShowMarkAsPaidConfirm] = useState(false);
+  
   const [pendingAdjustment, setPendingAdjustment] = useState<number | null>(null);
 
   // Collapsible states
@@ -293,9 +293,9 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
     });
   };
 
-  const handleConfirmMarkAsPaid = () => {
+  const handleMarkAsPaidDirect = () => {
     onMarkAsPaid?.(worker.id);
-    setShowMarkAsPaidConfirm(false);
+    onOpenChange(false);
   };
 
   // =============================================
@@ -418,7 +418,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                   <Button
                     variant="default"
                     className="w-full gap-2 mt-2"
-                    onClick={() => setShowMarkAsPaidConfirm(true)}
+                    onClick={handleMarkAsPaidDirect}
                   >
                     <CheckCircle2 className="h-4 w-4" />
                     Mark as paid
@@ -439,46 +439,6 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
           </SheetContent>
         </Sheet>
 
-        {/* Mark as Paid Confirmation */}
-        <AlertDialog open={showMarkAsPaidConfirm} onOpenChange={setShowMarkAsPaidConfirm}>
-          <AlertDialogContent className="max-w-md">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-                Confirm payment for {worker.name}?
-              </AlertDialogTitle>
-              <AlertDialogDescription className="space-y-3">
-                <p>
-                  Once marked as paid, this will be reflected on the company side and is final.
-                </p>
-                <div className="rounded-lg bg-muted/50 border border-border p-3 text-sm space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Worker:</span>
-                    <span className="font-medium text-foreground">{worker.name}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Amount:</span>
-                    <span className="font-medium text-foreground">{formatCurrency(Math.round(netTotal), worker.currency)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Type:</span>
-                    <span className="font-medium text-foreground">{isContractor ? "Invoice" : "Payslip"}</span>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  This action cannot be undone.
-                </p>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Not Yet</AlertDialogCancel>
-              <AlertDialogAction onClick={handleConfirmMarkAsPaid}>
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Yes, Mark as Paid
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </>
     );
   }
