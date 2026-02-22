@@ -113,6 +113,7 @@ const mockSubmissions: WorkerSubmission[] = [
         totalDays: 0.5,
         daysInThisPeriod: 0.5,
         reason: "Personal appointment (morning)",
+        dateDescription: "15 Jan (morning)",
         status: "pending",
         dailyRate: 2954.55, // 65000 / 22 working days
       },

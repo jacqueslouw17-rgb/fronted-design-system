@@ -207,7 +207,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { type: "overtime", amount: 4500, hours: 12, description: "12h overtime", status: "pending" },
     ],
     pendingLeaves: [
-      { id: "leave-1", leaveType: "Unpaid", startDate: "2026-01-20", endDate: "2026-01-21", totalDays: 2, daysInThisPeriod: 2, status: "pending", dailyRate: 2955 },
+      { id: "leave-1", leaveType: "Unpaid", startDate: "2026-01-20", endDate: "2026-01-21", totalDays: 2, daysInThisPeriod: 2, status: "pending", dailyRate: 2955, dateDescription: "20–21 Jan" },
     ],
     flags: [
       { type: "end_date", endDate: "Feb 14, 2026", endReason: "Resignation" },

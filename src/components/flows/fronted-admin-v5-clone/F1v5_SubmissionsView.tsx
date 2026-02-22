@@ -91,6 +91,7 @@ export interface PendingLeaveItem {
   totalDays: number;
   daysInThisPeriod: number;
   reason?: string;
+  dateDescription?: string;
   status: AdjustmentItemStatus;
   rejectionReason?: string;
   dailyRate?: number;
@@ -375,17 +376,18 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
         className={cn("flex items-center justify-between py-2 -mx-3 px-3 rounded group transition-colors", "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}>
-
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
-          <span className="text-sm text-muted-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+          <div className="flex flex-col gap-0 min-w-0">
+            <span className="text-sm text-muted-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+            {leave.dateDescription && <span className="text-[10px] text-muted-foreground/60">{leave.dateDescription}</span>}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {onUndo && isHovered &&
           <button
             onClick={(e) => {e.stopPropagation();onUndo();}}
             className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium">
-
               <Undo2 className="h-3 w-3" />
               Undo
             </button>
@@ -393,7 +395,6 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
           <span className="text-sm tabular-nums font-mono text-muted-foreground">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
         </div>
       </div>);
-
   }
 
   // Rejected state
@@ -406,7 +407,10 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
       >
         <div className="flex items-center justify-between py-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="text-sm text-muted-foreground/70 line-through">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+            <div className="flex flex-col gap-0 min-w-0">
+              <span className="text-sm text-muted-foreground/70 line-through">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+              {leave.dateDescription && <span className="text-[10px] text-muted-foreground/40 line-through">{leave.dateDescription}</span>}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {onUndo && (
@@ -437,12 +441,15 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
   // Pending state
   return (
     <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
-      <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm text-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
+      <div className="flex items-start justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
+          </div>
+          {leave.dateDescription && <span className="text-[10px] text-muted-foreground/70 mt-0.5 block">{leave.dateDescription}</span>}
         </div>
-        <span className="text-sm tabular-nums font-mono text-foreground ml-3">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
+        <span className="text-sm tabular-nums font-mono text-foreground ml-3 shrink-0">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
       </div>
       <AnimatePresence>
         {expanded &&
@@ -457,7 +464,6 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
                     <Check className="h-3.5 w-3.5" />Approve
                   </Button>
                 </div> :
-
             <div className="space-y-2 p-3 rounded-md border border-border/50 bg-background/80" onClick={(e) => e.stopPropagation()}>
                   <Textarea placeholder="Reason for rejection..." value={rejectReasonInput} onChange={(e) => setRejectReasonInput(e.target.value)} className="min-h-[60px] resize-none text-sm bg-background" autoFocus />
                   <div className="flex items-center gap-2">
@@ -471,7 +477,6 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
         }
       </AnimatePresence>
     </div>);
-
 };
 
 // State tracking
