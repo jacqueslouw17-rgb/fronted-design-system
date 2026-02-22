@@ -91,6 +91,7 @@ export interface PendingLeaveItem {
   totalDays: number;
   daysInThisPeriod: number;
   reason?: string;
+  dateDescription?: string;
   status: AdjustmentItemStatus;
   rejectionReason?: string;
   dailyRate?: number;
@@ -378,7 +379,10 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
 
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
-          <span className="text-sm text-muted-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+          <div className="flex flex-col gap-0 min-w-0">
+            <span className="text-sm text-muted-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+            {leave.dateDescription && <span className="text-[10px] text-muted-foreground/60">{leave.dateDescription}</span>}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {onUndo && isHovered &&
@@ -405,8 +409,11 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="flex items-center justify-between py-2">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="text-sm text-muted-foreground/70 line-through">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+           <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="flex flex-col gap-0 min-w-0">
+              <span className="text-sm text-muted-foreground/70 line-through">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+              {leave.dateDescription && <span className="text-[10px] text-muted-foreground/40 line-through">{leave.dateDescription}</span>}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {onUndo && (
@@ -438,12 +445,15 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
   // Pending state
   return (
     <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15")}>
-      <div className="flex items-center justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm text-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
+      <div className="flex items-start justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
+          </div>
+          {leave.dateDescription && <span className="text-[10px] text-muted-foreground/70 mt-0.5 block">{leave.dateDescription}</span>}
         </div>
-        <span className="text-sm tabular-nums font-mono text-foreground ml-3">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
+        <span className="text-sm tabular-nums font-mono text-foreground ml-3 shrink-0">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
       </div>
       <AnimatePresence>
         {expanded &&

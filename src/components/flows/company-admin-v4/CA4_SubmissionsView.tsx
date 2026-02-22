@@ -81,11 +81,12 @@ export interface PendingLeaveItem {
   startDate: string;
   endDate: string;
   totalDays: number;
-  daysInThisPeriod: number; // Days affecting this pay period
+  daysInThisPeriod: number;
   reason?: string;
+  dateDescription?: string;
   status: AdjustmentItemStatus;
   rejectionReason?: string;
-  dailyRate?: number; // For calculating unpaid leave deduction
+  dailyRate?: number;
 }
 
 export interface WorkerSubmission {
@@ -575,7 +576,7 @@ const LeaveRow = ({
           <div className="flex flex-col gap-0.5 min-w-0">
             <span className="text-sm text-muted-foreground">{config.label}</span>
             <span className="text-xs text-muted-foreground/70">
-              {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+              {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {leave.dateDescription || formatDateRange(leave.startDate, leave.endDate)}
             </span>
           </div>
         </div>
@@ -623,7 +624,7 @@ const LeaveRow = ({
                 </Badge>
               </div>
               <span className="text-xs text-muted-foreground/50 line-through pl-5">
-                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {leave.dateDescription || formatDateRange(leave.startDate, leave.endDate)}
               </span>
             </div>
             {onUndo && isHovered && (
@@ -693,7 +694,7 @@ const LeaveRow = ({
                 transition={{ duration: 0.1 }}
                 className="text-xs text-muted-foreground overflow-hidden"
               >
-                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`} · {formatDateRange(leave.startDate, leave.endDate)}
+                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`} · {leave.dateDescription || formatDateRange(leave.startDate, leave.endDate)}
               </motion.span>
             )}
           </AnimatePresence>
