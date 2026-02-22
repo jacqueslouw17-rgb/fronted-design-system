@@ -106,6 +106,7 @@ const mockSubmissions: WorkerSubmission[] = [
     submissions: [
       { type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
       { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending", tags: ["Client dinner"] },
+      { type: "expenses", amount: 850, currency: "PHP", description: "Transport", status: "pending", tags: ["Client dinner"] },
     ],
     // Pending leave requests for this pay period - only unpaid leave affects payroll
     pendingLeaves: [],
