@@ -247,7 +247,7 @@ const AdjustmentRow = ({
   if (isApproved) {
     return (
       <div 
-        className={cn("flex items-center justify-between py-2 -mx-3 px-3 rounded group transition-colors", !isFinalized && "hover:bg-muted")}
+        className={cn("flex items-center justify-between py-2 -mx-3 px-3 rounded group transition-colors", "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -256,7 +256,7 @@ const AdjustmentRow = ({
           <span className="text-sm text-muted-foreground">{label}</span>
         </div>
         <div className="flex items-center gap-2">
-          {!isFinalized && onUndo && isHovered && (
+          {onUndo && isHovered && (
             <button
               onClick={(e) => { e.stopPropagation(); onUndo(); }}
               className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium"
@@ -295,7 +295,7 @@ const AdjustmentRow = ({
               </Badge>
             </div>
             <div className="flex items-center gap-2">
-              {!isFinalized && onUndo && isHovered && (
+              {onUndo && isHovered && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onUndo(); }}
                   className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium"
@@ -566,7 +566,7 @@ const LeaveRow = ({
   if (isApproved) {
     return (
       <div 
-        className={cn("flex items-center justify-between py-2.5 -mx-3 px-3 rounded group transition-colors", !isFinalized && "hover:bg-muted")}
+        className={cn("flex items-center justify-between py-2.5 -mx-3 px-3 rounded group transition-colors", "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -580,7 +580,7 @@ const LeaveRow = ({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-4">
-          {!isFinalized && onUndo && isHovered && (
+          {onUndo && isHovered && (
             <button
               onClick={(e) => { e.stopPropagation(); onUndo(); }}
               className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium"
@@ -626,7 +626,7 @@ const LeaveRow = ({
                 {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
               </span>
             </div>
-            {!isFinalized && onUndo && isHovered && (
+            {onUndo && isHovered && (
               <button
                 onClick={(e) => { e.stopPropagation(); onUndo(); }}
                 className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium shrink-0"
@@ -1172,6 +1172,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
       ...prev,
       [key]: { status: 'pending' }
     }));
+    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
     toast.info('Action undone');
   };
 
@@ -1182,6 +1183,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
       ...prev,
       [key]: { status: 'pending' }
     }));
+    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
     toast.info('Action undone');
   };
 

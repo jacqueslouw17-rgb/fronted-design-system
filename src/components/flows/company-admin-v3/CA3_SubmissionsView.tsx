@@ -296,7 +296,7 @@ const AdjustmentRow = ({
           {tags && tags.length > 0 && <div className="ml-5.5 mt-0.5"><TagChips tags={tags} max={2} /></div>}
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-3">
-          {!isFinalized && onUndo && isHovered && <button onClick={e => {
+          {onUndo && isHovered && <button onClick={e => {
           e.stopPropagation();
           onUndo();
         }} className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium">
@@ -313,7 +313,7 @@ const AdjustmentRow = ({
   // Rejected state
   if (isRejected) {
     return <div
-        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", !isFinalized && "hover:bg-muted")}
+        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -322,7 +322,7 @@ const AdjustmentRow = ({
             <span className="text-sm text-muted-foreground/70 line-through truncate">{label}</span>
           </div>
           <div className="flex items-center gap-2">
-            {!isFinalized && onUndo && (
+            {onUndo && (
               <button
                 onClick={(e) => { e.stopPropagation(); onUndo(); }}
                 className={cn(
@@ -569,7 +569,7 @@ const LeaveRow = ({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-4">
-          {!isFinalized && onUndo && isHovered && <button onClick={e => {
+          {onUndo && isHovered && <button onClick={e => {
           e.stopPropagation();
           onUndo();
         }} className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium">
@@ -586,7 +586,7 @@ const LeaveRow = ({
   // Rejected state - show with Undo option (unless finalized) and hover-reveal reason
   if (isRejected) {
     return <div
-        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", !isFinalized && "hover:bg-muted")}
+        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -598,7 +598,7 @@ const LeaveRow = ({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            {!isFinalized && onUndo && (
+            {onUndo && (
               <button
                 onClick={(e) => { e.stopPropagation(); onUndo(); }}
                 className={cn(
@@ -1021,6 +1021,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         status: 'pending'
       }
     }));
+    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
     toast.info('Action undone');
   };
 
@@ -1033,6 +1034,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         status: 'pending'
       }
     }));
+    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
     toast.info('Action undone');
   };
 
