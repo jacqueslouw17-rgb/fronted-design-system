@@ -1411,11 +1411,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
               <>
                 <StatusIcon className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{status.label}</span>
-                {workerRejectedCount > 0 && (
-                  <span className="flex items-center justify-center h-4 w-4 rounded-full bg-destructive/15 text-destructive text-[10px] font-semibold ml-0.5">
-                    {workerRejectedCount}
-                  </span>
-                )}
               </>
             ) : (
               <>
