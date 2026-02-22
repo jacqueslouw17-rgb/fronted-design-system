@@ -65,55 +65,51 @@ export const GroupedExpenseRow = ({
 
   return (
     <div className={cn(
-      "rounded-lg transition-all duration-200 mb-1.5",
+      "rounded-lg transition-all duration-200 mb-0.5 -mx-2 px-2",
       allRejected
         ? "bg-muted/10 border border-border/15"
         : allApproved
           ? "bg-accent-green/[0.03] border border-accent-green/15"
           : "bg-card/60 border border-border/30 shadow-sm"
     )}>
-      {/* Group header — same layout as a normal adjustment row */}
+      {/* Group header — flush with parent row alignment */}
       <div
-        className="flex items-center justify-between px-3 py-2.5 cursor-pointer group"
+        className="flex items-center justify-between py-2.5 cursor-pointer group"
         onClick={() => setIsGroupOpen(!isGroupOpen)}
       >
-        <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex items-center gap-1 min-w-0">
+          <span className={cn(
+            "text-sm font-semibold truncate",
+            allRejected ? "text-muted-foreground/50 line-through" : "text-foreground"
+          )}>
+            {groupLabel}
+          </span>
           <ChevronDown className={cn(
             "h-3.5 w-3.5 text-muted-foreground/40 transition-transform duration-200 shrink-0",
             !isGroupOpen && "-rotate-90"
           )} />
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className={cn(
-                "text-sm font-semibold truncate",
-                allRejected ? "text-muted-foreground/50 line-through" : "text-foreground"
-              )}>
-                {groupLabel}
+          <div className="flex items-center gap-1.5 ml-1">
+            {pendingCount > 0 && (
+              <span className="text-[10px] font-medium text-orange-500 dark:text-orange-400">
+                {pendingCount} pending
               </span>
-            </div>
-            <div className="flex items-center gap-1.5 mt-0.5 pl-px">
-              {pendingCount > 0 && (
-                <span className="text-[10px] font-medium text-orange-500 dark:text-orange-400">
-                  {pendingCount} pending
-                </span>
-              )}
-              {approvedCount > 0 && pendingCount > 0 && (
-                <span className="text-[10px] text-muted-foreground/50">·</span>
-              )}
-              {approvedCount > 0 && !allApproved && (
-                <span className="text-[10px] font-medium text-accent-green-text">
-                  {approvedCount} approved
-                </span>
-              )}
-              <span className="text-[10px] text-muted-foreground/50">
-                {items.length} {items.length === 1 ? 'item' : 'items'}
-                {totalAttachments > 0 && !isGroupOpen ? ` · ${totalAttachments} files` : ''}
+            )}
+            {approvedCount > 0 && pendingCount > 0 && (
+              <span className="text-[10px] text-muted-foreground/50">·</span>
+            )}
+            {approvedCount > 0 && !allApproved && (
+              <span className="text-[10px] font-medium text-accent-green-text">
+                {approvedCount} approved
               </span>
-            </div>
+            )}
+            <span className="text-[10px] text-muted-foreground/50">
+              {items.length} {items.length === 1 ? 'item' : 'items'}
+              {totalAttachments > 0 && !isGroupOpen ? ` · ${totalAttachments} files` : ''}
+            </span>
           </div>
         </div>
         <span className={cn(
-          "text-sm tabular-nums font-mono font-medium shrink-0",
+          "whitespace-nowrap tabular-nums text-right font-mono shrink-0 ml-4 text-sm font-medium",
           allRejected ? "text-muted-foreground/30 line-through" : "text-foreground"
         )}>
           +{formatAmount(totalAmount, currency)}
