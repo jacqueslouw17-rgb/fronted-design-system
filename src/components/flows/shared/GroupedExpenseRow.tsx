@@ -3,7 +3,7 @@
  * Used across Flow 1 (v4, v5) and Flow 6 (v3, v4) admin dashboards.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check, X, Undo2, ChevronDown, Paperclip
@@ -55,6 +55,7 @@ export const GroupedExpenseRow = ({
   isFinalized = false,
 }: GroupedExpenseRowProps) => {
   const [isGroupOpen, setIsGroupOpen] = useState(true);
+  const [hasBeenInteracted, setHasBeenInteracted] = useState(false);
 
   const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
   const pendingCount = items.filter(i => i.status === 'pending').length;
@@ -62,6 +63,16 @@ export const GroupedExpenseRow = ({
   const allApproved = items.every(i => i.status === 'approved');
   const allRejected = items.every(i => i.status === 'rejected');
   const totalAttachments = items.reduce((sum, item) => sum + (item.attachments?.length || 0), 0);
+
+  // Auto-collapse when the last pending item is resolved
+  useEffect(() => {
+    if (pendingCount < items.length) {
+      setHasBeenInteracted(true);
+    }
+    if (hasBeenInteracted && pendingCount === 0) {
+      setIsGroupOpen(false);
+    }
+  }, [pendingCount, items.length, hasBeenInteracted]);
 
   return (
     <div className={cn(
@@ -126,7 +137,7 @@ export const GroupedExpenseRow = ({
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="px-3 pb-3 pt-0.5 space-y-1">
+            <div className="px-3 pb-2 pt-0 space-y-0">
               {items.map((item) => (
                 <NestedExpenseItem
                   key={item.itemId}
