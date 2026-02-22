@@ -659,10 +659,13 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     return adjPending + leavePending;
   }, [selectedSubmission, adjustmentStates, leaveStates]);
 
-  // Auto-finalize when all items are actioned
+  // Auto-finalize when all items are actioned (skip flagged workers who need include/exclude choice)
   useEffect(() => {
     if (selectedSubmission && selectedWorkerPendingCount === 0 && !isWorkerFinalized(selectedSubmission.id)) {
-      handleMarkAsReady();
+      const hasEndDateFlag = selectedSubmission.flags?.some((f) => f.type === "end_date");
+      if (!hasEndDateFlag) {
+        handleMarkAsReady();
+      }
     }
   }, [selectedWorkerPendingCount, selectedSubmission]);
 
@@ -1189,6 +1192,49 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 const isFinalized = isWorkerFinalized(selectedSubmission.id);
                 const isExcluded = statusDecisions[selectedSubmission.id] === "exclude";
                 if (isExcluded) return null;
+
+                // For flagged workers: show Include/Exclude when no pending items
+                const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
+                if (hasEndDateFlag && !isFinalized) {
+                  if (currentPendingCount > 0) {
+                    return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="sm" className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowBulkRejectDialog(true)}>
+                              Reject all ({currentPendingCount})
+                            </Button>
+                            <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => handleBulkApprove()}>
+                              Approve all ({currentPendingCount})
+                            </Button>
+                          </div>
+                        </div>;
+                  }
+                  // No pending items — show Include/Exclude
+                  const endDateFlagFooter = selectedSubmission.flags?.find(f => f.type === "end_date");
+                  return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-3">
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          <span className="font-medium text-foreground">{endDateFlagFooter?.endReason}</span> effective <span className="font-medium text-foreground">{endDateFlagFooter?.endDate}</span>
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 h-9 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => setShowExcludeDialog(true)}>
+                            Exclude this
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="flex-1 h-9 text-xs gap-2"
+                            onClick={() => {
+                              setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
+                              toast.success(`${selectedSubmission.workerName} included in this run`);
+                            }}>
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Include
+                          </Button>
+                        </div>
+                      </div>;
+                }
 
                 if (currentPendingCount > 0) {
                   return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">

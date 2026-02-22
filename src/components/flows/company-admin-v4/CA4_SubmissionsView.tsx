@@ -838,6 +838,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   
   // Finalized workers - once finalized, their items are locked
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
+  // Status change decisions (Flag 1) - keyed by worker submission id
+  const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
   
   // Bulk action dialogs
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
@@ -845,6 +847,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   
   // Mark as Ready dialog
   const [showMarkAsReadyDialog, setShowMarkAsReadyDialog] = useState(false);
+  const [showExcludeDialog, setShowExcludeDialog] = useState(false);
   
   // Receipt view state
   const [showReceiptView, setShowReceiptView] = useState(false);
@@ -2401,12 +2404,31 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         </div>
                       );
                     }
-                    // No pending items — show "handled by Fronted" message
+                    // No pending items — show Include/Exclude actions
+                    const endDateFlagFooter = selectedSubmission.flags?.find(f => f.type === "end_date");
                     return (
-                      <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                          <Clock className="h-4 w-4" />
-                          <span className="text-sm">Fronted will handle final pay calculation</span>
+                      <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-3">
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          <span className="font-medium text-foreground">{endDateFlagFooter?.endReason}</span> effective <span className="font-medium text-foreground">{endDateFlagFooter?.endDate}</span>
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 h-9 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => setShowExcludeDialog(true)}>
+                            Exclude this
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="flex-1 h-9 text-xs gap-2"
+                            onClick={() => {
+                              setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
+                              toast.success(`${selectedSubmission.workerName} included in this run`);
+                            }}>
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Include
+                          </Button>
                         </div>
                       </div>
                     );
@@ -2528,6 +2550,23 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   onConfirm={handleBulkReject}
                   pendingCount={currentPendingCount}
                 />
+                
+                {/* Exclude Worker dialog */}
+                {selectedSubmission && (() => {
+                  const endDateFlag = selectedSubmission.flags?.find((f) => f.type === "end_date");
+                  return (
+                    <CA3_ExcludeWorkerDialog
+                      open={showExcludeDialog}
+                      onOpenChange={setShowExcludeDialog}
+                      onConfirm={() => {
+                        setStatusDecisions((prev) => ({ ...prev, [selectedSubmission.id]: "exclude" }));
+                        setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
+                        toast.info(`${selectedSubmission.workerName} excluded from this run`);
+                      }}
+                      workerName={selectedSubmission.workerName}
+                      endReason={endDateFlag?.endReason} />
+                  );
+                })()}
                 
                 {/* Receipt Overlay View */}
                 <AnimatePresence>

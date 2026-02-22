@@ -20,7 +20,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "./CA3_ConfirmationDialogs";
+import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "./CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA3_AdminAddAdjustment";
 import { CurrencyToggle, convertToEUR } from "@/components/flows/shared/CurrencyToggle";
@@ -769,6 +769,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
   // Mark as Ready dialog
   const [showMarkAsReadyDialog, setShowMarkAsReadyDialog] = useState(false);
+  const [showExcludeDialog, setShowExcludeDialog] = useState(false);
 
   // Receipt view state
   const [showReceiptView, setShowReceiptView] = useState(false);
@@ -1721,12 +1722,30 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           </div>
                         </div>;
                   }
-                  // No pending items — show "handled by Fronted" message
-                  return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                          <Clock className="h-4 w-4" />
-                          <span className="text-sm">Fronted will handle final pay calculation
-                      </span>
+                  // No pending items — show Include/Exclude actions
+                  const endDateFlagFooter = selectedSubmission.flags?.find(f => f.type === "end_date");
+                  return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-3">
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          <span className="font-medium text-foreground">{endDateFlagFooter?.endReason}</span> effective <span className="font-medium text-foreground">{endDateFlagFooter?.endDate}</span>
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 h-9 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => setShowExcludeDialog(true)}>
+                            Exclude this
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="flex-1 h-9 text-xs gap-2"
+                            onClick={() => {
+                              setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
+                              toast.success(`${selectedSubmission.workerName} included in this run`);
+                            }}>
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Include
+                          </Button>
                         </div>
                       </div>;
                 }
@@ -1801,6 +1820,23 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 
                 {/* Bulk action dialogs */}
                 <CA3_BulkRejectDialog open={showBulkRejectDialog} onOpenChange={setShowBulkRejectDialog} onConfirm={handleBulkReject} pendingCount={currentPendingCount} />
+                
+                {/* Exclude Worker dialog */}
+                {selectedSubmission && (() => {
+                  const endDateFlag = selectedSubmission.flags?.find((f) => f.type === "end_date");
+                  return (
+                    <CA3_ExcludeWorkerDialog
+                      open={showExcludeDialog}
+                      onOpenChange={setShowExcludeDialog}
+                      onConfirm={() => {
+                        setStatusDecisions((prev) => ({ ...prev, [selectedSubmission.id]: "exclude" }));
+                        setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
+                        toast.info(`${selectedSubmission.workerName} excluded from this run`);
+                      }}
+                      workerName={selectedSubmission.workerName}
+                      endReason={endDateFlag?.endReason} />
+                  );
+                })()}
                 
                 {/* Receipt Overlay View */}
                 <AnimatePresence>
