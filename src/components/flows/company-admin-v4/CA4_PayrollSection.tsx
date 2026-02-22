@@ -259,6 +259,26 @@ interface PreviousPayroll {
   workers: TrackingWorker[];
 }
 
+const processingPayroll = {
+  id: "dec-fortnight-2",
+  period: "Dec 15–31 2025",
+  grossPay: "€54.2K",
+  adjustments: "€3.1K",
+  fees: "€1,680",
+  totalCost: "€55.9K",
+  employeeCount: 3,
+  contractorCount: 3,
+  currencyCount: 3,
+  workers: [
+    { id: "p1", name: "Sophie Laurent", country: "France", type: "employee" as const, amount: 5800, currency: "EUR", status: "paid" as const },
+    { id: "p2", name: "Marco Rossi", country: "Italy", type: "contractor" as const, amount: 4500, currency: "EUR", status: "paid" as const },
+    { id: "p3", name: "Alex Hansen", country: "Norway", type: "employee" as const, amount: 65000, currency: "NOK", status: "in-progress" as const },
+    { id: "p4", name: "Emma Wilson", country: "Norway", type: "contractor" as const, amount: 72000, currency: "NOK", status: "in-progress" as const },
+    { id: "p5", name: "Maria Santos", country: "Philippines", type: "employee" as const, amount: 280000, currency: "PHP", status: "in-progress" as const },
+    { id: "p6", name: "David Martinez", country: "Portugal", type: "contractor" as const, amount: 4200, currency: "EUR", status: "paid" as const },
+  ],
+};
+
 const previousPayrolls: PreviousPayroll[] = [
   {
     id: "dec-2025",
@@ -306,6 +326,7 @@ const previousPayrolls: PreviousPayroll[] = [
 // Build periods array for dropdown - defined inside component to be dynamic
 const buildPeriods = (isSubmitted: boolean): PayrollPeriod[] => [
   { id: "current", label: "January 2026", status: isSubmitted ? "processing" : "current" },
+  { id: "dec-fortnight-2", label: "Dec 15–31 2025", status: "processing" },
   ...previousPayrolls.map(p => ({ id: p.id, label: p.period, status: "paid" as const })),
 ];
 
@@ -338,7 +359,8 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
 
   // Get selected previous payroll
-  const isViewingPrevious = selectedPeriodId !== "current";
+  const isViewingPrevious = selectedPeriodId !== "current" && selectedPeriodId !== "dec-fortnight-2";
+  const isViewingProcessing = selectedPeriodId === "dec-fortnight-2";
   const selectedPrevious = isViewingPrevious 
     ? previousPayrolls.find(p => p.id === selectedPeriodId) 
     : null;
@@ -680,6 +702,32 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
               paidDate={selectedPrevious.paidDate}
             />
           )}
+        </div>
+      </div>
+    );
+  }
+
+  // Processing view - submitted batch with live payment tracking
+  if (isViewingProcessing) {
+    return (
+      <div>
+        <div className="mb-6">
+          {renderSummaryCard(true, {
+            grossPay: processingPayroll.grossPay,
+            adjustments: processingPayroll.adjustments,
+            fees: processingPayroll.fees,
+            totalCost: processingPayroll.totalCost,
+            employeeCount: processingPayroll.employeeCount,
+            contractorCount: processingPayroll.contractorCount,
+            currencyCount: processingPayroll.currencyCount,
+          })}
+        </div>
+        <div>
+          <CA4_TrackingView
+            workers={processingPayroll.workers}
+            onExportCSV={handleExportCSV}
+            onDownloadAuditPDF={handleDownloadAuditPDF}
+          />
         </div>
       </div>
     );

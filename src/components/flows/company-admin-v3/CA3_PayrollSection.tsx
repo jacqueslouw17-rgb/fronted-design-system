@@ -284,6 +284,26 @@ interface PreviousPayroll {
   workers: TrackingWorker[];
 }
 
+const processingPayroll = {
+  id: "dec-fortnight-2",
+  period: "Dec 15–31 2025",
+  grossPay: "€54.2K",
+  adjustments: "€3.1K",
+  fees: "€1,680",
+  totalCost: "€55.9K",
+  employeeCount: 3,
+  contractorCount: 3,
+  currencyCount: 3,
+  workers: [
+    { id: "p1", name: "Sophie Laurent", country: "France", type: "employee" as const, amount: 5800, currency: "EUR", status: "paid" as const },
+    { id: "p2", name: "Marco Rossi", country: "Italy", type: "contractor" as const, amount: 4500, currency: "EUR", status: "paid" as const },
+    { id: "p3", name: "Alex Hansen", country: "Norway", type: "employee" as const, amount: 65000, currency: "NOK", status: "in-progress" as const },
+    { id: "p4", name: "Emma Wilson", country: "Norway", type: "contractor" as const, amount: 72000, currency: "NOK", status: "in-progress" as const },
+    { id: "p5", name: "Maria Santos", country: "Philippines", type: "employee" as const, amount: 280000, currency: "PHP", status: "in-progress" as const },
+    { id: "p6", name: "David Martinez", country: "Portugal", type: "contractor" as const, amount: 4200, currency: "EUR", status: "paid" as const },
+  ],
+};
+
 const previousPayrolls: PreviousPayroll[] = [
   {
     id: "dec-2025",
@@ -333,6 +353,7 @@ const RUN_METRICS: Record<string, { grossPay: string; adjustments: string; fees:
   "jan-monthly": { grossPay: "€115.7K", adjustments: "€7.6K", fees: "€3,468", totalCost: "€119.2K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
   "jan-fortnight-2": { grossPay: "€57.8K", adjustments: "€2.9K", fees: "€1,752", totalCost: "€60.7K", employeeCount: 3, contractorCount: 2, currencyCount: 2 },
   "jan-fortnight-1": { grossPay: "€53.9K", adjustments: "€2.6K", fees: "€1,622", totalCost: "€56.5K", employeeCount: 2, contractorCount: 3, currencyCount: 2 },
+  "dec-fortnight-2": { grossPay: "€54.2K", adjustments: "€3.1K", fees: "€1,680", totalCost: "€55.9K", employeeCount: 3, contractorCount: 3, currencyCount: 3 },
   "dec-monthly": { grossPay: "€109.7K", adjustments: "€6.3K", fees: "€3,256", totalCost: "€113.0K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
   "nov-monthly": { grossPay: "€106.8K", adjustments: "€5.0K", fees: "€3,133", totalCost: "€109.9K", employeeCount: 4, contractorCount: 4, currencyCount: 3 },
 };
@@ -457,6 +478,15 @@ const buildPeriods = (isSubmitted: boolean): PayrollPeriod[] => [
     status: "in-review",
     label: "Jan 1-14 2026"
   },
+  // Processing run (submitted, payments in progress)
+  {
+    id: "dec-fortnight-2",
+    frequency: "fortnightly",
+    periodLabel: "Dec 15–31",
+    payDate: "31st",
+    status: "processing",
+    label: "Dec 15-31 2025"
+  },
   // Historical paid runs
   { 
     id: "dec-monthly", 
@@ -504,10 +534,11 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Tracking state
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
 
-  // Get periods and determine if viewing historical (paid) run
+  // Get periods and determine if viewing historical (paid) or processing run
   const periods = buildPeriods(isPayrollSubmitted);
   const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
   const isViewingPrevious = selectedPeriodData?.status === "paid";
+  const isViewingProcessing = selectedPeriodData?.status === "processing" && selectedPeriodId !== "jan-monthly";
   const selectedPrevious = isViewingPrevious 
     ? previousPayrolls.find(p => p.id.includes(selectedPeriodId.replace("-monthly", "").replace("-fortnight-1", "").replace("-fortnight-2", ""))) 
     : null;
@@ -838,8 +869,34 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       </div>
     );
   }
+  // Processing view - submitted batch with live payment tracking
+  if (isViewingProcessing) {
+    const processingMetrics = RUN_METRICS[selectedPeriodId];
+    return (
+      <div>
+        <div className="mb-6">
+          {renderSummaryCard(true, processingMetrics ? {
+            grossPay: processingMetrics.grossPay,
+            adjustments: processingMetrics.adjustments,
+            fees: processingMetrics.fees,
+            totalCost: processingMetrics.totalCost,
+            employeeCount: processingMetrics.employeeCount,
+            contractorCount: processingMetrics.contractorCount,
+            currencyCount: processingMetrics.currencyCount,
+          } : undefined)}
+        </div>
+        <div>
+          <CA3_TrackingView
+            workers={processingPayroll.workers}
+            onExportCSV={handleExportCSV}
+            onDownloadAuditPDF={handleDownloadAuditPDF}
+          />
+        </div>
+      </div>
+    );
+  }
 
-  // Track view - summary card with tracking below
+
   if (currentStep === "track") {
     return (
       <div>
