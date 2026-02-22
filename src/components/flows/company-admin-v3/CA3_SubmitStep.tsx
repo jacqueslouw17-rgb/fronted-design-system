@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { Send, Users, Briefcase, CheckCircle2, Globe, Clock, Download, FileText, XCircle, AlertTriangle, ShieldCheck, ChevronLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -123,7 +124,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
 
         {/* Amount */}
         <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-          {formatCurrency(worker.amount, worker.currency)}
+          {worker.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(worker.amount, worker.currency)), "EUR")}` : formatCurrency(worker.amount, "EUR")}
         </p>
 
         {/* Status */}

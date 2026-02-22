@@ -5,6 +5,7 @@
  */
 
 import React from "react";
+import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { CheckCircle2, Download, FileText, Users, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -123,7 +124,7 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
 
                 {/* Amount */}
                 <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-                  {formatCurrency(worker.amount, worker.currency)}
+                  {worker.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(worker.amount, worker.currency)), "EUR")}` : formatCurrency(worker.amount, "EUR")}
                 </p>
 
                 {/* Status Pill */}

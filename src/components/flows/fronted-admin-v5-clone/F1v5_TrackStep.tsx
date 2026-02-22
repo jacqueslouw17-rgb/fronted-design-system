@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CompanyPayrollData } from "./F1v5_PayrollTab";
 import { toast } from "sonner";
+import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { F1v4_WorkerDetailDrawer, WorkerData } from "./F1v5_WorkerDetailDrawer";
 import { F1v4_PayslipPreviewModal } from "./F1v5_PayslipPreviewModal";
 import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v5_PayrollStepper";
@@ -277,7 +278,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         </div>
 
         <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-          {formatCurrency(worker.netPay, worker.currency)}
+          {worker.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(worker.netPay, worker.currency)), "EUR")}` : formatCurrency(worker.netPay, "EUR")}
         </p>
 
         <div className={cn(

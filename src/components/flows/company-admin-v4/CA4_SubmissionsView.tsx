@@ -1373,7 +1373,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           {/* Impact Amount */}
           {submission.totalImpact ? (
             <p className="text-sm font-semibold text-foreground tabular-nums">
-              {formatCurrency(submission.totalImpact, submission.currency)}
+              {submission.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(submission.totalImpact, submission.currency)), "EUR")}` : formatCurrency(submission.totalImpact, "EUR")}
             </p>
           ) : (
             <p className="text-xs text-muted-foreground">—</p>
