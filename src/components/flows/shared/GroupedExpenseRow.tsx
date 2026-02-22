@@ -235,7 +235,7 @@ const NestedExpenseItem = ({
             <span className="text-xs tabular-nums font-mono text-muted-foreground/30 line-through">+{formatAmount(item.amount, currency)}</span>
           </div>
         </div>
-        {item.rejectionReason && (
+        {item.rejectionReason && isHovered && (
           <div className="pb-2 pl-2.5">
             <p className="text-[10px] text-destructive/60 leading-relaxed">
               <span className="font-medium">Rejected:</span> {item.rejectionReason}
