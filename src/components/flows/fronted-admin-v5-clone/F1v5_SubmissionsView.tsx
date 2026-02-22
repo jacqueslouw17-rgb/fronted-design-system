@@ -188,7 +188,7 @@ const AdjustmentRow = ({
   if (status === 'approved') {
     return (
       <div
-        className={cn("flex items-start justify-between py-2 -mx-3 px-3 rounded group transition-colors", !isFinalized && "hover:bg-muted")}
+        className={cn("flex items-start justify-between py-2 -mx-3 px-3 rounded group transition-colors", "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}>
 
@@ -200,7 +200,7 @@ const AdjustmentRow = ({
           {tags && tags.length > 0 && <div className="ml-5.5 mt-0.5"><TagChips tags={tags} max={2} /></div>}
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-3">
-          {!isFinalized && onUndo && isHovered &&
+          {onUndo && isHovered &&
           <button
             onClick={(e) => {e.stopPropagation();onUndo();}}
             className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium">
@@ -219,7 +219,7 @@ const AdjustmentRow = ({
   if (status === 'rejected') {
     return (
       <div
-        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", !isFinalized && "hover:bg-muted/30")}
+        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", "hover:bg-muted/30")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -228,7 +228,7 @@ const AdjustmentRow = ({
             <span className="text-sm text-muted-foreground/70 line-through truncate">{label}</span>
           </div>
           <div className="flex items-center gap-2">
-            {!isFinalized && onUndo && (
+            {onUndo && (
               <button
                 onClick={(e) => { e.stopPropagation(); onUndo(); }}
                 className={cn(
@@ -371,7 +371,7 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
   if (leave.status === 'approved') {
     return (
       <div
-        className={cn("flex items-center justify-between py-2 -mx-3 px-3 rounded group transition-colors", !isFinalized && "hover:bg-muted")}
+        className={cn("flex items-center justify-between py-2 -mx-3 px-3 rounded group transition-colors", "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}>
 
@@ -380,7 +380,7 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
           <span className="text-sm text-muted-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
         </div>
         <div className="flex items-center gap-2">
-          {!isFinalized && onUndo && isHovered &&
+          {onUndo && isHovered &&
           <button
             onClick={(e) => {e.stopPropagation();onUndo();}}
             className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium">
@@ -399,7 +399,7 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
   if (leave.status === 'rejected') {
     return (
       <div
-        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", !isFinalized && "hover:bg-muted/30")}
+        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", "hover:bg-muted/30")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -408,7 +408,7 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
             <span className="text-sm text-muted-foreground/70 line-through">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
           </div>
           <div className="flex items-center gap-2">
-            {!isFinalized && onUndo && (
+            {onUndo && (
               <button
                 onClick={(e) => { e.stopPropagation(); onUndo(); }}
                 className={cn(
@@ -621,6 +621,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const undoAdjustmentStatus = (submissionId: string, adjIndex: number) => {
     const key = `${submissionId}-${adjIndex}`;
     setAdjustmentStates((prev) => ({ ...prev, [key]: { status: 'pending' } }));
+    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
     toast.info('Action undone');
   };
 
@@ -628,6 +629,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const undoLeaveStatus = (submissionId: string, leaveId: string) => {
     const key = `${submissionId}-leave-${leaveId}`;
     setLeaveStates((prev) => ({ ...prev, [key]: { status: 'pending' } }));
+    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
     toast.info('Action undone');
   };
 
