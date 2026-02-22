@@ -570,55 +570,57 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
           <CardContent className="py-6 px-6">
             {/* Metrics Grid - 5 equal tiles */}
-            <div className="flex sm:grid sm:grid-cols-5 gap-3 overflow-x-auto scrollbar-hide -mx-1 px-1 sm:mx-0 sm:px-0 sm:overflow-visible">
+            <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0 sm:overflow-visible pb-1">
+              <div className="flex sm:grid sm:grid-cols-5 gap-3 w-max sm:w-auto">
               {/* Gross Pay */}
-              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                  <DollarSign className="h-4 w-4 text-primary" />
-                  <span className="text-sm">Gross Pay</span>
+              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Gross Pay</span>
                 </div>
-                <p className="text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
-                <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
               </div>
 
               {/* Adjustments */}
-              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                  <Receipt className="h-4 w-4 text-primary" />
-                  <span className="text-sm">Adj. Requests</span>
+              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Adj. Requests</span>
                 </div>
-                <p className="text-2xl font-semibold text-foreground">≈ {displayMetrics.adjustments}</p>
-                <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.adjustments}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Bonuses, overtime & expenses</p>
               </div>
 
               {/* Employees */}
-              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  <span className="text-sm">Employees</span>
+              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Employees</span>
                 </div>
-                <p className="text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
-                <p className="text-xs text-muted-foreground mt-1">Active this period</p>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
               </div>
 
               {/* Contractors */}
-              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                  <Briefcase className="h-4 w-4 text-primary" />
-                  <span className="text-sm">Contractors</span>
+              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Contractors</span>
                 </div>
-                <p className="text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
-                <p className="text-xs text-muted-foreground mt-1">Active this period</p>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
               </div>
 
               {/* Currencies */}
-              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-                  <DollarSign className="h-4 w-4 text-primary" />
-                  <span className="text-sm">Currencies</span>
+              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
+                  <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <span className="text-xs sm:text-sm">Currencies</span>
                 </div>
-                <p className="text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
-                <p className="text-xs text-muted-foreground mt-1">Multi-currency run</p>
+                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Multi-currency run</p>
+              </div>
               </div>
             </div>
           </CardContent>

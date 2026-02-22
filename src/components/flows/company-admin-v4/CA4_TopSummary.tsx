@@ -85,22 +85,24 @@ export const CA4_TopSummary: React.FC<CA4_TopSummaryProps> = ({
       </CardHeader>
       <CardContent className="p-3 sm:p-5">
         {/* KPI Cards - individual cards like worker rows */}
-        <div className="flex sm:grid sm:grid-cols-4 gap-2 sm:gap-3 overflow-x-auto scrollbar-hide -mx-1 px-1 sm:mx-0 sm:px-0 sm:overflow-visible">
-          <div className="min-w-[120px] shrink-0 sm:min-w-0 sm:shrink p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+        <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0 sm:overflow-visible pb-1">
+          <div className="flex sm:grid sm:grid-cols-4 gap-2 sm:gap-3 w-max sm:w-auto">
+          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Gross Pay</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">≈ {formatCurrency(grossPay)}</p>
           </div>
-          <div className="min-w-[120px] shrink-0 sm:min-w-0 sm:shrink p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Net Pay</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(netPay)}</p>
           </div>
-          <div className="min-w-[120px] shrink-0 sm:min-w-0 sm:shrink p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Fronted Fees</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(frontedFees)}</p>
           </div>
-          <div className="min-w-[120px] shrink-0 sm:min-w-0 sm:shrink p-2.5 sm:p-4 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-primary/70 mb-1">Total Cost</p>
             <p className="text-sm sm:text-lg font-semibold text-primary">{formatCurrency(totalCost)}</p>
+          </div>
           </div>
         </div>
       </CardContent>
