@@ -448,7 +448,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
       <div className="px-6 pt-6 pb-5 border-b border-border/40">
         <div className="flex items-start justify-between mb-4">
           <div>
-            {isHistorical ? (
+            {isHistorical || allPaid ? (
               <>
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-sm text-muted-foreground">Payment Status</p>
@@ -462,30 +462,23 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                   <span className="text-lg text-muted-foreground">of {workers.length}</span>
                   <span className="text-sm text-muted-foreground">payments paid</span>
                 </div>
-                {paidDate && (
+                {isHistorical && paidDate ? (
                   <p className="text-xs text-muted-foreground mt-1">Paid on {paidDate}</p>
-                )}
+                ) : allPaid ? (
+                  <p className="text-xs text-muted-foreground mt-1">All payments paid — export for your records</p>
+                ) : null}
               </>
             ) : (
               <>
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-sm text-muted-foreground">Payment Status</p>
-                  {allPaid && (
-                    <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3" />
-                      Complete
-                    </span>
-                  )}
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
                   <span className="text-lg text-muted-foreground">of {workers.length}</span>
                   <span className="text-sm text-muted-foreground">payments reconciled</span>
                 </div>
-                {allPaid 
-                  ? <p className="text-xs text-muted-foreground mt-1">All payments reconciled — export for your records</p>
-                  : <p className="text-xs text-muted-foreground mt-1">Click a worker to view breakdown and mark as paid</p>
-                }
+                <p className="text-xs text-muted-foreground mt-1">Click a worker to view breakdown and mark as paid</p>
               </>
             )}
           </div>
@@ -526,7 +519,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         </div>
         
         {/* Progress bar */}
-        {!isHistorical && (
+        {!isHistorical && !allPaid && (
           <div className="space-y-2">
             <Progress value={progressPercent} className="h-1" />
             <div className="flex items-center gap-4 text-xs">
