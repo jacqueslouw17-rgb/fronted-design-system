@@ -78,14 +78,6 @@ export const GroupedExpenseRow = ({
         onClick={() => setIsGroupOpen(!isGroupOpen)}
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className={cn(
-            "h-2 w-2 rounded-full shrink-0 transition-colors",
-            allRejected
-              ? "bg-muted-foreground/30"
-              : allApproved
-                ? "bg-accent-green"
-                : "bg-primary/50"
-          )} />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className={cn(
@@ -199,11 +191,10 @@ const NestedExpenseItem = ({
   if (item.status === 'approved') {
     return (
       <div
-        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-colors hover:bg-background/60 group"
+        className={cn("flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-colors group", !isFinalized && "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="h-2 w-2 rounded-full bg-accent-green shrink-0" />
         <div className="flex-1 min-w-0">
           <span className="text-xs font-medium text-muted-foreground">{item.label}</span>
           {hasAttachments && (
@@ -213,7 +204,7 @@ const NestedExpenseItem = ({
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {item.onUndo && isHovered && (
+          {item.onUndo && (
             <button
               onClick={(e) => { e.stopPropagation(); item.onUndo!(); }}
               className="text-[10px] text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium"
@@ -231,17 +222,16 @@ const NestedExpenseItem = ({
   if (item.status === 'rejected') {
     return (
       <div
-        className="px-2.5 rounded-md transition-colors hover:bg-background/30 group"
+        className={cn("px-2.5 rounded-md transition-colors group", !isFinalized && "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="flex items-center gap-2.5 py-2">
-          <div className="h-2 w-2 rounded-full bg-destructive/40 shrink-0" />
           <div className="flex-1 min-w-0">
             <span className="text-xs text-muted-foreground/50 line-through">{item.label}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {item.onUndo && isHovered && (
+            {item.onUndo && (
               <button
                 onClick={(e) => { e.stopPropagation(); item.onUndo!(); }}
                 className="text-[10px] text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium"
@@ -253,7 +243,7 @@ const NestedExpenseItem = ({
           </div>
         </div>
         {item.rejectionReason && (
-          <div className="pb-2 pl-[38px]">
+          <div className="pb-2 pl-2.5">
             <p className="text-[10px] text-destructive/60 leading-relaxed">
               <span className="font-medium">Rejected:</span> {item.rejectionReason}
             </p>
@@ -268,17 +258,13 @@ const NestedExpenseItem = ({
     <div className={cn(
       "rounded-md transition-all duration-150",
       isExpanded
-        ? "bg-orange-50/60 dark:bg-orange-500/[0.06] border border-orange-200/30 dark:border-orange-500/15 shadow-sm"
-        : "hover:bg-muted/30 border border-transparent"
+        ? "bg-muted border border-border/30"
+        : "hover:bg-muted border border-transparent"
     )}>
       <div
         className="flex items-center gap-2.5 px-2.5 py-2 cursor-pointer"
         onClick={(e) => { e.stopPropagation(); onToggleExpand(); }}
       >
-        <div className={cn(
-          "h-2 w-2 rounded-full shrink-0 transition-colors",
-          isExpanded ? "bg-orange-500" : "bg-primary/50"
-        )} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-foreground">{item.label}</span>
@@ -309,7 +295,7 @@ const NestedExpenseItem = ({
           >
             <div className="px-2.5 pb-2.5 space-y-2">
               {hasAttachments && (
-                <div className="pl-[38px]">
+                <div className="pl-2.5">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Paperclip className="h-2.5 w-2.5 text-muted-foreground/50" />
                     <span className="text-[10px] font-medium text-muted-foreground/70">
@@ -320,7 +306,7 @@ const NestedExpenseItem = ({
                 </div>
               )}
               {!showRejectForm ? (
-                <div className="flex items-center gap-2 pl-[38px]">
+                <div className="flex items-center gap-2 pl-2.5">
                   <Button
                     size="sm"
                     variant="outline"
@@ -339,7 +325,7 @@ const NestedExpenseItem = ({
                 </div>
               ) : (
                 <div
-                  className="space-y-2 p-2.5 rounded-md border border-border/40 bg-background/90 ml-[38px]"
+                  className="space-y-2 p-2.5 rounded-md border border-border/40 bg-background/90 ml-2.5"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Textarea
