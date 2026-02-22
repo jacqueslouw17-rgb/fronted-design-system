@@ -1175,7 +1175,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               const totalAttachments = submission.submissions.reduce((sum, adj) => sum + (adj.attachmentsCount || 0), 0);
               return totalAttachments > 0 ? <AttachmentIndicator count={totalAttachments} /> : null;
             })()}
-            {workerRejectedCount > 0 && workerPendingCount === 0 && <span className="text-[10px] text-destructive/80">
+            {workerRejectedCount > 0 && workerPendingCount === 0 && statusDecisions[submission.id] !== "exclude" && <span className="text-[10px] text-destructive/80">
                 · 1 day to resubmit
               </span>}
             {!isFinalized && submission.flags?.map((flag, fi) => <Badge key={fi} variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium", flag.type === "end_date" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20" : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20")}>

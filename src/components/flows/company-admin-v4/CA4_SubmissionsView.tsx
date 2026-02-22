@@ -1366,7 +1366,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
             <span className="text-[11px] text-muted-foreground leading-tight">
               {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
-            {workerRejectedCount > 0 && workerPendingCount === 0 && (
+            {workerRejectedCount > 0 && workerPendingCount === 0 && statusDecisions[submission.id] !== "exclude" && (
               <span className="text-[10px] text-destructive/80">
                 · 1 day to resubmit
               </span>
