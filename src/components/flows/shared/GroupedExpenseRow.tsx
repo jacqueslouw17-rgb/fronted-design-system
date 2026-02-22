@@ -6,9 +6,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Check, X, CheckCircle2, Undo2, ChevronDown,
-  Paperclip, Plane, UtensilsCrossed, Car, Hotel,
-  ShoppingBag, Receipt, FileText, Tag
+  Check, X, Undo2, ChevronDown, Paperclip
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -45,15 +43,6 @@ const formatAmount = (amt: number, curr: string) => {
   return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-const getCategoryIcon = (label: string) => {
-  const l = label.toLowerCase();
-  if (l.includes('travel') || l.includes('flight')) return Plane;
-  if (l.includes('meal') || l.includes('food') || l.includes('dinner') || l.includes('lunch')) return UtensilsCrossed;
-  if (l.includes('transport') || l.includes('taxi') || l.includes('uber') || l.includes('car')) return Car;
-  if (l.includes('hotel') || l.includes('accommodation') || l.includes('lodging')) return Hotel;
-  if (l.includes('shopping') || l.includes('supplies') || l.includes('equipment')) return ShoppingBag;
-  return Receipt;
-};
 
 /* ─── Main Group Component ─── */
 
@@ -90,18 +79,13 @@ export const GroupedExpenseRow = ({
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <div className={cn(
-            "flex items-center justify-center h-7 w-7 rounded-md shrink-0 transition-colors",
+            "h-2 w-2 rounded-full shrink-0 transition-colors",
             allRejected
-              ? "bg-muted/30 border border-border/20"
+              ? "bg-muted-foreground/30"
               : allApproved
-                ? "bg-accent-green/10 border border-accent-green/20"
-                : "bg-primary/[0.06] border border-primary/15"
-          )}>
-            <Tag className={cn(
-              "h-3.5 w-3.5",
-              allRejected ? "text-muted-foreground/40" : allApproved ? "text-accent-green-text" : "text-primary/70"
-            )} />
-          </div>
+                ? "bg-accent-green"
+                : "bg-primary/50"
+          )} />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className={cn(
@@ -110,7 +94,7 @@ export const GroupedExpenseRow = ({
               )}>
                 {groupLabel}
               </span>
-              {allApproved && <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />}
+              
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               {pendingCount > 0 && (
@@ -196,7 +180,6 @@ const NestedExpenseItem = ({
   const [isHovered, setIsHovered] = useState(false);
 
   const hasAttachments = item.attachments && item.attachments.length > 0;
-  const Icon = getCategoryIcon(item.label);
 
   const handleApproveClick = () => {
     item.onApprove();
@@ -220,9 +203,7 @@ const NestedExpenseItem = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="flex items-center justify-center h-7 w-7 rounded-md bg-accent-green/10 border border-accent-green/20 shrink-0">
-          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
-        </div>
+        <div className="h-2 w-2 rounded-full bg-accent-green shrink-0" />
         <div className="flex-1 min-w-0">
           <span className="text-xs font-medium text-muted-foreground">{item.label}</span>
           {hasAttachments && (
@@ -255,9 +236,7 @@ const NestedExpenseItem = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="flex items-center gap-2.5 py-2">
-          <div className="flex items-center justify-center h-7 w-7 rounded-md bg-destructive/[0.06] border border-destructive/15 shrink-0">
-            <X className="h-3.5 w-3.5 text-destructive/50" />
-          </div>
+          <div className="h-2 w-2 rounded-full bg-destructive/40 shrink-0" />
           <div className="flex-1 min-w-0">
             <span className="text-xs text-muted-foreground/50 line-through">{item.label}</span>
           </div>
@@ -297,16 +276,9 @@ const NestedExpenseItem = ({
         onClick={(e) => { e.stopPropagation(); onToggleExpand(); }}
       >
         <div className={cn(
-          "flex items-center justify-center h-7 w-7 rounded-md shrink-0 transition-colors",
-          isExpanded
-            ? "bg-orange-100/80 dark:bg-orange-500/15 border border-orange-200/50 dark:border-orange-500/20"
-            : "bg-primary/[0.06] border border-primary/15"
-        )}>
-          <Icon className={cn(
-            "h-3.5 w-3.5",
-            isExpanded ? "text-orange-600 dark:text-orange-400" : "text-primary/70"
-          )} />
-        </div>
+          "h-2 w-2 rounded-full shrink-0 transition-colors",
+          isExpanded ? "bg-orange-500" : "bg-primary/50"
+        )} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-foreground">{item.label}</span>
