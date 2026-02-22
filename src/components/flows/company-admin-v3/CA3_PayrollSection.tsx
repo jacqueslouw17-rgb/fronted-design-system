@@ -627,9 +627,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
           <CardContent className="py-4 px-4 sm:py-6 sm:px-6">
             {/* Metrics Grid - 5 equal tiles */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+            <div className="flex sm:grid sm:grid-cols-5 gap-2 sm:gap-3 overflow-x-auto scrollbar-hide -mx-1 px-1 sm:mx-0 sm:px-0 sm:overflow-visible">
               {/* Gross Pay */}
-              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="min-w-[130px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Gross Pay</span>
@@ -639,7 +639,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               </div>
 
               {/* Adjustments */}
-              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="min-w-[130px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Adj. Requests</span>
@@ -649,7 +649,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               </div>
 
               {/* Employees */}
-              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="min-w-[130px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Employees</span>
@@ -659,7 +659,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               </div>
 
               {/* Contractors */}
-              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="min-w-[130px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Contractors</span>
@@ -669,7 +669,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               </div>
 
               {/* Currencies */}
-              <div className="bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="min-w-[130px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Currencies</span>

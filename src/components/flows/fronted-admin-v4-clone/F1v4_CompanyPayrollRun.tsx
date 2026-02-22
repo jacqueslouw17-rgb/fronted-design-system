@@ -570,9 +570,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
           <CardContent className="py-6 px-6">
             {/* Metrics Grid - 5 equal tiles */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="flex sm:grid sm:grid-cols-5 gap-3 overflow-x-auto scrollbar-hide -mx-1 px-1 sm:mx-0 sm:px-0 sm:overflow-visible">
               {/* Gross Pay */}
-              <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                   <DollarSign className="h-4 w-4 text-primary" />
                   <span className="text-sm">Gross Pay</span>
@@ -582,7 +582,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
 
               {/* Adjustments */}
-              <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                   <Receipt className="h-4 w-4 text-primary" />
                   <span className="text-sm">Adj. Requests</span>
@@ -592,7 +592,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
 
               {/* Employees */}
-              <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                   <Users className="h-4 w-4 text-primary" />
                   <span className="text-sm">Employees</span>
@@ -602,7 +602,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
 
               {/* Contractors */}
-              <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                   <Briefcase className="h-4 w-4 text-primary" />
                   <span className="text-sm">Contractors</span>
@@ -612,7 +612,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
 
               {/* Currencies */}
-              <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                   <DollarSign className="h-4 w-4 text-primary" />
                   <span className="text-sm">Currencies</span>
