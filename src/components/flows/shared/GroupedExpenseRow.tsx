@@ -65,19 +65,23 @@ export const GroupedExpenseRow = ({
 
   return (
     <div className={cn(
-      "-mx-3 rounded-lg transition-all duration-200 mb-1.5",
+      "rounded-lg transition-all duration-200 mb-1.5",
       allRejected
         ? "bg-muted/10 border border-border/15"
         : allApproved
           ? "bg-accent-green/[0.03] border border-accent-green/15"
           : "bg-card/60 border border-border/30 shadow-sm"
     )}>
-      {/* Group header */}
+      {/* Group header — same layout as a normal adjustment row */}
       <div
-        className="flex items-center justify-between px-3.5 py-2.5 cursor-pointer group"
+        className="flex items-center justify-between px-3 py-2.5 cursor-pointer group"
         onClick={() => setIsGroupOpen(!isGroupOpen)}
       >
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <ChevronDown className={cn(
+            "h-3.5 w-3.5 text-muted-foreground/40 transition-transform duration-200 shrink-0",
+            !isGroupOpen && "-rotate-90"
+          )} />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className={cn(
@@ -86,9 +90,8 @@ export const GroupedExpenseRow = ({
               )}>
                 {groupLabel}
               </span>
-              
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
+            <div className="flex items-center gap-1.5 mt-0.5 pl-px">
               {pendingCount > 0 && (
                 <span className="text-[10px] font-medium text-orange-500 dark:text-orange-400">
                   {pendingCount} pending
@@ -109,18 +112,12 @@ export const GroupedExpenseRow = ({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0 ml-3">
-          <span className={cn(
-            "text-sm tabular-nums font-mono font-medium",
-            allRejected ? "text-muted-foreground/30 line-through" : "text-foreground"
-          )}>
-            +{formatAmount(totalAmount, currency)}
-          </span>
-          <ChevronDown className={cn(
-            "h-3.5 w-3.5 text-muted-foreground/40 transition-transform duration-200",
-            !isGroupOpen && "-rotate-90"
-          )} />
-        </div>
+        <span className={cn(
+          "text-sm tabular-nums font-mono font-medium shrink-0",
+          allRejected ? "text-muted-foreground/30 line-through" : "text-foreground"
+        )}>
+          +{formatAmount(totalAmount, currency)}
+        </span>
       </div>
 
       {/* Nested items */}
