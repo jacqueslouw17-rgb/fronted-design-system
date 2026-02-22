@@ -363,6 +363,12 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                   Paid
                 </span>
               )}
+              {period.status === "processing" && (
+                <span className="flex items-center gap-1 text-[11px] text-blue-600">
+                  <Clock className="h-3 w-3" />
+                  Processing
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -464,9 +470,9 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                 </div>
                 {isHistorical && paidDate ? (
                   <p className="text-xs text-muted-foreground mt-1">Paid on {paidDate}</p>
-                ) : allPaid ? (
+                ) : (
                   <p className="text-xs text-muted-foreground mt-1">All payments paid — export for your records</p>
-                ) : null}
+                )}
               </>
             ) : (
               <>
@@ -483,7 +489,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
             )}
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            {!isHistorical && inProgressCount > 0 && (
+            {!isHistorical && !allPaid && inProgressCount > 0 && (
               <Button
                 variant="outline"
                 size="sm"
@@ -494,7 +500,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                 All Paid
               </Button>
             )}
-            {!isHistorical && allPaid && (
+            {(isHistorical || allPaid) && (
               <Button
                 variant="outline"
                 size="sm"
