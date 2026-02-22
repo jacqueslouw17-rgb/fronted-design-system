@@ -1046,6 +1046,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     setFinalizedWorkers(prev => new Set(prev).add(id));
     const workerName = submissions.find(s => s.id === id)?.workerName || '';
     toast.success(`${workerName} marked as ready`);
+    setDrawerOpen(false);
   };
 
   // Check if current worker is finalized
@@ -1742,6 +1743,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             onClick={() => {
                               setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
                               toast.success(`${selectedSubmission.workerName} included in this run`);
+                              setDrawerOpen(false);
                             }}>
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             Include
