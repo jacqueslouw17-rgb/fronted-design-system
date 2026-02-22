@@ -1094,7 +1094,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                     return <>
                   {(() => {
                         const payChangeFlag = selectedSubmission.flags?.find((f) => f.type === "pay_change");
-                        return !showPendingOnly || earningAdjCounts.pending > 0 ? <CollapsibleSection title="Earnings" defaultOpen={!!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings' || !!payChangeFlag} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
+                        return !showPendingOnly || earningAdjCounts.pending > 0 ? <CollapsibleSection title="Earnings" defaultOpen={earningAdjCounts.pending > 0 || !!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings' || !!payChangeFlag} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
                     {!showPendingOnly && earnings.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={cvt(item.amount)} currency={dc} isLocked={item.locked} isPositive />)}
                     {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus').filter(({ adj, originalIdx }) => {
                             const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
@@ -1140,7 +1140,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                     </CollapsibleSection>}
 
                   {/* OVERTIME Section */}
-                  {(overtimeCounts.total > 0 || workerAdminAdjustments.some((a) => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0) && <CollapsibleSection title="Overtime" defaultOpen={false} forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : newlyAddedSection === 'overtime'} pendingCount={overtimeCounts.pending} approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'overtime').length}>
+                  {(overtimeCounts.total > 0 || workerAdminAdjustments.some((a) => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0) && <CollapsibleSection title="Overtime" defaultOpen={overtimeCounts.pending > 0} forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : newlyAddedSection === 'overtime'} pendingCount={overtimeCounts.pending} approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'overtime').length}>
                       {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'overtime').filter(({ adj, originalIdx }) => {
                           const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
                           return shouldShowItem(status);
@@ -1172,7 +1172,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                     </CollapsibleSection>}
 
                   {/* LEAVE Section */}
-                  {(hasLeaves || workerAdminAdjustments.some((a) => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0) && <CollapsibleSection title="Leave" defaultOpen={false} forceOpen={showPendingOnly ? leaveCounts.pending > 0 : newlyAddedSection === 'leave'} pendingCount={leaveCounts.pending} approvedCount={leaveCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').length}>
+                  {(hasLeaves || workerAdminAdjustments.some((a) => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0) && <CollapsibleSection title="Leave" defaultOpen={leaveCounts.pending > 0} forceOpen={showPendingOnly ? leaveCounts.pending > 0 : newlyAddedSection === 'leave'} pendingCount={leaveCounts.pending} approvedCount={leaveCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').length}>
                       {pendingLeaves.filter((leave) => {
                           const status = getLeaveStatus(selectedSubmission.id, leave.id, leave.status).status;
                           return shouldShowItem(status);

@@ -2007,7 +2007,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                     return (!showPendingOnly || earningAdjCounts.pending > 0) ? (
                     <CollapsibleSection
                       title="Earnings"
-                      defaultOpen={!!payChangeFlag}
+                      defaultOpen={earningAdjCounts.pending > 0 || !!payChangeFlag}
                       forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || forceOpenSections.has('earnings') || !!payChangeFlag)}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
@@ -2151,7 +2151,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   {((overtimeCounts.total > 0 || workerAdminAdjustments.some(a => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0)) && (
                     <CollapsibleSection
                       title="Overtime"
-                      defaultOpen={false}
+                       defaultOpen={overtimeCounts.pending > 0}
                       forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : newlyAddedSection === 'overtime'}
                       pendingCount={overtimeCounts.pending}
                       approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter(a => a.type === 'overtime').length}
@@ -2238,7 +2238,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   {((hasLeaves || workerAdminAdjustments.some(a => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0)) && (
                     <CollapsibleSection
                       title="Leave"
-                      defaultOpen={false}
+                       defaultOpen={leaveCounts.pending > 0}
                       forceOpen={showPendingOnly ? leaveCounts.pending > 0 : newlyAddedSection === 'leave'}
                       pendingCount={leaveCounts.pending}
                       approvedCount={leaveCounts.approved + workerAdminAdjustments.filter(a => a.type === 'unpaid_leave').length}
