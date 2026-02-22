@@ -278,12 +278,12 @@ const NestedExpenseItem = ({
             )}>
               pending
             </span>
+            {hasAttachments && !isExpanded && (
+              <span className="text-[10px] text-muted-foreground/50 flex items-center gap-0.5">
+                <Paperclip className="h-2.5 w-2.5" /> {item.attachments!.length}
+              </span>
+            )}
           </div>
-          {hasAttachments && !isExpanded && (
-            <span className="text-[10px] text-muted-foreground/50 flex items-center gap-0.5 mt-0.5">
-              <Paperclip className="h-2.5 w-2.5" /> {item.attachments!.length} {item.attachments!.length === 1 ? 'file' : 'files'}
-            </span>
-          )}
         </div>
         <span className="text-xs tabular-nums font-mono font-medium text-foreground shrink-0">+{formatAmount(item.amount, currency)}</span>
       </div>
