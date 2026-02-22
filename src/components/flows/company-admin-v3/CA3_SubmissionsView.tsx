@@ -854,26 +854,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   }, [submissions, adjustmentStates, leaveStates]);
   const internalPendingCount = submissions.filter(s => s.status === "pending").length;
   const pendingCount = externalPendingCount ?? dynamicPendingCount;
-  // Ready count = workers that have been finalized (marked as ready) + flagged workers with no pending items
-  const flaggedReadyCount = submissions.filter(s => {
-    const hasEndDateFlag = s.flags?.some(f => f.type === "end_date");
-    if (!hasEndDateFlag) return false;
-    // Count pending adjustments for this flagged worker using raw state
-    const pendingAdjs = s.submissions.filter((adj, idx) => {
-      const key = `${s.id}-${idx}`;
-      const localState = adjustmentStates[key];
-      const effectiveStatus = localState ? localState.status : adj.status || 'pending';
-      return effectiveStatus === 'pending' && typeof adj.amount === 'number';
+  // Ready count includes all workers with zero pending/rejected items (naturally ready) + explicitly finalized
+  const readyCount = useMemo(() => {
+    const naturallyReady = submissions.filter(s => {
+      if (finalizedWorkers.has(s.id)) return false; // avoid double-counting
+      const pendingAdjs = s.submissions.filter((adj, idx) => {
+        const key = `${s.id}-${idx}`;
+        const localState = adjustmentStates[key];
+        const effectiveStatus = localState?.status || adj.status || 'pending';
+        return (effectiveStatus === 'pending' || effectiveStatus === 'rejected') && typeof adj.amount === 'number';
+      }).length;
+      const pendingLvs = (s.pendingLeaves || []).filter(leave => {
+        const key = `${s.id}-leave-${leave.id}`;
+        const localState = leaveStates[key];
+        const effectiveStatus = localState?.status || leave.status || 'pending';
+        return effectiveStatus === 'pending' || effectiveStatus === 'rejected';
+      }).length;
+      return pendingAdjs + pendingLvs === 0;
     }).length;
-    const pendingLeaves = (s.pendingLeaves || []).filter(leave => {
-      const key = `${s.id}-leave-${leave.id}`;
-      const localState = leaveStates[key];
-      const effectiveStatus = localState ? localState.status : leave.status || 'pending';
-      return effectiveStatus === 'pending';
-    }).length;
-    return pendingAdjs + pendingLeaves === 0;
-  }).length;
-  const readyCount = finalizedWorkers.size + flaggedReadyCount;
+    return finalizedWorkers.size + naturallyReady;
+  }, [submissions, adjustmentStates, leaveStates, finalizedWorkers]);
 
   // Can continue only when ALL workers have been marked as ready (or flagged workers are handled)
   const canContinue = readyCount >= submissions.length && submissions.length > 0;
