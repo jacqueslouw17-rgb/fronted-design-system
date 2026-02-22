@@ -692,9 +692,16 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     return adjPending + leavePending;
   }, [selectedSubmission, adjustmentStates, leaveStates]);
 
+  // Track previous pending count to detect transitions (not initial opens)
+  const prevPendingCountRef = React.useRef<number>(-1);
+  
   // Auto-finalize when all items are actioned (skip flagged workers who need include/exclude choice)
   useEffect(() => {
-    if (selectedSubmission && selectedWorkerPendingCount === 0 && !isWorkerFinalized(selectedSubmission.id)) {
+    const prev = prevPendingCountRef.current;
+    prevPendingCountRef.current = selectedWorkerPendingCount;
+    
+    // Only auto-finalize when pending count transitions from >0 to 0 (not on initial open)
+    if (selectedSubmission && selectedWorkerPendingCount === 0 && prev > 0 && !isWorkerFinalized(selectedSubmission.id)) {
       const hasEndDateFlag = selectedSubmission.flags?.some((f) => f.type === "end_date");
       if (!hasEndDateFlag) {
         handleMarkAsReady();

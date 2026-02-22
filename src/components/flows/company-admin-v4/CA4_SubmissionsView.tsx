@@ -1175,10 +1175,16 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     return adjPending + leavePending;
   }, [selectedSubmission, adjustmentStates, leaveStates]);
 
-  // Auto-finalize when all items are actioned
+  // Track previous pending count to detect transitions (not initial opens)
+  const prevPendingCountRef = React.useRef<number>(-1);
+  
   // Auto-finalize when all items are actioned (skip flagged workers handled by Fronted)
   useEffect(() => {
-    if (selectedSubmission && selectedWorkerPendingCount === 0 && !isWorkerFinalized(selectedSubmission.id)) {
+    const prev = prevPendingCountRef.current;
+    prevPendingCountRef.current = selectedWorkerPendingCount;
+    
+    // Only auto-finalize when pending count transitions from >0 to 0 (not on initial open)
+    if (selectedSubmission && selectedWorkerPendingCount === 0 && prev > 0 && !isWorkerFinalized(selectedSubmission.id)) {
       const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
       if (!hasEndDateFlag) {
         handleMarkAsReady(selectedSubmission.id);
