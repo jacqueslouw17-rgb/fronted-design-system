@@ -126,11 +126,8 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   });
 
   const handleWorkerClick = (worker: TrackingWorker) => {
-    // Only clickable when paid
-    if (worker.status === "paid") {
-      setSelectedWorker(worker);
-      setDrawerOpen(true);
-    }
+    setSelectedWorker(worker);
+    setDrawerOpen(true);
   };
 
   const renderBreakdownDrawer = () => {
@@ -232,7 +229,9 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                   <p className="text-base font-semibold text-foreground">
                     {isContractor ? "Invoice total" : "Net pay"}
                   </p>
-                  <p className="text-xs text-muted-foreground">Paid on Jan 25, 2026</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedWorker.status === "paid" ? "Paid on Jan 25, 2026" : "Payment in progress"}
+                  </p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   {isNonEUR && (
@@ -256,14 +255,16 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                 </div>
               </div>
 
-              <Button
-                variant="outline"
-                className="w-full gap-2"
-                onClick={() => toast.success(`${isContractor ? "Invoice" : "Payslip"} downloaded`)}
-              >
-                <Download className="h-4 w-4" />
-                Download {documentLabel}
-              </Button>
+              {selectedWorker.status === "paid" && (
+                <Button
+                  variant="outline"
+                  className="w-full gap-2"
+                  onClick={() => toast.success(`${isContractor ? "Invoice" : "Payslip"} downloaded`)}
+                >
+                  <Download className="h-4 w-4" />
+                  Download {documentLabel}
+                </Button>
+              )}
             </div>
           </div>
         </SheetContent>
@@ -399,9 +400,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                   key={worker.id}
                   className={cn(
                     "flex items-center gap-2.5 px-2.5 py-2 rounded-md border border-border/20",
-                    isPaid 
-                      ? "bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors" 
-                      : "bg-muted/30"
+                    "bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors"
                   )}
                   onClick={() => handleWorkerClick(worker)}
                 >
