@@ -1495,7 +1495,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     return <>
                   {(() => {
                         const payChangeFlag = selectedSubmission.flags?.find(f => f.type === "pay_change");
-                        return !showPendingOnly || earningAdjCounts.pending > 0 ? <CollapsibleSection title="Earnings" defaultOpen={earningAdjCounts.pending > 0 || !!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings' || !!payChangeFlag} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
+                        return !showPendingOnly || earningAdjCounts.pending > 0 ? <CollapsibleSection title="Earnings" defaultOpen={earningAdjCounts.pending > 0 || !!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (earningAdjCounts.pending > 0 || newlyAddedSection === 'earnings' || !!payChangeFlag)} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
                     {/* Base earnings */}
                     {!showPendingOnly && earnings.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={cvt(item.amount)} currency={dc} isLocked={item.locked} isPositive />)}
                     
@@ -1577,7 +1577,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </CollapsibleSection>}
 
                   {/* OVERTIME Section - Collapsed by default, only force open when pending filter or newly added */}
-                  {(overtimeCounts.total > 0 || workerAdminAdjustments.some(a => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0) && <CollapsibleSection title="Overtime" defaultOpen={overtimeCounts.pending > 0} forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : newlyAddedSection === 'overtime'} pendingCount={overtimeCounts.pending} approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter(a => a.type === 'overtime').length}>
+                  {(overtimeCounts.total > 0 || workerAdminAdjustments.some(a => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0) && <CollapsibleSection title="Overtime" defaultOpen={overtimeCounts.pending > 0} forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : (overtimeCounts.pending > 0 || newlyAddedSection === 'overtime')} pendingCount={overtimeCounts.pending} approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter(a => a.type === 'overtime').length}>
                       {allAdjustments.map((adj, originalIdx) => ({
                           adj,
                           originalIdx
@@ -1642,7 +1642,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </CollapsibleSection>}
 
                   {/* LEAVE Section - Collapsed by default, only force open when pending filter or newly added */}
-                  {(hasLeaves || workerAdminAdjustments.some(a => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0) && <CollapsibleSection title="Leave" defaultOpen={leaveCounts.pending > 0} forceOpen={showPendingOnly ? leaveCounts.pending > 0 : newlyAddedSection === 'leave'} pendingCount={leaveCounts.pending} approvedCount={leaveCounts.approved + workerAdminAdjustments.filter(a => a.type === 'unpaid_leave').length}>
+                  {(hasLeaves || workerAdminAdjustments.some(a => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0) && <CollapsibleSection title="Leave" defaultOpen={leaveCounts.pending > 0} forceOpen={showPendingOnly ? leaveCounts.pending > 0 : (leaveCounts.pending > 0 || newlyAddedSection === 'leave')} pendingCount={leaveCounts.pending} approvedCount={leaveCounts.approved + workerAdminAdjustments.filter(a => a.type === 'unpaid_leave').length}>
                       {pendingLeaves.filter(leave => {
                           const status = getLeaveStatus(selectedSubmission.id, leave.id, leave.status).status;
                           return shouldShowItem(status);
