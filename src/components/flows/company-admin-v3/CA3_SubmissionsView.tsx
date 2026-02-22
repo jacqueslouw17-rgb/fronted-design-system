@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, ChevronLeft, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download, Plus, Undo2, XCircle, AlertTriangle, TrendingUp, Paperclip } from "lucide-react";
 import { AttachmentsList, AttachmentIndicator, type AttachmentItem } from "@/components/flows/shared/AttachmentsList";
@@ -1037,15 +1037,44 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   };
 
   // Mark worker as ready (finalize all reviews)
-  const handleMarkAsReady = () => {
-    if (!selectedSubmission) return;
-    setFinalizedWorkers(prev => new Set(prev).add(selectedSubmission.id));
-    setDrawerOpen(false);
-    toast.success(`${selectedSubmission.workerName} marked as ready`);
+  const handleMarkAsReady = (workerId?: string) => {
+    const id = workerId || selectedSubmission?.id;
+    if (!id) return;
+    setFinalizedWorkers(prev => new Set(prev).add(id));
+    const workerName = submissions.find(s => s.id === id)?.workerName || '';
+    toast.success(`${workerName} marked as ready`);
   };
 
   // Check if current worker is finalized
   const isWorkerFinalized = (workerId: string) => finalizedWorkers.has(workerId);
+
+  // Auto-finalize: compute pending count for selected worker and auto-mark ready
+  const selectedWorkerPendingCount = useMemo(() => {
+    if (!selectedSubmission) return -1;
+    const adjPending = selectedSubmission.submissions.filter((adj, idx) => {
+      const key = `${selectedSubmission.id}-${idx}`;
+      const localState = adjustmentStates[key];
+      return (localState?.status || adj.status || 'pending') === 'pending' && typeof adj.amount === 'number';
+    }).length;
+    const leavePending = (selectedSubmission.pendingLeaves || []).filter(leave => {
+      const key = `${selectedSubmission.id}-leave-${leave.id}`;
+      const localState = leaveStates[key];
+      return (localState?.status || leave.status || 'pending') === 'pending';
+    }).length;
+    return adjPending + leavePending;
+  }, [selectedSubmission, adjustmentStates, leaveStates]);
+
+  // Auto-finalize when all items are actioned
+  // Auto-finalize when all items are actioned (skip flagged workers handled by Fronted)
+  useEffect(() => {
+    if (selectedSubmission && selectedWorkerPendingCount === 0 && !isWorkerFinalized(selectedSubmission.id)) {
+      const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
+      if (!hasEndDateFlag) {
+        handleMarkAsReady(selectedSubmission.id);
+      }
+    }
+  }, [selectedWorkerPendingCount, selectedSubmission]);
+
   const renderSubmissionRow = (submission: WorkerSubmission) => {
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
 
@@ -1715,25 +1744,22 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       </div>;
                 }
 
-                // Show "Mark as Ready" when no pending items and not yet finalized
-                if (!isFinalized) {
-                  return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                        <Button size="sm" className="w-full h-10 text-sm gap-2" onClick={() => setShowMarkAsReadyDialog(true)}>
-                          <CheckCircle2 className="h-4 w-4" />
-                          Mark as Ready
-                        </Button>
-                        <p className="text-[11px] text-muted-foreground text-center mt-2">
-                          This will finalize the review and lock all decisions
-                        </p>
-                      </div>;
-                }
-
-                // Show finalized state
-                return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                      <div className="flex items-center justify-center gap-2 text-accent-green-text">
-                        <CheckCircle2 className="h-4 w-4" />
-                        <span className="text-sm font-medium">Ready for payroll</span>
+                // Show finalized state with undo
+                return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-2">
+                      <div className="flex items-center justify-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                        <span className="text-sm font-medium text-accent-green-text">Ready for payroll</span>
                       </div>
+                      <button
+                        onClick={() => {
+                          setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
+                          toast.info(`${selectedSubmission.workerName} moved back to review`);
+                        }}
+                        className="mx-auto flex items-center gap-1 px-3 py-1 rounded-full border border-border/50 hover:border-border hover:bg-muted text-muted-foreground hover:text-foreground text-xs transition-colors duration-200"
+                      >
+                        <Undo2 className="h-3 w-3" />
+                        Undo
+                      </button>
                     </div>;
               })()}
                 </>}
