@@ -270,7 +270,7 @@ const AdjustmentRow = ({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-foreground truncate">{label}</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
+            <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-orange-100/80 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400">pending</span>
             {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
           </div>
           {description && <span className="text-[10px] text-muted-foreground/60 block">{description}</span>}
@@ -451,7 +451,7 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm text-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
+            <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-orange-100/80 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400">pending</span>
           </div>
           {leave.dateDescription && <span className="text-[10px] text-muted-foreground/70 mt-0.5 block">{leave.dateDescription}</span>}
         </div>
