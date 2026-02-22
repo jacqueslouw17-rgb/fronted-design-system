@@ -782,7 +782,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
               const totalAttachments = submission.submissions.reduce((sum, adj) => sum + (adj.attachmentsCount || 0), 0);
               return totalAttachments > 0 ? <AttachmentIndicator count={totalAttachments} /> : null;
             })()}
-            {workerRejectedCount > 0 && workerPendingCount === 0 &&
+            {workerRejectedCount > 0 && workerPendingCount === 0 && !isExcluded &&
             <span className="text-[10px] text-destructive/80">· 1 day to resubmit</span>
             }
             {!isFinalized && submission.flags?.map((flag, fi) =>
