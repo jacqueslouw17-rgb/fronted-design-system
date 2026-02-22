@@ -854,7 +854,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   
   // Admin add adjustment mode
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
-  const [showUSD, setShowUSD] = useState(false);
+  const [showUSD, setShowUSD] = useState(true);
   
   // Drawer loading state - simulates data fetch synced with animation
   const [isDrawerLoading, setIsDrawerLoading] = useState(false);

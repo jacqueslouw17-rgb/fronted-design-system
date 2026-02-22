@@ -495,7 +495,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [showExcludeDialog, setShowExcludeDialog] = useState(false);
   const [showReceiptView, setShowReceiptView] = useState(false);
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
-  const [showUSD, setShowUSD] = useState(false);
+  const [showUSD, setShowUSD] = useState(true);
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   // Finalized workers - once finalized, their items are locked

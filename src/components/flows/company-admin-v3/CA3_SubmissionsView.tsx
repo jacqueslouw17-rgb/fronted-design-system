@@ -776,7 +776,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
   // Admin add adjustment mode
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
-  const [showUSD, setShowUSD] = useState(false);
+  const [showUSD, setShowUSD] = useState(true);
 
   // Track newly added adjustment for animation + auto-expand
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
