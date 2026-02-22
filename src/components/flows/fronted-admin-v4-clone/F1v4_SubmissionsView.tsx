@@ -1229,10 +1229,12 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                               <Button
                               size="sm"
                               className="flex-1 h-9 text-xs gap-2"
-                              onClick={() => setShowMarkAsReadyDialog(true)}>
-
+                              onClick={() => {
+                                setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
+                                toast.success(`${selectedSubmission.workerName} included in this run`);
+                              }}>
                                 <CheckCircle2 className="h-3.5 w-3.5" />
-                                Mark as ready
+                                Include
                               </Button>
                             </div>
                           </div>);
