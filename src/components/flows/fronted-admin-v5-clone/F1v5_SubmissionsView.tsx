@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
@@ -482,6 +483,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   onClose
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
   const [selectedSubmission, setSelectedSubmission] = useState<WorkerSubmission | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
@@ -848,9 +850,33 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <Tabs defaultValue="all" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="px-5 pt-4 pb-3 border-b border-border/40 flex items-center justify-between">
-              <TabsList className="h-8 bg-muted/30 p-0.5">
+              {/* Mobile: "All" + filter dropdown */}
+              <div className="flex sm:hidden items-center gap-1.5">
+                <TabsList className="h-8 bg-muted/30 p-0.5">
+                  <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">All ({submissions.length})</TabsTrigger>
+                </TabsList>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className={cn(
+                      "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all",
+                      activeTab !== "all" ? "bg-primary/10 text-primary border-primary/20" : "bg-muted/30 text-muted-foreground border-transparent"
+                    )}>
+                      {activeTab !== "all" ? { employees: "Employees", contractors: "Contractors", pending: "Pending", ready: "Ready" }[activeTab] : "Filter"}
+                      <ChevronRight className="h-3 w-3 rotate-90" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[140px]">
+                    <DropdownMenuItem onClick={() => setActiveTab("employees")} className="text-xs">Employees ({submissions.filter(s => s.workerType === "employee").length})</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setActiveTab("contractors")} className="text-xs">Contractors ({submissions.filter(s => s.workerType === "contractor").length})</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setActiveTab("pending")} className="text-xs">Pending ({dynamicPendingCount})</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setActiveTab("ready")} className="text-xs">Ready ({readyCount})</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              {/* Desktop: full TabsList */}
+              <TabsList className="h-8 bg-muted/30 p-0.5 hidden sm:flex">
                 <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">All ({submissions.length})</TabsTrigger>
                 <TabsTrigger value="employees" className="text-xs h-7 px-3 data-[state=active]:bg-background">Employees ({submissions.filter(s => s.workerType === "employee").length})</TabsTrigger>
                 <TabsTrigger value="contractors" className="text-xs h-7 px-3 data-[state=active]:bg-background">Contractors ({submissions.filter(s => s.workerType === "contractor").length})</TabsTrigger>

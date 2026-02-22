@@ -453,9 +453,10 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
           <CardContent className="py-4 px-4 sm:py-6 sm:px-6">
             {/* Metrics Grid */}
-            <div className="flex sm:grid sm:grid-cols-4 gap-2 sm:gap-4 mb-6 overflow-x-auto scrollbar-hide -mx-1 px-1 sm:mx-0 sm:px-0 sm:overflow-visible">
+            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 sm:overflow-visible pb-1 mb-6">
+              <div className="flex sm:grid sm:grid-cols-4 gap-2 sm:gap-4 w-max sm:w-auto">
               {/* Gross Pay */}
-              <div className="min-w-[130px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="w-32 sm:w-auto bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Gross Pay</span>
@@ -465,7 +466,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
               </div>
 
               {/* Total Adjustments */}
-              <div className="min-w-[130px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="w-32 sm:w-auto bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Adj. Requests</span>
@@ -475,7 +476,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
               </div>
 
               {/* Fronted Fees */}
-              <div className="min-w-[130px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="w-32 sm:w-auto bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Fronted Fees</span>
@@ -485,13 +486,14 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
               </div>
 
               {/* Total Cost */}
-              <div className="min-w-[130px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
+              <div className="w-32 sm:w-auto bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Total Cost</span>
                 </div>
                 <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Pay + All Fees</p>
+              </div>
               </div>
             </div>
 

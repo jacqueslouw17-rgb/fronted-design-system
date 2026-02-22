@@ -15,8 +15,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  ChevronRight
+  ChevronRight,
+  ChevronDown
 } from "lucide-react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -161,7 +163,46 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
           />
         </div>
         
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/30 overflow-x-auto scrollbar-hide">
+        {/* Mobile: "All" + dropdown for filters */}
+        <div className="flex sm:hidden items-center gap-1.5">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/30">
+            <button
+              onClick={() => setActiveFilter("all")}
+              className={cn(
+                "px-3 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap",
+                activeFilter === "all"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              All
+            </button>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={cn(
+                "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all",
+                activeFilter !== "all"
+                  ? "bg-primary/10 text-primary border-primary/20"
+                  : "bg-muted/30 text-muted-foreground border-transparent hover:text-foreground"
+              )}>
+                {activeFilter !== "all" ? filterTabs.find(t => t.id === activeFilter)?.label : "Filter"}
+                {activeFilter !== "all" && statusCounts[activeFilter] ? ` (${statusCounts[activeFilter]})` : ""}
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[160px]">
+              {filterTabs.filter(t => t.id !== "all").map(tab => (
+                <DropdownMenuItem key={tab.id} onClick={() => setActiveFilter(tab.id)} className="text-xs">
+                  {tab.label} {statusCounts[tab.id] ? `(${statusCounts[tab.id]})` : "(0)"}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Desktop: full filter tabs */}
+        <div className="hidden sm:flex items-center gap-1 p-1 rounded-lg bg-muted/30">
           {filterTabs.map((tab) => (
             <button
               key={tab.id}
