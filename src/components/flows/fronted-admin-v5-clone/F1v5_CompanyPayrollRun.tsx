@@ -653,14 +653,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             <div className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleBack}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
                   <F1v4_PayrollStepper
                     currentStep="approve"
                     completedSteps={completedSteps as StepperStep[]}
@@ -683,14 +675,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                     contractorCount={contractors.length}
                     totalAmount={`€${(company.totalCost / 1000).toFixed(1)}K`}
                   />
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setHasEnteredWorkflow(false)}
-                    className="h-9 text-xs"
-                  >
-                    Close
-                  </Button>
                 </div>
               </div>
             </div>
