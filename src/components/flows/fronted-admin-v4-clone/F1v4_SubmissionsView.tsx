@@ -658,6 +658,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     if (!selectedSubmission) return;
     setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
     toast.success(`${selectedSubmission.workerName} marked as ready`);
+    setDrawerOpen(false);
   };
 
   // Check if current worker is finalized
@@ -1251,6 +1252,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                               onClick={() => {
                                 setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
                                 toast.success(`${selectedSubmission.workerName} included in this run`);
+                                setDrawerOpen(false);
                               }}>
                                 <CheckCircle2 className="h-3.5 w-3.5" />
                                 Include
