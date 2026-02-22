@@ -396,7 +396,7 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
 };
 
 // Multiple runs can be "in-review" simultaneously
-const MOCK_PERIODS: PayrollPeriod[] = [
+const MOCK_PERIODS_BASE: PayrollPeriod[] = [
   // Current active runs (can have multiple in-review)
   { 
     id: "jan-monthly", 
@@ -470,8 +470,14 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const employees = currentRunSubmissions.filter(w => w.workerType === "employee");
   const contractors = currentRunSubmissions.filter(w => w.workerType === "contractor");
   
+  // Dynamic periods - change selected period to "processing" when approved
+  const periods = useMemo(() => 
+    MOCK_PERIODS_BASE.map(p => 
+      p.id === selectedPeriodId && isApproved ? { ...p, status: "processing" as const } : p
+    ), [selectedPeriodId, isApproved]);
+
   // Determine if viewing historical (paid) run
-  const selectedPeriodData = MOCK_PERIODS.find(p => p.id === selectedPeriodId);
+  const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
   const isViewingPrevious = selectedPeriodData?.status === "paid";
   const selectedHistoricalPayroll = isViewingPrevious 
     ? HISTORICAL_PAYROLLS.find(p => p.id.includes(selectedPeriodId.replace("-monthly", "").replace("-fortnight-1", "").replace("-fortnight-2", ""))) 
@@ -484,7 +490,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const handlePeriodChange = (periodId: string) => {
     setSelectedPeriodId(periodId);
     // Reset workflow when switching to a paid period
-    const period = MOCK_PERIODS.find(p => p.id === periodId);
+    const period = MOCK_PERIODS_BASE.find(p => p.id === periodId);
     if (period?.status === "paid") {
       setHasEnteredWorkflow(false);
     }
@@ -554,7 +560,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         {/* Period Selector */}
         <div className="flex items-center justify-center pt-2 pb-4">
           <F1v4_PeriodDropdown 
-            periods={MOCK_PERIODS}
+            periods={periods}
             selectedPeriodId={selectedPeriodId}
             onPeriodChange={handlePeriodChange}
           />
@@ -686,6 +692,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         return (
           <F1v4_TrackStep
             company={company}
+            hideSummaryCard
           />
         );
       default:
