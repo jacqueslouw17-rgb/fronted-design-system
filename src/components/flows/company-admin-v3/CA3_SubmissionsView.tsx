@@ -367,9 +367,7 @@ const AdjustmentRow = ({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-foreground truncate">{label}</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-              pending
-            </span>
+            <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-orange-100/80 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400">pending</span>
             {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
           </div>
           {description && <span className="text-[10px] text-muted-foreground/60 block">{description}</span>}
@@ -641,9 +639,7 @@ const LeaveRow = ({
         <div className="flex flex-col gap-0 min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-foreground">{config.label}</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-              pending
-            </span>
+            <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-orange-100/80 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400">pending</span>
           </div>
           {/* Dates revealed on hover (when not expanded) */}
           <AnimatePresence>
