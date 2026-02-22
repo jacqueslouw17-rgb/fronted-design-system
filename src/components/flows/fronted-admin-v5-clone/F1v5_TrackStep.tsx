@@ -168,8 +168,11 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
   const periodDropdownRef = useRef<HTMLDivElement>(null);
 
+  const currentPaidCount = currentWorkers.filter(w => w.paymentStatus === "paid").length;
+  const currentAllPaid = currentPaidCount === currentWorkers.length && currentWorkers.length > 0;
+
   const periods: PayrollPeriod[] = [
-    { id: "current", label: "January 2026", status: "processing" },
+    { id: "current", label: "January 2026", status: currentAllPaid ? "paid" : "processing" },
     { id: "dec-2025", label: "December 2025", status: "paid" },
     { id: "nov-2025", label: "November 2025", status: "paid" },
   ];
