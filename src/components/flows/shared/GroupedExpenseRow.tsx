@@ -195,7 +195,7 @@ const NestedExpenseItem = ({
   if (item.status === 'approved') {
     return (
       <div
-        className={cn("flex items-center gap-2.5 pl-2.5 pr-0 py-1 rounded-md transition-colors group", !isFinalized && "hover:bg-muted")}
+        className={cn("flex items-center gap-2.5 pl-2.5 pr-2 py-1 rounded-md transition-colors group", !isFinalized && "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -226,7 +226,7 @@ const NestedExpenseItem = ({
   if (item.status === 'rejected') {
     return (
       <div
-        className={cn("pl-2.5 pr-0 rounded-md transition-colors group", !isFinalized && "hover:bg-muted")}
+        className={cn("pl-2.5 pr-2 rounded-md transition-colors group", !isFinalized && "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -266,7 +266,7 @@ const NestedExpenseItem = ({
         : "hover:bg-muted border border-transparent"
     )}>
       <div
-        className="flex items-center gap-2.5 pl-2.5 pr-0 py-1 cursor-pointer"
+        className="flex items-center gap-2.5 pl-2.5 pr-2 py-1 cursor-pointer"
         onClick={(e) => { e.stopPropagation(); onToggleExpand(); }}
       >
         <div className="flex-1 min-w-0">
