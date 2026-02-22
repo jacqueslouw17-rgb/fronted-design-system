@@ -495,9 +495,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
       return p;
     }), [selectedPeriodId, isApproved, isAllPaid]);
 
-  // Determine if viewing historical (paid) run
+  // Determine if viewing historical (paid) run — but NOT if it just got paid in this session
   const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
-  const isViewingPrevious = selectedPeriodData?.status === "paid";
+  const isViewingPrevious = selectedPeriodData?.status === "paid" && !isAllPaid;
   const selectedHistoricalPayroll = isViewingPrevious 
     ? HISTORICAL_PAYROLLS.find(p => p.id.includes(selectedPeriodId.replace("-monthly", "").replace("-fortnight-1", "").replace("-fortnight-2", ""))) 
     : null;
