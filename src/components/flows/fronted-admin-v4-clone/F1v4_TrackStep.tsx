@@ -112,6 +112,7 @@ interface F1v4_TrackStepProps {
   onBack?: () => void;
   onClose?: () => void;
   hideHeader?: boolean;
+  hideSummaryCard?: boolean;
   isHistorical?: boolean;
   paidDate?: string;
   showStepper?: boolean;
@@ -147,6 +148,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   onBack,
   onClose,
   hideHeader = false,
+  hideSummaryCard = false,
   isHistorical: isHistoricalProp = false,
   paidDate: paidDateProp,
   showStepper = false,
@@ -531,7 +533,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
 
   const renderContent = () => (
     <div className="space-y-6">
-      {renderSummaryCard()}
+      {!hideSummaryCard && renderSummaryCard()}
       {renderTrackingTable()}
     </div>
   );
