@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import {
   ChevronLeft,
   ChevronRight,
@@ -63,6 +64,7 @@ import {
   XCircle,
   Bell,
   ShieldCheck,
+  ArrowLeftRight,
 } from "lucide-react";
 
 export interface WorkerData {
@@ -186,6 +188,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
   const [newAdjLabel, setNewAdjLabel] = useState("");
   const [newAdjAmount, setNewAdjAmount] = useState("");
   const [newAdjReason, setNewAdjReason] = useState("");
+  const [showEUR, setShowEUR] = useState(true);
 
   if (!worker) return null;
 
@@ -305,6 +308,10 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
     const totalEarnings = earningsData.items.reduce((sum, item) => sum + item.amount, 0);
     const totalDeductions = earningsData.deductions.reduce((sum, item) => sum + item.amount, 0);
     const netTotal = isContractor ? totalEarnings : totalEarnings - totalDeductions;
+    const isNonEUR = worker.currency !== "EUR";
+    const dc = showEUR && isNonEUR ? "EUR" : worker.currency;
+    const cvt = (amt: number) => showEUR && isNonEUR ? convertToEUR(amt, worker.currency) : amt;
+    const approx = showEUR && isNonEUR ? "≈ " : "";
 
     return (
       <>
@@ -321,6 +328,21 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                     Jan 2026
                   </Badge>
                 </div>
+                {isNonEUR && (
+                  <button
+                    onClick={() => setShowEUR(!showEUR)}
+                    className={cn(
+                      "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all duration-150",
+                      "border border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+                      showEUR
+                        ? "bg-primary/5 text-primary border-primary/30"
+                        : "text-muted-foreground bg-muted/30"
+                    )}
+                  >
+                    <ArrowLeftRight className="h-3 w-3" />
+                    {showEUR ? worker.currency : "EUR"}
+                  </button>
+                )}
               </div>
               {/* Worker info */}
               <div className="flex items-center gap-3 mt-3">
@@ -354,7 +376,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                           <p className="text-xs text-muted-foreground">{item.description}</p>
                         </div>
                         <p className="text-sm font-medium text-foreground tabular-nums">
-                          +{formatCurrency(Math.round(item.amount), worker.currency)}
+                          {approx}+{formatCurrency(Math.round(cvt(item.amount)), dc)}
                         </p>
                       </div>
                     ))}
@@ -362,7 +384,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                   <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
                     <p className="text-sm font-semibold text-foreground">Total earnings</p>
                     <p className="text-sm font-semibold text-foreground tabular-nums">
-                      +{formatCurrency(Math.round(totalEarnings), worker.currency)}
+                      {approx}+{formatCurrency(Math.round(cvt(totalEarnings)), dc)}
                     </p>
                   </div>
                 </div>
@@ -381,7 +403,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                             <p className="text-xs text-muted-foreground">{item.description}</p>
                           </div>
                           <p className="text-sm font-medium text-muted-foreground tabular-nums">
-                            -{formatCurrency(Math.round(item.amount), worker.currency)}
+                            {approx}-{formatCurrency(Math.round(cvt(item.amount)), dc)}
                           </p>
                         </div>
                       ))}
@@ -389,7 +411,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                     <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
                       <p className="text-sm font-semibold text-foreground">Total deductions</p>
                       <p className="text-sm font-semibold text-muted-foreground tabular-nums">
-                        -{formatCurrency(Math.round(totalDeductions), worker.currency)}
+                        {approx}-{formatCurrency(Math.round(cvt(totalDeductions)), dc)}
                       </p>
                     </div>
                   </div>
@@ -409,7 +431,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                     )}
                   </div>
                   <p className="text-2xl font-bold text-foreground tabular-nums">
-                    {formatCurrency(Math.round(netTotal), worker.currency)}
+                    {approx}{formatCurrency(Math.round(cvt(netTotal)), dc)}
                   </p>
                 </div>
 
