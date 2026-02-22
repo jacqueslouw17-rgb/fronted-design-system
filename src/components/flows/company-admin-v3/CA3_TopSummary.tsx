@@ -85,24 +85,24 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
       </CardHeader>
       <CardContent className="p-3 sm:p-5">
         {/* KPI Cards - 5 equal tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
-          <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+        <div className="flex sm:grid sm:grid-cols-5 gap-2 sm:gap-3 overflow-x-auto scrollbar-hide -mx-1 px-1 sm:mx-0 sm:px-0 sm:overflow-visible">
+          <div className="min-w-[120px] shrink-0 sm:min-w-0 sm:shrink p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Gross Pay</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">≈ {formatCurrency(grossPay)}</p>
           </div>
-          <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+          <div className="min-w-[120px] shrink-0 sm:min-w-0 sm:shrink p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Net Pay</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(netPay)}</p>
           </div>
-          <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+          <div className="min-w-[120px] shrink-0 sm:min-w-0 sm:shrink p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Employees</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">{employeeCount}</p>
           </div>
-          <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+          <div className="min-w-[120px] shrink-0 sm:min-w-0 sm:shrink p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Contractors</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">{contractorCount}</p>
           </div>
-          <div className="p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+          <div className="min-w-[120px] shrink-0 sm:min-w-0 sm:shrink p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Currencies</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">{currencyCount}</p>
           </div>

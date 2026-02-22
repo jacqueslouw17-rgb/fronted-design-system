@@ -570,9 +570,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
           <CardContent className="py-6 px-6">
             {/* Metrics Grid */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="flex sm:grid sm:grid-cols-4 gap-4 mb-6 overflow-x-auto scrollbar-hide -mx-1 px-1 sm:mx-0 sm:px-0 sm:overflow-visible">
               {/* Gross Pay */}
-              <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                   <DollarSign className="h-4 w-4 text-primary" />
                   <span className="text-sm">Gross Pay</span>
@@ -582,7 +582,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
 
               {/* Total Adjustments */}
-              <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                   <Receipt className="h-4 w-4 text-primary" />
                   <span className="text-sm">Adj. Requests</span>
@@ -592,7 +592,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
 
               {/* Fronted Fees */}
-              <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                   <Building2 className="h-4 w-4 text-primary" />
                   <span className="text-sm">Fronted Fees</span>
@@ -602,7 +602,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
 
               {/* Total Cost */}
-              <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="min-w-[140px] shrink-0 sm:min-w-0 sm:shrink bg-primary/[0.04] rounded-xl p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
                   <span className="text-sm">Total Cost</span>
