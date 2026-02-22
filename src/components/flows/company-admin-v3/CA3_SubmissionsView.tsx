@@ -345,9 +345,9 @@ const AdjustmentRow = ({
             <span className="text-sm tabular-nums font-mono text-muted-foreground/40 line-through">+{formatAmount(amount, currency)}</span>
           </div>
         </div>
-        {rejectionReason && (
+        {rejectionReason && isHovered && (
           <div className="-mt-1 pb-0.5">
-            <p className="text-[10px] text-destructive/70 leading-relaxed">
+            <p className="text-[10px] text-destructive/60 leading-relaxed">
               <span className="font-medium">Rejected:</span> {rejectionReason}
             </p>
           </div>
@@ -619,9 +619,9 @@ const LeaveRow = ({
             )}
           </div>
         </div>
-        {leave.rejectionReason && (
+        {leave.rejectionReason && isHovered && (
           <div className="-mt-1 pb-0.5">
-            <p className="text-[10px] text-destructive/70 leading-relaxed">
+            <p className="text-[10px] text-destructive/60 leading-relaxed">
               <span className="font-medium">Rejected:</span> {leave.rejectionReason}
             </p>
           </div>
