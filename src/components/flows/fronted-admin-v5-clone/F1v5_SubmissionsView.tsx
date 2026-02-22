@@ -1209,6 +1209,18 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                       <button
                         onClick={() => {
+                          const newAdjStates = { ...adjustmentStates };
+                          selectedSubmission.submissions.forEach((adj, idx) => {
+                            const key = `${selectedSubmission.id}-${idx}`;
+                            if (newAdjStates[key]) newAdjStates[key] = { status: 'pending' };
+                          });
+                          setAdjustmentStates(newAdjStates);
+                          const newLeaveStates = { ...leaveStates };
+                          (selectedSubmission.pendingLeaves || []).forEach(leave => {
+                            const key = `${selectedSubmission.id}-leave-${leave.id}`;
+                            if (newLeaveStates[key]) newLeaveStates[key] = { status: 'pending' };
+                          });
+                          setLeaveStates(newLeaveStates);
                           setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
                           toast.info(`${selectedSubmission.workerName} moved back to review`);
                         }}
