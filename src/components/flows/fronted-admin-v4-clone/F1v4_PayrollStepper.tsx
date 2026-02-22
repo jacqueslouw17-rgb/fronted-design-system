@@ -54,8 +54,7 @@ export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
         const state = getStepState(step.id);
         const isClickable = (state === "completed" || step.id === currentStep) && state !== "locked";
         
-        // Show badge for submissions or exceptions
-        const showSubmissionBadge = step.id === "submissions" && pendingCount > 0 && state !== "completed" && state !== "locked";
+        // Show badge for exceptions only
         const showExceptionsBadge = step.id === "exceptions" && exceptionsCount > 0 && state !== "completed" && state !== "locked";
 
         return (
@@ -89,12 +88,6 @@ export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
               
               <span className="hidden sm:inline">{step.label}</span>
               
-              {/* Badge for submissions */}
-              {showSubmissionBadge && (
-                <span className="flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-amber-500/80 text-white text-[9px] font-medium">
-                  {pendingCount}
-                </span>
-              )}
               
               {/* Badge for exceptions */}
               {showExceptionsBadge && (
