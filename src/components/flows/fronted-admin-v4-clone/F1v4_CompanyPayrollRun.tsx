@@ -712,7 +712,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Historical view for previous periods
   if (isViewingPrevious) {
     return (
-      <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-3 pb-4">
         <div className="mb-5">
           {renderSummaryCard()}
         </div>
@@ -730,7 +730,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
 
   // Summary card + workflow step content below
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-8 pb-4">
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-3 pb-4">
       <div className="mb-5">
         {renderSummaryCard()}
       </div>
