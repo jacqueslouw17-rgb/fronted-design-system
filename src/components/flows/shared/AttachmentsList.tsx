@@ -48,7 +48,7 @@ export const AttachmentsList: React.FC<AttachmentsListProps> = ({
           <div
             key={att.id}
             className={cn(
-              "flex items-center gap-2.5 rounded-md border border-border/30 bg-muted/20 group transition-colors hover:bg-muted/40",
+              "flex items-center gap-2.5 rounded-md border border-border/30 bg-muted/20 group transition-colors cursor-pointer hover:bg-muted/50 hover:border-border/50",
               compact ? "px-2.5 py-1.5" : "px-3 py-2"
             )}
           >
