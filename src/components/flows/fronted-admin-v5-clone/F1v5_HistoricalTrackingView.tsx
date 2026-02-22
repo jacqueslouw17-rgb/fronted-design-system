@@ -60,7 +60,7 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
   const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   const handleExportCSV = () => toast.success("CSV exported");
-  const handleDownloadAuditPDF = () => toast.success("Audit PDF downloaded");
+  
 
   return (
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
@@ -86,10 +86,6 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
             <Button variant="ghost" size="sm" onClick={handleExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
               <Download className="h-3.5 w-3.5" />
               CSV
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleDownloadAuditPDF} className="h-8 text-xs gap-1.5 text-muted-foreground">
-              <FileText className="h-3.5 w-3.5" />
-              Audit
             </Button>
           </div>
         </div>

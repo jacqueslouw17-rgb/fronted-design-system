@@ -40,7 +40,7 @@ export interface TrackingWorker {
 interface CA3_TrackingViewProps {
   workers: TrackingWorker[];
   onExportCSV: () => void;
-  onDownloadAuditPDF: () => void;
+  onDownloadAuditPDF?: () => void; // deprecated, kept for backwards compat
   onBack?: () => void;
   onClose?: () => void;
   isHistorical?: boolean;
@@ -362,10 +362,6 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                   CSV
                 </Button>
               )}
-              <Button variant="ghost" size="sm" onClick={onDownloadAuditPDF} className="h-8 text-xs gap-1.5 text-muted-foreground">
-                <FileText className="h-3.5 w-3.5" />
-                Audit
-              </Button>
             </div>
           </div>
           
