@@ -22,6 +22,7 @@ import {
 import { AttachmentsList, AttachmentIndicator, type AttachmentItem } from "@/components/flows/shared/AttachmentsList";
 import { TagChips } from "@/components/flows/shared/TagInput";
 import { SubmissionTrail, type TrailSubmission } from "@/components/flows/shared/SubmissionTrail";
+import { GroupedExpenseRow, type GroupedExpenseItem } from "@/components/flows/shared/GroupedExpenseRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -1132,22 +1133,65 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         const payChangeFlag = selectedSubmission.flags?.find((f) => f.type === "pay_change");
                         return !showPendingOnly || earningAdjCounts.pending > 0 ? <CollapsibleSection title="Earnings" defaultOpen={earningAdjCounts.pending > 0 || !!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (earningAdjCounts.pending > 0 || newlyAddedSection === 'earnings' || !!payChangeFlag)} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
                     {!showPendingOnly && earnings.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={cvt(item.amount)} currency={dc} isLocked={item.locked} isPositive />)}
-                    {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus').filter(({ adj, originalIdx }) => {
-                            const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
-                            return shouldShowItem(status);
-                          }).map(({ adj, originalIdx }) => {
-                            const config = submissionTypeConfig[adj.type as SubmissionType];
-                            if (!config) return null;
-                            const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
-                            const itemId = `adj-${originalIdx}`;
-                            return <AdjustmentRow key={itemId} label={adj.description || config.label} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
-                              updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
-                              toast.success(`Approved ${config.label.toLowerCase()}`);
-                            }} onReject={(reason) => {
-                              updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
-                              toast.info(`Rejected ${config.label.toLowerCase()}`);
-                            }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} tags={adj.tags} />;
-                          })}
+                    {(() => {
+                            const expenseBonusAdjs = allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus').filter(({ adj, originalIdx }) => {
+                              const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
+                              return shouldShowItem(status);
+                            });
+                            
+                            const taggedExpenses = expenseBonusAdjs.filter(({ adj }) => adj.type === 'expenses' && adj.tags && adj.tags.length > 0);
+                            const ungroupedItems = expenseBonusAdjs.filter(({ adj }) => adj.type === 'bonus' || !adj.tags || adj.tags.length === 0);
+                            
+                            const groups = new Map<string, typeof taggedExpenses>();
+                            taggedExpenses.forEach(item => {
+                              const key = item.adj.tags!.sort().join('|');
+                              const existing = groups.get(key) || [];
+                              existing.push(item);
+                              groups.set(key, existing);
+                            });
+                            
+                            return (
+                              <>
+                                {Array.from(groups.entries()).map(([key, groupItems]) => (
+                                  <GroupedExpenseRow
+                                    key={`group-${key}`}
+                                    groupLabel={groupItems[0].adj.tags!.join(' · ')}
+                                    items={groupItems.map(({ adj, originalIdx }) => {
+                                      const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
+                                      return {
+                                        itemId: `adj-${originalIdx}`,
+                                        label: adj.description || 'Expense',
+                                        amount: cvt(adj.amount || 0),
+                                        status: adjState.status,
+                                        rejectionReason: adjState.rejectionReason || adj.rejectionReason,
+                                        attachments: adj.attachments,
+                                        onApprove: () => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' }); toast.success(`Approved expense`); },
+                                        onReject: (reason: string) => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason }); toast.info(`Rejected expense`); },
+                                        onUndo: () => undoAdjustmentStatus(selectedSubmission.id, originalIdx),
+                                      };
+                                    })}
+                                    currency={dc}
+                                    expandedItemId={expandedItemId}
+                                    onToggleItemExpand={(id) => setExpandedItemId(id)}
+                                    isFinalized={isWorkerFinalized(selectedSubmission.id)}
+                                  />
+                                ))}
+                                {ungroupedItems.map(({ adj, originalIdx }) => {
+                                  const config = submissionTypeConfig[adj.type as SubmissionType];
+                                  if (!config) return null;
+                                  const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
+                                  const itemId = `adj-${originalIdx}`;
+                                  return <AdjustmentRow key={itemId} label={adj.description || config.label} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
+                                    updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
+                                    toast.success(`Approved ${config.label.toLowerCase()}`);
+                                  }} onReject={(reason) => {
+                                    updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
+                                    toast.info(`Rejected ${config.label.toLowerCase()}`);
+                                  }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} tags={adj.tags} />;
+                                })}
+                              </>
+                            );
+                          })()}
                     {!showPendingOnly && (workerAdminAdjustments).filter((a) => a.type === 'expense').map((adj) => <motion.div key={adj.id} initial={newlyAddedId === adj.id ? { opacity: 0, y: -8, scale: 0.98 } : false} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.25, ease: "easeOut" }} className={cn("rounded transition-all duration-500 group", newlyAddedId === adj.id ? "bg-primary/5 ring-1 ring-primary/20" : "-mx-3 px-3 hover:bg-muted/50")}>
                           <div className="flex items-center justify-between py-2">
                             <div className="flex flex-col min-w-0 flex-1">
