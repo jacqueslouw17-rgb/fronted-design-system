@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
-import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, ChevronLeft } from "lucide-react";
+import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, ChevronLeft, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -91,6 +91,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
 }) => {
   const [selectedWorker, setSelectedWorker] = useState<TrackingWorker | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showEUR, setShowEUR] = useState(true);
 
   const paidCount = workers.filter(w => w.status === "paid").length;
   const inProgressCount = workers.filter(w => w.status === "in-progress").length;
@@ -139,6 +140,10 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
     const totalDeductions = earningsData.deductions.reduce((sum, item) => sum + item.amount, 0);
     const netTotal = isContractor ? totalEarnings : totalEarnings - totalDeductions;
     const documentLabel = isContractor ? "invoice" : "payslip";
+    const isNonEUR = selectedWorker.currency !== "EUR";
+    const dc = showEUR && isNonEUR ? "EUR" : selectedWorker.currency;
+    const cvt = (amt: number) => showEUR && isNonEUR ? convertToEUR(amt, selectedWorker.currency) : amt;
+    const approx = showEUR && isNonEUR ? "≈ " : "";
 
     return (
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -153,6 +158,21 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                   Jan 2026
                 </Badge>
               </div>
+              {isNonEUR && (
+                <button
+                  onClick={() => setShowEUR(!showEUR)}
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all duration-150",
+                    "border border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+                    showEUR
+                      ? "bg-primary/5 text-primary border-primary/30"
+                      : "text-muted-foreground bg-muted/30"
+                  )}
+                >
+                  <ArrowLeftRight className="h-3 w-3" />
+                  {showEUR ? selectedWorker.currency : "EUR"}
+                </button>
+              )}
             </div>
             <div className="flex items-center gap-3 mt-3">
               <Avatar className="h-8 w-8">
@@ -171,11 +191,8 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
 
           <div className="flex-1 overflow-y-auto">
             <div className="px-6 py-6 space-y-6">
-              {/* EARNINGS */}
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-                  Earnings
-                </p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Earnings</p>
                 <div className="space-y-4">
                   {earningsData.items.map((item, idx) => (
                     <div key={idx} className="flex items-start justify-between">
@@ -184,7 +201,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                         <p className="text-xs text-muted-foreground">{item.description}</p>
                       </div>
                       <p className="text-sm font-medium text-foreground tabular-nums">
-                        +{formatCurrency(Math.round(item.amount), selectedWorker.currency)}
+                        {approx}+{formatCurrency(Math.round(cvt(item.amount)), dc)}
                       </p>
                     </div>
                   ))}
@@ -192,17 +209,14 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                 <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
                   <p className="text-sm font-semibold text-foreground">Total earnings</p>
                   <p className="text-sm font-semibold text-foreground tabular-nums">
-                    +{formatCurrency(Math.round(totalEarnings), selectedWorker.currency)}
+                    {approx}+{formatCurrency(Math.round(cvt(totalEarnings)), dc)}
                   </p>
                 </div>
               </div>
 
-              {/* DEDUCTIONS (employees only) */}
               {!isContractor && earningsData.deductions.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-                    Deductions
-                  </p>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Deductions</p>
                   <div className="space-y-4">
                     {earningsData.deductions.map((item, idx) => (
                       <div key={idx} className="flex items-start justify-between">
@@ -211,7 +225,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                           <p className="text-xs text-muted-foreground">{item.description}</p>
                         </div>
                         <p className="text-sm font-medium text-muted-foreground tabular-nums">
-                          -{formatCurrency(Math.round(item.amount), selectedWorker.currency)}
+                          {approx}-{formatCurrency(Math.round(cvt(item.amount)), dc)}
                         </p>
                       </div>
                     ))}
@@ -219,7 +233,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                   <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
                     <p className="text-sm font-semibold text-foreground">Total deductions</p>
                     <p className="text-sm font-semibold text-muted-foreground tabular-nums">
-                      -{formatCurrency(Math.round(totalDeductions), selectedWorker.currency)}
+                      {approx}-{formatCurrency(Math.round(cvt(totalDeductions)), dc)}
                     </p>
                   </div>
                 </div>
@@ -227,7 +241,6 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
 
               <div className="border-t border-border/40" />
 
-              {/* NET TOTAL */}
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-base font-semibold text-foreground">
@@ -236,11 +249,10 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                   <p className="text-xs text-muted-foreground">Paid on Jan 25, 2026</p>
                 </div>
                 <p className="text-2xl font-bold text-foreground tabular-nums">
-                  {formatCurrency(Math.round(netTotal), selectedWorker.currency)}
+                  {approx}{formatCurrency(Math.round(cvt(netTotal)), dc)}
                 </p>
               </div>
 
-              {/* Download */}
               <Button
                 variant="outline"
                 className="w-full gap-2"
