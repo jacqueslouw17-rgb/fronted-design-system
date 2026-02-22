@@ -11,7 +11,7 @@
  * - CA3_AdminAddAdjustment for adding adjustments
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award,
@@ -636,12 +636,38 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const handleMarkAsReady = () => {
     if (!selectedSubmission) return;
     setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
-    setDrawerOpen(false);
     toast.success(`${selectedSubmission.workerName} marked as ready`);
   };
 
   // Check if current worker is finalized
   const isWorkerFinalized = (workerId: string) => finalizedWorkers.has(workerId);
+
+  // Auto-finalize: compute pending count for selected worker
+  const selectedWorkerPendingCount = useMemo(() => {
+    if (!selectedSubmission) return -1;
+    const adjPending = selectedSubmission.submissions.filter((adj, idx) => {
+      const key = `${selectedSubmission.id}-${idx}`;
+      const localState = adjustmentStates[key];
+      return (localState?.status || adj.status || 'pending') === 'pending' && typeof adj.amount === 'number';
+    }).length;
+    const leavePending = (selectedSubmission.pendingLeaves || []).filter(leave => {
+      const key = `${selectedSubmission.id}-leave-${leave.id}`;
+      const localState = leaveStates[key];
+      return (localState?.status || leave.status || 'pending') === 'pending';
+    }).length;
+    return adjPending + leavePending;
+  }, [selectedSubmission, adjustmentStates, leaveStates]);
+
+  // Auto-finalize when all items are actioned
+  // Auto-finalize when all items are actioned (skip flagged workers who need exclude/ready choice)
+  useEffect(() => {
+    if (selectedSubmission && selectedWorkerPendingCount === 0 && !isWorkerFinalized(selectedSubmission.id)) {
+      const hasEndDateFlag = selectedSubmission.flags?.some((f) => f.type === "end_date");
+      if (!hasEndDateFlag) {
+        handleMarkAsReady();
+      }
+    }
+  }, [selectedWorkerPendingCount, selectedSubmission]);
 
   const renderSubmissionRow = (submission: WorkerSubmission) => {
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
@@ -1207,21 +1233,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                 Mark as ready
                               </Button>
                             </div>
-                          </div>);
-
-                    }
-
-                    // Regular workers: Show "Mark as Ready" when no pending items and not yet finalized
-                    if (!isFinalized) {
-                      return (
-                        <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                            <Button size="sm" className="w-full h-10 text-sm gap-2" onClick={() => setShowMarkAsReadyDialog(true)}>
-                              <CheckCircle2 className="h-4 w-4" />
-                              Mark as Ready
-                            </Button>
-                            <p className="text-[11px] text-muted-foreground text-center mt-2">
-                              This will finalize the review and lock all decisions
-                            </p>
                           </div>);
 
                     }
