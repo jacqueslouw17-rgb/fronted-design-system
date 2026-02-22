@@ -467,13 +467,22 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
               <>
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-sm text-muted-foreground">Payment Status</p>
+                  {allPaid && (
+                    <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Complete
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
                   <span className="text-lg text-muted-foreground">of {workers.length}</span>
                   <span className="text-sm text-muted-foreground">payments reconciled</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Click a worker to view breakdown and mark as paid</p>
+                {allPaid 
+                  ? <p className="text-xs text-muted-foreground mt-1">All payments reconciled — export for your records</p>
+                  : <p className="text-xs text-muted-foreground mt-1">Click a worker to view breakdown and mark as paid</p>
+                }
               </>
             )}
           </div>
@@ -487,6 +496,17 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
               >
                 <CheckCheck className="h-3.5 w-3.5" />
                 All Paid
+              </Button>
+            )}
+            {!isHistorical && allPaid && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs gap-1.5"
+                onClick={handleExportCSV}
+              >
+                <Download className="h-3.5 w-3.5" />
+                Export CSV
               </Button>
             )}
             <div className="flex items-center gap-1.5">
