@@ -2357,7 +2357,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             <Button 
                               size="sm"
                               className="flex-1 h-9 text-xs"
-                              onClick={() => setShowBulkApproveDialog(true)}
+                              onClick={() => handleBulkApprove()}
                               disabled={isApproveAllLoading}
                             >
                               {isApproveAllLoading ? (
@@ -2410,7 +2410,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                           <Button 
                             size="sm"
                             className="flex-1 h-9 text-xs"
-                            onClick={() => setShowBulkApproveDialog(true)}
+                            onClick={() => handleBulkApprove()}
                             disabled={isApproveAllLoading}
                           >
                             {isApproveAllLoading ? (
@@ -2491,12 +2491,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                 })()}
                 
                 {/* Bulk action dialogs */}
-                <CA3_BulkApproveDialog
-                  open={showBulkApproveDialog}
-                  onOpenChange={setShowBulkApproveDialog}
-                  onConfirm={handleBulkApprove}
-                  pendingCount={currentPendingCount}
-                />
                 <CA3_BulkRejectDialog
                   open={showBulkRejectDialog}
                   onOpenChange={setShowBulkRejectDialog}
