@@ -1188,15 +1188,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   };
   return <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-3 px-3 sm:py-4 sm:px-5">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-hide min-w-0">
-              <CA3_PayrollStepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={onStepClick} pendingSubmissions={pendingSubmissions || dynamicPendingCount} />
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            </div>
-          </div>
-        </CardHeader>
         <CardContent className="p-0">
           {/* Tabbed view */}
           <Tabs defaultValue="all" className="w-full">
