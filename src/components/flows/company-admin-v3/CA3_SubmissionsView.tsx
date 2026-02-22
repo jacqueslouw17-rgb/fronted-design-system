@@ -295,7 +295,7 @@ const AdjustmentRow = ({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
-            <span className="text-sm text-muted-foreground truncate">{label}</span>
+            <span className="text-sm font-semibold text-muted-foreground truncate">{label}</span>
           </div>
           {description && <span className="text-[10px] text-muted-foreground/60 ml-5.5 block">{description}</span>}
           {tags && tags.length > 0 && <div className="ml-5.5 mt-0.5"><TagChips tags={tags} max={2} /></div>}
@@ -325,7 +325,7 @@ const AdjustmentRow = ({
         <div className="flex items-center justify-between py-2">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground/70 line-through truncate">{label}</span>
+              <span className="text-sm font-semibold text-muted-foreground/70 line-through truncate">{label}</span>
             </div>
             {description && <span className="text-[10px] text-muted-foreground/40 block">{description}</span>}
           </div>
@@ -366,7 +366,7 @@ const AdjustmentRow = ({
     }}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-foreground truncate">{label}</span>
+            <span className="text-sm font-semibold text-foreground truncate">{label}</span>
             <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
               pending
             </span>
@@ -571,7 +571,7 @@ const LeaveRow = ({
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-sm text-muted-foreground">{config.label}</span>
+            <span className="text-sm font-semibold text-muted-foreground">{config.label}</span>
             <span className="text-xs text-muted-foreground/70">
               {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {leave.dateDescription || formatDateRange(leave.startDate, leave.endDate)}
             </span>
@@ -601,7 +601,7 @@ const LeaveRow = ({
       >
         <div className="flex items-center justify-between py-2">
           <div className="flex flex-col gap-0 min-w-0 flex-1">
-            <span className="text-sm text-muted-foreground/70 line-through">{config.label}</span>
+            <span className="text-sm font-semibold text-muted-foreground/70 line-through">{config.label}</span>
             <span className="text-[10px] text-muted-foreground/40 line-through pl-0">
               {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {leave.dateDescription || formatDateRange(leave.startDate, leave.endDate)}
             </span>
@@ -640,7 +640,7 @@ const LeaveRow = ({
     }}>
         <div className="flex flex-col gap-0 min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-foreground">{config.label}</span>
+            <span className="text-sm font-semibold text-foreground">{config.label}</span>
             <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
               pending
             </span>

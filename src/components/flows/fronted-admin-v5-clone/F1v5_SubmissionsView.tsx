@@ -198,7 +198,7 @@ const AdjustmentRow = ({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
-            <span className="text-sm text-muted-foreground truncate">{label}</span>
+            <span className="text-sm font-semibold text-muted-foreground truncate">{label}</span>
           </div>
           {description && <span className="text-[10px] text-muted-foreground/60 ml-5.5 block">{description}</span>}
           {tags && tags.length > 0 && <div className="ml-5.5 mt-0.5"><TagChips tags={tags} max={2} /></div>}
@@ -230,7 +230,7 @@ const AdjustmentRow = ({
         <div className="flex items-center justify-between py-2">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground/70 line-through truncate">{label}</span>
+              <span className="text-sm font-semibold text-muted-foreground/70 line-through truncate">{label}</span>
             </div>
             {description && <span className="text-[10px] text-muted-foreground/40 block">{description}</span>}
           </div>
@@ -269,7 +269,7 @@ const AdjustmentRow = ({
       <div className="flex items-start justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-foreground truncate">{label}</span>
+            <span className="text-sm font-semibold text-foreground truncate">{label}</span>
             <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
             {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
           </div>
