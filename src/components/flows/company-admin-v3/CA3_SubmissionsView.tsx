@@ -1833,6 +1833,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       onConfirm={() => {
                         setStatusDecisions((prev) => ({ ...prev, [selectedSubmission.id]: "exclude" }));
                         setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
+                        setDrawerOpen(false);
                         toast.info(`${selectedSubmission.workerName} excluded from this run`);
                       }}
                       workerName={selectedSubmission.workerName}
