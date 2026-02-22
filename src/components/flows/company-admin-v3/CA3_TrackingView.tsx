@@ -275,11 +275,6 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                 )}
-                <CA3_PayrollStepper
-                  currentStep={currentStep}
-                  completedSteps={completedSteps}
-                  onStepClick={onStepClick}
-                />
               </div>
               <div className="flex items-center gap-3">
                 {onClose && (

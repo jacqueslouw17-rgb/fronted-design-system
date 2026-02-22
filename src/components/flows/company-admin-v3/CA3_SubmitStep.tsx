@@ -160,11 +160,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             )}
-            <CA3_PayrollStepper
-              currentStep={currentStep}
-              completedSteps={completedSteps}
-              onStepClick={onStepClick}
-            />
           </div>
           <div className="flex items-center gap-3">
             {!isSubmitted && (
