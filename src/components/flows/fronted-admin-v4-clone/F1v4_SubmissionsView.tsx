@@ -1318,6 +1318,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       onConfirm={() => {
                         setStatusDecisions((prev) => ({ ...prev, [selectedSubmission.id]: "exclude" }));
                         setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
+                        setDrawerOpen(false);
                         toast.info(`${selectedSubmission.workerName} excluded from this run`);
                       }}
                       workerName={selectedSubmission.workerName}
