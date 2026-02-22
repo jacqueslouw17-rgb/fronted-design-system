@@ -328,24 +328,40 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                   )}
                 </>
               ) : (
-                <>
+              <>
                   <div className="flex items-center gap-2 mb-1">
                     <p className="text-sm text-muted-foreground">Payment Progress</p>
+                    {allPaid && (
+                      <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Complete
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
                     <span className="text-lg text-muted-foreground">of {workers.length}</span>
                     <span className="text-sm text-muted-foreground">payments paid</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Workers will be marked as paid by Fronted once reconciled</p>
+                  {allPaid 
+                    ? <p className="text-xs text-muted-foreground mt-1">All payments reconciled — export for your records</p>
+                    : <p className="text-xs text-muted-foreground mt-1">Workers will be marked as paid by Fronted once reconciled</p>
+                  }
                 </>
               )}
             </div>
             <div className="flex items-center gap-1.5">
-              <Button variant="ghost" size="sm" onClick={onExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
-                <Download className="h-3.5 w-3.5" />
-                CSV
-              </Button>
+              {!isHistorical && allPaid ? (
+                <Button variant="outline" size="sm" onClick={onExportCSV} className="h-8 text-xs gap-1.5">
+                  <Download className="h-3.5 w-3.5" />
+                  Export CSV
+                </Button>
+              ) : (
+                <Button variant="ghost" size="sm" onClick={onExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
+                  <Download className="h-3.5 w-3.5" />
+                  CSV
+                </Button>
+              )}
               <Button variant="ghost" size="sm" onClick={onDownloadAuditPDF} className="h-8 text-xs gap-1.5 text-muted-foreground">
                 <FileText className="h-3.5 w-3.5" />
                 Audit
