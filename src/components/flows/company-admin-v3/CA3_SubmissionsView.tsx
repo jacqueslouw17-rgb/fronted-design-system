@@ -43,8 +43,8 @@ const countryFlags: Record<string, string> = {
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
-export type SubmissionStatus = "pending" | "reviewed" | "ready" | "handover";
+// Worker-level status: pending = has items needing review, ready = finalized
+export type SubmissionStatus = "pending" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 // Only unpaid leave flows through payroll submissions - other leave types handled in Leaves tab
 type LeaveTypeLocal = "Unpaid";
@@ -203,16 +203,6 @@ const statusConfig: Record<SubmissionStatus, {
     icon: Clock,
     label: "Pending",
     color: "text-orange-600"
-  },
-  reviewed: {
-    icon: Eye,
-    label: "Reviewed",
-    color: "text-blue-600"
-  },
-  handover: {
-    icon: Clock,
-    label: "Handover",
-    color: "text-purple-600"
   },
   ready: {
     icon: CheckCircle2,
@@ -1098,20 +1088,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
     // Derive effective worker status: 
     // - pending = has items needing review
-    // - reviewed = all items approved/rejected, awaiting finalization
-    // - ready = admin has clicked "Mark as Ready" (finalized)
-    // For flagged workers (end_date): Fronted handles include/exclude, 
-    // but company admin can still approve/reject adjustments
-    const hasEndDateFlag = submission.flags?.some(f => f.type === "end_date");
+    // - ready = admin has clicked "Mark as Ready" (finalized) or all items approved
     let effectiveWorkerStatus: SubmissionStatus;
     if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
-    } else if (hasEndDateFlag) {
-      effectiveWorkerStatus = "handover";
     } else {
-      effectiveWorkerStatus = "reviewed";
+      effectiveWorkerStatus = "ready";
     }
     const status = statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
@@ -1170,7 +1154,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   {workerPendingCount}
                 </span>
                 <span className="hidden sm:inline">{status.label}</span>
-              </> : (effectiveWorkerStatus === 'reviewed' || effectiveWorkerStatus === 'handover') ? <>
+              </> : effectiveWorkerStatus === 'ready' ? <>
                 <StatusIcon className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{status.label}</span>
                 {workerRejectedCount > 0 && <span className="flex items-center justify-center h-4 w-4 rounded-full bg-destructive/15 text-destructive text-[10px] font-semibold ml-0.5">
@@ -1191,10 +1175,16 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         <CardContent className="p-0">
           {/* Tabbed view */}
           <Tabs defaultValue="all" className="w-full">
-            <div className="px-5 pt-4 pb-3 border-b border-border/40">
+             <div className="px-5 pt-4 pb-3 border-b border-border/40">
               <TabsList className="h-8 bg-muted/30 p-0.5">
                 <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
                   All ({submissions.length})
+                </TabsTrigger>
+                <TabsTrigger value="employees" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Employees ({submissions.filter(s => s.workerType === "employee").length})
+                </TabsTrigger>
+                <TabsTrigger value="contractors" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Contractors ({submissions.filter(s => s.workerType === "contractor").length})
                 </TabsTrigger>
                 <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">
                   Pending ({pendingCount})
@@ -1209,6 +1199,18 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               <TabsContent value="all" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">
                   {filteredSubmissions.map(s => renderSubmissionRow(s))}
+                </AnimatePresence>
+              </TabsContent>
+
+              <TabsContent value="employees" className="mt-0 space-y-1.5">
+                <AnimatePresence mode="popLayout">
+                  {filteredSubmissions.filter(s => s.workerType === "employee").map(s => renderSubmissionRow(s))}
+                </AnimatePresence>
+              </TabsContent>
+
+              <TabsContent value="contractors" className="mt-0 space-y-1.5">
+                <AnimatePresence mode="popLayout">
+                  {filteredSubmissions.filter(s => s.workerType === "contractor").map(s => renderSubmissionRow(s))}
                 </AnimatePresence>
               </TabsContent>
 

@@ -51,8 +51,8 @@ const countryFlags: Record<string, string> = {
 
 // Types - matching CA3_SubmissionsView exactly
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
-export type SubmissionStatus = "pending" | "reviewed" | "ready";
+// Worker-level status: pending = has items needing review, ready = finalized
+export type SubmissionStatus = "pending" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 type LeaveTypeLocal = "Unpaid";
 
@@ -147,7 +147,6 @@ const leaveTypeConfig: Record<LeaveTypeLocal, {icon: React.ElementType;label: st
 
 const statusConfig: Record<SubmissionStatus, {icon: React.ElementType;label: string;color: string;}> = {
   pending: { icon: Clock, label: "Pending", color: "text-orange-600" },
-  reviewed: { icon: Eye, label: "Reviewed", color: "text-blue-600" },
   ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
 };
 
@@ -686,7 +685,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
     } else {
-      effectiveWorkerStatus = "reviewed";
+      effectiveWorkerStatus = "ready";
     }
     const status = isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
@@ -750,7 +749,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 <span className="flex items-center justify-center h-4 w-4 rounded-full bg-orange-500/15 text-orange-600 text-[10px] font-semibold">{workerPendingCount}</span>
                 <span className="hidden sm:inline">{status.label}</span>
               </> :
-            effectiveWorkerStatus === 'reviewed' ?
+            effectiveWorkerStatus === 'ready' ?
             <>
                 <StatusIcon className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{status.label}</span>
@@ -807,6 +806,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             <div className="px-5 pt-4 pb-3 border-b border-border/40 flex items-center justify-between">
               <TabsList className="h-8 bg-muted/30 p-0.5">
                 <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">All ({submissions.length})</TabsTrigger>
+                <TabsTrigger value="employees" className="text-xs h-7 px-3 data-[state=active]:bg-background">Employees ({submissions.filter(s => s.workerType === "employee").length})</TabsTrigger>
+                <TabsTrigger value="contractors" className="text-xs h-7 px-3 data-[state=active]:bg-background">Contractors ({submissions.filter(s => s.workerType === "contractor").length})</TabsTrigger>
                 <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">Pending ({dynamicPendingCount})</TabsTrigger>
                 <TabsTrigger value="ready" className="text-xs h-7 px-3 data-[state=active]:bg-background">Ready ({readyCount})</TabsTrigger>
               </TabsList>
@@ -819,6 +820,12 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
               <TabsContent value="all" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">{filteredSubmissions.map((s) => renderSubmissionRow(s))}</AnimatePresence>
+              </TabsContent>
+              <TabsContent value="employees" className="mt-0 space-y-1.5">
+                <AnimatePresence mode="popLayout">{filteredSubmissions.filter((s) => s.workerType === "employee").map((s) => renderSubmissionRow(s))}</AnimatePresence>
+              </TabsContent>
+              <TabsContent value="contractors" className="mt-0 space-y-1.5">
+                <AnimatePresence mode="popLayout">{filteredSubmissions.filter((s) => s.workerType === "contractor").map((s) => renderSubmissionRow(s))}</AnimatePresence>
               </TabsContent>
               <TabsContent value="pending" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">{filteredSubmissions.filter((s) => {
