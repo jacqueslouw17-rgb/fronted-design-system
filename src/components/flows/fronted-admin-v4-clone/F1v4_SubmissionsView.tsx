@@ -1173,7 +1173,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                               <Button variant="ghost" size="sm" className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowBulkRejectDialog(true)}>
                                 Reject all ({currentPendingCount})
                               </Button>
-                              <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => setShowBulkApproveDialog(true)}>
+                              <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => handleBulkApprove()}>
                                 Approve all ({currentPendingCount})
                               </Button>
                             </div>
@@ -1249,7 +1249,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                   </>
                 }
 
-                <CA3_BulkApproveDialog open={showBulkApproveDialog} onOpenChange={setShowBulkApproveDialog} onConfirm={handleBulkApprove} pendingCount={currentPendingCount} />
                 <CA3_BulkRejectDialog open={showBulkRejectDialog} onOpenChange={setShowBulkRejectDialog} onConfirm={handleBulkReject} pendingCount={currentPendingCount} />
                 
                 {/* Mark as Ready dialog */}

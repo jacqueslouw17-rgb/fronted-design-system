@@ -1172,7 +1172,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           <Button variant="ghost" size="sm" className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowBulkRejectDialog(true)}>
                             Reject all ({currentPendingCount})
                           </Button>
-                          <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => setShowBulkApproveDialog(true)}>
+                          <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => handleBulkApprove()}>
                             Approve all ({currentPendingCount})
                           </Button>
                         </div>
@@ -1228,7 +1228,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
               return <CA3_MarkAsReadyDialog open={showMarkAsReadyDialog} onOpenChange={setShowMarkAsReadyDialog} onConfirm={handleMarkAsReady} workerName={selectedSubmission.workerName} approvedCount={approvedCount} rejectedCount={rejectedCount} />;
             })()}
 
-                <CA3_BulkApproveDialog open={showBulkApproveDialog} onOpenChange={setShowBulkApproveDialog} onConfirm={handleBulkApprove} pendingCount={currentPendingCount} />
                 <CA3_BulkRejectDialog open={showBulkRejectDialog} onOpenChange={setShowBulkRejectDialog} onConfirm={handleBulkReject} pendingCount={currentPendingCount} />
                 {showExcludeDialog && <CA3_ExcludeWorkerDialog open={showExcludeDialog} onOpenChange={setShowExcludeDialog} onConfirm={() => { statusDecisions[selectedSubmission.id] = "exclude"; setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id)); setDrawerOpen(false); toast.info(`${selectedSubmission.workerName} excluded from this run`); }} workerName={selectedSubmission.workerName} />}
 
