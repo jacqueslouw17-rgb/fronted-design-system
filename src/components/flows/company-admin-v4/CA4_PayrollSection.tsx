@@ -31,7 +31,13 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "timesheet", hours: 160, description: "October 2024" },
-      { type: "expenses", amount: 245, currency: "EUR", description: "Travel expenses", status: "pending" },
+      { type: "expenses", amount: 245, currency: "EUR", description: "Travel expenses", status: "pending",
+        attachments: [
+          { id: "att-ca4-1", fileName: "flight_receipt.pdf", fileType: "application/pdf", fileSize: "1.2 MB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "David Martinez" },
+          { id: "att-ca4-2", fileName: "hotel_invoice.pdf", fileType: "application/pdf", fileSize: "840 KB", url: "#", uploadedAt: "Jan 28, 2026", uploadedBy: "David Martinez" },
+        ],
+        attachmentsCount: 2,
+      },
     ],
     status: "pending",
     totalImpact: 245,
@@ -77,7 +83,14 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
-      { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending", tags: ["Client dinner"] },
+      { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending", tags: ["Client dinner"],
+        attachments: [
+          { id: "att-ca4-3", fileName: "dinner_receipt.jpg", fileType: "image/jpeg", fileSize: "210 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Maria Santos" },
+          { id: "att-ca4-4", fileName: "venue_invoice.pdf", fileType: "application/pdf", fileSize: "145 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Maria Santos" },
+          { id: "att-ca4-5", fileName: "tip_receipt.jpg", fileType: "image/jpeg", fileSize: "65 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Maria Santos" },
+        ],
+        attachmentsCount: 3,
+      },
       { type: "expenses", amount: 850, currency: "PHP", description: "Transport", status: "pending", tags: ["Client dinner"] },
       { type: "expenses", amount: 600, currency: "PHP", description: "Taxi receipt", status: "pending" },
     ],
@@ -103,7 +116,13 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "National Insurance", amount: -2600, locked: true },
     ],
     submissions: [
-      { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending" },
+      { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending",
+        attachments: [
+          { id: "att-ca4-6", fileName: "ikea_receipt.jpg", fileType: "image/jpeg", fileSize: "2.1 MB", url: "#", uploadedAt: "Jan 25, 2026", uploadedBy: "Alex Hansen" },
+          { id: "att-ca4-7", fileName: "monitor_invoice.pdf", fileType: "application/pdf", fileSize: "156 KB", url: "#", uploadedAt: "Jan 25, 2026", uploadedBy: "Alex Hansen" },
+        ],
+        attachmentsCount: 2,
+      },
       { type: "expenses", amount: 450, currency: "NOK", description: "Parking", status: "pending" },
     ],
     // Pending unpaid leave (affects pay)
