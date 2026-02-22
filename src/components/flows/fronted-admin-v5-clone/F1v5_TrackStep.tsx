@@ -120,6 +120,7 @@ interface F1v4_TrackStepProps {
   currentStep?: F1v4_PayrollStep;
   completedSteps?: F1v4_PayrollStep[];
   onStepClick?: (step: F1v4_PayrollStep) => void;
+  onAllPaid?: () => void;
 }
 
 export type WorkerPaymentStatus = "paid" | "in-progress";
@@ -156,6 +157,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   currentStep = "track",
   completedSteps = ["submissions", "exceptions", "approve"],
   onStepClick,
+  onAllPaid,
 }) => {
   const [currentWorkers, setCurrentWorkers] = useState<WorkerData[]>(MOCK_TRACKED_WORKERS);
   const [searchQuery, setSearchQuery] = useState("");
@@ -226,9 +228,15 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   });
 
   const handleMarkAsPaid = (workerId: string) => {
-    setCurrentWorkers(prev => prev.map(w => 
-      w.id === workerId ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } : w
-    ));
+    setCurrentWorkers(prev => {
+      const updated = prev.map(w => 
+        w.id === workerId ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } : w
+      );
+      if (updated.every(w => w.paymentStatus === "paid")) {
+        onAllPaid?.();
+      }
+      return updated;
+    });
     toast.success("Marked as paid");
   };
 
@@ -238,6 +246,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } 
         : w
     ));
+    onAllPaid?.();
     toast.success("All workers marked as paid");
   };
 

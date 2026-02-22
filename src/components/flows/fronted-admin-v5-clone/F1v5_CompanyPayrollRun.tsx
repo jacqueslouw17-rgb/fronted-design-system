@@ -478,6 +478,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Submit/Approved state
   const [isApproved, setIsApproved] = useState(false);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isAllPaid, setIsAllPaid] = useState(false);
 
   // Get current run metrics and submissions
   const currentRunMetrics = RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"];
@@ -486,11 +487,13 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const employees = currentRunSubmissions.filter(w => w.workerType === "employee");
   const contractors = currentRunSubmissions.filter(w => w.workerType === "contractor");
   
-  // Dynamic periods - change selected period to "processing" when approved
+  // Dynamic periods - change selected period to "processing" when approved, "paid" when all paid
   const periods = useMemo(() => 
-    MOCK_PERIODS_BASE.map(p => 
-      p.id === selectedPeriodId && isApproved ? { ...p, status: "processing" as const } : p
-    ), [selectedPeriodId, isApproved]);
+    MOCK_PERIODS_BASE.map(p => {
+      if (p.id === selectedPeriodId && isAllPaid) return { ...p, status: "paid" as const };
+      if (p.id === selectedPeriodId && isApproved) return { ...p, status: "processing" as const };
+      return p;
+    }), [selectedPeriodId, isApproved, isAllPaid]);
 
   // Determine if viewing historical (paid) run
   const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
@@ -514,6 +517,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     setCurrentStep("submissions");
     setCompletedSteps([]);
     setIsApproved(false);
+    setIsAllPaid(false);
   };
 
   // Enter workflow
@@ -716,6 +720,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
           <F1v4_TrackStep
             company={company}
             hideSummaryCard
+            onAllPaid={() => setIsAllPaid(true)}
           />
         );
       default:
