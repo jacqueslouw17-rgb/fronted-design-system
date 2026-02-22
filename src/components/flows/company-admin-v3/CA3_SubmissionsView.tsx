@@ -1217,7 +1217,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         <CardContent className="p-0">
           {/* Tabbed view */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-             <div className="px-5 pt-4 pb-3 border-b border-border/40">
+             <div className="px-5 pt-4 pb-3 border-b border-border/40 flex items-center justify-between gap-3">
               {/* Mobile: "All" + filter dropdown */}
               <div className="flex sm:hidden items-center gap-1.5">
                 <TabsList className="h-8 bg-muted/30 p-0.5">
@@ -1259,6 +1259,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   Ready ({readyCount})
                 </TabsTrigger>
               </TabsList>
+              <div className="relative w-44 hidden sm:block">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
+              </div>
             </div>
 
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
