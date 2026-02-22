@@ -1181,6 +1181,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                     expandedItemId={expandedItemId}
                                     onToggleItemExpand={(id) => setExpandedItemId(id)}
                                     isFinalized={isWorkerFinalized(selectedSubmission.id)}
+                                    forceCollapsed={!!expandedItemId && !groupItems.some(g => `adj-${g.originalIdx}` === expandedItemId)}
                                   />
                                 ))}
                                 {ungroupedItems.map(({ adj, originalIdx }) => {

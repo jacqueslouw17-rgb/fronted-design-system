@@ -34,6 +34,7 @@ interface GroupedExpenseRowProps {
   expandedItemId?: string | null;
   onToggleItemExpand?: (id: string | null) => void;
   isFinalized?: boolean;
+  forceCollapsed?: boolean;
 }
 
 /* ─── Helpers ─── */
@@ -53,6 +54,7 @@ export const GroupedExpenseRow = ({
   expandedItemId,
   onToggleItemExpand,
   isFinalized = false,
+  forceCollapsed = false,
 }: GroupedExpenseRowProps) => {
   const [isGroupOpen, setIsGroupOpen] = useState(true);
   const [hasBeenInteracted, setHasBeenInteracted] = useState(false);
@@ -63,6 +65,8 @@ export const GroupedExpenseRow = ({
   const allApproved = items.every(i => i.status === 'approved');
   const allRejected = items.every(i => i.status === 'rejected');
   const totalAttachments = items.reduce((sum, item) => sum + (item.attachments?.length || 0), 0);
+
+  const effectiveOpen = isGroupOpen && !forceCollapsed;
 
   // Auto-collapse when the last pending item is resolved
   useEffect(() => {
@@ -77,16 +81,16 @@ export const GroupedExpenseRow = ({
   return (
     <div className={cn(
       "transition-all duration-200 mb-0.5",
-      isGroupOpen
+      effectiveOpen
         ? "rounded-lg -mx-2 px-2 bg-card/60 border border-border/30 shadow-sm"
         : "",
-      isGroupOpen && allRejected && "bg-muted/10 border-border/15 shadow-none",
-      isGroupOpen && allApproved && "bg-accent-green/[0.03] border-accent-green/15 shadow-none",
+      effectiveOpen && allRejected && "bg-muted/10 border-border/15 shadow-none",
+      effectiveOpen && allApproved && "bg-accent-green/[0.03] border-accent-green/15 shadow-none",
     )}>
       {/* Group header — flush with parent row alignment */}
       <div
         className="flex items-center justify-between py-2.5 cursor-pointer group"
-        onClick={() => setIsGroupOpen(!isGroupOpen)}
+        onClick={() => { setIsGroupOpen(!effectiveOpen); }}
       >
         <div className="flex items-center gap-1 min-w-0">
           <span className={cn(
@@ -97,7 +101,7 @@ export const GroupedExpenseRow = ({
           </span>
           <ChevronDown className={cn(
             "h-3.5 w-3.5 text-muted-foreground/40 transition-transform duration-200 shrink-0",
-            !isGroupOpen && "-rotate-90"
+            !effectiveOpen && "-rotate-90"
           )} />
           <div className="flex items-center gap-1.5 ml-1">
             {pendingCount > 0 && (
@@ -115,7 +119,7 @@ export const GroupedExpenseRow = ({
             )}
             <span className="text-[10px] text-muted-foreground/50">
               {items.length} {items.length === 1 ? 'item' : 'items'}
-              {totalAttachments > 0 && !isGroupOpen ? ` · ${totalAttachments} files` : ''}
+              {totalAttachments > 0 && !effectiveOpen ? ` · ${totalAttachments} files` : ''}
             </span>
           </div>
         </div>
@@ -129,7 +133,7 @@ export const GroupedExpenseRow = ({
 
       {/* Nested items */}
       <AnimatePresence>
-        {isGroupOpen && (
+        {effectiveOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}

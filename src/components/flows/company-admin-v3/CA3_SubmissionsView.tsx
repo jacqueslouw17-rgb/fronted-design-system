@@ -1560,6 +1560,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                                     expandedItemId={expandedItemId}
                                     onToggleItemExpand={(id) => setExpandedItemId(id)}
                                     isFinalized={isWorkerFinalized(selectedSubmission.id)}
+                                    forceCollapsed={!!expandedItemId && !groupItems.some(g => `adj-${g.originalIdx}` === expandedItemId)}
                                   />
                                 ))}
                                 {ungroupedItems.map(({ adj, originalIdx }) => {
