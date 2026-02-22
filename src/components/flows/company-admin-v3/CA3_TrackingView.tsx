@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -394,7 +395,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                   </div>
 
                   <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-                    {formatCurrency(worker.amount, worker.currency)}
+                    {worker.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(worker.amount, worker.currency)), "EUR")}` : formatCurrency(worker.amount, "EUR")}
                   </p>
 
                   <div className={cn(

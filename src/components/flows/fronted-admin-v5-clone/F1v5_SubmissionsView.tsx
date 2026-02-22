@@ -783,7 +783,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
         <div className="flex items-center gap-3 flex-shrink-0">
           {submission.totalImpact ?
-          <p className="text-sm font-semibold text-foreground tabular-nums">{formatCurrency(submission.totalImpact, submission.currency)}</p> :
+          <p className="text-sm font-semibold text-foreground tabular-nums">{submission.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(submission.totalImpact, submission.currency)), "EUR")}` : formatCurrency(submission.totalImpact, "EUR")}</p> :
 
           <p className="text-xs text-muted-foreground">—</p>
           }
