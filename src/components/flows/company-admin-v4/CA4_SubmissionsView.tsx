@@ -175,6 +175,7 @@ const AdjustmentRow = ({
   currency, 
   status,
   rejectionReason,
+  description,
   onApprove,
   onReject,
   onUndo,
@@ -188,6 +189,7 @@ const AdjustmentRow = ({
   currency: string;
   status: AdjustmentItemStatus;
   rejectionReason?: string;
+  description?: string;
   onApprove: () => void;
   onReject: (reason: string) => void;
   onUndo?: () => void;
@@ -252,9 +254,12 @@ const AdjustmentRow = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
-          <span className="text-sm text-muted-foreground">{label}</span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
+            <span className="text-sm text-muted-foreground">{label}</span>
+          </div>
+          {description && <span className="text-[10px] text-muted-foreground/60 ml-5.5 block">{description}</span>}
         </div>
         <div className="flex items-center gap-2">
           {onUndo && isHovered && (
@@ -285,15 +290,18 @@ const AdjustmentRow = ({
         <div className="rounded-md overflow-hidden border border-destructive/40 bg-destructive/5">
           {/* Main row */}
           <div className="flex items-center justify-between py-2.5 px-3">
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-              <span className="text-sm text-muted-foreground line-through">{label}</span>
-              <Badge 
-                variant="outline" 
-                className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-destructive/10 text-destructive border-destructive/40"
-              >
-                Rejected
-              </Badge>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2.5">
+                <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
+                <span className="text-sm text-muted-foreground line-through">{label}</span>
+                <Badge 
+                  variant="outline" 
+                  className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-destructive/10 text-destructive border-destructive/40"
+                >
+                  Rejected
+                </Badge>
+              </div>
+              {description && <span className="text-[10px] text-muted-foreground/40 ml-6 block">{description}</span>}
             </div>
             <div className="flex items-center gap-2">
               {onUndo && isHovered && (
@@ -349,11 +357,14 @@ const AdjustmentRow = ({
         className="flex items-center justify-between py-2 cursor-pointer"
         onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm text-foreground">{label}</span>
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-            pending
-          </span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-foreground">{label}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+              pending
+            </span>
+          </div>
+          {description && <span className="text-[10px] text-muted-foreground/60 block">{description}</span>}
         </div>
         
         <span className="text-sm tabular-nums font-mono text-foreground ml-3">
@@ -2202,6 +2213,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             <AdjustmentRow
                               key={itemId}
                               label={`${adj.hours || 0}h logged`}
+                              description={adj.description}
                               amount={cvt(adj.amount || 0)}
                               currency={dc}
                               status={adjState.status}

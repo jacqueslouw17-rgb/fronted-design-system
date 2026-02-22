@@ -154,10 +154,10 @@ const statusConfig: Record<SubmissionStatus, {icon: React.ElementType;label: str
 
 // AdjustmentRow - Interactive adjustment with 2-step review flow (direct approve/reject, reversible with Undo)
 const AdjustmentRow = ({
-  label, amount, currency, status, rejectionReason,
+  label, amount, currency, status, rejectionReason, description,
   onApprove, onReject, onUndo, isExpanded = false, onToggleExpand, isFinalized = false,
   attachments, previousSubmission, workerName, tags
-}: {label: string;amount: number;currency: string;status: AdjustmentItemStatus;rejectionReason?: string;onApprove: () => void;onReject: (reason: string) => void;onUndo?: () => void;isExpanded?: boolean;onToggleExpand?: () => void;isFinalized?: boolean;attachments?: AttachmentItem[];previousSubmission?: TrailSubmission;workerName?: string;tags?: string[];}) => {
+}: {label: string;amount: number;currency: string;status: AdjustmentItemStatus;rejectionReason?: string;description?: string;onApprove: () => void;onReject: (reason: string) => void;onUndo?: () => void;isExpanded?: boolean;onToggleExpand?: () => void;isFinalized?: boolean;attachments?: AttachmentItem[];previousSubmission?: TrailSubmission;workerName?: string;tags?: string[];}) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
   const toggleExpand = onToggleExpand || (() => setLocalExpanded(!localExpanded));
@@ -199,6 +199,7 @@ const AdjustmentRow = ({
             <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
             <span className="text-sm text-muted-foreground truncate">{label}</span>
           </div>
+          {description && <span className="text-[10px] text-muted-foreground/60 ml-5.5 block">{description}</span>}
           {tags && tags.length > 0 && <div className="ml-5.5 mt-0.5"><TagChips tags={tags} max={2} /></div>}
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-3">
@@ -226,8 +227,11 @@ const AdjustmentRow = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="flex items-center justify-between py-2">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="text-sm text-muted-foreground/70 line-through truncate">{label}</span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground/70 line-through truncate">{label}</span>
+            </div>
+            {description && <span className="text-[10px] text-muted-foreground/40 block">{description}</span>}
           </div>
           <div className="flex items-center gap-2">
             {onUndo && (
@@ -268,6 +272,7 @@ const AdjustmentRow = ({
             <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">pending</span>
             {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
           </div>
+          {description && <span className="text-[10px] text-muted-foreground/60 block">{description}</span>}
           {tags && tags.length > 0 && <div className="mt-0.5"><TagChips tags={tags} max={2} /></div>}
         </div>
         <span className="text-sm tabular-nums font-mono text-foreground ml-3 shrink-0">+{formatAmount(amount, currency)}</span>
@@ -1187,7 +1192,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           const itemId = `overtime-${originalIdx}`;
                           const workerIsFinalized = isWorkerFinalized(selectedSubmission.id);
                           return (
-                            <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved overtime');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected overtime');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />);
+                            <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} description={adj.description} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });toast.success('Approved overtime');}} onReject={(reason) => {updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });toast.info('Rejected overtime');}} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={workerIsFinalized} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />);
                         })}
                           {/* Admin-added overtime */}
                           {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'overtime').map((adj) =>
