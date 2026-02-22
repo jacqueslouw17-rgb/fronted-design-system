@@ -1242,7 +1242,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 </DropdownMenu>
               </div>
               {/* Desktop: full TabsList */}
-              <TabsList className="h-8 bg-muted/30 p-0.5 hidden sm:flex">
+              <TabsList className="h-8 bg-muted/30 p-0.5 hidden sm:flex w-fit">
                 <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
                   All ({submissions.length})
                 </TabsTrigger>
