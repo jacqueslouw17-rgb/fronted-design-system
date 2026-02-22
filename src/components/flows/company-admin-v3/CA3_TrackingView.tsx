@@ -159,21 +159,6 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                   Jan 2026
                 </Badge>
               </div>
-              {isNonEUR && (
-                <button
-                  onClick={() => setShowEUR(!showEUR)}
-                  className={cn(
-                    "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all duration-150",
-                    "border border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
-                    showEUR
-                      ? "bg-primary/5 text-primary border-primary/30"
-                      : "text-muted-foreground bg-muted/30"
-                  )}
-                >
-                  <ArrowLeftRight className="h-3 w-3" />
-                  {showEUR ? selectedWorker.currency : "EUR"}
-                </button>
-              )}
             </div>
             <div className="flex items-center gap-3 mt-3">
               <Avatar className="h-8 w-8">
@@ -249,9 +234,26 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                   </p>
                   <p className="text-xs text-muted-foreground">Paid on Jan 25, 2026</p>
                 </div>
-                <p className="text-2xl font-bold text-foreground tabular-nums">
-                  {approx}{formatCurrency(Math.round(cvt(netTotal)), dc)}
-                </p>
+                <div className="flex items-center gap-1.5">
+                  {isNonEUR && (
+                    <button
+                      onClick={() => setShowEUR(!showEUR)}
+                      className={cn(
+                        "flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all duration-150",
+                        "border border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+                        showEUR
+                          ? "bg-primary/5 text-primary border-primary/30"
+                          : "text-muted-foreground bg-muted/30"
+                      )}
+                    >
+                      <ArrowLeftRight className="h-2.5 w-2.5" />
+                      {showEUR ? selectedWorker.currency : "EUR"}
+                    </button>
+                  )}
+                  <p className="text-2xl font-bold text-foreground tabular-nums">
+                    {approx}{formatCurrency(Math.round(cvt(netTotal)), dc)}
+                  </p>
+                </div>
               </div>
 
               <Button
