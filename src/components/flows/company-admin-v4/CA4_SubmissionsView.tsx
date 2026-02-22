@@ -352,8 +352,8 @@ const AdjustmentRow = ({
       className={cn(
         "-mx-3 px-3 rounded transition-colors",
         expanded 
-          ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" 
-          : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
+          ? "bg-muted border border-border/30" 
+          : "hover:bg-muted"
       )}
     >
       {/* Header row */}
@@ -681,8 +681,8 @@ const LeaveRow = ({
       className={cn(
         "-mx-3 px-3 rounded transition-colors",
         expanded 
-          ? "bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/50 dark:border-orange-500/20" 
-          : "hover:bg-orange-100/70 dark:hover:bg-orange-500/15"
+          ? "bg-muted border border-border/30" 
+          : "hover:bg-muted"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
