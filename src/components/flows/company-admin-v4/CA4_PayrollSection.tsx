@@ -91,8 +91,16 @@ const mockSubmissions: WorkerSubmission[] = [
         ],
         attachmentsCount: 3,
       },
-      { type: "expenses", amount: 850, currency: "PHP", description: "Transport", status: "pending", tags: ["Client dinner"] },
-      { type: "expenses", amount: 600, currency: "PHP", description: "Taxi receipt", status: "pending" },
+      { type: "expenses", amount: 850, currency: "PHP", description: "Transport", status: "pending", tags: ["Client dinner"],
+        attachments: [
+          { id: "att-ca4-4", fileName: "grab_receipt.pdf", fileType: "application/pdf", fileSize: "95 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Maria Santos" },
+        ], attachmentsCount: 1,
+      },
+      { type: "expenses", amount: 600, currency: "PHP", description: "Taxi receipt", status: "pending",
+        attachments: [
+          { id: "att-ca4-5", fileName: "taxi_receipt.jpg", fileType: "image/jpeg", fileSize: "78 KB", url: "#", uploadedAt: "Jan 21, 2026", uploadedBy: "Maria Santos" },
+        ], attachmentsCount: 1,
+      },
     ],
     // Pending leave requests for this pay period - only unpaid leave affects payroll
     pendingLeaves: [],
