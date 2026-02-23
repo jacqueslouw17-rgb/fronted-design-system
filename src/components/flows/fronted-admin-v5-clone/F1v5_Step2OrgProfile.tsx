@@ -87,7 +87,13 @@ const F1v5_Step2OrgProfile = ({
     }
   }, [formData, data.companyName]);
 
-  const validate = () => {
+  // Auto-default currency when HQ country changes and currency is empty
+  useEffect(() => {
+    if (data.hqCountry && !data.defaultCurrency) {
+      setData(prev => ({ ...prev, defaultCurrency: getDefaultCurrency(prev.hqCountry) }));
+    }
+  }, [data.hqCountry]);
+
     const newErrors: Record<string, string> = {};
     if (!data.companyName) newErrors.companyName = "Company name is required";
     if (!data.adminName) newErrors.adminName = "End-client name is required";
