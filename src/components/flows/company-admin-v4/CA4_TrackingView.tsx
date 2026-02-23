@@ -333,7 +333,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
               ) : (
                 <>
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm text-muted-foreground">Payment Progress</p>
+                    <p className="text-sm text-muted-foreground">Payment Status</p>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
@@ -345,15 +345,10 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
               )}
             </div>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              {(isHistorical || allPaid) ? (
+              {(isHistorical || allPaid) && (
                 <Button variant="outline" size="sm" onClick={onExportCSV} className="h-8 text-xs gap-1.5">
                   <Download className="h-3.5 w-3.5" />
                   Export CSV
-                </Button>
-              ) : (
-                <Button variant="ghost" size="sm" onClick={onExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
-                  <Download className="h-3.5 w-3.5" />
-                  CSV
                 </Button>
               )}
               <div className="flex items-center gap-1.5">
