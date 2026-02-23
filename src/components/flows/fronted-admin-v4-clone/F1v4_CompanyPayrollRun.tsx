@@ -9,7 +9,7 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 
 import { motion } from "framer-motion";
-import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase, Zap } from "lucide-react";
+import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -659,19 +659,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
           />
         </div>
 
-        {/* Custom batch info banner */}
-        {isCustomBatch && (
-          <div className="flex items-center gap-3 p-4 rounded-xl border border-violet-200/50 dark:border-violet-500/20 bg-violet-50/50 dark:bg-violet-500/5">
-            <Zap className="h-4 w-4 text-violet-500 shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-foreground">Off-Cycle Batch</p>
-              <p className="text-xs text-muted-foreground">
-                {displaySubmissions.length} worker{displaySubmissions.length !== 1 ? 's' : ''} with pending adjustments · Tax deductions applied where applicable
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* KPI Metrics Card - hidden for custom batches */}
         {!isCustomBatch && (
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
@@ -756,6 +743,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             submissions={displaySubmissions}
             onContinue={goToApprove}
             onClose={() => setHasEnteredWorkflow(false)}
+            isCustomBatch={isCustomBatch}
           />
         );
       case "approve":
