@@ -852,6 +852,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             company={company}
             hideSummaryCard
             onAllPaid={() => setIsAllPaid(true)}
+            isCustomBatch={isCustomBatch}
+            submissions={approveSubmissions}
           />
         );
       default:
