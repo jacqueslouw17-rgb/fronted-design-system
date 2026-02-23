@@ -69,7 +69,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     return `$${amount.toLocaleString()}`;
   };
 
-  // Compute off-cycle totals from actual submissions
+  // Compute off-cycle totals from actual submissions — only count approved items
   const offCycleTotals = useMemo(() => {
     if (!isCustomBatch || submissions.length === 0) return null;
     
@@ -78,39 +78,62 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     const contractorCount = workers.filter(w => w.workerType === "contractor").length;
     const currencies = new Set(workers.map(w => w.currency).filter(Boolean));
     
-    let totalAdjustments = 0;
+    let totalApprovedAmount = 0;
     let approvedCount = 0;
     let rejectedCount = 0;
     let rejectedAmount = 0;
-    let leavesCount = 0;
     let totalRequests = 0;
     
-    workers.forEach(w => {
+    // Per-worker breakdown
+    const workerBreakdowns = workers.map(w => {
+      let workerApproved = 0;
+      let workerRejected = 0;
+      let workerApprovedCount = 0;
+      let workerRejectedCount = 0;
+      
       w.submissions.forEach(s => {
         totalRequests++;
-        if (s.status === "rejected") {
-          rejectedCount++;
-          rejectedAmount += s.amount || 0;
-        } else {
+        if (s.status === "approved") {
           approvedCount++;
-          totalAdjustments += s.amount || 0;
+          workerApprovedCount++;
+          totalApprovedAmount += s.amount || 0;
+          workerApproved += s.amount || 0;
+        } else if (s.status === "rejected") {
+          rejectedCount++;
+          workerRejectedCount++;
+          rejectedAmount += s.amount || 0;
+          workerRejected += s.amount || 0;
         }
+        // "pending" items are NOT counted in payout
       });
-      (w.pendingLeaves || []).forEach(() => leavesCount++);
+
+      const taxRate = w.workerType === "employee" ? 0.10 : 0;
+      const workerTax = Math.round(workerApproved * taxRate);
+      const workerNet = workerApproved - workerTax;
+      
+      return {
+        id: w.id,
+        name: w.workerName,
+        type: w.workerType,
+        currency: w.currency || "EUR",
+        approvedAmount: workerApproved,
+        rejectedAmount: workerRejected,
+        approvedCount: workerApprovedCount,
+        rejectedCount: workerRejectedCount,
+        tax: workerTax,
+        net: workerNet,
+      };
     });
     
-    const totalDeductions = workers.reduce((sum, w) => {
-      return sum + w.lineItems.filter(li => li.type === "Deduction").reduce((s, li) => s + Math.abs(li.amount), 0);
-    }, 0);
-    
-    const netPayout = totalAdjustments - totalDeductions;
+    const totalDeductions = workerBreakdowns.reduce((sum, wb) => sum + wb.tax, 0);
+    const netPayout = totalApprovedAmount - totalDeductions;
     const fees = Math.round(netPayout * 0.03);
     
     return {
       employeeCount,
       contractorCount,
       currencyCount: currencies.size,
-      totalAdjustments,
+      totalApprovedAmount,
       totalDeductions,
       netPayout,
       fees,
@@ -118,9 +141,9 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
       approvedCount,
       rejectedCount,
       rejectedAmount,
-      leavesCount,
       workerCount: workers.length,
       totalRequests,
+      workerBreakdowns,
     };
   }, [isCustomBatch, submissions]);
 
@@ -143,7 +166,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
       employeeCount: company.employeeCount,
       contractorCount: company.contractorCount,
       currencyCount: company.currencyCount,
-      totalAdjustments: 6300,
+      totalApprovedAmount: 6300,
       totalDeductions: 0,
       netPayout: company.totalCost,
       fees: 3792,
@@ -151,77 +174,95 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
       approvedCount: 3,
       rejectedCount: 1,
       rejectedAmount: 1200,
-      leavesCount: 2,
       workerCount: company.employeeCount + company.contractorCount,
       totalRequests: 4,
+      workerBreakdowns: [] as { id: string; name: string; type: string; currency: string; approvedAmount: number; rejectedAmount: number; approvedCount: number; rejectedCount: number; tax: number; net: number }[],
     };
 
     if (isCustomBatch) {
-      // Off-cycle: simplified adjustment-only view
+      const workerBreakdowns = displayData.workerBreakdowns || [];
       return (
         <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
           <div className="p-5 space-y-5">
+            {/* Hero payout */}
             <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-              <p className="text-xs text-primary/70 mb-1">Off-cycle adjustment payout</p>
+              <p className="text-xs text-primary/70 mb-1">Off-cycle payout total</p>
               <p className="text-3xl font-semibold text-primary tracking-tight">{formatCurrency(displayData.totalCost)}</p>
               <p className="text-[10px] text-muted-foreground mt-1">
-                {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""} · {displayData.totalRequests} adjustment request{displayData.totalRequests !== 1 ? "s" : ""}
+                {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""} · {displayData.approvedCount} approved adjustment{displayData.approvedCount !== 1 ? "s" : ""}
               </p>
+            </div>
+
+            {/* Per-worker breakdown */}
+            {workerBreakdowns.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Worker breakdown</p>
+                <div className="rounded-lg border border-border/40 divide-y divide-border/30 overflow-hidden">
+                  {workerBreakdowns.map(wb => (
+                    <div key={wb.id} className="px-4 py-3 flex items-center justify-between bg-card/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                          {wb.type === "employee" 
+                            ? <Users className="h-3.5 w-3.5 text-muted-foreground" /> 
+                            : <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{wb.name}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {wb.approvedCount} approved{wb.rejectedCount > 0 ? ` · ${wb.rejectedCount} rejected` : ""}
+                            {wb.tax > 0 ? ` · ${formatCurrency(wb.tax)} tax` : ""}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold tabular-nums text-foreground">{formatCurrency(wb.net)}</p>
+                        {wb.tax > 0 && (
+                          <p className="text-[10px] text-muted-foreground tabular-nums">
+                            gross {formatCurrency(wb.approvedAmount)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Financial summary */}
+            <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
+                  Approved adjustments ({displayData.approvedCount})
+                </span>
+                <span className="text-accent-green-text font-medium tabular-nums">+{formatCurrency(displayData.totalApprovedAmount)}</span>
+              </div>
               
-              <div className="mt-4 pt-3 border-t border-primary/10 space-y-1.5">
+              {displayData.rejectedCount > 0 && (
                 <div className="flex items-center justify-between text-xs">
                   <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-                    Approved adjustments
+                    <XCircle className="h-3 w-3 text-muted-foreground/50" />
+                    Rejected ({displayData.rejectedCount})
                   </span>
-                  <span className="text-accent-green-text tabular-nums">+{formatCurrency(displayData.totalAdjustments)}</span>
+                  <span className="text-muted-foreground/60 tabular-nums line-through">{formatCurrency(displayData.rejectedAmount)}</span>
                 </div>
-                
-                {displayData.rejectedCount > 0 && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <XCircle className="h-3 w-3 text-muted-foreground/50" />
-                      Rejected ({displayData.rejectedCount})
-                    </span>
-                    <span className="text-muted-foreground/60 tabular-nums line-through">{formatCurrency(displayData.rejectedAmount)}</span>
-                  </div>
-                )}
+              )}
 
-                {displayData.totalDeductions > 0 && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Tax deductions (employees)</span>
-                    <span className="text-foreground tabular-nums">-{formatCurrency(displayData.totalDeductions)}</span>
-                  </div>
-                )}
-                
+              {displayData.totalDeductions > 0 && (
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Fronted fees (3%)</span>
-                  <span className="text-foreground tabular-nums">{formatCurrency(displayData.fees)}</span>
+                  <span className="text-muted-foreground">Tax deductions</span>
+                  <span className="text-foreground tabular-nums">-{formatCurrency(displayData.totalDeductions)}</span>
                 </div>
-                
-                <div className="flex items-center justify-between text-xs pt-1.5 border-t border-primary/10">
-                  <span className="text-primary/80 font-medium">Net payout</span>
-                  <span className="text-primary font-medium tabular-nums">{formatCurrency(displayData.netPayout)}</span>
-                </div>
+              )}
+              
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Fronted fees (3%)</span>
+                <span className="text-foreground tabular-nums">{formatCurrency(displayData.fees)}</span>
               </div>
-            </div>
-            
-            <div className="grid grid-cols-4 gap-3">
-              <div className="p-3 rounded-lg border border-border/60 bg-card/80 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Requests</p>
-                <p className="text-lg font-semibold text-foreground">{displayData.totalRequests}</p>
-              </div>
-              <div className="p-3 rounded-lg border border-border/60 bg-card/80 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Employees</p>
-                <p className="text-lg font-semibold text-foreground">{displayData.employeeCount}</p>
-              </div>
-              <div className="p-3 rounded-lg border border-border/60 bg-card/80 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Contractors</p>
-                <p className="text-lg font-semibold text-foreground">{displayData.contractorCount}</p>
-              </div>
-              <div className="p-3 rounded-lg border border-border/60 bg-card/80 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Currencies</p>
-                <p className="text-lg font-semibold text-foreground">{displayData.currencyCount}</p>
+              
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
+                <span className="text-foreground font-medium">Net payout</span>
+                <span className="text-primary font-semibold tabular-nums">{formatCurrency(displayData.netPayout)}</span>
               </div>
             </div>
 
@@ -287,7 +328,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                   Approved adjustments
                   <span className="text-[10px] text-muted-foreground/70">({displayData.approvedCount} item{displayData.approvedCount !== 1 ? "s" : ""})</span>
                 </span>
-                <span className="text-accent-green-text tabular-nums">+{formatCurrency(displayData.totalAdjustments)}</span>
+                <span className="text-accent-green-text tabular-nums">+{formatCurrency(displayData.totalApprovedAmount)}</span>
               </div>
               
               {displayData.rejectedCount > 0 && (
@@ -323,12 +364,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/30 border border-border/40">
                   <XCircle className="h-3 w-3 text-muted-foreground" />
                   <span className="text-[10px] font-medium text-muted-foreground">{displayData.rejectedCount} rejected</span>
-                </div>
-              )}
-              {displayData.leavesCount > 0 && (
-                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
-                  <Clock className="h-3 w-3 text-blue-600" />
-                  <span className="text-[10px] font-medium text-blue-600">{displayData.leavesCount} leave{displayData.leavesCount !== 1 ? "s" : ""} approved</span>
                 </div>
               )}
             </div>
