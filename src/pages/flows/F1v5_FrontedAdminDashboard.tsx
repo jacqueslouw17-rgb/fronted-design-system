@@ -58,6 +58,7 @@ interface CompanyData {
   adminName?: string;
   adminEmail?: string;
   hqCountry?: string;
+  defaultCurrency?: string;
   payrollCurrency?: string[];
   payoutDay?: string;
 }
