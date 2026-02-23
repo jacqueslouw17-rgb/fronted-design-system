@@ -940,6 +940,75 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     }
   };
 
+  // Custom batch handlers
+  const handleCustomBatchApprove = (submission: WorkerSubmission) => {
+    setCustomBatchSubmissions(prev => prev.map(s => 
+      s.id === submission.id ? { ...s, status: "ready" as const } : s
+    ));
+  };
+
+  const handleCustomBatchReject = (submission: WorkerSubmission, reason: string) => {
+    setCustomBatchSubmissions(prev => prev.map(s => 
+      s.id === submission.id ? { ...s, status: "ready" as const } : s
+    ));
+  };
+
+  const handleCustomBatchApproveAll = () => {
+    setCustomBatchSubmissions(prev => prev.map(s => 
+      s.status === "pending" ? { ...s, status: "ready" as const } : s
+    ));
+    toast.success("All adjustments approved");
+  };
+
+  const customBatchPending = customBatchSubmissions.filter(s => s.status === "pending").length;
+
+  // Custom batch: review (submissions stage) — company admin reviews adjustments, no "Continue"
+  if (isCustomBatchReview) {
+    return (
+      <div>
+        <div className="flex items-center justify-center pt-2 pb-4">
+          <CA3_PeriodDropdown 
+            periods={periods}
+            selectedPeriodId={selectedPeriodId}
+            onPeriodChange={handlePeriodChange}
+          />
+        </div>
+        <CA3_SubmissionsView
+          submissions={customBatchSubmissions}
+          onApprove={handleCustomBatchApprove}
+          onFlag={handleCustomBatchReject}
+          onApproveAll={handleCustomBatchApproveAll}
+          onContinue={() => {}} 
+          onClose={() => setSelectedPeriodId("jan-monthly")}
+          onBack={() => setSelectedPeriodId("jan-monthly")}
+          pendingCount={customBatchPending}
+          pendingSubmissions={customBatchPending}
+          isCustomBatch={true}
+        />
+      </div>
+    );
+  }
+
+  // Custom batch: tracking (payment status stage) — company admin sees payment status
+  if (isCustomBatchTracking) {
+    return (
+      <div>
+        <div className="flex items-center justify-center pt-2 pb-4">
+          <CA3_PeriodDropdown 
+            periods={periods}
+            selectedPeriodId={selectedPeriodId}
+            onPeriodChange={handlePeriodChange}
+          />
+        </div>
+        <CA3_TrackingView
+          workers={CUSTOM_BATCH_TRACKING_WORKERS}
+          onExportCSV={handleExportCSV}
+          onDownloadAuditPDF={handleDownloadAuditPDF}
+        />
+      </div>
+    );
+  }
+
   // Historical view for previous periods
   if (isViewingPrevious) {
     return (
