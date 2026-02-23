@@ -10,8 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { F41v7_TimeInput } from "@/components/flows/employee-dashboard-v7/F41v7_TimeInput";
 
 // Types for admin-added adjustments
 export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense";
@@ -48,11 +52,6 @@ interface ExpenseLineItem {
   amount: string;
 }
 
-interface OvertimeLineItem {
-  id: string;
-  hours: string;
-}
-
 type RequestType = AdminAdjustmentType | null;
 
 type RequestOption = {
@@ -76,12 +75,16 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
 
   // Forms
   const [unpaidLeaveDays, setUnpaidLeaveDays] = useState("");
+  const [unpaidLeaveDescription, setUnpaidLeaveDescription] = useState("");
   const [expenseItems, setExpenseItems] = useState<ExpenseLineItem[]>([
     { id: crypto.randomUUID(), category: "", otherCategory: "", amount: "" },
   ]);
-  const [overtimeItems, setOvertimeItems] = useState<OvertimeLineItem[]>([
-    { id: crypto.randomUUID(), hours: "" },
-  ]);
+  
+  // Overtime - single entry with date + start/end time (matching worker v7)
+  const [overtimeDate, setOvertimeDate] = useState<Date | undefined>(undefined);
+  const [overtimeStartTime, setOvertimeStartTime] = useState("");
+  const [overtimeEndTime, setOvertimeEndTime] = useState("");
+  const [openDatePopover, setOpenDatePopover] = useState(false);
 
   const requestTypeOptions: RequestOption[] = useMemo(() => {
     const base: RequestOption[] = [
@@ -117,11 +120,29 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       maximumFractionDigits: 2,
     })}`;
 
+  // Calculate hours from start/end time
+  const calculateHours = (start: string, end: string): number => {
+    if (!start || !end) return 0;
+    const [startH, startM] = start.split(':').map(Number);
+    const [endH, endM] = end.split(':').map(Number);
+    let startMinutes = startH * 60 + startM;
+    let endMinutes = endH * 60 + endM;
+    if (endMinutes <= startMinutes) {
+      endMinutes += 24 * 60;
+    }
+    return Math.round((endMinutes - startMinutes) / 60 * 100) / 100;
+  };
+
+  const calculatedOvertimeHours = calculateHours(overtimeStartTime, overtimeEndTime);
+
   const resetForm = () => {
     setSelectedType(null);
     setUnpaidLeaveDays("");
+    setUnpaidLeaveDescription("");
     setExpenseItems([{ id: crypto.randomUUID(), category: "", otherCategory: "", amount: "" }]);
-    setOvertimeItems([{ id: crypto.randomUUID(), hours: "" }]);
+    setOvertimeDate(undefined);
+    setOvertimeStartTime("");
+    setOvertimeEndTime("");
   };
 
   const handleClose = () => {
@@ -160,23 +181,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     );
   };
 
-  // Overtime helpers
-  const addOvertimeItem = () => {
-    setOvertimeItems((prev) => [...prev, { id: crypto.randomUUID(), hours: "" }]);
-  };
-
-  const removeOvertimeItem = (id: string) => {
-    if (overtimeItems.length === 1) return;
-    setOvertimeItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const updateOvertimeItem = (id: string, hours: string) => {
-    setOvertimeItems((prev) => prev.map((item) => (item.id === id ? { ...item, hours } : item)));
-  };
-
-  // Totals (used for the v6-style session summary)
+  // Totals
   const expenseSessionTotal = expenseItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-  const overtimeSessionTotalHours = overtimeItems.reduce((sum, item) => sum + (parseFloat(item.hours) || 0), 0);
 
   const submitExpense = () => {
     const validItems = expenseItems
@@ -216,31 +222,34 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   };
 
   const submitOvertime = () => {
-    const validItems = overtimeItems
-      .map((item) => ({ ...item, hoursValue: parseFloat(item.hours) }))
-      .filter((item) => !Number.isNaN(item.hoursValue) && item.hoursValue > 0);
-
-    if (validItems.length === 0) {
-      toast.error("Please enter valid hours");
+    if (!overtimeDate) {
+      toast.error("Please select a date");
+      return;
+    }
+    if (!overtimeStartTime || !overtimeEndTime) {
+      toast.error("Please enter start and end times");
+      return;
+    }
+    if (calculatedOvertimeHours <= 0) {
+      toast.error("End time must be after start time");
       return;
     }
 
-    validItems.forEach((item) => {
-      const hrs = item.hoursValue;
-      onAddAdjustment({
-        id: `admin-${Date.now()}-${item.id}`,
-        type: "overtime",
-        hours: hrs,
-        amount: hrs * hourlyRate,
-        description: workerType === "contractor" ? `${hrs}h additional hours` : `${hrs}h overtime`,
-        currency,
-        addedAt: new Date().toISOString(),
-      });
+    const dateStr = format(overtimeDate, 'MMM d');
+    const timeStr = `${overtimeStartTime}–${overtimeEndTime}`;
+    const label = `${calculatedOvertimeHours}h · ${dateStr} · ${timeStr}`;
+
+    onAddAdjustment({
+      id: `admin-${Date.now()}`,
+      type: "overtime",
+      hours: calculatedOvertimeHours,
+      amount: calculatedOvertimeHours * hourlyRate,
+      description: workerType === "contractor" ? `${label} additional hours` : `${label} overtime`,
+      currency,
+      addedAt: new Date().toISOString(),
     });
 
-    toast.success(
-      `Added ${validItems.length} entr${validItems.length > 1 ? "ies" : "y"} for ${workerName}`,
-    );
+    toast.success(`Added ${workerType === "contractor" ? "additional hours" : "overtime"} for ${workerName}`);
     handleClose();
   };
 
@@ -251,12 +260,14 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       return;
     }
 
+    const descPart = unpaidLeaveDescription.trim() ? ` · ${unpaidLeaveDescription.trim()}` : '';
+
     onAddAdjustment({
       id: `admin-${Date.now()}`,
       type: "unpaid_leave",
       days: daysValue,
       amount: daysValue * dailyRate,
-      description: `${daysValue} day${daysValue !== 1 ? "s" : ""} unpaid leave`,
+      description: `${daysValue} day${daysValue !== 1 ? "s" : ""} unpaid leave${descPart}`,
       currency,
       addedAt: new Date().toISOString(),
     });
@@ -280,7 +291,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Minimal header (v6-style) */}
+      {/* Minimal header */}
       <div className="border-b border-border/40 px-5 pt-4 pb-3">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-8 w-8 -ml-2" onClick={handleBack}>
@@ -293,7 +304,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
-        {/* Type Selection (v6 tile cards) */}
+        {/* Type Selection */}
         {selectedType === null && (
           <div className="grid grid-cols-1 gap-3">
             {requestTypeOptions.map((option) => (
@@ -317,7 +328,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
           </div>
         )}
 
-        {/* Expense Form (multi-line, v6 spacing + buttons) */}
+        {/* Expense Form */}
         {selectedType === "expense" && (
           <div className="space-y-5">
             <div className="space-y-3">
@@ -415,66 +426,76 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
           </div>
         )}
 
-        {/* Overtime / Additional hours (multi-entry) */}
+        {/* Overtime / Additional hours — single entry with date + start/end time */}
         {selectedType === "overtime" && (
           <div className="space-y-5">
-            <div className="space-y-3">
-              {overtimeItems.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
-                >
-                  {overtimeItems.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeOvertimeItem(item.id)}
-                      className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
+            <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
+              {/* Date picker */}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Date</Label>
+                <Popover open={openDatePopover} onOpenChange={setOpenDatePopover}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full h-9 justify-start text-left font-normal",
+                        !overtimeDate && "text-muted-foreground"
+                      )}
                     >
-                      <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                    </button>
-                  )}
+                      {overtimeDate ? format(overtimeDate, 'MMM d, yyyy') : 'Select date'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={overtimeDate}
+                      onSelect={(date) => {
+                        setOvertimeDate(date);
+                        setOpenDatePopover(false);
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
 
-                  {overtimeItems.length > 1 && (
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                        Entry {index + 1}
-                      </span>
-                    </div>
-                  )}
-
+              {/* Start & End Time */}
+              <div className="space-y-1.5">
+                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Hours</Label>
-                    <Input
-                      type="number"
-                      step="0.5"
-                      min="0.5"
-                      placeholder="0.0"
-                      value={item.hours}
-                      onChange={(e) => updateOvertimeItem(item.id, e.target.value)}
-                      className="h-9"
-                      autoFocus={index === 0}
+                    <Label className="text-xs">Start time</Label>
+                    <F41v7_TimeInput
+                      value={overtimeStartTime}
+                      onChange={setOvertimeStartTime}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">End time</Label>
+                    <F41v7_TimeInput
+                      value={overtimeEndTime}
+                      onChange={setOvertimeEndTime}
                     />
                   </div>
                 </div>
-              ))}
+              </div>
 
-              <button
-                type="button"
-                onClick={addOvertimeItem}
-                className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
-              >
-                <span className="text-lg leading-none">+</span>
-                Add another entry
-              </button>
+              {/* Auto-calculated hours */}
+              {calculatedOvertimeHours > 0 && (
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs text-muted-foreground">Calculated hours</span>
+                  <span className="text-sm font-semibold tabular-nums text-foreground">
+                    {calculatedOvertimeHours}h
+                  </span>
+                </div>
+              )}
             </div>
 
-            {overtimeItems.length > 0 && (
+            {calculatedOvertimeHours > 0 && hourlyRate > 0 && (
               <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Session total</span>
                   <span className="text-sm font-semibold tabular-nums">
-                    {overtimeSessionTotalHours.toLocaleString(undefined, { maximumFractionDigits: 2 })}h · +
-                    {formatMoney(overtimeSessionTotalHours * hourlyRate)}
+                    {calculatedOvertimeHours}h · +{formatMoney(calculatedOvertimeHours * hourlyRate)}
                   </span>
                 </div>
               </div>
@@ -486,7 +507,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
           </div>
         )}
 
-        {/* Unpaid leave (single-entry) */}
+        {/* Unpaid leave (single-entry with date details) */}
         {selectedType === "unpaid_leave" && (
           <div className="space-y-5">
             <div className="space-y-1.5">
@@ -500,6 +521,17 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                 onChange={(e) => setUnpaidLeaveDays(e.target.value)}
                 className="h-9"
                 autoFocus
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Date details <span className="text-muted-foreground font-normal">(optional)</span></Label>
+              <Input
+                type="text"
+                placeholder="e.g., 22–27 Feb"
+                value={unpaidLeaveDescription}
+                onChange={(e) => setUnpaidLeaveDescription(e.target.value)}
+                className="h-9"
               />
             </div>
 
