@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ArrowLeft, CalendarOff, Clock, Receipt, X, Upload, FileText, Image } from "lucide-react";
+import { ArrowLeft, CalendarOff, Clock, Receipt, X, Upload, FileText, Image, Gift, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,7 @@ import { F41v7_TimeInput } from "@/components/flows/employee-dashboard-v7/F41v7_
 import { TagInput } from "@/components/flows/shared/TagInput";
 
 // Types for admin-added adjustments
-export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense";
+export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission";
 
 export interface AdminAddedAdjustment {
   id: string;
@@ -52,6 +52,18 @@ interface ExpenseLineItem {
   otherCategory: string;
   amount: string;
   receipt: File[];
+}
+
+interface BonusLineItem {
+  id: string;
+  amount: string;
+  attachment: File[];
+}
+
+interface CommissionLineItem {
+  id: string;
+  amount: string;
+  attachment: File[];
 }
 
 type RequestType = AdminAdjustmentType | null;
@@ -89,6 +101,14 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   const [overtimeEndTime, setOvertimeEndTime] = useState("");
   const [openDatePopover, setOpenDatePopover] = useState(false);
 
+  // Bonus (employee) / Commission (contractor)
+  const [bonusItems, setBonusItems] = useState<BonusLineItem[]>([
+    { id: crypto.randomUUID(), amount: "", attachment: [] },
+  ]);
+  const [commissionItems, setCommissionItems] = useState<CommissionLineItem[]>([
+    { id: crypto.randomUUID(), amount: "", attachment: [] },
+  ]);
+
   const requestTypeOptions: RequestOption[] = useMemo(() => {
     const base: RequestOption[] = [
       {
@@ -107,10 +127,25 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
 
     if (workerType === "employee") {
       base.push({
+        id: "bonus",
+        label: "Bonus",
+        description: "Request a bonus payment",
+        icon: Gift,
+      });
+      base.push({
         id: "unpaid_leave",
         label: "Unpaid Leave",
         description: "Deduct pay for days not worked",
         icon: CalendarOff,
+      });
+    }
+
+    if (workerType === "contractor") {
+      base.push({
+        id: "commission",
+        label: "Commission",
+        description: "Request additional pay",
+        icon: Coins,
       });
     }
 
@@ -147,6 +182,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     setOvertimeDate(undefined);
     setOvertimeStartTime("");
     setOvertimeEndTime("");
+    setBonusItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
+    setCommissionItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
   };
 
   const handleClose = () => {
@@ -280,6 +317,60 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     handleClose();
   };
 
+  // Bonus helpers (employee)
+  const updateBonusItem = (id: string, field: keyof BonusLineItem, value: string | File[]) => {
+    setBonusItems((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
+  };
+
+  const submitBonus = () => {
+    const validItems = bonusItems.filter((item) => {
+      const amt = parseFloat(item.amount);
+      return !Number.isNaN(amt) && amt > 0;
+    });
+    if (validItems.length === 0) {
+      toast.error("Please enter a valid bonus amount");
+      return;
+    }
+    const totalAmount = validItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+    onAddAdjustment({
+      id: `admin-${Date.now()}`,
+      type: "bonus",
+      amount: totalAmount,
+      description: `Bonus · ${formatMoney(totalAmount)}`,
+      currency,
+      addedAt: new Date().toISOString(),
+    });
+    toast.success(`Added bonus for ${workerName}`);
+    handleClose();
+  };
+
+  // Commission helpers (contractor)
+  const updateCommissionItem = (id: string, field: keyof CommissionLineItem, value: string | File[]) => {
+    setCommissionItems((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
+  };
+
+  const submitCommission = () => {
+    const validItems = commissionItems.filter((item) => {
+      const amt = parseFloat(item.amount);
+      return !Number.isNaN(amt) && amt > 0;
+    });
+    if (validItems.length === 0) {
+      toast.error("Please enter a valid commission amount");
+      return;
+    }
+    const totalAmount = validItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+    onAddAdjustment({
+      id: `admin-${Date.now()}`,
+      type: "commission",
+      amount: totalAmount,
+      description: `Commission · ${formatMoney(totalAmount)}`,
+      currency,
+      addedAt: new Date().toISOString(),
+    });
+    toast.success(`Added commission for ${workerName}`);
+    handleClose();
+  };
+
   if (!isOpen) return null;
 
   const headerTitle =
@@ -291,7 +382,11 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
           ? workerType === "contractor"
             ? "Additional hours"
             : "Overtime request"
-          : "Unpaid leave";
+          : selectedType === "bonus"
+            ? "Bonus request"
+            : selectedType === "commission"
+              ? "Commission request"
+              : "Unpaid leave";
 
   return (
     <div className="flex flex-col h-full">
@@ -606,6 +701,162 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
             )}
 
             <Button onClick={submitUnpaidLeave} className="w-full">
+              Add adjustment
+            </Button>
+          </div>
+        )}
+
+        {/* Bonus form (employee only) — matches v7 employee bonus */}
+        {selectedType === "bonus" && (
+          <div className="space-y-5">
+            <div className="space-y-3">
+              {bonusItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                >
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Amount ({currency})</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      placeholder="0.00"
+                      value={item.amount}
+                      onChange={(e) => updateBonusItem(item.id, "amount", e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Attachment (optional)</Label>
+                    {item.attachment.length > 0 && (
+                      <div className="space-y-1.5">
+                        {item.attachment.map((file, fileIdx) => (
+                          <div key={fileIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                            {file.type.startsWith('image/') ? (
+                              <Image className="h-4 w-4 text-primary shrink-0" />
+                            ) : (
+                              <FileText className="h-4 w-4 text-primary shrink-0" />
+                            )}
+                            <span className="text-xs flex-1 truncate">{file.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = item.attachment.filter((_, i) => i !== fileIdx);
+                                updateBonusItem(item.id, "attachment", updated);
+                              }}
+                              className="p-0.5 hover:bg-muted rounded shrink-0"
+                            >
+                              <X className="h-3 w-3 text-muted-foreground" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {item.attachment.length === 0 ? 'Upload documents' : 'Add more'}
+                      </span>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (files.length > 0) {
+                            updateBonusItem(item.id, "attachment", [...item.attachment, ...files]);
+                          }
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <Button onClick={submitBonus} className="w-full">
+              Add adjustment
+            </Button>
+          </div>
+        )}
+
+        {/* Commission form (contractor only) — matches v7 contractor commission */}
+        {selectedType === "commission" && (
+          <div className="space-y-5">
+            <div className="space-y-3">
+              {commissionItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                >
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Amount ({currency})</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      placeholder="0.00"
+                      value={item.amount}
+                      onChange={(e) => updateCommissionItem(item.id, "amount", e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Attachment (optional)</Label>
+                    {item.attachment.length > 0 && (
+                      <div className="space-y-1.5">
+                        {item.attachment.map((file, fileIdx) => (
+                          <div key={fileIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                            {file.type.startsWith('image/') ? (
+                              <Image className="h-4 w-4 text-primary shrink-0" />
+                            ) : (
+                              <FileText className="h-4 w-4 text-primary shrink-0" />
+                            )}
+                            <span className="text-xs flex-1 truncate">{file.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = item.attachment.filter((_, i) => i !== fileIdx);
+                                updateCommissionItem(item.id, "attachment", updated);
+                              }}
+                              className="p-0.5 hover:bg-muted rounded shrink-0"
+                            >
+                              <X className="h-3 w-3 text-muted-foreground" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {item.attachment.length === 0 ? 'Upload documents' : 'Add more'}
+                      </span>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (files.length > 0) {
+                            updateCommissionItem(item.id, "attachment", [...item.attachment, ...files]);
+                          }
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <Button onClick={submitCommission} className="w-full">
               Add adjustment
             </Button>
           </div>
