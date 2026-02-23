@@ -138,7 +138,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
       <PopoverContent
         align="center"
         sideOffset={10}
-        className="w-[360px] p-0 bg-popover/95 backdrop-blur-xl border border-border/60 rounded-xl shadow-2xl shadow-black/10 overflow-hidden"
+        className="w-[360px] p-0 bg-popover/95 backdrop-blur-xl border border-border/60 rounded-xl shadow-2xl shadow-black/10 overflow-hidden max-h-[420px] overflow-y-auto overscroll-contain"
       >
         {/* Focused create form — hides everything else */}
         {showCreateForm && allowCustomBatch ? (
