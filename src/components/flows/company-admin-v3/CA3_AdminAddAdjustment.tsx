@@ -581,14 +581,17 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs">Date details <span className="text-muted-foreground font-normal">(optional)</span></Label>
+              <Label className="text-xs">Date details</Label>
               <Input
                 type="text"
-                placeholder="e.g., 22–27 Feb"
+                placeholder="e.g. 22 Feb – 27 Feb 2025"
                 value={unpaidLeaveDescription}
                 onChange={(e) => setUnpaidLeaveDescription(e.target.value)}
                 className="h-9"
               />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Help specify dates, e.g. <span className="font-medium text-foreground/70">"22–27 Feb"</span> or <span className="font-medium text-foreground/70">"Mon 24 – Fri 28 Feb"</span>.
+              </p>
             </div>
 
             {parseFloat(unpaidLeaveDays) > 0 && dailyRate > 0 && (
