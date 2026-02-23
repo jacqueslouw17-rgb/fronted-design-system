@@ -523,6 +523,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
   // Status change decisions (Flag 1) - keyed by worker submission id
   const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
+  // Skip remaining: explicit signal that user is done reviewing for off-cycle batches
+  const [skippedOthers, setSkippedOthers] = useState(false);
 
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments((prev) => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));
