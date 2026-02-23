@@ -282,6 +282,7 @@ const AdminContractingMultiCompany = () => {
       adminName: companyData?.adminName,
       adminEmail: companyData?.adminEmail,
       hqCountry: companyData?.hqCountry,
+      defaultCurrency: companyData?.defaultCurrency,
       payrollCurrency: companyData?.payrollCurrency,
       payoutDay: companyData?.payoutDay,
     };
