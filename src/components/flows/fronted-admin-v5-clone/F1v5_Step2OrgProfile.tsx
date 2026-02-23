@@ -279,23 +279,28 @@ const F1v5_Step2OrgProfile = ({
             {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-sm">Default Currency</Label>
-            <div className="inline-flex gap-1.5">
-              {CURRENCY_OPTIONS.map(c => (
-                <button
-                  key={c.code}
-                  type="button"
-                  onClick={() => handleFieldChange('defaultCurrency', c.code)}
-                  className={`px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all duration-200 ${
-                    data.defaultCurrency === c.code
-                      ? 'bg-gradient-primary text-primary-foreground shadow-sm'
-                      : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }`}
-                >
-                  {c.code}
-                </button>
-              ))}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm">Default Currency</Label>
+                <p className="text-xs text-muted-foreground">Used across this company's dashboard</p>
+              </div>
+              <div className="inline-flex rounded-lg bg-muted/50 p-0.5 gap-0.5">
+                {CURRENCY_OPTIONS.map(c => (
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => handleFieldChange('defaultCurrency', c.code)}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all duration-200 ${
+                      data.defaultCurrency === c.code
+                        ? 'bg-gradient-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {c.code}
+                  </button>
+                ))}
+              </div>
             </div>
             {errors.defaultCurrency && <p className="text-xs text-destructive mt-1">{errors.defaultCurrency}</p>}
           </div>
