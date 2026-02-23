@@ -223,7 +223,11 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Pension Insurance", amount: -465, locked: true },
     ],
     submissions: [
-      { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee", status: "pending" },
+      { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee", status: "pending",
+        attachments: [
+          { id: "att-ca3-lm1", fileName: "conference_invoice.pdf", fileType: "application/pdf", fileSize: "540 KB", url: "#", uploadedAt: "Jan 19, 2026", uploadedBy: "Lena Müller" },
+        ], attachmentsCount: 1,
+      },
     ],
     // No pending leaves - sick leave handled separately in Leaves tab
     pendingLeaves: [],
