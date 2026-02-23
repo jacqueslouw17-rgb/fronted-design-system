@@ -182,14 +182,6 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
               Pay out pending adjustments outside the regular cycle. Only workers with pending items will be included.
             </p>
 
-            {/* Frequency — locked to Custom */}
-            <div className="space-y-1.5">
-              <Label className="text-[11px] text-muted-foreground font-medium">Frequency</Label>
-              <div className="flex items-center h-9 px-3 rounded-md border border-border bg-muted/40 text-sm text-foreground">
-                <span className="text-[13px]">Custom (Off-Cycle)</span>
-              </div>
-            </div>
-
             {/* Start & End Date row */}
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1.5">
