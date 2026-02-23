@@ -102,6 +102,7 @@ interface F1v4_WorkerDetailDrawerProps {
   onMarkAsPaid?: (workerId: string) => void;
   onRetryPayout?: (workerId: string) => void;
   isViewOnly?: boolean;
+  isCustomBatch?: boolean;
 }
 
 interface ManualAdjustment {
