@@ -4,9 +4,11 @@
  */
 
 import React, { useMemo, useState } from "react";
-import { ChevronDown, Calendar, Plus, X, Zap } from "lucide-react";
+import { ChevronDown, Calendar as CalendarIcon, Plus, X, Zap } from "lucide-react";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
@@ -76,7 +78,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newPayDate, setNewPayDate] = useState("");
+  const [newPayDate, setNewPayDate] = useState<Date | undefined>();
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
 
   const { active, custom, history } = useMemo(() => {
@@ -99,8 +101,8 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
 
   const handleCreateBatch = () => {
     if (newPayDate && onCreateCustomBatch) {
-      onCreateCustomBatch(newPayDate);
-      setNewPayDate("");
+      onCreateCustomBatch(newPayDate.toISOString().split('T')[0]);
+      setNewPayDate(undefined);
       setShowCreateForm(false);
       setIsOpen(false);
     }
@@ -146,7 +148,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                 <Zap className="h-3.5 w-3.5 text-violet-500" />
                 <span className="text-[13px] font-semibold text-foreground">New Off-Cycle Batch</span>
               </div>
-              <button onClick={() => { setShowCreateForm(false); setNewPayDate(""); }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setShowCreateForm(false); setNewPayDate(undefined); }} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -155,22 +157,36 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
             </p>
             <div className="space-y-1.5">
               <Label className="text-[11px] text-muted-foreground">Pay date</Label>
-              <input
-                type="date"
-                value={newPayDate}
-                onChange={(e) => setNewPayDate(e.target.value)}
-                className={cn(
-                  "w-full h-9 rounded-md border border-input bg-background px-3 py-1.5 text-sm",
-                  "focus:outline-none focus:ring-2 focus:ring-violet-500/30"
-                )}
-                min={new Date().toISOString().split('T')[0]}
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full h-9 justify-start text-left font-normal text-sm",
+                      !newPayDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                    {newPayDate ? format(newPayDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={newPayDate}
+                    onSelect={(date) => { setNewPayDate(date); }}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="flex gap-2 pt-1">
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => { setShowCreateForm(false); setNewPayDate(""); }}
+                onClick={() => { setShowCreateForm(false); setNewPayDate(undefined); }}
                 className="flex-1 h-8 text-xs"
               >
                 Cancel
@@ -227,7 +243,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                             </span>
                           </div>
                           <div className="flex items-center gap-1 mt-0.5">
-                            <Calendar className="h-3 w-3 text-muted-foreground/50" />
+                            <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
                             <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
                           </div>
                         </div>
@@ -288,7 +304,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                               </span>
                             </div>
                             <div className="flex items-center gap-1 mt-0.5">
-                              <Calendar className="h-3 w-3 text-muted-foreground/50" />
+                              <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
                               <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
                             </div>
                           </div>
