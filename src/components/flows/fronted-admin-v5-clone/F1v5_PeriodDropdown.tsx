@@ -91,6 +91,9 @@ export const F1v4_PeriodDropdown: React.FC<F1v5_PeriodDropdownProps> = ({
   const [newStartDate, setNewStartDate] = useState<Date | undefined>();
   const [newEndDate, setNewEndDate] = useState<Date | undefined>();
   const [newPayDate, setNewPayDate] = useState<Date | undefined>();
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
+  const [payDateOpen, setPayDateOpen] = useState(false);
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
 
   const { active, custom, history } = useMemo(() => {
@@ -186,7 +189,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v5_PeriodDropdownProps> = ({
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1.5">
                 <Label className="text-[11px] text-muted-foreground font-medium">Start date</Label>
-                <Popover>
+                <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -203,7 +206,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v5_PeriodDropdownProps> = ({
                     <Calendar
                       mode="single"
                       selected={newStartDate}
-                      onSelect={(date) => { setNewStartDate(date); }}
+                      onSelect={(date) => { setNewStartDate(date); setStartDateOpen(false); }}
                       initialFocus
                       className={cn("p-3 pointer-events-auto")}
                     />
@@ -212,7 +215,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v5_PeriodDropdownProps> = ({
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] text-muted-foreground font-medium">End date</Label>
-                <Popover>
+                <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -229,7 +232,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v5_PeriodDropdownProps> = ({
                     <Calendar
                       mode="single"
                       selected={newEndDate}
-                      onSelect={(date) => { setNewEndDate(date); }}
+                      onSelect={(date) => { setNewEndDate(date); setEndDateOpen(false); }}
                       disabled={(date) => newStartDate ? date < newStartDate : false}
                       initialFocus
                       className={cn("p-3 pointer-events-auto")}
@@ -242,7 +245,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v5_PeriodDropdownProps> = ({
             {/* Pay Date */}
             <div className="space-y-1.5">
               <Label className="text-[11px] text-muted-foreground font-medium">Pay date</Label>
-              <Popover>
+              <Popover open={payDateOpen} onOpenChange={setPayDateOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -259,7 +262,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v5_PeriodDropdownProps> = ({
                   <Calendar
                     mode="single"
                     selected={newPayDate}
-                    onSelect={(date) => { setNewPayDate(date); }}
+                    onSelect={(date) => { setNewPayDate(date); setPayDateOpen(false); }}
                     disabled={(date) => date < new Date()}
                     initialFocus
                     className={cn("p-3 pointer-events-auto")}
