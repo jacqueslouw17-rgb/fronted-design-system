@@ -33,7 +33,7 @@ export interface CustomBatchFormData {
   payDate: string;
 }
 
-interface F1v4_PeriodDropdownProps {
+interface F1v5_PeriodDropdownProps {
   periods: PayrollPeriod[];
   selectedPeriodId: string;
   onPeriodChange: (periodId: string) => void;
@@ -78,7 +78,7 @@ const StatusDot = ({ status, size = "sm", isCustom = false }: { status: PayrollR
 const statusLabel = (s: PayrollRunStatus) =>
   s === "paid" ? "Paid" : s === "processing" ? "Processing" : "In review";
 
-export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
+export const F1v4_PeriodDropdown: React.FC<F1v5_PeriodDropdownProps> = ({
   periods,
   selectedPeriodId,
   onPeriodChange,
@@ -88,6 +88,8 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newStartDate, setNewStartDate] = useState<Date | undefined>();
+  const [newEndDate, setNewEndDate] = useState<Date | undefined>();
   const [newPayDate, setNewPayDate] = useState<Date | undefined>();
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
 
@@ -109,10 +111,22 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
     setShowCreateForm(false);
   };
 
+  const resetForm = () => {
+    setNewStartDate(undefined);
+    setNewEndDate(undefined);
+    setNewPayDate(undefined);
+  };
+
+  const isFormValid = newStartDate && newEndDate && newPayDate && newEndDate >= newStartDate;
+
   const handleCreateBatch = () => {
-    if (newPayDate && onCreateCustomBatch) {
-      onCreateCustomBatch(newPayDate.toISOString().split('T')[0]);
-      setNewPayDate(undefined);
+    if (isFormValid && onCreateCustomBatch) {
+      onCreateCustomBatch({
+        startDate: newStartDate.toISOString().split('T')[0],
+        endDate: newEndDate.toISOString().split('T')[0],
+        payDate: newPayDate.toISOString().split('T')[0],
+      });
+      resetForm();
       setShowCreateForm(false);
       setIsOpen(false);
     }
@@ -120,7 +134,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
 
   const triggerLabel = selectedPeriod
     ? selectedPeriod.isCustomBatch
-      ? `Off-cycle · ${selectedPeriod.periodLabel}`
+      ? `Custom · ${selectedPeriod.periodLabel}`
       : `${selectedPeriod.frequency === "monthly" ? "Monthly" : "Fortnightly"} · ${selectedPeriod.periodLabel}`
     : "Select Run";
 
@@ -152,20 +166,90 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
       >
         {/* Focused create form — hides everything else */}
         {showCreateForm && allowCustomBatch ? (
-          <div className="px-3 py-3 space-y-3">
+          <div className="px-4 py-4 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-md bg-violet-500/10 flex items-center justify-center">
+                  <Plus className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                </div>
                 <span className="text-[13px] font-semibold text-foreground">New Off-Cycle Batch</span>
               </div>
-              <button onClick={() => { setShowCreateForm(false); setNewPayDate(undefined); }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setShowCreateForm(false); resetForm(); }} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Pay out pending adjustments before the next scheduled cycle. Only workers with pending items will be included.
+              Pay out pending adjustments outside the regular cycle. Only workers with pending items will be included.
             </p>
+
+            {/* Frequency — locked to Custom */}
             <div className="space-y-1.5">
-              <Label className="text-[11px] text-muted-foreground">Pay date</Label>
+              <Label className="text-[11px] text-muted-foreground font-medium">Frequency</Label>
+              <div className="flex items-center h-9 px-3 rounded-md border border-border bg-muted/40 text-sm text-foreground">
+                <span className="text-[13px]">Custom (Off-Cycle)</span>
+              </div>
+            </div>
+
+            {/* Start & End Date row */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1.5">
+                <Label className="text-[11px] text-muted-foreground font-medium">Start date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full h-9 justify-start text-left font-normal text-[12px] px-2.5",
+                        !newStartDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-1.5 h-3 w-3 shrink-0" />
+                      {newStartDate ? format(newStartDate, "MMM d, yyyy") : "Start"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={newStartDate}
+                      onSelect={(date) => { setNewStartDate(date); }}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] text-muted-foreground font-medium">End date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full h-9 justify-start text-left font-normal text-[12px] px-2.5",
+                        !newEndDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-1.5 h-3 w-3 shrink-0" />
+                      {newEndDate ? format(newEndDate, "MMM d, yyyy") : "End"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={newEndDate}
+                      onSelect={(date) => { setNewEndDate(date); }}
+                      disabled={(date) => newStartDate ? date < newStartDate : false}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {/* Pay Date */}
+            <div className="space-y-1.5">
+              <Label className="text-[11px] text-muted-foreground font-medium">Pay date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -176,7 +260,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                     )}
                   >
                     <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                    {newPayDate ? format(newPayDate, "PPP") : <span>Pick a date</span>}
+                    {newPayDate ? format(newPayDate, "MMM d, yyyy") : <span>Select pay date</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -191,11 +275,17 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                 </PopoverContent>
               </Popover>
             </div>
+
+            {/* Validation hint */}
+            {newStartDate && newEndDate && newEndDate < newStartDate && (
+              <p className="text-[11px] text-destructive">End date must be after start date</p>
+            )}
+
             <div className="flex gap-2 pt-1">
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => { setShowCreateForm(false); setNewPayDate(undefined); }}
+                onClick={() => { setShowCreateForm(false); resetForm(); }}
                 className="flex-1 h-8 text-xs"
               >
                 Cancel
@@ -203,7 +293,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
               <Button
                 size="sm"
                 onClick={handleCreateBatch}
-                disabled={!newPayDate}
+                disabled={!isFormValid}
                 className="flex-1 h-8 text-xs bg-violet-600 hover:bg-violet-700 text-white"
               >
                 Create Batch
@@ -304,16 +394,21 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1.5">
                                 <span className={cn("text-[13px] font-semibold", isSelected ? "text-foreground" : "text-foreground/85")}>
-                                  Off-cycle
+                                  Custom
                                 </span>
                                 <span className="text-muted-foreground/40">·</span>
                                 <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
                                   {period.periodLabel}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-1 mt-0.5">
-                                <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
-                                <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
+                              <div className="flex items-center gap-2.5 mt-0.5">
+                                {period.startDate && period.endDate && (
+                                  <span className="text-[10px] text-muted-foreground/60">{period.startDate} – {period.endDate}</span>
+                                )}
+                                <div className="flex items-center gap-1">
+                                  <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
+                                  <span className="text-[11px] text-muted-foreground/70">Pay: {period.payDate}</span>
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
