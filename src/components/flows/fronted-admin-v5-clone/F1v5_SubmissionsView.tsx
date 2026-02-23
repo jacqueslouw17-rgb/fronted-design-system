@@ -517,6 +517,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
   // Status change decisions (Flag 1) - keyed by worker submission id
   const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
+  // Skip remaining: explicit signal that user is done reviewing for off-cycle batches
+  const [skippedOthers, setSkippedOthers] = useState(false);
 
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments((prev) => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));
@@ -586,8 +588,28 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   }, [submissions, adjustmentStates, leaveStates, finalizedWorkers]);
   // For custom batches: enable continue as soon as at least one adjustment has been actioned
   const hasAnyAction = isCustomBatch && (Object.keys(adjustmentStates).length > 0 || Object.keys(leaveStates).length > 0 || finalizedWorkers.size > 0);
+  
+  // Count workers that still have pending items
+  const workersWithPendingItems = useMemo(() => {
+    if (!isCustomBatch) return 0;
+    return submissions.filter(s => {
+      if (finalizedWorkers.has(s.id) || statusDecisions[s.id] === "exclude") return false;
+      const hasPending = s.submissions.some((adj, idx) => {
+        const key = `${s.id}-${idx}`;
+        const state = adjustmentStates[key];
+        return (state?.status || adj.status || 'pending') === 'pending' && typeof adj.amount === 'number';
+      }) || (s.pendingLeaves || []).some(leave => {
+        const key = `${s.id}-leave-${leave.id}`;
+        const state = leaveStates[key];
+        return (state?.status || leave.status || 'pending') === 'pending';
+      });
+      return hasPending;
+    }).length;
+  }, [submissions, adjustmentStates, leaveStates, finalizedWorkers, statusDecisions, isCustomBatch]);
+
+  const allWorkersActioned = isCustomBatch && workersWithPendingItems === 0;
   const canContinue = isCustomBatch
-    ? hasAnyAction && submissions.length > 0
+    ? hasAnyAction && submissions.length > 0 && (skippedOthers || allWorkersActioned)
     : readyCount >= submissions.length && submissions.length > 0;
 
   const filteredSubmissions = useMemo(() => {
@@ -852,7 +874,31 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 pendingCount={dynamicPendingCount} />
 
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {/* Skip Remaining button - only for off-cycle batches with pending workers */}
+              {isCustomBatch && workersWithPendingItems > 0 && hasAnyAction && !skippedOthers && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSkippedOthers(true);
+                    toast.info(`${workersWithPendingItems} worker${workersWithPendingItems !== 1 ? 's' : ''} skipped — their adjustments remain open`);
+                  }}
+                  className="h-9 text-xs gap-1.5"
+                >
+                  <Clock className="h-3.5 w-3.5" />
+                  Skip {workersWithPendingItems} Remaining
+                </Button>
+              )}
+              {isCustomBatch && skippedOthers && (
+                <button
+                  onClick={() => setSkippedOthers(false)}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Undo2 className="h-3 w-3" />
+                  Undo skip
+                </button>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span>
@@ -889,8 +935,14 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                   </span>
                 </TooltipTrigger>
                 {!canContinue &&
-                <TooltipContent side="bottom" className="max-w-[200px]">
-                    <p className="text-xs">Mark all {submissions.length - readyCount} remaining worker{submissions.length - readyCount !== 1 ? 's' : ''} as ready before continuing</p>
+                <TooltipContent side="bottom" className="max-w-[220px]">
+                    <p className="text-xs">
+                      {isCustomBatch && hasAnyAction && !skippedOthers
+                        ? `${workersWithPendingItems} worker${workersWithPendingItems !== 1 ? 's' : ''} still pending — click "Skip Remaining" to proceed`
+                        : isCustomBatch
+                        ? "Review at least one worker's adjustments first"
+                        : `Mark all ${submissions.length - readyCount} remaining worker${submissions.length - readyCount !== 1 ? 's' : ''} as ready before continuing`}
+                    </p>
                   </TooltipContent>
                 }
               </Tooltip>
