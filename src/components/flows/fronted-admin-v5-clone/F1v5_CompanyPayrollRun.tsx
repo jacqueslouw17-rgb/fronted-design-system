@@ -220,7 +220,11 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "overtime", amount: 4500, hours: 12, description: "Jan 11 · 09:00–21:00", status: "pending" },
-      { type: "expenses", amount: 750, description: "Parking", status: "pending" },
+      { type: "expenses", amount: 750, description: "Parking", status: "pending",
+        attachments: [
+          { id: "att-f5-park", fileName: "parking_receipt.jpg", fileType: "image/jpeg", fileSize: "120 KB", url: "#", uploadedAt: "Jan 22, 2026", uploadedBy: "David Martinez" },
+        ], attachmentsCount: 1,
+      },
     ],
     pendingLeaves: [
       { id: "leave-1", leaveType: "Unpaid", startDate: "2026-01-20", endDate: "2026-01-21", totalDays: 2, daysInThisPeriod: 2, status: "pending", dailyRate: 2955, dateDescription: "20–21 Jan" },
@@ -344,7 +348,11 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
       basePay: 8500,
       estimatedNet: 8500,
       lineItems: [{ type: "Earnings", label: "Consulting Fee", amount: 8500, locked: false }],
-      submissions: [{ type: "expenses", amount: 320, currency: "SGD", description: "Client meeting expenses", status: "pending" }],
+      submissions: [{ type: "expenses", amount: 320, currency: "SGD", description: "Client meeting expenses", status: "pending",
+        attachments: [
+          { id: "att-f5-mc1", fileName: "meeting_receipt.pdf", fileType: "application/pdf", fileSize: "340 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Marcus Chen" },
+        ], attachmentsCount: 1,
+      }],
       pendingLeaves: [],
       status: "pending",
       totalImpact: 320,
@@ -402,7 +410,11 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
       basePay: 180000,
       estimatedNet: 180000,
       lineItems: [{ type: "Earnings", label: "Development Fee", amount: 180000, locked: false }],
-      submissions: [{ type: "expenses", amount: 8500, currency: "INR", description: "Software licenses", status: "pending" }],
+      submissions: [{ type: "expenses", amount: 8500, currency: "INR", description: "Software licenses", status: "pending",
+        attachments: [
+          { id: "att-f5-ps1", fileName: "license_invoice.pdf", fileType: "application/pdf", fileSize: "1.2 MB", url: "#", uploadedAt: "Jan 18, 2026", uploadedBy: "Priya Sharma" },
+        ], attachmentsCount: 1,
+      }],
       pendingLeaves: [],
       status: "pending",
       totalImpact: 8500,
