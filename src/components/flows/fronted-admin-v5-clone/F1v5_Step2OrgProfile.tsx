@@ -148,13 +148,15 @@ const F1v5_Step2OrgProfile = ({
     data.companyName !== originalData.companyName ||
     data.adminName !== originalData.adminName ||
     data.adminEmail !== originalData.adminEmail ||
-    data.hqCountry !== originalData.hqCountry
+    data.hqCountry !== originalData.hqCountry ||
+    data.defaultCurrency !== originalData.defaultCurrency
   ) : true;
 
   const isFormValid = data.companyName.trim().length > 0 &&
     data.adminName.trim().length > 0 &&
     data.adminEmail.trim().length > 0 &&
     data.hqCountry.trim().length > 0 &&
+    data.defaultCurrency.trim().length > 0 &&
     hasChanges &&
     (isEditMode || (
       creationCountries.length > 0 &&
