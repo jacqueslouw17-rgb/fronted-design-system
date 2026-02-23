@@ -433,68 +433,70 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                       </div>
                     </div>
 
-                {/* DEDUCTIONS (employees only) */}
-                {!isContractor && earningsData.deductions.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-                      Deductions
-                    </p>
-                    <div className="space-y-4">
-                      {earningsData.deductions.map((item, idx) => (
-                        <div key={idx} className="flex items-start justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{item.label}</p>
-                            <p className="text-xs text-muted-foreground">{item.description}</p>
-                          </div>
-                          <p className="text-sm font-medium text-muted-foreground tabular-nums">
-                            {approx}-{formatCurrency(Math.round(cvt(item.amount)), dc)}
+                    {/* DEDUCTIONS (employees only) */}
+                    {!isContractor && earningsData.deductions.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
+                          Deductions
+                        </p>
+                        <div className="space-y-4">
+                          {earningsData.deductions.map((item, idx) => (
+                            <div key={idx} className="flex items-start justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{item.label}</p>
+                                <p className="text-xs text-muted-foreground">{item.description}</p>
+                              </div>
+                              <p className="text-sm font-medium text-muted-foreground tabular-nums">
+                                {approx}-{formatCurrency(Math.round(cvt(item.amount)), dc)}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
+                          <p className="text-sm font-semibold text-foreground">Total deductions</p>
+                          <p className="text-sm font-semibold text-muted-foreground tabular-nums">
+                            {approx}-{formatCurrency(Math.round(cvt(totalDeductions)), dc)}
                           </p>
                         </div>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
-                      <p className="text-sm font-semibold text-foreground">Total deductions</p>
-                      <p className="text-sm font-semibold text-muted-foreground tabular-nums">
-                        {approx}-{formatCurrency(Math.round(cvt(totalDeductions)), dc)}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* SEPARATOR */}
-                <div className="border-t border-border/40" />
-
-                {/* NET TOTAL */}
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-base font-semibold text-foreground">
-                      {isContractor ? "Invoice total" : "Net pay"}
-                    </p>
-                    {isPaid && (
-                      <p className="text-xs text-muted-foreground">Paid on Jan 25, 2026</p>
+                      </div>
                     )}
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {isNonEUR && (
-                      <button
-                        onClick={() => setShowEUR(!showEUR)}
-                        className={cn(
-                          "flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all duration-150",
-                          "border border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
-                          showEUR
-                            ? "bg-primary/5 text-primary border-primary/30"
-                            : "text-muted-foreground bg-muted/30"
+
+                    {/* SEPARATOR */}
+                    <div className="border-t border-border/40" />
+
+                    {/* NET TOTAL */}
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-base font-semibold text-foreground">
+                          {isContractor ? "Invoice total" : "Net pay"}
+                        </p>
+                        {isPaid && (
+                          <p className="text-xs text-muted-foreground">Paid on Jan 25, 2026</p>
                         )}
-                      >
-                        <ArrowLeftRight className="h-2.5 w-2.5" />
-                        {showEUR ? worker.currency : "EUR"}
-                      </button>
-                    )}
-                    <p className="text-2xl font-bold text-foreground tabular-nums">
-                      {approx}{formatCurrency(Math.round(cvt(netTotal)), dc)}
-                    </p>
-                  </div>
-                </div>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {isNonEUR && (
+                          <button
+                            onClick={() => setShowEUR(!showEUR)}
+                            className={cn(
+                              "flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all duration-150",
+                              "border border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+                              showEUR
+                                ? "bg-primary/5 text-primary border-primary/30"
+                                : "text-muted-foreground bg-muted/30"
+                            )}
+                          >
+                            <ArrowLeftRight className="h-2.5 w-2.5" />
+                            {showEUR ? worker.currency : "EUR"}
+                          </button>
+                        )}
+                        <p className="text-2xl font-bold text-foreground tabular-nums">
+                          {approx}{formatCurrency(Math.round(cvt(netTotal)), dc)}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {/* Action - contextually placed below total */}
                 {!isViewOnly && !isPaid && (
