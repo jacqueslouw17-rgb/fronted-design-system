@@ -1693,7 +1693,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                 </div>
               )}
               {/* Skip Remaining button - only for off-cycle batches with pending workers */}
-              {isCustomBatch && workersWithPendingItems > 0 && hasAnyAction && !skippedOthers && (
+              {isCustomBatch && workersWithPendingItems > 0 && !skippedOthers && (
                 <Button
                   size="sm"
                   variant="outline"
