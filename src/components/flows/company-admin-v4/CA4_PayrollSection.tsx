@@ -400,9 +400,14 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
 
   // Get selected previous payroll
-  const isViewingPrevious = selectedPeriodId !== "current" && selectedPeriodId !== "dec-fortnight-2";
+  const periods = buildPeriods(isPayrollSubmitted);
+  const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
+  const isCustomBatch = selectedPeriodData?.isCustomBatch === true;
+  const isCustomBatchReview = isCustomBatch && selectedPeriodId === "ocb-review";
+  const isCustomBatchTracking = isCustomBatch && selectedPeriodId === "ocb-tracking";
+  const isViewingPrevious = selectedPeriodId !== "current" && selectedPeriodId !== "dec-fortnight-2" && !isCustomBatch;
   const isViewingProcessing = selectedPeriodId === "dec-fortnight-2";
-  const selectedPrevious = isViewingPrevious 
+  const selectedPrevious = isViewingPrevious
     ? previousPayrolls.find(p => p.id === selectedPeriodId) 
     : null;
 
