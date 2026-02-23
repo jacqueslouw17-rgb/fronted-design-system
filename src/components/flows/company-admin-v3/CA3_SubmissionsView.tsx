@@ -742,7 +742,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   currentStep = "submissions",
   completedSteps = [],
   onStepClick,
-  pendingSubmissions = 0
+  pendingSubmissions = 0,
+  isCustomBatch = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");

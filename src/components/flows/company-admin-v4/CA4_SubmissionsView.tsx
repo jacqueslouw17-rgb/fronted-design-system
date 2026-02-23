@@ -828,6 +828,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // Agent-driven
   agentOpenWorkerId,
   onAgentOpenHandled,
+  isCustomBatch = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
