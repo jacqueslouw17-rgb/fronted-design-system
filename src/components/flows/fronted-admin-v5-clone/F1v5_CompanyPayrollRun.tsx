@@ -813,11 +813,21 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                   </Button>
                   <Button 
                     size="sm" 
-                    onClick={goToTrack}
+                    onClick={() => setIsHeaderConfirmOpen(true)}
                     className="h-9 text-xs"
                   >
                     Approve & Lock
                   </Button>
+                  <F1v4_ApproveConfirmationModal
+                    open={isHeaderConfirmOpen}
+                    onOpenChange={setIsHeaderConfirmOpen}
+                    onConfirm={goToTrack}
+                    companyName={company.name}
+                    employeeCount={approveSubmissions.filter(s => s.workerType === "employee").length}
+                    contractorCount={approveSubmissions.filter(s => s.workerType === "contractor").length}
+                    totalAmount={`€${approveSubmissions.reduce((sum, s) => sum + (s.totalImpact || 0), 0).toLocaleString()}`}
+                    isCustomBatch={isCustomBatch}
+                  />
                 </div>
               </div>
             </div>
