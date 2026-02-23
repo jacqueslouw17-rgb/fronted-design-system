@@ -30,6 +30,21 @@ interface F1v5_Step2Props {
   companyName?: string;
 }
 
+// Eurozone countries per acceptance criteria
+const EUROZONE_COUNTRY_CODES = new Set([
+  "AT", "BE", "BG", "HR", "CY", "EE", "FI", "FR", "DE", "GR",
+  "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PT", "SK", "SI", "ES",
+]);
+
+function getDefaultCurrency(countryCode: string): string {
+  return EUROZONE_COUNTRY_CODES.has(countryCode) ? "EUR" : "USD";
+}
+
+const CURRENCY_OPTIONS = [
+  { code: "EUR", label: "EUR – Euro" },
+  { code: "USD", label: "USD – US Dollar" },
+];
+
 const F1v5_Step2OrgProfile = ({
   formData,
   onComplete,
@@ -45,12 +60,14 @@ const F1v5_Step2OrgProfile = ({
     adminName: formData.adminName || "",
     adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
+    defaultCurrency: formData.defaultCurrency || "",
   });
   const [originalData] = useState({
     companyName: formData.companyName || "",
     adminName: formData.adminName || "",
     adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
+    defaultCurrency: formData.defaultCurrency || "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
