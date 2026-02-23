@@ -193,7 +193,11 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "timesheet", hours: 168, description: "October 2024", status: "approved" },
-      { type: "expenses", amount: 3200, currency: "NOK", description: "Software licenses", status: "pending" },
+      { type: "expenses", amount: 3200, currency: "NOK", description: "Software licenses", status: "pending",
+        attachments: [
+          { id: "att-ca3-sn1", fileName: "license_invoice.pdf", fileType: "application/pdf", fileSize: "920 KB", url: "#", uploadedAt: "Jan 22, 2026", uploadedBy: "Sofia Nilsen" },
+        ], attachmentsCount: 1,
+      },
       { type: "bonus", amount: 5000, currency: "NOK", description: "Project completion bonus", status: "pending" },
     ],
     status: "pending",
