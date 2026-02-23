@@ -18,6 +18,7 @@ export interface PayrollPeriod {
   payDate: string;
   status: PayrollRunStatus;
   label?: string;
+  isCustomBatch?: boolean;
 }
 
 interface CA3_PeriodDropdownProps {
@@ -26,9 +27,20 @@ interface CA3_PeriodDropdownProps {
   onPeriodChange: (periodId: string) => void;
 }
 
-const StatusDot = ({ status, size = "sm" }: { status: PayrollRunStatus; size?: "sm" | "md" }) => {
+const StatusDot = ({ status, size = "sm", isCustomBatch = false }: { status: PayrollRunStatus; size?: "sm" | "md"; isCustomBatch?: boolean }) => {
   const dotSize = size === "md" ? "h-2.5 w-2.5" : "h-2 w-2";
   const pulseSize = size === "md" ? "h-2.5 w-2.5" : "h-2 w-2";
+
+  if (isCustomBatch) {
+    return (
+      <span className="relative inline-flex">
+        {status === "in-review" && (
+          <span className={cn("absolute inline-flex rounded-full opacity-40 animate-ping", pulseSize, "bg-violet-500")} />
+        )}
+        <span className={cn("relative inline-flex rounded-full", dotSize, "bg-violet-500")} />
+      </span>
+    );
+  }
 
   return (
     <span className="relative inline-flex">
@@ -89,7 +101,7 @@ export const CA3_PeriodDropdown: React.FC<CA3_PeriodDropdownProps> = ({
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
           )}
         >
-          {selectedPeriod && <StatusDot status={selectedPeriod.status} size="md" />}
+          {selectedPeriod && <StatusDot status={selectedPeriod.status} size="md" isCustomBatch={selectedPeriod.isCustomBatch} />}
           <span className="text-[15px] font-semibold text-foreground tracking-tight">
             {triggerLabel}
           </span>
@@ -157,7 +169,7 @@ export const CA3_PeriodDropdown: React.FC<CA3_PeriodDropdownProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <StatusDot status={period.status} />
+                      <StatusDot status={period.status} isCustomBatch={period.isCustomBatch} />
                       <span className={cn(
                         "text-[11px] font-medium",
                         period.status === "in-review" && "text-amber-600 dark:text-amber-400",
