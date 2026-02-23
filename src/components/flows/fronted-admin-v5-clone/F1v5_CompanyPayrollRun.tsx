@@ -822,9 +822,13 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                     onOpenChange={setIsApproveModalOpen}
                     onConfirm={goToTrack}
                     companyName={company.name}
-                    employeeCount={employees.length}
-                    contractorCount={contractors.length}
-                    totalAmount={`€${(company.totalCost / 1000).toFixed(1)}K`}
+                    employeeCount={isCustomBatch ? approveSubmissions.filter(w => w.workerType === "employee").length : employees.length}
+                    contractorCount={isCustomBatch ? approveSubmissions.filter(w => w.workerType === "contractor").length : contractors.length}
+                    totalAmount={isCustomBatch 
+                      ? `€${(approveSubmissions.reduce((sum, w) => sum + (w.estimatedNet || 0), 0) / 1000).toFixed(1)}K`
+                      : `€${(company.totalCost / 1000).toFixed(1)}K`}
+                    isCustomBatch={isCustomBatch}
+                    adjustmentCount={isCustomBatch ? approveSubmissions.reduce((sum, w) => sum + w.submissions.filter(s => s.status === "approved").length, 0) : 0}
                   />
                 </div>
               </div>
