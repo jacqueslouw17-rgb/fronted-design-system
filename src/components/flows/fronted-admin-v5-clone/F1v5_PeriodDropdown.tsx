@@ -243,7 +243,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                             </span>
                           </div>
                           <div className="flex items-center gap-1 mt-0.5">
-                            <Calendar className="h-3 w-3 text-muted-foreground/50" />
+                            <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
                             <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
                           </div>
                         </div>
@@ -304,7 +304,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                               </span>
                             </div>
                             <div className="flex items-center gap-1 mt-0.5">
-                              <Calendar className="h-3 w-3 text-muted-foreground/50" />
+                              <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
                               <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
                             </div>
                           </div>
