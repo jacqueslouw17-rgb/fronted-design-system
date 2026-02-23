@@ -318,6 +318,7 @@ const AdminContractingMultiCompany = () => {
             adminName: companyData?.adminName ?? company.adminName,
             // Email cannot be changed in edit mode
             hqCountry: companyData?.hqCountry ?? company.hqCountry,
+            defaultCurrency: companyData?.defaultCurrency ?? company.defaultCurrency,
             payrollCurrency: companyData?.payrollCurrency ?? company.payrollCurrency,
             payoutDay: companyData?.payoutDay ?? company.payoutDay,
           }
