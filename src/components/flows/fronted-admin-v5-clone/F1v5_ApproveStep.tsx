@@ -150,13 +150,12 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
       approvedCount: 3,
       rejectedCount: 1,
       rejectedAmount: 1200,
+      skippedCount: 0,
       workerCount: company.employeeCount + company.contractorCount,
       totalRequests: 4,
-      workerBreakdowns: [] as { id: string; name: string; type: string; currency: string; approvedAmount: number; rejectedAmount: number; approvedCount: number; rejectedCount: number; tax: number; net: number }[],
     };
 
     if (isCustomBatch) {
-      const workerBreakdowns = displayData.workerBreakdowns || [];
       return (
         <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
           <div className="p-5 space-y-5">
@@ -165,47 +164,32 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               <p className="text-xs text-primary/70 mb-1">Off-cycle payout total</p>
               <p className="text-3xl font-semibold text-primary tracking-tight">{formatCurrency(displayData.totalCost)}</p>
               <p className="text-[10px] text-muted-foreground mt-1">
-                {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""} · {displayData.approvedCount} approved adjustment{displayData.approvedCount !== 1 ? "s" : ""}
+                {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""} · {displayData.totalRequests} adjustment{displayData.totalRequests !== 1 ? "s" : ""} processed
               </p>
             </div>
 
-            {/* Per-worker breakdown */}
-            {workerBreakdowns.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Worker breakdown</p>
-                <div className="rounded-lg border border-border/40 divide-y divide-border/30 overflow-hidden">
-                  {workerBreakdowns.map(wb => (
-                    <div key={wb.id} className="px-4 py-3 flex items-center justify-between bg-card/50">
-                      <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                          {wb.type === "employee" 
-                            ? <Users className="h-3.5 w-3.5 text-muted-foreground" /> 
-                            : <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{wb.name}</p>
-                          <p className="text-[10px] text-muted-foreground">
-                            {wb.approvedCount} approved{wb.rejectedCount > 0 ? ` · ${wb.rejectedCount} rejected` : ""}
-                            {wb.tax > 0 ? ` · ${formatCurrency(wb.tax)} tax` : ""}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold tabular-nums text-foreground">{formatCurrency(wb.net)}</p>
-                        {wb.tax > 0 && (
-                          <p className="text-[10px] text-muted-foreground tabular-nums">
-                            gross {formatCurrency(wb.approvedAmount)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {/* KPI pills */}
+            <div className="flex flex-wrap gap-2">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-accent-green-fill/10 border border-accent-green-outline/20">
+                <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
+                <span className="text-[11px] font-medium text-accent-green-text">{displayData.approvedCount} approved</span>
               </div>
-            )}
+              {displayData.rejectedCount > 0 && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-muted/30 border border-border/40">
+                  <XCircle className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-[11px] font-medium text-muted-foreground">{displayData.rejectedCount} rejected</span>
+                </div>
+              )}
+              {displayData.skippedCount > 0 && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-muted/20 border border-border/30">
+                  <Clock className="h-3 w-3 text-muted-foreground/60" />
+                  <span className="text-[11px] font-medium text-muted-foreground/60">{displayData.skippedCount} skipped</span>
+                </div>
+              )}
+            </div>
 
-            {/* Financial summary */}
-            <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2">
+            {/* Financial ledger */}
+            <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1.5 text-muted-foreground">
                   <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
@@ -226,7 +210,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
 
               {displayData.totalDeductions > 0 && (
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Tax deductions</span>
+                  <span className="text-muted-foreground">Tax deductions (employees)</span>
                   <span className="text-foreground tabular-nums">-{formatCurrency(displayData.totalDeductions)}</span>
                 </div>
               )}
@@ -236,9 +220,27 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 <span className="text-foreground tabular-nums">{formatCurrency(displayData.fees)}</span>
               </div>
               
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
+              <div className="flex items-center justify-between text-xs pt-2.5 border-t border-border/40">
                 <span className="text-foreground font-medium">Net payout</span>
                 <span className="text-primary font-semibold tabular-nums">{formatCurrency(displayData.netPayout)}</span>
+              </div>
+            </div>
+
+            {/* Worker type breakdown */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3.5 rounded-lg border border-border/40 bg-card/50">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-[11px] text-muted-foreground">Employees</span>
+                </div>
+                <p className="text-lg font-semibold text-foreground">{displayData.employeeCount}</p>
+              </div>
+              <div className="p-3.5 rounded-lg border border-border/40 bg-card/50">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-[11px] text-muted-foreground">Contractors</span>
+                </div>
+                <p className="text-lg font-semibold text-foreground">{displayData.contractorCount}</p>
               </div>
             </div>
 
@@ -247,9 +249,9 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               <div className="space-y-2">
                 {pendingWorkerCount > 0 && (
                   <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg bg-muted/40 border border-border/40">
-                    <AlertCircle className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                     <p className="text-xs text-muted-foreground">
-                      <span className="font-medium text-foreground">{pendingWorkerCount} worker{pendingWorkerCount !== 1 ? "s" : ""}</span> still pending review — their adjustments remain open for the next batch.
+                      <span className="font-medium text-foreground">{pendingWorkerCount} worker{pendingWorkerCount !== 1 ? "s" : ""}</span> skipped — adjustments remain open for the next batch.
                     </p>
                   </div>
                 )}
