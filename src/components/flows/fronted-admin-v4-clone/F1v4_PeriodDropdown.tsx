@@ -380,6 +380,8 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
             </div>
           </div>
         )}
+        </>
+        )}
       </PopoverContent>
     </Popover>
   );
