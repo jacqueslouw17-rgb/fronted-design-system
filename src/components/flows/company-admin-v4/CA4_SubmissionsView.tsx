@@ -1686,18 +1686,10 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   Ready ({readyCount})
                 </TabsTrigger>
               </TabsList>
-              {!isCustomBatch && (
-                <div className="relative w-44 hidden sm:block">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
-                </div>
-              )}
-              {isCustomBatch && (
-                <div className="relative w-44 hidden sm:block">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
-                </div>
-              )}
+              <div className="relative w-44 hidden sm:block">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
+              </div>
               {/* Skip Remaining button - only for off-cycle batches with pending workers */}
               {isCustomBatch && workersWithPendingItems > 0 && !skippedOthers && (
                 <Button
