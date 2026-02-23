@@ -82,50 +82,29 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     let approvedCount = 0;
     let rejectedCount = 0;
     let rejectedAmount = 0;
+    let skippedCount = 0;
     let totalRequests = 0;
     
-    // Per-worker breakdown
-    const workerBreakdowns = workers.map(w => {
-      let workerApproved = 0;
-      let workerRejected = 0;
-      let workerApprovedCount = 0;
-      let workerRejectedCount = 0;
-      
+    workers.forEach(w => {
       w.submissions.forEach(s => {
         totalRequests++;
         if (s.status === "approved") {
           approvedCount++;
-          workerApprovedCount++;
           totalApprovedAmount += s.amount || 0;
-          workerApproved += s.amount || 0;
         } else if (s.status === "rejected") {
           rejectedCount++;
-          workerRejectedCount++;
           rejectedAmount += s.amount || 0;
-          workerRejected += s.amount || 0;
+        } else {
+          skippedCount++;
         }
-        // "pending" items are NOT counted in payout
       });
-
-      const taxRate = w.workerType === "employee" ? 0.10 : 0;
-      const workerTax = Math.round(workerApproved * taxRate);
-      const workerNet = workerApproved - workerTax;
-      
-      return {
-        id: w.id,
-        name: w.workerName,
-        type: w.workerType,
-        currency: w.currency || "EUR",
-        approvedAmount: workerApproved,
-        rejectedAmount: workerRejected,
-        approvedCount: workerApprovedCount,
-        rejectedCount: workerRejectedCount,
-        tax: workerTax,
-        net: workerNet,
-      };
     });
-    
-    const totalDeductions = workerBreakdowns.reduce((sum, wb) => sum + wb.tax, 0);
+
+    // Tax: 10% for employees only
+    const employeeTotalApproved = workers
+      .filter(w => w.workerType === "employee")
+      .reduce((sum, w) => sum + w.submissions.filter(s => s.status === "approved").reduce((s2, s) => s2 + (s.amount || 0), 0), 0);
+    const totalDeductions = Math.round(employeeTotalApproved * 0.10);
     const netPayout = totalApprovedAmount - totalDeductions;
     const fees = Math.round(netPayout * 0.03);
     
@@ -141,9 +120,9 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
       approvedCount,
       rejectedCount,
       rejectedAmount,
+      skippedCount,
       workerCount: workers.length,
       totalRequests,
-      workerBreakdowns,
     };
   }, [isCustomBatch, submissions]);
 
