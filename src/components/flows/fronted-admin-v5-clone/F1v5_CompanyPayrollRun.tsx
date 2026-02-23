@@ -9,7 +9,7 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 
 import { motion } from "framer-motion";
-import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase } from "lucide-react";
+import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -689,7 +689,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     return (
       <>
         {/* Period Selector */}
-        <div className={cn("flex items-center justify-center pt-2", isCustomBatch ? "pb-0" : "pb-4")}>
+        <div className={cn("flex items-center justify-center gap-1.5 pt-2", isCustomBatch ? "pb-0" : "pb-4")}>
           <F1v4_PeriodDropdown 
             periods={periods}
             selectedPeriodId={selectedPeriodId}
@@ -698,6 +698,15 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             onCreateCustomBatch={handleCreateCustomBatch}
             onDeleteCustomBatch={handleDeleteCustomBatch}
           />
+          {isCustomBatch && !isApproved && (
+            <button
+              onClick={() => handleDeleteCustomBatch(selectedPeriodId)}
+              className="h-6 w-6 rounded-md flex items-center justify-center text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors duration-150"
+              title="Remove batch"
+            >
+              <X className="h-3.5" />
+            </button>
+          )}
         </div>
 
         {/* KPI Metrics Card - hidden for custom batches */}
