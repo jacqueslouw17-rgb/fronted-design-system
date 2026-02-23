@@ -224,7 +224,30 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 <p className="text-lg font-semibold text-foreground">{displayData.currencyCount}</p>
               </div>
             </div>
+
+            {/* Excluded / pending workers info */}
+            {(pendingWorkerCount > 0 || excludedWorkerCount > 0) && (
+              <div className="space-y-2">
+                {pendingWorkerCount > 0 && (
+                  <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg bg-muted/40 border border-border/40">
+                    <AlertCircle className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">{pendingWorkerCount} worker{pendingWorkerCount !== 1 ? "s" : ""}</span> still pending review — their adjustments remain open for the next batch.
+                    </p>
+                  </div>
+                )}
+                {excludedWorkerCount > 0 && (
+                  <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg bg-muted/40 border border-border/40">
+                    <UserMinus className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">{excludedWorkerCount} worker{excludedWorkerCount !== 1 ? "s" : ""}</span> excluded from this batch.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
+        </div>
         </div>
       );
     }
