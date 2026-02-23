@@ -105,9 +105,21 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
-      { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending", tags: ["Client dinner"] },
-      { type: "expenses", amount: 850, currency: "PHP", description: "Transport", status: "pending", tags: ["Client dinner"] },
-      { type: "expenses", amount: 600, currency: "PHP", description: "Taxi receipt", status: "pending" },
+      { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending", tags: ["Client dinner"],
+        attachments: [
+          { id: "att-ca3-ms1", fileName: "dinner_receipt.jpg", fileType: "image/jpeg", fileSize: "210 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Maria Santos" },
+        ], attachmentsCount: 1,
+      },
+      { type: "expenses", amount: 850, currency: "PHP", description: "Transport", status: "pending", tags: ["Client dinner"],
+        attachments: [
+          { id: "att-ca3-ms2", fileName: "grab_receipt.pdf", fileType: "application/pdf", fileSize: "95 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Maria Santos" },
+        ], attachmentsCount: 1,
+      },
+      { type: "expenses", amount: 600, currency: "PHP", description: "Taxi receipt", status: "pending",
+        attachments: [
+          { id: "att-ca3-ms3", fileName: "taxi_receipt.jpg", fileType: "image/jpeg", fileSize: "78 KB", url: "#", uploadedAt: "Jan 21, 2026", uploadedBy: "Maria Santos" },
+        ], attachmentsCount: 1,
+      },
     ],
     // Pending leave requests for this pay period - only unpaid leave affects payroll
     pendingLeaves: [],
@@ -142,7 +154,11 @@ const mockSubmissions: WorkerSubmission[] = [
         ],
         attachmentsCount: 3,
       },
-      { type: "expenses", amount: 450, currency: "NOK", description: "Parking", status: "pending" },
+      { type: "expenses", amount: 450, currency: "NOK", description: "Parking", status: "pending",
+        attachments: [
+          { id: "att-ca3-ah2", fileName: "parking_ticket.jpg", fileType: "image/jpeg", fileSize: "145 KB", url: "#", uploadedAt: "Jan 24, 2026", uploadedBy: "Alex Hansen" },
+        ], attachmentsCount: 1,
+      },
     ],
     // Pending unpaid leave (affects pay)
     pendingLeaves: [
@@ -177,7 +193,11 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "timesheet", hours: 168, description: "October 2024", status: "approved" },
-      { type: "expenses", amount: 3200, currency: "NOK", description: "Software licenses", status: "pending" },
+      { type: "expenses", amount: 3200, currency: "NOK", description: "Software licenses", status: "pending",
+        attachments: [
+          { id: "att-ca3-sn1", fileName: "license_invoice.pdf", fileType: "application/pdf", fileSize: "920 KB", url: "#", uploadedAt: "Jan 22, 2026", uploadedBy: "Sofia Nilsen" },
+        ], attachmentsCount: 1,
+      },
       { type: "bonus", amount: 5000, currency: "NOK", description: "Project completion bonus", status: "pending" },
     ],
     status: "pending",
@@ -203,7 +223,11 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Pension Insurance", amount: -465, locked: true },
     ],
     submissions: [
-      { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee", status: "pending" },
+      { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee", status: "pending",
+        attachments: [
+          { id: "att-ca3-lm1", fileName: "conference_invoice.pdf", fileType: "application/pdf", fileSize: "540 KB", url: "#", uploadedAt: "Jan 19, 2026", uploadedBy: "Lena Müller" },
+        ], attachmentsCount: 1,
+      },
     ],
     // No pending leaves - sick leave handled separately in Leaves tab
     pendingLeaves: [],
@@ -372,7 +396,11 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
       basePay: 8500,
       estimatedNet: 8500,
       lineItems: [{ type: "Earnings", label: "Consulting Fee", amount: 8500, locked: false }],
-      submissions: [{ type: "expenses", amount: 320, currency: "SGD", description: "Client meeting expenses", status: "pending" }],
+      submissions: [{ type: "expenses", amount: 320, currency: "SGD", description: "Client meeting expenses", status: "pending",
+        attachments: [
+          { id: "att-ca3-mc1", fileName: "meeting_receipt.pdf", fileType: "application/pdf", fileSize: "340 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Marcus Chen" },
+        ], attachmentsCount: 1,
+      }],
       status: "pending",
       totalImpact: 320,
       currency: "SGD",
@@ -442,7 +470,11 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
       basePay: 180000,
       estimatedNet: 180000,
       lineItems: [{ type: "Earnings", label: "Development Fee", amount: 180000, locked: false }],
-      submissions: [{ type: "expenses", amount: 8500, currency: "INR", description: "Software licenses", status: "pending" }],
+      submissions: [{ type: "expenses", amount: 8500, currency: "INR", description: "Software licenses", status: "pending",
+        attachments: [
+          { id: "att-ca3-ps1", fileName: "license_invoice.pdf", fileType: "application/pdf", fileSize: "1.2 MB", url: "#", uploadedAt: "Jan 18, 2026", uploadedBy: "Priya Sharma" },
+        ], attachmentsCount: 1,
+      }],
       status: "pending",
       totalImpact: 8500,
       currency: "INR",
