@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo, useState } from "react";
-import { ChevronDown, Calendar as CalendarIcon, Plus, X, Zap } from "lucide-react";
+import { ChevronDown, Calendar as CalendarIcon, Plus, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -124,7 +124,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
         )}>
           {selectedPeriod && <StatusDot status={selectedPeriod.status} size="md" isCustom={selectedPeriod.isCustomBatch} />}
-          {selectedPeriod?.isCustomBatch && <Zap className="h-3.5 w-3.5 text-violet-500" />}
+          
           <span className="text-[15px] font-semibold text-foreground tracking-tight">
             {triggerLabel}
           </span>
@@ -145,7 +145,6 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
           <div className="px-3 py-3 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Zap className="h-3.5 w-3.5 text-violet-500" />
                 <span className="text-[13px] font-semibold text-foreground">New Off-Cycle Batch</span>
               </div>
               <button onClick={() => { setShowCreateForm(false); setNewPayDate(undefined); }} className="text-muted-foreground hover:text-foreground transition-colors">
@@ -294,7 +293,6 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                           )} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <Zap className="h-3 w-3 text-violet-500" />
                               <span className={cn("text-[13px] font-semibold", isSelected ? "text-foreground" : "text-foreground/85")}>
                                 Off-cycle
                               </span>
