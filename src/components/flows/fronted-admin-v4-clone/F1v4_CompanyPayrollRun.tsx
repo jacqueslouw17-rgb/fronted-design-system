@@ -649,7 +649,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     return (
       <>
         {/* Period Selector */}
-        <div className="flex items-center justify-center pt-2 pb-4">
+        <div className={cn("flex items-center justify-center pt-2", isCustomBatch ? "pb-0" : "pb-4")}>
           <F1v4_PeriodDropdown 
             periods={periods}
             selectedPeriodId={selectedPeriodId}
