@@ -632,10 +632,16 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   const periods = buildPeriods(isPayrollSubmitted);
   const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
   const isViewingPrevious = selectedPeriodData?.status === "paid";
-  const isViewingProcessing = selectedPeriodData?.status === "processing" && selectedPeriodId !== "jan-monthly";
+  const isViewingProcessing = selectedPeriodData?.status === "processing" && selectedPeriodId !== "jan-monthly" && !selectedPeriodData?.isCustomBatch;
+  const isCustomBatch = selectedPeriodData?.isCustomBatch === true;
+  const isCustomBatchReview = isCustomBatch && selectedPeriodId === "ocb-review";
+  const isCustomBatchTracking = isCustomBatch && selectedPeriodId === "ocb-tracking";
   const selectedPrevious = isViewingPrevious 
     ? previousPayrolls.find(p => p.id.includes(selectedPeriodId.replace("-monthly", "").replace("-fortnight-1", "").replace("-fortnight-2", ""))) 
     : null;
+
+  // Custom batch submissions state
+  const [customBatchSubmissions, setCustomBatchSubmissions] = useState<WorkerSubmission[]>(CUSTOM_BATCH_SUBMISSIONS_REVIEW);
 
   // Get current run metrics and submissions
   const currentRunMetrics = RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"];
