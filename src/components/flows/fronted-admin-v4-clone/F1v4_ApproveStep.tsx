@@ -69,7 +69,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     return `$${amount.toLocaleString()}`;
   };
 
-  // Compute off-cycle totals from actual submissions
+  // Compute off-cycle totals from actual submissions — only count approved items
   const offCycleTotals = useMemo(() => {
     if (!isCustomBatch || submissions.length === 0) return null;
     
@@ -78,39 +78,62 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     const contractorCount = workers.filter(w => w.workerType === "contractor").length;
     const currencies = new Set(workers.map(w => w.currency).filter(Boolean));
     
-    let totalAdjustments = 0;
+    let totalApprovedAmount = 0;
     let approvedCount = 0;
     let rejectedCount = 0;
     let rejectedAmount = 0;
-    let leavesCount = 0;
     let totalRequests = 0;
     
-    workers.forEach(w => {
+    // Per-worker breakdown
+    const workerBreakdowns = workers.map(w => {
+      let workerApproved = 0;
+      let workerRejected = 0;
+      let workerApprovedCount = 0;
+      let workerRejectedCount = 0;
+      
       w.submissions.forEach(s => {
         totalRequests++;
-        if (s.status === "rejected") {
-          rejectedCount++;
-          rejectedAmount += s.amount || 0;
-        } else {
+        if (s.status === "approved") {
           approvedCount++;
-          totalAdjustments += s.amount || 0;
+          workerApprovedCount++;
+          totalApprovedAmount += s.amount || 0;
+          workerApproved += s.amount || 0;
+        } else if (s.status === "rejected") {
+          rejectedCount++;
+          workerRejectedCount++;
+          rejectedAmount += s.amount || 0;
+          workerRejected += s.amount || 0;
         }
+        // "pending" items are NOT counted in payout
       });
-      (w.pendingLeaves || []).forEach(() => leavesCount++);
+
+      const taxRate = w.workerType === "employee" ? 0.10 : 0;
+      const workerTax = Math.round(workerApproved * taxRate);
+      const workerNet = workerApproved - workerTax;
+      
+      return {
+        id: w.id,
+        name: w.workerName,
+        type: w.workerType,
+        currency: w.currency || "EUR",
+        approvedAmount: workerApproved,
+        rejectedAmount: workerRejected,
+        approvedCount: workerApprovedCount,
+        rejectedCount: workerRejectedCount,
+        tax: workerTax,
+        net: workerNet,
+      };
     });
     
-    const totalDeductions = workers.reduce((sum, w) => {
-      return sum + w.lineItems.filter(li => li.type === "Deduction").reduce((s, li) => s + Math.abs(li.amount), 0);
-    }, 0);
-    
-    const netPayout = totalAdjustments - totalDeductions;
+    const totalDeductions = workerBreakdowns.reduce((sum, wb) => sum + wb.tax, 0);
+    const netPayout = totalApprovedAmount - totalDeductions;
     const fees = Math.round(netPayout * 0.03);
     
     return {
       employeeCount,
       contractorCount,
       currencyCount: currencies.size,
-      totalAdjustments,
+      totalApprovedAmount,
       totalDeductions,
       netPayout,
       fees,
@@ -118,9 +141,9 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
       approvedCount,
       rejectedCount,
       rejectedAmount,
-      leavesCount,
       workerCount: workers.length,
       totalRequests,
+      workerBreakdowns,
     };
   }, [isCustomBatch, submissions]);
 
