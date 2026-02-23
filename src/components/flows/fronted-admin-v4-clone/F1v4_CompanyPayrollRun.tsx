@@ -542,6 +542,25 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   }, [isCustomBatch]);
 
   const displaySubmissions = isCustomBatch ? customBatchSubmissions : currentRunSubmissions;
+  
+  // For approve step: filter to only ready workers and apply adjustment decisions
+  const approveSubmissions = useMemo(() => {
+    if (!isCustomBatch || approveReadyWorkerIds.length === 0) return displaySubmissions;
+    return displaySubmissions
+      .filter(w => approveReadyWorkerIds.includes(w.id))
+      .map(w => ({
+        ...w,
+        submissions: w.submissions.map((s, idx) => {
+          const key = `${w.id}-${idx}`;
+          const decision = approveAdjustmentDecisions[key];
+          if (decision) return { ...s, status: decision.status as "pending" | "approved" | "rejected" };
+          return s;
+        }),
+      }));
+  }, [displaySubmissions, approveReadyWorkerIds, approveAdjustmentDecisions, isCustomBatch]);
+
+  const pendingWorkerCount = isCustomBatch ? displaySubmissions.length - approveReadyWorkerIds.length - approveExcludedWorkerIds.length : 0;
+  
   const employees = displaySubmissions.filter(w => w.workerType === "employee");
   const contractors = displaySubmissions.filter(w => w.workerType === "contractor");
 
