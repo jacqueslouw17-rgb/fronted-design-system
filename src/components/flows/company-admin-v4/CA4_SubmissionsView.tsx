@@ -148,6 +148,7 @@ interface CA4_SubmissionsViewProps {
   // Agent-driven auto-open
   agentOpenWorkerId?: string;
   onAgentOpenHandled?: () => void;
+  isCustomBatch?: boolean;
 }
 
 // Note: Leave is not included here - it's managed in the separate Leaves tab
