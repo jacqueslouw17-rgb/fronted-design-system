@@ -614,9 +614,12 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   };
 
   // Navigation handlers
-  const goToApprove = () => {
+  const goToApprove = (readyWorkerIds?: string[], adjustmentDecisions?: Record<string, {status: string}>, excludedWorkerIds?: string[]) => {
     setCompletedSteps(prev => [...prev, "submissions"]);
     setCurrentStep("approve");
+    if (readyWorkerIds) setApproveReadyWorkerIds(readyWorkerIds);
+    if (adjustmentDecisions) setApproveAdjustmentDecisions(adjustmentDecisions);
+    if (excludedWorkerIds) setApproveExcludedWorkerIds(excludedWorkerIds);
   };
 
   const goToTrack = () => {
