@@ -35,6 +35,8 @@ interface F1v4_ApproveStepProps {
   currentStep?: F1v4_PayrollStep;
   completedSteps?: F1v4_PayrollStep[];
   onStepClick?: (step: F1v4_PayrollStep) => void;
+  pendingWorkerCount?: number;
+  excludedWorkerCount?: number;
 }
 
 export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
