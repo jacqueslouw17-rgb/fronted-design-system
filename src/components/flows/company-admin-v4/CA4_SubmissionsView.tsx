@@ -828,6 +828,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // Agent-driven
   agentOpenWorkerId,
   onAgentOpenHandled,
+  isCustomBatch = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
@@ -854,6 +855,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
   // Status change decisions (Flag 1) - keyed by worker submission id
   const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
+  // Skip remaining: explicit signal that user is done reviewing for off-cycle batches
+  const [skippedOthers, setSkippedOthers] = useState(false);
   
   // Bulk action dialogs
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
@@ -1010,8 +1013,32 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     return finalizedWorkers.size + naturallyReady;
   }, [submissions, adjustmentStates, leaveStates, finalizedWorkers]);
   
+  // For custom batches: enable continue as soon as at least one adjustment has been actioned
+  const hasAnyAction = isCustomBatch && (Object.keys(adjustmentStates).length > 0 || Object.keys(leaveStates).length > 0 || finalizedWorkers.size > 0);
+  
+  // Count workers that still have pending items
+  const workersWithPendingItems = useMemo(() => {
+    if (!isCustomBatch) return 0;
+    return submissions.filter(s => {
+      if (finalizedWorkers.has(s.id) || statusDecisions[s.id] === "exclude") return false;
+      const hasPending = s.submissions.some((adj, idx) => {
+        const key = `${s.id}-${idx}`;
+        const state = adjustmentStates[key];
+        return (state?.status || adj.status || 'pending') === 'pending' && typeof adj.amount === 'number';
+      }) || (s.pendingLeaves || []).some(leave => {
+        const key = `${s.id}-leave-${leave.id}`;
+        const state = leaveStates[key];
+        return (state?.status || leave.status || 'pending') === 'pending';
+      });
+      return hasPending;
+    }).length;
+  }, [submissions, adjustmentStates, leaveStates, finalizedWorkers, statusDecisions, isCustomBatch]);
+
+  const allWorkersActioned = isCustomBatch && workersWithPendingItems === 0;
   // Can continue only when ALL workers have been marked as ready (or flagged workers are handled)
-  const canContinue = readyCount >= submissions.length && submissions.length > 0;
+  const canContinue = isCustomBatch
+    ? hasAnyAction && submissions.length > 0 && (skippedOthers || allWorkersActioned)
+    : readyCount >= submissions.length && submissions.length > 0;
 
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
@@ -1267,19 +1294,27 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     
     // Check if worker is finalized
     const isFinalized = isWorkerFinalized(submission.id);
+
+    const isExcluded = statusDecisions[submission.id] === "exclude";
+    // Worker is "skipped" if skippedOthers is active and they still have pending items
+    const isSkipped = skippedOthers && workerPendingCount > 0 && !isFinalized && !isExcluded;
     
-    // Derive effective worker status: 
-    // - pending = has items needing review
-    // - ready = admin has clicked "Mark as Ready" (finalized) or all items approved
+    // Derive effective worker status
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isFinalized) {
+    if (isExcluded) {
+      effectiveWorkerStatus = "ready";
+    } else if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
     } else {
       effectiveWorkerStatus = "ready";
     }
-    const status = statusConfig[effectiveWorkerStatus];
+    const status = isExcluded
+      ? { label: "Excluded", color: "text-muted-foreground", icon: X }
+      : isSkipped
+      ? { label: "Skipped", color: "text-muted-foreground", icon: Clock }
+      : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
     // Show loading skeleton when being marked as ready
@@ -1292,16 +1327,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           animate={{ opacity: 1 }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/[0.06] border border-primary/20"
         >
-          {/* Avatar skeleton */}
           <div className="h-7 w-7 rounded-full bg-primary/20 animate-pulse flex-shrink-0" />
-
-          {/* Worker Info skeleton */}
           <div className="flex-1 min-w-0 space-y-1.5">
             <div className="h-3.5 w-24 bg-primary/15 rounded animate-pulse" />
             <div className="h-2.5 w-16 bg-primary/10 rounded animate-pulse" />
           </div>
-
-          {/* Right side: Loading indicator */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Loader2 className="h-4 w-4 text-primary animate-spin" />
             <span className="text-xs text-primary font-medium">Marking ready...</span>
@@ -1320,16 +1350,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           animate={{ opacity: 1 }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-green-500/[0.06] border border-green-500/20"
         >
-          {/* Avatar skeleton */}
           <div className="h-7 w-7 rounded-full bg-green-500/20 animate-pulse flex-shrink-0" />
-
-          {/* Worker Info skeleton */}
           <div className="flex-1 min-w-0 space-y-1.5">
             <div className="h-3.5 w-24 bg-green-500/15 rounded animate-pulse" />
             <div className="h-2.5 w-16 bg-green-500/10 rounded animate-pulse" />
           </div>
-
-          {/* Right side: Loading indicator */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Loader2 className="h-4 w-4 text-green-600 animate-spin" />
             <span className="text-xs text-green-600 font-medium">Approving items...</span>
@@ -1345,8 +1370,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group"
-        onClick={() => handleRowClick(submission)}
+        className={cn(
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 transition-colors",
+          (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "hover:bg-muted/30 cursor-pointer group"
+        )}
+        onClick={() => { if (!isSkipped) handleRowClick(submission); }}
       >
         {/* Avatar */}
         <Avatar className="h-7 w-7 flex-shrink-0">
@@ -1658,10 +1686,36 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   Ready ({readyCount})
                 </TabsTrigger>
               </TabsList>
-              <div className="relative w-44 hidden sm:block">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
-              </div>
+              {!isCustomBatch && (
+                <div className="relative w-44 hidden sm:block">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
+                </div>
+              )}
+              {/* Skip Remaining button - only for off-cycle batches with pending workers */}
+              {isCustomBatch && workersWithPendingItems > 0 && hasAnyAction && !skippedOthers && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSkippedOthers(true);
+                    toast.info(`${workersWithPendingItems} worker${workersWithPendingItems !== 1 ? 's' : ''} skipped — their adjustments remain open`);
+                  }}
+                  className="h-9 text-xs gap-1.5"
+                >
+                  <Clock className="h-3.5 w-3.5" />
+                  Skip Remaining
+                </Button>
+              )}
+              {isCustomBatch && skippedOthers && (
+                <button
+                  onClick={() => setSkippedOthers(false)}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Undo2 className="h-3 w-3" />
+                  Undo skip
+                </button>
+              )}
             </div>
 
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">

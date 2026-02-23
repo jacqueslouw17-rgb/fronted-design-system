@@ -742,7 +742,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   currentStep = "submissions",
   completedSteps = [],
   onStepClick,
-  pendingSubmissions = 0
+  pendingSubmissions = 0,
+  isCustomBatch = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
@@ -769,6 +770,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
   // Status change decisions (Flag 1) - keyed by worker submission id
   const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
+  // Skip remaining: explicit signal that user is done reviewing for off-cycle batches
+  const [skippedOthers, setSkippedOthers] = useState(false);
 
   // Bulk action dialogs
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
@@ -882,8 +885,32 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     return finalizedWorkers.size + naturallyReady;
   }, [submissions, adjustmentStates, leaveStates, finalizedWorkers]);
 
+  // For custom batches: enable continue as soon as at least one adjustment has been actioned
+  const hasAnyAction = isCustomBatch && (Object.keys(adjustmentStates).length > 0 || Object.keys(leaveStates).length > 0 || finalizedWorkers.size > 0);
+  
+  // Count workers that still have pending items
+  const workersWithPendingItems = useMemo(() => {
+    if (!isCustomBatch) return 0;
+    return submissions.filter(s => {
+      if (finalizedWorkers.has(s.id) || statusDecisions[s.id] === "exclude") return false;
+      const hasPending = s.submissions.some((adj, idx) => {
+        const key = `${s.id}-${idx}`;
+        const state = adjustmentStates[key];
+        return (state?.status || adj.status || 'pending') === 'pending' && typeof adj.amount === 'number';
+      }) || (s.pendingLeaves || []).some(leave => {
+        const key = `${s.id}-leave-${leave.id}`;
+        const state = leaveStates[key];
+        return (state?.status || leave.status || 'pending') === 'pending';
+      });
+      return hasPending;
+    }).length;
+  }, [submissions, adjustmentStates, leaveStates, finalizedWorkers, statusDecisions, isCustomBatch]);
+
+  const allWorkersActioned = isCustomBatch && workersWithPendingItems === 0;
   // Can continue only when ALL workers have been marked as ready (or flagged workers are handled)
-  const canContinue = readyCount >= submissions.length && submissions.length > 0;
+  const canContinue = isCustomBatch
+    ? hasAnyAction && submissions.length > 0 && (skippedOthers || allWorkersActioned)
+    : readyCount >= submissions.length && submissions.length > 0;
 
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
@@ -1132,18 +1159,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     // Check if worker is finalized
     const isFinalized = isWorkerFinalized(submission.id);
 
-    // Derive effective worker status: 
-    // - pending = has items needing review
-    // - ready = admin has clicked "Mark as Ready" (finalized) or all items approved
+    const isExcluded = statusDecisions[submission.id] === "exclude";
+    // Worker is "skipped" if skippedOthers is active and they still have pending items
+    const isSkipped = skippedOthers && workerPendingCount > 0 && !isFinalized && !isExcluded;
+
+    // Derive effective worker status
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isFinalized) {
+    if (isExcluded) {
+      effectiveWorkerStatus = "ready";
+    } else if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
     } else {
       effectiveWorkerStatus = "ready";
     }
-    const status = statusConfig[effectiveWorkerStatus];
+    const status = isExcluded
+      ? { label: "Excluded", color: "text-muted-foreground", icon: X }
+      : isSkipped
+      ? { label: "Skipped", color: "text-muted-foreground", icon: Clock }
+      : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
     return <motion.div key={submission.id} layout initial={{
       opacity: 0
@@ -1151,7 +1186,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
       opacity: 1
     }} exit={{
       opacity: 0
-    }} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group")} onClick={() => handleRowClick(submission)}>
+    }} className={cn(
+      "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 transition-colors",
+      (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "hover:bg-muted/30 cursor-pointer group"
+    )} onClick={() => { if (!isSkipped) handleRowClick(submission); }}>
         {/* Avatar */}
         <Avatar className="h-7 w-7 flex-shrink-0">
           <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
@@ -1260,10 +1298,36 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   Ready ({readyCount})
                 </TabsTrigger>
               </TabsList>
-              <div className="relative w-44 hidden sm:block">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
-              </div>
+              {!isCustomBatch && (
+                <div className="relative w-44 hidden sm:block">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
+                </div>
+              )}
+              {/* Skip Remaining button - only for off-cycle batches with pending workers */}
+              {isCustomBatch && workersWithPendingItems > 0 && hasAnyAction && !skippedOthers && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSkippedOthers(true);
+                    toast.info(`${workersWithPendingItems} worker${workersWithPendingItems !== 1 ? 's' : ''} skipped — their adjustments remain open`);
+                  }}
+                  className="h-9 text-xs gap-1.5"
+                >
+                  <Clock className="h-3.5 w-3.5" />
+                  Skip Remaining
+                </Button>
+              )}
+              {isCustomBatch && skippedOthers && (
+                <button
+                  onClick={() => setSkippedOthers(false)}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Undo2 className="h-3 w-3" />
+                  Undo skip
+                </button>
+              )}
             </div>
 
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
