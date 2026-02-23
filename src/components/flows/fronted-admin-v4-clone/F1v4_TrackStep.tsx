@@ -3,9 +3,10 @@
  * 
  * Simplified: Only two statuses - "in-progress" and "paid"
  * Fronted admin manually marks each worker as paid
+ * Custom batches: only show approved workers from submissions, no base pay/statutory
  */
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { 
   CheckCircle2, 
   Download, 
@@ -121,6 +122,8 @@ interface F1v4_TrackStepProps {
   completedSteps?: F1v4_PayrollStep[];
   onStepClick?: (step: F1v4_PayrollStep) => void;
   onAllPaid?: () => void;
+  isCustomBatch?: boolean;
+  submissions?: { id: string; workerName: string; workerCountry: string; workerType: "employee" | "contractor"; currency?: string; estimatedNet?: number; submissions: { status?: string; amount?: number; label?: string }[] }[];
 }
 
 export type WorkerPaymentStatus = "paid" | "in-progress";
@@ -158,8 +161,30 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   completedSteps = ["submissions", "exceptions", "approve"],
   onStepClick,
   onAllPaid,
+  isCustomBatch = false,
+  submissions = [],
 }) => {
-  const [currentWorkers, setCurrentWorkers] = useState<WorkerData[]>(MOCK_TRACKED_WORKERS);
+  // For custom batches: derive workers from approved submissions only
+  const customBatchWorkers = useMemo((): WorkerData[] => {
+    if (!isCustomBatch || submissions.length === 0) return [];
+    return submissions
+      .filter(w => w.submissions.some(s => s.status === "approved"))
+      .map((w, i) => ({
+        id: w.id || String(i + 1),
+        name: w.workerName,
+        type: w.workerType,
+        country: w.workerCountry,
+        currency: w.currency || "EUR",
+        status: "ready" as const,
+        netPay: w.estimatedNet || w.submissions.filter(s => s.status === "approved").reduce((sum, s) => sum + (s.amount || 0), 0),
+        issues: 0,
+        paymentStatus: "in-progress" as const,
+      }));
+  }, [isCustomBatch, submissions]);
+
+  const [currentWorkers, setCurrentWorkers] = useState<WorkerData[]>(
+    isCustomBatch && customBatchWorkers.length > 0 ? customBatchWorkers : MOCK_TRACKED_WORKERS
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0);
