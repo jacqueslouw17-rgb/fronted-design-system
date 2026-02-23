@@ -50,6 +50,8 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   currentStep = "approve",
   completedSteps = ["submissions", "exceptions"],
   onStepClick,
+  pendingWorkerCount = 0,
+  excludedWorkerCount = 0,
 }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isRefreshingFx, setIsRefreshingFx] = useState(false);
