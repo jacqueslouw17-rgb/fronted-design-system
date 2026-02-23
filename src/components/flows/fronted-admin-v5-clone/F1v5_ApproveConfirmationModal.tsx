@@ -19,6 +19,8 @@ interface F1v4_ApproveConfirmationModalProps {
   contractorCount: number;
   totalAmount: string;
   warningCount?: number;
+  isCustomBatch?: boolean;
+  adjustmentCount?: number;
 }
 
 export const F1v4_ApproveConfirmationModal: React.FC<F1v4_ApproveConfirmationModalProps> = ({
@@ -30,41 +32,63 @@ export const F1v4_ApproveConfirmationModal: React.FC<F1v4_ApproveConfirmationMod
   contractorCount,
   totalAmount,
   warningCount = 0,
+  isCustomBatch = false,
+  adjustmentCount = 0,
 }) => {
+  const workerCount = employeeCount + contractorCount;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader className="text-center pb-2">
           <DialogTitle className="text-xl font-semibold">
-            Approve & Lock Run?
+            {isCustomBatch ? "Lock Off-Cycle Batch?" : "Approve & Lock Run?"}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            This locks the payroll numbers for {companyName}.
+            {isCustomBatch
+              ? `This locks ${adjustmentCount} adjustment${adjustmentCount !== 1 ? "s" : ""} for ${workerCount} worker${workerCount !== 1 ? "s" : ""} at ${companyName}.`
+              : `This locks the payroll numbers for ${companyName}.`}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-4">
-          {/* Total payout - hero */}
           <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-1">Total Payout</p>
+            <p className="text-xs text-muted-foreground mb-1">
+              {isCustomBatch ? "Adjustment Payout" : "Total Payout"}
+            </p>
             <p className="text-3xl font-bold text-primary">{totalAmount}</p>
           </div>
 
-          {/* Worker breakdown */}
           <div className="flex items-center justify-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">{employeeCount}</span>
-              <span className="text-muted-foreground">Employees</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">{contractorCount}</span>
-              <span className="text-muted-foreground">Contractors</span>
-            </div>
+            {isCustomBatch ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <FileCheck className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{adjustmentCount}</span>
+                  <span className="text-muted-foreground">Adj. requests</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{workerCount}</span>
+                  <span className="text-muted-foreground">Workers</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{employeeCount}</span>
+                  <span className="text-muted-foreground">Employees</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Briefcase className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{contractorCount}</span>
+                  <span className="text-muted-foreground">Contractors</span>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Warnings if any */}
           {warningCount > 0 && (
             <div className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-amber-500/5 text-xs text-amber-700 dark:text-amber-400">
               <AlertTriangle className="h-3.5 w-3.5" />
@@ -74,15 +98,18 @@ export const F1v4_ApproveConfirmationModal: React.FC<F1v4_ApproveConfirmationMod
 
           <Separator />
 
-          {/* What happens next - compact */}
           <div className="space-y-2.5">
             <div className="flex items-center gap-2.5 text-sm">
               <Lock className="h-4 w-4 text-primary flex-shrink-0" />
-              <span className="text-muted-foreground">Numbers locked, no further edits</span>
+              <span className="text-muted-foreground">
+                {isCustomBatch ? "Adjustments locked, no further edits" : "Numbers locked, no further edits"}
+              </span>
             </div>
             <div className="flex items-center gap-2.5 text-sm">
               <CheckCircle2 className="h-4 w-4 text-accent-green-text flex-shrink-0" />
-              <span className="text-muted-foreground">Payment summary generated</span>
+              <span className="text-muted-foreground">
+                {isCustomBatch ? "Payslips/invoices generated for tax" : "Payment summary generated"}
+              </span>
             </div>
             <div className="flex items-center gap-2.5 text-sm">
               <Building className="h-4 w-4 text-muted-foreground flex-shrink-0" />
