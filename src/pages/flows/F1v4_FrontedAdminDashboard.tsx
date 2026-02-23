@@ -72,6 +72,7 @@ const MOCK_COMPANIES: CompanyData[] = [
     adminName: "Joe User",
     adminEmail: "joe@example.com",
     hqCountry: "United States",
+    defaultCurrency: "USD",
     payrollCurrency: ["USD"],
     payoutDay: "25",
   }
