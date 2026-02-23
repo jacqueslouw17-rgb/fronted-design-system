@@ -787,6 +787,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 company={company}
                 onApprove={goToTrack}
                 hideHeader
+                isCustomBatch={isCustomBatch}
+                submissions={displaySubmissions}
               />
             </div>
           </Card>
