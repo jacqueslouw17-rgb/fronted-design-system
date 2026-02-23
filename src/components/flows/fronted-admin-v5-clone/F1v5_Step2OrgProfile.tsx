@@ -279,28 +279,25 @@ const F1v5_Step2OrgProfile = ({
             {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label className="text-sm">Default Currency</Label>
-            <div className="flex gap-2">
+            <div className="inline-flex gap-1.5">
               {CURRENCY_OPTIONS.map(c => (
                 <button
                   key={c.code}
                   type="button"
                   onClick={() => handleFieldChange('defaultCurrency', c.code)}
-                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 ${
+                  className={`px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all duration-200 ${
                     data.defaultCurrency === c.code
-                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                      : 'bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+                      ? 'bg-gradient-primary text-primary-foreground shadow-sm'
+                      : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
                 >
-                  {c.label}
+                  {c.code}
                 </button>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">
-              This currency will be used as the default across the company's dashboard.
-            </p>
-            {errors.defaultCurrency && <p className="text-xs text-destructive">{errors.defaultCurrency}</p>}
+            {errors.defaultCurrency && <p className="text-xs text-destructive mt-1">{errors.defaultCurrency}</p>}
           </div>
 
           {/* Country templates — creation mode: multi-select + manage */}
