@@ -1686,34 +1686,35 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   Ready ({readyCount})
                 </TabsTrigger>
               </TabsList>
-              <div className="relative w-44 hidden sm:block">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
+              <div className="flex items-center gap-2 ml-auto">
+                <div className="relative w-44 hidden sm:block">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
+                </div>
+                {isCustomBatch && workersWithPendingItems > 0 && !skippedOthers && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setSkippedOthers(true);
+                      toast.info(`${workersWithPendingItems} worker${workersWithPendingItems !== 1 ? 's' : ''} skipped — their adjustments remain open`);
+                    }}
+                    className="h-8 text-xs gap-1.5"
+                  >
+                    <Clock className="h-3.5 w-3.5" />
+                    Skip Remaining
+                  </Button>
+                )}
+                {isCustomBatch && skippedOthers && (
+                  <button
+                    onClick={() => setSkippedOthers(false)}
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Undo2 className="h-3 w-3" />
+                    Undo skip
+                  </button>
+                )}
               </div>
-              {/* Skip Remaining button - only for off-cycle batches with pending workers */}
-              {isCustomBatch && workersWithPendingItems > 0 && !skippedOthers && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setSkippedOthers(true);
-                    toast.info(`${workersWithPendingItems} worker${workersWithPendingItems !== 1 ? 's' : ''} skipped — their adjustments remain open`);
-                  }}
-                  className="h-9 text-xs gap-1.5"
-                >
-                  <Clock className="h-3.5 w-3.5" />
-                  Skip Remaining
-                </Button>
-              )}
-              {isCustomBatch && skippedOthers && (
-                <button
-                  onClick={() => setSkippedOthers(false)}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Undo2 className="h-3 w-3" />
-                  Undo skip
-                </button>
-              )}
             </div>
 
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
