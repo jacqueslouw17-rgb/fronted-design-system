@@ -248,7 +248,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             )}
           </div>
         </div>
-        </div>
       );
     }
 
