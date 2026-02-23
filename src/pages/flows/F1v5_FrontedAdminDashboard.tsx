@@ -884,6 +884,7 @@ const AdminContractingMultiCompany = () => {
                         adminName: editingCompany?.adminName || "",
                         adminEmail: editingCompany?.adminEmail || "",
                         hqCountry: editingCompany?.hqCountry || "",
+                        defaultCurrency: editingCompany?.defaultCurrency || "",
                         payrollCurrency: editingCompany?.payrollCurrency || [],
                         payoutDay: editingCompany?.payoutDay || "",
                       }}
