@@ -133,6 +133,7 @@ interface F1v4_SubmissionsViewProps {
   submissions: WorkerSubmission[];
   onContinue: () => void;
   onClose?: () => void;
+  isCustomBatch?: boolean;
 }
 
 const submissionTypeConfig: Record<SubmissionType, {icon: React.ElementType;label: string;color: string;}> = {
@@ -491,7 +492,8 @@ interface AdjustmentState {status: AdjustmentItemStatus;rejectionReason?: string
 export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   submissions,
   onContinue,
-  onClose
+  onClose,
+  isCustomBatch = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
@@ -582,7 +584,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     }).length;
     return finalizedWorkers.size + naturallyReady;
   }, [submissions, adjustmentStates, leaveStates, finalizedWorkers]);
-  const canContinue = readyCount >= submissions.length && submissions.length > 0;
+  // For custom batches: enable continue as soon as at least one adjustment has been actioned
+  const hasAnyAction = isCustomBatch && (Object.keys(adjustmentStates).length > 0 || Object.keys(leaveStates).length > 0 || finalizedWorkers.size > 0);
+  const canContinue = isCustomBatch
+    ? hasAnyAction && submissions.length > 0
+    : readyCount >= submissions.length && submissions.length > 0;
 
   const filteredSubmissions = useMemo(() => {
     if (!searchQuery) return submissions;
