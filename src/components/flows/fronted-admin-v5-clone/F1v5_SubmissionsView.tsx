@@ -131,7 +131,7 @@ export interface WorkerSubmission {
 
 interface F1v4_SubmissionsViewProps {
   submissions: WorkerSubmission[];
-  onContinue: () => void;
+  onContinue: (readyWorkerIds?: string[], adjustmentDecisions?: Record<string, {status: string}>, excludedWorkerIds?: string[]) => void;
   onClose?: () => void;
   isCustomBatch?: boolean;
 }
