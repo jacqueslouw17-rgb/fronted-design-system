@@ -12,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-export type PayrollFrequency = "monthly" | "fortnightly";
+export type PayrollFrequency = "monthly" | "fortnightly" | "custom";
 export type PayrollRunStatus = "in-review" | "processing" | "paid";
 
 export interface PayrollPeriod {
@@ -23,6 +23,14 @@ export interface PayrollPeriod {
   status: PayrollRunStatus;
   label?: string;
   isCustomBatch?: boolean;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface CustomBatchFormData {
+  startDate: string;
+  endDate: string;
+  payDate: string;
 }
 
 interface F1v4_PeriodDropdownProps {
@@ -30,7 +38,7 @@ interface F1v4_PeriodDropdownProps {
   selectedPeriodId: string;
   onPeriodChange: (periodId: string) => void;
   allowCustomBatch?: boolean;
-  onCreateCustomBatch?: (payDate: string) => void;
+  onCreateCustomBatch?: (data: CustomBatchFormData) => void;
   onDeleteCustomBatch?: (periodId: string) => void;
 }
 
