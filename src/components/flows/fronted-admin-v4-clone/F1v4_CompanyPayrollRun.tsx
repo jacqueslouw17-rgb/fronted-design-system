@@ -814,7 +814,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                     Approve & Lock
                   </Button>
                   <F1v4_ApproveConfirmationModal
-                    isOpen={isHeaderConfirmOpen}
+                    open={isHeaderConfirmOpen}
                     onOpenChange={setIsHeaderConfirmOpen}
                     onConfirm={goToTrack}
                     isCustomBatch={isCustomBatch}
