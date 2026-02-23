@@ -482,9 +482,71 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
   ],
 };
 
+// Custom off-cycle batch mock submissions (adjustments only, no base pay)
+const CUSTOM_BATCH_SUBMISSIONS_REVIEW: WorkerSubmission[] = [
+  {
+    id: "ocb-sub-1",
+    workerId: "ocb-1",
+    workerName: "Maria Santos",
+    workerCountry: "Philippines",
+    workerType: "employee",
+    periodLabel: "Off-cycle",
+    basePay: 0,
+    estimatedNet: 3500,
+    lineItems: [],
+    submissions: [
+      { type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
+    ],
+    status: "pending",
+    totalImpact: 3500,
+    currency: "PHP",
+  },
+  {
+    id: "ocb-sub-2",
+    workerId: "ocb-2",
+    workerName: "Alex Hansen",
+    workerCountry: "Norway",
+    workerType: "employee",
+    periodLabel: "Off-cycle",
+    basePay: 0,
+    estimatedNet: 1200,
+    lineItems: [],
+    submissions: [
+      { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending" },
+    ],
+    status: "pending",
+    totalImpact: 1200,
+    currency: "NOK",
+  },
+];
+
+const CUSTOM_BATCH_TRACKING_WORKERS: TrackingWorker[] = [
+  { id: "ocbt-1", name: "Sophie Laurent", country: "France", type: "employee", amount: 500, currency: "EUR", status: "paid" },
+  { id: "ocbt-2", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 3200, currency: "NOK", status: "in-progress" },
+];
+
 // Build periods array for dropdown - defined inside component to be dynamic
 // Multiple runs can be "in-review" simultaneously
 const buildPeriods = (isSubmitted: boolean): PayrollPeriod[] => [
+  // Custom off-cycle batches
+  {
+    id: "ocb-review",
+    frequency: "monthly",
+    periodLabel: "Off-cycle Jan 10–20",
+    payDate: "Jan 25",
+    status: "in-review",
+    label: "Off-cycle Jan 10–20",
+    isCustomBatch: true,
+  },
+  {
+    id: "ocb-tracking",
+    frequency: "monthly",
+    periodLabel: "Off-cycle Dec 15–22",
+    payDate: "Dec 28",
+    status: "processing",
+    label: "Off-cycle Dec 15–22",
+    isCustomBatch: true,
+  },
   // Current active runs (can have multiple in-review)
   { 
     id: "jan-monthly", 
@@ -570,10 +632,16 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   const periods = buildPeriods(isPayrollSubmitted);
   const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
   const isViewingPrevious = selectedPeriodData?.status === "paid";
-  const isViewingProcessing = selectedPeriodData?.status === "processing" && selectedPeriodId !== "jan-monthly";
+  const isViewingProcessing = selectedPeriodData?.status === "processing" && selectedPeriodId !== "jan-monthly" && !selectedPeriodData?.isCustomBatch;
+  const isCustomBatch = selectedPeriodData?.isCustomBatch === true;
+  const isCustomBatchReview = isCustomBatch && selectedPeriodId === "ocb-review";
+  const isCustomBatchTracking = isCustomBatch && selectedPeriodId === "ocb-tracking";
   const selectedPrevious = isViewingPrevious 
     ? previousPayrolls.find(p => p.id.includes(selectedPeriodId.replace("-monthly", "").replace("-fortnight-1", "").replace("-fortnight-2", ""))) 
     : null;
+
+  // Custom batch submissions state
+  const [customBatchSubmissions, setCustomBatchSubmissions] = useState<WorkerSubmission[]>(CUSTOM_BATCH_SUBMISSIONS_REVIEW);
 
   // Get current run metrics and submissions
   const currentRunMetrics = RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"];
@@ -871,6 +939,75 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         return null;
     }
   };
+
+  // Custom batch handlers
+  const handleCustomBatchApprove = (submission: WorkerSubmission) => {
+    setCustomBatchSubmissions(prev => prev.map(s => 
+      s.id === submission.id ? { ...s, status: "ready" as const } : s
+    ));
+  };
+
+  const handleCustomBatchReject = (submission: WorkerSubmission, reason: string) => {
+    setCustomBatchSubmissions(prev => prev.map(s => 
+      s.id === submission.id ? { ...s, status: "ready" as const } : s
+    ));
+  };
+
+  const handleCustomBatchApproveAll = () => {
+    setCustomBatchSubmissions(prev => prev.map(s => 
+      s.status === "pending" ? { ...s, status: "ready" as const } : s
+    ));
+    toast.success("All adjustments approved");
+  };
+
+  const customBatchPending = customBatchSubmissions.filter(s => s.status === "pending").length;
+
+  // Custom batch: review (submissions stage) — company admin reviews adjustments, no "Continue"
+  if (isCustomBatchReview) {
+    return (
+      <div>
+        <div className="flex items-center justify-center pt-2 pb-4">
+          <CA3_PeriodDropdown 
+            periods={periods}
+            selectedPeriodId={selectedPeriodId}
+            onPeriodChange={handlePeriodChange}
+          />
+        </div>
+        <CA3_SubmissionsView
+          submissions={customBatchSubmissions}
+          onApprove={handleCustomBatchApprove}
+          onFlag={handleCustomBatchReject}
+          onApproveAll={handleCustomBatchApproveAll}
+          onContinue={() => {}} 
+          onClose={() => setSelectedPeriodId("jan-monthly")}
+          onBack={() => setSelectedPeriodId("jan-monthly")}
+          pendingCount={customBatchPending}
+          pendingSubmissions={customBatchPending}
+          isCustomBatch={true}
+        />
+      </div>
+    );
+  }
+
+  // Custom batch: tracking (payment status stage) — company admin sees payment status
+  if (isCustomBatchTracking) {
+    return (
+      <div>
+        <div className="flex items-center justify-center pt-2 pb-4">
+          <CA3_PeriodDropdown 
+            periods={periods}
+            selectedPeriodId={selectedPeriodId}
+            onPeriodChange={handlePeriodChange}
+          />
+        </div>
+        <CA3_TrackingView
+          workers={CUSTOM_BATCH_TRACKING_WORKERS}
+          onExportCSV={handleExportCSV}
+          onDownloadAuditPDF={handleDownloadAuditPDF}
+        />
+      </div>
+    );
+  }
 
   // Historical view for previous periods
   if (isViewingPrevious) {

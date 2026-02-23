@@ -142,6 +142,7 @@ interface CA3_SubmissionsViewProps {
   completedSteps?: CA3_PayrollStep[];
   onStepClick?: (step: CA3_PayrollStep) => void;
   pendingSubmissions?: number;
+  isCustomBatch?: boolean;
 }
 
 // Note: Leave is not included here - it's managed in the separate Leaves tab

@@ -13,6 +13,7 @@ export interface PayrollPeriod {
   id: string;
   label: string;
   status: "current" | "processing" | "paid";
+  isCustomBatch?: boolean;
 }
 
 interface CA4_PeriodDropdownProps {
@@ -23,9 +24,20 @@ interface CA4_PeriodDropdownProps {
 
 type DotStatus = "current" | "processing" | "paid";
 
-const StatusDot = ({ status, size = "sm" }: { status: DotStatus; size?: "sm" | "md" }) => {
+const StatusDot = ({ status, size = "sm", isCustomBatch = false }: { status: DotStatus; size?: "sm" | "md"; isCustomBatch?: boolean }) => {
   const dotSize = size === "md" ? "h-2.5 w-2.5" : "h-2 w-2";
   const pulseSize = size === "md" ? "h-2.5 w-2.5" : "h-2 w-2";
+
+  if (isCustomBatch) {
+    return (
+      <span className="relative inline-flex">
+        {status === "current" && (
+          <span className={cn("absolute inline-flex rounded-full opacity-40 animate-ping", pulseSize, "bg-violet-500")} />
+        )}
+        <span className={cn("relative inline-flex rounded-full", dotSize, "bg-violet-500")} />
+      </span>
+    );
+  }
 
   return (
     <span className="relative inline-flex">
@@ -82,7 +94,7 @@ export const CA4_PeriodDropdown: React.FC<CA4_PeriodDropdownProps> = ({
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
           )}
         >
-          {selectedPeriod && <StatusDot status={selectedPeriod.status} size="md" />}
+          {selectedPeriod && <StatusDot status={selectedPeriod.status} size="md" isCustomBatch={selectedPeriod.isCustomBatch} />}
           <span className="text-[15px] font-semibold text-foreground tracking-tight">
             {selectedPeriod?.label || "Select Period"} Payroll
           </span>
@@ -133,7 +145,7 @@ export const CA4_PeriodDropdown: React.FC<CA4_PeriodDropdownProps> = ({
                     </span>
 
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <StatusDot status={period.status} />
+                      <StatusDot status={period.status} isCustomBatch={period.isCustomBatch} />
                       <span className={cn(
                         "text-[11px] font-medium",
                         period.status === "current" && "text-amber-600 dark:text-amber-400",

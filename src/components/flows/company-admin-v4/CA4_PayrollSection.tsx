@@ -339,8 +339,33 @@ const previousPayrolls: PreviousPayroll[] = [
   },
 ];
 
+// Custom off-cycle batch mock data
+const CUSTOM_BATCH_SUBMISSIONS_REVIEW: WorkerSubmission[] = [
+  {
+    id: "ocb-sub-1", workerId: "ocb-1", workerName: "Maria Santos", workerCountry: "Philippines",
+    workerType: "employee", periodLabel: "Off-cycle", basePay: 0, estimatedNet: 3500,
+    lineItems: [],
+    submissions: [{ type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" }],
+    status: "pending", totalImpact: 3500, currency: "PHP",
+  },
+  {
+    id: "ocb-sub-2", workerId: "ocb-2", workerName: "Alex Hansen", workerCountry: "Norway",
+    workerType: "employee", periodLabel: "Off-cycle", basePay: 0, estimatedNet: 1200,
+    lineItems: [],
+    submissions: [{ type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending" }],
+    status: "pending", totalImpact: 1200, currency: "NOK",
+  },
+];
+
+const CUSTOM_BATCH_TRACKING_WORKERS: TrackingWorker[] = [
+  { id: "ocbt-1", name: "Sophie Laurent", country: "France", type: "employee", amount: 500, currency: "EUR", status: "paid" },
+  { id: "ocbt-2", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 3200, currency: "NOK", status: "in-progress" },
+];
+
 // Build periods array for dropdown - defined inside component to be dynamic
 const buildPeriods = (isSubmitted: boolean): PayrollPeriod[] => [
+  { id: "ocb-review", label: "Off-cycle Jan 10–20", status: "current", isCustomBatch: true },
+  { id: "ocb-tracking", label: "Off-cycle Dec 15–22", status: "processing", isCustomBatch: true },
   { id: "current", label: "January 2026", status: isSubmitted ? "processing" : "current" },
   { id: "dec-fortnight-2", label: "Dec 15–31 2025", status: "processing" },
   ...previousPayrolls.map(p => ({ id: p.id, label: p.period, status: "paid" as const })),
@@ -375,9 +400,14 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
 
   // Get selected previous payroll
-  const isViewingPrevious = selectedPeriodId !== "current" && selectedPeriodId !== "dec-fortnight-2";
+  const periods = buildPeriods(isPayrollSubmitted);
+  const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
+  const isCustomBatch = selectedPeriodData?.isCustomBatch === true;
+  const isCustomBatchReview = isCustomBatch && selectedPeriodId === "ocb-review";
+  const isCustomBatchTracking = isCustomBatch && selectedPeriodId === "ocb-tracking";
+  const isViewingPrevious = selectedPeriodId !== "current" && selectedPeriodId !== "dec-fortnight-2" && !isCustomBatch;
   const isViewingProcessing = selectedPeriodId === "dec-fortnight-2";
-  const selectedPrevious = isViewingPrevious 
+  const selectedPrevious = isViewingPrevious
     ? previousPayrolls.find(p => p.id === selectedPeriodId) 
     : null;
 
@@ -692,6 +722,60 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
         return null;
     }
   };
+
+  // Custom batch state
+  const [customBatchSubmissions, setCustomBatchSubmissions] = useState<WorkerSubmission[]>(CUSTOM_BATCH_SUBMISSIONS_REVIEW);
+  const customBatchPending = customBatchSubmissions.filter(s => s.status === "pending").length;
+
+  const handleCustomBatchApprove = (submission: WorkerSubmission) => {
+    setCustomBatchSubmissions(prev => prev.map(s => s.id === submission.id ? { ...s, status: "ready" as const } : s));
+  };
+  const handleCustomBatchReject = (submission: WorkerSubmission, reason: string) => {
+    setCustomBatchSubmissions(prev => prev.map(s => s.id === submission.id ? { ...s, status: "ready" as const } : s));
+  };
+  const handleCustomBatchApproveAll = () => {
+    setCustomBatchSubmissions(prev => prev.map(s => s.status === "pending" ? { ...s, status: "ready" as const } : s));
+    toast.success("All adjustments approved");
+  };
+
+  // Custom batch: review (submissions stage)
+  if (isCustomBatchReview) {
+    return (
+      <div>
+        <div className="flex items-center justify-center pt-2 pb-4">
+          <CA4_PeriodDropdown periods={periods} selectedPeriodId={selectedPeriodId} onPeriodChange={handlePeriodChange} />
+        </div>
+        <CA4_SubmissionsView
+          submissions={customBatchSubmissions}
+          onApprove={handleCustomBatchApprove}
+          onFlag={handleCustomBatchReject}
+          onApproveAll={handleCustomBatchApproveAll}
+          onContinue={() => {}}
+          onClose={() => setSelectedPeriodId("current")}
+          onBack={() => setSelectedPeriodId("current")}
+          pendingCount={customBatchPending}
+          pendingSubmissions={customBatchPending}
+          isCustomBatch={true}
+        />
+      </div>
+    );
+  }
+
+  // Custom batch: tracking (payment status stage)
+  if (isCustomBatchTracking) {
+    return (
+      <div>
+        <div className="flex items-center justify-center pt-2 pb-4">
+          <CA4_PeriodDropdown periods={periods} selectedPeriodId={selectedPeriodId} onPeriodChange={handlePeriodChange} />
+        </div>
+        <CA4_TrackingView
+          workers={CUSTOM_BATCH_TRACKING_WORKERS}
+          onExportCSV={handleExportCSV}
+          onDownloadAuditPDF={handleDownloadAuditPDF}
+        />
+      </div>
+    );
+  }
 
   // Historical view for previous periods
   if (isViewingPrevious) {
