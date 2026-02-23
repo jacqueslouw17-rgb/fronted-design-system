@@ -20,7 +20,7 @@ import { useOnboardingStore } from "@/stores/onboardingStore";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
-import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
+import F1v4_Step2OrgProfile from "./F1v4_Step2OrgProfile";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
