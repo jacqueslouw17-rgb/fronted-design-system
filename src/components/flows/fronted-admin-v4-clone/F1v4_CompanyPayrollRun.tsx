@@ -588,7 +588,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     const pay = new Date(data.payDate);
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const fmtShort = (d: Date) => `${monthNames[d.getMonth()]} ${d.getDate()}`;
-    const periodLabel = `${fmtShort(start)} – ${fmtShort(end)}`;
+    const isSameDay = start.getTime() === end.getTime();
+    const periodLabel = isSameDay ? fmtShort(start) : `${fmtShort(start)} – ${fmtShort(end)}`;
     const batchId = `custom-${Date.now()}`;
     
     const newBatch: PayrollPeriod = {
