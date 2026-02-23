@@ -777,6 +777,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     const isFinalized = isWorkerFinalized(submission.id);
 
     const isExcluded = statusDecisions[submission.id] === "exclude";
+    // Worker is "skipped" if skippedOthers is active and they still have pending items
+    const isSkipped = skippedOthers && workerPendingCount > 0 && !isFinalized && !isExcluded;
     let effectiveWorkerStatus: SubmissionStatus;
     if (isExcluded) {
       effectiveWorkerStatus = "ready";
@@ -787,7 +789,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     } else {
       effectiveWorkerStatus = "ready";
     }
-    const status = isExcluded ? { label: "Excluded", color: "text-muted-foreground", icon: X } : statusConfig[effectiveWorkerStatus];
+    const status = isExcluded
+      ? { label: "Excluded", color: "text-muted-foreground", icon: X }
+      : isSkipped
+      ? { label: "Skipped", color: "text-muted-foreground", icon: Clock }
+      : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
     return (
@@ -797,8 +803,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group", isExcluded && "opacity-50")}
-        onClick={() => handleRowClick(submission)}>
+        className={cn(
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 transition-colors",
+          (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "hover:bg-muted/30 cursor-pointer group"
+        )}
+        onClick={() => { if (!isSkipped) handleRowClick(submission); }}>
 
         <Avatar className="h-7 w-7 flex-shrink-0">
           <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">{getInitials(submission.workerName)}</AvatarFallback>
