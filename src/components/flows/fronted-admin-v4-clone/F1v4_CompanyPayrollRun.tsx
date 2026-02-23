@@ -483,6 +483,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   
   // Submit/Approved state
   const [isApproved, setIsApproved] = useState(false);
+  const [isHeaderConfirmOpen, setIsHeaderConfirmOpen] = useState(false);
   const [approveReadyWorkerIds, setApproveReadyWorkerIds] = useState<string[]>([]);
   const [approveAdjustmentDecisions, setApproveAdjustmentDecisions] = useState<Record<string, {status: string}>>({});
   const [approveExcludedWorkerIds, setApproveExcludedWorkerIds] = useState<string[]>([]);
@@ -807,11 +808,17 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                   </Button>
                   <Button 
                     size="sm" 
-                    onClick={goToTrack}
+                    onClick={() => setIsHeaderConfirmOpen(true)}
                     className="h-9 text-xs"
                   >
                     Approve & Lock
                   </Button>
+                  <F1v4_ApproveConfirmationModal
+                    isOpen={isHeaderConfirmOpen}
+                    onOpenChange={setIsHeaderConfirmOpen}
+                    onConfirm={goToTrack}
+                    isCustomBatch={isCustomBatch}
+                  />
                 </div>
               </div>
             </div>
