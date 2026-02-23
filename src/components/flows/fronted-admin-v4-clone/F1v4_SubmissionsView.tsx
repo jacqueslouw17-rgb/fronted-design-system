@@ -131,7 +131,7 @@ export interface WorkerSubmission {
 
 interface F1v4_SubmissionsViewProps {
   submissions: WorkerSubmission[];
-  onContinue: () => void;
+  onContinue: (readyWorkerIds?: string[], adjustmentDecisions?: Record<string, {status: string}>, excludedWorkerIds?: string[]) => void;
   onClose?: () => void;
   isCustomBatch?: boolean;
 }
@@ -862,7 +862,36 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span>
-                    <Button size="sm" onClick={onContinue} disabled={!canContinue} className="h-9 text-xs">
+                    <Button size="sm" onClick={() => {
+                      // Compute ready worker IDs and excluded worker IDs
+                      const readyIds: string[] = [];
+                      const excludedIds: string[] = [];
+                      submissions.forEach(s => {
+                        if (statusDecisions[s.id] === "exclude") {
+                          excludedIds.push(s.id);
+                          return;
+                        }
+                        if (finalizedWorkers.has(s.id)) {
+                          readyIds.push(s.id);
+                          return;
+                        }
+                        // Check if naturally ready (no pending/rejected)
+                        const pendingAdjs = s.submissions.filter((adj, idx) => {
+                          const key = `${s.id}-${idx}`;
+                          const localState = adjustmentStates[key];
+                          const effectiveStatus = localState?.status || adj.status || 'pending';
+                          return (effectiveStatus === 'pending' || effectiveStatus === 'rejected') && typeof adj.amount === 'number';
+                        }).length;
+                        const pendingLvs = (s.pendingLeaves || []).filter(leave => {
+                          const key = `${s.id}-leave-${leave.id}`;
+                          const localState = leaveStates[key];
+                          const effectiveStatus = localState?.status || leave.status || 'pending';
+                          return effectiveStatus === 'pending' || effectiveStatus === 'rejected';
+                        }).length;
+                        if (pendingAdjs + pendingLvs === 0) readyIds.push(s.id);
+                      });
+                      onContinue(readyIds, adjustmentStates, excludedIds);
+                    }} disabled={!canContinue} className="h-9 text-xs">
                       Continue to Approve
                     </Button>
                   </span>

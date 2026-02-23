@@ -483,6 +483,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   
   // Submit/Approved state
   const [isApproved, setIsApproved] = useState(false);
+  const [approveReadyWorkerIds, setApproveReadyWorkerIds] = useState<string[]>([]);
+  const [approveAdjustmentDecisions, setApproveAdjustmentDecisions] = useState<Record<string, {status: string}>>({});
+  const [approveExcludedWorkerIds, setApproveExcludedWorkerIds] = useState<string[]>([]);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isAllPaid, setIsAllPaid] = useState(false);
 
@@ -539,6 +542,25 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   }, [isCustomBatch]);
 
   const displaySubmissions = isCustomBatch ? customBatchSubmissions : currentRunSubmissions;
+  
+  // For approve step: filter to only ready workers and apply adjustment decisions
+  const approveSubmissions = useMemo(() => {
+    if (!isCustomBatch || approveReadyWorkerIds.length === 0) return displaySubmissions;
+    return displaySubmissions
+      .filter(w => approveReadyWorkerIds.includes(w.id))
+      .map(w => ({
+        ...w,
+        submissions: w.submissions.map((s, idx) => {
+          const key = `${w.id}-${idx}`;
+          const decision = approveAdjustmentDecisions[key];
+          if (decision) return { ...s, status: decision.status as "pending" | "approved" | "rejected" };
+          return s;
+        }),
+      }));
+  }, [displaySubmissions, approveReadyWorkerIds, approveAdjustmentDecisions, isCustomBatch]);
+
+  const pendingWorkerCount = isCustomBatch ? displaySubmissions.length - approveReadyWorkerIds.length - approveExcludedWorkerIds.length : 0;
+  
   const employees = displaySubmissions.filter(w => w.workerType === "employee");
   const contractors = displaySubmissions.filter(w => w.workerType === "contractor");
 
@@ -611,9 +633,12 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   };
 
   // Navigation handlers
-  const goToApprove = () => {
+  const goToApprove = (readyWorkerIds?: string[], adjustmentDecisions?: Record<string, {status: string}>, excludedWorkerIds?: string[]) => {
     setCompletedSteps(prev => [...prev, "submissions"]);
     setCurrentStep("approve");
+    if (readyWorkerIds) setApproveReadyWorkerIds(readyWorkerIds);
+    if (adjustmentDecisions) setApproveAdjustmentDecisions(adjustmentDecisions);
+    if (excludedWorkerIds) setApproveExcludedWorkerIds(excludedWorkerIds);
   };
 
   const goToTrack = () => {
@@ -792,9 +817,13 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                     onOpenChange={setIsApproveModalOpen}
                     onConfirm={goToTrack}
                     companyName={company.name}
-                    employeeCount={employees.length}
-                    contractorCount={contractors.length}
-                    totalAmount={`€${(company.totalCost / 1000).toFixed(1)}K`}
+                    employeeCount={isCustomBatch ? approveSubmissions.filter(w => w.workerType === "employee").length : employees.length}
+                    contractorCount={isCustomBatch ? approveSubmissions.filter(w => w.workerType === "contractor").length : contractors.length}
+                    totalAmount={isCustomBatch 
+                      ? `€${(approveSubmissions.reduce((sum, w) => sum + (w.estimatedNet || 0), 0) / 1000).toFixed(1)}K`
+                      : `€${(company.totalCost / 1000).toFixed(1)}K`}
+                    isCustomBatch={isCustomBatch}
+                    adjustmentCount={isCustomBatch ? approveSubmissions.reduce((sum, w) => sum + w.submissions.filter(s => s.status === "approved").length, 0) : 0}
                   />
                 </div>
               </div>
@@ -805,7 +834,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 onApprove={goToTrack}
                 hideHeader
                 isCustomBatch={isCustomBatch}
-                submissions={displaySubmissions}
+                submissions={approveSubmissions}
+                pendingWorkerCount={pendingWorkerCount}
+                excludedWorkerCount={approveExcludedWorkerIds.length}
               />
             </div>
           </Card>
