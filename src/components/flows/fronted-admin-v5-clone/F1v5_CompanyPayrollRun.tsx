@@ -9,7 +9,7 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 
 import { motion } from "framer-motion";
-import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase } from "lucide-react";
+import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -492,44 +492,103 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isAllPaid, setIsAllPaid] = useState(false);
 
+  // Custom batch state
+  const [customBatches, setCustomBatches] = useState<PayrollPeriod[]>([]);
+
   // Get current run metrics and submissions
   const currentRunMetrics = RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"];
   const currentRunSubmissions = deduplicateByWorker(RUN_SUBMISSIONS[selectedPeriodId] || MOCK_SUBMISSIONS);
-
-  const employees = currentRunSubmissions.filter(w => w.workerType === "employee");
-  const contractors = currentRunSubmissions.filter(w => w.workerType === "contractor");
   
-  // Dynamic periods - change selected period to "processing" when approved, "paid" when all paid
-  const periods = useMemo(() => 
-    MOCK_PERIODS_BASE.map(p => {
+  // Dynamic periods - include custom batches
+  const periods = useMemo(() => {
+    const basePeriods = MOCK_PERIODS_BASE.map(p => {
       if (p.id === selectedPeriodId && isAllPaid) return { ...p, status: "paid" as const };
       if (p.id === selectedPeriodId && isApproved) return { ...p, status: "processing" as const };
       return p;
-    }), [selectedPeriodId, isApproved, isAllPaid]);
+    });
+    return [...basePeriods, ...customBatches.map(cb => {
+      if (cb.id === selectedPeriodId && isAllPaid) return { ...cb, status: "paid" as const };
+      if (cb.id === selectedPeriodId && isApproved) return { ...cb, status: "processing" as const };
+      return cb;
+    })];
+  }, [selectedPeriodId, isApproved, isAllPaid, customBatches]);
 
   // Determine if viewing historical (paid) run — but NOT if it just got paid in this session
   const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
   const isViewingPrevious = selectedPeriodData?.status === "paid" && !isAllPaid;
+  const isCustomBatch = selectedPeriodData?.isCustomBatch === true;
   const selectedHistoricalPayroll = isViewingPrevious 
     ? HISTORICAL_PAYROLLS.find(p => p.id.includes(selectedPeriodId.replace("-monthly", "").replace("-fortnight-1", "").replace("-fortnight-2", ""))) 
     : null;
 
+  // For custom batches: show only workers with pending adjustments, no base salary
+  const customBatchSubmissions = useMemo((): WorkerSubmission[] => {
+    if (!isCustomBatch) return [];
+    return MOCK_SUBMISSIONS
+      .filter(w => w.submissions.some(s => s.status === "pending") || w.pendingLeaves?.some(l => l.status === "pending"))
+      .map(w => {
+        const adjTotal = w.submissions.filter(s => s.status === "pending").reduce((sum, s) => sum + (s.amount || 0), 0);
+        const taxRate = w.workerType === "employee" ? 0.10 : 0;
+        const taxAmount = Math.round(adjTotal * taxRate);
+        return {
+          ...w,
+          id: `custom-${w.id}`,
+          basePay: 0,
+          estimatedNet: adjTotal - taxAmount,
+          totalImpact: adjTotal,
+          periodLabel: "Off-cycle",
+          lineItems: w.workerType === "employee" && taxAmount > 0
+            ? [{ label: "Income Tax (on adjustments)", amount: -taxAmount, type: "Deduction" as const, locked: true }]
+            : [],
+        };
+      });
+  }, [isCustomBatch]);
+
+  const displaySubmissions = isCustomBatch ? customBatchSubmissions : currentRunSubmissions;
+  const employees = displaySubmissions.filter(w => w.workerType === "employee");
+  const contractors = displaySubmissions.filter(w => w.workerType === "contractor");
+
   // Computed values for submissions
-  const pendingSubmissions = useMemo(() => currentRunSubmissions.filter(s => s.status === "pending").length, [currentRunSubmissions]);
+  const pendingSubmissions = useMemo(() => displaySubmissions.filter(s => s.status === "pending").length, [displaySubmissions]);
 
   // Handle period change
   const handlePeriodChange = (periodId: string) => {
     setSelectedPeriodId(periodId);
-    // Reset workflow when switching to a paid period
-    const period = MOCK_PERIODS_BASE.find(p => p.id === periodId);
+    const period = MOCK_PERIODS_BASE.find(p => p.id === periodId) || customBatches.find(p => p.id === periodId);
     if (period?.status === "paid") {
       setHasEnteredWorkflow(false);
     }
-    // Reset step state when switching runs
     setCurrentStep("submissions");
     setCompletedSteps([]);
     setIsApproved(false);
     setIsAllPaid(false);
+  };
+
+  // Create custom off-cycle batch
+  const handleCreateCustomBatch = (payDate: string) => {
+    const date = new Date(payDate);
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const dayLabel = `${monthNames[date.getMonth()]} ${date.getDate()}`;
+    const batchId = `custom-${Date.now()}`;
+    
+    const newBatch: PayrollPeriod = {
+      id: batchId,
+      frequency: "monthly",
+      periodLabel: `Pay ${dayLabel}`,
+      payDate: dayLabel,
+      status: "in-review",
+      label: `Off-cycle ${dayLabel}`,
+      isCustomBatch: true,
+    };
+    
+    setCustomBatches(prev => [...prev, newBatch]);
+    setSelectedPeriodId(batchId);
+    setCurrentStep("submissions");
+    setCompletedSteps([]);
+    setIsApproved(false);
+    setIsAllPaid(false);
+    setHasEnteredWorkflow(false);
+    toast.success(`Off-cycle batch created for ${dayLabel}`);
   };
 
   // Enter workflow
@@ -595,10 +654,26 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             periods={periods}
             selectedPeriodId={selectedPeriodId}
             onPeriodChange={handlePeriodChange}
+            allowCustomBatch={company.id === "company-default"}
+            onCreateCustomBatch={handleCreateCustomBatch}
           />
         </div>
 
-        {/* KPI Metrics Card */}
+        {/* Custom batch info banner */}
+        {isCustomBatch && (
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-violet-200/50 dark:border-violet-500/20 bg-violet-50/50 dark:bg-violet-500/5">
+            <Zap className="h-4 w-4 text-violet-500 shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Off-Cycle Batch</p>
+              <p className="text-xs text-muted-foreground">
+                {displaySubmissions.length} worker{displaySubmissions.length !== 1 ? 's' : ''} with pending adjustments · Tax deductions applied where applicable
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* KPI Metrics Card - hidden for custom batches */}
+        {!isCustomBatch && (
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
           <CardContent className="py-6 px-6">
             {/* Metrics Grid */}
@@ -662,6 +737,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             </div>
           </CardContent>
         </Card>
+        )}
       </>
     );
   };
@@ -682,7 +758,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
       case "submissions":
         return (
           <F1v4_SubmissionsView
-            submissions={currentRunSubmissions}
+            submissions={displaySubmissions}
             onContinue={goToApprove}
             onClose={() => setHasEnteredWorkflow(false)}
           />
