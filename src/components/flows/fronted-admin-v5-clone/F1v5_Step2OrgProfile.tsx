@@ -135,7 +135,13 @@ const F1v5_Step2OrgProfile = ({
   };
 
   const handleFieldChange = (fieldName: string, value: string) => {
-    setData(prev => ({ ...prev, [fieldName]: value }));
+    setData(prev => {
+      const updated = { ...prev, [fieldName]: value };
+      if (fieldName === "hqCountry") {
+        updated.defaultCurrency = getDefaultCurrency(value);
+      }
+      return updated;
+    });
   };
 
   const hasChanges = isEditMode ? (
