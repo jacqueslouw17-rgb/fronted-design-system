@@ -165,6 +165,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
   onMarkAsPaid,
   onRetryPayout,
   isViewOnly = false,
+  isCustomBatch = false,
 }) => {
   const [overridesEnabled, setOverridesEnabled] = useState(false);
   const [adjustments, setAdjustments] = useState<ManualAdjustment[]>([]);
@@ -314,6 +315,9 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
     const cvt = (amt: number) => showEUR && isNonEUR ? convertToEUR(amt, worker.currency) : amt;
     const approx = showEUR && isNonEUR ? "≈ " : "";
 
+    // For custom batches: show only the net pay as adjustment payout, no earnings/deductions breakdown
+    const customBatchNet = worker.netPay;
+
     return (
       <>
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -323,10 +327,10 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <h2 className="text-xl font-semibold text-foreground">
-                    {isContractor ? "Invoice breakdown" : "Payslip breakdown"}
+                    {isCustomBatch ? "Adjustment payout" : isContractor ? "Invoice breakdown" : "Payslip breakdown"}
                   </h2>
                   <Badge variant="outline" className="text-xs px-2 py-0.5 bg-muted/30">
-                    Jan 2026
+                    {isCustomBatch ? "Off-cycle" : "Jan 2026"}
                   </Badge>
                 </div>
               </div>
@@ -346,34 +350,88 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
               </div>
             </SheetHeader>
 
-            {/* Scrollable Content - Invoice/Payslip Breakdown */}
+            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto">
               <div className="px-6 py-6 space-y-6">
-                {/* EARNINGS */}
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-                    Earnings
-                  </p>
-                  <div className="space-y-4">
-                    {earningsData.items.map((item, idx) => (
-                      <div key={idx} className="flex items-start justify-between">
+                {isCustomBatch ? (
+                  <>
+                    {/* CUSTOM BATCH: Adjustment payout only */}
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
+                        Approved Adjustments
+                      </p>
+                      <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-sm font-medium text-foreground">{item.label}</p>
-                          <p className="text-xs text-muted-foreground">{item.description}</p>
+                          <p className="text-sm font-medium text-foreground">Adjustment payout</p>
+                          <p className="text-xs text-muted-foreground">Approved items from off-cycle batch</p>
                         </div>
                         <p className="text-sm font-medium text-foreground tabular-nums">
-                          {approx}+{formatCurrency(Math.round(cvt(item.amount)), dc)}
+                          {approx}+{formatCurrency(Math.round(cvt(customBatchNet)), dc)}
                         </p>
                       </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
-                    <p className="text-sm font-semibold text-foreground">Total earnings</p>
-                    <p className="text-sm font-semibold text-foreground tabular-nums">
-                      {approx}+{formatCurrency(Math.round(cvt(totalEarnings)), dc)}
-                    </p>
-                  </div>
-                </div>
+                    </div>
+
+                    {/* Tax for employees */}
+                    {!isContractor && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
+                          Tax Deductions
+                        </p>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-foreground">Withholding tax</p>
+                            <p className="text-xs text-muted-foreground">Per country rules</p>
+                          </div>
+                          <p className="text-sm font-medium text-muted-foreground tabular-nums">
+                            {approx}-{formatCurrency(Math.round(cvt(customBatchNet * 0.10)), dc)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SEPARATOR */}
+                    <div className="border-t border-border/40" />
+
+                    {/* NET TOTAL */}
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-base font-semibold text-foreground">Net payout</p>
+                        {isPaid && (
+                          <p className="text-xs text-muted-foreground">Paid</p>
+                        )}
+                      </div>
+                      <p className="text-2xl font-bold text-foreground tabular-nums">
+                        {approx}{formatCurrency(Math.round(cvt(isContractor ? customBatchNet : customBatchNet * 0.90)), dc)}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* REGULAR BATCH: Full earnings/deductions */}
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
+                        Earnings
+                      </p>
+                      <div className="space-y-4">
+                        {earningsData.items.map((item, idx) => (
+                          <div key={idx} className="flex items-start justify-between">
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{item.label}</p>
+                              <p className="text-xs text-muted-foreground">{item.description}</p>
+                            </div>
+                            <p className="text-sm font-medium text-foreground tabular-nums">
+                              {approx}+{formatCurrency(Math.round(cvt(item.amount)), dc)}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
+                        <p className="text-sm font-semibold text-foreground">Total earnings</p>
+                        <p className="text-sm font-semibold text-foreground tabular-nums">
+                          {approx}+{formatCurrency(Math.round(cvt(totalEarnings)), dc)}
+                        </p>
+                      </div>
+                    </div>
 
                 {/* DEDUCTIONS (employees only) */}
                 {!isContractor && earningsData.deductions.length > 0 && (
