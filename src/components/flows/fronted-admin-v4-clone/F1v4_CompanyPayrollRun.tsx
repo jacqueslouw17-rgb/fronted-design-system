@@ -196,12 +196,9 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       },
     ],
     pendingLeaves: [],
-    flags: [
-      { type: "pay_change", payChangePercent: 18, payChangeDelta: 8100 },
-    ],
   },
   { 
-    id: "4", 
+    id: "4",
     workerId: "4",
     workerName: "Alex Hansen", 
     workerType: "employee", 
@@ -278,9 +275,6 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { type: "timesheet", hours: 160, description: "January 2026", status: "pending" },
     ],
     pendingLeaves: [],
-    flags: [
-      { type: "end_date", endDate: "Feb 28, 2026", endReason: "End contract" },
-    ],
   },
   { 
     id: "7", 
