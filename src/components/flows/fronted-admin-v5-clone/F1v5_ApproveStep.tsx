@@ -323,7 +323,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                   Approved adjustments
                   <span className="text-[10px] text-muted-foreground/70">({displayData.approvedCount} item{displayData.approvedCount !== 1 ? "s" : ""})</span>
                 </span>
-                <span className="text-accent-green-text tabular-nums">+{formatCurrency(displayData.totalAdjustments)}</span>
+                <span className="text-accent-green-text tabular-nums">+{formatCurrency(displayData.totalApprovedAmount)}</span>
               </div>
               
               {displayData.rejectedCount > 0 && (
@@ -359,12 +359,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/30 border border-border/40">
                   <XCircle className="h-3 w-3 text-muted-foreground" />
                   <span className="text-[10px] font-medium text-muted-foreground">{displayData.rejectedCount} rejected</span>
-                </div>
-              )}
-              {displayData.leavesCount > 0 && (
-                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
-                  <Clock className="h-3 w-3 text-blue-600" />
-                  <span className="text-[10px] font-medium text-blue-600">{displayData.leavesCount} leave{displayData.leavesCount !== 1 ? "s" : ""} approved</span>
                 </div>
               )}
             </div>
