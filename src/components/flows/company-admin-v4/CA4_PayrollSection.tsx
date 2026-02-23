@@ -364,8 +364,8 @@ const CUSTOM_BATCH_TRACKING_WORKERS: TrackingWorker[] = [
 
 // Build periods array for dropdown - defined inside component to be dynamic
 const buildPeriods = (isSubmitted: boolean): PayrollPeriod[] => [
-  { id: "ocb-review", label: "Off-cycle Jan 10–20", status: "current", isCustomBatch: true },
-  { id: "ocb-tracking", label: "Off-cycle Dec 15–22", status: "processing", isCustomBatch: true },
+  { id: "ocb-review", label: "Off-cycle Jan 10–20", periodLabel: "Off-cycle Jan 10–20", payDate: "Jan 25", startDate: "Jan 10", endDate: "Jan 20", status: "current", isCustomBatch: true },
+  { id: "ocb-tracking", label: "Off-cycle Dec 15–22", periodLabel: "Off-cycle Dec 15–22", payDate: "Dec 28", startDate: "Dec 15", endDate: "Dec 22", status: "processing", isCustomBatch: true },
   { id: "current", label: "January 2026", status: isSubmitted ? "processing" : "current" },
   { id: "dec-fortnight-2", label: "Dec 15–31 2025", status: "processing" },
   ...previousPayrolls.map(p => ({ id: p.id, label: p.period, status: "paid" as const })),
