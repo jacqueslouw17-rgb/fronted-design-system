@@ -138,247 +138,253 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
         sideOffset={10}
         className="w-[360px] p-0 bg-popover/95 backdrop-blur-xl border border-border/60 rounded-xl shadow-2xl shadow-black/10 overflow-hidden"
       >
-        {/* Active Runs */}
-        {active.length > 0 && (
-          <div>
-            <div className="px-4 pt-3 pb-1.5">
-              <span className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-[0.08em]">
-                Active Runs
-              </span>
+        {/* Focused create form — hides everything else */}
+        {showCreateForm && allowCustomBatch ? (
+          <div className="px-3 py-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Zap className="h-3.5 w-3.5 text-violet-500" />
+                <span className="text-[13px] font-semibold text-foreground">New Off-Cycle Batch</span>
+              </div>
+              <button onClick={() => { setShowCreateForm(false); setNewPayDate(""); }} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="h-3.5 w-3.5" />
+              </button>
             </div>
-            <div className="px-2 pb-2 space-y-0.5">
-              {active.map(period => {
-                const isSelected = period.id === selectedPeriodId;
-                return (
-                  <button
-                    key={period.id}
-                    onClick={() => handleSelect(period.id)}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left",
-                      "transition-all duration-150 ease-out",
-                      "hover:bg-muted/60",
-                      isSelected && "bg-primary/[0.06] ring-1 ring-primary/15"
-                    )}
-                  >
-                    <div className={cn(
-                      "w-[3px] self-stretch rounded-full shrink-0 transition-colors",
-                      isSelected ? "bg-primary" : "bg-transparent"
-                    )} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className={cn("text-[13px] font-semibold", isSelected ? "text-foreground" : "text-foreground/85")}>
-                          {period.frequency === "monthly" ? "Monthly" : "Fortnightly"}
-                        </span>
-                        <span className="text-muted-foreground/40">·</span>
-                        <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
-                          {period.periodLabel}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <Calendar className="h-3 w-3 text-muted-foreground/50" />
-                        <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <StatusDot status={period.status} />
-                      <span className={cn(
-                        "text-[11px] font-medium",
-                        period.status === "in-review" && "text-amber-600 dark:text-amber-400",
-                        period.status === "processing" && "text-primary",
-                      )}>
-                        {statusLabel(period.status)}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Pay out pending adjustments before the next scheduled cycle. Only workers with pending items will be included.
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] text-muted-foreground">Pay date</Label>
+              <input
+                type="date"
+                value={newPayDate}
+                onChange={(e) => setNewPayDate(e.target.value)}
+                className={cn(
+                  "w-full h-9 rounded-md border border-input bg-background px-3 py-1.5 text-sm",
+                  "focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+                )}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            <div className="flex gap-2 pt-1">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setShowCreateForm(false); setNewPayDate(""); }}
+                className="flex-1 h-8 text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleCreateBatch}
+                disabled={!newPayDate}
+                className="flex-1 h-8 text-xs bg-violet-600 hover:bg-violet-700 text-white"
+              >
+                Create Batch
+              </Button>
             </div>
           </div>
-        )}
-
-        {/* Off-Cycle Batches */}
-        {custom.length > 0 && (
+        ) : (
           <>
-            <div className="mx-4 border-t border-border/40" />
-            <div>
-              <div className="px-4 pt-2.5 pb-1.5">
-                <span className="text-[10px] font-semibold text-violet-500/70 uppercase tracking-[0.08em]">
-                  Off-Cycle Batches
-                </span>
-              </div>
-              <div className="px-2 pb-2 space-y-0.5">
-                {custom.map(period => {
-                  const isSelected = period.id === selectedPeriodId;
-                  return (
-                    <button
-                      key={period.id}
-                      onClick={() => handleSelect(period.id)}
-                      className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left",
-                        "transition-all duration-150 ease-out",
-                        "hover:bg-violet-50/60 dark:hover:bg-violet-500/10",
-                        isSelected && "bg-violet-500/[0.08] ring-1 ring-violet-500/20"
-                      )}
-                    >
-                      <div className={cn(
-                        "w-[3px] self-stretch rounded-full shrink-0 transition-colors",
-                        isSelected ? "bg-violet-500" : "bg-transparent"
-                      )} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <Zap className="h-3 w-3 text-violet-500" />
-                          <span className={cn("text-[13px] font-semibold", isSelected ? "text-foreground" : "text-foreground/85")}>
-                            Off-cycle
-                          </span>
-                          <span className="text-muted-foreground/40">·</span>
-                          <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
-                            {period.periodLabel}
+            {/* Active Runs */}
+            {active.length > 0 && (
+              <div>
+                <div className="px-4 pt-3 pb-1.5">
+                  <span className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-[0.08em]">
+                    Active Runs
+                  </span>
+                </div>
+                <div className="px-2 pb-2 space-y-0.5">
+                  {active.map(period => {
+                    const isSelected = period.id === selectedPeriodId;
+                    return (
+                      <button
+                        key={period.id}
+                        onClick={() => handleSelect(period.id)}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left",
+                          "transition-all duration-150 ease-out",
+                          "hover:bg-muted/60",
+                          isSelected && period.status === "in-review" && "bg-amber-500/[0.06] ring-1 ring-amber-500/15",
+                          isSelected && period.status === "processing" && "bg-primary/[0.06] ring-1 ring-primary/15",
+                        )}
+                      >
+                        <div className={cn(
+                          "w-[3px] self-stretch rounded-full shrink-0 transition-colors",
+                          isSelected
+                            ? period.status === "in-review" ? "bg-amber-500" : "bg-primary"
+                            : "bg-transparent"
+                        )} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className={cn("text-[13px] font-semibold", isSelected ? "text-foreground" : "text-foreground/85")}>
+                              {period.frequency === "monthly" ? "Monthly" : "Fortnightly"}
+                            </span>
+                            <span className="text-muted-foreground/40">·</span>
+                            <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
+                              {period.periodLabel}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <Calendar className="h-3 w-3 text-muted-foreground/50" />
+                            <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <StatusDot status={period.status} />
+                          <span className={cn(
+                            "text-[11px] font-medium",
+                            period.status === "in-review" && "text-amber-600 dark:text-amber-400",
+                            period.status === "processing" && "text-primary",
+                          )}>
+                            {statusLabel(period.status)}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <Calendar className="h-3 w-3 text-muted-foreground/50" />
-                          <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <StatusDot status={period.status} isCustom />
-                        <span className={cn(
-                          "text-[11px] font-medium",
-                          period.status === "in-review" && "text-violet-600 dark:text-violet-400",
-                          period.status === "processing" && "text-violet-500",
-                        )}>
-                          {statusLabel(period.status)}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          </>
-        )}
+            )}
 
-        {/* Create Custom Batch */}
-        {allowCustomBatch && (
-          <>
-            <div className="mx-4 border-t border-border/40" />
-            {!showCreateForm ? (
-              <div className="px-3 py-2.5">
-                <button
-                  onClick={() => setShowCreateForm(true)}
-                  className={cn(
-                    "w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg",
-                    "text-[13px] font-medium text-violet-600 dark:text-violet-400",
-                    "border border-dashed border-violet-300/50 dark:border-violet-500/30",
-                    "hover:bg-violet-50/60 dark:hover:bg-violet-500/10",
-                    "transition-all duration-150"
-                  )}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Create Off-Cycle Batch
-                </button>
-              </div>
-            ) : (
-              <div className="px-3 py-3 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-3.5 w-3.5 text-violet-500" />
-                    <span className="text-[13px] font-semibold text-foreground">New Off-Cycle Batch</span>
+            {/* Off-Cycle Batches */}
+            {custom.length > 0 && (
+              <>
+                <div className="mx-4 border-t border-border/40" />
+                <div>
+                  <div className="px-4 pt-2.5 pb-1.5">
+                    <span className="text-[10px] font-semibold text-violet-500/70 uppercase tracking-[0.08em]">
+                      Off-Cycle Batches
+                    </span>
                   </div>
-                  <button onClick={() => { setShowCreateForm(false); setNewPayDate(""); }} className="text-muted-foreground hover:text-foreground transition-colors">
-                    <X className="h-3.5 w-3.5" />
+                  <div className="px-2 pb-2 space-y-0.5">
+                    {custom.map(period => {
+                      const isSelected = period.id === selectedPeriodId;
+                      return (
+                        <button
+                          key={period.id}
+                          onClick={() => handleSelect(period.id)}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left",
+                            "transition-all duration-150 ease-out",
+                            "hover:bg-violet-50/60 dark:hover:bg-violet-500/10",
+                            isSelected && "bg-violet-500/[0.08] ring-1 ring-violet-500/20"
+                          )}
+                        >
+                          <div className={cn(
+                            "w-[3px] self-stretch rounded-full shrink-0 transition-colors",
+                            isSelected ? "bg-violet-500" : "bg-transparent"
+                          )} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <Zap className="h-3 w-3 text-violet-500" />
+                              <span className={cn("text-[13px] font-semibold", isSelected ? "text-foreground" : "text-foreground/85")}>
+                                Off-cycle
+                              </span>
+                              <span className="text-muted-foreground/40">·</span>
+                              <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
+                                {period.periodLabel}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <Calendar className="h-3 w-3 text-muted-foreground/50" />
+                              <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <StatusDot status={period.status} isCustom />
+                            <span className={cn(
+                              "text-[11px] font-medium",
+                              period.status === "in-review" && "text-violet-600 dark:text-violet-400",
+                              period.status === "processing" && "text-violet-500",
+                            )}>
+                              {statusLabel(period.status)}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Create Custom Batch Button */}
+            {allowCustomBatch && (
+              <>
+                <div className="mx-4 border-t border-border/40" />
+                <div className="px-3 py-2.5">
+                  <button
+                    onClick={() => setShowCreateForm(true)}
+                    className={cn(
+                      "w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg",
+                      "text-[13px] font-medium text-violet-600 dark:text-violet-400",
+                      "border border-dashed border-violet-300/50 dark:border-violet-500/30",
+                      "hover:bg-violet-50/60 dark:hover:bg-violet-500/10",
+                      "transition-all duration-150"
+                    )}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Create Off-Cycle Batch
                   </button>
                 </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Pay out pending adjustments before the next scheduled cycle. Only workers with pending items will be included.
-                </p>
-                <div className="space-y-1.5">
-                  <Label className="text-[11px] text-muted-foreground">Pay date</Label>
-                  <input
-                    type="date"
-                    value={newPayDate}
-                    onChange={(e) => setNewPayDate(e.target.value)}
-                    className={cn(
-                      "w-full h-9 rounded-md border border-input bg-background px-3 py-1.5 text-sm",
-                      "focus:outline-none focus:ring-2 focus:ring-violet-500/30"
-                    )}
-                    min={new Date().toISOString().split('T')[0]}
-                  />
+              </>
+            )}
+
+            {/* Divider before history */}
+            {history.length > 0 && (
+              <div className="mx-4 border-t border-border/40" />
+            )}
+
+            {/* History */}
+            {history.length > 0 && (
+              <div>
+                <div className="px-4 pt-2.5 pb-1.5">
+                  <span className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-[0.08em]">
+                    History
+                  </span>
                 </div>
-                <div className="flex gap-2 pt-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => { setShowCreateForm(false); setNewPayDate(""); }}
-                    className="flex-1 h-8 text-xs"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleCreateBatch}
-                    disabled={!newPayDate}
-                    className="flex-1 h-8 text-xs bg-violet-600 hover:bg-violet-700 text-white"
-                  >
-                    Create Batch
-                  </Button>
+                <div className="px-2 pb-2 space-y-0.5 max-h-[180px] overflow-y-auto overscroll-contain">
+                  {history.map(period => {
+                    const isSelected = period.id === selectedPeriodId;
+                    return (
+                      <button
+                        key={period.id}
+                        onClick={() => handleSelect(period.id)}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left",
+                          "transition-all duration-150 ease-out",
+                          "hover:bg-muted/60",
+                          isSelected && "bg-primary/[0.06] ring-1 ring-primary/15"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-[3px] self-stretch rounded-full shrink-0 transition-colors",
+                          isSelected ? "bg-emerald-500" : "bg-transparent"
+                        )} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
+                              {period.isCustomBatch ? "Off-cycle" : period.frequency === "monthly" ? "Monthly" : "Fortnightly"}
+                            </span>
+                            <span className="text-muted-foreground/40">·</span>
+                            <span className={cn("text-[13px]", isSelected ? "text-foreground/90" : "text-muted-foreground")}>
+                              {period.periodLabel}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <StatusDot status="paid" />
+                          <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">Paid</span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
           </>
-        )}
-
-        {/* Divider before history */}
-        {history.length > 0 && (
-          <div className="mx-4 border-t border-border/40" />
-        )}
-
-        {/* History */}
-        {history.length > 0 && (
-          <div>
-            <div className="px-4 pt-2.5 pb-1.5">
-              <span className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-[0.08em]">
-                History
-              </span>
-            </div>
-            <div className="px-2 pb-2 space-y-0.5 max-h-[180px] overflow-y-auto overscroll-contain">
-              {history.map(period => {
-                const isSelected = period.id === selectedPeriodId;
-                return (
-                  <button
-                    key={period.id}
-                    onClick={() => handleSelect(period.id)}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left",
-                      "transition-all duration-150 ease-out",
-                      "hover:bg-muted/60",
-                      isSelected && "bg-primary/[0.06] ring-1 ring-primary/15"
-                    )}
-                  >
-                    <div className={cn(
-                      "w-[3px] self-stretch rounded-full shrink-0 transition-colors",
-                      isSelected ? "bg-emerald-500" : "bg-transparent"
-                    )} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
-                          {period.isCustomBatch ? "Off-cycle" : period.frequency === "monthly" ? "Monthly" : "Fortnightly"}
-                        </span>
-                        <span className="text-muted-foreground/40">·</span>
-                        <span className={cn("text-[13px]", isSelected ? "text-foreground/90" : "text-muted-foreground")}>
-                          {period.periodLabel}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <StatusDot status="paid" />
-                      <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">Paid</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         )}
       </PopoverContent>
     </Popover>
