@@ -4,9 +4,11 @@
  */
 
 import React, { useMemo, useState } from "react";
-import { ChevronDown, Calendar, Plus, X, Zap } from "lucide-react";
+import { ChevronDown, Calendar as CalendarIcon, Plus, X, Zap } from "lucide-react";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
@@ -76,7 +78,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newPayDate, setNewPayDate] = useState("");
+  const [newPayDate, setNewPayDate] = useState<Date | undefined>();
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
 
   const { active, custom, history } = useMemo(() => {
@@ -99,8 +101,8 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
 
   const handleCreateBatch = () => {
     if (newPayDate && onCreateCustomBatch) {
-      onCreateCustomBatch(newPayDate);
-      setNewPayDate("");
+      onCreateCustomBatch(newPayDate.toISOString().split('T')[0]);
+      setNewPayDate(undefined);
       setShowCreateForm(false);
       setIsOpen(false);
     }
