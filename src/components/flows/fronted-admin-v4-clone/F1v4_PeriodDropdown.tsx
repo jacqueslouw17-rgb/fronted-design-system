@@ -394,16 +394,21 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1.5">
                                 <span className={cn("text-[13px] font-semibold", isSelected ? "text-foreground" : "text-foreground/85")}>
-                                  Off-cycle
+                                  Custom
                                 </span>
                                 <span className="text-muted-foreground/40">·</span>
                                 <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
                                   {period.periodLabel}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-1 mt-0.5">
-                                <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
-                                <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
+                              <div className="flex items-center gap-2.5 mt-0.5">
+                                {period.startDate && period.endDate && (
+                                  <span className="text-[10px] text-muted-foreground/60">{period.startDate} – {period.endDate}</span>
+                                )}
+                                <div className="flex items-center gap-1">
+                                  <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
+                                  <span className="text-[11px] text-muted-foreground/70">Pay: {period.payDate}</span>
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
