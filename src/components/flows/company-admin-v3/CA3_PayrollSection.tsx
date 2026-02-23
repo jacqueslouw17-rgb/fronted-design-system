@@ -154,7 +154,11 @@ const mockSubmissions: WorkerSubmission[] = [
         ],
         attachmentsCount: 3,
       },
-      { type: "expenses", amount: 450, currency: "NOK", description: "Parking", status: "pending" },
+      { type: "expenses", amount: 450, currency: "NOK", description: "Parking", status: "pending",
+        attachments: [
+          { id: "att-ca3-ah2", fileName: "parking_ticket.jpg", fileType: "image/jpeg", fileSize: "145 KB", url: "#", uploadedAt: "Jan 24, 2026", uploadedBy: "Alex Hansen" },
+        ], attachmentsCount: 1,
+      },
     ],
     // Pending unpaid leave (affects pay)
     pendingLeaves: [
