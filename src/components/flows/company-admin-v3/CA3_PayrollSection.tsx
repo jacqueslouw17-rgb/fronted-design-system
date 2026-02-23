@@ -482,9 +482,71 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
   ],
 };
 
+// Custom off-cycle batch mock submissions (adjustments only, no base pay)
+const CUSTOM_BATCH_SUBMISSIONS_REVIEW: WorkerSubmission[] = [
+  {
+    id: "ocb-sub-1",
+    workerId: "ocb-1",
+    workerName: "Maria Santos",
+    workerCountry: "Philippines",
+    workerType: "employee",
+    periodLabel: "Off-cycle",
+    basePay: 0,
+    estimatedNet: 3500,
+    lineItems: [],
+    submissions: [
+      { type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
+    ],
+    status: "pending",
+    totalImpact: 3500,
+    currency: "PHP",
+  },
+  {
+    id: "ocb-sub-2",
+    workerId: "ocb-2",
+    workerName: "Alex Hansen",
+    workerCountry: "Norway",
+    workerType: "employee",
+    periodLabel: "Off-cycle",
+    basePay: 0,
+    estimatedNet: 1200,
+    lineItems: [],
+    submissions: [
+      { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending" },
+    ],
+    status: "pending",
+    totalImpact: 1200,
+    currency: "NOK",
+  },
+];
+
+const CUSTOM_BATCH_TRACKING_WORKERS: TrackingWorker[] = [
+  { id: "ocbt-1", name: "Sophie Laurent", country: "France", type: "employee", amount: 500, currency: "EUR", status: "paid" },
+  { id: "ocbt-2", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 3200, currency: "NOK", status: "in-progress" },
+];
+
 // Build periods array for dropdown - defined inside component to be dynamic
 // Multiple runs can be "in-review" simultaneously
 const buildPeriods = (isSubmitted: boolean): PayrollPeriod[] => [
+  // Custom off-cycle batches
+  {
+    id: "ocb-review",
+    frequency: "monthly",
+    periodLabel: "Off-cycle Jan 10–20",
+    payDate: "Jan 25",
+    status: "in-review",
+    label: "Off-cycle Jan 10–20",
+    isCustomBatch: true,
+  },
+  {
+    id: "ocb-tracking",
+    frequency: "monthly",
+    periodLabel: "Off-cycle Dec 15–22",
+    payDate: "Dec 28",
+    status: "processing",
+    label: "Off-cycle Dec 15–22",
+    isCustomBatch: true,
+  },
   // Current active runs (can have multiple in-review)
   { 
     id: "jan-monthly", 
