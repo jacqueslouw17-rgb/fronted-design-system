@@ -82,6 +82,7 @@ const F1v5_Step2OrgProfile = ({
         adminName: formData.adminName || "",
         adminEmail: formData.adminEmail || "",
         hqCountry: formData.hqCountry || "",
+        defaultCurrency: formData.defaultCurrency || "",
       });
     }
   }, [formData, data.companyName]);

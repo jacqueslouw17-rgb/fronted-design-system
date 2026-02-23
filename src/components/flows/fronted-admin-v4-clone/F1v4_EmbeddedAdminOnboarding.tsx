@@ -162,8 +162,9 @@ const F1v4_EmbeddedAdminOnboarding = ({
     switch (stepId) {
       case "org_profile":
         return (
-          <Step2OrgProfileSimplified 
+          <F1v4_Step2OrgProfile 
             {...stepProps} 
+            formData={isEditMode ? { ...initialData, ...stepProps.formData } : stepProps.formData}
             isEditMode={isEditMode}
             hasSignedContract={hasSignedContract}
             hasCandidates={hasCandidates}
