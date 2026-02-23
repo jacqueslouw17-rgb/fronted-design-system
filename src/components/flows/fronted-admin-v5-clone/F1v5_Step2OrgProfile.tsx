@@ -293,7 +293,7 @@ const F1v5_Step2OrgProfile = ({
                     onClick={() => handleFieldChange('defaultCurrency', c.code)}
                     className={`px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all duration-200 ${
                       data.defaultCurrency === c.code
-                        ? 'bg-gradient-primary text-primary-foreground shadow-sm'
+                        ? 'bg-secondary text-secondary-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
