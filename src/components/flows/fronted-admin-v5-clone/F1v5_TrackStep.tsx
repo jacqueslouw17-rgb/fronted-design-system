@@ -609,6 +609,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           onPayslipPreview={handlePayslipPreview}
           isTrackStep={true}
           onMarkAsPaid={handleMarkAsPaid}
+          isCustomBatch={isCustomBatch}
         />
 
         <F1v4_PayslipPreviewModal
@@ -635,6 +636,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         onPayslipPreview={handlePayslipPreview}
         isTrackStep={true}
         onMarkAsPaid={handleMarkAsPaid}
+        isCustomBatch={isCustomBatch}
       />
 
       <F1v4_PayslipPreviewModal
