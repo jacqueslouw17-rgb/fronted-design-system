@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ArrowLeft, CalendarOff, Clock, Receipt, X } from "lucide-react";
+import { ArrowLeft, CalendarOff, Clock, Receipt, X, Upload, FileText, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { F41v7_TimeInput } from "@/components/flows/employee-dashboard-v7/F41v7_TimeInput";
+import { TagInput } from "@/components/flows/shared/TagInput";
 
 // Types for admin-added adjustments
 export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense";
@@ -50,6 +51,7 @@ interface ExpenseLineItem {
   category: string;
   otherCategory: string;
   amount: string;
+  receipt: File[];
 }
 
 type RequestType = AdminAdjustmentType | null;
@@ -77,8 +79,9 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   const [unpaidLeaveDays, setUnpaidLeaveDays] = useState("");
   const [unpaidLeaveDescription, setUnpaidLeaveDescription] = useState("");
   const [expenseItems, setExpenseItems] = useState<ExpenseLineItem[]>([
-    { id: crypto.randomUUID(), category: "", otherCategory: "", amount: "" },
+    { id: crypto.randomUUID(), category: "", otherCategory: "", amount: "", receipt: [] },
   ]);
+  const [expenseTags, setExpenseTags] = useState<string[]>([]);
   
   // Overtime - single entry with date + start/end time (matching worker v7)
   const [overtimeDate, setOvertimeDate] = useState<Date | undefined>(undefined);
@@ -139,7 +142,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     setSelectedType(null);
     setUnpaidLeaveDays("");
     setUnpaidLeaveDescription("");
-    setExpenseItems([{ id: crypto.randomUUID(), category: "", otherCategory: "", amount: "" }]);
+    setExpenseItems([{ id: crypto.randomUUID(), category: "", otherCategory: "", amount: "", receipt: [] }]);
+    setExpenseTags([]);
     setOvertimeDate(undefined);
     setOvertimeStartTime("");
     setOvertimeEndTime("");
@@ -160,7 +164,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
 
   // Expense helpers
   const addExpenseItem = () => {
-    setExpenseItems((prev) => [...prev, { id: crypto.randomUUID(), category: "", otherCategory: "", amount: "" }]);
+    setExpenseItems((prev) => [...prev, { id: crypto.randomUUID(), category: "", otherCategory: "", amount: "", receipt: [] }]);
   };
 
   const removeExpenseItem = (id: string) => {
@@ -168,7 +172,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     setExpenseItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const updateExpenseItem = (id: string, field: keyof ExpenseLineItem, value: string) => {
+  const updateExpenseItem = (id: string, field: keyof ExpenseLineItem, value: string | File[]) => {
     setExpenseItems((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
@@ -350,7 +354,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                   {expenseItems.length > 1 && (
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                        Entry {index + 1}
+                        Expense {index + 1}
                       </span>
                     </div>
                   )}
@@ -398,6 +402,55 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                       />
                     </div>
                   )}
+
+                  {/* Attachments */}
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Attachments</Label>
+                    {item.receipt.length > 0 && (
+                      <div className="space-y-1.5">
+                        {item.receipt.map((file, fileIdx) => (
+                          <div key={fileIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                            {file.type.startsWith('image/') ? (
+                              <Image className="h-4 w-4 text-primary shrink-0" />
+                            ) : (
+                              <FileText className="h-4 w-4 text-primary shrink-0" />
+                            )}
+                            <span className="text-xs flex-1 truncate">{file.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = item.receipt.filter((_, i) => i !== fileIdx);
+                                updateExpenseItem(item.id, "receipt", updated);
+                              }}
+                              className="p-0.5 hover:bg-muted rounded shrink-0"
+                            >
+                              <X className="h-3 w-3 text-muted-foreground" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {item.receipt.length === 0 ? 'Upload documents' : 'Add more'}
+                      </span>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (files.length > 0) {
+                            updateExpenseItem(item.id, "receipt", [...item.receipt, ...files]);
+                          }
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                    <p className="text-[11px] text-muted-foreground/70">Receipts, invoices, or any proof of purchase — PDF, JPG, PNG</p>
+                  </div>
                 </div>
               ))}
 
@@ -410,6 +463,9 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                 Add another expense
               </button>
             </div>
+
+            {/* Tags */}
+            <TagInput tags={expenseTags} onChange={setExpenseTags} />
 
             {expenseItems.length > 0 && (
               <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
