@@ -591,6 +591,20 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     toast.success(`Off-cycle batch created for ${dayLabel}`);
   };
 
+  // Delete custom off-cycle batch
+  const handleDeleteCustomBatch = (periodId: string) => {
+    setCustomBatches(prev => prev.filter(b => b.id !== periodId));
+    if (selectedPeriodId === periodId) {
+      setSelectedPeriodId("jan-monthly");
+      setCurrentStep("submissions");
+      setCompletedSteps([]);
+      setIsApproved(false);
+      setIsAllPaid(false);
+      setHasEnteredWorkflow(false);
+    }
+    toast.success("Off-cycle batch removed");
+  };
+
   // Enter workflow
   const handleEnterWorkflow = () => {
     setHasEnteredWorkflow(true);
@@ -656,6 +670,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             onPeriodChange={handlePeriodChange}
             allowCustomBatch={company.id === "company-default"}
             onCreateCustomBatch={handleCreateCustomBatch}
+            onDeleteCustomBatch={handleDeleteCustomBatch}
           />
         </div>
 

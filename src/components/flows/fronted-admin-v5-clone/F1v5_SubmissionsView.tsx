@@ -281,7 +281,7 @@ const AdjustmentRow = ({
       </div>
       <AnimatePresence>
         {expanded &&
-        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.12 }} className="overflow-hidden">
+        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.12 }} style={{ overflow: "hidden" }} onAnimationComplete={() => { const el = document.activeElement?.closest('[style]'); if (el) (el as HTMLElement).style.overflow = 'visible'; }}>
             <div className="pb-3 space-y-2.5">
               {/* Inline attachments */}
               {hasAttachments && (
@@ -460,7 +460,7 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
       </div>
       <AnimatePresence>
         {expanded &&
-        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.12 }} className="overflow-hidden">
+        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.12 }} style={{ overflow: "hidden" }} onAnimationComplete={() => { const el = document.activeElement?.closest('[style]'); if (el) (el as HTMLElement).style.overflow = 'visible'; }}>
             <div className="pb-3">
               {!showRejectForm ?
             <div className="flex items-center gap-2">
