@@ -166,20 +166,90 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
       >
         {/* Focused create form — hides everything else */}
         {showCreateForm && allowCustomBatch ? (
-          <div className="px-3 py-3 space-y-3">
+          <div className="px-4 py-4 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-md bg-violet-500/10 flex items-center justify-center">
+                  <Plus className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                </div>
                 <span className="text-[13px] font-semibold text-foreground">New Off-Cycle Batch</span>
               </div>
-              <button onClick={() => { setShowCreateForm(false); setNewPayDate(undefined); }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setShowCreateForm(false); resetForm(); }} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Pay out pending adjustments before the next scheduled cycle. Only workers with pending items will be included.
+              Pay out pending adjustments outside the regular cycle. Only workers with pending items will be included.
             </p>
+
+            {/* Frequency — locked to Custom */}
             <div className="space-y-1.5">
-              <Label className="text-[11px] text-muted-foreground">Pay date</Label>
+              <Label className="text-[11px] text-muted-foreground font-medium">Frequency</Label>
+              <div className="flex items-center h-9 px-3 rounded-md border border-border bg-muted/40 text-sm text-foreground">
+                <span className="text-[13px]">Custom (Off-Cycle)</span>
+              </div>
+            </div>
+
+            {/* Start & End Date row */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1.5">
+                <Label className="text-[11px] text-muted-foreground font-medium">Start date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full h-9 justify-start text-left font-normal text-[12px] px-2.5",
+                        !newStartDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-1.5 h-3 w-3 shrink-0" />
+                      {newStartDate ? format(newStartDate, "MMM d, yyyy") : "Start"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={newStartDate}
+                      onSelect={(date) => { setNewStartDate(date); }}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] text-muted-foreground font-medium">End date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full h-9 justify-start text-left font-normal text-[12px] px-2.5",
+                        !newEndDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-1.5 h-3 w-3 shrink-0" />
+                      {newEndDate ? format(newEndDate, "MMM d, yyyy") : "End"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={newEndDate}
+                      onSelect={(date) => { setNewEndDate(date); }}
+                      disabled={(date) => newStartDate ? date < newStartDate : false}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {/* Pay Date */}
+            <div className="space-y-1.5">
+              <Label className="text-[11px] text-muted-foreground font-medium">Pay date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -190,7 +260,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                     )}
                   >
                     <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                    {newPayDate ? format(newPayDate, "PPP") : <span>Pick a date</span>}
+                    {newPayDate ? format(newPayDate, "MMM d, yyyy") : <span>Select pay date</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -205,11 +275,17 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                 </PopoverContent>
               </Popover>
             </div>
+
+            {/* Validation hint */}
+            {newStartDate && newEndDate && newEndDate < newStartDate && (
+              <p className="text-[11px] text-destructive">End date must be after start date</p>
+            )}
+
             <div className="flex gap-2 pt-1">
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => { setShowCreateForm(false); setNewPayDate(undefined); }}
+                onClick={() => { setShowCreateForm(false); resetForm(); }}
                 className="flex-1 h-8 text-xs"
               >
                 Cancel
@@ -217,7 +293,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
               <Button
                 size="sm"
                 onClick={handleCreateBatch}
-                disabled={!newPayDate}
+                disabled={!isFormValid}
                 className="flex-1 h-8 text-xs bg-violet-600 hover:bg-violet-700 text-white"
               >
                 Create Batch
