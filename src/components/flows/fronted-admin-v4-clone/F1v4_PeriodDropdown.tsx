@@ -88,6 +88,8 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newStartDate, setNewStartDate] = useState<Date | undefined>();
+  const [newEndDate, setNewEndDate] = useState<Date | undefined>();
   const [newPayDate, setNewPayDate] = useState<Date | undefined>();
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
 
@@ -109,10 +111,22 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
     setShowCreateForm(false);
   };
 
+  const resetForm = () => {
+    setNewStartDate(undefined);
+    setNewEndDate(undefined);
+    setNewPayDate(undefined);
+  };
+
+  const isFormValid = newStartDate && newEndDate && newPayDate && newEndDate >= newStartDate;
+
   const handleCreateBatch = () => {
-    if (newPayDate && onCreateCustomBatch) {
-      onCreateCustomBatch(newPayDate.toISOString().split('T')[0]);
-      setNewPayDate(undefined);
+    if (isFormValid && onCreateCustomBatch) {
+      onCreateCustomBatch({
+        startDate: newStartDate.toISOString().split('T')[0],
+        endDate: newEndDate.toISOString().split('T')[0],
+        payDate: newPayDate.toISOString().split('T')[0],
+      });
+      resetForm();
       setShowCreateForm(false);
       setIsOpen(false);
     }
@@ -120,7 +134,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
 
   const triggerLabel = selectedPeriod
     ? selectedPeriod.isCustomBatch
-      ? `Off-cycle · ${selectedPeriod.periodLabel}`
+      ? `Custom · ${selectedPeriod.periodLabel}`
       : `${selectedPeriod.frequency === "monthly" ? "Monthly" : "Fortnightly"} · ${selectedPeriod.periodLabel}`
     : "Select Run";
 
