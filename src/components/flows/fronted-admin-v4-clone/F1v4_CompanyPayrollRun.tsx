@@ -817,6 +817,10 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                     open={isHeaderConfirmOpen}
                     onOpenChange={setIsHeaderConfirmOpen}
                     onConfirm={goToTrack}
+                    companyName={company.name}
+                    employeeCount={approveSubmissions.filter(s => s.workerType === "employee").length}
+                    contractorCount={approveSubmissions.filter(s => s.workerType === "contractor").length}
+                    totalAmount={`€${approveSubmissions.reduce((sum, s) => sum + (s.totalImpact || 0), 0).toLocaleString()}`}
                     isCustomBatch={isCustomBatch}
                   />
                 </div>
