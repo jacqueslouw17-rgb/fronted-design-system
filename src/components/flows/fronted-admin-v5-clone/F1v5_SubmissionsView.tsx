@@ -588,8 +588,28 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   }, [submissions, adjustmentStates, leaveStates, finalizedWorkers]);
   // For custom batches: enable continue as soon as at least one adjustment has been actioned
   const hasAnyAction = isCustomBatch && (Object.keys(adjustmentStates).length > 0 || Object.keys(leaveStates).length > 0 || finalizedWorkers.size > 0);
+  
+  // Count workers that still have pending items
+  const workersWithPendingItems = useMemo(() => {
+    if (!isCustomBatch) return 0;
+    return submissions.filter(s => {
+      if (finalizedWorkers.has(s.id) || statusDecisions[s.id] === "exclude") return false;
+      const hasPending = s.submissions.some((adj, idx) => {
+        const key = `${s.id}-${idx}`;
+        const state = adjustmentStates[key];
+        return (state?.status || adj.status || 'pending') === 'pending' && typeof adj.amount === 'number';
+      }) || (s.pendingLeaves || []).some(leave => {
+        const key = `${s.id}-leave-${leave.id}`;
+        const state = leaveStates[key];
+        return (state?.status || leave.status || 'pending') === 'pending';
+      });
+      return hasPending;
+    }).length;
+  }, [submissions, adjustmentStates, leaveStates, finalizedWorkers, statusDecisions, isCustomBatch]);
+
+  const allWorkersActioned = isCustomBatch && workersWithPendingItems === 0;
   const canContinue = isCustomBatch
-    ? hasAnyAction && submissions.length > 0
+    ? hasAnyAction && submissions.length > 0 && (skippedOthers || allWorkersActioned)
     : readyCount >= submissions.length && submissions.length > 0;
 
   const filteredSubmissions = useMemo(() => {
