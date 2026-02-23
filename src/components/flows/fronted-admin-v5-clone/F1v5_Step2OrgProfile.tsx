@@ -96,6 +96,7 @@ const F1v5_Step2OrgProfile = ({
       newErrors.adminEmail = "Invalid email format";
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
+    if (!data.defaultCurrency) newErrors.defaultCurrency = "Default currency is required";
 
     // Creation mode: validate country templates
     if (!isEditMode) {
