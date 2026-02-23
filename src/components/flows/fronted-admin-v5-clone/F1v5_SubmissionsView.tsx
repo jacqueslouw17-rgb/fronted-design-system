@@ -874,7 +874,31 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 pendingCount={dynamicPendingCount} />
 
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {/* Skip Remaining button - only for off-cycle batches with pending workers */}
+              {isCustomBatch && workersWithPendingItems > 0 && hasAnyAction && !skippedOthers && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSkippedOthers(true);
+                    toast.info(`${workersWithPendingItems} worker${workersWithPendingItems !== 1 ? 's' : ''} skipped — their adjustments remain open`);
+                  }}
+                  className="h-9 text-xs gap-1.5"
+                >
+                  <Clock className="h-3.5 w-3.5" />
+                  Skip {workersWithPendingItems} Remaining
+                </Button>
+              )}
+              {isCustomBatch && skippedOthers && (
+                <button
+                  onClick={() => setSkippedOthers(false)}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Undo2 className="h-3 w-3" />
+                  Undo skip
+                </button>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span>
@@ -911,8 +935,14 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                   </span>
                 </TooltipTrigger>
                 {!canContinue &&
-                <TooltipContent side="bottom" className="max-w-[200px]">
-                    <p className="text-xs">Mark all {submissions.length - readyCount} remaining worker{submissions.length - readyCount !== 1 ? 's' : ''} as ready before continuing</p>
+                <TooltipContent side="bottom" className="max-w-[220px]">
+                    <p className="text-xs">
+                      {isCustomBatch && hasAnyAction && !skippedOthers
+                        ? `${workersWithPendingItems} worker${workersWithPendingItems !== 1 ? 's' : ''} still pending — click "Skip Remaining" to proceed`
+                        : isCustomBatch
+                        ? "Review at least one worker's adjustments first"
+                        : `Mark all ${submissions.length - readyCount} remaining worker${submissions.length - readyCount !== 1 ? 's' : ''} as ready before continuing`}
+                    </p>
                   </TooltipContent>
                 }
               </Tooltip>
