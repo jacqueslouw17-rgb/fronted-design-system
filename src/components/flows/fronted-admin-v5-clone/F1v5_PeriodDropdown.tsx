@@ -148,7 +148,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                 <Zap className="h-3.5 w-3.5 text-violet-500" />
                 <span className="text-[13px] font-semibold text-foreground">New Off-Cycle Batch</span>
               </div>
-              <button onClick={() => { setShowCreateForm(false); setNewPayDate(""); }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setShowCreateForm(false); setNewPayDate(undefined); }} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -157,22 +157,36 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
             </p>
             <div className="space-y-1.5">
               <Label className="text-[11px] text-muted-foreground">Pay date</Label>
-              <input
-                type="date"
-                value={newPayDate}
-                onChange={(e) => setNewPayDate(e.target.value)}
-                className={cn(
-                  "w-full h-9 rounded-md border border-input bg-background px-3 py-1.5 text-sm",
-                  "focus:outline-none focus:ring-2 focus:ring-violet-500/30"
-                )}
-                min={new Date().toISOString().split('T')[0]}
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full h-9 justify-start text-left font-normal text-sm",
+                      !newPayDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                    {newPayDate ? format(newPayDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={newPayDate}
+                    onSelect={(date) => { setNewPayDate(date); }}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="flex gap-2 pt-1">
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => { setShowCreateForm(false); setNewPayDate(""); }}
+                onClick={() => { setShowCreateForm(false); setNewPayDate(undefined); }}
                 className="flex-1 h-8 text-xs"
               >
                 Cancel
