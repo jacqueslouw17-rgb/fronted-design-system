@@ -1,8 +1,8 @@
 /**
- * Flow 1 v5 — Organization Profile Step (v5-specific clone)
+ * Flow 1 v4 — Organization Profile Step (v4-specific clone)
  * 
- * Clone of Step2OrgProfileSimplified with Country Templates embedded
- * inside the form card. Shown in both create and edit modes.
+ * Clone of Step2OrgProfileSimplified with default currency field
+ * that auto-defaults based on Eurozone membership.
  */
 
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
-import { F1v5_CountryTemplatesSection } from "./F1v5_CountryTemplatesSection";
-import { F1v5_CreationCountryTemplates, type CreationCountryEntry } from "./F1v5_CreationCountryTemplates";
 
-interface F1v5_Step2Props {
+interface F1v4_Step2Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
@@ -25,9 +23,6 @@ interface F1v5_Step2Props {
   editModeTitle?: string;
   hasSignedContract?: boolean;
   hasCandidates?: boolean;
-  // v5-specific
-  companyId?: string;
-  companyName?: string;
 }
 
 // Eurozone countries per acceptance criteria
@@ -40,21 +35,19 @@ function getDefaultCurrency(countryCode: string): string {
   return EUROZONE_COUNTRY_CODES.has(countryCode) ? "EUR" : "USD";
 }
 
-const CURRENCY_OPTIONS = [
+const CURRENCIES = [
   { code: "EUR", label: "EUR – Euro" },
   { code: "USD", label: "USD – US Dollar" },
 ];
 
-const F1v5_Step2OrgProfile = ({
+const F1v4_Step2OrgProfile = ({
   formData,
   onComplete,
   isProcessing: externalProcessing,
   isEditMode = false,
   editModeTitle,
   hasSignedContract = false,
-  companyId,
-  companyName: companyNameProp,
-}: F1v5_Step2Props) => {
+}: F1v4_Step2Props) => {
   const [data, setData] = useState({
     companyName: formData.companyName || "",
     adminName: formData.adminName || "",
@@ -72,9 +65,7 @@ const F1v5_Step2OrgProfile = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Creation-mode country templates
-  const [creationCountries, setCreationCountries] = useState<CreationCountryEntry[]>([]);
-
+  // Watch for formData updates
   useEffect(() => {
     if (formData.companyName && formData.companyName !== data.companyName) {
       setData({
@@ -87,10 +78,14 @@ const F1v5_Step2OrgProfile = ({
     }
   }, [formData, data.companyName]);
 
-  // Auto-default currency when HQ country changes and currency is empty
+  // Auto-default currency when HQ country changes (only if currency hasn't been manually set or is empty)
   useEffect(() => {
-    if (data.hqCountry && !data.defaultCurrency) {
-      setData(prev => ({ ...prev, defaultCurrency: getDefaultCurrency(prev.hqCountry) }));
+    if (data.hqCountry) {
+      const suggested = getDefaultCurrency(data.hqCountry);
+      // Only auto-set if currency is empty (user hasn't picked one yet)
+      if (!data.defaultCurrency) {
+        setData(prev => ({ ...prev, defaultCurrency: suggested }));
+      }
     }
   }, [data.hqCountry]);
 
@@ -104,46 +99,29 @@ const F1v5_Step2OrgProfile = ({
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
     if (!data.defaultCurrency) newErrors.defaultCurrency = "Default currency is required";
-
-    // Creation mode: validate country templates
-    if (!isEditMode) {
-      if (creationCountries.length === 0) {
-        newErrors.countryTemplates = "At least one country with templates is required";
-      } else {
-        // Check required slots per country
-        const missingRequired = creationCountries.filter(c =>
-          c.slots.some(s => s.required && s.status === "empty")
-        );
-        if (missingRequired.length > 0) {
-          newErrors.countryTemplates = `Required templates missing for: ${missingRequired.map(c => c.countryName).join(", ")}`;
-        }
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSave = async () => {
     if (!validate()) {
-      toast({ title: "Validation error", description: "Please fill in all required fields correctly", variant: "destructive" });
+      toast({
+        title: "Validation error",
+        description: "Please fill in all required fields correctly",
+        variant: "destructive"
+      });
       return;
     }
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 800));
-
-    const submitData = {
-      ...data,
-      ...(!isEditMode && { countryTemplates: creationCountries }),
-    };
-
-    onComplete("org_profile", submitData);
+    onComplete("org_profile", data);
     setIsSubmitting(false);
   };
 
   const handleFieldChange = (fieldName: string, value: string) => {
     setData(prev => {
       const updated = { ...prev, [fieldName]: value };
+      // When country changes, auto-set currency
       if (fieldName === "hqCountry") {
         updated.defaultCurrency = getDefaultCurrency(value);
       }
@@ -164,13 +142,7 @@ const F1v5_Step2OrgProfile = ({
     data.adminEmail.trim().length > 0 &&
     data.hqCountry.trim().length > 0 &&
     data.defaultCurrency.trim().length > 0 &&
-    hasChanges &&
-    (isEditMode || (
-      creationCountries.length > 0 &&
-      creationCountries.every(c => c.slots.filter(s => s.required).every(s => s.status !== "empty"))
-    ));
-
-  const resolvedCompanyName = companyNameProp || data.companyName || "Company";
+    hasChanges;
 
   return (
     <div className="space-y-5 max-w-xl mx-auto">
@@ -190,7 +162,9 @@ const F1v5_Step2OrgProfile = ({
               readOnly={isEditMode && hasSignedContract}
             />
             {isEditMode && hasSignedContract && (
-              <p className="text-xs text-muted-foreground">Company name cannot be changed as there are signed contracts for this company.</p>
+              <p className="text-xs text-muted-foreground">
+                Company name cannot be changed as there are signed contracts for this company.
+              </p>
             )}
             {errors.companyName && <p className="text-xs text-destructive">{errors.companyName}</p>}
           </div>
@@ -220,7 +194,9 @@ const F1v5_Step2OrgProfile = ({
               readOnly={isEditMode}
             />
             {isEditMode && (
-              <p className="text-xs text-muted-foreground">Email cannot be changed as it is linked to this company's account.</p>
+              <p className="text-xs text-muted-foreground">
+                Email cannot be changed as it is linked to this company's account.
+              </p>
             )}
             {errors.adminEmail && <p className="text-xs text-destructive">{errors.adminEmail}</p>}
           </div>
@@ -286,7 +262,7 @@ const F1v5_Step2OrgProfile = ({
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
               <SelectContent>
-                {CURRENCY_OPTIONS.map(c => (
+                {CURRENCIES.map(c => (
                   <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
                 ))}
               </SelectContent>
@@ -296,24 +272,6 @@ const F1v5_Step2OrgProfile = ({
             </p>
             {errors.defaultCurrency && <p className="text-xs text-destructive">{errors.defaultCurrency}</p>}
           </div>
-
-          {/* Country templates — creation mode: multi-select + manage */}
-          {!isEditMode && (
-            <F1v5_CreationCountryTemplates
-              selectedCountries={creationCountries}
-              onCountriesChange={setCreationCountries}
-              error={errors.countryTemplates}
-            />
-          )}
-
-          {/* Country templates — edit mode: existing editor */}
-          {isEditMode && companyId && (
-            <F1v5_CountryTemplatesSection
-              companyId={companyId}
-              companyName={resolvedCompanyName}
-              isEmbedded
-            />
-          )}
         </div>
       </div>
 
@@ -329,4 +287,4 @@ const F1v5_Step2OrgProfile = ({
   );
 };
 
-export default F1v5_Step2OrgProfile;
+export default F1v4_Step2OrgProfile;

@@ -58,6 +58,7 @@ interface CompanyData {
   adminName?: string;
   adminEmail?: string;
   hqCountry?: string;
+  defaultCurrency?: string;
   payrollCurrency?: string[];
   payoutDay?: string;
 }
@@ -70,6 +71,7 @@ const MOCK_COMPANIES: CompanyData[] = [
     adminName: "Joe User",
     adminEmail: "joe@example.com",
     hqCountry: "SE",
+    defaultCurrency: "USD",
     payrollCurrency: ["USD"],
     payoutDay: "25",
   }
@@ -280,6 +282,7 @@ const AdminContractingMultiCompany = () => {
       adminName: companyData?.adminName,
       adminEmail: companyData?.adminEmail,
       hqCountry: companyData?.hqCountry,
+      defaultCurrency: companyData?.defaultCurrency,
       payrollCurrency: companyData?.payrollCurrency,
       payoutDay: companyData?.payoutDay,
     };
@@ -315,6 +318,7 @@ const AdminContractingMultiCompany = () => {
             adminName: companyData?.adminName ?? company.adminName,
             // Email cannot be changed in edit mode
             hqCountry: companyData?.hqCountry ?? company.hqCountry,
+            defaultCurrency: companyData?.defaultCurrency ?? company.defaultCurrency,
             payrollCurrency: companyData?.payrollCurrency ?? company.payrollCurrency,
             payoutDay: companyData?.payoutDay ?? company.payoutDay,
           }
@@ -880,6 +884,7 @@ const AdminContractingMultiCompany = () => {
                         adminName: editingCompany?.adminName || "",
                         adminEmail: editingCompany?.adminEmail || "",
                         hqCountry: editingCompany?.hqCountry || "",
+                        defaultCurrency: editingCompany?.defaultCurrency || "",
                         payrollCurrency: editingCompany?.payrollCurrency || [],
                         payoutDay: editingCompany?.payoutDay || "",
                       }}

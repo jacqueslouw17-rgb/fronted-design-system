@@ -20,7 +20,7 @@ import { useOnboardingStore } from "@/stores/onboardingStore";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
-import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
+import F1v4_Step2OrgProfile from "./F1v4_Step2OrgProfile";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
@@ -162,8 +162,9 @@ const F1v4_EmbeddedAdminOnboarding = ({
     switch (stepId) {
       case "org_profile":
         return (
-          <Step2OrgProfileSimplified 
+          <F1v4_Step2OrgProfile 
             {...stepProps} 
+            formData={isEditMode ? { ...initialData, ...stepProps.formData } : stepProps.formData}
             isEditMode={isEditMode}
             hasSignedContract={hasSignedContract}
             hasCandidates={hasCandidates}
