@@ -238,6 +238,24 @@ const F1v5_Step2OrgProfile = ({
             {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="defaultCurrency" className="text-sm">Default Currency</Label>
+            <Select value={data.defaultCurrency} onValueChange={val => handleFieldChange('defaultCurrency', val)}>
+              <SelectTrigger className="text-sm">
+                <SelectValue placeholder="Select currency" />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENCY_OPTIONS.map(c => (
+                  <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              This currency will be used as the default across the company's dashboard.
+            </p>
+            {errors.defaultCurrency && <p className="text-xs text-destructive">{errors.defaultCurrency}</p>}
+          </div>
+
           {/* Country templates — creation mode: multi-select + manage */}
           {!isEditMode && (
             <F1v5_CreationCountryTemplates
