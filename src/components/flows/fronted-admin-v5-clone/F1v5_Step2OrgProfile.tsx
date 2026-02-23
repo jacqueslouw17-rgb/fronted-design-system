@@ -94,6 +94,7 @@ const F1v5_Step2OrgProfile = ({
     }
   }, [data.hqCountry]);
 
+  const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!data.companyName) newErrors.companyName = "Company name is required";
     if (!data.adminName) newErrors.adminName = "End-client name is required";
