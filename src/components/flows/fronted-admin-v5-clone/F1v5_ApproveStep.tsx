@@ -74,16 +74,17 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     let rejectedCount = 0;
     let rejectedAmount = 0;
     let leavesCount = 0;
+    let totalRequests = 0;
     
     workers.forEach(w => {
       w.submissions.forEach(s => {
-        totalAdjustments += s.amount || 0;
-        if (s.status === "approved") approvedCount++;
-        else if (s.status === "rejected") {
+        totalRequests++;
+        if (s.status === "rejected") {
           rejectedCount++;
           rejectedAmount += s.amount || 0;
         } else {
           approvedCount++;
+          totalAdjustments += s.amount || 0;
         }
       });
       (w.pendingLeaves || []).forEach(() => leavesCount++);
@@ -110,6 +111,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
       rejectedAmount,
       leavesCount,
       workerCount: workers.length,
+      totalRequests,
     };
   }, [isCustomBatch, submissions]);
 
@@ -142,14 +144,87 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
       rejectedAmount: 1200,
       leavesCount: 2,
       workerCount: company.employeeCount + company.contractorCount,
+      totalRequests: 4,
     };
+
+    if (isCustomBatch) {
+      return (
+        <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
+          <div className="p-5 space-y-5">
+            <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+              <p className="text-xs text-primary/70 mb-1">Off-cycle adjustment payout</p>
+              <p className="text-3xl font-semibold text-primary tracking-tight">{formatCurrency(displayData.totalCost)}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""} · {displayData.totalRequests} adjustment request{displayData.totalRequests !== 1 ? "s" : ""}
+              </p>
+              
+              <div className="mt-4 pt-3 border-t border-primary/10 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-1.5 text-muted-foreground">
+                    <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
+                    Approved adjustments
+                  </span>
+                  <span className="text-accent-green-text tabular-nums">+{formatCurrency(displayData.totalAdjustments)}</span>
+                </div>
+                
+                {displayData.rejectedCount > 0 && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <XCircle className="h-3 w-3 text-muted-foreground/50" />
+                      Rejected ({displayData.rejectedCount})
+                    </span>
+                    <span className="text-muted-foreground/60 tabular-nums line-through">{formatCurrency(displayData.rejectedAmount)}</span>
+                  </div>
+                )}
+
+                {displayData.totalDeductions > 0 && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Tax deductions (employees)</span>
+                    <span className="text-foreground tabular-nums">-{formatCurrency(displayData.totalDeductions)}</span>
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Fronted fees (3%)</span>
+                  <span className="text-foreground tabular-nums">{formatCurrency(displayData.fees)}</span>
+                </div>
+                
+                <div className="flex items-center justify-between text-xs pt-1.5 border-t border-primary/10">
+                  <span className="text-primary/80 font-medium">Net payout</span>
+                  <span className="text-primary font-medium tabular-nums">{formatCurrency(displayData.netPayout)}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-4 gap-3">
+              <div className="p-3 rounded-lg border border-border/60 bg-card/80 text-center">
+                <p className="text-xs text-muted-foreground mb-1">Requests</p>
+                <p className="text-lg font-semibold text-foreground">{displayData.totalRequests}</p>
+              </div>
+              <div className="p-3 rounded-lg border border-border/60 bg-card/80 text-center">
+                <p className="text-xs text-muted-foreground mb-1">Employees</p>
+                <p className="text-lg font-semibold text-foreground">{displayData.employeeCount}</p>
+              </div>
+              <div className="p-3 rounded-lg border border-border/60 bg-card/80 text-center">
+                <p className="text-xs text-muted-foreground mb-1">Contractors</p>
+                <p className="text-lg font-semibold text-foreground">{displayData.contractorCount}</p>
+              </div>
+              <div className="p-3 rounded-lg border border-border/60 bg-card/80 text-center">
+                <p className="text-xs text-muted-foreground mb-1">Currencies</p>
+                <p className="text-lg font-semibold text-foreground">{displayData.currencyCount}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
         <div className="p-5 space-y-5">
           <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-xs text-primary/70">{isCustomBatch ? "Off-cycle payout" : "Total payout"}</p>
+              <p className="text-xs text-primary/70">Total payout</p>
               <button 
                 onClick={handleRefreshFx}
                 disabled={isRefreshingFx}
@@ -160,27 +235,18 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               </button>
             </div>
             <p className="text-3xl font-semibold text-primary tracking-tight">{formatCurrency(displayData.totalCost)}</p>
-            {!isCustomBatch && (
-              <p className="text-[10px] text-muted-foreground mt-1">
-                Based on current rates · EUR 1.08 · PHP 0.018 · NOK 0.089
-              </p>
-            )}
-            {isCustomBatch && (
-              <p className="text-[10px] text-muted-foreground mt-1">
-                {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""} with adjustments
-              </p>
-            )}
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Based on current rates · EUR 1.08 · PHP 0.018 · NOK 0.089
+            </p>
             
             <div className="mt-4 pt-3 border-t border-primary/10 space-y-1.5">
-              {!isCustomBatch && (
-                <div className="flex items-center justify-between text-xs">
-                  <div>
-                    <span className="text-muted-foreground">Total Compensation before fees</span>
-                    <p className="text-[10px] text-muted-foreground/60">Incl. statutory earnings & deductions</p>
-                  </div>
-                  <span className="text-foreground tabular-nums">$118,500</span>
+              <div className="flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-muted-foreground">Total Compensation before fees</span>
+                  <p className="text-[10px] text-muted-foreground/60">Incl. statutory earnings & deductions</p>
                 </div>
-              )}
+                <span className="text-foreground tabular-nums">$118,500</span>
+              </div>
               
               <div className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1.5 text-muted-foreground">
@@ -199,13 +265,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                     <span className="text-[10px] text-muted-foreground/70">({displayData.rejectedCount} item{displayData.rejectedCount !== 1 ? "s" : ""})</span>
                   </span>
                   <span className="text-muted-foreground/60 tabular-nums line-through">{formatCurrency(displayData.rejectedAmount)}</span>
-                </div>
-              )}
-
-              {isCustomBatch && displayData.totalDeductions > 0 && (
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Tax deductions</span>
-                  <span className="text-foreground tabular-nums">-{formatCurrency(displayData.totalDeductions)}</span>
                 </div>
               )}
               
@@ -349,6 +408,8 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               employeeCount={approveEmployeeCount}
               contractorCount={approveContractorCount}
               totalAmount={approveTotalAmount}
+              isCustomBatch={isCustomBatch}
+              adjustmentCount={offCycleTotals?.totalRequests ?? 0}
             />
           </div>
         </div>
