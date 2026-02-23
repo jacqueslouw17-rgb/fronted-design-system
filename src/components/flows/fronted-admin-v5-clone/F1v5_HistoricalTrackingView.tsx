@@ -80,13 +80,23 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
               <span className="text-lg text-muted-foreground">of {workers.length}</span>
               <span className="text-sm text-muted-foreground">payments paid</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Paid on {paidDate}</p>
+            <p className="text-xs text-muted-foreground mt-1">All payments paid — export for your records</p>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Button variant="ghost" size="sm" onClick={handleExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <Button variant="outline" size="sm" onClick={handleExportCSV} className="h-8 text-xs gap-1.5">
               <Download className="h-3.5 w-3.5" />
-              CSV
+              Export CSV
             </Button>
+            <div className="flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5" />
+              <span className="font-medium text-foreground">{employees.length}</span>
+              <span>employees</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Briefcase className="h-3.5 w-3.5" />
+              <span className="font-medium text-foreground">{contractors.length}</span>
+              <span>contractors</span>
+            </div>
           </div>
         </div>
       </div>
