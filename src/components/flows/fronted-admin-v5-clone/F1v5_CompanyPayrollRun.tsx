@@ -559,20 +559,25 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   };
 
   // Create custom off-cycle batch
-  const handleCreateCustomBatch = (payDate: string) => {
-    const date = new Date(payDate);
+  const handleCreateCustomBatch = (data: { startDate: string; endDate: string; payDate: string }) => {
+    const start = new Date(data.startDate);
+    const end = new Date(data.endDate);
+    const pay = new Date(data.payDate);
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const dayLabel = `${monthNames[date.getMonth()]} ${date.getDate()}`;
+    const fmtShort = (d: Date) => `${monthNames[d.getMonth()]} ${d.getDate()}`;
+    const periodLabel = `${fmtShort(start)} – ${fmtShort(end)}`;
     const batchId = `custom-${Date.now()}`;
     
     const newBatch: PayrollPeriod = {
       id: batchId,
-      frequency: "monthly",
-      periodLabel: `Pay ${dayLabel}`,
-      payDate: dayLabel,
+      frequency: "custom",
+      periodLabel,
+      payDate: fmtShort(pay),
       status: "in-review",
-      label: `Off-cycle ${dayLabel}`,
+      label: `Off-cycle ${periodLabel}`,
       isCustomBatch: true,
+      startDate: fmtShort(start),
+      endDate: fmtShort(end),
     };
     
     setCustomBatches(prev => [...prev, newBatch]);
@@ -582,7 +587,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     setIsApproved(false);
     setIsAllPaid(false);
     setHasEnteredWorkflow(false);
-    toast.success(`Off-cycle batch created for ${dayLabel}`);
+    toast.success(`Off-cycle batch created: ${periodLabel}`);
   };
 
   // Delete custom off-cycle batch
