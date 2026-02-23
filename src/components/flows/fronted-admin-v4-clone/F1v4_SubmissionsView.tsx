@@ -893,7 +893,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                   className="h-9 text-xs gap-1.5"
                 >
                   <Clock className="h-3.5 w-3.5" />
-                  Skip {workersWithPendingItems} Remaining
+                  Skip Remaining
                 </Button>
               )}
               {isCustomBatch && skippedOthers && (
