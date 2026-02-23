@@ -171,25 +171,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               </p>
             </div>
 
-            {/* KPI pills */}
-            <div className="flex flex-wrap gap-2">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-accent-green-fill/10 border border-accent-green-outline/20">
-                <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-                <span className="text-[11px] font-medium text-accent-green-text">{displayData.approvedCount} approved</span>
-              </div>
-              {displayData.rejectedCount > 0 && (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-muted/30 border border-border/40">
-                  <XCircle className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[11px] font-medium text-muted-foreground">{displayData.rejectedCount} rejected</span>
-                </div>
-              )}
-              {displayData.skippedCount > 0 && (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-muted/20 border border-border/30">
-                  <Clock className="h-3 w-3 text-muted-foreground/60" />
-                  <span className="text-[11px] font-medium text-muted-foreground/60">{displayData.skippedCount} skipped</span>
-                </div>
-              )}
-            </div>
 
             {/* Financial ledger */}
             <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2.5">
