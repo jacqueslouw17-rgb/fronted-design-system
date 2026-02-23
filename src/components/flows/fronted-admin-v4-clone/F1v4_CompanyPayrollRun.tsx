@@ -771,7 +771,15 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                     completedSteps={completedSteps as StepperStep[]}
                   />
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline"
+                    size="sm" 
+                    onClick={() => setCurrentStep("submissions")}
+                    className="h-9 text-xs"
+                  >
+                    Back
+                  </Button>
                   <Button 
                     size="sm" 
                     onClick={() => setIsApproveModalOpen(true)}
