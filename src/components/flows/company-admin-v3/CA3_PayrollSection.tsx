@@ -396,7 +396,11 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
       basePay: 8500,
       estimatedNet: 8500,
       lineItems: [{ type: "Earnings", label: "Consulting Fee", amount: 8500, locked: false }],
-      submissions: [{ type: "expenses", amount: 320, currency: "SGD", description: "Client meeting expenses", status: "pending" }],
+      submissions: [{ type: "expenses", amount: 320, currency: "SGD", description: "Client meeting expenses", status: "pending",
+        attachments: [
+          { id: "att-ca3-mc1", fileName: "meeting_receipt.pdf", fileType: "application/pdf", fileSize: "340 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Marcus Chen" },
+        ], attachmentsCount: 1,
+      }],
       status: "pending",
       totalImpact: 320,
       currency: "SGD",
