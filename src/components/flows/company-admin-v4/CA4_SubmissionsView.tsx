@@ -1294,19 +1294,27 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     
     // Check if worker is finalized
     const isFinalized = isWorkerFinalized(submission.id);
+
+    const isExcluded = statusDecisions[submission.id] === "exclude";
+    // Worker is "skipped" if skippedOthers is active and they still have pending items
+    const isSkipped = skippedOthers && workerPendingCount > 0 && !isFinalized && !isExcluded;
     
-    // Derive effective worker status: 
-    // - pending = has items needing review
-    // - ready = admin has clicked "Mark as Ready" (finalized) or all items approved
+    // Derive effective worker status
     let effectiveWorkerStatus: SubmissionStatus;
-    if (isFinalized) {
+    if (isExcluded) {
+      effectiveWorkerStatus = "ready";
+    } else if (isFinalized) {
       effectiveWorkerStatus = "ready";
     } else if (workerPendingCount > 0) {
       effectiveWorkerStatus = "pending";
     } else {
       effectiveWorkerStatus = "ready";
     }
-    const status = statusConfig[effectiveWorkerStatus];
+    const status = isExcluded
+      ? { label: "Excluded", color: "text-muted-foreground", icon: X }
+      : isSkipped
+      ? { label: "Skipped", color: "text-muted-foreground", icon: Clock }
+      : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
     // Show loading skeleton when being marked as ready
@@ -1319,16 +1327,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           animate={{ opacity: 1 }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/[0.06] border border-primary/20"
         >
-          {/* Avatar skeleton */}
           <div className="h-7 w-7 rounded-full bg-primary/20 animate-pulse flex-shrink-0" />
-
-          {/* Worker Info skeleton */}
           <div className="flex-1 min-w-0 space-y-1.5">
             <div className="h-3.5 w-24 bg-primary/15 rounded animate-pulse" />
             <div className="h-2.5 w-16 bg-primary/10 rounded animate-pulse" />
           </div>
-
-          {/* Right side: Loading indicator */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Loader2 className="h-4 w-4 text-primary animate-spin" />
             <span className="text-xs text-primary font-medium">Marking ready...</span>
@@ -1347,16 +1350,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           animate={{ opacity: 1 }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-green-500/[0.06] border border-green-500/20"
         >
-          {/* Avatar skeleton */}
           <div className="h-7 w-7 rounded-full bg-green-500/20 animate-pulse flex-shrink-0" />
-
-          {/* Worker Info skeleton */}
           <div className="flex-1 min-w-0 space-y-1.5">
             <div className="h-3.5 w-24 bg-green-500/15 rounded animate-pulse" />
             <div className="h-2.5 w-16 bg-green-500/10 rounded animate-pulse" />
           </div>
-
-          {/* Right side: Loading indicator */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Loader2 className="h-4 w-4 text-green-600 animate-spin" />
             <span className="text-xs text-green-600 font-medium">Approving items...</span>
@@ -1372,8 +1370,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group"
-        onClick={() => handleRowClick(submission)}
+        className={cn(
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 transition-colors",
+          (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "hover:bg-muted/30 cursor-pointer group"
+        )}
+        onClick={() => { if (!isSkipped) handleRowClick(submission); }}
       >
         {/* Avatar */}
         <Avatar className="h-7 w-7 flex-shrink-0">
