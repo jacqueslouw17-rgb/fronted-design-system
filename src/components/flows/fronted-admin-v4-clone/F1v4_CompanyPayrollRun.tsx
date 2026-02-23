@@ -483,6 +483,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   
   // Submit/Approved state
   const [isApproved, setIsApproved] = useState(false);
+  const [approveReadyWorkerIds, setApproveReadyWorkerIds] = useState<string[]>([]);
+  const [approveAdjustmentDecisions, setApproveAdjustmentDecisions] = useState<Record<string, {status: string}>>({});
+  const [approveExcludedWorkerIds, setApproveExcludedWorkerIds] = useState<string[]>([]);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isAllPaid, setIsAllPaid] = useState(false);
 
