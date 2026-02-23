@@ -60,14 +60,14 @@ const F1v5_Step2OrgProfile = ({
     adminName: formData.adminName || "",
     adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
-    defaultCurrency: formData.defaultCurrency || "",
+    defaultCurrency: formData.defaultCurrency || "EUR",
   });
   const [originalData] = useState({
     companyName: formData.companyName || "",
     adminName: formData.adminName || "",
     adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
-    defaultCurrency: formData.defaultCurrency || "",
+    defaultCurrency: formData.defaultCurrency || "EUR",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -280,17 +280,23 @@ const F1v5_Step2OrgProfile = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="defaultCurrency" className="text-sm">Default Currency</Label>
-            <Select value={data.defaultCurrency} onValueChange={val => handleFieldChange('defaultCurrency', val)}>
-              <SelectTrigger className="text-sm">
-                <SelectValue placeholder="Select currency" />
-              </SelectTrigger>
-              <SelectContent>
-                {CURRENCY_OPTIONS.map(c => (
-                  <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label className="text-sm">Default Currency</Label>
+            <div className="flex gap-2">
+              {CURRENCY_OPTIONS.map(c => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => handleFieldChange('defaultCurrency', c.code)}
+                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 ${
+                    data.defaultCurrency === c.code
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      : 'bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
             <p className="text-xs text-muted-foreground">
               This currency will be used as the default across the company's dashboard.
             </p>
