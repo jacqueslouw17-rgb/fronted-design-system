@@ -723,6 +723,60 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
     }
   };
 
+  // Custom batch state
+  const [customBatchSubmissions, setCustomBatchSubmissions] = useState<WorkerSubmission[]>(CUSTOM_BATCH_SUBMISSIONS_REVIEW);
+  const customBatchPending = customBatchSubmissions.filter(s => s.status === "pending").length;
+
+  const handleCustomBatchApprove = (submission: WorkerSubmission) => {
+    setCustomBatchSubmissions(prev => prev.map(s => s.id === submission.id ? { ...s, status: "ready" as const } : s));
+  };
+  const handleCustomBatchReject = (submission: WorkerSubmission, reason: string) => {
+    setCustomBatchSubmissions(prev => prev.map(s => s.id === submission.id ? { ...s, status: "ready" as const } : s));
+  };
+  const handleCustomBatchApproveAll = () => {
+    setCustomBatchSubmissions(prev => prev.map(s => s.status === "pending" ? { ...s, status: "ready" as const } : s));
+    toast.success("All adjustments approved");
+  };
+
+  // Custom batch: review (submissions stage)
+  if (isCustomBatchReview) {
+    return (
+      <div>
+        <div className="flex items-center justify-center pt-2 pb-4">
+          <CA4_PeriodDropdown periods={periods} selectedPeriodId={selectedPeriodId} onPeriodChange={handlePeriodChange} />
+        </div>
+        <CA4_SubmissionsView
+          submissions={customBatchSubmissions}
+          onApprove={handleCustomBatchApprove}
+          onFlag={handleCustomBatchReject}
+          onApproveAll={handleCustomBatchApproveAll}
+          onContinue={() => {}}
+          onClose={() => setSelectedPeriodId("current")}
+          onBack={() => setSelectedPeriodId("current")}
+          pendingCount={customBatchPending}
+          pendingSubmissions={customBatchPending}
+          isCustomBatch={true}
+        />
+      </div>
+    );
+  }
+
+  // Custom batch: tracking (payment status stage)
+  if (isCustomBatchTracking) {
+    return (
+      <div>
+        <div className="flex items-center justify-center pt-2 pb-4">
+          <CA4_PeriodDropdown periods={periods} selectedPeriodId={selectedPeriodId} onPeriodChange={handlePeriodChange} />
+        </div>
+        <CA4_TrackingView
+          workers={CUSTOM_BATCH_TRACKING_WORKERS}
+          onExportCSV={handleExportCSV}
+          onDownloadAuditPDF={handleDownloadAuditPDF}
+        />
+      </div>
+    );
+  }
+
   // Historical view for previous periods
   if (isViewingPrevious) {
     return (
