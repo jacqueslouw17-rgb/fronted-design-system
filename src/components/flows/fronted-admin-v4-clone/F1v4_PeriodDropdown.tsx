@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo, useState } from "react";
-import { ChevronDown, Calendar as CalendarIcon, Plus, X } from "lucide-react";
+import { ChevronDown, Calendar as CalendarIcon, Plus, X, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -31,6 +31,7 @@ interface F1v4_PeriodDropdownProps {
   onPeriodChange: (periodId: string) => void;
   allowCustomBatch?: boolean;
   onCreateCustomBatch?: (payDate: string) => void;
+  onDeleteCustomBatch?: (periodId: string) => void;
 }
 
 const StatusDot = ({ status, size = "sm", isCustom = false }: { status: PayrollRunStatus; size?: "sm" | "md"; isCustom?: boolean }) => {
@@ -75,6 +76,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
   onPeriodChange,
   allowCustomBatch = false,
   onCreateCustomBatch,
+  onDeleteCustomBatch,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -277,46 +279,56 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                     {custom.map(period => {
                       const isSelected = period.id === selectedPeriodId;
                       return (
-                        <button
-                          key={period.id}
-                          onClick={() => handleSelect(period.id)}
-                          className={cn(
-                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left",
-                            "transition-all duration-150 ease-out",
-                            "hover:bg-violet-50/60 dark:hover:bg-violet-500/10",
-                            isSelected && "bg-violet-500/[0.08] ring-1 ring-violet-500/20"
+                        <div key={period.id} className="relative group/batch">
+                          <button
+                            onClick={() => handleSelect(period.id)}
+                            className={cn(
+                              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left",
+                              "transition-all duration-150 ease-out",
+                              "hover:bg-violet-50/60 dark:hover:bg-violet-500/10",
+                              isSelected && "bg-violet-500/[0.08] ring-1 ring-violet-500/20"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-[3px] self-stretch rounded-full shrink-0 transition-colors",
+                              isSelected ? "bg-violet-500" : "bg-transparent"
+                            )} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className={cn("text-[13px] font-semibold", isSelected ? "text-foreground" : "text-foreground/85")}>
+                                  Off-cycle
+                                </span>
+                                <span className="text-muted-foreground/40">·</span>
+                                <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
+                                  {period.periodLabel}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
+                                <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <StatusDot status={period.status} isCustom />
+                              <span className={cn(
+                                "text-[11px] font-medium",
+                                period.status === "in-review" && "text-violet-600 dark:text-violet-400",
+                                period.status === "processing" && "text-violet-500",
+                              )}>
+                                {statusLabel(period.status)}
+                              </span>
+                            </div>
+                          </button>
+                          {onDeleteCustomBatch && period.status === "in-review" && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onDeleteCustomBatch(period.id); setIsOpen(false); }}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover/batch:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all duration-150"
+                              title="Remove batch"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
                           )}
-                        >
-                          <div className={cn(
-                            "w-[3px] self-stretch rounded-full shrink-0 transition-colors",
-                            isSelected ? "bg-violet-500" : "bg-transparent"
-                          )} />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <span className={cn("text-[13px] font-semibold", isSelected ? "text-foreground" : "text-foreground/85")}>
-                                Off-cycle
-                              </span>
-                              <span className="text-muted-foreground/40">·</span>
-                              <span className={cn("text-[13px] font-medium", isSelected ? "text-foreground" : "text-foreground/70")}>
-                                {period.periodLabel}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1 mt-0.5">
-                              <CalendarIcon className="h-3 w-3 text-muted-foreground/50" />
-                              <span className="text-[11px] text-muted-foreground/70">Pay date: {period.payDate}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <StatusDot status={period.status} isCustom />
-                            <span className={cn(
-                              "text-[11px] font-medium",
-                              period.status === "in-review" && "text-violet-600 dark:text-violet-400",
-                              period.status === "processing" && "text-violet-500",
-                            )}>
-                              {statusLabel(period.status)}
-                            </span>
-                          </div>
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
