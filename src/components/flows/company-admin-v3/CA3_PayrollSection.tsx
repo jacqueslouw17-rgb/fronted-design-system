@@ -470,7 +470,11 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
       basePay: 180000,
       estimatedNet: 180000,
       lineItems: [{ type: "Earnings", label: "Development Fee", amount: 180000, locked: false }],
-      submissions: [{ type: "expenses", amount: 8500, currency: "INR", description: "Software licenses", status: "pending" }],
+      submissions: [{ type: "expenses", amount: 8500, currency: "INR", description: "Software licenses", status: "pending",
+        attachments: [
+          { id: "att-ca3-ps1", fileName: "license_invoice.pdf", fileType: "application/pdf", fileSize: "1.2 MB", url: "#", uploadedAt: "Jan 18, 2026", uploadedBy: "Priya Sharma" },
+        ], attachmentsCount: 1,
+      }],
       status: "pending",
       totalImpact: 8500,
       currency: "INR",
