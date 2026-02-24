@@ -89,23 +89,24 @@ const SectionCard: React.FC<{
 };
 
 /* ── Field wrapper ── */
-const Field: React.FC<{
+const Field = React.forwardRef<HTMLDivElement, {
   label: string;
   error?: string;
   hint?: string;
   optional?: boolean;
   children: React.ReactNode;
-}> = ({ label, error, hint, optional, children }) => (
-  <div className="space-y-1.5">
+}>(({ label, error, hint, optional, children }, ref) => (
+  <div ref={ref} className="space-y-1.5">
     <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
       {label}
       {optional && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">Optional</Badge>}
     </Label>
     {children}
-    {error && <p className="text-destructive text-xs">{error}</p>}
+    {error && <p className="text-destructive text-xs animate-in fade-in-0 slide-in-from-top-1 duration-200">{error}</p>}
     {hint && !error && <p className="text-muted-foreground text-[11px]">{hint}</p>}
   </div>
-);
+));
+Field.displayName = "Field";
 
 /* ── Number with unit badge ── */
 const NumberFieldWithUnit: React.FC<{
