@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
+import { F1v5_ContractCreationScreen } from "@/components/flows/fronted-admin-v5-clone/F1v5_ContractCreationScreen";
 import { Candidate, useMockCandidates } from "@/hooks/useContractFlow";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
