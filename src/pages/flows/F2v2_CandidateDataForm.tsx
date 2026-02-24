@@ -312,9 +312,6 @@ const F2v2_CandidateDataForm: React.FC = () => {
               <h1 className="text-2xl font-bold text-foreground text-center">
                 Hi {PREFILLED.fullName.split(' ')[0]}! Let's complete your details
               </h1>
-              <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30 shrink-0">
-                v2
-              </Badge>
             </div>
             <p className="text-muted-foreground text-center text-sm">
               Please verify the information below and fill in the remaining fields.
