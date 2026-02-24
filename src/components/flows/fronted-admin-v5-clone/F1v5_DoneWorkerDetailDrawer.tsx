@@ -505,132 +505,97 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     <>
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
-        {/* Header */}
-        <SheetHeader className="px-6 py-5 border-b border-border/40 shrink-0 bg-background pt-12">
-          <div className="flex items-start gap-4">
-            <Avatar className={cn(
-              "h-14 w-14 border-2",
-              isActive 
-                ? "border-accent-green-outline/30" 
-                : "border-border/40"
-            )}>
-              <AvatarFallback className={cn(
-                "text-lg font-semibold",
-                isActive 
-                  ? "bg-accent-green-fill/20 text-accent-green-text" 
-                  : "bg-muted text-muted-foreground"
-              )}>
-                {getInitials(worker.name)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <h2 className="text-lg font-semibold text-foreground truncate">
-                      {worker.name}
-                    </h2>
-                    <span className="text-xl">{worker.countryFlag}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {worker.role} · {isEmployee ? "Employee (EOR)" : "Contractor (COR)"}
-                  </p>
-                </div>
-
-                {/* Status badge / dropdown — always a dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className={cn(
-                      "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-colors cursor-pointer shrink-0",
-                      isActive
-                        ? "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 hover:bg-accent-green-fill/20"
-                        : cn(statusConfig.badgeClass, "hover:opacity-80")
-                    )}>
-                      <statusConfig.icon className="h-3 w-3" />
-                      {statusConfig.label}
-                      <ChevronDown className="h-3 w-3 opacity-50" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    {!isActive && (
-                      <>
-                        <DropdownMenuItem
-                          onClick={() => onLifecycleAction?.(worker.id, "active", "", "")}
-                          className="gap-2 text-accent-green-text focus:text-accent-green-text"
-                        >
-                          <CheckCircle2 className="h-4 w-4" />
-                          <div>
-                            <p className="text-sm font-medium">Reactivate</p>
-                            <p className="text-xs text-muted-foreground">Set back to active status</p>
-                          </div>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    {workerStatus !== "terminated" && (
-                      <DropdownMenuItem 
-                        onClick={() => setActionView("terminated")}
-                        className="gap-2 text-destructive focus:text-destructive"
-                      >
-                        <UserX className="h-4 w-4" />
-                        <div>
-                          <p className="text-sm font-medium">Terminate</p>
-                          <p className="text-xs text-muted-foreground">End employment immediately</p>
-                        </div>
-                      </DropdownMenuItem>
-                    )}
-                    {isEmployee && workerStatus !== "resigned" && (
-                      <DropdownMenuItem 
-                        onClick={() => setActionView("resigned")}
-                        className="gap-2 text-amber-700 focus:text-amber-700"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        <div>
-                          <p className="text-sm font-medium">Record resignation</p>
-                          <p className="text-xs text-muted-foreground">Employee has resigned</p>
-                        </div>
-                      </DropdownMenuItem>
-                    )}
-                    {workerStatus !== "contract-ended" && (
-                      <DropdownMenuItem 
-                        onClick={() => setActionView("contract-ended")}
-                        className="gap-2"
-                      >
-                        <CalendarOff className="h-4 w-4" />
-                        <div>
-                          <p className="text-sm font-medium">End contract</p>
-                          <p className="text-xs text-muted-foreground">Contract period has ended</p>
-                        </div>
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              {/* End date/reason if not active */}
-              {!isActive && worker.endDate && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  {workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Terminated on" : "Contract ended"}: {worker.endDate}
-                </p>
-              )}
-              {!isActive && worker.endReason && (
-                <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                  Reason: {worker.endReason}
-                </p>
-              )}
-
-              {isActive && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  All details collected and verified.
-                </p>
-              )}
-            </div>
+        {/* Header — matches configure drawer style */}
+        <SheetHeader className="px-6 pt-8 pb-4 shrink-0">
+          <SheetTitle className="text-base">{worker.name}</SheetTitle>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-lg">{worker.countryFlag}</span>
+            <span>{worker.role} · {isEmployee ? "Employee (EOR)" : "Contractor (COR)"}</span>
           </div>
+          <div className="flex items-center gap-2 mt-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={cn(
+                  "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-colors cursor-pointer shrink-0",
+                  isActive
+                    ? "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 hover:bg-accent-green-fill/20"
+                    : cn(statusConfig.badgeClass, "hover:opacity-80")
+                )}>
+                  <statusConfig.icon className="h-3 w-3" />
+                  {statusConfig.label}
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                {!isActive && (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => onLifecycleAction?.(worker.id, "active", "", "")}
+                      className="gap-2 text-accent-green-text focus:text-accent-green-text"
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      <div>
+                        <p className="text-sm font-medium">Reactivate</p>
+                        <p className="text-xs text-muted-foreground">Set back to active status</p>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                {workerStatus !== "terminated" && (
+                  <DropdownMenuItem 
+                    onClick={() => setActionView("terminated")}
+                    className="gap-2 text-destructive focus:text-destructive"
+                  >
+                    <UserX className="h-4 w-4" />
+                    <div>
+                      <p className="text-sm font-medium">Terminate</p>
+                      <p className="text-xs text-muted-foreground">End employment immediately</p>
+                    </div>
+                  </DropdownMenuItem>
+                )}
+                {isEmployee && workerStatus !== "resigned" && (
+                  <DropdownMenuItem 
+                    onClick={() => setActionView("resigned")}
+                    className="gap-2 text-amber-700 focus:text-amber-700"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <div>
+                      <p className="text-sm font-medium">Record resignation</p>
+                      <p className="text-xs text-muted-foreground">Employee has resigned</p>
+                    </div>
+                  </DropdownMenuItem>
+                )}
+                {workerStatus !== "contract-ended" && (
+                  <DropdownMenuItem 
+                    onClick={() => setActionView("contract-ended")}
+                    className="gap-2"
+                  >
+                    <CalendarOff className="h-4 w-4" />
+                    <div>
+                      <p className="text-sm font-medium">End contract</p>
+                      <p className="text-xs text-muted-foreground">Contract period has ended</p>
+                    </div>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          {!isActive && worker.endDate && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Terminated on" : "Contract ended"}: {worker.endDate}
+            </p>
+          )}
+          {!isActive && worker.endReason && (
+            <p className="text-[11px] text-muted-foreground/70 mt-0.5">
+              Reason: {worker.endReason}
+            </p>
+          )}
         </SheetHeader>
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-4">
+          <div className="px-6 pb-6 pt-3 space-y-3">
 
             {/* Missing Details Alert (if any) */}
             {hasMissingDetails && (
