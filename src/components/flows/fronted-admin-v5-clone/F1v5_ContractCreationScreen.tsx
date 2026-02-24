@@ -251,7 +251,25 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
 
       {/* ── Section 2: Contract Details ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <SectionCard title="Contract Details" icon={Briefcase} subtitle="Employment terms and compensation">
+        <SectionCard
+          title="Contract Details"
+          subtitle="Employment terms and compensation"
+          badge={formData.country ? (
+            <Badge variant="outline" className="text-xs font-medium gap-1">
+              {candidate.flag} {formData.country}
+            </Badge>
+          ) : undefined}
+        >
+          <Field label="Country">
+            <Select value={formData.country} onValueChange={set("country")}>
+              <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(COUNTRY_RULES).map(([c, r]) => (
+                  <SelectItem key={c} value={c}><span className="mr-2">{r.flag}</span>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Employment Type">
               <Select value={employmentType} onValueChange={(v: "employee" | "contractor") => setEmploymentType(v)}>
@@ -262,35 +280,26 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Role" error={errors.role}>
-              <Input value={formData.role} onChange={e => set("role")(e.target.value)} className="h-10" />
-            </Field>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Salary" error={errors.salary} hint="Monthly gross amount">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
-                  {getCurrencyCode(formData.country, employmentType)}
-                </span>
-                <Input
-                  value={parseSalaryValue(formData.salary)}
-                  onChange={e => set("salary")(e.target.value)}
-                  placeholder="5,000"
-                  className="pl-12 h-10"
-                />
-              </div>
-            </Field>
             <Field label="Start Date" error={errors.startDate}>
-              <Input
-                type="date"
-                value={formData.startDate}
-                onChange={e => set("startDate")(e.target.value)}
-                className={cn("h-10", formData.startDate ? "text-foreground" : "text-muted-foreground")}
-              />
+              <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className={cn("h-10", formData.startDate ? "text-foreground" : "text-muted-foreground")} />
             </Field>
           </div>
-          <Field label="Tax Residence" optional>
-            <Input value={formData.taxResidence} onChange={e => set("taxResidence")(e.target.value)} placeholder="e.g., Norway" className="h-10" />
+          <Field label="Salary" error={errors.salary} hint="Monthly gross amount (numbers only)">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
+                {getCurrencyCode(formData.country, employmentType)}
+              </span>
+              <Input value={parseSalaryValue(formData.salary)} onChange={e => set("salary")(e.target.value)} placeholder="5,000" className="pl-12 h-10" />
+            </div>
+          </Field>
+          <Field label="ID Number" optional>
+            <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+          </Field>
+          <Field label="City" optional>
+            <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Monterrey" className="h-10" />
+          </Field>
+          <Field label="Address" optional>
+            <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
           </Field>
         </SectionCard>
       </motion.div>
