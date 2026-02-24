@@ -25,6 +25,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { F1v4_OnboardingFormDrawer } from "./F1v5_OnboardingFormDrawer";
+import { F1v5_PayrollDataCollectionDrawer } from "./F1v5_PayrollDataCollectionDrawer";
 import { DocumentBundleDrawer } from "@/components/contract-flow/DocumentBundleDrawer";
 import { F1v4_SignatureWorkflowDrawer } from "./F1v5_SignatureWorkflowDrawer";
 import { F1v4_StartOnboardingConfirmation } from "./F1v5_StartOnboardingConfirmation";
