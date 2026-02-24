@@ -88,11 +88,7 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newStartDate, setNewStartDate] = useState<Date | undefined>();
-  const [newEndDate, setNewEndDate] = useState<Date | undefined>();
   const [newPayDate, setNewPayDate] = useState<Date | undefined>();
-  const [startDateOpen, setStartDateOpen] = useState(false);
-  const [endDateOpen, setEndDateOpen] = useState(false);
   const [payDateOpen, setPayDateOpen] = useState(false);
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
 
@@ -115,19 +111,18 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
   };
 
   const resetForm = () => {
-    setNewStartDate(undefined);
-    setNewEndDate(undefined);
     setNewPayDate(undefined);
   };
 
-  const isFormValid = newStartDate && newEndDate && newPayDate && newEndDate >= newStartDate;
+  const isFormValid = !!newPayDate;
 
   const handleCreateBatch = () => {
     if (isFormValid && onCreateCustomBatch) {
+      const payDateStr = newPayDate.toISOString().split('T')[0];
       onCreateCustomBatch({
-        startDate: newStartDate.toISOString().split('T')[0],
-        endDate: newEndDate.toISOString().split('T')[0],
-        payDate: newPayDate.toISOString().split('T')[0],
+        startDate: payDateStr,
+        endDate: payDateStr,
+        payDate: payDateStr,
       });
       resetForm();
       setShowCreateForm(false);
@@ -185,63 +180,6 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
               Pay out pending adjustments outside the regular cycle. Only workers with pending items will be included.
             </p>
 
-            {/* Start & End Date row */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1.5">
-                <Label className="text-[11px] text-muted-foreground font-medium">Start date</Label>
-                <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full h-9 justify-start text-left font-normal text-[12px] px-2.5",
-                        !newStartDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-1.5 h-3 w-3 shrink-0" />
-                      {newStartDate ? format(newStartDate, "MMM d, yyyy") : "Start"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={newStartDate}
-                      onSelect={(date) => { setNewStartDate(date); setStartDateOpen(false); }}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[11px] text-muted-foreground font-medium">End date</Label>
-                <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full h-9 justify-start text-left font-normal text-[12px] px-2.5",
-                        !newEndDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-1.5 h-3 w-3 shrink-0" />
-                      {newEndDate ? format(newEndDate, "MMM d, yyyy") : "End"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={newEndDate}
-                      onSelect={(date) => { setNewEndDate(date); setEndDateOpen(false); }}
-                      disabled={(date) => newStartDate ? date < newStartDate : false}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-
             {/* Pay Date */}
             <div className="space-y-1.5">
               <Label className="text-[11px] text-muted-foreground font-medium">Pay date</Label>
@@ -270,11 +208,6 @@ export const F1v4_PeriodDropdown: React.FC<F1v4_PeriodDropdownProps> = ({
                 </PopoverContent>
               </Popover>
             </div>
-
-            {/* Validation hint */}
-            {newStartDate && newEndDate && newEndDate < newStartDate && (
-              <p className="text-[11px] text-destructive">End date must be after start date</p>
-            )}
 
             <div className="flex gap-2 pt-1">
               <Button
