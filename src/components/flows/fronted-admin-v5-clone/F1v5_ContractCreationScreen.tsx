@@ -53,43 +53,34 @@ interface Props {
   totalCandidates?: number;
 }
 
-/* ── Reusable Section Card ── */
+/* ── Section Card — matches drawer style ── */
 const SectionCard: React.FC<{
   title: string;
-  icon: React.ElementType;
   subtitle?: string;
   badge?: React.ReactNode;
   defaultOpen?: boolean;
   children: React.ReactNode;
-}> = ({ title, icon: Icon, subtitle, badge, defaultOpen = true, children }) => {
+}> = ({ title, subtitle, badge, defaultOpen = true, children }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className="border border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
+      <div className="rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
         <CollapsibleTrigger asChild>
-          <button className="flex items-center gap-3 w-full px-5 py-3.5 text-left hover:bg-muted/30 transition-colors">
-            <div className="h-8 w-8 rounded-lg bg-primary/8 flex items-center justify-center flex-shrink-0">
-              <Icon className="h-4 w-4 text-primary" />
-            </div>
+          <button className="flex items-center gap-3 px-5 py-3 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-                {badge}
-              </div>
+              <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
               {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
             </div>
-            <ChevronDown className={cn(
-              "h-4 w-4 text-muted-foreground/60 transition-transform duration-200",
-              isOpen && "rotate-180"
-            )} />
+            {badge}
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="px-5 pb-5 pt-2 space-y-4 border-t border-border/20">
+          <div className="p-4 pt-3 space-y-3">
             {children}
           </div>
         </CollapsibleContent>
-      </Card>
+      </div>
     </Collapsible>
   );
 };
