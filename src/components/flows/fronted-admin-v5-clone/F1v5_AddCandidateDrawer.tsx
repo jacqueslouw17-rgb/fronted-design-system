@@ -153,20 +153,31 @@ const SectionCard: React.FC<{
   subtitle?: string;
   children: React.ReactNode;
   badge?: React.ReactNode;
-}> = ({ title, subtitle, children, badge }) => (
-  <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
-    <div className="flex items-center gap-3 px-5 py-3.5 bg-muted/30 border-b border-border/40">
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
-        {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+  defaultOpen?: boolean;
+}> = ({ title, subtitle, children, badge, defaultOpen = true }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <button className="flex items-center gap-3 px-5 py-3.5 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
+              {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+            </div>
+            {badge}
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="p-5 space-y-4">
+            {children}
+          </div>
+        </CollapsibleContent>
       </div>
-      {badge}
-    </div>
-    <div className="p-5 space-y-4">
-      {children}
-    </div>
-  </div>
-);
+    </Collapsible>
+  );
+};
 
 /** Unified field with label, input, and optional hint */
 const Field: React.FC<{
@@ -401,8 +412,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 
         <div className="px-6 py-6 space-y-5">
           {/* ── Candidate Source ── */}
-          <div className="space-y-2">
-            <Label className="text-[13px] font-medium text-foreground/80">Select Candidate</Label>
+          <div className="space-y-1.5">
             <Select value={selectedAtsId} onValueChange={handleATSSelect}>
               <SelectTrigger className="h-11">
                 <SelectValue placeholder="Choose from ATS or add manually" />
