@@ -178,7 +178,7 @@ const WorkerOnboardingV2 = () => {
                           transition={{ duration: 0.3 }}
                         >
                           {step.id === "welcome" && <WorkerStep1Welcome_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
-                          {step.id === "personal_profile" && <WorkerStep2PersonalProfile_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
+                          {step.id === "tax_details" && <WorkerStep2TaxDetails_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                           {step.id === "bank_details" && <WorkerStep3BankDetails_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                           {step.id === "work_setup" && <WorkerStep4WorkSetup_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                         </motion.div>
