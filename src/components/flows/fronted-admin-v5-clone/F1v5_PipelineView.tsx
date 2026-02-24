@@ -719,6 +719,30 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
     }, 1000);
   };
+  // Direct start onboarding without confirmation modal (matches offer-accepted Send Form behavior)
+  const handleConfirmStartOnboarding_direct = (contractor: Contractor) => {
+    const countryCode = contractor.country === "Philippines" ? "PH" : contractor.country === "Norway" ? "NO" : "XK";
+    const employmentType = contractor.employmentType || "contractor";
+    const checklistProfile = getChecklistForProfile(countryCode, employmentType === "contractor" ? "Contractor" : "Employee");
+    if (!checklistProfile) {
+      toast.error("Could not load checklist for this profile");
+      return;
+    }
+    const completed = checklistProfile.requirements.filter(r => r.status === 'verified').length;
+    const total = checklistProfile.requirements.filter(r => r.required).length;
+    const progress = Math.round(completed / total * 100);
+    const updated = contractors.map(c => c.id === contractor.id ? {
+      ...c,
+      status: "onboarding-pending" as const,
+      checklist: checklistProfile.requirements,
+      checklistProgress: progress
+    } : c);
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+    toast.success("All done ✅ Onboarding started", {
+      description: `Magic-link email sent to ${contractor.name.split(' ')[0]}`
+    });
+  };
   const getChecklistStatusBadge = (status: ChecklistRequirement['status']) => {
     switch (status) {
       case 'verified':
