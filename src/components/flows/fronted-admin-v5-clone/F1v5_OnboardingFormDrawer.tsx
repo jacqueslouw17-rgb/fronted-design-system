@@ -217,11 +217,6 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           </SheetDescription>
         </SheetHeader>
 
-        {/* Compliance badge */}
-        <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-          <Shield className="h-4 w-4 text-primary" />
-          <span>GDPR & {candidate.country} Employment Law Compliant</span>
-        </div>
 
         <div className="mt-6 space-y-3">
           {/* ── Section 1: Personal Details ── */}
