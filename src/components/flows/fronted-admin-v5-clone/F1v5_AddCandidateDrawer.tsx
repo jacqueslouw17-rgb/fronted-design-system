@@ -207,6 +207,46 @@ const NumberFieldWithUnit: React.FC<{
   </div>
 );
 
+/** Searchable nationality combobox */
+const NationalityCombobox: React.FC<{ value: string; onChange: (val: string) => void }> = ({ value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between text-sm font-normal h-10"
+        >
+          {value || <span className="text-muted-foreground">Select nationality</span>}
+          <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-background border border-border z-50" align="start">
+        <Command>
+          <CommandInput placeholder="Search nationality..." className="h-10" />
+          <CommandList className="max-h-[200px]">
+            <CommandEmpty>No nationality found.</CommandEmpty>
+            <CommandGroup>
+              {NATIONALITIES.map(n => (
+                <CommandItem
+                  key={n}
+                  value={n}
+                  onSelect={() => { onChange(n); setOpen(false); }}
+                >
+                  <Check className={cn("mr-2 h-3.5 w-3.5", value === n ? "opacity-100" : "opacity-0")} />
+                  {n}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 // ─── Main Component ─────────────────────────────────────────────────────
 interface AddCandidateDrawerProps {
   open: boolean;
