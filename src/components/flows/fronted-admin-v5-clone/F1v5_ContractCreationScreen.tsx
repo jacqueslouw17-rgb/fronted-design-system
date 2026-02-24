@@ -119,6 +119,19 @@ const NumberFieldWithUnit: React.FC<{
   </div>
 );
 
+/* ── Parse human-readable date to YYYY-MM-DD ── */
+const parseToISODate = (raw: string): string => {
+  if (!raw) return "";
+  // Already ISO
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  // Try parsing "Dec 1, 2025" etc.
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) {
+    return d.toISOString().split("T")[0];
+  }
+  return "";
+};
+
 export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   candidate,
   onNext,
@@ -130,6 +143,12 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   const [employmentType, setEmploymentType] = useState<"employee" | "contractor">(defaultEmploymentType);
   const countryRule = COUNTRY_RULES[candidate.country];
 
+  // Field refs for scroll-to-error
+  const fieldRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const setFieldRef = useCallback((key: string) => (el: HTMLDivElement | null) => {
+    fieldRefs.current[key] = el;
+  }, []);
+
   const [formData, setFormData] = useState({
     fullName: candidate.name,
     email: candidate.email || "",
@@ -140,7 +159,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     idType: candidate.idType || "",
     idNumber: candidate.idNumber || "",
     country: candidate.country,
-    startDate: candidate.startDate || "",
+    startDate: parseToISODate(candidate.startDate),
     salary: candidate.salary,
     taxResidence: candidate.taxResidence || "",
     // Terms — prepopulated from country defaults
@@ -161,11 +180,11 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
 
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.fullName?.trim()) newErrors.fullName = "Required";
-    if (!formData.email?.trim()) newErrors.email = "Required";
-    if (!formData.role?.trim()) newErrors.role = "Required";
-    if (!formData.salary) newErrors.salary = "Required";
-    if (!formData.startDate) newErrors.startDate = "Required";
+    if (!formData.fullName?.trim()) newErrors.fullName = "Full name is required";
+    if (!formData.email?.trim()) newErrors.email = "Email is required";
+    if (!formData.role?.trim()) newErrors.role = "Role is required";
+    if (!formData.salary) newErrors.salary = "Salary is required";
+    if (!formData.startDate) newErrors.startDate = "Start date is required";
     else {
       const [y, m, d] = formData.startDate.split("-").map(Number);
       const sd = new Date(y, m - 1, d);
@@ -173,8 +192,20 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
       if (sd < today) newErrors.startDate = "Must be a future date";
     }
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) window.scrollTo({ top: 0, behavior: "smooth" });
-    return Object.keys(newErrors).length === 0;
+
+    // Scroll to first error field
+    const errorKeys = Object.keys(newErrors);
+    if (errorKeys.length > 0) {
+      const firstErrorKey = errorKeys[0];
+      const el = fieldRefs.current[firstErrorKey];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      toast.error(`Please fix ${errorKeys.length} field${errorKeys.length > 1 ? "s" : ""} before continuing`);
+    }
+    return errorKeys.length === 0;
   };
 
   const handleNext = () => {
