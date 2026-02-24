@@ -62,9 +62,16 @@ const SectionCard: React.FC<{
   subtitle?: string;
   badge?: React.ReactNode;
   defaultOpen?: boolean;
+  forceOpen?: boolean;
   children: React.ReactNode;
-}> = ({ title, subtitle, badge, defaultOpen = true, children }) => {
+}> = ({ title, subtitle, badge, defaultOpen = true, forceOpen, children }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  // Allow parent to force-open a collapsed section
+  React.useEffect(() => {
+    if (forceOpen) setIsOpen(true);
+  }, [forceOpen]);
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <div className="rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
@@ -172,6 +179,18 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Track which sections need to be force-opened for validation
+  const [forceOpenSections, setForceOpenSections] = useState<Record<string, boolean>>({});
+
+  // Map fields to their parent sections
+  const fieldSectionMap: Record<string, string> = {
+    fullName: "personal",
+    email: "personal",
+    role: "personal",
+    startDate: "contract",
+    salary: "contract",
+  };
 
   const set = (key: string) => (value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -193,16 +212,27 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     }
     setErrors(newErrors);
 
-    // Scroll to first error field
     const errorKeys = Object.keys(newErrors);
     if (errorKeys.length > 0) {
+      // Determine which sections contain errors and force them open
+      const sectionsToOpen: Record<string, boolean> = {};
+      errorKeys.forEach(key => {
+        const section = fieldSectionMap[key];
+        if (section) sectionsToOpen[section] = true;
+      });
+      setForceOpenSections(sectionsToOpen);
+
+      // Wait for collapsible animation to expand, then scroll to first error
       const firstErrorKey = errorKeys[0];
-      const el = fieldRefs.current[firstErrorKey];
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
+      setTimeout(() => {
+        const el = fieldRefs.current[firstErrorKey];
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }, 150);
+      
       toast.error(`Please fix ${errorKeys.length} field${errorKeys.length > 1 ? "s" : ""} before continuing`);
     }
     return errorKeys.length === 0;
@@ -242,7 +272,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
 
       {/* ── Section 1: Personal Details ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
+        <SectionCard title="Personal Details" subtitle="Basic information about the candidate" forceOpen={forceOpenSections.personal}>
           <Field label="Full Name" error={errors.fullName} ref={setFieldRef("fullName")}>
             <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} placeholder="e.g., Marcus Chen" className={cn("h-10", errors.fullName && "border-destructive focus-visible:ring-destructive")} />
           </Field>
@@ -272,6 +302,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         <SectionCard
           title="Contract Details"
           subtitle="Employment terms and compensation"
+          forceOpen={forceOpenSections.contract}
           badge={formData.country ? (
             <Badge variant="outline" className="text-xs font-medium gap-1">
               {candidate.flag} {formData.country}
