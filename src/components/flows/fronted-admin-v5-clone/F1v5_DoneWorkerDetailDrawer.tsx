@@ -193,7 +193,7 @@ const SectionCard: React.FC<{
   );
 };
 
-
+export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerProps> = ({
   open,
   onOpenChange,
   worker,
