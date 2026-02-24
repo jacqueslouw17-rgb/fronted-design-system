@@ -302,6 +302,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         <SectionCard
           title="Contract Details"
           subtitle="Employment terms and compensation"
+          forceOpen={forceOpenSections.contract}
           badge={formData.country ? (
             <Badge variant="outline" className="text-xs font-medium gap-1">
               {candidate.flag} {formData.country}
