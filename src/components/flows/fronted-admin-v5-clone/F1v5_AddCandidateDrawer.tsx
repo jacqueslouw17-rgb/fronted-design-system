@@ -602,6 +602,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                       </motion.div>
                     )}
                   </AnimatePresence>
+                </SectionCard>
 
                 {/* ── Sticky Actions ── */}
                 <div className="flex gap-3 pt-2 pb-2">
