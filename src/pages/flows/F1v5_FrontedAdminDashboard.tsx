@@ -104,6 +104,18 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     dataReceived: true,
   },
   {
+    id: "onboard-1",
+    name: "Priya Sharma",
+    country: "India",
+    countryFlag: "🇮🇳",
+    role: "Data Analyst",
+    salary: "INR 1,20,000/mo",
+    status: "trigger-onboarding",
+    employmentType: "employee",
+    email: "priya.sharma@example.com",
+    dataReceived: true,
+  },
+  {
     id: "done-1",
     name: "Maria Santos",
     country: "Philippines",
