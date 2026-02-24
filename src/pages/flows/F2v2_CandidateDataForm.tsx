@@ -313,7 +313,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
                 Hi {PREFILLED.fullName.split(' ')[0]}! Let's complete your details
               </h1>
             </div>
-            <p className="text-muted-foreground text-center text-sm">
+            <p className="text-sm sm:text-base text-muted-foreground text-center">
               Please verify the information below and fill in the remaining fields.
             </p>
           </div>
