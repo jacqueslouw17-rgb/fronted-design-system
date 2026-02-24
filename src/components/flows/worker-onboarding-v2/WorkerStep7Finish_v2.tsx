@@ -43,19 +43,15 @@ const WorkerStep7Finish_v2 = ({
 
   // v2: Payroll details removed - collected later via separate secure form
   const completedItems = [{
-    label: "Personal profile",
+    label: "Tax details",
     icon: CheckCircle2,
-    done: !!formData.fullName
-  }, {
-    label: "Role & pay confirmed",
-    icon: CheckCircle2,
-    done: true
+    done: !!formData.taxNumber
   }, {
     label: "Bank details",
     icon: CheckCircle2,
     done: !!formData.bankName
   }, {
-    label: "Profile ready",
+    label: "Work setup & agreements",
     icon: CheckCircle2,
     done: true
   }];
