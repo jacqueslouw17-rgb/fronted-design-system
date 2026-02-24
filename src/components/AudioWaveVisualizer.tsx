@@ -62,17 +62,17 @@ const AudioWaveVisualizer = ({ isActive = false, isListening = false, isDetectin
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ 
-            opacity: [0, 0.5, 0],
+            opacity: [0, 0.4, 0],
             scale: [0.8, 1.4, 1.6],
           }}
           transition={{
-            duration: 1,
+            duration: 1.5,
             repeat: Infinity,
             ease: "easeOut"
           }}
           className="absolute inset-0 blur-2xl pointer-events-none"
           style={{ 
-            background: 'radial-gradient(circle, #60A5FA 0%, #93C5FD 50%, transparent 100%)',
+            background: 'radial-gradient(circle, #6366F1 0%, #60A5FA 40%, #93C5FD 70%, transparent 100%)',
           }}
         />
       )}
