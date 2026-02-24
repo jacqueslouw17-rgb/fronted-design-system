@@ -179,6 +179,18 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Track which sections need to be force-opened for validation
+  const [forceOpenSections, setForceOpenSections] = useState<Record<string, boolean>>({});
+
+  // Map fields to their parent sections
+  const fieldSectionMap: Record<string, string> = {
+    fullName: "personal",
+    email: "personal",
+    role: "personal",
+    startDate: "contract",
+    salary: "contract",
+  };
 
   const set = (key: string) => (value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -200,16 +212,27 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     }
     setErrors(newErrors);
 
-    // Scroll to first error field
     const errorKeys = Object.keys(newErrors);
     if (errorKeys.length > 0) {
+      // Determine which sections contain errors and force them open
+      const sectionsToOpen: Record<string, boolean> = {};
+      errorKeys.forEach(key => {
+        const section = fieldSectionMap[key];
+        if (section) sectionsToOpen[section] = true;
+      });
+      setForceOpenSections(sectionsToOpen);
+
+      // Wait for collapsible animation to expand, then scroll to first error
       const firstErrorKey = errorKeys[0];
-      const el = fieldRefs.current[firstErrorKey];
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
+      setTimeout(() => {
+        const el = fieldRefs.current[firstErrorKey];
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }, 150);
+      
       toast.error(`Please fix ${errorKeys.length} field${errorKeys.length > 1 ? "s" : ""} before continuing`);
     }
     return errorKeys.length === 0;
