@@ -188,26 +188,10 @@ const Field: React.FC<{
   children: React.ReactNode;
 }> = ({ label, required, hint, optionalTooltip, children }) => (
   <div className="space-y-1.5">
-    <div className="flex items-center gap-1.5">
-      <Label className="text-[13px] font-medium text-foreground/80">
-        {label}
-      </Label>
-      {optionalTooltip && (
-        <TooltipProvider delayDuration={400}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="inline-flex items-center gap-1 cursor-help">
-                <span className="text-[11px] text-muted-foreground/70 font-normal">Optional</span>
-                <Info className="h-3 w-3 text-muted-foreground/50" />
-              </span>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-[200px] text-xs">
-              {optionalTooltip}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
-    </div>
+    <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+      {label}
+      {optionalTooltip && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">Optional</Badge>}
+    </Label>
     {children}
     {hint && <p className="text-[11px] text-muted-foreground leading-tight">{hint}</p>}
   </div>
