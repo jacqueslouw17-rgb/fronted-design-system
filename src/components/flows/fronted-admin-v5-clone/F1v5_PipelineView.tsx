@@ -1260,10 +1260,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <Settings className="h-3 w-3" />
                                 Configure
                               </Button>
-                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
+                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
                             e.stopPropagation();
-                            setSelectedForPayrollCollection(contractor);
-                            setPayrollCollectionDrawerOpen(true);
+                            setSendingFormIds(prev => new Set([...prev, contractor.id]));
+                            setTimeout(() => {
+                              setSendingFormIds(prev => {
+                                const next = new Set(prev);
+                                next.delete(contractor.id);
+                                return next;
+                              });
+                              handleStartOnboardingClick(contractor);
+                            }, 800);
                           }}>
                                 <Send className="h-3 w-3" />
                                 Send Form
