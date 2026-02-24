@@ -12,10 +12,44 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { toast } from "sonner";
-import { User, Sparkles, MapPin, FileText, Briefcase, Calendar, Clock, Shield, CreditCard } from "lucide-react";
+import { User, Sparkles, MapPin, FileText, Clock, Shield, Check, ChevronsUpDown } from "lucide-react";
 import { getCurrencyCode } from "@/utils/currencyUtils";
+import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+
+// ─── Nationalities ──────────────────────────────────────────────────────
+const NATIONALITIES = [
+  "Afghan", "Albanian", "Algerian", "American", "Andorran", "Angolan", "Argentine",
+  "Armenian", "Australian", "Austrian", "Azerbaijani", "Bahamian", "Bahraini",
+  "Bangladeshi", "Barbadian", "Belarusian", "Belgian", "Belizean", "Beninese",
+  "Bhutanese", "Bolivian", "Bosnian", "Brazilian", "British", "Bruneian",
+  "Bulgarian", "Burkinabe", "Burmese", "Burundian", "Cambodian", "Cameroonian",
+  "Canadian", "Cape Verdean", "Central African", "Chadian", "Chilean", "Chinese",
+  "Colombian", "Comorian", "Congolese", "Costa Rican", "Croatian", "Cuban",
+  "Cypriot", "Czech", "Danish", "Djiboutian", "Dominican", "Dutch", "Ecuadorian",
+  "Egyptian", "Emirati", "English", "Eritrean", "Estonian", "Ethiopian",
+  "Fijian", "Filipino", "Finnish", "French", "Gabonese", "Gambian", "Georgian",
+  "German", "Ghanaian", "Greek", "Grenadian", "Guatemalan", "Guinean", "Guyanese",
+  "Haitian", "Honduran", "Hungarian", "Icelandic", "Indian", "Indonesian",
+  "Iranian", "Iraqi", "Irish", "Israeli", "Italian", "Ivorian", "Jamaican",
+  "Japanese", "Jordanian", "Kazakh", "Kenyan", "Kosovar", "Kuwaiti", "Kyrgyz",
+  "Lao", "Latvian", "Lebanese", "Liberian", "Libyan", "Lithuanian", "Luxembourgish",
+  "Macedonian", "Malagasy", "Malawian", "Malaysian", "Maldivian", "Malian",
+  "Maltese", "Mauritanian", "Mauritian", "Mexican", "Moldovan", "Mongolian",
+  "Montenegrin", "Moroccan", "Mozambican", "Namibian", "Nepalese", "New Zealander",
+  "Nicaraguan", "Nigerian", "Nigerien", "North Korean", "Norwegian", "Omani",
+  "Pakistani", "Palestinian", "Panamanian", "Paraguayan", "Peruvian", "Polish",
+  "Portuguese", "Qatari", "Romanian", "Russian", "Rwandan", "Saudi", "Scottish",
+  "Senegalese", "Serbian", "Singaporean", "Slovak", "Slovenian", "Somali",
+  "South African", "South Korean", "Spanish", "Sri Lankan", "Sudanese",
+  "Surinamese", "Swedish", "Swiss", "Syrian", "Taiwanese", "Tajik", "Tanzanian",
+  "Thai", "Togolese", "Trinidadian", "Tunisian", "Turkish", "Turkmen",
+  "Ugandan", "Ukrainian", "Uruguayan", "Uzbek", "Venezuelan", "Vietnamese",
+  "Welsh", "Yemeni", "Zambian", "Zimbabwean",
+];
 
 // ─── Country Rules ──────────────────────────────────────────────────────
 interface CountryRule {
@@ -172,6 +206,46 @@ const NumberFieldWithUnit: React.FC<{
     </span>
   </div>
 );
+
+/** Searchable nationality combobox */
+const NationalityCombobox: React.FC<{ value: string; onChange: (val: string) => void }> = ({ value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between text-sm font-normal h-10"
+        >
+          {value || <span className="text-muted-foreground">Select nationality</span>}
+          <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-background border border-border z-50" align="start">
+        <Command>
+          <CommandInput placeholder="Search nationality..." className="h-10" />
+          <CommandList className="max-h-[200px]">
+            <CommandEmpty>No nationality found.</CommandEmpty>
+            <CommandGroup>
+              {NATIONALITIES.map(n => (
+                <CommandItem
+                  key={n}
+                  value={n}
+                  onSelect={() => { onChange(n); setOpen(false); }}
+                >
+                  <Check className={cn("mr-2 h-3.5 w-3.5", value === n ? "opacity-100" : "opacity-0")} />
+                  {n}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 // ─── Main Component ─────────────────────────────────────────────────────
 interface AddCandidateDrawerProps {
@@ -363,7 +437,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                   </Field>
                   <div className="grid grid-cols-2 gap-3">
                     <Field label="Nationality">
-                      <Input value={formData.nationality} onChange={e => set("nationality")(e.target.value)} placeholder="e.g., Filipino" className="h-10" />
+                      <NationalityCombobox value={formData.nationality} onChange={set("nationality")} />
                     </Field>
                     <Field label="Role" required>
                       <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className="h-10" />
