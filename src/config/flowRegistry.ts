@@ -63,9 +63,17 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
     lockedDate: undefined,
     lockedReason: undefined,
     filePaths: [
-      'src/pages/CandidateDataCollectionV2.tsx'
+      'src/pages/CandidateDataCollectionV2.tsx',
+      'src/pages/flows/F2v2_CandidateDataForm.tsx',
+      'src/pages/flows/F2v2_Intro.tsx',
+      'src/pages/flows/F2v2_CoreForm.tsx',
+      'src/pages/flows/F2v2_PayrollCollection.tsx',
+      'src/pages/flows/F2v2_ReviewSubmit.tsx',
+      'src/pages/flows/F2v2_Success.tsx',
+      'src/stores/F2v2_FormStore.ts',
+      'src/components/flows/candidate-data-v2/F2v2_Stepper.tsx'
     ],
-    hidden: true
+    hidden: false
   },
   'f4-candidate-onboarding-flow': {
     id: 'f4-candidate-onboarding-flow',
