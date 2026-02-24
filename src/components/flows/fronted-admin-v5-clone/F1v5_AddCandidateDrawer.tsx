@@ -1,19 +1,19 @@
 /**
- * Flow 1 v5 — Add Candidate Drawer (Enhanced)
+ * Flow 1 v5 — Add Candidate Drawer (Enhanced v2)
  * Progressive disclosure: Personal Details → Contract Details (revealed after country selection)
+ * Premium UI with proper hierarchy, card sections, and no overlap issues.
  * ISOLATED: Changes here do NOT affect v4 or any other flow.
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { User, Sparkles, MapPin, FileText, ChevronDown } from "lucide-react";
+import { User, Sparkles, MapPin, FileText, Briefcase, Calendar, Clock, Shield, CreditCard } from "lucide-react";
 import { getCurrencyCode } from "@/utils/currencyUtils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -22,13 +22,13 @@ interface CountryRule {
   flag: string;
   currency: string;
   employmentTypes: ("contractor" | "employee")[];
-  probation: { default: number; max: number };         // days
-  noticePeriod: { default: number; min: number };       // days
-  annualLeave: { default: number; min: number };        // days
-  sickLeave: { default: number; min: number };          // days
-  weeklyHours: { default: number; max: number };        // hours
-  payFrequency: { default: string; locked: boolean };   // monthly | fortnightly
-  idLabel: string;                                       // e.g. "National ID", "PAN"
+  probation: { default: number; max: number };
+  noticePeriod: { default: number; min: number };
+  annualLeave: { default: number; min: number };
+  sickLeave: { default: number; min: number };
+  weeklyHours: { default: number; max: number };
+  payFrequency: { default: string; locked: boolean };
+  idLabel: string;
 }
 
 const COUNTRY_RULES: Record<string, CountryRule> = {
@@ -109,7 +109,75 @@ const ATS_CANDIDATES = [
   { id: "ats-3", name: "Sarah Chen", country: "Sweden", role: "UX Designer", email: "sarah.chen@email.com", employmentType: "contractor" as const, hasATSData: true },
 ];
 
-// ─── Component ──────────────────────────────────────────────────────────
+// ─── Sub-components ─────────────────────────────────────────────────────
+
+/** Section card wrapper with icon header */
+const SectionCard: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  badge?: React.ReactNode;
+}> = ({ icon, title, subtitle, children, badge }) => (
+  <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
+    <div className="flex items-center gap-3 px-5 py-3.5 bg-muted/30 border-b border-border/40">
+      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
+        {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+      </div>
+      {badge}
+    </div>
+    <div className="p-5 space-y-4">
+      {children}
+    </div>
+  </div>
+);
+
+/** Unified field with label, input, and optional hint — no overlaps */
+const Field: React.FC<{
+  label: string;
+  required?: boolean;
+  hint?: string;
+  children: React.ReactNode;
+}> = ({ label, required, hint, children }) => (
+  <div className="space-y-1.5">
+    <Label className="text-[13px] font-medium text-foreground/80">
+      {label} {required && <span className="text-destructive">*</span>}
+    </Label>
+    {children}
+    {hint && <p className="text-[11px] text-muted-foreground leading-tight">{hint}</p>}
+  </div>
+);
+
+/** Number field with suffix badge — avoids overlap with spinner arrows */
+const NumberFieldWithUnit: React.FC<{
+  value: string;
+  onChange: (val: string) => void;
+  unit: string;
+  min?: number;
+  max?: number;
+  step?: number;
+}> = ({ value, onChange, unit, min, max, step }) => (
+  <div className="flex items-center gap-2">
+    <Input
+      type="number"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      min={min}
+      max={max}
+      step={step}
+      className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100"
+    />
+    <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">
+      {unit}
+    </span>
+  </div>
+);
+
+// ─── Main Component ─────────────────────────────────────────────────────
 interface AddCandidateDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -123,22 +191,12 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 }) => {
   const [selectedAtsId, setSelectedAtsId] = useState("");
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    nationality: "",
-    address: "",
-    idNumber: "",
-    country: "",
-    role: "",
+    name: "", email: "", nationality: "", address: "", idNumber: "",
+    country: "", role: "",
     employmentType: "" as "" | "contractor" | "employee",
-    salary: "",
-    startDate: "",
-    probationPeriod: "",
-    noticePeriod: "",
-    annualLeave: "",
-    sickLeave: "",
-    weeklyHours: "",
-    payFrequency: "",
+    salary: "", startDate: "",
+    probationPeriod: "", noticePeriod: "", annualLeave: "", sickLeave: "",
+    weeklyHours: "", payFrequency: "",
   });
 
   const countryRule = formData.country ? COUNTRY_RULES[formData.country] : null;
@@ -158,16 +216,11 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
       if (candidate) {
         const rule = COUNTRY_RULES[candidate.country];
         setFormData({
-          name: candidate.name,
-          email: candidate.email,
-          nationality: "",
-          address: "",
-          idNumber: "",
-          country: candidate.country,
-          role: candidate.role,
+          name: candidate.name, email: candidate.email,
+          nationality: "", address: "", idNumber: "",
+          country: candidate.country, role: candidate.role,
           employmentType: candidate.employmentType,
-          salary: "",
-          startDate: "",
+          salary: "", startDate: "",
           probationPeriod: rule ? String(rule.probation.default) : "",
           noticePeriod: rule ? String(rule.noticePeriod.default) : "",
           annualLeave: rule ? String(rule.annualLeave.default) : "",
@@ -185,12 +238,9 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
     const empType = rule.employmentTypes.length === 1
       ? rule.employmentTypes[0]
       : (formData.employmentType && rule.employmentTypes.includes(formData.employmentType as any)
-        ? formData.employmentType
-        : "");
+        ? formData.employmentType : "");
     setFormData(prev => ({
-      ...prev,
-      country,
-      employmentType: empType,
+      ...prev, country, employmentType: empType,
       probationPeriod: String(rule.probation.default),
       noticePeriod: String(rule.noticePeriod.default),
       annualLeave: String(rule.annualLeave.default),
@@ -206,29 +256,22 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
       return;
     }
     const rule = COUNTRY_RULES[formData.country];
-    const newCandidate = {
+    onSave({
       id: `candidate-${Date.now()}`,
-      name: formData.name,
-      country: formData.country,
-      countryFlag: rule?.flag || "",
-      role: formData.role,
-      salary: formData.salary,
-      status: "offer-accepted" as const,
-      formSent: false,
-      dataReceived: false,
+      name: formData.name, country: formData.country,
+      countryFlag: rule?.flag || "", role: formData.role,
+      salary: formData.salary, status: "offer-accepted" as const,
+      formSent: false, dataReceived: false,
       employmentType: formData.employmentType,
       hasATSData: selectedAtsId !== "manual",
-      email: formData.email,
-      startDate: formData.startDate,
-      // Contract-specific details
+      email: formData.email, startDate: formData.startDate,
       probationPeriod: formData.probationPeriod,
       noticePeriod: formData.noticePeriod,
       annualLeave: formData.annualLeave,
       sickLeave: formData.sickLeave,
       weeklyHours: formData.weeklyHours,
       payFrequency: formData.payFrequency,
-    };
-    onSave(newCandidate);
+    });
     toast.success(`✅ ${formData.name} added to pipeline`);
     resetForm();
     onOpenChange(false);
@@ -249,28 +292,35 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
   const showContractFields = !!formData.country && !!countryRule;
   const isFormValid = formData.name && formData.email && formData.country && formData.role && formData.salary && formData.startDate && formData.employmentType;
 
+  const set = (key: string) => (val: string) => setFormData(p => ({ ...p, [key]: val }));
+
   return (
     <Sheet open={open} onOpenChange={(o) => { if (!o) resetForm(); onOpenChange(o); }}>
-      <SheetContent className="sm:max-w-[540px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <User className="h-5 w-5 text-primary" />
-            Add Candidate
-          </SheetTitle>
-        </SheetHeader>
+      <SheetContent className="sm:max-w-[560px] overflow-y-auto p-0">
+        {/* Sticky header */}
+        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border/50 px-6 py-4">
+          <SheetHeader className="p-0">
+            <SheetTitle className="flex items-center gap-2.5 text-base">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <User className="h-4 w-4 text-primary" />
+              </div>
+              Add Candidate
+            </SheetTitle>
+          </SheetHeader>
+        </div>
 
-        <div className="space-y-6 mt-6">
-          {/* ── Candidate Selector ── */}
+        <div className="px-6 py-6 space-y-5">
+          {/* ── Candidate Source ── */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Select Candidate</Label>
+            <Label className="text-[13px] font-medium text-foreground/80">Select Candidate</Label>
             <Select value={selectedAtsId} onValueChange={handleATSSelect}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11">
                 <SelectValue placeholder="Choose from ATS or add manually" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="manual">
                   <div className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
+                    <User className="h-4 w-4 text-muted-foreground" />
                     <span>Enter manually</span>
                   </div>
                 </SelectItem>
@@ -278,9 +328,9 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                   <SelectItem key={c.id} value={c.id}>
                     <div className="flex items-center gap-2">
                       <span>{COUNTRY_RULES[c.country]?.flag}</span>
-                      <span>{c.name}</span>
-                      <Badge variant="secondary" className="text-xs ml-1">
-                        <Sparkles className="h-3 w-3 mr-1" />ATS
+                      <span className="font-medium">{c.name}</span>
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                        <Sparkles className="h-2.5 w-2.5 mr-0.5" />ATS
                       </Badge>
                     </div>
                   </SelectItem>
@@ -288,263 +338,228 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
               </SelectContent>
             </Select>
             {isATSSelected && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Sparkles className="h-3 w-3" /> Details pre-filled from your ATS
-              </p>
+              <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary/5 border border-primary/10">
+                <Sparkles className="h-3 w-3 text-primary" />
+                <p className="text-xs text-primary font-medium">Details pre-filled from your ATS</p>
+              </div>
             )}
           </div>
 
           <AnimatePresence mode="wait">
             {showForm && (
               <motion.div
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-6"
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="space-y-5"
               >
                 {/* ── Section 1: Personal Details ── */}
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <User className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-semibold text-foreground">Personal Details</h3>
+                <SectionCard
+                  icon={<User className="h-4 w-4 text-primary" />}
+                  title="Personal Details"
+                  subtitle="Basic information about the candidate"
+                >
+                  <Field label="Full Name" required>
+                    <Input value={formData.name} onChange={e => set("name")(e.target.value)} placeholder="e.g., Maria Santos" className="h-10" />
+                  </Field>
+                  <Field label="Email" required>
+                    <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Nationality">
+                      <Input value={formData.nationality} onChange={e => set("nationality")(e.target.value)} placeholder="e.g., Filipino" className="h-10" />
+                    </Field>
+                    <Field label="Role" required>
+                      <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className="h-10" />
+                    </Field>
                   </div>
-                  <div className="space-y-4 pl-6">
-                    <FieldRow label="Full Name" required>
-                      <Input
-                        value={formData.name}
-                        onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
-                        placeholder="e.g., Maria Santos"
-                      />
-                    </FieldRow>
-                    <FieldRow label="Email" required>
-                      <Input
-                        type="email"
-                        value={formData.email}
-                        onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
-                        placeholder="email@example.com"
-                      />
-                    </FieldRow>
-                    <FieldRow label="Nationality">
-                      <Input
-                        value={formData.nationality}
-                        onChange={e => setFormData(p => ({ ...p, nationality: e.target.value }))}
-                        placeholder="e.g., Filipino"
-                      />
-                    </FieldRow>
-                    <FieldRow label="Role" required>
-                      <Input
-                        value={formData.role}
-                        onChange={e => setFormData(p => ({ ...p, role: e.target.value }))}
-                        placeholder="e.g., Senior Developer"
-                      />
-                    </FieldRow>
-                  </div>
-                </div>
-
-                <Separator />
+                </SectionCard>
 
                 {/* ── Section 2: Contract Details ── */}
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <FileText className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-semibold text-foreground">Contract Details</h3>
-                  </div>
-                  <div className="space-y-4 pl-6">
-                    {/* Country — gateway field */}
-                    <FieldRow label="Country" required>
-                      <Select value={formData.country} onValueChange={handleCountryChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select country to reveal contract fields" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {COUNTRIES.map(c => (
-                            <SelectItem key={c} value={c}>
-                              {COUNTRY_RULES[c].flag} {c}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FieldRow>
+                <SectionCard
+                  icon={<FileText className="h-4 w-4 text-primary" />}
+                  title="Contract Details"
+                  subtitle="Select country to configure contract terms"
+                  badge={formData.country && countryRule ? (
+                    <Badge variant="outline" className="text-xs font-medium gap-1">
+                      {countryRule.flag} {formData.country}
+                    </Badge>
+                  ) : undefined}
+                >
+                  {/* Country — gateway field */}
+                  <Field label="Country" required>
+                    <Select value={formData.country} onValueChange={handleCountryChange}>
+                      <SelectTrigger className="h-11">
+                        <SelectValue placeholder="Select country to reveal fields..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {COUNTRIES.map(c => (
+                          <SelectItem key={c} value={c}>
+                            <span className="mr-2">{COUNTRY_RULES[c].flag}</span>{c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
 
-                    {/* Country not yet selected — hint */}
-                    {!showContractFields && (
-                      <div className="flex flex-col items-center justify-center py-6 text-center">
-                        <div className="h-10 w-10 rounded-full bg-muted/60 flex items-center justify-center mb-2">
-                          <MapPin className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Select a country to reveal contract-specific fields
-                        </p>
+                  {/* Empty state */}
+                  {!showContractFields && (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <div className="h-12 w-12 rounded-full bg-muted/40 flex items-center justify-center mb-3">
+                        <MapPin className="h-5 w-5 text-muted-foreground/60" />
                       </div>
-                    )}
+                      <p className="text-sm text-muted-foreground/70 max-w-[220px]">
+                        Contract fields will appear once you select a country above
+                      </p>
+                    </div>
+                  )}
 
-                    {/* Country-specific fields revealed */}
-                    <AnimatePresence mode="wait">
-                      {showContractFields && countryRule && (
-                        <motion.div
-                          key={formData.country}
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="space-y-4 overflow-hidden"
-                        >
-                          {/* Employment Type */}
-                          <FieldRow label="Employment Type" required>
+                  {/* Revealed fields */}
+                  <AnimatePresence mode="wait">
+                    {showContractFields && countryRule && (
+                      <motion.div
+                        key={formData.country}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-4"
+                      >
+                        {/* Employment & Compensation row */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <Field label="Employment Type" required hint={isContractorOnly ? `Contractor only in ${formData.country}` : undefined}>
                             <Select
                               value={formData.employmentType}
-                              onValueChange={(v: "contractor" | "employee") => setFormData(p => ({ ...p, employmentType: v }))}
+                              onValueChange={(v: "contractor" | "employee") => set("employmentType")(v)}
                               disabled={isContractorOnly}
                             >
-                              <SelectTrigger className={isContractorOnly ? "opacity-70" : ""}>
-                                <SelectValue placeholder="Select type" />
+                              <SelectTrigger className={`h-10 ${isContractorOnly ? "opacity-60" : ""}`}>
+                                <SelectValue placeholder="Select" />
                               </SelectTrigger>
                               <SelectContent>
                                 {countryRule.employmentTypes.map(t => (
-                                  <SelectItem key={t} value={t}>
-                                    {t === "employee" ? "Employee" : "Contractor"}
-                                  </SelectItem>
+                                  <SelectItem key={t} value={t}>{t === "employee" ? "Employee" : "Contractor"}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                            {isContractorOnly && (
-                              <p className="text-xs text-muted-foreground">Contractor only in {formData.country}</p>
-                            )}
-                          </FieldRow>
+                          </Field>
+                          <Field label="Start Date" required>
+                            <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className="h-10" />
+                          </Field>
+                        </div>
 
-                          {/* Salary */}
-                          <FieldRow label="Salary" required>
-                            <div className="relative">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">
-                                {formData.employmentType
-                                  ? getCurrencyCode(formData.country, formData.employmentType as any)
-                                  : countryRule.currency}
-                              </span>
-                              <Input
-                                value={formData.salary}
-                                onChange={e => {
-                                  const v = e.target.value.replace(/[^0-9]/g, "");
-                                  setFormData(p => ({ ...p, salary: v }));
-                                }}
-                                placeholder="5000"
-                                className="pl-12"
-                              />
-                            </div>
-                            <p className="text-xs text-muted-foreground">Monthly amount (numbers only)</p>
-                          </FieldRow>
-
-                          {/* Start Date */}
-                          <FieldRow label="Start Date" required>
+                        <Field label="Salary" required hint="Monthly gross amount (numbers only)">
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
+                              {formData.employmentType
+                                ? getCurrencyCode(formData.country, formData.employmentType as any)
+                                : countryRule.currency}
+                            </span>
                             <Input
-                              type="date"
-                              value={formData.startDate}
-                              onChange={e => setFormData(p => ({ ...p, startDate: e.target.value }))}
+                              value={formData.salary}
+                              onChange={e => set("salary")(e.target.value.replace(/[^0-9]/g, ""))}
+                              placeholder="5,000"
+                              className="pl-12 h-10"
                             />
-                          </FieldRow>
+                          </div>
+                        </Field>
 
-                          {/* ID Number */}
-                          <FieldRow label={countryRule.idLabel}>
-                            <Input
-                              value={formData.idNumber}
-                              onChange={e => setFormData(p => ({ ...p, idNumber: e.target.value }))}
-                              placeholder={`Enter ${countryRule.idLabel}`}
+                        {/* Identity & Address */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <Field label={countryRule.idLabel}>
+                            <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+                          </Field>
+                          <Field label="Address">
+                            <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
+                          </Field>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </SectionCard>
+
+                {/* ── Section 3: Terms & Entitlements (only when country selected) ── */}
+                <AnimatePresence>
+                  {showContractFields && countryRule && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.25, delay: 0.05 }}
+                    >
+                      <SectionCard
+                        icon={<Shield className="h-4 w-4 text-primary" />}
+                        title="Terms & Entitlements"
+                        subtitle={`Country defaults for ${formData.country} — adjust as negotiated`}
+                        badge={
+                          <Badge variant="secondary" className="text-[10px] font-normal gap-1 bg-amber-500/10 text-amber-700 border-amber-500/20">
+                            <Clock className="h-2.5 w-2.5" /> Pre-filled
+                          </Badge>
+                        }
+                      >
+                        {/* Row 1: Probation & Notice */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
+                            <NumberFieldWithUnit
+                              value={formData.probationPeriod}
+                              onChange={set("probationPeriod")}
+                              unit="days"
+                              min={0}
+                              max={countryRule.probation.max}
                             />
-                          </FieldRow>
-
-                          {/* Address */}
-                          <FieldRow label="Address">
-                            <Input
-                              value={formData.address}
-                              onChange={e => setFormData(p => ({ ...p, address: e.target.value }))}
-                              placeholder="Full residential address"
+                          </Field>
+                          <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`}>
+                            <NumberFieldWithUnit
+                              value={formData.noticePeriod}
+                              onChange={set("noticePeriod")}
+                              unit="days"
+                              min={countryRule.noticePeriod.min}
                             />
-                          </FieldRow>
+                          </Field>
+                        </div>
 
-                          <Separator className="my-2" />
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Terms & Entitlements
-                          </p>
+                        {/* Row 2: Annual & Sick Leave */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`}>
+                            <NumberFieldWithUnit
+                              value={formData.annualLeave}
+                              onChange={set("annualLeave")}
+                              unit="days"
+                              min={countryRule.annualLeave.min}
+                            />
+                          </Field>
+                          <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`}>
+                            <NumberFieldWithUnit
+                              value={formData.sickLeave}
+                              onChange={set("sickLeave")}
+                              unit="days"
+                              min={countryRule.sickLeave.min}
+                            />
+                          </Field>
+                        </div>
 
-                          {/* Probation Period */}
-                          <FieldRow label="Probation Period">
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                value={formData.probationPeriod}
-                                onChange={e => setFormData(p => ({ ...p, probationPeriod: e.target.value }))}
-                                max={countryRule.probation.max}
-                                min={0}
-                              />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">days</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">Maximum: {countryRule.probation.max} days</p>
-                          </FieldRow>
-
-                          {/* Notice Period */}
-                          <FieldRow label="Notice Period">
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                value={formData.noticePeriod}
-                                onChange={e => setFormData(p => ({ ...p, noticePeriod: e.target.value }))}
-                                min={countryRule.noticePeriod.min}
-                              />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">days</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">Minimum: {countryRule.noticePeriod.min} days</p>
-                          </FieldRow>
-
-                          {/* Annual Leave */}
-                          <FieldRow label="Annual Leave">
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                value={formData.annualLeave}
-                                onChange={e => setFormData(p => ({ ...p, annualLeave: e.target.value }))}
-                                min={countryRule.annualLeave.min}
-                              />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">days</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">Minimum: {countryRule.annualLeave.min} days</p>
-                          </FieldRow>
-
-                          {/* Sick Leave */}
-                          <FieldRow label="Sick Leave">
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                value={formData.sickLeave}
-                                onChange={e => setFormData(p => ({ ...p, sickLeave: e.target.value }))}
-                                min={countryRule.sickLeave.min}
-                              />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">days</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">Minimum: {countryRule.sickLeave.min} days</p>
-                          </FieldRow>
-
-                          {/* Weekly Hours */}
-                          <FieldRow label="Weekly Work Hours">
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                value={formData.weeklyHours}
-                                onChange={e => setFormData(p => ({ ...p, weeklyHours: e.target.value }))}
-                                max={countryRule.weeklyHours.max}
-                              />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">hours</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">Maximum: {countryRule.weeklyHours.max} hours</p>
-                          </FieldRow>
-
-                          {/* Pay Frequency */}
-                          <FieldRow label="Pay Frequency">
+                        {/* Row 3: Weekly Hours & Pay Frequency */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
+                            <NumberFieldWithUnit
+                              value={formData.weeklyHours}
+                              onChange={set("weeklyHours")}
+                              unit="hours"
+                              max={countryRule.weeklyHours.max}
+                              step={0.5}
+                            />
+                          </Field>
+                          <Field
+                            label="Pay Frequency"
+                            hint={countryRule.payFrequency.locked ? `Fixed for ${formData.country}` : undefined}
+                          >
                             <Select
                               value={formData.payFrequency}
-                              onValueChange={v => setFormData(p => ({ ...p, payFrequency: v }))}
+                              onValueChange={v => set("payFrequency")(v)}
                               disabled={countryRule.payFrequency.locked}
                             >
-                              <SelectTrigger className={countryRule.payFrequency.locked ? "opacity-70" : ""}>
+                              <SelectTrigger className={`h-10 ${countryRule.payFrequency.locked ? "opacity-60" : ""}`}>
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -552,24 +567,19 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                                 <SelectItem value="fortnightly">Fortnightly</SelectItem>
                               </SelectContent>
                             </Select>
-                            {countryRule.payFrequency.locked && (
-                              <p className="text-xs text-muted-foreground">
-                                Fixed to {countryRule.payFrequency.default} for {formData.country}
-                              </p>
-                            )}
-                          </FieldRow>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
+                          </Field>
+                        </div>
+                      </SectionCard>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                {/* ── Actions ── */}
-                <div className="flex gap-3 pt-4 border-t">
-                  <Button variant="outline" className="flex-1" onClick={() => { resetForm(); onOpenChange(false); }}>
+                {/* ── Sticky Actions ── */}
+                <div className="flex gap-3 pt-2 pb-2">
+                  <Button variant="outline" className="flex-1 h-11" onClick={() => { resetForm(); onOpenChange(false); }}>
                     Cancel
                   </Button>
-                  <Button className="flex-1" onClick={handleSave} disabled={!isFormValid}>
+                  <Button className="flex-1 h-11" onClick={handleSave} disabled={!isFormValid}>
                     Save Candidate
                   </Button>
                 </div>
@@ -581,17 +591,3 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
     </Sheet>
   );
 };
-
-// ─── Reusable Field Row ─────────────────────────────────────────────────
-const FieldRow: React.FC<{ label: string; required?: boolean; children: React.ReactNode }> = ({
-  label,
-  required,
-  children,
-}) => (
-  <div className="space-y-1.5">
-    <Label className="text-sm">
-      {label} {required && <span className="text-destructive">*</span>}
-    </Label>
-    {children}
-  </div>
-);
