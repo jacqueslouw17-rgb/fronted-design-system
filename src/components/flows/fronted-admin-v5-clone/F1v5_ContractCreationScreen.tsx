@@ -17,13 +17,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sparkles, ChevronDown, User, Briefcase, Calendar, Shield, Clock,
-  MapPin, Globe, Building2, Banknote, FileText, Landmark, Phone,
+  MapPin, Globe, Building2, Banknote, FileText,
 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+// ─── Country Rules (mirrored from AddCandidateDrawer) ───
+interface CountryRule {
+  flag: string; currency: string;
+  probation: { default: number; max: number };
+  noticePeriod: { default: number; min: number };
+  annualLeave: { default: number; min: number };
+  sickLeave: { default: number; min: number };
+  weeklyHours: { default: number; max: number };
+  payFrequency: { default: string; locked: boolean };
+}
+
+const COUNTRY_RULES: Record<string, CountryRule> = {
+  Norway:      { flag: "🇳🇴", currency: "NOK", probation: { default: 180, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 25, min: 25 }, sickLeave: { default: 365, min: 0 }, weeklyHours: { default: 37.5, max: 40 }, payFrequency: { default: "monthly", locked: true } },
+  Sweden:      { flag: "🇸🇪", currency: "SEK", probation: { default: 180, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 25, min: 25 }, sickLeave: { default: 365, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
+  Denmark:     { flag: "🇩🇰", currency: "DKK", probation: { default: 90, max: 90 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 25, min: 25 }, sickLeave: { default: 365, min: 0 }, weeklyHours: { default: 37, max: 37 }, payFrequency: { default: "monthly", locked: true } },
+  Philippines: { flag: "🇵🇭", currency: "PHP", probation: { default: 180, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 5, min: 5 }, sickLeave: { default: 5, min: 5 }, weeklyHours: { default: 48, max: 48 }, payFrequency: { default: "fortnightly", locked: true } },
+  India:       { flag: "🇮🇳", currency: "INR", probation: { default: 90, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 21, min: 21 }, sickLeave: { default: 12, min: 12 }, weeklyHours: { default: 48, max: 48 }, payFrequency: { default: "monthly", locked: true } },
+  Kosovo:      { flag: "🇽🇰", currency: "EUR", probation: { default: 180, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 20, min: 20 }, sickLeave: { default: 20, min: 20 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
+};
 
 interface Props {
   candidate: Candidate;
@@ -93,6 +113,17 @@ const Field: React.FC<{
   </div>
 );
 
+/* ── Number with unit badge ── */
+const NumberFieldWithUnit: React.FC<{
+  value: string; onChange: (v: string) => void; unit: string; min?: number; max?: number; step?: number;
+}> = ({ value, onChange, unit, min, max, step }) => (
+  <div className="flex items-center gap-2">
+    <Input type="number" value={value} onChange={e => onChange(e.target.value)} min={min} max={max} step={step}
+      className="flex-1 h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100" />
+    <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">{unit}</span>
+  </div>
+);
+
 export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   candidate,
   onNext,
@@ -102,6 +133,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
 }) => {
   const defaultEmploymentType = candidate.employmentType || "contractor";
   const [employmentType, setEmploymentType] = useState<"employee" | "contractor">(defaultEmploymentType);
+  const countryRule = COUNTRY_RULES[candidate.country];
 
   const [formData, setFormData] = useState({
     fullName: candidate.name,
@@ -116,10 +148,13 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     startDate: candidate.startDate || "",
     salary: candidate.salary,
     taxResidence: candidate.taxResidence || "",
-    bankName: candidate.bankName || "",
-    bankAccount: candidate.bankAccount || "",
-    emergencyContactName: candidate.emergencyContactName || "",
-    emergencyContactPhone: candidate.emergencyContactPhone || "",
+    // Terms — prepopulated from country defaults
+    probationPeriod: countryRule ? String(countryRule.probation.default) : "",
+    noticePeriod: countryRule ? String(countryRule.noticePeriod.default) : "",
+    annualLeave: countryRule ? String(countryRule.annualLeave.default) : "",
+    sickLeave: countryRule ? String(countryRule.sickLeave.default) : "",
+    weeklyHours: countryRule ? String(countryRule.weeklyHours.default) : "",
+    payFrequency: countryRule ? countryRule.payFrequency.default : "monthly",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -158,7 +193,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="px-8 pb-8 pt-4 max-w-3xl mx-auto space-y-5"
+      className="px-8 pb-8 pt-4 max-w-3xl mx-auto space-y-3"
     >
       <AgentHeader
         title={`Review ${candidate.name.split(" ")[0]}'s Details`}
@@ -299,27 +334,47 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         </SectionCard>
       </motion.div>
 
-      {/* ── Section 3: Payout & Emergency ── */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-        <SectionCard title="Payout & Emergency" icon={Landmark} subtitle="Bank details and emergency contacts" defaultOpen={false}>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Bank Name" optional>
-              <Input value={formData.bankName} onChange={e => set("bankName")(e.target.value)} placeholder="Bank name" className="h-10" />
-            </Field>
-            <Field label="Account / IBAN" optional>
-              <Input value={formData.bankAccount} onChange={e => set("bankAccount")(e.target.value)} placeholder="Account number" className="h-10" />
-            </Field>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Emergency Contact" optional>
-              <Input value={formData.emergencyContactName} onChange={e => set("emergencyContactName")(e.target.value)} placeholder="Contact name" className="h-10" />
-            </Field>
-            <Field label="Emergency Phone" optional>
-              <Input value={formData.emergencyContactPhone} onChange={e => set("emergencyContactPhone")(e.target.value)} placeholder="+1 234 567 890" className="h-10" />
-            </Field>
-          </div>
-        </SectionCard>
-      </motion.div>
+      {/* ── Section 3: Terms & Entitlements ── */}
+      {countryRule && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+          <SectionCard
+            title="Terms & Entitlements"
+            icon={Clock}
+            subtitle={`Country defaults for ${formData.country} — adjust as negotiated`}
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
+                <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} />
+              </Field>
+              <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`}>
+                <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} />
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`}>
+                <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} />
+              </Field>
+              <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`}>
+                <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} />
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
+                <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} />
+              </Field>
+              <Field label="Pay Frequency" hint={countryRule.payFrequency.locked ? `Fixed for ${formData.country}` : undefined}>
+                <Select value={formData.payFrequency} onValueChange={v => set("payFrequency")(v)} disabled={countryRule.payFrequency.locked}>
+                  <SelectTrigger className={cn("h-10", countryRule.payFrequency.locked && "opacity-60")}><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="fortnightly">Fortnightly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+          </SectionCard>
+        </motion.div>
+      )}
 
       {/* ── Actions ── */}
       <motion.div
