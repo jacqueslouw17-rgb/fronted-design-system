@@ -154,6 +154,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
   useEffect(() => {
     if (!candidate) return;
+    const rule = COUNTRY_RULES[candidate.country];
     setFormData({
       name: candidate.name,
       email: candidate.email || "",
@@ -165,6 +166,12 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
       salary: candidate.salary,
       startDate: candidate.startDate || "",
       city: candidate.city || "",
+      probationPeriod: rule ? String(rule.probation.default) : "",
+      noticePeriod: rule ? String(rule.noticePeriod.default) : "",
+      annualLeave: rule ? String(rule.annualLeave.default) : "",
+      sickLeave: rule ? String(rule.sickLeave.default) : "",
+      weeklyHours: rule ? String(rule.weeklyHours.default) : "",
+      payFrequency: rule ? rule.payFrequency.default : "monthly",
     });
     setEmploymentType(candidate.employmentType || "contractor");
     setShowEmploymentConfirm(
@@ -175,7 +182,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const set = (key: string) => (value: string) =>
     setFormData(prev => ({ ...prev, [key]: value }));
 
-  const activeCountryRule = COUNTRY_RULES[formData.country];
+  const countryRule = COUNTRY_RULES[formData.country];
 
   const handleSendForm = async () => {
     setIsSubmitting(true);
