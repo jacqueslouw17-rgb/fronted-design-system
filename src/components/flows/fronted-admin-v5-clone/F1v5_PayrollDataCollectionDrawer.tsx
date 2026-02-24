@@ -379,33 +379,35 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
             ))}
           </SectionCard>
 
-          {/* ── Action Buttons ── */}
-          <div className="flex gap-3 pt-2 pb-4">
+          {/* Preview message */}
+          <div className="rounded-lg border border-border bg-muted/30 p-4">
+            <p className="text-xs text-muted-foreground mb-2">
+              {isResend ? "This form was sent to:" : "This form will be sent to:"}
+            </p>
+            <div className="flex items-center gap-2">
+              <div>
+                <p className="text-sm font-medium text-foreground">{contractor.name}</p>
+                <p className="text-xs text-muted-foreground">{contractor.email || contractor.role}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex gap-3 pt-4">
             <Button
               variant="outline"
-              className="flex-1 gap-2"
+              className="flex-1"
               onClick={handleSave}
-              disabled={isSaving}
+              disabled={isSubmitting || isSaving}
             >
-              <Save className="h-4 w-4" />
               {isSaving ? "Saving..." : "Save Changes"}
             </Button>
             <Button
-              className="flex-1 gap-2"
+              className="flex-1"
               onClick={handleSendForm}
               disabled={isSubmitting}
             >
-              {isSubmitting ? (
-                <>
-                  <div className="h-4 w-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4" />
-                  {isResend ? "Resend Form" : "Send Form"}
-                </>
-              )}
+              {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
             </Button>
           </div>
         </div>
