@@ -22,6 +22,7 @@ import WorkerStep1Welcome_v2 from "@/components/flows/worker-onboarding-v2/Worke
 import WorkerStep2TaxDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2TaxDetails_v2";
 import WorkerStep3BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
 import WorkerStep4WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
+import WorkerStep5Terms_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep6Terms_v2";
 
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 
@@ -29,7 +30,8 @@ const FLOW_STEPS = [
   { id: "welcome", title: "Welcome and setup", icon: "👋" },
   { id: "tax_details", title: "Tax Details", icon: "📋" },
   { id: "bank_details", title: "Bank Details", icon: "🏦" },
-  { id: "work_setup", title: "Work Setup & Agreements", icon: "💼" },
+  { id: "work_setup", title: "Work Setup", icon: "💼" },
+  { id: "terms", title: "Terms & Conditions", icon: "📄" },
 ];
 
 const WorkerOnboardingV2 = () => {
@@ -181,6 +183,7 @@ const WorkerOnboardingV2 = () => {
                           {step.id === "tax_details" && <WorkerStep2TaxDetails_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                           {step.id === "bank_details" && <WorkerStep3BankDetails_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                           {step.id === "work_setup" && <WorkerStep4WorkSetup_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
+                          {step.id === "terms" && <WorkerStep5Terms_v2 formData={state.formData} onComplete={handleStepComplete} isProcessing={isProcessing} isLoadingFields={isLoadingFields} />}
                         </motion.div>
                       )}
                     </AnimatePresence>
