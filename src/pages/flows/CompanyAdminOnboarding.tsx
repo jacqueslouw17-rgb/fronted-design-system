@@ -1,152 +1,209 @@
 /**
- * Flow 5 — Company Admin Onboarding v1 (simplified)
+ * Flow 5 — Company Admin Onboarding v1
  * 
- * Single unified form with sign-in fields + company name + HQ country.
- * No stepper - just one simple form.
+ * Aligned with Flow 2 v2 / Flow 3 v2 UX pattern:
+ * AgentLayout → AgentHeader → ProgressBar → StepCard accordion
  * 
- * After completion, navigates to Flow 6 Company Admin Dashboard v1.
+ * Steps:
+ * 1. Account & Company Details (prefilled from invite + company profile)
+ * 2. Terms & Conditions (checkbox + sheet drawer)
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
+import { Button } from "@/components/ui/button";
+import { AnimatePresence, motion } from "framer-motion";
+import ProgressBar from "@/components/ProgressBar";
+import StepCard from "@/components/StepCard";
+import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
+import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import frontedLogo from "@/assets/fronted-logo.png";
+import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 
-// Step component
-import Step1AdminAccountSimplified from "@/components/flows/onboarding/Step1AdminAccountSimplified";
+import StepAccountDetails from "@/components/flows/onboarding/StepAccountDetails";
+import StepTermsConditions from "@/components/flows/onboarding/StepTermsConditions";
+
+const FLOW_STEPS = [
+  { id: "account_details", title: "Account & Company Details" },
+  { id: "terms", title: "Terms & Conditions" },
+];
 
 const CompanyAdminOnboarding = () => {
   const navigate = useNavigate();
-  const {
-    state,
-    updateFormData,
-    completeStep,
-  } = useAdminFlowBridge();
+  const { state, updateFormData, completeStep } = useAdminFlowBridge();
   const { resetAdminFlow } = useOnboardingStore();
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
+
+  const [currentStep, setCurrentStep] = useState("account_details");
+  const [expandedStep, setExpandedStep] = useState<string | null>("account_details");
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [formData, setFormData] = useState<Record<string, any>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const hasInitialized = useRef(false);
 
-  // Sync local speaking state with agent state
   useEffect(() => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
-  // Reset flow state on mount and prefill admin data if available
   useEffect(() => {
     if (!hasInitialized.current) {
       resetAdminFlow();
-
-      // Prefill admin name and email from invite link (simulated for now)
-      // In production, these would come from URL params or API
-      updateFormData({
-        adminName: "John Doe",
-        adminEmail: "john@company.com",
-        companyName: "Acme Corp",
-        hqCountry: "NO"
-      });
+      const prefilled = {
+        adminName: "Joe Smith",
+        adminEmail: "joe.smith@jboxtech.com",
+        companyName: "JBOX Technologies",
+        hqCountry: "NO",
+      };
+      updateFormData(prefilled);
+      setFormData(prefilled);
+      setExpandedStep("account_details");
       hasInitialized.current = true;
     }
   }, [resetAdminFlow, updateFormData]);
 
-  const handleStepComplete = async (stepId: string, data?: any) => {
-    setIsProcessing(true);
+  const scrollToStep = (stepId: string) => {
+    utilScrollToStep(stepId, { focusHeader: true, delay: 100 });
+  };
 
-    // Update form data if provided
+  const getStepStatus = (stepId: string): "inactive" | "pending" | "active" | "completed" => {
+    if (completedSteps.has(stepId)) return "completed";
+    if (stepId === currentStep) return "active";
+    const currentIndex = FLOW_STEPS.findIndex(s => s.id === currentStep);
+    const stepIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
+    if (stepIndex > currentIndex) return "inactive";
+    return "pending";
+  };
+
+  const handleStepComplete = async (stepId: string, data?: Record<string, any>) => {
+    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
+    const isFinalStep = currentIndex === FLOW_STEPS.length - 1;
+
+    if (!isFinalStep) {
+      setIsProcessing(true);
+    }
+
     if (data) {
+      setFormData(prev => ({ ...prev, ...data }));
       updateFormData(data);
     }
 
-    // Complete the step
     completeStep(stepId);
-    setIsProcessing(false);
+    setCompletedSteps(prev => new Set(prev).add(stepId));
+
+    if (isFinalStep) {
+      navigate("/flows/company-admin-dashboard-v3");
+      return;
+    }
+
+    const nextStep = FLOW_STEPS[currentIndex + 1];
+    if (nextStep) {
+      await new Promise(r => setTimeout(r, 600));
+      setCurrentStep(nextStep.id);
+      setExpandedStep(nextStep.id);
+      setIsProcessing(false);
+      setTimeout(() => scrollToStep(nextStep.id), 50);
+    }
   };
 
-  return (
-    <div className="fixed inset-0 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] overflow-hidden">
-      {/* Static background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-        <div 
-          className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10" 
-          style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} 
-        />
-        <div 
-          className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8" 
-          style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} 
-        />
-      </div>
+  const handleStepClick = (stepId: string) => {
+    const status = getStepStatus(stepId);
+    if (status === "inactive") return;
+    const wasExpanded = expandedStep === stepId;
+    const newExpanded = wasExpanded ? null : stepId;
+    setExpandedStep(newExpanded);
+    if (newExpanded) {
+      setTimeout(() => scrollToStep(stepId), 50);
+    }
+  };
 
-      {/* Scrollable Content Container */}
-      <div className="relative z-10 h-full overflow-y-auto">
-        {/* Logo Header */}
-        <div className="px-6 pt-6 pb-0 flex items-center gap-3">
-          <button 
-            onClick={() => navigate("/?tab=flows")} 
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" 
-            aria-label="Back to flows"
-          >
-            <ArrowLeft className="w-5 h-5 text-foreground/70" />
-          </button>
-          <img 
-            src={frontedLogo} 
-            alt="Fronted" 
-            className="h-7 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
-            onClick={() => navigate("/?tab=flows")} 
-          />
+  const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === currentStep);
+
+  return (
+    <AgentLayout context="Company Admin Onboarding">
+      <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+          onClick={() => navigate("/?tab=flows")}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
         </div>
 
-        {/* Content */}
-        <div 
-          className="px-6 pt-4 pb-32 space-y-6 mx-auto" 
-          style={{ width: '100%', maxWidth: '800px' }}
+        <div
+          className="flex-shrink-0 flex flex-col min-h-screen p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 sm:space-y-8 relative z-10 mx-auto onboarding-scroll-container"
+          style={{ width: "100%", maxWidth: "800px" }}
         >
-          {/* Header */}
-          <div className="flex flex-col items-center space-y-6 mb-8">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              transition={{ duration: 0.5, ease: "easeOut" }} 
-              className="flex justify-center" 
-              style={{ maxHeight: '240px' }}
-            >
-              <AudioWaveVisualizer isActive={isSpeaking} />
-            </motion.div>
+          <AgentHeader
+            title="Hi Joe! Let's complete your onboarding"
+            subtitle="You've been invited as a Company Admin. Confirm your details below."
+            showPulse={true}
+            isActive={isSpeaking}
+            showInput={false}
+          />
 
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }} 
-              className="text-center space-y-3 max-w-2xl"
-            >
-              <h1 className="text-2xl font-bold text-foreground">Hi Joe! Let's complete your onboarding</h1>
-              <p className="text-muted-foreground">
-                You've been invited as a Company Admin. Complete onboarding to access your dashboard.
-              </p>
-            </motion.div>
+          <div>
+            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={FLOW_STEPS.length} />
           </div>
 
-          {/* Single Form */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Step1AdminAccountSimplified
-              formData={state.formData}
-              onComplete={handleStepComplete}
-              isProcessing={isProcessing}
-            />
-          </motion.div>
+          <div className="space-y-4">
+            {FLOW_STEPS.map((step, index) => {
+              const status = getStepStatus(step.id);
+              const isExpanded = expandedStep === step.id;
+              const headerId = `step-header-${step.id}`;
+              const isLocked = index > currentStepIndex && status === "inactive";
+
+              return (
+                <div key={step.id} id={`step-${step.id}`} data-step={step.id} role="region" aria-labelledby={headerId}>
+                  <StepCard
+                    stepNumber={index + 1}
+                    title={step.title}
+                    status={status}
+                    isExpanded={isExpanded}
+                    isLocked={isLocked}
+                    onClick={() => handleStepClick(step.id)}
+                    headerId={headerId}
+                  >
+                    <AnimatePresence mode="wait">
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          {step.id === "account_details" && (
+                            <StepAccountDetails
+                              formData={formData}
+                              onComplete={handleStepComplete}
+                              isProcessing={isProcessing}
+                            />
+                          )}
+                          {step.id === "terms" && (
+                            <StepTermsConditions
+                              onComplete={handleStepComplete}
+                              isProcessing={isProcessing}
+                            />
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </StepCard>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </AgentLayout>
   );
 };
 
