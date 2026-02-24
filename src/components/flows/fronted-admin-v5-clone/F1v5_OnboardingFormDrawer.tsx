@@ -85,14 +85,27 @@ const SectionCard: React.FC<{
 const Field: React.FC<{
   label: string;
   optional?: boolean;
+  hint?: string;
   children: React.ReactNode;
-}> = ({ label, optional, children }) => (
+}> = ({ label, optional, hint, children }) => (
   <div className="space-y-1.5">
     <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
       {label}
       {optional && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">Optional</Badge>}
     </Label>
     {children}
+    {hint && <p className="text-muted-foreground text-[11px]">{hint}</p>}
+  </div>
+);
+
+/* ── Number with unit badge ── */
+const NumberFieldWithUnit: React.FC<{
+  value: string; onChange: (v: string) => void; unit: string; min?: number; max?: number; step?: number;
+}> = ({ value, onChange, unit, min, max, step }) => (
+  <div className="flex items-center gap-2">
+    <Input type="number" value={value} onChange={e => onChange(e.target.value)} min={min} max={max} step={step}
+      className="flex-1 h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100" />
+    <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">{unit}</span>
   </div>
 );
 
@@ -115,6 +128,8 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
+  const activeCountryRule = COUNTRY_RULES[candidate.country];
+
   const [formData, setFormData] = useState({
     // Personal Profile
     name: candidate.name,
@@ -128,10 +143,18 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
     salary: candidate.salary,
     startDate: candidate.startDate || "",
     city: candidate.city || "",
+    // Terms (inside Working Engagement)
+    probationPeriod: activeCountryRule ? String(activeCountryRule.probation.default) : "",
+    noticePeriod: activeCountryRule ? String(activeCountryRule.noticePeriod.default) : "",
+    annualLeave: activeCountryRule ? String(activeCountryRule.annualLeave.default) : "",
+    sickLeave: activeCountryRule ? String(activeCountryRule.sickLeave.default) : "",
+    weeklyHours: activeCountryRule ? String(activeCountryRule.weeklyHours.default) : "",
+    payFrequency: activeCountryRule ? activeCountryRule.payFrequency.default : "monthly",
   });
 
   useEffect(() => {
     if (!candidate) return;
+    const rule = COUNTRY_RULES[candidate.country];
     setFormData({
       name: candidate.name,
       email: candidate.email || "",
@@ -143,6 +166,12 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
       salary: candidate.salary,
       startDate: candidate.startDate || "",
       city: candidate.city || "",
+      probationPeriod: rule ? String(rule.probation.default) : "",
+      noticePeriod: rule ? String(rule.noticePeriod.default) : "",
+      annualLeave: rule ? String(rule.annualLeave.default) : "",
+      sickLeave: rule ? String(rule.sickLeave.default) : "",
+      weeklyHours: rule ? String(rule.weeklyHours.default) : "",
+      payFrequency: rule ? rule.payFrequency.default : "monthly",
     });
     setEmploymentType(candidate.employmentType || "contractor");
     setShowEmploymentConfirm(
@@ -153,7 +182,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const set = (key: string) => (value: string) =>
     setFormData(prev => ({ ...prev, [key]: value }));
 
-  const activeCountryRule = COUNTRY_RULES[formData.country];
+  const countryRule = COUNTRY_RULES[formData.country];
 
   const handleSendForm = async () => {
     setIsSubmitting(true);
@@ -223,7 +252,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             title="Working Engagement"
             badge={formData.country ? (
               <Badge variant="outline" className="text-xs font-medium gap-1">
-                {activeCountryRule?.flag || candidate.flag} {formData.country}
+                {countryRule?.flag || candidate.flag} {formData.country}
               </Badge>
             ) : undefined}
           >
@@ -308,6 +337,45 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             <Field label="Work Location" optional>
               <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Manila, Oslo" className="h-10" />
             </Field>
+
+            {/* Terms fields (part of Working Engagement) */}
+            {countryRule && (
+              <div className="border-t border-border/40 pt-3 mt-1">
+                <p className="text-[11px] text-muted-foreground mb-3">Country defaults for {formData.country} — adjust as negotiated</p>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
+                      <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} />
+                    </Field>
+                    <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`}>
+                      <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`}>
+                      <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} />
+                    </Field>
+                    <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`}>
+                      <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
+                      <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} />
+                    </Field>
+                    <Field label="Pay Frequency" hint={countryRule.payFrequency.locked ? `Fixed for ${formData.country}` : undefined}>
+                      <Select value={formData.payFrequency} onValueChange={v => set("payFrequency")(v)} disabled={countryRule.payFrequency.locked}>
+                        <SelectTrigger className={cn("h-10", countryRule.payFrequency.locked && "opacity-60")}><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="fortnightly">Fortnightly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </div>
+                </div>
+              </div>
+            )}
           </SectionCard>
 
           {/* Preview message */}
