@@ -222,20 +222,14 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
             <Field label="Full Name">
               {isFromATS ? (
-                <>
-                  <Input value={candidate.name} disabled className="bg-muted/50 h-10" />
-                  <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
-                </>
+                <Input value={candidate.name} disabled className="bg-muted/50 h-10" />
               ) : (
                 <Input value={formData.name} onChange={e => set("name")(e.target.value)} className="h-10" />
               )}
             </Field>
             <Field label="Email">
               {isFromATS ? (
-                <>
-                  <Input value={candidate.email || "candidate@example.com"} disabled className="bg-muted/50 h-10" />
-                  <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
-                </>
+                <Input value={candidate.email || "candidate@example.com"} disabled className="bg-muted/50 h-10" />
               ) : (
                 <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} className="h-10" />
               )}
@@ -253,10 +247,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               </Field>
               <Field label="Role">
                 {isFromATS ? (
-                  <>
-                    <Input value={candidate.role} disabled className="bg-muted/50 h-10" />
-                    <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
-                  </>
+                  <Input value={candidate.role} disabled className="bg-muted/50 h-10" />
                 ) : (
                   <Input value={formData.role} onChange={e => set("role")(e.target.value)} className="h-10" />
                 )}
@@ -288,10 +279,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             {/* Employment Type */}
             <Field label="Employment Type">
               {isFromATS ? (
-                <>
-                  <Input value={employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50 h-10" />
-                  <p className="text-[11px] text-muted-foreground">Locked from ATS</p>
-                </>
+                <Input value={employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50 h-10" />
               ) : showEmploymentConfirm ? (
                 <div className="space-y-3">
                   <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
@@ -323,25 +311,19 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <Field label="Start Date">
                 {isFromATS && candidate.startDate ? (
-                  <>
-                    <Input value={candidate.startDate} disabled className="bg-muted/50 h-10" />
-                    <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
-                  </>
+                  <Input value={candidate.startDate} disabled className="bg-muted/50 h-10" />
                 ) : (
                   <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className="h-10" />
                 )}
               </Field>
-              <Field label="Salary" hint="Monthly gross (numbers only)">
+              <Field label="Salary">
                 {isFromATS ? (
-                  <>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
-                        {getCurrencyCode(formData.country, employmentType)}
-                      </span>
-                      <Input value={candidate.salary} disabled className="bg-muted/50 pl-12 h-10" />
-                    </div>
-                    <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
-                  </>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
+                      {getCurrencyCode(formData.country, employmentType)}
+                    </span>
+                    <Input value={candidate.salary} disabled className="bg-muted/50 pl-12 h-10" />
+                  </div>
                 ) : (
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
