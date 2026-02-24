@@ -224,58 +224,28 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
 
       {/* ── Section 1: Personal Details ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <SectionCard title="Personal Details" icon={User} subtitle="Identity and contact information">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Full Name" error={errors.fullName}>
-              <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} className="h-10" />
-            </Field>
-            <Field label="Email" error={errors.email}>
-              <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
-            </Field>
-          </div>
+        <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
+          <Field label="Full Name" error={errors.fullName}>
+            <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} placeholder="e.g., Marcus Chen" className="h-10" />
+          </Field>
+          <Field label="Email" error={errors.email}>
+            <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
+          </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Nationality" optional>
               <Select value={formData.nationality} onValueChange={set("nationality")}>
                 <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
-                  {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "American", "British", "German"].map(n => (
+                  {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "Singaporean", "American", "British", "German"].map(n => (
                     <SelectItem key={n} value={n}>{n}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Country">
-              <Select value={formData.country} onValueChange={set("country")}>
-                <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["Norway", "Sweden", "Denmark", "Philippines", "India", "Kosovo"].map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <Field label="Role" error={errors.role}>
+              <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className="h-10" />
             </Field>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="ID Type" optional>
-              <Select value={formData.idType} onValueChange={set("idType")}>
-                <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="National ID">National ID</SelectItem>
-                  <SelectItem value="Passport">Passport</SelectItem>
-                  <SelectItem value="Driver's License">Driver's License</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="ID Number" optional>
-              <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
-            </Field>
-          </div>
-          <Field label="City" optional>
-            <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Monterrey" className="h-10" />
-          </Field>
-          <Field label="Address" optional>
-            <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
-          </Field>
         </SectionCard>
       </motion.div>
 
