@@ -244,6 +244,15 @@ interface DocumentDef {
   shortLabel: string;
 }
 
+// Compact review row for the left panel
+const ReviewRow: React.FC<{ icon: React.ElementType; label: string; value: string }> = ({ icon: Icon, label, value }) => (
+  <div className="flex items-center gap-2 text-xs">
+    <Icon className="h-3 w-3 text-muted-foreground/50 flex-shrink-0" />
+    <span className="text-muted-foreground w-16 flex-shrink-0">{label}</span>
+    <span className="font-medium text-foreground truncate">{value}</span>
+  </div>
+);
+
 export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   candidate,
   index,
