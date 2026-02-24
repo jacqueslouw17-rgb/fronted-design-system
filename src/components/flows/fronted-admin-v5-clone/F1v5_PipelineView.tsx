@@ -995,6 +995,11 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     </TooltipProvider>
                   </div>
                   <div className="flex items-center gap-2">
+                    {status === "offer-accepted" && items.length > 0 && onAddCandidate && (
+                      <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10" onClick={onAddCandidate}>
+                        <Plus className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                     {status !== "payroll-ready" && getSelectedCount(status) > 0 ? <span className="text-xs text-muted-foreground">
                         {getSelectedCount(status)} selected
                       </span> : null}
@@ -1193,7 +1198,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         {/* Quick Actions */}
                         <div className="flex gap-2 pt-1">
                           {status === "offer-accepted" && <>
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" onClick={e => {
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
                           e.stopPropagation();
                           handleOpenConfigure(contractor);
                         }}>
@@ -1247,7 +1252,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             </Button>}
                           
                           {status === "trigger-onboarding" && <>
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" onClick={e => {
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
                             e.stopPropagation();
                             setSelectedForPayrollCollection(contractor);
                             setPayrollCollectionDrawerOpen(true);
@@ -1417,11 +1422,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 </>;
                 })()}
                 
-                {/* Add Candidate Button - Always visible in offer-accepted column */}
-                {status === "offer-accepted" && items.length > 0 && onAddCandidate && <Button variant="outline" size="sm" onClick={onAddCandidate} className="w-full gap-2 border-dashed hover:bg-primary/5 hover:border-primary/50 hover:text-primary">
-                    <Plus className="h-4 w-4" />
-                    Add Candidate
-                  </Button>}
+                {/* Bottom add button removed — now in column header */}
                 </div>
               </motion.div>;
       })}
