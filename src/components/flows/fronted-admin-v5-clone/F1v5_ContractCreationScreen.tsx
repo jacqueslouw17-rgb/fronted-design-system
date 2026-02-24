@@ -348,49 +348,47 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
           <Field label="Work Location">
             <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Manila, Oslo" className="h-10" />
           </Field>
+
+          {/* Terms fields (part of Working Engagement) */}
+          {countryRule && (
+            <div className="border-t border-border/40 pt-3 mt-1">
+              <p className="text-[11px] text-muted-foreground mb-3">Country defaults for {formData.country} — adjust as negotiated</p>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
+                    <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} />
+                  </Field>
+                  <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`}>
+                    <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`}>
+                    <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} />
+                  </Field>
+                  <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`}>
+                    <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
+                    <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} />
+                  </Field>
+                  <Field label="Pay Frequency" hint={countryRule.payFrequency.locked ? `Fixed for ${formData.country}` : undefined}>
+                    <Select value={formData.payFrequency} onValueChange={v => set("payFrequency")(v)} disabled={countryRule.payFrequency.locked}>
+                      <SelectTrigger className={cn("h-10", countryRule.payFrequency.locked && "opacity-60")}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="fortnightly">Fortnightly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+              </div>
+            </div>
+          )}
         </SectionCard>
       </motion.div>
-
-      {/* ── Section 3: Terms & Entitlements ── */}
-      {(countryRule || formData.country) && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-          <SectionCard
-            title="Terms & Entitlements"
-            subtitle={`Country defaults for ${formData.country} — adjust as negotiated`}
-          >
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
-                <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} />
-              </Field>
-              <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`}>
-                <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} />
-              </Field>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`}>
-                <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} />
-              </Field>
-              <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`}>
-                <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} />
-              </Field>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
-                <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} />
-              </Field>
-              <Field label="Pay Frequency" hint={countryRule.payFrequency.locked ? `Fixed for ${formData.country}` : undefined}>
-                <Select value={formData.payFrequency} onValueChange={v => set("payFrequency")(v)} disabled={countryRule.payFrequency.locked}>
-                  <SelectTrigger className={cn("h-10", countryRule.payFrequency.locked && "opacity-60")}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="fortnightly">Fortnightly</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
-            </div>
-          </SectionCard>
-        </motion.div>
-      )}
 
       {/* ── Actions ── */}
       <motion.div
