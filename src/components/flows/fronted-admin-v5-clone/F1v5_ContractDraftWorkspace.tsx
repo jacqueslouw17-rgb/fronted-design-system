@@ -840,9 +840,21 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 size="lg"
                 disabled={isEditMode}
               >
-                Previous
+                Back
               </Button>
-
+              {currentDocIndex > 0 && (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    const prevDoc = documents[currentDocIndex - 1];
+                    if (prevDoc) handleDocumentSwitch(prevDoc.id);
+                  }}
+                  size="lg"
+                  disabled={isEditMode}
+                >
+                  Previous Document
+                </Button>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
