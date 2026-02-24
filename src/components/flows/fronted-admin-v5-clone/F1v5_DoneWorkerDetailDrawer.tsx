@@ -18,12 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import {
   User,
@@ -167,6 +162,35 @@ const lifecycleStatusConfig: Record<WorkerLifecycleStatus, { label: string; badg
     badgeClass: "bg-destructive/10 text-destructive border-destructive/20",
     icon: UserX,
   },
+};
+/* ── Section Card (matches configure drawer pattern) ── */
+const SectionCard: React.FC<{
+  title: string;
+  badge?: React.ReactNode;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}> = ({ title, badge, defaultOpen = true, children }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <button className="flex items-center gap-3 px-5 py-3 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
+            </div>
+            {badge}
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="p-4 pt-3 space-y-3">
+            {children}
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  );
 };
 
 export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerProps> = ({
@@ -636,176 +660,145 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               </div>
             )}
 
-            {/* Accordion Sections */}
-            <Accordion type="multiple" className="space-y-2">
+            {/* Sections */}
+            <div className="space-y-3">
               
               {/* 1) Personal Profile */}
-              <AccordionItem value="personal-profile" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
-                <AccordionTrigger className="hover:no-underline py-3">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Personal Profile</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-4">
-                  <div className="space-y-0.5">
-                    <DetailRow label="Full name" value={worker.name} />
-                    <DetailRow label="Email" value={mockData.email} icon={Mail} />
-                    <DetailRow label="Phone" value={mockData.phone} icon={Phone} />
-                    <DetailRow label="Date of birth" value={mockData.dateOfBirth} icon={Calendar} />
-                    <DetailRow label="Nationality" value={mockData.nationality} icon={Globe} />
-                    <DetailRow label="Residential address" value={mockData.address} icon={MapPin} />
-                    <DetailRow label="TIN" value={mockData.tin} />
-                    {isPhilippines && mockData.philHealthNumber && (
-                      <DetailRow label="PhilHealth number" value={mockData.philHealthNumber} />
-                    )}
-                    <DetailRow label="National ID / Government ID" value={mockData.nationalId} />
-                    {worker.optionalUploads?.map((upload, idx) => (
-                      <div key={idx} className="flex items-center justify-between gap-4 py-1.5">
-                        <span className="text-sm text-muted-foreground">{upload.name}</span>
-                        <StatusBadge status={upload.status} />
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+              <SectionCard title="Personal Profile" defaultOpen={false}>
+                <div className="space-y-0.5">
+                  <DetailRow label="Full name" value={worker.name} />
+                  <DetailRow label="Email" value={mockData.email} />
+                  <DetailRow label="Phone" value={mockData.phone} />
+                  <DetailRow label="Date of birth" value={mockData.dateOfBirth} />
+                  <DetailRow label="Nationality" value={mockData.nationality} />
+                  <DetailRow label="Residential address" value={mockData.address} />
+                  <DetailRow label="National ID" value={mockData.nationalId} />
+                </div>
+              </SectionCard>
 
               {/* 2) Working Engagement */}
-              <AccordionItem value="working-engagement" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
-                <AccordionTrigger className="hover:no-underline py-3">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Working Engagement</span>
+              <SectionCard 
+                title="Working Engagement" 
+                defaultOpen={false}
+                badge={
+                  <Badge variant="outline" className="text-xs font-medium gap-1">
+                    {worker.countryFlag} {worker.country}
+                  </Badge>
+                }
+              >
+                <div className="space-y-0.5">
+                  <DetailRow 
+                    label="Worker type" 
+                    value={isEmployee ? "Employee (EOR)" : "Contractor (COR)"} 
+                  />
+                  <DetailRow label="Role / title" value={worker.role} />
+                  <DetailRow label="Country" value={`${worker.countryFlag} ${worker.country}`} />
+                  <DetailRow label="Start date" value={mockData.startDate} />
+                  {!isActive && worker.endDate && (
+                    <DetailRow 
+                      label={workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Termination date" : "End date"} 
+                      value={worker.endDate} 
+                    />
+                  )}
+                  <div className="flex items-center justify-between gap-4 py-1.5">
+                    <span className="text-sm text-muted-foreground">Contract status</span>
+                    <Badge 
+                      variant="outline" 
+                      className={cn(
+                        "text-[10px] px-1.5 py-0 h-4 capitalize",
+                        !isActive && "bg-muted text-muted-foreground border-border",
+                        isActive && mockData.contractStatus === "completed" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                        isActive && mockData.contractStatus === "signed" && "bg-blue-500/10 text-blue-600 border-blue-500/20",
+                        isActive && mockData.contractStatus === "drafted" && "bg-muted text-muted-foreground border-border"
+                      )}
+                    >
+                      {!isActive ? workerStatus.replace("-", " ") : mockData.contractStatus}
+                    </Badge>
                   </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-4">
+                  <DetailRow label="Work location" value={mockData.workLocation} />
+                  <DetailRow 
+                    label={isEmployee ? "Salary" : "Consultancy fee"} 
+                    value={worker.salary} 
+                  />
+                </div>
+
+                {/* Terms sub-section */}
+                <div className="border-t border-border/40 pt-3 mt-2">
+                  <p className="text-[11px] text-muted-foreground mb-2">Contract terms</p>
                   <div className="space-y-0.5">
-                    <DetailRow 
-                      label="Worker type" 
-                      value={isEmployee ? "Employee (EOR)" : "Contractor (COR)"} 
-                    />
-                    <DetailRow label="Role / title" value={worker.role} />
-                    <DetailRow label="Start date" value={mockData.startDate} icon={Calendar} />
-                    {!isActive && worker.endDate && (
-                      <DetailRow 
-                        label={workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Termination date" : "End date"} 
-                        value={worker.endDate} 
-                        icon={CalendarOff} 
-                      />
-                    )}
-                    <div className="flex items-center justify-between gap-4 py-1.5">
-                      <span className="text-sm text-muted-foreground">Contract status</span>
-                      <Badge 
-                        variant="outline" 
-                        className={cn(
-                          "text-[10px] px-1.5 py-0 h-4 capitalize",
-                          !isActive && "bg-muted text-muted-foreground border-border",
-                          isActive && mockData.contractStatus === "completed" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
-                          isActive && mockData.contractStatus === "signed" && "bg-blue-500/10 text-blue-600 border-blue-500/20",
-                          isActive && mockData.contractStatus === "drafted" && "bg-muted text-muted-foreground border-border"
-                        )}
-                      >
-                        {!isActive ? workerStatus.replace("-", " ") : mockData.contractStatus}
-                      </Badge>
-                    </div>
-                    <DetailRow label="Work location" value={mockData.workLocation} icon={MapPin} />
-                    <DetailRow 
-                      label={isEmployee ? "Salary" : "Consultancy fee"} 
-                      value={worker.salary} 
-                    />
+                    <DetailRow label="Probation period" value="180 days" />
+                    <DetailRow label="Notice period" value="30 days" />
+                    <DetailRow label="Annual leave" value={isPhilippines ? "5 days" : "25 days"} />
+                    <DetailRow label="Sick leave" value={isPhilippines ? "5 days" : "365 days"} />
+                    <DetailRow label="Weekly hours" value={isPhilippines ? "48 hrs" : "37.5 hrs"} />
                   </div>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </SectionCard>
 
               {/* 3) Payroll Parameters */}
-              <AccordionItem value="payroll-parameters" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
-                <AccordionTrigger className="hover:no-underline py-3">
-                  <div className="flex items-center gap-2">
-                    <Wallet className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Payroll Parameters</span>
+              <SectionCard title="Payroll Parameters" defaultOpen={false}>
+                <div className="space-y-0.5">
+                  <div className="flex items-center justify-between gap-4 py-1.5">
+                    <span className="text-sm text-muted-foreground">Pay frequency</span>
+                    <Badge 
+                      variant="outline" 
+                      className="text-[10px] px-1.5 py-0 h-4 bg-primary/5 text-primary border-primary/20 capitalize"
+                    >
+                      {payFrequency}
+                    </Badge>
                   </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-4">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center justify-between gap-4 py-1.5">
-                      <span className="text-sm text-muted-foreground">Pay frequency</span>
-                      <Badge 
-                        variant="outline" 
-                        className="text-[10px] px-1.5 py-0 h-4 bg-primary/5 text-primary border-primary/20 capitalize"
-                      >
-                        {payFrequency}
-                      </Badge>
+                  <DetailRow label="Payment schedule" value={paymentSchedule} />
+                  <DetailRow label="TIN" value={mockData.tin} />
+                  {isPhilippines && mockData.philHealthNumber && (
+                    <DetailRow label="PhilHealth number" value={mockData.philHealthNumber} />
+                  )}
+                  {worker.firstPayrollNote && (
+                    <div className="mt-2 p-2.5 rounded-lg bg-muted/50">
+                      <p className="text-[11px] text-muted-foreground">{worker.firstPayrollNote}</p>
                     </div>
-                    <DetailRow label="Payment schedule" value={paymentSchedule} />
-                    {worker.firstPayrollNote && (
-                      <div className="mt-2 p-2.5 rounded-lg bg-muted/50">
-                        <p className="text-[11px] text-muted-foreground">{worker.firstPayrollNote}</p>
-                      </div>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+                  )}
+                </div>
+              </SectionCard>
 
               {/* 4) Payout Destination */}
-              <AccordionItem value="payout-destination" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
-                <AccordionTrigger className="hover:no-underline py-3">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Payout Destination</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-4">
-                  <div className="space-y-0.5">
-                    <DetailRow label="Bank country" value={mockData.bankCountry} icon={Globe} />
-                    <DetailRow label="Bank name" value={mockData.bankName} icon={Building2} />
-                    <DetailRow label="Account holder" value={mockData.accountHolder} />
-                    <DetailRow label="Account number" value={formatMaskedAccount(mockData.accountNumber)} icon={CreditCard} />
-                    {mockData.swiftBic && (
-                      <DetailRow label="SWIFT / BIC" value={mockData.swiftBic} />
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+              <SectionCard title="Payout Destination" defaultOpen={false}>
+                <div className="space-y-0.5">
+                  <DetailRow label="Bank country" value={mockData.bankCountry} />
+                  <DetailRow label="Bank name" value={mockData.bankName} />
+                  <DetailRow label="Account holder" value={mockData.accountHolder} />
+                  <DetailRow label="Account number" value={formatMaskedAccount(mockData.accountNumber)} />
+                  {mockData.swiftBic && (
+                    <DetailRow label="SWIFT / BIC" value={mockData.swiftBic} />
+                  )}
+                </div>
+              </SectionCard>
 
               {/* 5) Documents */}
-              <AccordionItem value="documents" className="border border-border/40 rounded-xl px-4 data-[state=open]:bg-card/50">
-                <AccordionTrigger className="hover:no-underline py-3">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Documents</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-4">
-                  <div className="space-y-2">
-                    {/* Identity Document */}
-                    <DocumentRow 
-                      name="Identity document"
-                      status={mockData.idDocumentStatus}
-                      fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
+              <SectionCard title="Documents" defaultOpen={false}>
+                <div className="space-y-2">
+                  <DocumentRow 
+                    name="Identity document"
+                    status={mockData.idDocumentStatus}
+                    fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
+                  />
+                  <DocumentRow 
+                    name={isEmployee ? "Employment agreement" : "Contractor agreement"}
+                    status="verified"
+                    fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement_Signed.pdf`}
+                    actionType="view"
+                    onView={() => setShowAgreement(true)}
+                  />
+                  {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
+                    <DocumentRow
+                      key={idx}
+                      name={upload.name}
+                      status={upload.status}
+                      fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
                     />
-                    {/* Signed Agreement */}
-                    <DocumentRow 
-                      name={isEmployee ? "Employment agreement" : "Contractor agreement"}
-                      status="verified"
-                      fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement_Signed.pdf`}
-                      actionType="view"
-                      onView={() => setShowAgreement(true)}
-                    />
-                    {/* Additional uploaded docs */}
-                    {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
-                      <DocumentRow
-                        key={idx}
-                        name={upload.name}
-                        status={upload.status}
-                        fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
-                      />
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Audit trail hidden for now */}
-            </Accordion>
+                  ))}
+                </div>
+              </SectionCard>
+            </div>
           </div>
         </div>
       </SheetContent>
