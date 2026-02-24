@@ -782,7 +782,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               <div className="w-32 sm:w-auto bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">Adj. Requests</span>
+                  <span className="text-xs sm:text-sm">{isPayrollSubmitted ? "Adj. Approved" : "Adj. Requests"}</span>
                 </div>
                 <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.adjustments}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Bonuses, overtime & expenses</p>
