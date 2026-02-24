@@ -273,37 +273,37 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Employment Type">
-              {isFromATS ? (
-                <Input value={employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50 h-10" />
-              ) : showEmploymentConfirm ? (
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                    <Bot className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-muted-foreground">
-                      Based on {candidate.country} hiring model, I suggest: <span className="font-semibold text-foreground">{employmentType === "contractor" ? "Contractor" : "Employee"}</span>
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button type="button" variant={employmentType === "contractor" ? "default" : "outline"} size="sm" onClick={() => { setEmploymentType("contractor"); setShowEmploymentConfirm(false); }} className="flex-1">
-                      ✅ Contractor
-                    </Button>
-                    <Button type="button" variant={employmentType === "employee" ? "default" : "outline"} size="sm" onClick={() => { setEmploymentType("employee"); setShowEmploymentConfirm(false); }} className="flex-1">
-                      💼 Employee
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <Select value={employmentType} onValueChange={(v: "contractor" | "employee") => setEmploymentType(v)}>
-                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="contractor">Contractor</SelectItem>
-                    <SelectItem value="employee">Employee</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            </Field>
             <div className="grid grid-cols-2 gap-3">
+              <Field label="Employment Type">
+                {isFromATS ? (
+                  <Input value={employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50 h-10" />
+                ) : showEmploymentConfirm ? (
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                      <Bot className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-muted-foreground">
+                        Based on {candidate.country} hiring model, I suggest: <span className="font-semibold text-foreground">{employmentType === "contractor" ? "Contractor" : "Employee"}</span>
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="button" variant={employmentType === "contractor" ? "default" : "outline"} size="sm" onClick={() => { setEmploymentType("contractor"); setShowEmploymentConfirm(false); }} className="flex-1">
+                        ✅ Contractor
+                      </Button>
+                      <Button type="button" variant={employmentType === "employee" ? "default" : "outline"} size="sm" onClick={() => { setEmploymentType("employee"); setShowEmploymentConfirm(false); }} className="flex-1">
+                        💼 Employee
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Select value={employmentType} onValueChange={(v: "contractor" | "employee") => setEmploymentType(v)}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="contractor">Contractor</SelectItem>
+                      <SelectItem value="employee">Employee</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              </Field>
               <Field label="Start Date">
                 {isFromATS && candidate.startDate ? (
                   <Input value={candidate.startDate} disabled className="bg-muted/50 h-10" />
@@ -311,29 +311,29 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className="h-10" />
                 )}
               </Field>
-              <Field label={employmentType === "employee" ? "Salary" : "Consultancy Fee"}>
-                {isFromATS ? (
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
-                      {getCurrencyCode(formData.country, employmentType)}
-                    </span>
-                    <Input value={candidate.salary} disabled className="bg-muted/50 pl-12 h-10" />
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
-                      {getCurrencyCode(formData.country, employmentType)}
-                    </span>
-                    <Input
-                      value={parseSalaryValue(formData.salary)}
-                      onChange={e => set("salary")(e.target.value.replace(/[^0-9]/g, ''))}
-                      placeholder="5,000"
-                      className="pl-12 h-10"
-                    />
-                  </div>
-                )}
-              </Field>
             </div>
+            <Field label={employmentType === "employee" ? "Salary" : "Consultancy Fee"}>
+              {isFromATS ? (
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
+                    {getCurrencyCode(formData.country, employmentType)}
+                  </span>
+                  <Input value={candidate.salary} disabled className="bg-muted/50 pl-12 h-10" />
+                </div>
+              ) : (
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
+                    {getCurrencyCode(formData.country, employmentType)}
+                  </span>
+                  <Input
+                    value={parseSalaryValue(formData.salary)}
+                    onChange={e => set("salary")(e.target.value.replace(/[^0-9]/g, ''))}
+                    placeholder="5,000"
+                    className="pl-12 h-10"
+                  />
+                </div>
+              )}
+            </Field>
             <Field label="Work Location" optional>
               <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Manila, Oslo" className="h-10" />
             </Field>
