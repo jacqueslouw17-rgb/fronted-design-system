@@ -272,7 +272,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
 
       {/* ── Section 1: Personal Details ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
+        <SectionCard title="Personal Details" subtitle="Basic information about the candidate" forceOpen={forceOpenSections.personal}>
           <Field label="Full Name" error={errors.fullName} ref={setFieldRef("fullName")}>
             <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} placeholder="e.g., Marcus Chen" className={cn("h-10", errors.fullName && "border-destructive focus-visible:ring-destructive")} />
           </Field>
