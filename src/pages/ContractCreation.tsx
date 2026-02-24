@@ -275,32 +275,19 @@ const ContractCreation: React.FC = () => {
                 </Button>
               </div>
 
-                <ContractCreationScreen
-                  candidate={current}
-                  currentIndex={index}
-                  totalCandidates={selected.length}
-                  onPrevious={() => {
-                    if (index > 0) {
-                      setIndex((i) => i - 1);
-                    }
-                  }}
-                  onNext={() => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    if (index < selected.length - 1) {
-                      setIndex((i) => i + 1);
-                    } else {
-                      // Navigate back to the appropriate flow
-                      if (returnTo === 'flow-1.1') {
-                        // Return to Flow 1.1 with company context and candidate IDs preserved
-                        const candidateIds = selected.map(c => c.id).join(',');
-                        const params = new URLSearchParams({ 
-                          phase: 'drafting',
-                          ids: candidateIds,
-                          ...(companyParam && { company: companyParam })
-                        }).toString();
-                        navigate(`/flows/contract-flow-multi-company?${params}`);
-                      } else if (returnTo === 'f1v5') {
-                        // Return to Flow 1 v5 clone with company context and candidate IDs preserved
+                {returnTo === "f1v5" ? (
+                  <F1v5_ContractCreationScreen
+                    candidate={current}
+                    currentIndex={index}
+                    totalCandidates={selected.length}
+                    onPrevious={() => {
+                      if (index > 0) setIndex((i) => i - 1);
+                    }}
+                    onNext={() => {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      if (index < selected.length - 1) {
+                        setIndex((i) => i + 1);
+                      } else {
                         const candidateIds = selected.map(c => c.id).join(',');
                         const params = new URLSearchParams({
                           phase: 'drafting',
@@ -308,22 +295,47 @@ const ContractCreation: React.FC = () => {
                           ...(companyParam && { company: companyParam }),
                         }).toString();
                         navigate(`/flows/fronted-admin-dashboard-v5-clone?${params}`);
-                      } else if (returnTo === 'f1v4') {
-                        // Return to Flow 1 v4 clone with company context and candidate IDs preserved
-                        const candidateIds = selected.map(c => c.id).join(',');
-                        const params = new URLSearchParams({
-                          phase: 'drafting',
-                          ids: candidateIds,
-                          ...(companyParam && { company: companyParam }),
-                        }).toString();
-                        navigate(`/flows/fronted-admin-dashboard-v4-clone?${params}`);
-                      } else {
-                        // Default: go to contract-flow drafting phase
-                        navigate("/flows/contract-flow?phase=drafting");
                       }
-                    }
-                  }}
-                />
+                    }}
+                  />
+                ) : (
+                  <ContractCreationScreen
+                    candidate={current}
+                    currentIndex={index}
+                    totalCandidates={selected.length}
+                    onPrevious={() => {
+                      if (index > 0) {
+                        setIndex((i) => i - 1);
+                      }
+                    }}
+                    onNext={() => {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      if (index < selected.length - 1) {
+                        setIndex((i) => i + 1);
+                      } else {
+                        if (returnTo === 'flow-1.1') {
+                          const candidateIds = selected.map(c => c.id).join(',');
+                          const params = new URLSearchParams({ 
+                            phase: 'drafting',
+                            ids: candidateIds,
+                            ...(companyParam && { company: companyParam })
+                          }).toString();
+                          navigate(`/flows/contract-flow-multi-company?${params}`);
+                        } else if (returnTo === 'f1v4') {
+                          const candidateIds = selected.map(c => c.id).join(',');
+                          const params = new URLSearchParams({
+                            phase: 'drafting',
+                            ids: candidateIds,
+                            ...(companyParam && { company: companyParam }),
+                          }).toString();
+                          navigate(`/flows/fronted-admin-dashboard-v4-clone?${params}`);
+                        } else {
+                          navigate("/flows/contract-flow?phase=drafting");
+                        }
+                      }
+                    }}
+                  />
+                )}
             </div>
           </div>
         </AgentLayout>
