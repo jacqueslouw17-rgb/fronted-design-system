@@ -557,15 +557,15 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                           </div>
                         </Field>
 
-                        {/* Identity & Address */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <Field label={countryRule.idLabel} optionalTooltip="Can be completed by the worker during onboarding">
-                            <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
-                          </Field>
-                          <Field label="Address" optionalTooltip="Can be completed by the worker during onboarding">
-                            <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
-                          </Field>
-                        </div>
+                        {/* Identity */}
+                        <Field label={countryRule.idLabel} optionalTooltip="Can be completed by the worker during onboarding">
+                          <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+                        </Field>
+
+                        {/* Address */}
+                        <Field label="Address" optionalTooltip="Can be completed by the worker during onboarding">
+                          <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
+                        </Field>
                       </motion.div>
                     )}
                   </AnimatePresence>
