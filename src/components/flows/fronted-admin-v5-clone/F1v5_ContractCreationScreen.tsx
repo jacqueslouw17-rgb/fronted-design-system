@@ -208,23 +208,6 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         }
       />
 
-      {/* ── Candidate Header Chip ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border/30 bg-card/40 backdrop-blur-sm"
-      >
-        <span className="text-3xl">{candidate.flag}</span>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm text-foreground">{candidate.name}</h3>
-          <p className="text-xs text-muted-foreground">{candidate.role} · {candidate.country}</p>
-        </div>
-        <Badge variant="outline" className="text-xs gap-1">
-          {employmentType === "employee" ? "Employee" : "Contractor"}
-        </Badge>
-      </motion.div>
-
       {/* ── Section 1: Personal Details ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
