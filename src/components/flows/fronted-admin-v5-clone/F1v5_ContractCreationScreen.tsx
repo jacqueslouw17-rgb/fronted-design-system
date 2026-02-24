@@ -329,7 +329,6 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
             title="Terms & Entitlements"
             subtitle={`Country defaults for ${formData.country} — adjust as negotiated`}
           >
-          >
             <div className="grid grid-cols-2 gap-3">
               <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
                 <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} />
