@@ -414,7 +414,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
           {/* ── Candidate Source ── */}
           <div className="space-y-1.5">
             <Select value={selectedAtsId} onValueChange={handleATSSelect}>
-              <SelectTrigger className="h-10">
+              <SelectTrigger className="h-10 rounded-xl px-5">
                 <SelectValue placeholder="Choose from ATS or add manually" />
               </SelectTrigger>
               <SelectContent>
