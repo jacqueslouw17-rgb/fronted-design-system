@@ -448,25 +448,23 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 transition={{ duration: 0.25, ease: "easeOut" }}
                 className="space-y-3"
               >
-                {/* ── Section 1: Personal Details ── */}
-                <SectionCard
-                  title="Personal Details"
-                  subtitle="Basic information about the candidate"
-                >
+                {/* ── Section 1: Personal Profile ── */}
+                <SectionCard title="Personal Profile">
                   <Field label="Full Name" required>
                     <Input value={formData.name} onChange={e => set("name")(e.target.value)} placeholder="e.g., Maria Santos" className="h-10" />
                   </Field>
                   <Field label="Email" required>
                     <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
                   </Field>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Nationality">
-                      <NationalityCombobox value={formData.nationality} onChange={set("nationality")} />
-                    </Field>
-                    <Field label="Role" required>
-                      <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className="h-10" />
-                    </Field>
-                  </div>
+                  <Field label="Nationality">
+                    <NationalityCombobox value={formData.nationality} onChange={set("nationality")} />
+                  </Field>
+                  <Field label="Address" optionalTooltip="Can be completed by the worker during onboarding">
+                    <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
+                  </Field>
+                  <Field label={countryRule?.idLabel || "ID Number"} optionalTooltip="Can be completed by the worker during onboarding">
+                    <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+                  </Field>
                 </SectionCard>
 
                 {/* ── Section 2: Contract Details ── */}
