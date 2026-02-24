@@ -259,7 +259,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         showInput={false}
         progressIndicator={
           totalCandidates > 1 ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center gap-3">
               <span className="text-sm text-muted-foreground">Candidate</span>
               <span className="text-lg font-bold text-foreground">{currentIndex + 1}</span>
               <span className="text-sm text-muted-foreground">/ {totalCandidates}</span>
