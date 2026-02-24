@@ -407,12 +407,6 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 ))}
               </SelectContent>
             </Select>
-            {isATSSelected && (
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary/5 border border-primary/10">
-                <Sparkles className="h-3 w-3 text-primary" />
-                <p className="text-xs text-primary font-medium">Details pre-filled from your ATS</p>
-              </div>
-            )}
           </div>
 
           <AnimatePresence mode="wait">
