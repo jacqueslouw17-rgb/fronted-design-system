@@ -96,7 +96,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     countryFlag: "🇸🇬",
     role: "Senior Backend Engineer",
     salary: "SGD 12,000/mo",
-    status: "awaiting-signature",
+    status: "drafting",
     employmentType: "contractor",
     email: "marcus.chen@example.com",
     dataReceived: true,
@@ -108,7 +108,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     countryFlag: "🇪🇸",
     role: "Product Designer",
     salary: "EUR 6,500/mo",
-    status: "awaiting-signature",
+    status: "drafting",
     employmentType: "contractor",
     email: "sofia.rodriguez@example.com",
     dataReceived: true,
@@ -214,9 +214,9 @@ const AdminContractingMultiCompany = () => {
     const saved = localStorage.getItem('adminflow-v5-company-contractors');
     const version = localStorage.getItem('adminflow-v5-data-version');
     // Bust cache when default data changes
-    if (saved && version === '6') return JSON.parse(saved);
+    if (saved && version === '7') return JSON.parse(saved);
     localStorage.removeItem('adminflow-v5-company-contractors');
-    localStorage.setItem('adminflow-v5-data-version', '6');
+    localStorage.setItem('adminflow-v5-data-version', '7');
     return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   
