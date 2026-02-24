@@ -128,6 +128,8 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
+  const activeCountryRule = COUNTRY_RULES[candidate.country];
+
   const [formData, setFormData] = useState({
     // Personal Profile
     name: candidate.name,
@@ -141,6 +143,13 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
     salary: candidate.salary,
     startDate: candidate.startDate || "",
     city: candidate.city || "",
+    // Terms (inside Working Engagement)
+    probationPeriod: activeCountryRule ? String(activeCountryRule.probation.default) : "",
+    noticePeriod: activeCountryRule ? String(activeCountryRule.noticePeriod.default) : "",
+    annualLeave: activeCountryRule ? String(activeCountryRule.annualLeave.default) : "",
+    sickLeave: activeCountryRule ? String(activeCountryRule.sickLeave.default) : "",
+    weeklyHours: activeCountryRule ? String(activeCountryRule.weeklyHours.default) : "",
+    payFrequency: activeCountryRule ? activeCountryRule.payFrequency.default : "monthly",
   });
 
   useEffect(() => {
