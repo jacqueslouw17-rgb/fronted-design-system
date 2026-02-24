@@ -193,7 +193,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="px-8 pb-8 pt-4 max-w-3xl mx-auto space-y-5"
+      className="px-8 pb-8 pt-4 max-w-3xl mx-auto space-y-3"
     >
       <AgentHeader
         title={`Review ${candidate.name.split(" ")[0]}'s Details`}
