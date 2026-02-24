@@ -417,19 +417,14 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
           {/* Action buttons */}
           <div className="flex gap-3 pt-4">
-            {!isFromATS && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleSaveDraft}
-                disabled={isSubmitting || isSavingDraft}
-                className="flex-1"
-              >
-                {isSavingDraft ? "Saving..." : "Save Changes"}
-              </Button>
-            )}
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className={isFromATS ? "flex-1" : ""}>
-              Cancel
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleSaveDraft}
+              disabled={isSubmitting || isSavingDraft}
+              className="flex-1"
+            >
+              {isSavingDraft ? "Saving..." : "Save Changes"}
             </Button>
             <Button type="button" onClick={handleSendForm} disabled={isSubmitting} className="flex-1">
               {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
