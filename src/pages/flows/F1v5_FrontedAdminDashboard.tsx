@@ -80,7 +80,17 @@ const MOCK_COMPANIES: CompanyData[] = [
 // Default candidates to pre-populate in the "drafting" (Prepare Contract) step
 const DEFAULT_DRAFTING_CANDIDATES = [
   {
-    id: "default-1",
+    id: "offer-1",
+    name: "Anika Lindqvist",
+    country: "Norway",
+    countryFlag: "🇳🇴",
+    role: "Frontend Engineer",
+    salary: "NOK 65,000/mo",
+    status: "offer-accepted",
+    employmentType: "employee",
+    email: "anika.lindqvist@example.com",
+  },
+  {
     name: "Marcus Chen",
     country: "Singapore",
     countryFlag: "🇸🇬",
@@ -192,9 +202,9 @@ const AdminContractingMultiCompany = () => {
     const saved = localStorage.getItem('adminflow-v5-company-contractors');
     const version = localStorage.getItem('adminflow-v5-data-version');
     // Bust cache when default data changes
-    if (saved && version === '4') return JSON.parse(saved);
+    if (saved && version === '5') return JSON.parse(saved);
     localStorage.removeItem('adminflow-v5-company-contractors');
-    localStorage.setItem('adminflow-v5-data-version', '4');
+    localStorage.setItem('adminflow-v5-data-version', '5');
     return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   
