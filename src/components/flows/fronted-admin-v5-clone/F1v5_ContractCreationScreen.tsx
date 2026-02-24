@@ -53,43 +53,34 @@ interface Props {
   totalCandidates?: number;
 }
 
-/* ── Reusable Section Card ── */
+/* ── Section Card — matches drawer style ── */
 const SectionCard: React.FC<{
   title: string;
-  icon: React.ElementType;
   subtitle?: string;
   badge?: React.ReactNode;
   defaultOpen?: boolean;
   children: React.ReactNode;
-}> = ({ title, icon: Icon, subtitle, badge, defaultOpen = true, children }) => {
+}> = ({ title, subtitle, badge, defaultOpen = true, children }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className="border border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
+      <div className="rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
         <CollapsibleTrigger asChild>
-          <button className="flex items-center gap-3 w-full px-5 py-3.5 text-left hover:bg-muted/30 transition-colors">
-            <div className="h-8 w-8 rounded-lg bg-primary/8 flex items-center justify-center flex-shrink-0">
-              <Icon className="h-4 w-4 text-primary" />
-            </div>
+          <button className="flex items-center gap-3 px-5 py-3 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-                {badge}
-              </div>
+              <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
               {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
             </div>
-            <ChevronDown className={cn(
-              "h-4 w-4 text-muted-foreground/60 transition-transform duration-200",
-              isOpen && "rotate-180"
-            )} />
+            {badge}
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="px-5 pb-5 pt-2 space-y-4 border-t border-border/20">
+          <div className="p-4 pt-3 space-y-3">
             {children}
           </div>
         </CollapsibleContent>
-      </Card>
+      </div>
     </Collapsible>
   );
 };
@@ -233,64 +224,52 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
 
       {/* ── Section 1: Personal Details ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <SectionCard title="Personal Details" icon={User} subtitle="Identity and contact information">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Full Name" error={errors.fullName}>
-              <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} className="h-10" />
-            </Field>
-            <Field label="Email" error={errors.email}>
-              <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
-            </Field>
-          </div>
+        <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
+          <Field label="Full Name" error={errors.fullName}>
+            <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} placeholder="e.g., Marcus Chen" className="h-10" />
+          </Field>
+          <Field label="Email" error={errors.email}>
+            <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
+          </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Nationality" optional>
               <Select value={formData.nationality} onValueChange={set("nationality")}>
                 <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
-                  {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "American", "British", "German"].map(n => (
+                  {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "Singaporean", "American", "British", "German"].map(n => (
                     <SelectItem key={n} value={n}>{n}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Country">
-              <Select value={formData.country} onValueChange={set("country")}>
-                <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["Norway", "Sweden", "Denmark", "Philippines", "India", "Kosovo"].map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <Field label="Role" error={errors.role}>
+              <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className="h-10" />
             </Field>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="ID Type" optional>
-              <Select value={formData.idType} onValueChange={set("idType")}>
-                <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="National ID">National ID</SelectItem>
-                  <SelectItem value="Passport">Passport</SelectItem>
-                  <SelectItem value="Driver's License">Driver's License</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="ID Number" optional>
-              <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
-            </Field>
-          </div>
-          <Field label="City" optional>
-            <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Monterrey" className="h-10" />
-          </Field>
-          <Field label="Address" optional>
-            <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
-          </Field>
         </SectionCard>
       </motion.div>
 
       {/* ── Section 2: Contract Details ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <SectionCard title="Contract Details" icon={Briefcase} subtitle="Employment terms and compensation">
+        <SectionCard
+          title="Contract Details"
+          subtitle="Employment terms and compensation"
+          badge={formData.country ? (
+            <Badge variant="outline" className="text-xs font-medium gap-1">
+              {candidate.flag} {formData.country}
+            </Badge>
+          ) : undefined}
+        >
+          <Field label="Country">
+            <Select value={formData.country} onValueChange={set("country")}>
+              <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(COUNTRY_RULES).map(([c, r]) => (
+                  <SelectItem key={c} value={c}><span className="mr-2">{r.flag}</span>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Employment Type">
               <Select value={employmentType} onValueChange={(v: "employee" | "contractor") => setEmploymentType(v)}>
@@ -301,35 +280,26 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Role" error={errors.role}>
-              <Input value={formData.role} onChange={e => set("role")(e.target.value)} className="h-10" />
-            </Field>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Salary" error={errors.salary} hint="Monthly gross amount">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
-                  {getCurrencyCode(formData.country, employmentType)}
-                </span>
-                <Input
-                  value={parseSalaryValue(formData.salary)}
-                  onChange={e => set("salary")(e.target.value)}
-                  placeholder="5,000"
-                  className="pl-12 h-10"
-                />
-              </div>
-            </Field>
             <Field label="Start Date" error={errors.startDate}>
-              <Input
-                type="date"
-                value={formData.startDate}
-                onChange={e => set("startDate")(e.target.value)}
-                className={cn("h-10", formData.startDate ? "text-foreground" : "text-muted-foreground")}
-              />
+              <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className={cn("h-10", formData.startDate ? "text-foreground" : "text-muted-foreground")} />
             </Field>
           </div>
-          <Field label="Tax Residence" optional>
-            <Input value={formData.taxResidence} onChange={e => set("taxResidence")(e.target.value)} placeholder="e.g., Norway" className="h-10" />
+          <Field label="Salary" error={errors.salary} hint="Monthly gross amount (numbers only)">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
+                {getCurrencyCode(formData.country, employmentType)}
+              </span>
+              <Input value={parseSalaryValue(formData.salary)} onChange={e => set("salary")(e.target.value)} placeholder="5,000" className="pl-12 h-10" />
+            </div>
+          </Field>
+          <Field label="ID Number" optional>
+            <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+          </Field>
+          <Field label="City" optional>
+            <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Monterrey" className="h-10" />
+          </Field>
+          <Field label="Address" optional>
+            <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
           </Field>
         </SectionCard>
       </motion.div>
@@ -339,8 +309,12 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <SectionCard
             title="Terms & Entitlements"
-            icon={Clock}
             subtitle={`Country defaults for ${formData.country} — adjust as negotiated`}
+            badge={
+              <Badge variant="secondary" className="text-[10px] font-normal gap-1 bg-amber-500/10 text-amber-700 border-amber-500/20">
+                <Clock className="h-2.5 w-2.5" /> Pre-filled
+              </Badge>
+            }
           >
             <div className="grid grid-cols-2 gap-3">
               <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
