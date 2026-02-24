@@ -719,6 +719,30 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
     }, 1000);
   };
+  // Direct start onboarding without confirmation modal (matches offer-accepted Send Form behavior)
+  const handleConfirmStartOnboarding_direct = (contractor: Contractor) => {
+    const countryCode = contractor.country === "Philippines" ? "PH" : contractor.country === "Norway" ? "NO" : "XK";
+    const employmentType = contractor.employmentType || "contractor";
+    const checklistProfile = getChecklistForProfile(countryCode, employmentType === "contractor" ? "Contractor" : "Employee");
+    if (!checklistProfile) {
+      toast.error("Could not load checklist for this profile");
+      return;
+    }
+    const completed = checklistProfile.requirements.filter(r => r.status === 'verified').length;
+    const total = checklistProfile.requirements.filter(r => r.required).length;
+    const progress = Math.round(completed / total * 100);
+    const updated = contractors.map(c => c.id === contractor.id ? {
+      ...c,
+      status: "onboarding-pending" as const,
+      checklist: checklistProfile.requirements,
+      checklistProgress: progress
+    } : c);
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+    toast.success("All done ✅ Onboarding started", {
+      description: `Magic-link email sent to ${contractor.name.split(' ')[0]}`
+    });
+  };
   const getChecklistStatusBadge = (status: ChecklistRequirement['status']) => {
     switch (status) {
       case 'verified':
@@ -1269,7 +1293,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 next.delete(contractor.id);
                                 return next;
                               });
-                              handleStartOnboardingClick(contractor);
+                              // Directly start onboarding (no confirmation modal) — matches offer-accepted Send Form behavior
+                              handleConfirmStartOnboarding_direct(contractor);
                             }, 800);
                           }}>
                                 <Send className="h-3 w-3" />
@@ -1277,11 +1302,24 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Button>
                             </>}
                           
-                          {status === "onboarding-pending" && <div className="flex items-center justify-center w-full py-1">
-                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-blue-fill/20 text-accent-blue-text border-accent-blue-outline/30 hover:bg-accent-blue-fill/30">
-                                <Clock className="h-3 w-3" />
-                                In progress
-                              </Badge>
+                          {status === "onboarding-pending" && <div className="w-full space-y-2">
+                              <p className="text-xs text-muted-foreground text-center">Awaiting payroll details</p>
+                              <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
+                          e.stopPropagation();
+                          setSendingFormIds(prev => new Set([...prev, contractor.id]));
+                          setTimeout(() => {
+                            setSendingFormIds(prev => {
+                              const next = new Set(prev);
+                              next.delete(contractor.id);
+                              return next;
+                            });
+                            setResentFormIds(prev => new Set([...prev, contractor.id]));
+                            toast.info(`Form resent to ${contractor.name}`);
+                          }, 1500);
+                        }}>
+                                <RotateCcw className={cn("h-3.5 w-3.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
+                                Resend
+                              </Button>
                             </div>}
                           
                           {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && <div className="flex items-center justify-center w-full py-1">
