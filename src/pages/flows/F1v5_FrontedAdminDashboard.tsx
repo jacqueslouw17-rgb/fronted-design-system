@@ -114,6 +114,18 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     dataReceived: true,
   },
   {
+    id: "sig-1",
+    name: "Liam O'Connor",
+    country: "Ireland",
+    countryFlag: "🇮🇪",
+    role: "DevOps Engineer",
+    salary: "EUR 7,200/mo",
+    status: "awaiting-signature",
+    employmentType: "contractor",
+    email: "liam.oconnor@example.com",
+    dataReceived: true,
+  },
+  {
     id: "onboard-1",
     name: "Priya Sharma",
     country: "India",
