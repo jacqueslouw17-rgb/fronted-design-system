@@ -298,16 +298,16 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Start Date" error={errors.startDate}>
-              <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className={cn("h-10", formData.startDate ? "text-foreground" : "text-muted-foreground")} />
+            <Field label="Start Date" error={errors.startDate} ref={setFieldRef("startDate")}>
+              <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className={cn("h-10", formData.startDate ? "text-foreground" : "text-muted-foreground", errors.startDate && "border-destructive focus-visible:ring-destructive")} />
             </Field>
           </div>
-          <Field label="Salary" error={errors.salary} hint="Monthly gross amount (numbers only)">
+          <Field label="Salary" error={errors.salary} ref={setFieldRef("salary")}>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
                 {getCurrencyCode(formData.country, employmentType)}
               </span>
-              <Input value={parseSalaryValue(formData.salary)} onChange={e => set("salary")(e.target.value)} placeholder="5,000" className="pl-12 h-10" />
+              <Input value={parseSalaryValue(formData.salary)} onChange={e => set("salary")(e.target.value)} placeholder="5,000" className={cn("pl-12 h-10", errors.salary && "border-destructive focus-visible:ring-destructive")} />
             </div>
           </Field>
           <Field label="ID Number" optional>
