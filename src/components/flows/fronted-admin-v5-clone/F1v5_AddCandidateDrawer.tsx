@@ -160,17 +160,17 @@ const SectionCard: React.FC<{
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
         <CollapsibleTrigger asChild>
-          <button className="flex items-center gap-3 px-5 py-3.5 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
+          <button className="flex items-center gap-3 px-5 py-3 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
-              {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+              {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
             </div>
             {badge}
-            <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="p-5 space-y-4">
+          <div className="p-4 pt-3 space-y-3">
             {children}
           </div>
         </CollapsibleContent>
@@ -410,11 +410,11 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
           </SheetHeader>
         </div>
 
-        <div className="px-6 py-6 space-y-5">
+        <div className="px-6 py-5 space-y-3">
           {/* ── Candidate Source ── */}
           <div className="space-y-1.5">
             <Select value={selectedAtsId} onValueChange={handleATSSelect}>
-              <SelectTrigger className="h-11">
+              <SelectTrigger className="h-10">
                 <SelectValue placeholder="Choose from ATS or add manually" />
               </SelectTrigger>
               <SelectContent>
@@ -446,7 +446,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
-                className="space-y-5"
+                className="space-y-3"
               >
                 {/* ── Section 1: Personal Details ── */}
                 <SectionCard
