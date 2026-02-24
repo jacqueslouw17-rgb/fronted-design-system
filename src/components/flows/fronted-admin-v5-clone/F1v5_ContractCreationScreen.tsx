@@ -154,10 +154,10 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     email: candidate.email || "",
     role: candidate.role,
     nationality: candidate.nationality || "",
-    city: candidate.city || "",
-    address: candidate.address || "",
+    city: candidate.city || "Manila",
+    address: candidate.address || "123 Rizal Avenue, Makati City",
     idType: candidate.idType || "",
-    idNumber: candidate.idNumber || "",
+    idNumber: candidate.idNumber || "PH-2024-881204",
     country: candidate.country,
     startDate: parseToISODate(candidate.startDate),
     salary: candidate.salary,
@@ -250,7 +250,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
             <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className={cn("h-10", errors.email && "border-destructive focus-visible:ring-destructive")} />
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Nationality" optional>
+            <Field label="Nationality">
               <Select value={formData.nationality} onValueChange={set("nationality")}>
                 <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
@@ -310,13 +310,13 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
               <Input value={parseSalaryValue(formData.salary)} onChange={e => set("salary")(e.target.value)} placeholder="5,000" className={cn("pl-12 h-10", errors.salary && "border-destructive focus-visible:ring-destructive")} />
             </div>
           </Field>
-          <Field label="ID Number" optional>
+          <Field label="ID Number">
             <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
           </Field>
-          <Field label="City" optional>
+          <Field label="City">
             <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Monterrey" className="h-10" />
           </Field>
-          <Field label="Address" optional>
+          <Field label="Address">
             <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
           </Field>
         </SectionCard>
@@ -328,11 +328,6 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
           <SectionCard
             title="Terms & Entitlements"
             subtitle={`Country defaults for ${formData.country} — adjust as negotiated`}
-            badge={
-              <Badge variant="secondary" className="text-[10px] font-normal gap-1 bg-amber-500/10 text-amber-700 border-amber-500/20">
-                <Clock className="h-2.5 w-2.5" /> Pre-filled
-              </Badge>
-            }
           >
             <div className="grid grid-cols-2 gap-3">
               <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
