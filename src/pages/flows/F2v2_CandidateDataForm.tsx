@@ -309,11 +309,11 @@ const F2v2_CandidateDataForm: React.FC = () => {
               <AudioWaveVisualizer isActive={false} />
             </div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl font-bold text-foreground text-center">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground text-center">
                 Hi {PREFILLED.fullName.split(' ')[0]}! Let's complete your details
               </h1>
             </div>
-            <p className="text-muted-foreground text-center text-sm">
+            <p className="text-sm sm:text-base text-muted-foreground text-center">
               Please verify the information below and fill in the remaining fields.
             </p>
           </div>
