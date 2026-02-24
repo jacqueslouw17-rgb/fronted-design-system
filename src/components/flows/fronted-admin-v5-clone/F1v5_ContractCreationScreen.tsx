@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sparkles, ChevronDown, User, Briefcase, Calendar, Shield, Clock,
-  MapPin, Globe, Building2, Banknote, FileText, Landmark, Phone,
+  MapPin, Globe, Building2, Banknote, FileText,
 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
