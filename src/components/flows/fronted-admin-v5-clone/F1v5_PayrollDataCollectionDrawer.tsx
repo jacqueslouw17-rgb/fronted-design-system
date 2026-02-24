@@ -1,12 +1,9 @@
 /**
  * Flow 1 — Fronted Admin Dashboard v5
  * 
- * PayrollDataCollectionDrawer — Collects payroll-specific details
- * (bank info, tax attributes, statutory deductions) from workers
- * in the "Onboard Candidate" column before starting onboarding.
- * 
- * Uses the same dense, collapsible SectionCard pattern as the
- * Data Collection Form / Add Candidate drawers.
+ * PayrollDataCollectionDrawer — "Configure & Send" drawer for Onboard Candidate column.
+ * Sections: Payroll Parameters + Payout Destination (matching Done column categories).
+ * Country-specific tax/statutory fields fold into Payroll Parameters.
  */
 
 import React, { useState, useEffect } from "react";
@@ -17,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -33,20 +30,17 @@ interface PayrollField {
 }
 
 interface CountryPayrollConfig {
+  payrollFields: PayrollField[];
   bankFields: PayrollField[];
-  taxFields: PayrollField[];
-  statutoryFields: PayrollField[];
 }
 
-const INDIA_PAYROLL: CountryPayrollConfig = {
-  bankFields: [
-    { key: "account_holder_name", label: "Account Holder Name", type: "text", required: true, placeholder: "As per bank records" },
-    { key: "account_number", label: "Bank Account Number", type: "text", required: true, placeholder: "Enter account number" },
-    { key: "ifsc_code", label: "IFSC Code", type: "text", required: true, placeholder: "e.g., SBIN0001234" },
-    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "e.g., State Bank of India" },
-    { key: "branch_name", label: "Branch", type: "text", placeholder: "e.g., Koramangala, Bangalore" },
-  ],
-  taxFields: [
+const INDIA_CONFIG: CountryPayrollConfig = {
+  payrollFields: [
+    {
+      key: "pay_frequency", label: "Pay Frequency", type: "select", required: true,
+      options: [{ value: "monthly", label: "Monthly" }],
+    },
+    { key: "payment_schedule", label: "Payment Schedule", type: "text", placeholder: "e.g., Last business day of month" },
     { key: "pan_number", label: "PAN Number", type: "text", required: true, placeholder: "e.g., ABCDE1234F" },
     {
       key: "tax_regime", label: "Income Tax Regime", type: "select", required: true,
@@ -56,11 +50,7 @@ const INDIA_PAYROLL: CountryPayrollConfig = {
         { value: "old", label: "Old Regime (with deductions)" },
       ],
     },
-    { key: "tan_number", label: "TAN (Employer)", type: "text", placeholder: "Auto-filled by Fronted" },
-  ],
-  statutoryFields: [
     { key: "uan_number", label: "UAN (PF Number)", type: "text", placeholder: "e.g., 100123456789" },
-    { key: "esi_number", label: "ESI Number", type: "text", placeholder: "If applicable" },
     {
       key: "pf_contribution", label: "PF Contribution", type: "select", required: true,
       options: [
@@ -69,6 +59,7 @@ const INDIA_PAYROLL: CountryPayrollConfig = {
         { value: "opted_out", label: "Opted Out (salary > ₹15,000)" },
       ],
     },
+    { key: "esi_number", label: "ESI Number", type: "text", placeholder: "If applicable" },
     {
       key: "professional_tax", label: "Professional Tax", type: "select",
       options: [
@@ -78,47 +69,22 @@ const INDIA_PAYROLL: CountryPayrollConfig = {
     },
     { key: "gratuity_nominee", label: "Gratuity Nominee Name", type: "text", placeholder: "Full legal name" },
   ],
-};
-
-const DEFAULT_PAYROLL: CountryPayrollConfig = {
-  bankFields: [
-    { key: "account_holder_name", label: "Account Holder Name", type: "text", required: true, placeholder: "As per bank records" },
-    { key: "iban", label: "IBAN / Account Number", type: "text", required: true, placeholder: "Enter IBAN or account number" },
-    { key: "swift_bic", label: "SWIFT / BIC Code", type: "text", required: true, placeholder: "e.g., DEUTDEFF" },
-    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "Enter bank name" },
-    { key: "branch_name", label: "Branch", type: "text", placeholder: "Optional" },
-  ],
-  taxFields: [
-    { key: "tax_id", label: "Tax ID / TIN", type: "text", required: true, placeholder: "National tax identifier" },
-    {
-      key: "tax_residency", label: "Tax Residency", type: "select", required: true,
-      options: [
-        { value: "resident", label: "Tax Resident" },
-        { value: "non_resident", label: "Non-Resident" },
-      ],
-    },
-  ],
-  statutoryFields: [
-    { key: "social_security_id", label: "Social Security / Insurance ID", type: "text", placeholder: "If applicable" },
-    {
-      key: "pension_scheme", label: "Pension Scheme", type: "select",
-      options: [
-        { value: "statutory", label: "Statutory Pension" },
-        { value: "private", label: "Private Pension" },
-        { value: "opted_out", label: "Opted Out" },
-      ],
-    },
-  ],
-};
-
-const PHILIPPINES_PAYROLL: CountryPayrollConfig = {
   bankFields: [
     { key: "account_holder_name", label: "Account Holder Name", type: "text", required: true, placeholder: "As per bank records" },
     { key: "account_number", label: "Bank Account Number", type: "text", required: true, placeholder: "Enter account number" },
-    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "e.g., BDO, BPI" },
-    { key: "branch_name", label: "Branch", type: "text", placeholder: "e.g., Makati, BGC" },
+    { key: "ifsc_code", label: "IFSC Code", type: "text", required: true, placeholder: "e.g., SBIN0001234" },
+    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "e.g., State Bank of India" },
+    { key: "branch_name", label: "Branch", type: "text", placeholder: "e.g., Koramangala, Bangalore" },
   ],
-  taxFields: [
+};
+
+const PHILIPPINES_CONFIG: CountryPayrollConfig = {
+  payrollFields: [
+    {
+      key: "pay_frequency", label: "Pay Frequency", type: "select", required: true,
+      options: [{ value: "fortnightly", label: "Fortnightly" }],
+    },
+    { key: "payment_schedule", label: "Payment Schedule", type: "text", placeholder: "e.g., 15th and 30th of each month" },
     { key: "tin", label: "TIN (Tax ID)", type: "text", required: true, placeholder: "e.g., 123-456-789-000" },
     {
       key: "tax_status", label: "Tax Status", type: "select", required: true,
@@ -128,21 +94,25 @@ const PHILIPPINES_PAYROLL: CountryPayrollConfig = {
         { value: "head_of_family", label: "Head of Family (HF)" },
       ],
     },
-  ],
-  statutoryFields: [
     { key: "sss_number", label: "SSS Number", type: "text", required: true, placeholder: "Social Security System" },
     { key: "philhealth_number", label: "PhilHealth Number", type: "text", required: true, placeholder: "Health insurance ID" },
     { key: "pagibig_number", label: "Pag-IBIG / HDMF Number", type: "text", required: true, placeholder: "Home Development Fund" },
   ],
-};
-
-const NORWAY_PAYROLL: CountryPayrollConfig = {
   bankFields: [
     { key: "account_holder_name", label: "Account Holder Name", type: "text", required: true, placeholder: "As per bank records" },
-    { key: "account_number", label: "Norwegian Account Number", type: "text", required: true, placeholder: "11 digits" },
-    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "e.g., DNB, Nordea" },
+    { key: "account_number", label: "Bank Account Number", type: "text", required: true, placeholder: "Enter account number" },
+    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "e.g., BDO, BPI" },
+    { key: "branch_name", label: "Branch", type: "text", placeholder: "e.g., Makati, BGC" },
   ],
-  taxFields: [
+};
+
+const NORWAY_CONFIG: CountryPayrollConfig = {
+  payrollFields: [
+    {
+      key: "pay_frequency", label: "Pay Frequency", type: "select", required: true,
+      options: [{ value: "monthly", label: "Monthly" }],
+    },
+    { key: "payment_schedule", label: "Payment Schedule", type: "text", placeholder: "e.g., Last business day of month" },
     { key: "fodselsnummer", label: "Fødselsnummer (National ID)", type: "text", required: true, placeholder: "11-digit personal number" },
     {
       key: "tax_card_type", label: "Tax Card Type", type: "select", required: true,
@@ -153,8 +123,6 @@ const NORWAY_PAYROLL: CountryPayrollConfig = {
       ],
     },
     { key: "tax_percentage", label: "Tax Deduction %", type: "number", placeholder: "From Skatteetaten" },
-  ],
-  statutoryFields: [
     {
       key: "pension_type", label: "Occupational Pension", type: "select", required: true,
       options: [
@@ -165,18 +133,60 @@ const NORWAY_PAYROLL: CountryPayrollConfig = {
     },
     { key: "union_membership", label: "Union Membership", type: "text", placeholder: "If applicable" },
   ],
+  bankFields: [
+    { key: "account_holder_name", label: "Account Holder Name", type: "text", required: true, placeholder: "As per bank records" },
+    { key: "account_number", label: "Norwegian Account Number", type: "text", required: true, placeholder: "11 digits" },
+    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "e.g., DNB, Nordea" },
+  ],
+};
+
+const DEFAULT_CONFIG: CountryPayrollConfig = {
+  payrollFields: [
+    {
+      key: "pay_frequency", label: "Pay Frequency", type: "select", required: true,
+      options: [
+        { value: "monthly", label: "Monthly" },
+        { value: "fortnightly", label: "Fortnightly" },
+      ],
+    },
+    { key: "payment_schedule", label: "Payment Schedule", type: "text", placeholder: "e.g., Last business day of month" },
+    { key: "tax_id", label: "Tax ID / TIN", type: "text", required: true, placeholder: "National tax identifier" },
+    {
+      key: "tax_residency", label: "Tax Residency", type: "select", required: true,
+      options: [
+        { value: "resident", label: "Tax Resident" },
+        { value: "non_resident", label: "Non-Resident" },
+      ],
+    },
+    { key: "social_security_id", label: "Social Security / Insurance ID", type: "text", placeholder: "If applicable" },
+    {
+      key: "pension_scheme", label: "Pension Scheme", type: "select",
+      options: [
+        { value: "statutory", label: "Statutory Pension" },
+        { value: "private", label: "Private Pension" },
+        { value: "opted_out", label: "Opted Out" },
+      ],
+    },
+  ],
+  bankFields: [
+    { key: "account_holder_name", label: "Account Holder Name", type: "text", required: true, placeholder: "As per bank records" },
+    { key: "iban", label: "IBAN / Account Number", type: "text", required: true, placeholder: "Enter IBAN or account number" },
+    { key: "swift_bic", label: "SWIFT / BIC Code", type: "text", required: true, placeholder: "e.g., DEUTDEFF" },
+    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "Enter bank name" },
+    { key: "branch_name", label: "Branch", type: "text", placeholder: "Optional" },
+  ],
 };
 
 function getPayrollConfig(country: string): CountryPayrollConfig {
   switch (country) {
-    case "India": return INDIA_PAYROLL;
-    case "Philippines": return PHILIPPINES_PAYROLL;
-    case "Norway": return NORWAY_PAYROLL;
-    default: return DEFAULT_PAYROLL;
+    case "India": return INDIA_CONFIG;
+    case "Philippines": return PHILIPPINES_CONFIG;
+    case "Norway": return NORWAY_CONFIG;
+    default: return DEFAULT_CONFIG;
   }
 }
 
-/* ── Section Card — matches existing drawer style ── */
+/* ── Section Card ── */
 const SectionCard: React.FC<{
   title: string;
   badge?: React.ReactNode;
@@ -285,14 +295,14 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const config = contractor ? getPayrollConfig(contractor.country) : DEFAULT_PAYROLL;
+  const config = contractor ? getPayrollConfig(contractor.country) : DEFAULT_CONFIG;
 
   // Reset form when contractor changes
   useEffect(() => {
     if (!contractor) return;
     const cfg = getPayrollConfig(contractor.country);
     const defaults: Record<string, string> = {};
-    [...cfg.bankFields, ...cfg.taxFields, ...cfg.statutoryFields].forEach(f => {
+    [...cfg.payrollFields, ...cfg.bankFields].forEach(f => {
       if (f.type === "select" && f.options?.length) {
         defaults[f.key] = f.options[0].value;
       } else {
@@ -336,40 +346,28 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
         </SheetHeader>
 
         <div className="mt-3 space-y-3">
-          {/* ── Section 1: Bank / Payout Details ── */}
+          {/* ── Section 1: Payroll Parameters ── */}
           <SectionCard
-            title="Payout Destination"
+            title="Payroll Parameters"
             badge={
               <Badge variant="outline" className="text-xs font-medium gap-1">
                 {contractor.countryFlag} {contractor.country}
               </Badge>
             }
           >
+            {config.payrollFields.map(field => (
+              <PayrollFieldInput
+                key={field.key}
+                field={field}
+                value={formValues[field.key] || ""}
+                onChange={setValue(field.key)}
+              />
+            ))}
+          </SectionCard>
+
+          {/* ── Section 2: Payout Destination ── */}
+          <SectionCard title="Payout Destination">
             {config.bankFields.map(field => (
-              <PayrollFieldInput
-                key={field.key}
-                field={field}
-                value={formValues[field.key] || ""}
-                onChange={setValue(field.key)}
-              />
-            ))}
-          </SectionCard>
-
-          {/* ── Section 2: Tax & Calculation Attributes ── */}
-          <SectionCard title="Tax & Calculation Attributes">
-            {config.taxFields.map(field => (
-              <PayrollFieldInput
-                key={field.key}
-                field={field}
-                value={formValues[field.key] || ""}
-                onChange={setValue(field.key)}
-              />
-            ))}
-          </SectionCard>
-
-          {/* ── Section 3: Statutory Deductions ── */}
-          <SectionCard title="Statutory Deductions & Benefits">
-            {config.statutoryFields.map(field => (
               <PayrollFieldInput
                 key={field.key}
                 field={field}
@@ -385,6 +383,7 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
               {isResend ? "This form was sent to:" : "This form will be sent to:"}
             </p>
             <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
               <div>
                 <p className="text-sm font-medium text-foreground">{contractor.name}</p>
                 <p className="text-xs text-muted-foreground">{contractor.email || contractor.role}</p>

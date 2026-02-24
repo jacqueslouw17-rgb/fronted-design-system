@@ -187,9 +187,10 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   const fieldSectionMap: Record<string, string> = {
     fullName: "personal",
     email: "personal",
-    role: "personal",
-    startDate: "contract",
-    salary: "contract",
+    nationality: "personal",
+    role: "working",
+    startDate: "working",
+    salary: "working",
   };
 
   const set = (key: string) => (value: string) => {
@@ -270,45 +271,48 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         }
       />
 
-      {/* ── Section 1: Personal Details ── */}
+      {/* ── Section 1: Personal Profile ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <SectionCard title="Personal Details" subtitle="Basic information about the candidate" forceOpen={forceOpenSections.personal}>
+        <SectionCard title="Personal Profile" forceOpen={forceOpenSections.personal}>
           <Field label="Full Name" error={errors.fullName} ref={setFieldRef("fullName")}>
             <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} placeholder="e.g., Marcus Chen" className={cn("h-10", errors.fullName && "border-destructive focus-visible:ring-destructive")} />
           </Field>
           <Field label="Email" error={errors.email} ref={setFieldRef("email")}>
             <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className={cn("h-10", errors.email && "border-destructive focus-visible:ring-destructive")} />
           </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Nationality">
-              <Select value={formData.nationality} onValueChange={set("nationality")}>
-                <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "Singaporean", "American", "British", "German"].map(n => (
-                    <SelectItem key={n} value={n}>{n}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Role" error={errors.role} ref={setFieldRef("role")}>
-              <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className={cn("h-10", errors.role && "border-destructive focus-visible:ring-destructive")} />
-            </Field>
-          </div>
+          <Field label="Nationality">
+            <Select value={formData.nationality} onValueChange={set("nationality")}>
+              <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>
+                {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "Singaporean", "American", "British", "German"].map(n => (
+                  <SelectItem key={n} value={n}>{n}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Address">
+            <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
+          </Field>
+          <Field label="ID Number">
+            <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+          </Field>
         </SectionCard>
       </motion.div>
 
-      {/* ── Section 2: Contract Details ── */}
+      {/* ── Section 2: Working Engagement ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <SectionCard
-          title="Contract Details"
-          subtitle="Employment terms and compensation"
-          forceOpen={forceOpenSections.contract}
+          title="Working Engagement"
+          forceOpen={forceOpenSections.working}
           badge={formData.country ? (
             <Badge variant="outline" className="text-xs font-medium gap-1">
               {candidate.flag} {formData.country}
             </Badge>
           ) : undefined}
         >
+          <Field label="Role" error={errors.role} ref={setFieldRef("role")}>
+            <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className={cn("h-10", errors.role && "border-destructive focus-visible:ring-destructive")} />
+          </Field>
           <Field label="Country">
             <Select value={formData.country} onValueChange={set("country")}>
               <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
@@ -333,7 +337,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
               <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className={cn("h-10", formData.startDate ? "text-foreground" : "text-muted-foreground", errors.startDate && "border-destructive focus-visible:ring-destructive")} />
             </Field>
           </div>
-          <Field label="Salary" error={errors.salary} ref={setFieldRef("salary")}>
+          <Field label={employmentType === "employee" ? "Salary" : "Consultancy Fee"} error={errors.salary} ref={setFieldRef("salary")}>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
                 {getCurrencyCode(formData.country, employmentType)}
@@ -341,14 +345,8 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
               <Input value={parseSalaryValue(formData.salary)} onChange={e => set("salary")(e.target.value)} placeholder="5,000" className={cn("pl-12 h-10", errors.salary && "border-destructive focus-visible:ring-destructive")} />
             </div>
           </Field>
-          <Field label="ID Number">
-            <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
-          </Field>
-          <Field label="City">
-            <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Monterrey" className="h-10" />
-          </Field>
-          <Field label="Address">
-            <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
+          <Field label="Work Location">
+            <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Manila, Oslo" className="h-10" />
           </Field>
         </SectionCard>
       </motion.div>
