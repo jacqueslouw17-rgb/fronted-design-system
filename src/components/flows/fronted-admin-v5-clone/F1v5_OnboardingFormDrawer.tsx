@@ -1,22 +1,50 @@
 /**
- * Flow 1 — Fronted Admin Dashboard v4 (CLONE)
+ * Flow 1 — Fronted Admin Dashboard v5 (CLONE)
  * 
- * ISOLATED: This is an independent copy from v2.
- * Changes here do NOT affect v2 or any other flow.
+ * ISOLATED: Changes here do NOT affect v4 or any other flow.
+ * 
+ * OnboardingFormDrawer — "Configure & Send" drawer with collapsible sections
+ * matching the Add Candidate Drawer and Contract Creation Screen structure.
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, CheckCircle2, Plus, Bot, Pencil, Check, X } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Shield, CheckCircle2, Bot, ChevronDown, Clock } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+// ─── Country Rules (shared with ContractCreationScreen) ───
+interface CountryRule {
+  flag: string; currency: string;
+  probation: { default: number; max: number };
+  noticePeriod: { default: number; min: number };
+  annualLeave: { default: number; min: number };
+  sickLeave: { default: number; min: number };
+  weeklyHours: { default: number; max: number };
+  payFrequency: { default: string; locked: boolean };
+}
+
+const COUNTRY_RULES: Record<string, CountryRule> = {
+  Norway:      { flag: "🇳🇴", currency: "NOK", probation: { default: 180, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 25, min: 25 }, sickLeave: { default: 365, min: 0 }, weeklyHours: { default: 37.5, max: 40 }, payFrequency: { default: "monthly", locked: true } },
+  Sweden:      { flag: "🇸🇪", currency: "SEK", probation: { default: 180, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 25, min: 25 }, sickLeave: { default: 365, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
+  Denmark:     { flag: "🇩🇰", currency: "DKK", probation: { default: 90, max: 90 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 25, min: 25 }, sickLeave: { default: 365, min: 0 }, weeklyHours: { default: 37, max: 37 }, payFrequency: { default: "monthly", locked: true } },
+  Philippines: { flag: "🇵🇭", currency: "PHP", probation: { default: 180, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 5, min: 5 }, sickLeave: { default: 5, min: 5 }, weeklyHours: { default: 48, max: 48 }, payFrequency: { default: "fortnightly", locked: true } },
+  India:       { flag: "🇮🇳", currency: "INR", probation: { default: 90, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 21, min: 21 }, sickLeave: { default: 12, min: 12 }, weeklyHours: { default: 48, max: 48 }, payFrequency: { default: "monthly", locked: true } },
+  Kosovo:      { flag: "🇽🇰", currency: "EUR", probation: { default: 180, max: 180 }, noticePeriod: { default: 30, min: 30 }, annualLeave: { default: 20, min: 20 }, sickLeave: { default: 20, min: 20 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
+  Singapore:   { flag: "🇸🇬", currency: "SGD", probation: { default: 90, max: 180 }, noticePeriod: { default: 30, min: 7 }, annualLeave: { default: 7, min: 7 }, sickLeave: { default: 14, min: 14 }, weeklyHours: { default: 44, max: 44 }, payFrequency: { default: "monthly", locked: true } },
+  Spain:       { flag: "🇪🇸", currency: "EUR", probation: { default: 60, max: 180 }, noticePeriod: { default: 15, min: 15 }, annualLeave: { default: 22, min: 22 }, sickLeave: { default: 365, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
+  Romania:     { flag: "🇷🇴", currency: "RON", probation: { default: 90, max: 90 }, noticePeriod: { default: 20, min: 20 }, annualLeave: { default: 20, min: 20 }, sickLeave: { default: 183, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
+};
+
 interface OnboardingFormDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -25,105 +53,161 @@ interface OnboardingFormDrawerProps {
   onSent: () => void;
   isResend?: boolean;
 }
-interface CustomField {
-  id: string;
+
+/* ── Section Card — matches drawer/creation screen style ── */
+const SectionCard: React.FC<{
+  title: string;
+  subtitle?: string;
+  badge?: React.ReactNode;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}> = ({ title, subtitle, badge, defaultOpen = true, children }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <button className="flex items-center gap-3 px-5 py-3 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
+              {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
+            </div>
+            {badge}
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="p-4 pt-3 space-y-3">
+            {children}
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  );
+};
+
+/* ── Field wrapper ── */
+const Field: React.FC<{
   label: string;
-}
+  error?: string;
+  hint?: string;
+  optional?: boolean;
+  children: React.ReactNode;
+}> = ({ label, error, hint, optional, children }) => (
+  <div className="space-y-1.5">
+    <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+      {label}
+      {optional && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">Optional</Badge>}
+    </Label>
+    {children}
+    {error && <p className="text-destructive text-xs">{error}</p>}
+    {hint && !error && <p className="text-muted-foreground text-[11px]">{hint}</p>}
+  </div>
+);
+
+/* ── Number with unit badge ── */
+const NumberFieldWithUnit: React.FC<{
+  value: string; onChange: (v: string) => void; unit: string; min?: number; max?: number; step?: number;
+}> = ({ value, onChange, unit, min, max, step }) => (
+  <div className="flex items-center gap-2">
+    <Input type="number" value={value} onChange={e => onChange(e.target.value)} min={min} max={max} step={step}
+      className="flex-1 h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100" />
+    <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">{unit}</span>
+  </div>
+);
+
 export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   open,
   onOpenChange,
   candidate,
   onComplete,
   onSent,
-  isResend = false
+  isResend = false,
 }) => {
+  const isFromATS = candidate.employmentTypeSource === "ats" || (candidate as any).hasATSData;
+  const countryRule = COUNTRY_RULES[candidate.country];
+
+  const [employmentType, setEmploymentType] = useState<"contractor" | "employee">(
+    candidate.employmentType || "contractor"
+  );
+  const [showEmploymentConfirm, setShowEmploymentConfirm] = useState(
+    !candidate.employmentType && candidate.employmentTypeSource === "suggested"
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const [customFields, setCustomFields] = useState<CustomField[]>([]);
-  const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
-  const [editingLabel, setEditingLabel] = useState("");
-  const [employmentType, setEmploymentType] = useState<"contractor" | "employee" | null>(candidate.employmentType || null);
-  const [showEmploymentConfirm, setShowEmploymentConfirm] = useState(!candidate.employmentType && candidate.employmentTypeSource === "suggested");
-  
-  // Detect if candidate is from ATS or manually added
-  const isFromATS = candidate.employmentTypeSource === "ats" || (candidate as any).hasATSData;
-  
-  // Form data state for manual candidates
+
   const [formData, setFormData] = useState({
     name: candidate.name,
     email: candidate.email || "",
     role: candidate.role,
+    nationality: candidate.nationality || "",
+    country: candidate.country,
     salary: candidate.salary,
     startDate: candidate.startDate || "",
+    city: candidate.city || "",
+    address: candidate.address || "",
+    idNumber: candidate.idNumber || "",
+    // Terms
+    probationPeriod: countryRule ? String(countryRule.probation.default) : "",
+    noticePeriod: countryRule ? String(countryRule.noticePeriod.default) : "",
+    annualLeave: countryRule ? String(countryRule.annualLeave.default) : "",
+    sickLeave: countryRule ? String(countryRule.sickLeave.default) : "",
+    weeklyHours: countryRule ? String(countryRule.weeklyHours.default) : "",
+    payFrequency: countryRule ? countryRule.payFrequency.default : "monthly",
   });
 
-  // Keep form state in sync when candidate changes (e.g. selecting another card)
-  React.useEffect(() => {
+  // Sync when candidate changes
+  useEffect(() => {
     if (!candidate) return;
+    const cr = COUNTRY_RULES[candidate.country];
     setFormData({
       name: candidate.name,
       email: candidate.email || "",
       role: candidate.role,
+      nationality: candidate.nationality || "",
+      country: candidate.country,
       salary: candidate.salary,
       startDate: candidate.startDate || "",
+      city: candidate.city || "",
+      address: candidate.address || "",
+      idNumber: candidate.idNumber || "",
+      probationPeriod: cr ? String(cr.probation.default) : "",
+      noticePeriod: cr ? String(cr.noticePeriod.default) : "",
+      annualLeave: cr ? String(cr.annualLeave.default) : "",
+      sickLeave: cr ? String(cr.sickLeave.default) : "",
+      weeklyHours: cr ? String(cr.weeklyHours.default) : "",
+      payFrequency: cr ? cr.payFrequency.default : "monthly",
     });
-    setEmploymentType(candidate.employmentType || null);
-    setShowEmploymentConfirm(!isFromATS && !candidate.employmentType && candidate.employmentTypeSource === "suggested");
+    setEmploymentType(candidate.employmentType || "contractor");
+    setShowEmploymentConfirm(
+      !isFromATS && !candidate.employmentType && candidate.employmentTypeSource === "suggested"
+    );
   }, [candidate, isFromATS]);
+
+  const set = (key: string) => (value: string) =>
+    setFormData(prev => ({ ...prev, [key]: value }));
+
   const handleSendForm = async () => {
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    toast.success(`✅ Form sent to ${candidate.name}. They'll receive it via email.`, {
-      duration: 4000
-    });
+    toast.success(`✅ Form sent to ${candidate.name}. They'll receive it via email.`, { duration: 4000 });
     setIsSubmitting(false);
     onSent();
     onOpenChange(false);
   };
+
   const handleSaveDraft = async () => {
     setIsSavingDraft(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Save the updated form data for manual candidates
-    if (!isFromATS) {
-      toast.success("📝 Candidate information updated successfully.", {
-        duration: 3000
-      });
-    } else {
-      toast.success("📝 Form configuration saved as draft.", {
-        duration: 3000
-      });
-    }
-    
+    toast.success(isFromATS ? "📝 Form configuration saved as draft." : "📝 Candidate information updated successfully.", { duration: 3000 });
     setIsSavingDraft(false);
     onOpenChange(false);
   };
-  const handleAddCustomField = () => {
-    const newField: CustomField = {
-      id: `custom-${Date.now()}`,
-      label: "Custom Field"
-    };
-    setCustomFields([...customFields, newField]);
-  };
-  const handleStartEdit = (field: CustomField) => {
-    setEditingFieldId(field.id);
-    setEditingLabel(field.label);
-  };
-  const handleSaveEdit = () => {
-    if (editingFieldId && editingLabel.trim()) {
-      setCustomFields(customFields.map(field => field.id === editingFieldId ? {
-        ...field,
-        label: editingLabel.trim()
-      } : field));
-      setEditingFieldId(null);
-      setEditingLabel("");
-    }
-  };
-  const handleCancelEdit = () => {
-    setEditingFieldId(null);
-    setEditingLabel("");
-  };
-  return <Sheet open={open} onOpenChange={onOpenChange}>
+
+  const activeCountryRule = COUNTRY_RULES[formData.country];
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-base">Onboarding Data Collection Form</SheetTitle>
@@ -133,205 +217,213 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           </SheetDescription>
         </SheetHeader>
 
-        {/* Kurt Agent bubble */}
         {/* Compliance badge */}
         <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
           <Shield className="h-4 w-4 text-primary" />
           <span>GDPR & {candidate.country} Employment Law Compliant</span>
         </div>
 
-        {/* Form fields - prefilled and pending */}
-        <div className="mt-6 space-y-6">
-          {/* Section: Prefilled from ATS */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Full Name</Label>
+        <div className="mt-6 space-y-3">
+          {/* ── Section 1: Personal Details ── */}
+          <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
+            <Field label="Full Name">
               {isFromATS ? (
                 <>
-                  <Input value={candidate.name} disabled className="bg-muted/50" />
-                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                  <Input value={candidate.name} disabled className="bg-muted/50 h-10" />
+                  <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
                 </>
               ) : (
-                <Input 
-                  value={formData.name} 
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="bg-background"
-                />
+                <Input value={formData.name} onChange={e => set("name")(e.target.value)} className="h-10" />
               )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Email</Label>
+            </Field>
+            <Field label="Email">
               {isFromATS ? (
                 <>
-                  <Input value={candidate.email || "candidate@example.com"} disabled className="bg-muted/50" />
-                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                  <Input value={candidate.email || "candidate@example.com"} disabled className="bg-muted/50 h-10" />
+                  <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
                 </>
               ) : (
-                <Input 
-                  value={formData.email} 
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  type="email"
-                  className="bg-background"
-                />
+                <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} className="h-10" />
               )}
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Nationality" optional>
+                <Select value={formData.nationality} onValueChange={set("nationality")}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "Singaporean", "American", "British", "German", "Spanish", "Romanian"].map(n => (
+                      <SelectItem key={n} value={n}>{n}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Role">
+                {isFromATS ? (
+                  <>
+                    <Input value={candidate.role} disabled className="bg-muted/50 h-10" />
+                    <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
+                  </>
+                ) : (
+                  <Input value={formData.role} onChange={e => set("role")(e.target.value)} className="h-10" />
+                )}
+              </Field>
             </div>
+          </SectionCard>
 
-            <div className="space-y-2">
-              <Label>Role</Label>
+          {/* ── Section 2: Contract Details ── */}
+          <SectionCard
+            title="Contract Details"
+            subtitle="Employment terms and compensation"
+            badge={formData.country ? (
+              <Badge variant="outline" className="text-xs font-medium gap-1">
+                {activeCountryRule?.flag || candidate.flag} {formData.country}
+              </Badge>
+            ) : undefined}
+          >
+            <Field label="Country">
+              <Select value={formData.country} onValueChange={set("country")}>
+                <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(COUNTRY_RULES).map(([c, r]) => (
+                    <SelectItem key={c} value={c}><span className="mr-2">{r.flag}</span>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            {/* Employment Type */}
+            <Field label="Employment Type">
               {isFromATS ? (
                 <>
-                  <Input value={candidate.role} disabled className="bg-muted/50" />
-                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                  <Input value={employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50 h-10" />
+                  <p className="text-[11px] text-muted-foreground">Locked from ATS</p>
                 </>
-              ) : (
-                <Input 
-                  value={formData.role} 
-                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                  className="bg-background"
-                />
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Salary</Label>
-              {isFromATS ? (
-                <>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                      {candidate.employmentType === "contractor" 
-                        ? "$" 
-                        : candidate.country === "Philippines" 
-                          ? "₱" 
-                          : candidate.country === "Norway" 
-                            ? "kr" 
-                            : candidate.country === "India" 
-                              ? "₹" 
-                              : candidate.country === "Singapore" 
-                                ? "S$" 
-                                : candidate.country === "Mexico" 
-                                  ? "$" 
-                                  : "$"}
-                    </span>
-                    <Input value={candidate.salary} disabled className="bg-muted/50 pl-8" />
+              ) : showEmploymentConfirm ? (
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                    <Bot className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-muted-foreground">
+                      Based on {candidate.country} hiring model, I suggest: <span className="font-semibold text-foreground">{employmentType === "contractor" ? "Contractor" : "Employee"}</span>
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                </>
-              ) : (
-                <>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                      {employmentType === "contractor" 
-                        ? "$" 
-                        : candidate.country === "Philippines" 
-                          ? "₱" 
-                          : candidate.country === "Norway" 
-                            ? "kr" 
-                            : candidate.country === "India" 
-                              ? "₹" 
-                              : candidate.country === "Singapore" 
-                                ? "S$" 
-                                : candidate.country === "Mexico" 
-                                  ? "$" 
-                                  : "$"}
-                    </span>
-                    <Input 
-                      value={formData.salary} 
-                      onChange={(e) => {
-                        const numericValue = e.target.value.replace(/[^0-9]/g, '');
-                        setFormData(prev => ({ ...prev, salary: numericValue }));
-                      }}
-                      placeholder="e.g., 5000"
-                      className="bg-background pl-8"
-                    />
+                  <div className="flex gap-2">
+                    <Button type="button" variant={employmentType === "contractor" ? "default" : "outline"} size="sm" onClick={() => { setEmploymentType("contractor"); setShowEmploymentConfirm(false); }} className="flex-1">
+                      ✅ Contractor
+                    </Button>
+                    <Button type="button" variant={employmentType === "employee" ? "default" : "outline"} size="sm" onClick={() => { setEmploymentType("employee"); setShowEmploymentConfirm(false); }} className="flex-1">
+                      💼 Employee
+                    </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">Enter monthly amount (numbers only).</p>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Start Date */}
-          <div className="space-y-2">
-            <Label>Start Date</Label>
-            {isFromATS ? (
-              candidate.startDate ? (
-                <>
-                  <Input value={candidate.startDate} disabled className="bg-muted/50" />
-                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                </>
+                </div>
               ) : (
-                <>
-                  <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
-                  <p className="text-xs text-muted-foreground">To be filled by candidate</p>
-                </>
-              )
-            ) : (
-              <Input 
-                type="date"
-                value={formData.startDate} 
-                onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                className="bg-background"
-              />
-            )}
-          </div>
-
-          {/* Employment Type */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              Employment Type
-              {isFromATS && <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ATS</Badge>}
-            </Label>
-            {isFromATS ? <>
-                <Input value={candidate.employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50" />
-                <p className="text-xs text-muted-foreground">Locked from ATS</p>
-              </> : showEmploymentConfirm ? <div className="space-y-3">
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                  <Bot className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-muted-foreground">
-                    Based on {candidate.country} hiring model and job category, I suggest: <span className="font-semibold text-foreground">{employmentType === "contractor" ? "Contractor" : "Employee"}</span>
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button type="button" variant={employmentType === "contractor" ? "default" : "outline"} size="sm" onClick={() => {
-                setEmploymentType("contractor");
-                setShowEmploymentConfirm(false);
-              }} className="flex-1">
-                    ✅ Contractor
-                  </Button>
-                  <Button type="button" variant={employmentType === "employee" ? "default" : "outline"} size="sm" onClick={() => {
-                setEmploymentType("employee");
-                setShowEmploymentConfirm(false);
-              }} className="flex-1">
-                    💼 Employee
-                  </Button>
-                </div>
-              </div> : <>
-                <Select 
-                  value={employmentType || undefined} 
-                  onValueChange={(value: "contractor" | "employee") => setEmploymentType(value)}
-                >
-                  <SelectTrigger className="bg-background">
-                    <SelectValue placeholder="Select employment type" />
-                  </SelectTrigger>
+                <Select value={employmentType} onValueChange={(v: "contractor" | "employee") => setEmploymentType(v)}>
+                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="contractor">Contractor</SelectItem>
                     <SelectItem value="employee">Employee</SelectItem>
                   </SelectContent>
                 </Select>
-              </>}
-          </div>
+              )}
+            </Field>
 
-          {/* Document Bundle Preview */}
-          {employmentType && <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border">
-              <Label className="text-xs font-medium">Contract Documents to be Generated</Label>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2 text-xs">
-                  <span>📄</span>
-                  <span>Employment Agreement</span>
-                </div>
-              </div>
-            </div>}
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Start Date">
+                {isFromATS && candidate.startDate ? (
+                  <>
+                    <Input value={candidate.startDate} disabled className="bg-muted/50 h-10" />
+                    <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
+                  </>
+                ) : (
+                  <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className="h-10" />
+                )}
+              </Field>
+              <Field label="Salary" hint="Monthly gross (numbers only)">
+                {isFromATS ? (
+                  <>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
+                        {getCurrencyCode(formData.country, employmentType)}
+                      </span>
+                      <Input value={candidate.salary} disabled className="bg-muted/50 pl-12 h-10" />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">Prefilled from ATS</p>
+                  </>
+                ) : (
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
+                      {getCurrencyCode(formData.country, employmentType)}
+                    </span>
+                    <Input
+                      value={parseSalaryValue(formData.salary)}
+                      onChange={e => set("salary")(e.target.value.replace(/[^0-9]/g, ''))}
+                      placeholder="5,000"
+                      className="pl-12 h-10"
+                    />
+                  </div>
+                )}
+              </Field>
+            </div>
+
+            <Field label="ID Number" optional>
+              <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+            </Field>
+            <Field label="City" optional>
+              <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Manila" className="h-10" />
+            </Field>
+            <Field label="Address" optional>
+              <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
+            </Field>
+          </SectionCard>
+
+          {/* ── Section 3: Terms & Entitlements ── */}
+          {(activeCountryRule || formData.country) && (
+            <SectionCard
+              title="Terms & Entitlements"
+              subtitle={`Country defaults for ${formData.country} — adjust as negotiated`}
+              badge={
+                <Badge variant="secondary" className="text-[10px] font-normal gap-1 bg-amber-500/10 text-amber-700 border-amber-500/20">
+                  <Clock className="h-2.5 w-2.5" /> Pre-filled
+                </Badge>
+              }
+            >
+              {activeCountryRule ? (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Probation Period" hint={`Max: ${activeCountryRule.probation.max} days`}>
+                      <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={activeCountryRule.probation.max} />
+                    </Field>
+                    <Field label="Notice Period" hint={`Min: ${activeCountryRule.noticePeriod.min} days`}>
+                      <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={activeCountryRule.noticePeriod.min} />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Annual Leave" hint={`Min: ${activeCountryRule.annualLeave.min} days`}>
+                      <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={activeCountryRule.annualLeave.min} />
+                    </Field>
+                    <Field label="Sick Leave" hint={`Min: ${activeCountryRule.sickLeave.min} days`}>
+                      <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={activeCountryRule.sickLeave.min} />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Weekly Hours" hint={`Max: ${activeCountryRule.weeklyHours.max} hrs`}>
+                      <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={activeCountryRule.weeklyHours.max} step={0.5} />
+                    </Field>
+                    <Field label="Pay Frequency" hint={activeCountryRule.payFrequency.locked ? `Fixed for ${formData.country}` : undefined}>
+                      <Select value={formData.payFrequency} onValueChange={v => set("payFrequency")(v)} disabled={activeCountryRule.payFrequency.locked}>
+                        <SelectTrigger className={cn("h-10", activeCountryRule.payFrequency.locked && "opacity-60")}><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="fortnightly">Fortnightly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </div>
+                </>
+              ) : (
+                <p className="text-xs text-muted-foreground">Select a supported country to see default terms.</p>
+              )}
+            </SectionCard>
+          )}
 
           {/* Preview message */}
           <div className="rounded-lg border border-border bg-muted/30 p-4">
@@ -350,10 +442,10 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           {/* Action buttons */}
           <div className="flex gap-3 pt-4">
             {!isFromATS && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleSaveDraft} 
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSaveDraft}
                 disabled={isSubmitting || isSavingDraft}
                 className="flex-1"
               >
@@ -364,10 +456,11 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               Cancel
             </Button>
             <Button type="button" onClick={handleSendForm} disabled={isSubmitting} className="flex-1">
-              {isSubmitting ? isResend ? "Resending..." : "Sending..." : isResend ? "Resend Form" : "Send Form"}
+              {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
             </Button>
           </div>
         </div>
       </SheetContent>
-    </Sheet>;
+    </Sheet>
+  );
 };
