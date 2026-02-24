@@ -217,8 +217,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           </SheetDescription>
         </SheetHeader>
 
-
-        <div className="mt-6 space-y-3">
+        <div className="mt-3 space-y-3">
           {/* ── Section 1: Personal Details ── */}
           <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
             <Field label="Full Name">
