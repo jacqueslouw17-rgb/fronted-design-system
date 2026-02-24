@@ -159,7 +159,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     idType: candidate.idType || "",
     idNumber: candidate.idNumber || "PH-2024-881204",
     country: candidate.country,
-    startDate: parseToISODate(candidate.startDate),
+    startDate: parseToISODate(candidate.startDate) || "2025-12-01",
     salary: candidate.salary,
     taxResidence: candidate.taxResidence || "",
     // Terms — prepopulated from country defaults
