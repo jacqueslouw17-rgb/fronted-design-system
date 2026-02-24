@@ -408,87 +408,75 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     return (
       <Sheet open={open} onOpenChange={handleClose}>
         <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
-          <SheetHeader className="px-6 py-5 border-b border-border/40 shrink-0 bg-background pt-12">
+          {/* Simplified header — no large icon circle */}
+          <SheetHeader className="px-6 pt-8 pb-4 shrink-0">
             <div className="flex items-center gap-3">
               <button
                 onClick={resetActionView}
-                className="p-1.5 rounded-md hover:bg-muted transition-colors"
+                className="p-1.5 rounded-md hover:bg-muted transition-colors -ml-1"
               >
                 <ArrowLeft className="h-4 w-4 text-muted-foreground" />
               </button>
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "h-10 w-10 rounded-full flex items-center justify-center",
-                  actionView === "terminated" && "bg-destructive/10",
-                  actionView === "resigned" && "bg-amber-500/10",
-                  actionView === "contract-ended" && "bg-muted",
-                )}>
-                  <ActionIcon className={cn(
-                    "h-5 w-5",
-                    actionView === "terminated" && "text-destructive",
-                    actionView === "resigned" && "text-amber-600",
-                    actionView === "contract-ended" && "text-muted-foreground",
-                  )} />
-                </div>
-                <div>
-                  <SheetTitle className="text-base">{labels.title}</SheetTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">{worker.name} · {worker.countryFlag} {worker.country}</p>
-                </div>
+              <div>
+                <SheetTitle className="text-base">{labels.title}</SheetTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">{worker.name} · {worker.countryFlag} {worker.country}</p>
               </div>
             </div>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {/* Description */}
-            <div className="p-4 rounded-xl border border-border/40 bg-muted/30">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {labels.description}
-              </p>
+          <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2 space-y-4">
+            {/* Context note */}
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {labels.description}
+            </p>
+
+            {/* Form fields in a section card */}
+            <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
+              <div className="p-4 space-y-4">
+                {/* Date field */}
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">{labels.dateLabel}</label>
+                  <Input
+                    type="date"
+                    value={actionDate}
+                    onChange={(e) => setActionDate(e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
+
+                {/* Reason field */}
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">
+                    Reason <span className="text-muted-foreground/50">(optional)</span>
+                  </label>
+                  <Textarea
+                    placeholder={
+                      actionView === "terminated" 
+                        ? "e.g. Performance issues, end of project..." 
+                        : actionView === "resigned" 
+                        ? "e.g. Personal reasons, new opportunity..." 
+                        : "e.g. Contract period completed, project ended..."
+                    }
+                    value={actionReason}
+                    onChange={(e) => setActionReason(e.target.value)}
+                    rows={3}
+                    className="resize-none text-sm"
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Date input */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">{labels.dateLabel}</Label>
-              <Input
-                type="date"
-                value={actionDate}
-                onChange={(e) => setActionDate(e.target.value)}
-                className="h-10"
-              />
-            </div>
-
-            {/* Reason */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                Reason
-                <span className="text-muted-foreground font-normal ml-1">(optional)</span>
-              </Label>
-              <Textarea
-                placeholder={
-                  actionView === "terminated" 
-                    ? "e.g. Performance issues, end of project..." 
-                    : actionView === "resigned" 
-                    ? "e.g. Personal reasons, new opportunity..." 
-                    : "e.g. Contract period completed, project ended..."
-                }
-                value={actionReason}
-                onChange={(e) => setActionReason(e.target.value)}
-                rows={3}
-                className="resize-none"
-              />
-            </div>
-
-            {/* Action buttons - contextually close to last field */}
-            <div className="flex gap-3 pt-2">
+            {/* Action buttons — contextually below form */}
+            <div className="flex gap-3 pt-1">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="flex-1 h-9 text-sm"
                 onClick={resetActionView}
               >
                 Cancel
               </Button>
               <Button
-                className={cn("flex-1", labels.buttonClass)}
+                className={cn("flex-1 h-9 text-sm", labels.buttonClass)}
                 disabled={!actionDate}
                 onClick={() => setPendingAction(actionView)}
               >
