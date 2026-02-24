@@ -860,6 +860,14 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
             <div className="flex items-center gap-2">
               {isEditMode ? (
                 <span className="text-xs text-primary">Save or cancel your edits to continue</span>
+              ) : !canConfirmCurrentDoc ? (
+                <span className="text-xs text-muted-foreground">
+                  {!allPriorDocsConfirmed
+                    ? "Confirm prior documents first"
+                    : !isOnLastPage
+                      ? "Read through all pages to confirm"
+                      : "Scroll to the end to confirm"}
+                </span>
               ) : null}
               <Button
                 onClick={handleConfirmDocument}
