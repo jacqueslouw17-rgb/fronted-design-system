@@ -34,25 +34,25 @@ const AudioWaveVisualizer = ({ isActive = false, isListening = false, isDetectin
       <motion.div
         animate={{
           opacity: isIdleBreathing 
-            ? [0.7, 0.9, 1, 0.9, 0.7]
+            ? [0.5, 0.7, 0.85, 0.7, 0.5]
             : isFullyActive 
             ? [0.3, 0.6, 0.3]
             : [0.4, 0.5, 0.4],
           scale: isIdleBreathing
-            ? isHovered ? [1.05, 1.15, 1.2, 1.15, 1.05] : [1, 1.08, 1.15, 1.08, 1]
+            ? isHovered ? [1.05, 1.15, 1.25, 1.15, 1.05] : [1, 1.1, 1.2, 1.1, 1]
             : isFullyActive
             ? [1, 1.2, 1]
             : [1, 1.05, 1],
         }}
         transition={{
-          duration: isIdleBreathing ? (isHovered ? 1.5 : 3) : isFullyActive ? 1.2 : 2,
+          duration: isIdleBreathing ? (isHovered ? 2.5 : 5) : isFullyActive ? 1.2 : 2,
           repeat: Infinity,
           ease: "easeInOut"
         }}
         className="absolute inset-0 blur-3xl pointer-events-none"
         style={{ 
           background: isIdleBreathing
-            ? 'radial-gradient(circle, #3B82F6 0%, #60A5FA 40%, #93C5FD 70%, transparent 100%)'
+            ? 'radial-gradient(circle, #3B82F6 0%, #818CF8 30%, #60A5FA 55%, #93C5FD 75%, transparent 100%)'
             : 'radial-gradient(circle, hsl(var(--primary) / 0.5), transparent)',
         }}
       />
