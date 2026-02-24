@@ -83,9 +83,9 @@ const AudioWaveVisualizer = ({ isActive = false, isListening = false, isDetectin
           key={index}
           className="w-1 rounded-full transition-shadow duration-300 motion-reduce:animate-none"
           style={{
-            background: `linear-gradient(to bottom, #3B82F6, #60A5FA, #93C5FD)`,
+            background: `linear-gradient(to bottom, #6366F1, #3B82F6, #60A5FA, #93C5FD)`,
             boxShadow: isIdleBreathing 
-              ? `0 0 ${10 + (isHovered ? 6 : 0)}px rgba(59, 130, 246, ${wave.glowIntensity + (isHovered ? 0.15 : 0)})`
+              ? `0 0 ${12 + (isHovered ? 8 : 0)}px rgba(99, 102, 241, ${wave.glowIntensity + (isHovered ? 0.15 : 0)}), 0 0 ${6 + (isHovered ? 4 : 0)}px rgba(59, 130, 246, ${wave.glowIntensity * 0.6})`
               : isFullyActive 
               ? `0 0 20px hsl(var(--primary) / ${wave.glowIntensity})`
               : 'none',
@@ -94,8 +94,8 @@ const AudioWaveVisualizer = ({ isActive = false, isListening = false, isDetectin
           animate={{
             height: isIdleBreathing
               ? isHovered
-                ? [wave.restingHeight * 0.9, wave.restingHeight * 1.15, wave.restingHeight * 1.3, wave.restingHeight * 1.15, wave.restingHeight * 0.9]
-                : [wave.restingHeight * 0.85, wave.restingHeight, wave.restingHeight * 1.1, wave.restingHeight, wave.restingHeight * 0.85]
+                ? [wave.restingHeight * 0.85, wave.restingHeight * 1.1, wave.restingHeight * 1.25, wave.restingHeight * 1.1, wave.restingHeight * 0.85]
+                : [wave.restingHeight * 0.8, wave.restingHeight * 0.95, wave.restingHeight * 1.1, wave.restingHeight * 0.95, wave.restingHeight * 0.8]
               : isFullyActive
               ? [wave.restingHeight * 1.5, wave.restingHeight * 2.5, wave.restingHeight * 1.8, wave.restingHeight * 2.5, wave.restingHeight * 1.5]
               : isListening
@@ -103,12 +103,12 @@ const AudioWaveVisualizer = ({ isActive = false, isListening = false, isDetectin
               : [wave.restingHeight * 0.8, wave.restingHeight, wave.restingHeight * 0.8],
             opacity: isIdleBreathing
               ? isHovered
-                ? [0.75, 0.9, 1, 0.9, 0.75]
-                : [0.7, 0.85, 1, 0.85, 0.7]
+                ? [0.7, 0.85, 1, 0.85, 0.7]
+                : [0.6, 0.75, 0.9, 0.75, 0.6]
               : [0.8, 1, 0.8],
           }}
           transition={{
-            duration: isIdleBreathing ? (isHovered ? 1.5 : 3) : isFullyActive ? 1.2 : isListening ? 2 : 3,
+            duration: isIdleBreathing ? (isHovered ? 2.5 : 5) : isFullyActive ? 1.2 : isListening ? 2 : 3,
             repeat: Infinity,
             ease: "easeInOut",
             delay: wave.delay,
