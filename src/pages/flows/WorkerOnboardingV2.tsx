@@ -19,7 +19,7 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 
 import WorkerStep1Welcome_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep1Welcome_v2";
-import WorkerStep2PersonalProfile_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2PersonalProfile_v2";
+import WorkerStep2TaxDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2TaxDetails_v2";
 import WorkerStep3BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
 import WorkerStep4WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
 
@@ -27,7 +27,7 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 
 const FLOW_STEPS = [
   { id: "welcome", title: "Welcome and setup", icon: "👋" },
-  { id: "personal_profile", title: "Personal Profile", icon: "👤" },
+  { id: "tax_details", title: "Tax Details", icon: "📋" },
   { id: "bank_details", title: "Bank Details", icon: "🏦" },
   { id: "work_setup", title: "Work Setup & Agreements", icon: "💼" },
 ];
