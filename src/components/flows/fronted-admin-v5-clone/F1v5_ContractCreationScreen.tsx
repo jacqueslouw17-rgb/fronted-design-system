@@ -309,8 +309,12 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <SectionCard
             title="Terms & Entitlements"
-            icon={Clock}
             subtitle={`Country defaults for ${formData.country} — adjust as negotiated`}
+            badge={
+              <Badge variant="secondary" className="text-[10px] font-normal gap-1 bg-amber-500/10 text-amber-700 border-amber-500/20">
+                <Clock className="h-2.5 w-2.5" /> Pre-filled
+              </Badge>
+            }
           >
             <div className="grid grid-cols-2 gap-3">
               <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
