@@ -223,12 +223,6 @@ export const F1v4_SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps
               {candidate.role} · {candidate.country} · {candidate.salary}
             </p>
           )}
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <Info className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-700">
-              Track signing progress, document readiness, and certification status in one place.
-            </p>
-          </div>
         </SheetHeader>
 
         {candidate && (
