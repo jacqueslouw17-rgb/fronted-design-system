@@ -6,7 +6,7 @@
  * Terms & Entitlements). Changes here do NOT affect any other flow.
  */
 
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
