@@ -820,7 +820,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
               </button>
 
               {/* Tags (optional) */}
-              <TagInput tags={expenseTags} onChange={setExpenseTags} />
+              <TagInput tags={expenseTags} onChange={setExpenseTags} maxTags={1} />
 
               {expenseItems.length > 0 && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">

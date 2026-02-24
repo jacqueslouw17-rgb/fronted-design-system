@@ -9,7 +9,7 @@ import { X, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 
-const MAX_TAGS = 10;
+const DEFAULT_MAX_TAGS = 10;
 const MAX_TAG_LENGTH = 24;
 
 // Per-worker recent tags pool — starts empty, accumulates as the worker adds tags during the session.
@@ -29,11 +29,13 @@ interface TagInputProps {
   tags: string[];
   onChange: (tags: string[]) => void;
   className?: string;
+  maxTags?: number;
+  label?: string;
 }
 
 const normalise = (tag: string) => tag.trim().toLowerCase();
 
-export const TagInput = ({ tags, onChange, className }: TagInputProps) => {
+export const TagInput = ({ tags, onChange, className, maxTags = DEFAULT_MAX_TAGS, label }: TagInputProps) => {
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +44,7 @@ export const TagInput = ({ tags, onChange, className }: TagInputProps) => {
     (raw: string) => {
       const trimmed = raw.trim().slice(0, MAX_TAG_LENGTH);
       if (!trimmed) return;
-      if (tags.length >= MAX_TAGS) return;
+      if (tags.length >= maxTags) return;
       if (tags.some((t) => normalise(t) === normalise(trimmed))) return;
       onChange([...tags, trimmed]);
       addToRecentPool(trimmed);
@@ -96,7 +98,7 @@ export const TagInput = ({ tags, onChange, className }: TagInputProps) => {
 
   return (
     <div className={cn('space-y-1.5', className)} ref={containerRef}>
-      <Label className="text-xs">Tags (optional)</Label>
+      <Label className="text-xs">{label || (maxTags === 1 ? 'Tag (optional)' : 'Tags (optional)')}</Label>
 
       <div
         className={cn(
@@ -125,7 +127,7 @@ export const TagInput = ({ tags, onChange, className }: TagInputProps) => {
           </span>
         ))}
 
-        {tags.length < MAX_TAGS && (
+        {tags.length < maxTags && (
           <input
             ref={inputRef}
             type="text"
@@ -161,7 +163,9 @@ export const TagInput = ({ tags, onChange, className }: TagInputProps) => {
       )}
 
       <p className="text-[11px] text-muted-foreground">
-        Add tags to group expenses or give context (e.g., &lsquo;NY trip&rsquo;, &lsquo;Client dinner&rsquo;).
+        {maxTags === 1
+          ? "Add a tag to group expenses (e.g., \u2018NY trip\u2019)."
+          : "Add tags to group expenses or give context (e.g., \u2018NY trip\u2019, \u2018Client dinner\u2019)."}
       </p>
     </div>
   );

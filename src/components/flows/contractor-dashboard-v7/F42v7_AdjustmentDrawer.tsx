@@ -822,7 +822,7 @@ export const F42v7_AdjustmentDrawer = ({
               </div>
 
               {/* Tags (optional) */}
-              <TagInput tags={expenseTags} onChange={setExpenseTags} />
+              <TagInput tags={expenseTags} onChange={setExpenseTags} maxTags={1} />
 
               {/* Session total - always show when items have amounts */}
               {expenseItems.length > 0 && (
