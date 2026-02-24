@@ -243,11 +243,11 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
       {/* ── Section 1: Personal Details ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
-          <Field label="Full Name" error={errors.fullName}>
-            <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} placeholder="e.g., Marcus Chen" className="h-10" />
+          <Field label="Full Name" error={errors.fullName} ref={setFieldRef("fullName")}>
+            <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} placeholder="e.g., Marcus Chen" className={cn("h-10", errors.fullName && "border-destructive focus-visible:ring-destructive")} />
           </Field>
-          <Field label="Email" error={errors.email}>
-            <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
+          <Field label="Email" error={errors.email} ref={setFieldRef("email")}>
+            <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className={cn("h-10", errors.email && "border-destructive focus-visible:ring-destructive")} />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Nationality" optional>
@@ -260,8 +260,8 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Role" error={errors.role}>
-              <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className="h-10" />
+            <Field label="Role" error={errors.role} ref={setFieldRef("role")}>
+              <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className={cn("h-10", errors.role && "border-destructive focus-visible:ring-destructive")} />
             </Field>
           </div>
         </SectionCard>
