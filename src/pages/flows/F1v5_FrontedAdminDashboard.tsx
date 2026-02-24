@@ -80,7 +80,17 @@ const MOCK_COMPANIES: CompanyData[] = [
 // Default candidates to pre-populate in the "drafting" (Prepare Contract) step
 const DEFAULT_DRAFTING_CANDIDATES = [
   {
-    id: "default-1",
+    id: "offer-1",
+    name: "Anika Lindqvist",
+    country: "Norway",
+    countryFlag: "🇳🇴",
+    role: "Frontend Engineer",
+    salary: "NOK 65,000/mo",
+    status: "offer-accepted",
+    employmentType: "employee",
+    email: "anika.lindqvist@example.com",
+  },
+  {
     name: "Marcus Chen",
     country: "Singapore",
     countryFlag: "🇸🇬",
