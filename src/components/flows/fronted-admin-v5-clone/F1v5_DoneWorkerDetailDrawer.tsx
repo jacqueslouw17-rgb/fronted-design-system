@@ -163,8 +163,37 @@ const lifecycleStatusConfig: Record<WorkerLifecycleStatus, { label: string; badg
     icon: UserX,
   },
 };
+/* ── Section Card (matches configure drawer pattern) ── */
+const SectionCard: React.FC<{
+  title: string;
+  badge?: React.ReactNode;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}> = ({ title, badge, defaultOpen = true, children }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <button className="flex items-center gap-3 px-5 py-3 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
+            </div>
+            {badge}
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="p-4 pt-3 space-y-3">
+            {children}
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  );
+};
 
-export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerProps> = ({
+
   open,
   onOpenChange,
   worker,
