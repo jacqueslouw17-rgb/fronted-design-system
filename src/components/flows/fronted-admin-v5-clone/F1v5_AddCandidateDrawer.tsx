@@ -7,6 +7,7 @@
 
 import React, { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { toast } from "sonner";
-import { User, Sparkles, MapPin, FileText, Clock, Shield, Check, ChevronsUpDown } from "lucide-react";
+import { User, Sparkles, MapPin, FileText, Clock, Shield, Check, ChevronsUpDown, Info } from "lucide-react";
 import { getCurrencyCode } from "@/utils/currencyUtils";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -166,17 +167,35 @@ const SectionCard: React.FC<{
   </div>
 );
 
-/** Unified field with label, input, and optional hint — no overlaps */
+/** Unified field with label, input, and optional hint */
 const Field: React.FC<{
   label: string;
   required?: boolean;
   hint?: string;
+  optionalTooltip?: string;
   children: React.ReactNode;
-}> = ({ label, required, hint, children }) => (
+}> = ({ label, required, hint, optionalTooltip, children }) => (
   <div className="space-y-1.5">
-    <Label className="text-[13px] font-medium text-foreground/80">
-      {label} {required && <span className="text-destructive">*</span>}
-    </Label>
+    <div className="flex items-center gap-1.5">
+      <Label className="text-[13px] font-medium text-foreground/80">
+        {label}
+      </Label>
+      {optionalTooltip && (
+        <TooltipProvider delayDuration={400}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex items-center gap-1 cursor-help">
+                <span className="text-[11px] text-muted-foreground/70 font-normal">Optional</span>
+                <Info className="h-3 w-3 text-muted-foreground/50" />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[200px] text-xs">
+              {optionalTooltip}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+    </div>
     {children}
     {hint && <p className="text-[11px] text-muted-foreground leading-tight">{hint}</p>}
   </div>
@@ -529,10 +548,10 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 
                         {/* Identity & Address */}
                         <div className="grid grid-cols-2 gap-3">
-                          <Field label={countryRule.idLabel}>
+                          <Field label={countryRule.idLabel} optionalTooltip="Can be completed by the worker during onboarding">
                             <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
                           </Field>
-                          <Field label="Address">
+                          <Field label="Address" optionalTooltip="Can be completed by the worker during onboarding">
                             <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
                           </Field>
                         </div>
