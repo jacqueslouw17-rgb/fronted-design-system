@@ -352,7 +352,6 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
               >
                 {/* ── Section 1: Personal Details ── */}
                 <SectionCard
-                  icon={<User className="h-4 w-4 text-primary" />}
                   title="Personal Details"
                   subtitle="Basic information about the candidate"
                 >
@@ -374,7 +373,6 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 
                 {/* ── Section 2: Contract Details ── */}
                 <SectionCard
-                  icon={<FileText className="h-4 w-4 text-primary" />}
                   title="Contract Details"
                   subtitle="Select country to configure contract terms"
                   badge={formData.country && countryRule ? (
@@ -485,7 +483,6 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                       transition={{ duration: 0.25, delay: 0.05 }}
                     >
                       <SectionCard
-                        icon={<Shield className="h-4 w-4 text-primary" />}
                         title="Terms & Entitlements"
                         subtitle={`Country defaults for ${formData.country} — adjust as negotiated`}
                         badge={
