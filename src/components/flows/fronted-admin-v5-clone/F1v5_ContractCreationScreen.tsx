@@ -183,6 +183,15 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   // Track which sections need to be force-opened for validation
   const [forceOpenSections, setForceOpenSections] = useState<Record<string, boolean>>({});
 
+  // When candidate changes, force-open personal profile and scroll to top
+  React.useEffect(() => {
+    setForceOpenSections({ personal: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Reset after a tick so it can retrigger on next candidate change
+    const t = setTimeout(() => setForceOpenSections({}), 300);
+    return () => clearTimeout(t);
+  }, [candidate.id]);
+
   // Map fields to their parent sections
   const fieldSectionMap: Record<string, string> = {
     fullName: "personal",
