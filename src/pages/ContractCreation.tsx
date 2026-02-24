@@ -125,15 +125,17 @@ const ContractCreation: React.FC = () => {
 
     const localStorageCandidates: Candidate[] = (() => {
       try {
-        const raw = localStorage.getItem("adminflow-company-contractors");
-        if (!raw) {
-          console.log("[ContractCreation] No localStorage data found");
-          return [];
+        // Check both v5 and legacy localStorage keys
+        const keys = ["adminflow-v5-company-contractors", "adminflow-company-contractors"];
+        const allParsed: any[] = [];
+        for (const key of keys) {
+          const raw = localStorage.getItem(key);
+          if (!raw) continue;
+          const parsed = JSON.parse(raw) as Record<string, any[]>;
+          allParsed.push(...Object.values(parsed || {}).flat());
         }
-        const parsed = JSON.parse(raw) as Record<string, any[]>;
-        const flattened = Object.values(parsed || {}).flat();
-        console.log("[ContractCreation] localStorage candidates:", flattened.map((c: any) => ({ id: c.id, name: c.name })));
-        return flattened
+        console.log("[ContractCreation] localStorage candidates:", allParsed.map((c: any) => ({ id: c.id, name: c.name })));
+        return allParsed
           .filter(Boolean)
           .map((c: any) =>
             contractorToCandidate({
@@ -242,7 +244,7 @@ const ContractCreation: React.FC = () => {
 
         {/* Contract Creation Area */}
         <AgentLayout context="Contract Drafting">
-          <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative">
+          <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative min-h-screen">
             {/* Static background */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
