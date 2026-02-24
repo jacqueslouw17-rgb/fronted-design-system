@@ -62,9 +62,16 @@ const SectionCard: React.FC<{
   subtitle?: string;
   badge?: React.ReactNode;
   defaultOpen?: boolean;
+  forceOpen?: boolean;
   children: React.ReactNode;
-}> = ({ title, subtitle, badge, defaultOpen = true, children }) => {
+}> = ({ title, subtitle, badge, defaultOpen = true, forceOpen, children }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  // Allow parent to force-open a collapsed section
+  React.useEffect(() => {
+    if (forceOpen) setIsOpen(true);
+  }, [forceOpen]);
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <div className="rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
