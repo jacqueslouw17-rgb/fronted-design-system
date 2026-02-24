@@ -31,7 +31,7 @@ import {
 // Tabs replaced with custom button-based tab UI for stronger active state
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw, X, ChevronLeft, ChevronRight, ChevronDown, Cpu, Scale, Car, HeartPulse, Home, BookOpen } from "lucide-react";
+import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw, X, ChevronLeft, ChevronRight, ChevronDown, Cpu, Scale, Car, HeartPulse, Home, BookOpen, User, MapPin, Calendar, Clock, Banknote, Globe, Building2 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
 import { ContractCarousel } from "@/components/contract-flow/ContractCarousel";
@@ -243,6 +243,15 @@ interface DocumentDef {
   icon: React.FC<{ className?: string }>;
   shortLabel: string;
 }
+
+// Compact review row for the left panel
+const ReviewRow: React.FC<{ icon: React.ElementType; label: string; value: string }> = ({ icon: Icon, label, value }) => (
+  <div className="flex items-center gap-2 text-xs">
+    <Icon className="h-3 w-3 text-muted-foreground/50 flex-shrink-0" />
+    <span className="text-muted-foreground w-16 flex-shrink-0">{label}</span>
+    <span className="font-medium text-foreground truncate">{value}</span>
+  </div>
+);
 
 export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   candidate,
@@ -533,37 +542,54 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="h-full flex gap-4 items-start">
         {/* Left: Candidate card + Audit Log */}
         <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1, duration: 0.3 }} className="w-80 flex-shrink-0 flex flex-col h-[600px]">
-          <Card className="p-6 border border-border/40 bg-card/50 backdrop-blur-sm flex-shrink-0">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-4xl">{candidate.flag}</span>
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground">{candidate.name}</h3>
-                <p className="text-sm text-muted-foreground">{candidate.role}</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                <span className="text-xs text-muted-foreground">Template</span>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  Localized – {candidate.countryCode} {candidate.flag}
+          <Card className="border border-border/40 bg-card/50 backdrop-blur-sm flex-shrink-0 overflow-hidden">
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-border/30">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{candidate.flag}</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-foreground text-sm truncate">{candidate.name}</h3>
+                  <p className="text-xs text-muted-foreground truncate">{candidate.role}</p>
+                </div>
+                <Badge variant="secondary" className="text-[10px] gap-1 flex-shrink-0">
+                  {candidate.flag} {candidate.countryCode}
                 </Badge>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Salary</span>
-                  <span className="font-medium text-foreground">{candidate.salary}</span>
+            </div>
+
+            {/* Scrollable sections */}
+            <div className="overflow-y-auto max-h-[420px]">
+              {/* Personal Details */}
+              <div className="px-5 py-3 border-b border-border/20">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Personal Details</p>
+                <div className="space-y-1.5">
+                  <ReviewRow icon={User} label="Name" value={candidate.name} />
+                  <ReviewRow icon={Globe} label="Country" value={`${candidate.flag} ${candidate.country}`} />
+                  {candidate.email && <ReviewRow icon={FileText} label="Email" value={candidate.email} />}
+                  {candidate.nationality && <ReviewRow icon={Globe} label="Nationality" value={candidate.nationality} />}
+                  {candidate.city && <ReviewRow icon={Building2} label="City" value={candidate.city} />}
+                  {candidate.address && <ReviewRow icon={MapPin} label="Address" value={candidate.address} />}
+                  {candidate.idNumber && <ReviewRow icon={Shield} label={candidate.idType || "ID"} value={candidate.idNumber} />}
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Start Date</span>
-                  <span className="font-medium text-foreground">{candidate.startDate}</span>
+              </div>
+
+              {/* Contract Details */}
+              <div className="px-5 py-3 border-b border-border/20">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Contract Details</p>
+                <div className="space-y-1.5">
+                  <ReviewRow icon={Briefcase} label="Type" value={candidate.employmentType === "employee" ? "Employee" : "Contractor"} />
+                  <ReviewRow icon={FileText} label="Role" value={candidate.role} />
+                  <ReviewRow icon={Banknote} label="Salary" value={candidate.salary} />
+                  <ReviewRow icon={Calendar} label="Start Date" value={candidate.startDate} />
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Notice Period</span>
-                  <span className="font-medium text-foreground">{candidate.noticePeriod}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">PTO</span>
-                  <span className="font-medium text-foreground">{candidate.pto}</span>
+              </div>
+
+              {/* Terms & Entitlements */}
+              <div className="px-5 py-3">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Terms & Entitlements</p>
+                <div className="space-y-1.5">
+                  <ReviewRow icon={Clock} label="Notice" value={candidate.noticePeriod} />
+                  <ReviewRow icon={Calendar} label="PTO" value={candidate.pto} />
                 </div>
               </div>
             </div>
