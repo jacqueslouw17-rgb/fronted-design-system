@@ -210,7 +210,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle className="text-base">Onboarding Data Collection Form</SheetTitle>
+          <SheetTitle className="text-base">Data Collection Form</SheetTitle>
           <SheetDescription className="flex items-center gap-2">
             <span className="text-lg">{candidate.flag}</span>
             <span>{candidate.name} • {candidate.role}</span>
