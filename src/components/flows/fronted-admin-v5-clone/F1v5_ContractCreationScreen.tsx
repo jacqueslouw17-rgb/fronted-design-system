@@ -6,7 +6,7 @@
  * Terms & Entitlements). Changes here do NOT affect any other flow.
  */
 
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -89,23 +89,24 @@ const SectionCard: React.FC<{
 };
 
 /* ── Field wrapper ── */
-const Field: React.FC<{
+const Field = React.forwardRef<HTMLDivElement, {
   label: string;
   error?: string;
   hint?: string;
   optional?: boolean;
   children: React.ReactNode;
-}> = ({ label, error, hint, optional, children }) => (
-  <div className="space-y-1.5">
+}>(({ label, error, hint, optional, children }, ref) => (
+  <div ref={ref} className="space-y-1.5">
     <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
       {label}
       {optional && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">Optional</Badge>}
     </Label>
     {children}
-    {error && <p className="text-destructive text-xs">{error}</p>}
+    {error && <p className="text-destructive text-xs animate-in fade-in-0 slide-in-from-top-1 duration-200">{error}</p>}
     {hint && !error && <p className="text-muted-foreground text-[11px]">{hint}</p>}
   </div>
-);
+));
+Field.displayName = "Field";
 
 /* ── Number with unit badge ── */
 const NumberFieldWithUnit: React.FC<{
@@ -118,6 +119,19 @@ const NumberFieldWithUnit: React.FC<{
   </div>
 );
 
+/* ── Parse human-readable date to YYYY-MM-DD ── */
+const parseToISODate = (raw: string): string => {
+  if (!raw) return "";
+  // Already ISO
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  // Try parsing "Dec 1, 2025" etc.
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) {
+    return d.toISOString().split("T")[0];
+  }
+  return "";
+};
+
 export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   candidate,
   onNext,
@@ -129,6 +143,12 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   const [employmentType, setEmploymentType] = useState<"employee" | "contractor">(defaultEmploymentType);
   const countryRule = COUNTRY_RULES[candidate.country];
 
+  // Field refs for scroll-to-error
+  const fieldRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const setFieldRef = useCallback((key: string) => (el: HTMLDivElement | null) => {
+    fieldRefs.current[key] = el;
+  }, []);
+
   const [formData, setFormData] = useState({
     fullName: candidate.name,
     email: candidate.email || "",
@@ -139,7 +159,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     idType: candidate.idType || "",
     idNumber: candidate.idNumber || "",
     country: candidate.country,
-    startDate: candidate.startDate || "",
+    startDate: parseToISODate(candidate.startDate),
     salary: candidate.salary,
     taxResidence: candidate.taxResidence || "",
     // Terms — prepopulated from country defaults
@@ -160,11 +180,11 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
 
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.fullName?.trim()) newErrors.fullName = "Required";
-    if (!formData.email?.trim()) newErrors.email = "Required";
-    if (!formData.role?.trim()) newErrors.role = "Required";
-    if (!formData.salary) newErrors.salary = "Required";
-    if (!formData.startDate) newErrors.startDate = "Required";
+    if (!formData.fullName?.trim()) newErrors.fullName = "Full name is required";
+    if (!formData.email?.trim()) newErrors.email = "Email is required";
+    if (!formData.role?.trim()) newErrors.role = "Role is required";
+    if (!formData.salary) newErrors.salary = "Salary is required";
+    if (!formData.startDate) newErrors.startDate = "Start date is required";
     else {
       const [y, m, d] = formData.startDate.split("-").map(Number);
       const sd = new Date(y, m - 1, d);
@@ -172,8 +192,20 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
       if (sd < today) newErrors.startDate = "Must be a future date";
     }
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) window.scrollTo({ top: 0, behavior: "smooth" });
-    return Object.keys(newErrors).length === 0;
+
+    // Scroll to first error field
+    const errorKeys = Object.keys(newErrors);
+    if (errorKeys.length > 0) {
+      const firstErrorKey = errorKeys[0];
+      const el = fieldRefs.current[firstErrorKey];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      toast.error(`Please fix ${errorKeys.length} field${errorKeys.length > 1 ? "s" : ""} before continuing`);
+    }
+    return errorKeys.length === 0;
   };
 
   const handleNext = () => {
@@ -211,11 +243,11 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
       {/* ── Section 1: Personal Details ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <SectionCard title="Personal Details" subtitle="Basic information about the candidate">
-          <Field label="Full Name" error={errors.fullName}>
-            <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} placeholder="e.g., Marcus Chen" className="h-10" />
+          <Field label="Full Name" error={errors.fullName} ref={setFieldRef("fullName")}>
+            <Input value={formData.fullName} onChange={e => set("fullName")(e.target.value)} placeholder="e.g., Marcus Chen" className={cn("h-10", errors.fullName && "border-destructive focus-visible:ring-destructive")} />
           </Field>
-          <Field label="Email" error={errors.email}>
-            <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
+          <Field label="Email" error={errors.email} ref={setFieldRef("email")}>
+            <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className={cn("h-10", errors.email && "border-destructive focus-visible:ring-destructive")} />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Nationality" optional>
@@ -228,8 +260,8 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Role" error={errors.role}>
-              <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className="h-10" />
+            <Field label="Role" error={errors.role} ref={setFieldRef("role")}>
+              <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className={cn("h-10", errors.role && "border-destructive focus-visible:ring-destructive")} />
             </Field>
           </div>
         </SectionCard>
@@ -266,16 +298,16 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Start Date" error={errors.startDate}>
-              <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className={cn("h-10", formData.startDate ? "text-foreground" : "text-muted-foreground")} />
+            <Field label="Start Date" error={errors.startDate} ref={setFieldRef("startDate")}>
+              <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className={cn("h-10", formData.startDate ? "text-foreground" : "text-muted-foreground", errors.startDate && "border-destructive focus-visible:ring-destructive")} />
             </Field>
           </div>
-          <Field label="Salary" error={errors.salary} hint="Monthly gross amount (numbers only)">
+          <Field label="Salary" error={errors.salary} ref={setFieldRef("salary")}>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
                 {getCurrencyCode(formData.country, employmentType)}
               </span>
-              <Input value={parseSalaryValue(formData.salary)} onChange={e => set("salary")(e.target.value)} placeholder="5,000" className="pl-12 h-10" />
+              <Input value={parseSalaryValue(formData.salary)} onChange={e => set("salary")(e.target.value)} placeholder="5,000" className={cn("pl-12 h-10", errors.salary && "border-destructive focus-visible:ring-destructive")} />
             </div>
           </Field>
           <Field label="ID Number" optional>
