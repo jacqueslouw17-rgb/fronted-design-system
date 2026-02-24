@@ -448,37 +448,38 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 transition={{ duration: 0.25, ease: "easeOut" }}
                 className="space-y-3"
               >
-                {/* ── Section 1: Personal Details ── */}
-                <SectionCard
-                  title="Personal Details"
-                  subtitle="Basic information about the candidate"
-                >
+                {/* ── Section 1: Personal Profile ── */}
+                <SectionCard title="Personal Profile">
                   <Field label="Full Name" required>
                     <Input value={formData.name} onChange={e => set("name")(e.target.value)} placeholder="e.g., Maria Santos" className="h-10" />
                   </Field>
                   <Field label="Email" required>
                     <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
                   </Field>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Nationality">
-                      <NationalityCombobox value={formData.nationality} onChange={set("nationality")} />
-                    </Field>
-                    <Field label="Role" required>
-                      <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className="h-10" />
-                    </Field>
-                  </div>
+                  <Field label="Nationality">
+                    <NationalityCombobox value={formData.nationality} onChange={set("nationality")} />
+                  </Field>
+                  <Field label="Address" optionalTooltip="Can be completed by the worker during onboarding">
+                    <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
+                  </Field>
+                  <Field label={countryRule?.idLabel || "ID Number"} optionalTooltip="Can be completed by the worker during onboarding">
+                    <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+                  </Field>
                 </SectionCard>
 
-                {/* ── Section 2: Contract Details ── */}
+                {/* ── Section 2: Working Engagement ── */}
                 <SectionCard
-                  title="Contract Details"
-                  subtitle="Select country to configure contract terms"
+                  title="Working Engagement"
                   badge={formData.country && countryRule ? (
                     <Badge variant="outline" className="text-xs font-medium gap-1">
                       {countryRule.flag} {formData.country}
                     </Badge>
                   ) : undefined}
                 >
+                  <Field label="Role" required>
+                    <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Developer" className="h-10" />
+                  </Field>
+
                   {/* Country — gateway field */}
                   <Field label="Country" required>
                     <Select value={formData.country} onValueChange={handleCountryChange}>
@@ -516,9 +517,8 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="space-y-4"
+                        className="space-y-3"
                       >
-                        {/* Employment & Compensation row */}
                         <div className="grid grid-cols-2 gap-3">
                           <Field label="Employment Type" required hint={isContractorOnly ? `Contractor only in ${formData.country}` : undefined}>
                             <Select
@@ -541,7 +541,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                           </Field>
                         </div>
 
-                        <Field label="Salary" required hint="Monthly gross amount (numbers only)">
+                        <Field label={formData.employmentType === "employee" ? "Salary" : "Consultancy Fee"} required>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
                               {formData.employmentType
@@ -557,19 +557,8 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                           </div>
                         </Field>
 
-                        {/* Identity */}
-                        <Field label={countryRule.idLabel} optionalTooltip="Can be completed by the worker during onboarding">
-                          <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
-                        </Field>
-
-                        {/* City */}
-                        <Field label="City" optionalTooltip="Can be completed by the worker during onboarding">
-                          <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Monterrey" className="h-10" />
-                        </Field>
-
-                        {/* Address */}
-                        <Field label="Address" optionalTooltip="Can be completed by the worker during onboarding">
-                          <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
+                        <Field label="Work Location" optionalTooltip="Can be completed by the worker during onboarding">
+                          <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Manila, Oslo" className="h-10" />
                         </Field>
                       </motion.div>
                     )}
