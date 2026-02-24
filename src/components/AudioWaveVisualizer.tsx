@@ -17,10 +17,10 @@ const AudioWaveVisualizer = ({ isActive = false, isListening = false, isDetectin
   // Create 5 wave lines with refined breathing animation
   const waves = [
     { delay: 0, restingHeight: 16, glowIntensity: 0.3 },
-    { delay: 0.15, restingHeight: 24, glowIntensity: 0.5 },
-    { delay: 0.3, restingHeight: 32, glowIntensity: 0.7 },
-    { delay: 0.45, restingHeight: 24, glowIntensity: 0.5 },
-    { delay: 0.6, restingHeight: 16, glowIntensity: 0.3 },
+    { delay: 0.25, restingHeight: 24, glowIntensity: 0.5 },
+    { delay: 0.5, restingHeight: 32, glowIntensity: 0.7 },
+    { delay: 0.75, restingHeight: 24, glowIntensity: 0.5 },
+    { delay: 1.0, restingHeight: 16, glowIntensity: 0.3 },
   ];
 
   return (
