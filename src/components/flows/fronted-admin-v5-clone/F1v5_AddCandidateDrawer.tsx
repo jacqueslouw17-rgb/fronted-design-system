@@ -113,17 +113,13 @@ const ATS_CANDIDATES = [
 
 /** Section card wrapper with icon header */
 const SectionCard: React.FC<{
-  icon: React.ReactNode;
   title: string;
   subtitle?: string;
   children: React.ReactNode;
   badge?: React.ReactNode;
-}> = ({ icon, title, subtitle, children, badge }) => (
+}> = ({ title, subtitle, children, badge }) => (
   <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
     <div className="flex items-center gap-3 px-5 py-3.5 bg-muted/30 border-b border-border/40">
-      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-        {icon}
-      </div>
       <div className="flex-1 min-w-0">
         <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
         {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
