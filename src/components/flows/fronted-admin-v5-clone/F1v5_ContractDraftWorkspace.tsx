@@ -31,7 +31,7 @@ import {
 // Tabs replaced with custom button-based tab UI for stronger active state
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw, X, ChevronLeft, ChevronRight, ChevronDown, Cpu, Scale, Car, HeartPulse, Home, BookOpen } from "lucide-react";
+import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText, Pencil, RotateCcw, X, ChevronLeft, ChevronRight, ChevronDown, Cpu, Scale, Car, HeartPulse, Home, BookOpen, User, MapPin, Calendar, Clock, Banknote, Globe, Building2 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
 import { ContractCarousel } from "@/components/contract-flow/ContractCarousel";
