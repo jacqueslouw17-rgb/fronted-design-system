@@ -133,6 +133,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
 }) => {
   const defaultEmploymentType = candidate.employmentType || "contractor";
   const [employmentType, setEmploymentType] = useState<"employee" | "contractor">(defaultEmploymentType);
+  const countryRule = COUNTRY_RULES[candidate.country];
 
   const [formData, setFormData] = useState({
     fullName: candidate.name,
@@ -147,10 +148,13 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     startDate: candidate.startDate || "",
     salary: candidate.salary,
     taxResidence: candidate.taxResidence || "",
-    bankName: candidate.bankName || "",
-    bankAccount: candidate.bankAccount || "",
-    emergencyContactName: candidate.emergencyContactName || "",
-    emergencyContactPhone: candidate.emergencyContactPhone || "",
+    // Terms — prepopulated from country defaults
+    probationPeriod: countryRule ? String(countryRule.probation.default) : "",
+    noticePeriod: countryRule ? String(countryRule.noticePeriod.default) : "",
+    annualLeave: countryRule ? String(countryRule.annualLeave.default) : "",
+    sickLeave: countryRule ? String(countryRule.sickLeave.default) : "",
+    weeklyHours: countryRule ? String(countryRule.weeklyHours.default) : "",
+    payFrequency: countryRule ? countryRule.payFrequency.default : "monthly",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
