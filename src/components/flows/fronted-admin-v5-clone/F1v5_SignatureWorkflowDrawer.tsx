@@ -257,18 +257,6 @@ export const F1v4_SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps
 
             <Separator />
 
-            {/* Admin Signature Required Notice */}
-            {signingStatus === "awaiting_admin" && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border">
-                <Info className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium">Admin Signature Required</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    The contract must be signed by an admin before it can be sent to the candidate for signature.
-                  </p>
-                </div>
-              </div>
-            )}
 
             {/* Contract Progress Tracker */}
             <div className="space-y-3">
