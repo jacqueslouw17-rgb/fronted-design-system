@@ -163,6 +163,7 @@ const lifecycleStatusConfig: Record<WorkerLifecycleStatus, { label: string; badg
     icon: UserX,
   },
 };
+
 /* ── Section Card (matches configure drawer pattern) ── */
 const SectionCard: React.FC<{
   title: string;
