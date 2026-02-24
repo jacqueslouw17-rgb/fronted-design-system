@@ -1156,10 +1156,11 @@ const AdminContractingMultiCompany = () => {
                           if (contractFlow.currentDraftIndex === 0) {
                             // Go back to the v5 Prepare Contract form
                             const candidateIds = contractFlow.selectedCandidates.map(c => c.id).join(',');
+                            const company = selectedCompany;
                             const params = new URLSearchParams({
                               ids: candidateIds,
                               returnTo: 'f1v5',
-                              ...(companyParam && { company: companyParam }),
+                              ...(company && { company }),
                             }).toString();
                             navigate(`/flows/contract-creation?${params}`);
                           } else {
