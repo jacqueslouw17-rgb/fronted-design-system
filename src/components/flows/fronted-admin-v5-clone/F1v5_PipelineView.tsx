@@ -1246,13 +1246,24 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               Track Progress
                             </Button>}
                           
-                          {status === "trigger-onboarding" && <Button size="sm" className="w-full text-xs h-7 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium" onClick={e => {
-                        e.stopPropagation();
-                        handleStartOnboardingClick(contractor);
-                      }}>
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Start Onboarding
-                            </Button>}
+                          {status === "trigger-onboarding" && <>
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" onClick={e => {
+                            e.stopPropagation();
+                            setSelectedForPayrollCollection(contractor);
+                            setPayrollCollectionDrawerOpen(true);
+                          }}>
+                                <Settings className="h-3 w-3" />
+                                Configure
+                              </Button>
+                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
+                            e.stopPropagation();
+                            setSelectedForPayrollCollection(contractor);
+                            setPayrollCollectionDrawerOpen(true);
+                          }}>
+                                <Send className="h-3 w-3" />
+                                Send Form
+                              </Button>
+                            </>}
                           
                           {status === "onboarding-pending" && <div className="flex items-center justify-center w-full py-1">
                               <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-blue-fill/20 text-accent-blue-text border-accent-blue-outline/30 hover:bg-accent-blue-fill/30">
@@ -1537,5 +1548,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       const actionLabel = action === "terminated" ? "terminated" : action === "resigned" ? "marked as resigned" : "contract ended";
       toast.success(`${selectedForDoneDetail?.name} has been ${actionLabel}.`);
     }} />
+      {/* Payroll Data Collection Drawer */}
+      <F1v5_PayrollDataCollectionDrawer
+        open={payrollCollectionDrawerOpen}
+        onOpenChange={setPayrollCollectionDrawerOpen}
+        contractor={selectedForPayrollCollection}
+        onSendForm={() => {
+          if (selectedForPayrollCollection) {
+            handleStartOnboardingClick(selectedForPayrollCollection);
+          }
+          setPayrollCollectionDrawerOpen(false);
+        }}
+      />
     </div>;
 };
