@@ -1,745 +1,488 @@
 /**
  * Flow 2 v2 - Candidate Data Collection (Single Page Form)
  * 
- * STRICT v1 parity with added:
- * - Employment Type selector at top (editable, not prefilled)
- * - Conditional minimal payroll fields based on employment type
+ * Aligned with admin-side configuration from Flow 1 v5:
+ * - Section 1: Personal Profile (worker fills optional fields)
+ * - Section 2: Working Engagement (read-only terms confirmed by company + worker fills location)
  * 
- * CTAs: "Send Form" (primary) + "Cancel" (secondary)
- * Success: Same toast + navigation as v1
- * 
+ * Uses SectionCard pattern matching admin drawer UX.
  * Version: v2 (staging)
  */
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle2, ChevronDown, Lock, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
-// F2v2 Analytics (staging only)
+// ─── Country Rules (matching admin-side F1v5) ───
+interface CountryRule {
+  flag: string;
+  currency: string;
+  probation: { default: number; unit: string };
+  noticePeriod: { default: number; unit: string };
+  annualLeave: { default: number; unit: string };
+  sickLeave: { default: number; unit: string };
+  weeklyHours: { default: number; unit: string };
+  payFrequency: string;
+  idLabel: string;
+  idPlaceholder: string;
+}
+
+const COUNTRY_RULES: Record<string, CountryRule> = {
+  Norway: {
+    flag: "🇳🇴", currency: "NOK",
+    probation: { default: 180, unit: "days" },
+    noticePeriod: { default: 30, unit: "days" },
+    annualLeave: { default: 25, unit: "days" },
+    sickLeave: { default: 365, unit: "days" },
+    weeklyHours: { default: 37.5, unit: "hours" },
+    payFrequency: "Monthly",
+    idLabel: "National ID (Fødselsnummer)",
+    idPlaceholder: "11-digit personal number",
+  },
+  Sweden: {
+    flag: "🇸🇪", currency: "SEK",
+    probation: { default: 180, unit: "days" },
+    noticePeriod: { default: 30, unit: "days" },
+    annualLeave: { default: 25, unit: "days" },
+    sickLeave: { default: 365, unit: "days" },
+    weeklyHours: { default: 40, unit: "hours" },
+    payFrequency: "Monthly",
+    idLabel: "Personal Number (Personnummer)",
+    idPlaceholder: "YYMMDD-XXXX",
+  },
+  Philippines: {
+    flag: "🇵🇭", currency: "PHP",
+    probation: { default: 180, unit: "days" },
+    noticePeriod: { default: 30, unit: "days" },
+    annualLeave: { default: 5, unit: "days" },
+    sickLeave: { default: 5, unit: "days" },
+    weeklyHours: { default: 48, unit: "hours" },
+    payFrequency: "Fortnightly",
+    idLabel: "TIN / PhilHealth ID",
+    idPlaceholder: "e.g., 123-456-789-000",
+  },
+  India: {
+    flag: "🇮🇳", currency: "INR",
+    probation: { default: 90, unit: "days" },
+    noticePeriod: { default: 30, unit: "days" },
+    annualLeave: { default: 21, unit: "days" },
+    sickLeave: { default: 12, unit: "days" },
+    weeklyHours: { default: 48, unit: "hours" },
+    payFrequency: "Monthly",
+    idLabel: "PAN Number",
+    idPlaceholder: "e.g., ABCDE1234F",
+  },
+  Kosovo: {
+    flag: "🇽🇰", currency: "EUR",
+    probation: { default: 180, unit: "days" },
+    noticePeriod: { default: 30, unit: "days" },
+    annualLeave: { default: 20, unit: "days" },
+    sickLeave: { default: 20, unit: "days" },
+    weeklyHours: { default: 40, unit: "hours" },
+    payFrequency: "Monthly",
+    idLabel: "Personal ID Number",
+    idPlaceholder: "National ID number",
+  },
+  Denmark: {
+    flag: "🇩🇰", currency: "DKK",
+    probation: { default: 90, unit: "days" },
+    noticePeriod: { default: 30, unit: "days" },
+    annualLeave: { default: 25, unit: "days" },
+    sickLeave: { default: 365, unit: "days" },
+    weeklyHours: { default: 37, unit: "hours" },
+    payFrequency: "Monthly",
+    idLabel: "CPR Number",
+    idPlaceholder: "DDMMYY-XXXX",
+  },
+  Singapore: {
+    flag: "🇸🇬", currency: "SGD",
+    probation: { default: 90, unit: "days" },
+    noticePeriod: { default: 30, unit: "days" },
+    annualLeave: { default: 7, unit: "days" },
+    sickLeave: { default: 14, unit: "days" },
+    weeklyHours: { default: 44, unit: "hours" },
+    payFrequency: "Monthly",
+    idLabel: "NRIC / FIN",
+    idPlaceholder: "e.g., S1234567A",
+  },
+  Spain: {
+    flag: "🇪🇸", currency: "EUR",
+    probation: { default: 60, unit: "days" },
+    noticePeriod: { default: 15, unit: "days" },
+    annualLeave: { default: 22, unit: "days" },
+    sickLeave: { default: 365, unit: "days" },
+    weeklyHours: { default: 40, unit: "hours" },
+    payFrequency: "Monthly",
+    idLabel: "DNI / NIE",
+    idPlaceholder: "e.g., 12345678Z",
+  },
+  Romania: {
+    flag: "🇷🇴", currency: "RON",
+    probation: { default: 90, unit: "days" },
+    noticePeriod: { default: 20, unit: "days" },
+    annualLeave: { default: 20, unit: "days" },
+    sickLeave: { default: 183, unit: "days" },
+    weeklyHours: { default: 40, unit: "hours" },
+    payFrequency: "Monthly",
+    idLabel: "CNP (Personal Numeric Code)",
+    idPlaceholder: "13-digit code",
+  },
+};
+
+const NATIONALITIES = [
+  "American", "Australian", "Brazilian", "British", "Canadian", "Chinese", "Danish",
+  "Dutch", "Filipino", "Finnish", "French", "German", "Greek", "Indian", "Indonesian",
+  "Irish", "Italian", "Japanese", "Korean", "Kosovar", "Malaysian", "Mexican",
+  "Norwegian", "Polish", "Portuguese", "Romanian", "Russian", "Singaporean",
+  "South African", "Spanish", "Swedish", "Swiss", "Thai", "Turkish", "Ukrainian",
+];
+
+// ─── Prefilled data from ATS (simulating admin-configured data) ───
+const PREFILLED = {
+  fullName: "Sofia Rodriguez",
+  email: "sofia.rodriguez@email.com",
+  role: "Marketing Manager",
+  country: "Philippines",
+  employmentType: "Contractor" as const,
+  startDate: "2025-02-01",
+  salary: "₱85,000",
+  companyName: "Acme Corp",
+};
+
+// ─── Analytics (staging) ───
 const F2v2_Analytics = {
   track: (event: string, data?: Record<string, unknown>) => {
     console.log(`[F2v2_Analytics][staging] ${event}`, data || {});
   }
 };
 
-// Currency options
-const CURRENCIES = [{
-  code: 'USD',
-  label: 'USD - US Dollar'
-}, {
-  code: 'EUR',
-  label: 'EUR - Euro'
-}, {
-  code: 'GBP',
-  label: 'GBP - British Pound'
-}, {
-  code: 'MXN',
-  label: 'MXN - Mexican Peso'
-}, {
-  code: 'PHP',
-  label: 'PHP - Philippine Peso'
-}, {
-  code: 'BRL',
-  label: 'BRL - Brazilian Real'
-}, {
-  code: 'INR',
-  label: 'INR - Indian Rupee'
-}];
+// ─── UI Components (matching admin SectionCard pattern) ───
+const SectionCard: React.FC<{
+  title: string;
+  badge?: React.ReactNode;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}> = ({ title, badge, defaultOpen = true, children }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <button className="flex items-center gap-3 px-5 py-3 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
+            </div>
+            {badge}
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="p-4 pt-3 space-y-3">
+            {children}
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  );
+};
 
-// F2v2 Employment Type
-type F2v2_EmploymentType = 'employee' | 'contractor' | '';
-type F2v2_BillingModel = 'hourly' | 'fixed' | '';
+const Field: React.FC<{
+  label: string;
+  optional?: boolean;
+  children: React.ReactNode;
+}> = ({ label, optional, children }) => (
+  <div className="space-y-1.5">
+    <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+      {label}
+      {optional && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">Optional</Badge>}
+    </Label>
+    {children}
+  </div>
+);
 
-// F2v2 Form State (local, not using zustand for simplicity matching v1)
-interface F2v2_FormState {
-  // Employment type
-  employment_type: F2v2_EmploymentType;
-  // Core fields (matching v1 structure)
-  idType: string;
-  idNumber: string;
-  taxResidence: string;
-  city: string;
-  nationality: string;
-  address: string;
-  bankName: string;
-  accountNumber: string;
-  payFrequency: string;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
-  // Payroll fields
-  country_code: string;
-  currency: string;
-  start_date: string;
-  // Employee-only
-  employee_monthly_salary: string;
-  employee_overtime_eligible: boolean;
-  employee_hours_per_week: string;
-  // Contractor-only
-  contractor_billing_model: F2v2_BillingModel;
-  contractor_hourly_rate: string;
-  contractor_expected_hours_per_week: string;
-  contractor_retainer_amount_monthly: string;
-  contractor_invoice_cadence: string;
-  contractor_timesheet_required: boolean;
-}
+const ReadOnlyField: React.FC<{
+  label: string;
+  value: string;
+  unit?: string;
+}> = ({ label, value, unit }) => (
+  <div className="space-y-1.5">
+    <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+    <div className="flex items-center gap-2">
+      <Input value={value} disabled className="bg-muted/50 h-10 flex-1" />
+      {unit && (
+        <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">
+          {unit}
+        </span>
+      )}
+    </div>
+  </div>
+);
+
+// ─── Main Component ───
 const F2v2_CandidateDataForm: React.FC = () => {
   const navigate = useNavigate();
+  const countryRule = COUNTRY_RULES[PREFILLED.country];
 
-  // Pre-filled data from ATS (same as v1)
-  const prefilledData = {
-    fullName: "Sofia Rodriguez",
-    email: "sofia.rodriguez@email.com",
-    role: "Marketing Manager",
-    salary: "$72,000 USD",
-    startDate: "2025-02-01"
-  };
-
-  // Form state
-  const [formData, setFormData] = useState<F2v2_FormState>({
-    employment_type: '',
-    idType: '',
-    idNumber: '',
-    taxResidence: '',
-    city: '',
-    nationality: '',
-    address: '',
-    bankName: '',
-    accountNumber: '',
-    payFrequency: '',
-    emergencyContactName: '',
-    emergencyContactPhone: '',
-    country_code: 'MX',
-    currency: 'MXN',
-    start_date: '',
-    employee_monthly_salary: '',
-    employee_overtime_eligible: false,
-    employee_hours_per_week: '',
-    contractor_billing_model: '',
-    contractor_hourly_rate: '',
-    contractor_expected_hours_per_week: '',
-    contractor_retainer_amount_monthly: '',
-    contractor_invoice_cadence: 'auto_month_end',
-    contractor_timesheet_required: false
+  const [formData, setFormData] = useState({
+    // Worker fills these (optional from admin side)
+    nationality: "",
+    address: "",
+    idNumber: "",
+    workLocation: "",
   });
 
-  // Type change confirmation
-  const [pendingTypeChange, setPendingTypeChange] = useState<F2v2_EmploymentType | null>(null);
-  const [showTypeChangeDialog, setShowTypeChangeDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Track page open
   useEffect(() => {
     F2v2_Analytics.track('flow2_v2_opened');
   }, []);
 
-  // Handle employment type change with confirmation
-  const handleEmploymentTypeChange = (newType: F2v2_EmploymentType) => {
-    const currentType = formData.employment_type;
+  const set = (key: string) => (value: string) =>
+    setFormData(prev => ({ ...prev, [key]: value }));
 
-    // Check if switching types and has data
-    if (currentType && currentType !== newType) {
-      const hasEmployeeData = formData.employee_monthly_salary !== '';
-      const hasContractorData = formData.contractor_hourly_rate !== '' || formData.contractor_retainer_amount_monthly !== '';
-      if (currentType === 'employee' && hasEmployeeData || currentType === 'contractor' && hasContractorData) {
-        setPendingTypeChange(newType);
-        setShowTypeChangeDialog(true);
-        return;
-      }
-    }
-    applyTypeChange(newType);
-  };
-  const applyTypeChange = (newType: F2v2_EmploymentType) => {
-    if (newType === 'employee') {
-      // Clear contractor fields
-      setFormData(prev => ({
-        ...prev,
-        employment_type: newType,
-        contractor_billing_model: '',
-        contractor_hourly_rate: '',
-        contractor_expected_hours_per_week: '',
-        contractor_retainer_amount_monthly: '',
-        contractor_invoice_cadence: 'auto_month_end',
-        contractor_timesheet_required: false
-      }));
-    } else if (newType === 'contractor') {
-      // Clear employee fields
-      setFormData(prev => ({
-        ...prev,
-        employment_type: newType,
-        employee_monthly_salary: '',
-        employee_overtime_eligible: false,
-        employee_hours_per_week: ''
-      }));
-    }
-  };
-  const confirmTypeChange = () => {
-    if (pendingTypeChange) {
-      applyTypeChange(pendingTypeChange);
-      setPendingTypeChange(null);
-    }
-    setShowTypeChangeDialog(false);
-  };
-
-  // Validation matching v1 style
   const isFormValid = () => {
-    // Core required fields (from v1)
-    const coreValid = formData.idType && formData.idNumber && formData.taxResidence && formData.city && formData.nationality && formData.address && formData.bankName && formData.accountNumber && formData.payFrequency;
-    if (!coreValid) return false;
-
-    // Employment type required
-    if (!formData.employment_type) return false;
-
-    // Payroll fields
-    if (!formData.currency || !formData.start_date) return false;
-
-    // Type-specific validation
-    if (formData.employment_type === 'employee') {
-      const salary = parseFloat(formData.employee_monthly_salary);
-      if (isNaN(salary) || salary <= 0) return false;
-    }
-    if (formData.employment_type === 'contractor') {
-      if (!formData.contractor_billing_model) return false;
-      if (formData.contractor_billing_model === 'hourly') {
-        const rate = parseFloat(formData.contractor_hourly_rate);
-        if (isNaN(rate) || rate <= 0) return false;
-      } else if (formData.contractor_billing_model === 'fixed') {
-        const retainer = parseFloat(formData.contractor_retainer_amount_monthly);
-        if (isNaN(retainer) || retainer <= 0) return false;
-      }
-    }
-    return true;
+    // At minimum, nationality and ID are needed
+    return formData.nationality && formData.idNumber;
   };
 
-  // Send Form - same success pattern as v1
-  const handleSendForm = () => {
+  const handleSubmit = async () => {
     if (!isFormValid()) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    // Build F2v2_Payload
-    const basePayload = {
-      employment_type: formData.employment_type,
-      country_code: formData.country_code,
-      currency: formData.currency,
-      start_date: formData.start_date,
-      F2v2_version: "v2"
-    };
-    let F2v2_Payload: Record<string, unknown>;
-    if (formData.employment_type === 'employee') {
-      F2v2_Payload = {
-        ...basePayload,
-        employee_monthly_salary: parseFloat(formData.employee_monthly_salary),
-        employee_overtime_eligible: formData.employee_overtime_eligible,
-        employee_hours_per_week: formData.employee_hours_per_week ? parseInt(formData.employee_hours_per_week) : null
-      };
-    } else {
-      F2v2_Payload = {
-        ...basePayload,
-        contractor_billing_model: formData.contractor_billing_model,
-        contractor_timesheet_required: formData.contractor_timesheet_required
-      };
-      if (formData.contractor_billing_model === 'hourly') {
-        F2v2_Payload.contractor_hourly_rate = parseFloat(formData.contractor_hourly_rate);
-        F2v2_Payload.contractor_expected_hours_per_week = formData.contractor_expected_hours_per_week ? parseInt(formData.contractor_expected_hours_per_week) : null;
-      } else {
-        F2v2_Payload.contractor_retainer_amount_monthly = parseFloat(formData.contractor_retainer_amount_monthly);
-        F2v2_Payload.contractor_invoice_cadence = formData.contractor_invoice_cadence;
-      }
-    }
-    console.log('[F2v2] Payload:', F2v2_Payload);
-    F2v2_Analytics.track('flow2_v2_sent', F2v2_Payload);
+    setIsSubmitting(true);
 
-    // SAME SUCCESS AS v1: toast + navigate
-    toast.success("Form sent successfully to " + prefilledData.fullName, {
-      description: "Kurt will handle the ATS notification automatically"
+    const payload = {
+      F2v2_version: "v2",
+      submitted_at: new Date().toISOString(),
+      prefilled: PREFILLED,
+      worker_provided: formData,
+    };
+
+    console.log('[F2v2_SubmitAction] Payload:', JSON.stringify(payload, null, 2));
+    F2v2_Analytics.track('flow2_v2_submitted', payload);
+
+    await new Promise(r => setTimeout(r, 1000));
+
+    toast.success("Your details have been submitted successfully", {
+      description: `${PREFILLED.companyName} will be notified.`
     });
-    navigate("/flows/admin-dashboard");
+    setIsSubmitting(false);
+    navigate("/");
   };
 
-  // Cancel - same as v1
   const handleCancel = () => {
     F2v2_Analytics.track('flow2_v2_cancelled');
-    navigate("/flows/admin-dashboard");
+    navigate("/");
   };
 
-  // Handle billing model change
-  const handleBillingModelChange = (model: F2v2_BillingModel) => {
-    setFormData(prev => ({
-      ...prev,
-      contractor_billing_model: model,
-      contractor_timesheet_required: model === 'hourly' ? true : prev.contractor_timesheet_required
-    }));
-  };
-  return <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
-      {/* Back Arrow - Top Left */}
-      <div className="absolute top-6 left-6">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+      {/* Back Arrow */}
+      <div className="absolute top-6 left-6 z-10">
         <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-foreground hover:bg-transparent">
           <ArrowLeft className="h-5 w-5" />
         </Button>
       </div>
 
-      <div className="max-w-4xl mx-auto px-8 pt-16 pb-32">
-        <motion.div initial={{
-        opacity: 0,
-        y: 20
-      }} animate={{
-        opacity: 1,
-        y: 0
-      }} transition={{
-        duration: 0.5
-      }} className="space-y-8">
-          {/* Centered Header with Audio Wave Animation */}
-          <div className="flex flex-col items-center pt-8">
-            <div className="mb-6" style={{
-            maxHeight: '160px'
-          }}>
+      <div className="max-w-2xl mx-auto px-6 pt-16 pb-32">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-5"
+        >
+          {/* Header with Audio Wave */}
+          <div className="flex flex-col items-center pt-4">
+            <div className="mb-4" style={{ maxHeight: '120px' }}>
               <AudioWaveVisualizer isActive={false} />
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-3 text-center">
-              Hi Sofia! Let's complete your payroll details
-            </h1>
-            <p className="text-muted-foreground text-center">Let's gather a few more details to get your payroll set up.</p>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl font-bold text-foreground text-center">
+                Hi {PREFILLED.fullName.split(' ')[0]}! Let's complete your details
+              </h1>
+              <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30 shrink-0">
+                v2
+              </Badge>
+            </div>
+            <p className="text-muted-foreground text-center text-sm">
+              Please verify the information below and fill in the remaining fields.
+            </p>
           </div>
 
-          {/* Single Page Form */}
-          <div className="space-y-6 bg-card rounded-lg border border-border p-6">
-            
-            {/* EMPLOYMENT TYPE - TOP (v2 addition) */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2">
-                Employment Type
-                <Badge variant="secondary" className="text-xs">Required</Badge>
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                This decides which compensation fields you'll see.
-              </p>
-              <RadioGroup value={formData.employment_type} onValueChange={value => handleEmploymentTypeChange(value as F2v2_EmploymentType)} className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="employee" id="f2v2-emp-employee" />
-                  <Label htmlFor="f2v2-emp-employee" className="cursor-pointer">Employee (EOR)</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="contractor" id="f2v2-emp-contractor" />
-                  <Label htmlFor="f2v2-emp-contractor" className="cursor-pointer">Contractor (COR)</Label>
-                </div>
-              </RadioGroup>
+          {/* ── Section 1: Personal Profile ── */}
+          <SectionCard title="Personal Profile">
+            {/* Locked fields from ATS */}
+            <Field label="Full Name">
+              <Input value={PREFILLED.fullName} disabled className="bg-muted/50 h-10" />
+            </Field>
+            <Field label="Email">
+              <Input value={PREFILLED.email} disabled className="bg-muted/50 h-10" />
+            </Field>
+
+            {/* Worker fills these */}
+            <div className="border-t border-border/40 pt-3 mt-1">
+              <p className="text-[11px] text-muted-foreground mb-3">Please complete the following</p>
             </div>
 
-            {/* Divider */}
-            <div className="border-t border-border" />
-
-            {/* Prefilled fields */}
-            <div className="space-y-2">
-              <Label>Full Name</Label>
-              <Input value={prefilledData.fullName} disabled className="bg-muted/50" />
-              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Email</Label>
-              <Input value={prefilledData.email} disabled className="bg-muted/50" />
-              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Role</Label>
-              <Input value={prefilledData.role} disabled className="bg-muted/50" />
-              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Salary</Label>
-              <Input value={prefilledData.salary} disabled className="bg-muted/50" />
-              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-            </div>
-
-            {prefilledData.startDate && <div className="space-y-2">
-                <Label>Start Date</Label>
-                <Input value={prefilledData.startDate} disabled className="bg-muted/50" />
-                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-              </div>}
-
-            {/* Divider */}
-            <div className="pt-4 border-t border-border">
-              <p className="text-xs font-medium text-muted-foreground mb-4">
-                Required Fields <Badge variant="secondary" className="ml-2 text-xs">To be filled by you</Badge>
-              </p>
-            </div>
-
-            {/* Required fields */}
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                ID Type & Number
-                <Badge variant="secondary" className="text-xs">Required</Badge>
-              </Label>
-              <Select value={formData.idType} onValueChange={value => setFormData({
-              ...formData,
-              idType: value
-            })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select ID Type" />
-                </SelectTrigger>
+            <Field label="Nationality">
+              <Select value={formData.nationality} onValueChange={set("nationality")}>
+                <SelectTrigger className="h-10"><SelectValue placeholder="Select your nationality" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="passport">Passport</SelectItem>
-                  <SelectItem value="national-id">National ID</SelectItem>
-                  <SelectItem value="drivers-license">Driver's License</SelectItem>
+                  {NATIONALITIES.map(n => (
+                    <SelectItem key={n} value={n}>{n}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <Input placeholder="ID Number" value={formData.idNumber} onChange={e => setFormData({
-              ...formData,
-              idNumber: e.target.value
-            })} />
+            </Field>
+
+            <Field label="Residential Address" optional>
+              <Input
+                value={formData.address}
+                onChange={e => set("address")(e.target.value)}
+                placeholder="Full residential address"
+                className="h-10"
+              />
+            </Field>
+
+            <Field label={countryRule?.idLabel || "ID Number"}>
+              <Input
+                value={formData.idNumber}
+                onChange={e => set("idNumber")(e.target.value)}
+                placeholder={countryRule?.idPlaceholder || "Government-issued ID number"}
+                className="h-10"
+              />
+            </Field>
+          </SectionCard>
+
+          {/* ── Section 2: Working Engagement ── */}
+          <SectionCard
+            title="Working Engagement"
+            badge={
+              <Badge variant="outline" className="text-xs font-medium gap-1">
+                {countryRule?.flag} {PREFILLED.country}
+              </Badge>
+            }
+          >
+            {/* Core terms — read-only, confirmed by company */}
+            <Field label="Role">
+              <Input value={PREFILLED.role} disabled className="bg-muted/50 h-10" />
+            </Field>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Employment Type">
+                <Input value={PREFILLED.employmentType} disabled className="bg-muted/50 h-10" />
+              </Field>
+              <Field label="Start Date">
+                <Input value={PREFILLED.startDate} disabled className="bg-muted/50 h-10" />
+              </Field>
             </div>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                Tax Residence
-                <Badge variant="secondary" className="text-xs">Required</Badge>
-              </Label>
-              <Input placeholder="e.g., Mexico" value={formData.taxResidence} onChange={e => setFormData({
-              ...formData,
-              taxResidence: e.target.value
-            })} />
-            </div>
+            <Field label={PREFILLED.employmentType === "Contractor" ? "Consultancy Fee" : "Salary"}>
+              <Input value={PREFILLED.salary} disabled className="bg-muted/50 h-10" />
+            </Field>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                City
-                <Badge variant="secondary" className="text-xs">Required</Badge>
-              </Label>
-              <Input placeholder="e.g., Monterrey" value={formData.city} onChange={e => setFormData({
-              ...formData,
-              city: e.target.value
-            })} />
-            </div>
+            {/* Worker fills location */}
+            <Field label="Work Location" optional>
+              <Input
+                value={formData.workLocation}
+                onChange={e => set("workLocation")(e.target.value)}
+                placeholder="e.g., Manila, Oslo, Remote"
+                className="h-10"
+              />
+            </Field>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                Nationality
-                <Badge variant="secondary" className="text-xs">Required</Badge>
-              </Label>
-              <Input placeholder="e.g., Mexican" value={formData.nationality} onChange={e => setFormData({
-              ...formData,
-              nationality: e.target.value
-            })} />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                Address
-                <Badge variant="secondary" className="text-xs">Required</Badge>
-              </Label>
-              <Textarea placeholder="Full residential address" value={formData.address} onChange={e => setFormData({
-              ...formData,
-              address: e.target.value
-            })} rows={3} />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                Bank Details
-                <Badge variant="secondary" className="text-xs">Required</Badge>
-              </Label>
-              <Input placeholder="Bank Name" value={formData.bankName} onChange={e => setFormData({
-              ...formData,
-              bankName: e.target.value
-            })} className="mb-2" />
-              <Input placeholder="Account Number / IBAN" value={formData.accountNumber} onChange={e => setFormData({
-              ...formData,
-              accountNumber: e.target.value
-            })} />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                Pay Frequency
-                <Badge variant="secondary" className="text-xs">Required</Badge>
-              </Label>
-              <Select value={formData.payFrequency} onValueChange={value => setFormData({
-              ...formData,
-              payFrequency: value
-            })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Pay Frequency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="daily">Daily</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                Emergency Contact
-                <span className="text-muted-foreground text-xs">(Optional)</span>
-              </Label>
-              <Input placeholder="Name" value={formData.emergencyContactName} onChange={e => setFormData({
-              ...formData,
-              emergencyContactName: e.target.value
-            })} className="mb-2" />
-              <Input placeholder="Phone" value={formData.emergencyContactPhone} onChange={e => setFormData({
-              ...formData,
-              emergencyContactPhone: e.target.value
-            })} />
-            </div>
-
-            {/* COMPENSATION BLOCK - v2 addition (conditional) */}
-            {formData.employment_type && <>
-                <div className="pt-4 border-t border-border">
-                  <p className="text-sm font-medium text-foreground mb-1">
-                    {formData.employment_type === 'employee' ? 'Compensation (Employee)' : 'Compensation (Contractor)'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mb-4">
-                    {formData.employment_type === 'employee' ? "We'll use this to set up your payroll. Bank details come later in onboarding." : "We'll use this to set up your invoicing. You can still submit invoices manually if needed."}
+            {/* Terms & Entitlements — read-only country defaults */}
+            {countryRule && (
+              <div className="border-t border-border/40 pt-3 mt-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <Building2 className="h-3.5 w-3.5 text-primary" />
+                  <p className="text-[11px] text-muted-foreground">
+                    Terms & Entitlements — confirmed with {PREFILLED.companyName} for {PREFILLED.country}
                   </p>
                 </div>
-
-                {/* Common payroll fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      Country
-                      <Badge variant="secondary" className="text-xs">Required</Badge>
-                    </Label>
-                    <Select value={formData.country_code} onValueChange={value => setFormData({
-                  ...formData,
-                  country_code: value
-                })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="MX">Mexico</SelectItem>
-                        <SelectItem value="US">United States</SelectItem>
-                        <SelectItem value="PH">Philippines</SelectItem>
-                        <SelectItem value="BR">Brazil</SelectItem>
-                        <SelectItem value="IN">India</SelectItem>
-                        <SelectItem value="GB">United Kingdom</SelectItem>
-                      </SelectContent>
-                    </Select>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <ReadOnlyField
+                      label="Probation Period"
+                      value={String(countryRule.probation.default)}
+                      unit={countryRule.probation.unit}
+                    />
+                    <ReadOnlyField
+                      label="Notice Period"
+                      value={String(countryRule.noticePeriod.default)}
+                      unit={countryRule.noticePeriod.unit}
+                    />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      Payment Currency
-                      <Badge variant="secondary" className="text-xs">Required</Badge>
-                    </Label>
-                    <Select value={formData.currency} onValueChange={value => setFormData({
-                  ...formData,
-                  currency: value
-                })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CURRENCIES.map(c => <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      Sets your pay currency; bank details are collected later.
-                    </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <ReadOnlyField
+                      label="Annual Leave"
+                      value={String(countryRule.annualLeave.default)}
+                      unit={countryRule.annualLeave.unit}
+                    />
+                    <ReadOnlyField
+                      label="Sick Leave"
+                      value={String(countryRule.sickLeave.default)}
+                      unit={countryRule.sickLeave.unit}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <ReadOnlyField
+                      label="Weekly Hours"
+                      value={String(countryRule.weeklyHours.default)}
+                      unit={countryRule.weeklyHours.unit}
+                    />
+                    <ReadOnlyField
+                      label="Pay Frequency"
+                      value={countryRule.payFrequency}
+                    />
                   </div>
                 </div>
+              </div>
+            )}
+          </SectionCard>
 
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    Start Date
-                    <Badge variant="secondary" className="text-xs">Required</Badge>
-                  </Label>
-                  <Input type="date" value={formData.start_date} onChange={e => setFormData({
-                ...formData,
-                start_date: e.target.value
-              })} />
-                </div>
-
-                {/* Employee-specific fields */}
-                {formData.employment_type === 'employee' && <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-2">
-                        Monthly Salary
-                        <Badge variant="secondary" className="text-xs">Required</Badge>
-                      </Label>
-                      <div className="flex gap-2">
-                        <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
-                          {formData.currency || 'USD'}
-                        </span>
-                        <Input type="number" step="0.01" min="0" placeholder="0.00" value={formData.employee_monthly_salary} onChange={e => setFormData({
-                    ...formData,
-                    employee_monthly_salary: e.target.value
-                  })} className="rounded-l-none" />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Overtime Eligible</Label>
-                        <p className="text-xs text-muted-foreground">Can this employee earn overtime?</p>
-                      </div>
-                      <Switch checked={formData.employee_overtime_eligible} onCheckedChange={checked => setFormData({
-                  ...formData,
-                  employee_overtime_eligible: checked
-                })} />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-2">
-                        Hours per Week
-                        <span className="text-xs text-muted-foreground">(Optional)</span>
-                      </Label>
-                      <Input type="number" min="1" max="80" placeholder="e.g., 40" value={formData.employee_hours_per_week} onChange={e => setFormData({
-                  ...formData,
-                  employee_hours_per_week: e.target.value
-                })} />
-                    </div>
-                  </div>}
-
-                {/* Contractor-specific fields */}
-                {formData.employment_type === 'contractor' && <div className="space-y-4">
-                    <div className="space-y-3">
-                      <Label className="flex items-center gap-2">
-                        Billing Model
-                        <Badge variant="secondary" className="text-xs">Required</Badge>
-                      </Label>
-                      <RadioGroup value={formData.contractor_billing_model} onValueChange={value => handleBillingModelChange(value as F2v2_BillingModel)} className="flex gap-4">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="hourly" id="f2v2-billing-hourly" />
-                          <Label htmlFor="f2v2-billing-hourly" className="cursor-pointer">Hourly</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="fixed" id="f2v2-billing-fixed" />
-                          <Label htmlFor="f2v2-billing-fixed" className="cursor-pointer">Fixed</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    {/* Hourly fields */}
-                    {formData.contractor_billing_model === 'hourly' && <>
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            Hourly Rate
-                            <Badge variant="secondary" className="text-xs">Required</Badge>
-                          </Label>
-                          <div className="flex gap-2">
-                            <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
-                              {formData.currency || 'USD'}
-                            </span>
-                            <Input type="number" step="0.01" min="0" placeholder="0.00" value={formData.contractor_hourly_rate} onChange={e => setFormData({
-                      ...formData,
-                      contractor_hourly_rate: e.target.value
-                    })} className="rounded-l-none" />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            Expected Hours/Week
-                            <span className="text-xs text-muted-foreground">(Optional)</span>
-                          </Label>
-                          <Input type="number" min="1" max="80" placeholder="e.g., 40" value={formData.contractor_expected_hours_per_week} onChange={e => setFormData({
-                    ...formData,
-                    contractor_expected_hours_per_week: e.target.value
-                  })} />
-                        </div>
-                      </>}
-
-                    {/* Fixed fields */}
-                    {formData.contractor_billing_model === 'fixed' && <>
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            Retainer Amount (per month)
-                            <Badge variant="secondary" className="text-xs">Required</Badge>
-                          </Label>
-                          <div className="flex gap-2">
-                            <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
-                              {formData.currency || 'USD'}
-                            </span>
-                            <Input type="number" step="0.01" min="0" placeholder="0.00" value={formData.contractor_retainer_amount_monthly} onChange={e => setFormData({
-                      ...formData,
-                      contractor_retainer_amount_monthly: e.target.value
-                    })} className="rounded-l-none" />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            Invoice Cadence
-                            <Badge variant="secondary" className="text-xs">Required</Badge>
-                          </Label>
-                          <Select value={formData.contractor_invoice_cadence} onValueChange={value => setFormData({
-                    ...formData,
-                    contractor_invoice_cadence: value
-                  })}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Invoice Cadence" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="auto_month_end">Auto month-end</SelectItem>
-                              <SelectItem value="manual_submit">Manual submit</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </>}
-
-                    {/* Timesheet Required */}
-                    {formData.contractor_billing_model && <div className="flex items-center space-x-2">
-                        <Checkbox id="f2v2-timesheet-required" checked={formData.contractor_timesheet_required} onCheckedChange={checked => setFormData({
-                  ...formData,
-                  contractor_timesheet_required: checked as boolean
-                })} disabled={formData.contractor_billing_model === 'hourly'} />
-                        <Label htmlFor="f2v2-timesheet-required" className={formData.contractor_billing_model === 'hourly' ? 'text-muted-foreground' : ''}>
-                          Timesheet Required
-                          {formData.contractor_billing_model === 'hourly' && <span className="ml-2 text-xs text-muted-foreground">(Required for hourly)</span>}
-                        </Label>
-                      </div>}
-                  </div>}
-              </>}
+          {/* Compliance badge */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Shield className="h-4 w-4 text-primary" />
+            <span>GDPR Compliant • Your data is encrypted and secure</span>
           </div>
 
-          {/* Preview message */}
-          
-
-          {/* Action Buttons - Cancel + Send Form */}
-          <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={handleCancel} className="flex-1">
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              className="flex-1"
+            >
               Cancel
             </Button>
-            <Button type="button" variant="default" onClick={handleSendForm} disabled={!isFormValid()} className="flex-1">
-              Send Form
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleSubmit}
+              disabled={!isFormValid() || isSubmitting}
+              className="flex-1"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Details"}
             </Button>
           </div>
         </motion.div>
       </div>
-
-      {/* Type Change Confirmation Dialog */}
-      <AlertDialog open={showTypeChangeDialog} onOpenChange={setShowTypeChangeDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Change Employment Type?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Switching will clear type-specific fields. Continue?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPendingTypeChange(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmTypeChange}>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>;
+    </div>
+  );
 };
+
 export default F2v2_CandidateDataForm;
