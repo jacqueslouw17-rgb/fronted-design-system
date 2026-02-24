@@ -292,7 +292,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 }) => {
   const [selectedAtsId, setSelectedAtsId] = useState("");
   const [formData, setFormData] = useState({
-    name: "", email: "", nationality: "", address: "", idNumber: "",
+    name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
     country: "", role: "",
     employmentType: "" as "" | "contractor" | "employee",
     salary: "", startDate: "",
@@ -307,7 +307,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
     setSelectedAtsId(value);
     if (value === "manual") {
       setFormData({
-        name: "", email: "", nationality: "", address: "", idNumber: "",
+        name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
         country: "", role: "", employmentType: "", salary: "", startDate: "",
         probationPeriod: "", noticePeriod: "", annualLeave: "", sickLeave: "",
         weeklyHours: "", payFrequency: "",
@@ -318,7 +318,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
         const rule = COUNTRY_RULES[candidate.country];
         setFormData({
           name: candidate.name, email: candidate.email,
-          nationality: "", address: "", idNumber: "",
+           nationality: "", city: "", address: "", idNumber: "",
           country: candidate.country, role: candidate.role,
           employmentType: candidate.employmentType,
           salary: "", startDate: "",
@@ -381,7 +381,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
   const resetForm = () => {
     setSelectedAtsId("");
     setFormData({
-      name: "", email: "", nationality: "", address: "", idNumber: "",
+      name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
       country: "", role: "", employmentType: "", salary: "", startDate: "",
       probationPeriod: "", noticePeriod: "", annualLeave: "", sickLeave: "",
       weeklyHours: "", payFrequency: "",
@@ -560,6 +560,11 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                         {/* Identity */}
                         <Field label={countryRule.idLabel} optionalTooltip="Can be completed by the worker during onboarding">
                           <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+                        </Field>
+
+                        {/* City */}
+                        <Field label="City" optionalTooltip="Can be completed by the worker during onboarding">
+                          <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Monterrey" className="h-10" />
                         </Field>
 
                         {/* Address */}
