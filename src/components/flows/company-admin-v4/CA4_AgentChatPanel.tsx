@@ -66,7 +66,7 @@ const createChatMessage = (msg: Omit<ChatMessage, 'id'>): ChatMessage => ({
 
 // Suggested next action for proactive flow
 interface SuggestedAction {
-  type: PendingActionType | 'view_worker' | 'continue_to_submit';
+  type: PendingActionType | 'view_worker';
   label: string;
   description?: string;
   workerId?: string;
@@ -146,23 +146,6 @@ function inferYesNoActionFromAssistant(content: string): PendingActionType | nul
     lower.includes('approve all items')
   ) {
     return 'approve_all';
-  }
-
-  // Mark ready
-  if (
-    /mark\s+all/i.test(content) && lower.includes('ready') ||
-    lower.includes('mark all workers as ready') ||
-    lower.includes('mark them as ready')
-  ) {
-    return 'mark_ready';
-  }
-
-  // Submit payroll
-  if (
-    lower.includes('continue to submit') ||
-    (lower.includes('submit') && lower.includes('payroll'))
-  ) {
-    return 'submit_payroll';
   }
 
   return null;
@@ -304,31 +287,6 @@ function detectActionIntent(query: string): ActionIntent {
     return { type: 'reject_all' };
   }
   
-  // Mark ready intent - check for specific worker or all workers
-  if (lowerQuery.includes('mark') && lowerQuery.includes('ready')) {
-    // Check for "all" workers
-    if (lowerQuery.includes('all') || lowerQuery.includes('everyone') || lowerQuery.includes('everybody')) {
-      return { type: 'mark_ready' }; // No workerId means all workers
-    }
-    // Check for specific worker name
-    for (const [key, value] of Object.entries(WORKER_MAP)) {
-      if (lowerQuery.includes(key)) {
-        return { type: 'mark_ready', workerId: value.id, workerName: value.name };
-      }
-    }
-    // Default to current worker context
-    return { type: 'mark_ready' };
-  }
-  
-  // Submit payroll intent
-  if ((lowerQuery.includes('submit') && lowerQuery.includes('payroll')) ||
-      lowerQuery.includes('continue to submit') ||
-      lowerQuery.includes('finalize payroll') ||
-      lowerQuery.includes('proceed to submit') ||
-      lowerQuery.includes('go to submit')) {
-    return { type: 'submit_payroll' };
-  }
-  
   return { type: null };
 }
 
@@ -336,44 +294,11 @@ function detectActionIntent(query: string): ActionIntent {
 function getNextSuggestedAction(completedAction: PendingActionType, workerId?: string): SuggestedAction | undefined {
   switch (completedAction) {
     case 'approve_all':
-      // After approving all, suggest marking workers as ready
-      const workersToMark = WORKERS_DATA.filter(w => w.status !== 'ready');
-      if (workersToMark.length > 0) {
-        return {
-          type: 'mark_ready',
-          label: 'Mark workers as ready',
-          description: `${workersToMark.length} worker${workersToMark.length > 1 ? 's' : ''} can now be finalized`,
-        };
-      }
-      break;
-      
-    case 'mark_ready':
-      // After marking ready, check if all workers are ready → suggest submit
-      const remainingWorkers = WORKERS_DATA.filter(w => w.status !== 'ready');
-      if (remainingWorkers.length === 0 || remainingWorkers.length <= 1) {
-        return {
-          type: 'submit_payroll',
-          label: 'Continue to submit',
-          description: 'All workers are ready for payroll',
-        };
-      } else {
-        // Suggest marking more workers
-        const nextWorker = remainingWorkers[0];
-        return {
-          type: 'mark_ready',
-          label: `Mark ${nextWorker.name} as ready`,
-          description: `${remainingWorkers.length} more worker${remainingWorkers.length > 1 ? 's' : ''} to finalize`,
-          workerId: nextWorker.id,
-          workerName: nextWorker.name,
-        };
-      }
+      // After approving all, no automatic next step
+      return undefined;
       
     case 'reject_all':
       // After rejecting, no automatic next step - worker needs to resubmit
-      return undefined;
-      
-    case 'submit_payroll':
-      // After submitting, we're done with this flow
       return undefined;
       
     default:
@@ -384,7 +309,6 @@ function getNextSuggestedAction(completedAction: PendingActionType, workerId?: s
 const SUGGESTIONS = [
   'Approve all pending items',
   'Show David Martinez',
-  'Mark all workers as ready',
   'Let Fronted always run payroll',
 ];
 
@@ -571,13 +495,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setCurrentSuggestedAction(undefined);
 
     let userMessage = '';
-    if (action.type === 'mark_ready') {
-      userMessage = action.workerId
-        ? `Mark ${action.workerName} as ready`
-        : 'Mark all workers as ready';
-    } else if (action.type === 'submit_payroll') {
-      userMessage = 'Continue to submit payroll';
-    } else if (action.type === 'approve_all') {
+    if (action.type === 'approve_all') {
       userMessage = 'Approve all pending items';
     }
 
@@ -599,30 +517,11 @@ export const CA4_AgentChatPanel: React.FC = () => {
       case 'approve_all':
         responseContent = '✓ **Done!** All pending adjustments and leaves have been approved.';
         break;
-      case 'mark_ready':
-        responseContent = workerId 
-          ? `✓ **Done!** Worker has been marked as ready for payroll.`
-          : '✓ **Done!** All reviewed workers have been marked as ready.';
-        break;
-      case 'submit_payroll':
-        responseContent = '✓ **Done!** Payroll has been submitted for processing.';
-        break;
       case 'reject_all':
         responseContent = '✓ **Done!** All pending items have been rejected. Workers will need to resubmit.';
         break;
       case 'approve_item':
         responseContent = `✓ **Done!** The item has been approved for ${workerName || 'the worker'}.`;
-        // After approving a single item, prompt to mark worker as ready
-        if (workerId && workerName) {
-          nextAction = {
-            type: 'mark_ready',
-            label: `Mark ${workerName} as ready`,
-            description: `${workerName} can now be finalized`,
-            workerId,
-            workerName,
-          };
-          responseContent += `\n\n**Next step:** Would you like to mark ${workerName} as ready?`;
-        }
         break;
     }
     
@@ -713,80 +612,17 @@ export const CA4_AgentChatPanel: React.FC = () => {
 
       const totalTime = 600 + workersToApprove.length * 400 + 300;
       setTimeout(() => {
-        const nextAction: SuggestedAction = {
-          type: 'mark_ready',
-          label: 'Mark all as ready',
-          description: 'All items approved - ready to finalize',
-        };
-
         const doneMsg = createChatMessage({
           role: 'assistant',
-          content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\n**Next step:** Would you like to mark all workers as ready?`,
-          suggestedAction: nextAction,
+          content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.`,
         });
 
         setMessages(prev => [...prev, doneMsg]);
-        setCurrentSuggestedAction(nextAction);
-        // Wire the question to real inline Yes/No
-        setPendingAction({ type: 'mark_ready', awaitingConfirmation: true });
-        setConfirmationAnchorId(doneMsg.id);
+        setCurrentSuggestedAction(undefined);
         setIsLoading(false);
         setShowRetrieving(false);
       }, totalTime);
 
-      return;
-    }
-
-    // SPECIAL FLOW: "Mark all as ready" - keep chat open, show staggered row animations
-    if (actionType === 'mark_ready' && !workerId) {
-      // Keep chat open so user can see progress
-      setOpen(true);
-      
-      // Navigate to submissions
-      setRequestedStep('submissions');
-      
-      // Get list of workers not yet ready
-      const workersToMark = WORKERS_DATA.map(w => w.id);
-      
-      // Start staggered marking - set all workers as "marking" state
-      setTimeout(() => {
-        setWorkersMarkingReady(new Set(workersToMark));
-      }, 300);
-      
-      // Execute mark ready for each worker with staggered delays
-      workersToMark.forEach((wId, index) => {
-        setTimeout(() => {
-          executeCallback('mark_ready', wId);
-          // Remove from marking set after this worker is done
-          setWorkersMarkingReady(prev => {
-            const next = new Set(prev);
-            next.delete(wId);
-            return next;
-          });
-        }, 500 + index * 400); // Stagger: 500ms base + 400ms per worker
-      });
-      
-      // After all done, add success message and reopen chat
-      const totalTime = 500 + workersToMark.length * 400 + 300;
-      setTimeout(() => {
-        setMessages(prev => [...prev, createChatMessage({
-          role: 'assistant',
-          content: `✓ **Done!** Marked ${workersToMark.length} worker${workersToMark.length !== 1 ? 's' : ''} as ready.\n\n**Next step:** You can now submit the payroll.`,
-          suggestedAction: {
-            type: 'submit_payroll',
-            label: 'Continue to submit',
-            description: 'All workers are ready for payroll',
-          },
-        })]);
-        setCurrentSuggestedAction({
-          type: 'submit_payroll',
-          label: 'Continue to submit',
-          description: 'All workers are ready for payroll',
-        });
-        // Reopen chat to show completion
-        setOpen(true);
-      }, totalTime);
-      
       return;
     }
 
@@ -916,92 +752,6 @@ export const CA4_AgentChatPanel: React.FC = () => {
       
       const actionType = actionIntent.type as PendingActionType;
       
-      // MARK_READY: Execute immediately without confirmation
-      if (actionType === 'mark_ready') {
-        const workerId = actionIntent.workerId;
-        const workerName = actionIntent.workerName;
-        
-        setOpen(true);
-        
-        // Navigate to submissions
-        setTimeout(() => {
-          setRequestedStep('submissions');
-        }, 5300);
-        
-        // Open the worker drawer briefly to show context
-        if (workerId) {
-          setTimeout(() => {
-            setOpenWorkerId(workerId);
-          }, 5600);
-        }
-        
-        // Execute the action after drawer opens
-        setTimeout(() => {
-          if (workerId) {
-            // Single worker
-            executeCallback('mark_ready', workerId);
-          } else {
-            // All workers
-            WORKERS_DATA.forEach(w => {
-              executeCallback('mark_ready', w.id);
-            });
-          }
-        }, 6200);
-        
-        // Close drawer and show completion
-        setTimeout(() => {
-          setOpenWorkerId(undefined); // Close drawer
-          
-          // Check for remaining pending items to suggest next action
-          const workersWithPending = WORKERS_DATA.filter(w => w.pendingItems > 0);
-          let nextAction: SuggestedAction | undefined;
-          let responseContent = workerId 
-            ? `✓ **Done!** ${workerName} has been marked as ready for payroll.`
-            : '✓ **Done!** All reviewed workers have been marked as ready.';
-          
-          if (workersWithPending.length > 0) {
-            nextAction = {
-              type: 'approve_all',
-              label: 'Approve all pending items',
-              description: `${workersWithPending.length} worker${workersWithPending.length > 1 ? 's' : ''} have pending items`,
-            };
-            responseContent += `\n\n**Next:** ${workersWithPending.length} worker${workersWithPending.length > 1 ? 's' : ''} still have pending items. Want me to approve them all?`;
-          } else {
-            nextAction = {
-              type: 'submit_payroll',
-              label: 'Continue to submit',
-              description: 'All workers are ready',
-            };
-            responseContent += `\n\n**Next:** All workers are ready! Would you like to continue to submit?`;
-          }
-
-          setCurrentSuggestedAction(nextAction);
-
-          const nextMsg = createChatMessage({
-            role: 'assistant',
-            content: responseContent,
-            suggestedAction: nextAction,
-          });
-          setMessages(prev => [...prev, nextMsg]);
-
-          // If we asked a yes/no question as the next step, wire it to pendingAction so
-          // contextual buttons render (instead of leaving a dead-ended question).
-          if (nextAction?.type === 'approve_all') {
-            setPendingAction({ type: 'approve_all', awaitingConfirmation: true });
-            setConfirmationAnchorId(nextMsg.id);
-          }
-          if (nextAction?.type === 'submit_payroll') {
-            setPendingAction({ type: 'submit_payroll', awaitingConfirmation: true });
-            setConfirmationAnchorId(nextMsg.id);
-          }
-          
-          setIsLoading(false);
-          setShowRetrieving(false);
-        }, 6800);
-        
-        return;
-      }
-      
       // APPROVE_ALL: Execute immediately with staggered row animations
       if (actionType === 'approve_all') {
         // Close any open worker drawer (uses registered callback to close local drawer state)
@@ -1039,54 +789,16 @@ export const CA4_AgentChatPanel: React.FC = () => {
         // After all done, add success message
         const totalTime = 6200 + workersToApprove.length * 400 + 300;
         setTimeout(() => {
-          // Suggest marking workers as ready next
-          const nextAction: SuggestedAction = {
-            type: 'mark_ready',
-            label: 'Mark all as ready',
-            description: 'All items approved - ready to finalize',
-          };
-
-          setCurrentSuggestedAction(nextAction);
           const doneMsg = createChatMessage({
             role: 'assistant',
-            content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\n**Next step:** Would you like to mark all workers as ready?`,
-            suggestedAction: nextAction,
+            content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.`,
           });
           setMessages(prev => [...prev, doneMsg]);
-
-          // Wire follow-up question to contextual Yes/No buttons.
-          setPendingAction({ type: 'mark_ready', awaitingConfirmation: true });
-          setConfirmationAnchorId(doneMsg.id);
+          setCurrentSuggestedAction(undefined);
           
           setIsLoading(false);
           setShowRetrieving(false);
         }, totalTime);
-        
-        return;
-      }
-      
-      // SUBMIT_PAYROLL: Navigate to submit step immediately, keep Kurt open
-      if (actionType === 'submit_payroll') {
-        setOpen(true);
-        
-        // Close any open worker drawer
-        closeDrawer();
-        setOpenWorkerId(undefined);
-        
-        // Navigate to submit step
-        setTimeout(() => {
-          executeCallback('submit_payroll');
-        }, 5300);
-        
-        // Show confirmation message
-        setTimeout(() => {
-          setMessages(prev => [...prev, createChatMessage({
-            role: 'assistant',
-            content: '✓ **Done!** Navigated to the submit step. You can review the payroll summary and submit when ready.',
-          })]);
-          setIsLoading(false);
-          setShowRetrieving(false);
-        }, 5800);
         
         return;
       }
@@ -1125,14 +837,12 @@ export const CA4_AgentChatPanel: React.FC = () => {
         const actionLabels: Record<string, string> = {
           'approve_all': 'approve all pending items',
           'reject_all': 'reject all pending items',
-          'submit_payroll': 'submit the payroll for processing',
           'approve_item': `approve the ${itemTypeLabel}${amountStr} for ${actionIntent.workerName}`,
         };
         
         const actionDescriptions: Record<string, string> = {
           'approve_all': 'This will approve all pending adjustments and leaves across all workers.',
           'reject_all': 'This will reject all pending items. Workers will need to resubmit.',
-          'submit_payroll': 'This will submit the payroll run for processing. Payments will be scheduled.',
           'approve_item': `I'll open ${actionIntent.workerName}'s drawer, find the ${itemTypeLabel}${amountStr}, and approve it.`,
         };
         
