@@ -286,7 +286,7 @@ const F41v7_ProfileSettings = () => {
                         );
                       })}
                     </div>
-                    <div className="flex items-center gap-2 mt-4">
+                    <div className="flex justify-center mt-4">
                       <Button 
                         variant="outline" 
                         size="sm" 
