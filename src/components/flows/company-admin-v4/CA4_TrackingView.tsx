@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
-import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, ChevronLeft, ArrowLeftRight } from "lucide-react";
+import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -275,37 +275,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
   return (
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-        {/* Stepper Header */}
-        {showStepper && (
-          <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {onBack && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onBack}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-              <div className="flex items-center gap-3">
-                {onClose && (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={onClose}
-                    className="h-9 text-xs"
-                  >
-                    Close
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-        )}
+        {/* Stepper header removed — no back/close strip in payment status */}
         {/* Progress Hero */}
         <div className="px-6 pt-6 pb-5 border-b border-border/40">
           <div className="flex items-start justify-between mb-4">
