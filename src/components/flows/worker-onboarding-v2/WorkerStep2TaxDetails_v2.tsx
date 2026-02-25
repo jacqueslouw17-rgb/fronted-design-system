@@ -23,6 +23,7 @@ interface Step2Props {
   isProcessing?: boolean;
   isLoadingFields?: boolean;
   buttonText?: string;
+  backAction?: React.ReactNode;
 }
 
 const TAX_HELPERS: Record<string, { label: string; placeholder: string; hint: string }> = {
@@ -120,7 +121,7 @@ const COUNTRIES = [
   { value: "VN", label: "Vietnam", flag: "🇻🇳" },
 ];
 
-const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonText }: Step2Props) => {
+const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction }: Step2Props) => {
   const [countryOpen, setCountryOpen] = useState(false);
   const [data, setData] = useState({
     taxCountry: formData.taxCountry || "",
@@ -312,15 +313,18 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
           </div>
         </div>
 
-        <Button
-          onClick={handleContinue}
-          disabled={!isValid || isProcessing}
-          className="w-full"
-          size="lg"
-        >
-          {isProcessing ? "Saving..." : (buttonText || "Continue")}
-          {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
-        </Button>
+        <div className={backAction ? "flex items-center gap-2" : ""}>
+          {backAction}
+          <Button
+            onClick={handleContinue}
+            disabled={!isValid || isProcessing}
+            className={backAction ? "" : "w-full"}
+            size={backAction ? "sm" : "lg"}
+          >
+            {isProcessing ? "Saving..." : (buttonText || "Continue")}
+            {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
+          </Button>
+        </div>
       </motion.div>
     </AnimatePresence>
   );

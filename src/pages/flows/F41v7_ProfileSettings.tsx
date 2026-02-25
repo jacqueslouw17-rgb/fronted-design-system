@@ -138,6 +138,10 @@ const F41v7_ProfileSettings = () => {
     }
   };
 
+  const backButton = (
+    <Button variant="outline" size="sm" onClick={() => setCurrentSection("overview")} className="text-xs">Back</Button>
+  );
+
   const renderAccordionContent = (sectionId: string) => {
     const commonProps = {
       formData,
@@ -145,34 +149,21 @@ const F41v7_ProfileSettings = () => {
       isProcessing: isSaving,
       isLoadingFields: false,
       buttonText: "Save changes",
+      backAction: backButton,
     };
 
-    let content: React.ReactNode = null;
     switch (sectionId) {
       case "personal_profile":
-        content = <WorkerStep2PersonalProfile_v2 {...commonProps} />;
-        break;
+        return <WorkerStep2PersonalProfile_v2 {...commonProps} />;
       case "tax_details":
-        content = <WorkerStep2TaxDetails_v2 {...commonProps} />;
-        break;
+        return <WorkerStep2TaxDetails_v2 {...commonProps} />;
       case "bank_details":
-        content = <WorkerStep4BankDetails_v2 {...commonProps} />;
-        break;
+        return <WorkerStep4BankDetails_v2 {...commonProps} />;
       case "work_setup":
-        content = <WorkerStep5WorkSetup_v2 {...commonProps} />;
-        break;
+        return <WorkerStep5WorkSetup_v2 {...commonProps} />;
       default:
         return null;
     }
-
-    return (
-      <div>
-        {content}
-        <div className="flex items-center gap-2 px-4 pb-4 -mt-2">
-          <Button variant="outline" size="sm" onClick={() => setCurrentSection("overview")} className="text-xs">Back</Button>
-        </div>
-      </div>
-    );
   };
 
   return (
