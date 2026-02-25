@@ -300,7 +300,23 @@ const F41v7_ProfileSettings = () => {
                 </motion.div>
               )}
 
-              {currentSection === "change-password" && (
+              {currentSection === "documents" && (
+                <motion.div
+                  key="documents"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.2 }}
+                  className="pb-20 sm:pb-8"
+                >
+                  <ProfileDocumentsSection
+                    contractDocuments={MOCK_CONTRACT_DOCUMENTS}
+                    identityFileName={formData.identityFileName}
+                    onBack={() => setCurrentSection("overview")}
+                  />
+                </motion.div>
+              )}
+
                 <motion.div
                   key="change-password"
                   initial={{ opacity: 0, y: 12 }}
