@@ -5,8 +5,6 @@ import { AgentState, AgentMessage, AgentAction, UIHighlight } from './CA4_AgentT
 export type PendingActionType = 
   | 'approve_all' 
   | 'reject_all' 
-  | 'mark_ready' 
-  | 'submit_payroll'
   | 'approve_worker'
   | 'reject_worker'
   | 'approve_item'; // Approve a specific item (e.g. expense, bonus)
@@ -122,18 +120,6 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       case 'reject_all':
         // Reject needs a reason - handled separately
         break;
-      case 'mark_ready':
-        if (callbacks.onMarkReady && workerId) {
-          callbacks.onMarkReady(workerId);
-          return true;
-        }
-        break;
-      case 'submit_payroll':
-        if (callbacks.onSubmitPayroll) {
-          callbacks.onSubmitPayroll();
-          return true;
-        }
-        break;
       case 'approve_item':
         console.log('[AgentContext] approve_item case - targetedItem:', targetedItem);
         if (callbacks.onApproveItem && targetedItem) {
@@ -214,14 +200,6 @@ export const CA4_AgentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         // For reject, we need a reason - this triggers dialog instead
         setPendingActionState(prev => prev ? { ...prev, dialogOpen: true } : undefined);
         return;
-      case 'mark_ready':
-        if (pendingAction.workerId) {
-          callbacks.onMarkReady?.(pendingAction.workerId);
-        }
-        break;
-      case 'submit_payroll':
-        callbacks.onSubmitPayroll?.();
-        break;
     }
     
     setPendingActionState(undefined);
