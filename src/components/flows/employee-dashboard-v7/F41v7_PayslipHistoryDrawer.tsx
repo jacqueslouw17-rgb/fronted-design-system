@@ -197,7 +197,7 @@ export const F41v7_PayslipHistoryDrawer = ({
       <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetContent className="w-full sm:max-w-[420px] overflow-y-auto p-0">
           {/* Header with back button */}
-          <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30 text-left">
             <div className="flex items-center gap-3">
               <button
                 onClick={handleBack}
@@ -320,7 +320,7 @@ export const F41v7_PayslipHistoryDrawer = ({
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader className="pb-4 border-b border-border/40">
+        <SheetHeader className="pb-4 border-b border-border/40 text-left">
           <SheetTitle>Previous payslips</SheetTitle>
           <SheetDescription>
             View and download your past payslips.
