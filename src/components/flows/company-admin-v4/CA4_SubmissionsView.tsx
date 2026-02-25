@@ -873,8 +873,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
   const [showUSD, setShowUSD] = useState(true);
   
-  // Drawer loading state - simulates data fetch synced with animation
-  const [isDrawerLoading, setIsDrawerLoading] = useState(false);
+  // Drawer loading state removed - content shows immediately
   
   // Track which sections to force open (for agent-driven expand)
   const [forceOpenSections, setForceOpenSections] = useState<Set<string>>(new Set());
@@ -893,16 +892,13 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           console.log('[CA4_SubmissionsView] Found worker, opening drawer:', worker.workerName);
           setSelectedSubmission(worker);
           setDrawerOpen(true);
-          setIsDrawerLoading(true);
           setRejectReason("");
           
-          // Extended loading for smooth transition feel
+          // Auto-expand earnings section and show pending only
           setTimeout(() => {
-            setIsDrawerLoading(false);
-            // Auto-expand earnings section and show pending only
             setForceOpenSections(new Set(['earnings']));
             setShowPendingOnly(true);
-          }, 6200);
+          }, 300);
         } else {
           // Drawer already open for this worker - just expand earnings and show pending
           console.log('[CA4_SubmissionsView] Drawer already open, expanding sections');
@@ -1108,17 +1104,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   const handleRowClick = (submission: WorkerSubmission) => {
     setSelectedSubmission(submission);
     setDrawerOpen(true);
-    setIsDrawerLoading(true);
     setRejectReason("");
     setExpandedItemId(null);
     // Reset agent-driven states for manual opens
     setForceOpenSections(new Set());
     setShowPendingOnly(false);
-    
-    // Extended loading for smooth transition feel
-    setTimeout(() => {
-      setIsDrawerLoading(false);
-    }, 6200);
   };
 
   const handleApproveFromDrawer = () => {
@@ -1789,97 +1779,9 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                 </button>
               )}
               
-              {/* Skeleton Loading State */}
-              {isDrawerLoading && selectedSubmission && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="p-5 space-y-6"
-                >
-                  {/* Header skeleton */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <motion.div 
-                        className="h-10 w-10 rounded-full bg-muted"
-                        animate={{ opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                      />
-                      <div className="space-y-2 flex-1">
-                        <motion.div 
-                          className="h-5 w-32 rounded-md bg-muted"
-                          animate={{ opacity: [0.5, 1, 0.5] }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.1 }}
-                        />
-                        <motion.div 
-                          className="h-3 w-24 rounded-md bg-muted/70"
-                          animate={{ opacity: [0.4, 0.8, 0.4] }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Net pay hero skeleton */}
-                    <motion.div 
-                      className="h-16 w-full rounded-xl bg-gradient-to-r from-muted via-muted/80 to-muted"
-                      animate={{ 
-                        opacity: [0.6, 1, 0.6],
-                        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      style={{ backgroundSize: '200% 100%' }}
-                    />
-                  </div>
-                  
-                  {/* Divider */}
-                  <div className="h-px bg-border/50" />
-                  
-                  {/* Collapsible sections skeleton */}
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <motion.div 
-                        key={i}
-                        className="rounded-lg border border-border/40 bg-card/30 p-4"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <motion.div 
-                              className="h-4 w-4 rounded bg-muted"
-                              animate={{ opacity: [0.4, 0.8, 0.4] }}
-                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 }}
-                            />
-                            <motion.div 
-                              className="h-4 w-20 rounded bg-muted"
-                              animate={{ opacity: [0.5, 1, 0.5] }}
-                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 }}
-                            />
-                          </div>
-                          <motion.div 
-                            className="h-4 w-16 rounded bg-muted/70"
-                            animate={{ opacity: [0.4, 0.8, 0.4] }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 + 0.1 }}
-                          />
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                  
-                  {/* Footer skeleton */}
-                  <div className="pt-4 space-y-3">
-                    <motion.div 
-                      className="h-10 w-full rounded-lg bg-primary/20"
-                      animate={{ opacity: [0.5, 0.8, 0.5] }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                  </div>
-                </motion.div>
-              )}
               
-              {/* Actual content - only show when not loading */}
-          {!isDrawerLoading && selectedSubmission && (() => {
+              {/* Actual content */}
+          {selectedSubmission && (() => {
             // Calculate breakdown data
             const earnings = selectedSubmission.lineItems?.filter(item => item.type === 'Earnings') || [];
             const deductions = selectedSubmission.lineItems?.filter(item => item.type === 'Deduction') || [];
