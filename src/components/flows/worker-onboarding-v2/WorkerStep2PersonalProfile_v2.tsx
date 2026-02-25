@@ -24,9 +24,10 @@ interface Step2Props {
   isProcessing?: boolean;
   isLoadingFields?: boolean;
   buttonText?: string;
+  backAction?: React.ReactNode;
 }
 
-const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText }: Step2Props) => {
+const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction }: Step2Props) => {
   const country = formData.country || "Philippines";
 
   const [data, setData] = useState({
@@ -295,15 +296,18 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
           </div>
         </div>
 
-        <Button
-          onClick={handleContinue}
-          disabled={!isValid || isProcessing}
-          className="w-full"
-          size="lg"
-        >
-          {isProcessing ? "Saving..." : (buttonText || "Continue")}
-          {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
-        </Button>
+        <div className={backAction ? "flex items-center gap-2" : ""}>
+          {backAction}
+          <Button
+            onClick={handleContinue}
+            disabled={!isValid || isProcessing}
+            className={backAction ? "" : "w-full"}
+            size={backAction ? "sm" : "lg"}
+          >
+            {isProcessing ? "Saving..." : (buttonText || "Continue")}
+            {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
+          </Button>
+        </div>
       </motion.div>
     </AnimatePresence>
   );

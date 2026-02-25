@@ -23,9 +23,10 @@ interface Step4Props {
   isProcessing?: boolean;
   isLoadingFields?: boolean;
   buttonText?: string;
+  backAction?: React.ReactNode;
 }
 
-const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonText }: Step4Props) => {
+const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction }: Step4Props) => {
   const [data, setData] = useState({
     bankCountry: formData.bankCountry || formData.country || "",
     bankName: formData.bankName || "",
@@ -162,15 +163,18 @@ const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonT
           </label>
         </div>
 
-        <Button
-          onClick={handleContinue}
-          disabled={!isValid || isProcessing}
-          className="w-full"
-          size="lg"
-        >
-          {isProcessing ? "Saving..." : (buttonText || "Continue")}
-          {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
-        </Button>
+        <div className={backAction ? "flex items-center gap-2" : ""}>
+          {backAction}
+          <Button
+            onClick={handleContinue}
+            disabled={!isValid || isProcessing}
+            className={backAction ? "" : "w-full"}
+            size={backAction ? "sm" : "lg"}
+          >
+            {isProcessing ? "Saving..." : (buttonText || "Continue")}
+            {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
+          </Button>
+        </div>
       </motion.div>
     </AnimatePresence>
   );
