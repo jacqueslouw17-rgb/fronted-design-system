@@ -56,7 +56,7 @@ const WorkerCompletionScreen_v2 = ({ workerName = "there" }: WorkerCompletionScr
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.3 }}
-          className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4"
+          className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 px-4 py-8"
         >
           <div className="max-w-md w-full text-center space-y-6">
             <motion.div
@@ -65,8 +65,8 @@ const WorkerCompletionScreen_v2 = ({ workerName = "there" }: WorkerCompletionScr
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
               className="flex justify-center"
             >
-              <div className="p-6 rounded-full bg-gradient-to-br from-green-500/20 to-green-600/20 border-2 border-green-500/30">
-                <CheckCircle2 className="h-16 w-16 text-green-600" />
+              <div className="p-4 sm:p-6 rounded-full bg-gradient-to-br from-green-500/20 to-green-600/20 border-2 border-green-500/30">
+                <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 text-green-600" />
               </div>
             </motion.div>
 
@@ -76,8 +76,8 @@ const WorkerCompletionScreen_v2 = ({ workerName = "there" }: WorkerCompletionScr
               transition={{ delay: 0.3 }}
               className="space-y-2"
             >
-              <h1 className="text-3xl font-bold">Onboarding Complete! 🎉</h1>
-              <p className="text-lg text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold">Onboarding Complete! 🎉</h1>
+              <p className="text-base sm:text-lg text-muted-foreground">
                 Welcome to the team, {workerName}!
               </p>
             </motion.div>

@@ -48,10 +48,10 @@ const WorkerStep1Welcome_v2 = ({
       preferredLanguage
     });
   };
-  return <div className="space-y-6 max-w-xl mx-auto">
+  return <div className="space-y-5 sm:space-y-6 max-w-xl mx-auto">
       {/* Sign In Header */}
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-foreground">Sign in</h2>
+        <h2 className="text-lg sm:text-xl font-semibold text-foreground">Sign in</h2>
         <p className="text-sm text-muted-foreground">Use your default credentials from the email.</p>
       </div>
 
