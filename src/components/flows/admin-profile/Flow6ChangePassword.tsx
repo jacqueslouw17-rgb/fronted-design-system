@@ -111,21 +111,30 @@ const Flow6ChangePassword = ({ onCancel }: Flow6ChangePasswordProps) => {
             />
           </div>
 
-          <Button
-            type="submit"
-            disabled={isLoading}
-            size="sm"
-            className="w-full sm:w-auto"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                Updating…
-              </>
-            ) : (
-              "Update Password"
-            )}
-          </Button>
+          <div className="flex items-center gap-2 pt-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onCancel}
+              className="text-xs"
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              size="sm"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                  Updating…
+                </>
+              ) : (
+                "Update Password"
+              )}
+            </Button>
+          </div>
         </form>
       </div>
     </div>
