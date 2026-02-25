@@ -1,19 +1,16 @@
 import React, { useState } from "react";
 import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
-import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, ArrowLeftRight } from "lucide-react";
+import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, ArrowLeftRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-} from "@/components/ui/sheet";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
+import { useCA4Agent } from "./CA4_AgentContext";
 
 export type WorkerPaymentStatus = "paid" | "in-progress";
 
@@ -92,6 +89,10 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
   const [selectedWorker, setSelectedWorker] = useState<TrackingWorker | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showEUR, setShowEUR] = useState(true);
+  
+  // Get chat panel state to position drawer correctly (same as Submissions)
+  const { isOpen: isAgentOpen } = useCA4Agent();
+  const chatWidth = isAgentOpen ? 420 : 0;
 
   const paidCount = workers.filter(w => w.status === "paid").length;
   const inProgressCount = workers.filter(w => w.status === "in-progress").length;
@@ -130,14 +131,14 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
     setDrawerOpen(true);
   };
 
-  const handleDrawerOpenChange = (open: boolean) => {
-    setDrawerOpen(open);
-    if (!open) {
-      setSelectedWorker(null);
-    }
+
+
+  const handleCloseDrawer = () => {
+    setDrawerOpen(false);
+    setSelectedWorker(null);
   };
 
-  const renderBreakdownDrawer = () => {
+  const renderBreakdownContent = () => {
     if (!selectedWorker) return null;
     const isContractor = selectedWorker.type === "contractor";
     const earningsData = getWorkerEarnings(selectedWorker);
@@ -151,131 +152,128 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
     const approx = showEUR && isNonEUR ? "≈ " : "";
 
     return (
-      <Sheet open={drawerOpen} onOpenChange={handleDrawerOpenChange}>
-        <SheetContent side="right" className="w-[440px] sm:max-w-[440px] p-0 flex flex-col overflow-hidden z-[60] lg:right-[30%]" overlayClassName="z-40 lg:right-[30%] lg:w-[70%]">
-          <SheetHeader className="px-6 py-5 border-b border-border/40 shrink-0 bg-background pt-12">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl font-semibold text-foreground">
-                  {isContractor ? "Invoice breakdown" : "Payslip breakdown"}
-                </h2>
-                <Badge variant="outline" className="text-xs px-2 py-0.5 bg-muted/30">
-                  Jan 2026
-                </Badge>
-              </div>
+      <>
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-border/40 shrink-0 bg-background">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold text-foreground">
+              {isContractor ? "Invoice breakdown" : "Payslip breakdown"}
+            </h2>
+            <Badge variant="outline" className="text-xs px-2 py-0.5 bg-muted/30">
+              Jan 2026
+            </Badge>
+          </div>
+          <div className="flex items-center gap-3 mt-3">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                {getInitials(selectedWorker.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm font-medium text-foreground">{selectedWorker.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {countryFlags[selectedWorker.country] || ""} {selectedWorker.country} · {selectedWorker.type === "employee" ? "Employee" : "Contractor"}
+              </p>
             </div>
-            <div className="flex items-center gap-3 mt-3">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
-                  {getInitials(selectedWorker.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-medium text-foreground">{selectedWorker.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {countryFlags[selectedWorker.country] || ""} {selectedWorker.country} · {selectedWorker.type === "employee" ? "Employee" : "Contractor"}
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-6 py-6 space-y-6">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Earnings</p>
+              <div className="space-y-4">
+                {earningsData.items.map((item, idx) => (
+                  <div key={idx} className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                    </div>
+                    <p className="text-sm font-medium text-foreground tabular-nums">
+                      {approx}+{formatCurrency(Math.round(cvt(item.amount)), dc)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
+                <p className="text-sm font-semibold text-foreground">Total earnings</p>
+                <p className="text-sm font-semibold text-foreground tabular-nums">
+                  {approx}+{formatCurrency(Math.round(cvt(totalEarnings)), dc)}
                 </p>
               </div>
             </div>
-          </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto">
-            <div className="px-6 py-6 space-y-6">
+            {!isContractor && earningsData.deductions.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Earnings</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Deductions</p>
                 <div className="space-y-4">
-                  {earningsData.items.map((item, idx) => (
+                  {earningsData.deductions.map((item, idx) => (
                     <div key={idx} className="flex items-start justify-between">
                       <div>
                         <p className="text-sm font-medium text-foreground">{item.label}</p>
                         <p className="text-xs text-muted-foreground">{item.description}</p>
                       </div>
-                      <p className="text-sm font-medium text-foreground tabular-nums">
-                        {approx}+{formatCurrency(Math.round(cvt(item.amount)), dc)}
+                      <p className="text-sm font-medium text-muted-foreground tabular-nums">
+                        {approx}-{formatCurrency(Math.round(cvt(item.amount)), dc)}
                       </p>
                     </div>
                   ))}
                 </div>
                 <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
-                  <p className="text-sm font-semibold text-foreground">Total earnings</p>
-                  <p className="text-sm font-semibold text-foreground tabular-nums">
-                    {approx}+{formatCurrency(Math.round(cvt(totalEarnings)), dc)}
+                  <p className="text-sm font-semibold text-foreground">Total deductions</p>
+                  <p className="text-sm font-semibold text-muted-foreground tabular-nums">
+                    {approx}-{formatCurrency(Math.round(cvt(totalDeductions)), dc)}
                   </p>
                 </div>
               </div>
+            )}
 
-              {!isContractor && earningsData.deductions.length > 0 && (
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Deductions</p>
-                  <div className="space-y-4">
-                    {earningsData.deductions.map((item, idx) => (
-                      <div key={idx} className="flex items-start justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{item.label}</p>
-                          <p className="text-xs text-muted-foreground">{item.description}</p>
-                        </div>
-                        <p className="text-sm font-medium text-muted-foreground tabular-nums">
-                          {approx}-{formatCurrency(Math.round(cvt(item.amount)), dc)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
-                    <p className="text-sm font-semibold text-foreground">Total deductions</p>
-                    <p className="text-sm font-semibold text-muted-foreground tabular-nums">
-                      {approx}-{formatCurrency(Math.round(cvt(totalDeductions)), dc)}
-                    </p>
-                  </div>
-                </div>
-              )}
+            <div className="border-t border-border/40" />
 
-              <div className="border-t border-border/40" />
-
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-base font-semibold text-foreground">
-                    {isContractor ? "Invoice total" : "Net pay"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedWorker.status === "paid" ? "Paid on Jan 25, 2026" : "Payment in progress"}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  {isNonEUR && (
-                    <button
-                      onClick={() => setShowEUR(!showEUR)}
-                      className={cn(
-                        "flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all duration-150",
-                        "border border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
-                        showEUR
-                          ? "bg-primary/5 text-primary border-primary/30"
-                          : "text-muted-foreground bg-muted/30"
-                      )}
-                    >
-                      <ArrowLeftRight className="h-2.5 w-2.5" />
-                      {showEUR ? selectedWorker.currency : "EUR"}
-                    </button>
-                  )}
-                  <p className="text-2xl font-bold text-foreground tabular-nums">
-                    {approx}{formatCurrency(Math.round(cvt(netTotal)), dc)}
-                  </p>
-                </div>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-base font-semibold text-foreground">
+                  {isContractor ? "Invoice total" : "Net pay"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {selectedWorker.status === "paid" ? "Paid on Jan 25, 2026" : "Payment in progress"}
+                </p>
               </div>
-
-              {selectedWorker.status === "paid" && (
-                <Button
-                  variant="outline"
-                  className="w-full gap-2"
-                  onClick={() => toast.success(`${isContractor ? "Invoice" : "Payslip"} downloaded`)}
-                >
-                  <Download className="h-4 w-4" />
-                  Download {documentLabel}
-                </Button>
-              )}
+              <div className="flex items-center gap-1.5">
+                {isNonEUR && (
+                  <button
+                    onClick={() => setShowEUR(!showEUR)}
+                    className={cn(
+                      "flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all duration-150",
+                      "border border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+                      showEUR
+                        ? "bg-primary/5 text-primary border-primary/30"
+                        : "text-muted-foreground bg-muted/30"
+                    )}
+                  >
+                    <ArrowLeftRight className="h-2.5 w-2.5" />
+                    {showEUR ? selectedWorker.currency : "EUR"}
+                  </button>
+                )}
+                <p className="text-2xl font-bold text-foreground tabular-nums">
+                  {approx}{formatCurrency(Math.round(cvt(netTotal)), dc)}
+                </p>
+              </div>
             </div>
+
+            {selectedWorker.status === "paid" && (
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => toast.success(`${isContractor ? "Invoice" : "Payslip"} downloaded`)}
+              >
+                <Download className="h-4 w-4" />
+                Download {documentLabel}
+              </Button>
+            )}
           </div>
-        </SheetContent>
-      </Sheet>
+        </div>
+      </>
     );
   };
 
@@ -412,7 +410,46 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
         </CardContent>
       </Card>
 
-      {renderBreakdownDrawer()}
+      {/* Worker Breakdown Drawer - matches Submissions pattern exactly */}
+      <AnimatePresence>
+        {drawerOpen && selectedWorker && (
+          <>
+            {/* Backdrop overlay - covers everything except chat panel */}
+            <motion.div
+              key="ca4-track-drawer-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black/80"
+              style={{ right: chatWidth }}
+              onClick={handleCloseDrawer}
+            />
+
+            {/* Drawer panel - slides in from right, stops at chat edge */}
+            <motion.div
+              key="ca4-track-worker-drawer"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+              className="fixed top-0 bottom-0 z-50 w-full sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto flex flex-col"
+              style={{ right: chatWidth }}
+            >
+              {/* Close button */}
+              <button
+                onClick={handleCloseDrawer}
+                className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100"
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </button>
+
+              {renderBreakdownContent()}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 };
