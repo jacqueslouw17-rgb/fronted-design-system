@@ -8,13 +8,12 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { FileText, ChevronRight, Download, X } from "lucide-react";
+import { FileText, ChevronRight, ChevronDown, Download, X } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
-import StepCard from "@/components/StepCard";
 import WorkerStep2PersonalProfile_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2PersonalProfile_v2";
 import WorkerStep2TaxDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2TaxDetails_v2";
 import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
@@ -262,32 +261,37 @@ const F41v7_ProfileSettings = () => {
                       </Button>
                     </div>
 
-                    <div className="space-y-2">
-                      {PROFILE_SECTIONS.map((section, index) => {
+                    <div className="space-y-1.5">
+                      {PROFILE_SECTIONS.map((section) => {
                         const isExpanded = expandedAccordion === section.id;
                         
                         return (
-                          <StepCard
-                            key={section.id}
-                            stepNumber={index + 1}
-                            title={section.title}
-                            status="completed"
-                            isExpanded={isExpanded}
-                            onClick={() => handleAccordionToggle(section.id)}
-                          >
+                          <div key={section.id} className="rounded-xl border border-border/30 bg-card/20 overflow-hidden transition-all">
+                            <button
+                              className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-card/40 transition-colors text-left group"
+                              onClick={() => handleAccordionToggle(section.id)}
+                            >
+                              <p className="text-sm font-medium text-foreground">{section.title}</p>
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-foreground shrink-0 transition-colors" />
+                              )}
+                            </button>
                             <AnimatePresence mode="wait">
                               {isExpanded && (
                                 <motion.div
                                   initial={{ opacity: 0, height: 0 }}
                                   animate={{ opacity: 1, height: "auto" }}
                                   exit={{ opacity: 0, height: 0 }}
-                                  transition={{ duration: 0.3 }}
+                                  transition={{ duration: 0.25 }}
+                                  className="border-t border-border/20"
                                 >
                                   {renderAccordionContent(section.id)}
                                 </motion.div>
                               )}
                             </AnimatePresence>
-                          </StepCard>
+                          </div>
                         );
                       })}
                     </div>
