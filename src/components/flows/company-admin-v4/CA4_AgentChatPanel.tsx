@@ -614,7 +614,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
       setTimeout(() => {
         const doneMsg = createChatMessage({
           role: 'assistant',
-          content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\nNavigating to **Payment Status** to track payouts...`,
+          content: `✅ **All ${workersToApprove.length} workers approved.**\n\nI'm moving you to **Payment Status** now. Here's what happens next:\n\n• Fronted processes payments within **2–3 business days**\n• Each worker will transition from ⏳ *In progress* → ✅ *Paid*\n• You can click any worker row to view their full payout breakdown\n\nEstimated completion: **Jan 28, 2026**`,
         });
 
         setMessages(prev => [...prev, doneMsg]);
@@ -625,7 +625,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         // Transition to Track step after a brief pause
         setTimeout(() => {
           setRequestedStep('track');
-        }, 1500);
+        }, 2000);
       }, totalTime);
 
       return;
@@ -796,7 +796,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         setTimeout(() => {
           const doneMsg = createChatMessage({
             role: 'assistant',
-            content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\nNavigating to **Payment Status** to track payouts...`,
+            content: `✅ **All ${workersToApprove.length} workers approved.**\n\nI'm moving you to **Payment Status** now. Here's what happens next:\n\n• Fronted processes payments within **2–3 business days**\n• Each worker will transition from ⏳ *In progress* → ✅ *Paid*\n• You can click any worker row to view their full payout breakdown\n\nEstimated completion: **Jan 28, 2026**`,
           });
           setMessages(prev => [...prev, doneMsg]);
           setCurrentSuggestedAction(undefined);
@@ -807,7 +807,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
           // Transition to Track step after a brief pause
           setTimeout(() => {
             setRequestedStep('track');
-          }, 1500);
+          }, 2000);
         }, totalTime);
         
         return;
