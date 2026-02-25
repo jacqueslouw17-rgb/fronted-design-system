@@ -56,18 +56,7 @@ const Flow6ChangePassword = ({ onCancel }: Flow6ChangePasswordProps) => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-foreground">Change Password</h3>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onCancel} 
-          className="h-7 text-xs text-muted-foreground hover:text-foreground"
-        >
-          Back
-        </Button>
-      </div>
+    <div>
 
       <div className="rounded-xl border border-border/30 bg-card/20 p-4 sm:p-5">
         <form id="change-password-form" onSubmit={handleSubmit} className="space-y-4">

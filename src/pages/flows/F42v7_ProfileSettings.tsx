@@ -197,13 +197,29 @@ const F42v7_ProfileSettings = () => {
           <div className="w-full max-w-[800px] mx-auto py-4 sm:py-8 px-3 sm:px-4 relative z-10">
             {/* Header */}
             <div className="mb-5 sm:mb-8">
+              {currentSection !== "overview" && (
+                <div className="flex justify-start mb-3">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setCurrentSection("overview")} 
+                    className="h-7 text-xs text-muted-foreground hover:text-foreground -ml-2"
+                  >
+                    ← Back
+                  </Button>
+                </div>
+              )}
               <AgentHeader 
-                title="Profile Settings"
+                title={currentSection === "overview" 
+                  ? "Profile Settings" 
+                  : currentSection === "profile-details"
+                  ? "Profile Details"
+                  : "Change Password"}
                 subtitle={currentSection === "overview" 
                   ? "Manage your profile and account." 
                   : currentSection === "profile-details"
                   ? "Update your personal, tax, bank, and work details."
-                  : ""}
+                  : "Update your login password."}
                 showPulse={true}
                 isActive={false}
                 showInput={false}
@@ -246,18 +262,7 @@ const F42v7_ProfileSettings = () => {
                   transition={{ duration: 0.2 }}
                   className="pb-20 sm:pb-8"
                 >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium text-foreground">Profile Details</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => setCurrentSection("overview")} 
-                        className="h-7 text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        Back
-                      </Button>
-                    </div>
+                  <div>
 
                     <div className="space-y-1.5">
                       {PROFILE_SECTIONS.map((section) => {
