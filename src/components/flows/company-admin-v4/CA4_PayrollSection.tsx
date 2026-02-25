@@ -438,6 +438,7 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
       } else if (requestedStep === 'track') {
         setHasEnteredWorkflow(true);
         setCompletedSteps(['submissions', 'submit']);
+        setIsPayrollSubmitted(true);
         setCurrentStep('track');
       }
       // Clear the request after handling

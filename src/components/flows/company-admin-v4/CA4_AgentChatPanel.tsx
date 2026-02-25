@@ -614,13 +614,18 @@ export const CA4_AgentChatPanel: React.FC = () => {
       setTimeout(() => {
         const doneMsg = createChatMessage({
           role: 'assistant',
-          content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.`,
+          content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\nNavigating to **Payment Status** to track payouts...`,
         });
 
         setMessages(prev => [...prev, doneMsg]);
         setCurrentSuggestedAction(undefined);
         setIsLoading(false);
         setShowRetrieving(false);
+
+        // Transition to Track step after a brief pause
+        setTimeout(() => {
+          setRequestedStep('track');
+        }, 1500);
       }, totalTime);
 
       return;
@@ -791,13 +796,18 @@ export const CA4_AgentChatPanel: React.FC = () => {
         setTimeout(() => {
           const doneMsg = createChatMessage({
             role: 'assistant',
-            content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.`,
+            content: `✓ **Done!** Approved all pending items for ${workersToApprove.length} worker${workersToApprove.length !== 1 ? 's' : ''}.\n\nNavigating to **Payment Status** to track payouts...`,
           });
           setMessages(prev => [...prev, doneMsg]);
           setCurrentSuggestedAction(undefined);
           
           setIsLoading(false);
           setShowRetrieving(false);
+
+          // Transition to Track step after a brief pause
+          setTimeout(() => {
+            setRequestedStep('track');
+          }, 1500);
         }, totalTime);
         
         return;
