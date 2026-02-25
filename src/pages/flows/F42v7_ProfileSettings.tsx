@@ -197,18 +197,6 @@ const F42v7_ProfileSettings = () => {
           <div className="w-full max-w-[800px] mx-auto py-4 sm:py-8 px-3 sm:px-4 relative z-10">
             {/* Header */}
             <div className="mb-5 sm:mb-8">
-              {currentSection !== "overview" && (
-                <div className="flex justify-start mb-3">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setCurrentSection("overview")} 
-                    className="h-7 text-xs text-muted-foreground hover:text-foreground -ml-2"
-                  >
-                    ← Back
-                  </Button>
-                </div>
-              )}
               <AgentHeader 
                 title={currentSection === "overview" 
                   ? "Profile Settings" 
@@ -297,6 +285,16 @@ const F42v7_ProfileSettings = () => {
                           </div>
                         );
                       })}
+                    </div>
+                    <div className="flex justify-center mt-4">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setCurrentSection("overview")} 
+                        className="text-xs"
+                      >
+                        Back
+                      </Button>
                     </div>
                   </div>
                 </motion.div>
