@@ -217,7 +217,7 @@ const F6_ProfileSettings = () => {
               </Popover>
             </div>
             <div className="flex items-center gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setExpandedAccordion(null)} className="text-xs">Back</Button>
+              <Button variant="outline" size="sm" onClick={() => setCurrentSection("overview")} className="text-xs">Back</Button>
               <Button size="sm" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Saving…</> : "Save changes"}
               </Button>
@@ -250,7 +250,7 @@ const F6_ProfileSettings = () => {
               <p className="text-xs text-muted-foreground">Linked to your invitation and cannot be changed</p>
             </div>
             <div className="flex items-center gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setExpandedAccordion(null)} className="text-xs">Back</Button>
+              <Button variant="outline" size="sm" onClick={() => setCurrentSection("overview")} className="text-xs">Back</Button>
               <Button size="sm" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Saving…</> : "Save changes"}
               </Button>
@@ -340,8 +340,7 @@ const F6_ProfileSettings = () => {
                   transition={{ duration: 0.2 }}
                   className="pb-20 sm:pb-8"
                 >
-                  <div>
-                    <div className="space-y-1.5">
+                  <div className="space-y-1.5">
                       {PROFILE_SECTIONS.map((section) => {
                         const isExpanded = expandedAccordion === section.id;
                         return (
@@ -373,17 +372,6 @@ const F6_ProfileSettings = () => {
                           </div>
                         );
                       })}
-                    </div>
-                    <div className="flex justify-center mt-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentSection("overview")}
-                        className="text-xs"
-                      >
-                        Back
-                      </Button>
-                    </div>
                   </div>
                 </motion.div>
               )}
