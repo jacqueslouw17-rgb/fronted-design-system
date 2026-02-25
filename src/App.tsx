@@ -57,6 +57,7 @@ import FrontedAdminDashboardV4 from "./pages/flows/FrontedAdminDashboardV4";
 import F1v4_FrontedAdminDashboard from "./pages/flows/F1v4_FrontedAdminDashboard";
 import F1v5_FrontedAdminDashboard from "./pages/flows/F1v5_FrontedAdminDashboard";
 import F1v5_ProfileSettings from "./pages/flows/F1v5_ProfileSettings";
+import F6_ProfileSettings from "./pages/flows/F6_ProfileSettings";
 import V4_ContractFlow from "./pages/flows/V4_ContractFlow";
 import SecureLinkError from "./pages/flows/SecureLinkError";
 import ServerError from "./pages/flows/ServerError";
@@ -185,6 +186,7 @@ const App = () => (
         <Route path="/flows/fronted-admin-dashboard-v5-clone" element={<F1v5_FrontedAdminDashboard />} />
         <Route path="/flow-1-v4/profile-settings" element={<FrontedAdminV4ProfileSettings />} />
         <Route path="/flow-1-v5/profile-settings" element={<F1v5_ProfileSettings />} />
+        <Route path="/flow-6/profile-settings" element={<F6_ProfileSettings />} />
         <Route path="/flow-1-v4/payroll-details/:candidateId?" element={<V4_PayrollDetailsForm />} />
         <Route path="/candidate/profile-settings" element={<CandidateProfileSettings />} />
         <Route path="/admin/profile-settings" element={<AdminProfileSettings />} />
