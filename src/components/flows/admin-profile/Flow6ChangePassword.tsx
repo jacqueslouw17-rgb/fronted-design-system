@@ -56,42 +56,24 @@ const Flow6ChangePassword = ({ onCancel }: Flow6ChangePasswordProps) => {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
-      <div className="bg-card/40 border border-border/40 rounded-lg p-6">
-        <div className="flex items-start justify-between gap-4 mb-5">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Change Password</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Update your login password for Fronted
-            </p>
-          </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium text-foreground">Change Password</h3>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onCancel} 
+          className="h-7 text-xs text-muted-foreground hover:text-foreground"
+        >
+          Back
+        </Button>
+      </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <Button variant="outline" onClick={onCancel} size="sm">
-              Back
-            </Button>
-            <Button
-              type="submit"
-              form="change-password-form"
-              disabled={isLoading}
-              size="sm"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                  Updating…
-                </>
-              ) : (
-                "Update"
-              )}
-            </Button>
-          </div>
-        </div>
-
+      <div className="rounded-xl border border-border/30 bg-card/20 p-4 sm:p-5">
         <form id="change-password-form" onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="current-password" className="text-sm font-medium">
-              Current Password <span className="text-destructive">*</span>
+              Current Password
             </Label>
             <Input
               id="current-password"
@@ -101,13 +83,13 @@ const Flow6ChangePassword = ({ onCancel }: Flow6ChangePasswordProps) => {
               placeholder="Enter current password"
               required
               disabled={isLoading}
-              className="h-11"
+              className="h-10"
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="new-password" className="text-sm font-medium">
-              New Password <span className="text-destructive">*</span>
+              New Password
             </Label>
             <Input
               id="new-password"
@@ -117,16 +99,16 @@ const Flow6ChangePassword = ({ onCancel }: Flow6ChangePasswordProps) => {
               placeholder="Enter new password"
               required
               disabled={isLoading}
-              className="h-11"
+              className="h-10"
             />
             <p className="text-xs text-muted-foreground">
-              Must be at least 6 characters long
+              Must be at least 6 characters
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="confirm-password" className="text-sm font-medium">
-              Confirm New Password <span className="text-destructive">*</span>
+              Confirm New Password
             </Label>
             <Input
               id="confirm-password"
@@ -136,9 +118,25 @@ const Flow6ChangePassword = ({ onCancel }: Flow6ChangePasswordProps) => {
               placeholder="Confirm new password"
               required
               disabled={isLoading}
-              className="h-11"
+              className="h-10"
             />
           </div>
+
+          <Button
+            type="submit"
+            disabled={isLoading}
+            size="sm"
+            className="w-full sm:w-auto"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                Updating…
+              </>
+            ) : (
+              "Update Password"
+            )}
+          </Button>
         </form>
       </div>
     </div>
