@@ -8,7 +8,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { FileText, ChevronRight, ChevronDown, Download, X } from "lucide-react";
+import { ChevronRight, ChevronDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
