@@ -3557,7 +3557,7 @@ You can ask me about:
   return <RoleLensProvider initialRole="admin">
       <div className="flex flex-col h-screen">
         {/* Topbar */}
-        <Topbar userName={`${userData.firstName} ${userData.lastName}`} isDrawerOpen={isDrawerOpen} onDrawerToggle={toggleDrawer} />
+        <Topbar userName={`${userData.firstName} ${userData.lastName}`} isDrawerOpen={isDrawerOpen} onDrawerToggle={toggleDrawer} profileSettingsUrl="/flow-6/profile-settings?returnUrl=/flows/company-admin-dashboard-v3" />
 
         {/* Main Content Area */}
         <main className="flex-1 flex overflow-hidden">

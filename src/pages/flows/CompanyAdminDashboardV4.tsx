@@ -68,7 +68,8 @@ const CompanyAdminDashboardV4Content: React.FC = () => {
         <Topbar 
           userName={`${userData.firstName} ${userData.lastName}`} 
           isDrawerOpen={isDrawerOpen} 
-          onDrawerToggle={toggleDrawer} 
+          onDrawerToggle={toggleDrawer}
+          profileSettingsUrl="/flow-6/profile-settings?returnUrl=/flows/company-admin-dashboard-v4"
         />
 
         {/* Main Content Area */}
