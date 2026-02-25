@@ -495,7 +495,9 @@ export const CA4_AgentChatPanel: React.FC = () => {
     setCurrentSuggestedAction(undefined);
 
     let userMessage = '';
-    if (action.type === 'approve_all') {
+    if (action.label === 'Let Fronted always run payroll') {
+      userMessage = 'Let Fronted always run payroll';
+    } else if (action.type === 'approve_all') {
       userMessage = 'Approve all pending items';
     }
 
@@ -615,6 +617,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
         const doneMsg = createChatMessage({
           role: 'assistant',
           content: `✅ **All ${workersToApprove.length} workers approved.**\n\nI'm moving you to **Payment Status** now. Here's what happens next:\n\n• Fronted processes payments within **2–3 business days**\n• Each worker will transition from ⏳ *In progress* → ✅ *Paid*\n• You can click any worker row to view their full payout breakdown\n\nEstimated completion: **Jan 28, 2026**`,
+          suggestedAction: { type: 'approve_all', label: 'Let Fronted always run payroll', description: 'Delegate future payroll runs to Fronted' },
         });
 
         setMessages(prev => [...prev, doneMsg]);
@@ -797,6 +800,7 @@ export const CA4_AgentChatPanel: React.FC = () => {
           const doneMsg = createChatMessage({
             role: 'assistant',
             content: `✅ **All ${workersToApprove.length} workers approved.**\n\nI'm moving you to **Payment Status** now. Here's what happens next:\n\n• Fronted processes payments within **2–3 business days**\n• Each worker will transition from ⏳ *In progress* → ✅ *Paid*\n• You can click any worker row to view their full payout breakdown\n\nEstimated completion: **Jan 28, 2026**`,
+            suggestedAction: { type: 'approve_all', label: 'Let Fronted always run payroll', description: 'Delegate future payroll runs to Fronted' },
           });
           setMessages(prev => [...prev, doneMsg]);
           setCurrentSuggestedAction(undefined);
