@@ -19,14 +19,20 @@ import WorkerStep2TaxDetails_v2 from "@/components/flows/worker-onboarding-v2/Wo
 import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
 import WorkerStep5WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
+import ProfileDocumentsSection from "@/components/flows/shared/ProfileDocumentsSection";
 
-type Section = "overview" | "profile-details" | "change-password";
+type Section = "overview" | "profile-details" | "documents" | "change-password";
 
 const OVERVIEW_CARDS = [
   {
     id: "profile-details" as Section,
     title: "Profile Details",
     description: "Personal, tax, bank, and work details"
+  },
+  {
+    id: "documents" as Section,
+    title: "Documents",
+    description: "Your contract and identity documents"
   },
   {
     id: "change-password" as Section,
@@ -40,7 +46,11 @@ const PROFILE_SECTIONS = [
   { id: "tax_details", title: "Tax Details" },
   { id: "bank_details", title: "Bank Details" },
   { id: "work_setup", title: "Work Setup" },
-  { id: "documents", title: "Documents" },
+];
+
+const MOCK_CONTRACT_DOCUMENTS = [
+  { id: "1", title: "Employment Agreement", date: "1 Feb 2024", fileType: "PDF" },
+  { id: "2", title: "NDA — Confidentiality Agreement", date: "1 Feb 2024", fileType: "PDF" },
 ];
 
 const F41v7_ProfileSettings = () => {
