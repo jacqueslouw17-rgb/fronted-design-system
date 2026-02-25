@@ -49,9 +49,9 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
       : true;
 
   return (
-    <div className="space-y-6 p-4 sm:p-6">
+    <div className="space-y-5 sm:space-y-6 p-3 sm:p-6">
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Work Setup</h3>
+        <h3 className="text-base sm:text-lg font-semibold">Work Setup</h3>
         <p className="text-sm text-muted-foreground">
           Let us know about your device setup.
         </p>

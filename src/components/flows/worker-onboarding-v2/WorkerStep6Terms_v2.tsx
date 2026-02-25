@@ -34,10 +34,10 @@ const WorkerStep6Terms_v2 = ({ formData, onComplete, isProcessing, buttonText }:
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className="space-y-6 p-4 sm:p-6"
+      className="space-y-5 sm:space-y-6 p-3 sm:p-6"
     >
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Terms & Conditions</h3>
+        <h3 className="text-base sm:text-lg font-semibold">Terms & Conditions</h3>
         <p className="text-sm text-muted-foreground">
           Review and accept the terms to complete your onboarding.
         </p>

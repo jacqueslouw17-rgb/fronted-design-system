@@ -65,10 +65,10 @@ const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonT
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
-        className="space-y-6 p-4 sm:p-6"
+        className="space-y-5 sm:space-y-6 p-3 sm:p-6"
       >
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Bank Details</h3>
+          <h3 className="text-base sm:text-lg font-semibold">Bank Details</h3>
           <p className="text-sm text-muted-foreground">
             Enter your bank details so we can process your payments.
           </p>

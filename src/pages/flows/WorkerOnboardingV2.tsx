@@ -122,11 +122,11 @@ const WorkerOnboardingV2 = () => {
 
   return (
     <AgentLayout context="Worker Onboarding">
-      <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
+        <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+          className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors h-10 w-10 touch-manipulation"
           onClick={() => navigate('/?tab=flows')}
         >
           <ArrowLeft className="h-5 w-5" />
@@ -137,8 +137,8 @@ const WorkerOnboardingV2 = () => {
         </div>
 
         <div 
-          className="flex-shrink-0 flex flex-col min-h-screen p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 sm:space-y-8 relative z-10 mx-auto onboarding-scroll-container"
-          style={{ width: '100%', maxWidth: '800px' }}
+          className="flex-shrink-0 flex flex-col min-h-screen px-3 py-4 sm:p-8 pb-16 sm:pb-32 space-y-5 sm:space-y-8 relative z-10 mx-auto onboarding-scroll-container w-full"
+          style={{ maxWidth: '800px' }}
         >
           <AgentHeader
             title="Hi Maria! Let's complete your onboarding"
