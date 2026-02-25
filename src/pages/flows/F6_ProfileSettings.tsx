@@ -2,7 +2,9 @@
  * Flow 6 — Company Admin Dashboard v3/v4 Profile Settings
  * Shared across v3 and v4 (agnostic). v7-style clean UI.
  * Sections: Profile Details (Company Details + Admin Details accordion) and Change Password.
- * Profile Details fields sourced from Flow 5 Company Admin Onboarding v1.
+ * Profile Details fields sourced from Flow 5 Company Admin Onboarding v1:
+ *   - Full Name, Email (locked), Company Name, HQ Country
+ *   - Excludes payroll currencies, payout day, and default currency per memory
  */
 
 import { useState } from "react";
@@ -10,10 +12,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronRight, ChevronDown, X, Loader2 } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { ChevronRight, ChevronDown, X, Loader2, ChevronsUpDown, Check } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
@@ -21,6 +22,7 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
+import { cn } from "@/lib/utils";
 
 type Section = "overview" | "profile-details" | "change-password";
 
@@ -28,7 +30,7 @@ const OVERVIEW_CARDS = [
   {
     id: "profile-details" as Section,
     title: "Profile Details",
-    description: "Company information, payroll setup, and admin details"
+    description: "Company and admin account details"
   },
   {
     id: "change-password" as Section,
@@ -39,60 +41,77 @@ const OVERVIEW_CARDS = [
 
 const SECTION_HEADERS: Record<Section, { title: string; subtitle: string }> = {
   "overview": { title: "Profile Settings", subtitle: "Manage your company profile and account." },
-  "profile-details": { title: "Profile Details", subtitle: "Update your company information and admin details." },
+  "profile-details": { title: "Profile Details", subtitle: "Update your company and admin details." },
   "change-password": { title: "Change Password", subtitle: "Update your login password." },
 };
 
 const PROFILE_SECTIONS = [
   { id: "company_details", title: "Company Details" },
-  { id: "payroll_details", title: "Payroll Details" },
   { id: "admin_details", title: "Admin Details" },
 ];
 
 const COUNTRIES = [
-  { code: "NO", name: "Norway", flag: "🇳🇴" },
-  { code: "DK", name: "Denmark", flag: "🇩🇰" },
-  { code: "SE", name: "Sweden", flag: "🇸🇪" },
-  { code: "FI", name: "Finland", flag: "🇫🇮" },
-  { code: "IS", name: "Iceland", flag: "🇮🇸" },
-  { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
-  { code: "DE", name: "Germany", flag: "🇩🇪" },
-  { code: "FR", name: "France", flag: "🇫🇷" },
-  { code: "NL", name: "Netherlands", flag: "🇳🇱" },
-  { code: "BE", name: "Belgium", flag: "🇧🇪" },
-  { code: "IE", name: "Ireland", flag: "🇮🇪" },
-  { code: "ES", name: "Spain", flag: "🇪🇸" },
-  { code: "PT", name: "Portugal", flag: "🇵🇹" },
-  { code: "IT", name: "Italy", flag: "🇮🇹" },
-  { code: "CH", name: "Switzerland", flag: "🇨🇭" },
-  { code: "AT", name: "Austria", flag: "🇦🇹" },
-  { code: "PL", name: "Poland", flag: "🇵🇱" },
-  { code: "XK", name: "Kosovo", flag: "🇽🇰" },
-  { code: "US", name: "United States", flag: "🇺🇸" },
-  { code: "CA", name: "Canada", flag: "🇨🇦" },
-  { code: "MX", name: "Mexico", flag: "🇲🇽" },
-  { code: "BR", name: "Brazil", flag: "🇧🇷" },
-  { code: "IN", name: "India", flag: "🇮🇳" },
-  { code: "PH", name: "Philippines", flag: "🇵🇭" },
-  { code: "SG", name: "Singapore", flag: "🇸🇬" },
-  { code: "AU", name: "Australia", flag: "🇦🇺" },
-  { code: "NZ", name: "New Zealand", flag: "🇳🇿" },
-  { code: "JP", name: "Japan", flag: "🇯🇵" },
-  { code: "KR", name: "South Korea", flag: "🇰🇷" },
-  { code: "AE", name: "United Arab Emirates", flag: "🇦🇪" },
-  { code: "ZA", name: "South Africa", flag: "🇿🇦" },
-  { code: "IL", name: "Israel", flag: "🇮🇱" },
-];
-
-const CURRENCIES = [
-  { value: "NOK", label: "NOK - Norwegian Krone" },
-  { value: "DKK", label: "DKK - Danish Krone" },
-  { value: "SEK", label: "SEK - Swedish Krona" },
-  { value: "PHP", label: "PHP - Philippine Peso" },
-  { value: "INR", label: "INR - Indian Rupee" },
-  { value: "USD", label: "USD - US Dollar" },
-  { value: "EUR", label: "EUR - Euro" },
-  { value: "GBP", label: "GBP - British Pound" },
+  { value: "AF", label: "Afghanistan", flag: "🇦🇫" },
+  { value: "AL", label: "Albania", flag: "🇦🇱" },
+  { value: "AR", label: "Argentina", flag: "🇦🇷" },
+  { value: "AU", label: "Australia", flag: "🇦🇺" },
+  { value: "AT", label: "Austria", flag: "🇦🇹" },
+  { value: "BE", label: "Belgium", flag: "🇧🇪" },
+  { value: "BR", label: "Brazil", flag: "🇧🇷" },
+  { value: "CA", label: "Canada", flag: "🇨🇦" },
+  { value: "CL", label: "Chile", flag: "🇨🇱" },
+  { value: "CN", label: "China", flag: "🇨🇳" },
+  { value: "CO", label: "Colombia", flag: "🇨🇴" },
+  { value: "HR", label: "Croatia", flag: "🇭🇷" },
+  { value: "CZ", label: "Czech Republic", flag: "🇨🇿" },
+  { value: "DK", label: "Denmark", flag: "🇩🇰" },
+  { value: "EE", label: "Estonia", flag: "🇪🇪" },
+  { value: "FI", label: "Finland", flag: "🇫🇮" },
+  { value: "FR", label: "France", flag: "🇫🇷" },
+  { value: "DE", label: "Germany", flag: "🇩🇪" },
+  { value: "GR", label: "Greece", flag: "🇬🇷" },
+  { value: "HK", label: "Hong Kong", flag: "🇭🇰" },
+  { value: "HU", label: "Hungary", flag: "🇭🇺" },
+  { value: "IS", label: "Iceland", flag: "🇮🇸" },
+  { value: "IN", label: "India", flag: "🇮🇳" },
+  { value: "ID", label: "Indonesia", flag: "🇮🇩" },
+  { value: "IE", label: "Ireland", flag: "🇮🇪" },
+  { value: "IL", label: "Israel", flag: "🇮🇱" },
+  { value: "IT", label: "Italy", flag: "🇮🇹" },
+  { value: "JP", label: "Japan", flag: "🇯🇵" },
+  { value: "KE", label: "Kenya", flag: "🇰🇪" },
+  { value: "XK", label: "Kosovo", flag: "🇽🇰" },
+  { value: "LV", label: "Latvia", flag: "🇱🇻" },
+  { value: "LT", label: "Lithuania", flag: "🇱🇹" },
+  { value: "LU", label: "Luxembourg", flag: "🇱🇺" },
+  { value: "MY", label: "Malaysia", flag: "🇲🇾" },
+  { value: "MX", label: "Mexico", flag: "🇲🇽" },
+  { value: "NL", label: "Netherlands", flag: "🇳🇱" },
+  { value: "NZ", label: "New Zealand", flag: "🇳🇿" },
+  { value: "NG", label: "Nigeria", flag: "🇳🇬" },
+  { value: "NO", label: "Norway", flag: "🇳🇴" },
+  { value: "PK", label: "Pakistan", flag: "🇵🇰" },
+  { value: "PH", label: "Philippines", flag: "🇵🇭" },
+  { value: "PL", label: "Poland", flag: "🇵🇱" },
+  { value: "PT", label: "Portugal", flag: "🇵🇹" },
+  { value: "RO", label: "Romania", flag: "🇷🇴" },
+  { value: "SA", label: "Saudi Arabia", flag: "🇸🇦" },
+  { value: "RS", label: "Serbia", flag: "🇷🇸" },
+  { value: "SG", label: "Singapore", flag: "🇸🇬" },
+  { value: "SK", label: "Slovakia", flag: "🇸🇰" },
+  { value: "SI", label: "Slovenia", flag: "🇸🇮" },
+  { value: "ZA", label: "South Africa", flag: "🇿🇦" },
+  { value: "KR", label: "South Korea", flag: "🇰🇷" },
+  { value: "ES", label: "Spain", flag: "🇪🇸" },
+  { value: "SE", label: "Sweden", flag: "🇸🇪" },
+  { value: "CH", label: "Switzerland", flag: "🇨🇭" },
+  { value: "TH", label: "Thailand", flag: "🇹🇭" },
+  { value: "TR", label: "Turkey", flag: "🇹🇷" },
+  { value: "UA", label: "Ukraine", flag: "🇺🇦" },
+  { value: "AE", label: "United Arab Emirates", flag: "🇦🇪" },
+  { value: "GB", label: "United Kingdom", flag: "🇬🇧" },
+  { value: "US", label: "United States", flag: "🇺🇸" },
+  { value: "VN", label: "Vietnam", flag: "🇻🇳" },
 ];
 
 const F6_ProfileSettings = () => {
@@ -101,12 +120,11 @@ const F6_ProfileSettings = () => {
   const [currentSection, setCurrentSection] = useState<Section>("overview");
   const [expandedAccordion, setExpandedAccordion] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [countryOpen, setCountryOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     companyName: "JBOX Technologies",
     hqCountry: "NO",
-    payrollCurrency: ["NOK", "PHP"] as string[],
-    payoutDay: "25",
     adminName: "Joe Smith",
     adminEmail: "joe.smith@jboxtech.com",
   });
@@ -137,6 +155,7 @@ const F6_ProfileSettings = () => {
   };
 
   const header = SECTION_HEADERS[currentSection];
+  const selectedCountry = COUNTRIES.find(c => c.value === formData.hqCountry);
 
   const renderAccordionContent = (sectionId: string) => {
     switch (sectionId) {
@@ -154,102 +173,48 @@ const F6_ProfileSettings = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hqCountry" className="text-sm">Primary Legal Entity Country</Label>
-              <Select value={formData.hqCountry} onValueChange={(val) => handleFieldChange("hqCountry", val)}>
-                <SelectTrigger className="text-sm">
-                  <SelectValue placeholder="Select country" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[280px]">
-                  {COUNTRIES.map(c => (
-                    <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex justify-end pt-2">
-              <Button size="sm" onClick={handleSave} disabled={isSaving}>
-                {isSaving ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Saving…</> : "Save changes"}
-              </Button>
-            </div>
-          </div>
-        );
-
-      case "payroll_details":
-        return (
-          <div className="p-4 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="payrollCurrency" className="text-sm">Payroll Currencies</Label>
-              <Popover>
+              <Label htmlFor="hqCountry" className="text-sm">HQ Country</Label>
+              <Popover open={countryOpen} onOpenChange={setCountryOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     role="combobox"
-                    className="w-full justify-between text-sm h-10 hover:bg-card hover:text-foreground hover:shadow-none"
+                    aria-expanded={countryOpen}
+                    className="w-full justify-between text-sm font-normal h-10"
                   >
-                    <div className="flex flex-wrap gap-1.5 items-center">
-                      {formData.payrollCurrency.length > 0 ? (
-                        formData.payrollCurrency.map((currency) => (
-                          <span
-                            key={currency}
-                            className="inline-flex items-center gap-0.5 pl-2 pr-1 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20"
-                          >
-                            {currency}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleFieldChange("payrollCurrency", formData.payrollCurrency.filter(c => c !== currency));
-                              }}
-                              className="rounded-sm p-0.5"
-                            >
-                              <X className="h-2.5 w-2.5" />
-                            </button>
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-muted-foreground">Select currencies</span>
-                      )}
-                    </div>
-                    <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+                    {selectedCountry ? (
+                      <span>{selectedCountry.flag} {selectedCountry.label}</span>
+                    ) : (
+                      <span className="text-muted-foreground">Select country</span>
+                    )}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0" align="start">
-                  <div className="p-1.5 space-y-0.5">
-                    {CURRENCIES.map((currency) => {
-                      const isSelected = formData.payrollCurrency.includes(currency.value);
-                      return (
-                        <div
-                          key={currency.value}
-                          className="flex items-center space-x-2.5 px-2.5 py-2 hover:bg-primary/5 rounded-md cursor-pointer transition-colors"
-                          onClick={() => {
-                            const newCurrencies = isSelected
-                              ? formData.payrollCurrency.filter(c => c !== currency.value)
-                              : [...formData.payrollCurrency, currency.value];
-                            handleFieldChange("payrollCurrency", newCurrencies);
-                          }}
-                        >
-                          <Checkbox checked={isSelected} onCheckedChange={() => {}} />
-                          <label className="text-sm cursor-pointer flex-1 text-foreground">{currency.label}</label>
-                        </div>
-                      );
-                    })}
-                  </div>
+                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-background border border-border z-50" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search country..." className="h-10" />
+                    <CommandList className="max-h-[240px]">
+                      <CommandEmpty>No country found.</CommandEmpty>
+                      <CommandGroup>
+                        {COUNTRIES.map((country) => (
+                          <CommandItem
+                            key={country.value}
+                            value={country.label}
+                            onSelect={() => {
+                              handleFieldChange("hqCountry", country.value);
+                              setCountryOpen(false);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", formData.hqCountry === country.value ? "opacity-100" : "opacity-0")} />
+                            {country.flag} {country.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
                 </PopoverContent>
               </Popover>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="payoutDay" className="text-sm">Preferred Payout Date</Label>
-              <Input
-                id="payoutDay"
-                type="number"
-                min="1"
-                max="31"
-                value={formData.payoutDay}
-                onChange={(e) => handleFieldChange("payoutDay", e.target.value)}
-                placeholder="e.g., 25"
-                className="text-sm"
-              />
-              <p className="text-xs text-muted-foreground">Day of the month (1–31)</p>
             </div>
             <div className="flex justify-end pt-2">
               <Button size="sm" onClick={handleSave} disabled={isSaving}>
@@ -278,12 +243,10 @@ const F6_ProfileSettings = () => {
                 id="adminEmail"
                 type="email"
                 value={formData.adminEmail}
-                onChange={(e) => handleFieldChange("adminEmail", e.target.value)}
-                placeholder="email@company.com"
-                className="text-sm"
+                className="text-sm bg-muted/50"
                 disabled
               />
-              <p className="text-xs text-muted-foreground">Email is linked to your account and cannot be changed</p>
+              <p className="text-xs text-muted-foreground">Linked to your invitation and cannot be changed</p>
             </div>
             <div className="flex justify-end pt-2">
               <Button size="sm" onClick={handleSave} disabled={isSaving}>
