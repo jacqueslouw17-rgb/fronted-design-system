@@ -145,18 +145,32 @@ const F42v7_ProfileSettings = () => {
       buttonText: "Save changes",
     };
 
+    let content: React.ReactNode = null;
     switch (sectionId) {
       case "personal_profile":
-        return <WorkerStep2PersonalProfile_v2 {...commonProps} />;
+        content = <WorkerStep2PersonalProfile_v2 {...commonProps} />;
+        break;
       case "tax_details":
-        return <WorkerStep2TaxDetails_v2 {...commonProps} />;
+        content = <WorkerStep2TaxDetails_v2 {...commonProps} />;
+        break;
       case "bank_details":
-        return <WorkerStep4BankDetails_v2 {...commonProps} />;
+        content = <WorkerStep4BankDetails_v2 {...commonProps} />;
+        break;
       case "work_setup":
-        return <WorkerStep5WorkSetup_v2 {...commonProps} />;
+        content = <WorkerStep5WorkSetup_v2 {...commonProps} />;
+        break;
       default:
         return null;
     }
+
+    return (
+      <div>
+        {content}
+        <div className="flex items-center gap-2 px-4 pb-4 -mt-2">
+          <Button variant="outline" size="sm" onClick={() => setCurrentSection("overview")} className="text-xs">Back</Button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -248,9 +262,7 @@ const F42v7_ProfileSettings = () => {
                   transition={{ duration: 0.2 }}
                   className="pb-20 sm:pb-8"
                 >
-                  <div>
-
-                    <div className="space-y-1.5">
+                  <div className="space-y-1.5">
                       {PROFILE_SECTIONS.map((section) => {
                         const isExpanded = expandedAccordion === section.id;
                         
@@ -283,17 +295,6 @@ const F42v7_ProfileSettings = () => {
                           </div>
                         );
                       })}
-                    </div>
-                    <div className="flex justify-center mt-4">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => setCurrentSection("overview")} 
-                        className="text-xs"
-                      >
-                        Back
-                      </Button>
-                    </div>
                   </div>
                 </motion.div>
               )}
