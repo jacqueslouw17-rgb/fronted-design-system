@@ -317,7 +317,7 @@ const F41v7_ProfileSettings = () => {
                 </motion.div>
               )}
 
-                <motion.div
+              {currentSection === "change-password" && (
                   key="change-password"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
