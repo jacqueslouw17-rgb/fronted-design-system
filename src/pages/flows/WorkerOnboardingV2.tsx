@@ -141,7 +141,7 @@ const WorkerOnboardingV2 = () => {
           style={{ maxWidth: '800px' }}
         >
           <AgentHeader
-            title="Hi Maria! Let's complete your onboarding"
+            title="Hi Maria! Let's get you set up"
             subtitle="Review and confirm your details below to finalize your profile."
             showPulse={true}
             isActive={isSpeaking}
