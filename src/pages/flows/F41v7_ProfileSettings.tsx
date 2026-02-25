@@ -110,7 +110,6 @@ const F41v7_ProfileSettings = () => {
   };
 
   const handleDownloadContract = () => {
-    window.open("#", "_blank");
     toast.info("Downloading contract bundle...");
   };
 
@@ -157,21 +156,6 @@ const F41v7_ProfileSettings = () => {
         return <WorkerStep4BankDetails_v2 {...commonProps} />;
       case "work_setup":
         return <WorkerStep5WorkSetup_v2 {...commonProps} />;
-      case "documents":
-        return (
-          <div className="p-3 sm:p-6">
-            <div className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/30">
-              <div className="flex items-center gap-2.5">
-                <FileText className="h-4 w-4 text-primary" />
-                <p className="text-sm font-medium text-foreground">Your Contract</p>
-              </div>
-              <Button variant="ghost" size="sm" onClick={handleDownloadContract} className="h-8 text-xs gap-1.5">
-                <Download className="h-3.5 w-3.5" />
-                Download
-              </Button>
-            </div>
-          </div>
-        );
       default:
         return null;
     }
