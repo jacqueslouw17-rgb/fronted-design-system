@@ -8,7 +8,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { FileText, ChevronRight, ChevronDown, Download, X } from "lucide-react";
+import { ChevronRight, ChevronDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
@@ -19,14 +19,20 @@ import WorkerStep2TaxDetails_v2 from "@/components/flows/worker-onboarding-v2/Wo
 import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
 import WorkerStep5WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
+import ProfileDocumentsSection from "@/components/flows/shared/ProfileDocumentsSection";
 
-type Section = "overview" | "profile-details" | "change-password";
+type Section = "overview" | "profile-details" | "documents" | "change-password";
 
 const OVERVIEW_CARDS = [
   {
     id: "profile-details" as Section,
     title: "Profile Details",
     description: "Personal, tax, bank, and work details"
+  },
+  {
+    id: "documents" as Section,
+    title: "Documents",
+    description: "Your contract and identity documents"
   },
   {
     id: "change-password" as Section,
@@ -40,7 +46,11 @@ const PROFILE_SECTIONS = [
   { id: "tax_details", title: "Tax Details" },
   { id: "bank_details", title: "Bank Details" },
   { id: "work_setup", title: "Work Setup" },
-  { id: "documents", title: "Documents" },
+];
+
+const MOCK_CONTRACT_DOCUMENTS = [
+  { id: "1", title: "Employment Agreement", date: "1 Feb 2024", fileType: "PDF" },
+  { id: "2", title: "NDA — Confidentiality Agreement", date: "1 Feb 2024", fileType: "PDF" },
 ];
 
 const F41v7_ProfileSettings = () => {
@@ -100,7 +110,6 @@ const F41v7_ProfileSettings = () => {
   };
 
   const handleDownloadContract = () => {
-    window.open("#", "_blank");
     toast.info("Downloading contract bundle...");
   };
 
@@ -147,21 +156,6 @@ const F41v7_ProfileSettings = () => {
         return <WorkerStep4BankDetails_v2 {...commonProps} />;
       case "work_setup":
         return <WorkerStep5WorkSetup_v2 {...commonProps} />;
-      case "documents":
-        return (
-          <div className="p-3 sm:p-6">
-            <div className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/30">
-              <div className="flex items-center gap-2.5">
-                <FileText className="h-4 w-4 text-primary" />
-                <p className="text-sm font-medium text-foreground">Your Contract</p>
-              </div>
-              <Button variant="ghost" size="sm" onClick={handleDownloadContract} className="h-8 text-xs gap-1.5">
-                <Download className="h-3.5 w-3.5" />
-                Download
-              </Button>
-            </div>
-          </div>
-        );
       default:
         return null;
     }
@@ -204,11 +198,15 @@ const F41v7_ProfileSettings = () => {
                   ? "Profile Settings" 
                   : currentSection === "profile-details"
                   ? "Profile Details"
+                  : currentSection === "documents"
+                  ? "Documents"
                   : "Change Password"}
                 subtitle={currentSection === "overview" 
                   ? "Manage your profile and account." 
                   : currentSection === "profile-details"
                   ? "Update your personal, tax, bank, and work details."
+                  : currentSection === "documents"
+                  ? "Your contract and identity documents."
                   : "Update your login password."}
                 showPulse={true}
                 isActive={false}
@@ -299,6 +297,23 @@ const F41v7_ProfileSettings = () => {
                       </Button>
                     </div>
                   </div>
+                </motion.div>
+              )}
+
+              {currentSection === "documents" && (
+                <motion.div
+                  key="documents"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.2 }}
+                  className="pb-20 sm:pb-8"
+                >
+                  <ProfileDocumentsSection
+                    contractDocuments={MOCK_CONTRACT_DOCUMENTS}
+                    identityFileName={formData.identityFileName}
+                    onBack={() => setCurrentSection("overview")}
+                  />
                 </motion.div>
               )}
 
