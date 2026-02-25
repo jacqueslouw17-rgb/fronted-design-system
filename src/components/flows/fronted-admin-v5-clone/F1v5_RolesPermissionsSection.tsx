@@ -175,7 +175,7 @@ export function F1v5_RolesPermissionsSection({ onBack }: Props) {
       </div>
 
       {/* Centered back button */}
-      <div className="flex justify-center mt-4">
+      <div className="flex items-center gap-2 mt-4">
         <Button variant="outline" size="sm" onClick={onBack} className="text-xs">
           Back
         </Button>

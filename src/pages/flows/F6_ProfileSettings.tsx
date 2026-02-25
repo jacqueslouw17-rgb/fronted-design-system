@@ -216,7 +216,8 @@ const F6_ProfileSettings = () => {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="flex justify-end pt-2">
+            <div className="flex items-center gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={() => setExpandedAccordion(null)} className="text-xs">Back</Button>
               <Button size="sm" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Saving…</> : "Save changes"}
               </Button>
@@ -248,7 +249,8 @@ const F6_ProfileSettings = () => {
               />
               <p className="text-xs text-muted-foreground">Linked to your invitation and cannot be changed</p>
             </div>
-            <div className="flex justify-end pt-2">
+            <div className="flex items-center gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={() => setExpandedAccordion(null)} className="text-xs">Back</Button>
               <Button size="sm" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Saving…</> : "Save changes"}
               </Button>
@@ -372,7 +374,7 @@ const F6_ProfileSettings = () => {
                         );
                       })}
                     </div>
-                    <div className="flex justify-center mt-4">
+                    <div className="flex items-center gap-2 mt-4">
                       <Button
                         variant="outline"
                         size="sm"
