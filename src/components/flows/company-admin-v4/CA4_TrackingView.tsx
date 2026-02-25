@@ -145,7 +145,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
 
     return (
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent side="right" className="w-[440px] sm:max-w-[440px] p-0 flex flex-col overflow-hidden z-[45] lg:right-[30%]">
+        <SheetContent side="right" className="w-[440px] sm:max-w-[440px] p-0 flex flex-col overflow-hidden z-[45] lg:right-[30%]" overlayClassName="lg:right-[30%] lg:w-[70%]">
           <SheetHeader className="px-6 py-5 border-b border-border/40 shrink-0 bg-background pt-12">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
