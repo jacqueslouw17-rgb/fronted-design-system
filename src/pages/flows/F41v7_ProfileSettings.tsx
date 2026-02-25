@@ -198,11 +198,15 @@ const F41v7_ProfileSettings = () => {
                   ? "Profile Settings" 
                   : currentSection === "profile-details"
                   ? "Profile Details"
+                  : currentSection === "documents"
+                  ? "Documents"
                   : "Change Password"}
                 subtitle={currentSection === "overview" 
                   ? "Manage your profile and account." 
                   : currentSection === "profile-details"
                   ? "Update your personal, tax, bank, and work details."
+                  : currentSection === "documents"
+                  ? "Your contract and identity documents."
                   : "Update your login password."}
                 showPulse={true}
                 isActive={false}
