@@ -1917,15 +1917,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <h2 className="text-base font-semibold text-foreground leading-tight truncate">{countryFlags[selectedSubmission.workerCountry] || ""} {selectedSubmission.workerName}</h2>
-                        {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) && !selectedSubmission.flags?.some(f => f.type === "end_date") && (
-                          <button
-                            onClick={() => setIsAddingAdjustment(true)}
-                            className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
-                          >
-                            <Plus className="h-2.5 w-2.5" />
-                            <span>Add</span>
-                          </button>
-                        )}
                         {(() => {
                           const endFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
                           if (!endFlag) return null;
@@ -1936,6 +1927,15 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             </Badge>
                           );
                         })()}
+                        {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) && !selectedSubmission.flags?.some(f => f.type === "end_date") && (
+                          <button
+                            onClick={() => setIsAddingAdjustment(true)}
+                            className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
+                          >
+                            <Plus className="h-2.5 w-2.5" />
+                            <span>Add</span>
+                          </button>
+                        )}
                       </div>
                       <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
                     </div>
