@@ -1198,6 +1198,20 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 Include in this month's batch
                               </p>}
                           </div>
+                          {/* Status badge top-right for onboarding-pending */}
+                          {status === "onboarding-pending" && (
+                            <Badge 
+                              variant="outline" 
+                              className={cn(
+                                "text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none",
+                                contractor.needsDocumentVerification
+                                  ? "bg-amber-500/10 text-amber-700 border-amber-500/20"
+                                  : "bg-primary/10 text-primary border-primary/20"
+                              )}
+                            >
+                              {contractor.needsDocumentVerification ? "Submitted" : "In Progress"}
+                            </Badge>
+                          )}
                           {/* Status badge top-right for Done column */}
                           {status === "CERTIFIED" && (
                             <Badge 
