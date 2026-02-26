@@ -48,7 +48,14 @@ import { F1v4_PayrollStepper } from "./F1v4_PayrollStepper";
 const countryFlags: Record<string, string> = {
   Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
   Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", USA: "🇺🇸",
-  "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧"
+  "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧",
+  Italy: "🇮🇹", Japan: "🇯🇵", India: "🇮🇳", Ireland: "🇮🇪",
+  Netherlands: "🇳🇱", Sweden: "🇸🇪", Denmark: "🇩🇰", Brazil: "🇧🇷",
+  Mexico: "🇲🇽", Egypt: "🇪🇬", Greece: "🇬🇷",
+  SG: "🇸🇬", ES: "🇪🇸", PH: "🇵🇭", NO: "🇳🇴", PT: "🇵🇹", DE: "🇩🇪",
+  FR: "🇫🇷", US: "🇺🇸", GB: "🇬🇧", IT: "🇮🇹", JP: "🇯🇵", IN: "🇮🇳",
+  IE: "🇮🇪", NL: "🇳🇱", SE: "🇸🇪", DK: "🇩🇰", BR: "🇧🇷", MX: "🇲🇽",
+  EG: "🇪🇬", GR: "🇬🇷",
 };
 
 // Types - matching CA3_SubmissionsView exactly
