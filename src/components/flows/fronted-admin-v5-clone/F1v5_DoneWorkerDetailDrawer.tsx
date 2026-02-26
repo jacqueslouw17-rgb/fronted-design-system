@@ -510,7 +510,15 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <span className="text-lg">{worker.countryFlag}</span>
             <span>{worker.role} · {isEmployee ? "Employee (EOR)" : "Contractor (COR)"}</span>
           </div>
-          <div className="flex items-center gap-2 mt-1">
+          {verificationMode && (
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-700 border-amber-500/20 gap-1">
+                <FileText className="h-3 w-3" />
+                Documents pending verification
+              </Badge>
+            </div>
+          )}
+          {!verificationMode && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className={cn(
