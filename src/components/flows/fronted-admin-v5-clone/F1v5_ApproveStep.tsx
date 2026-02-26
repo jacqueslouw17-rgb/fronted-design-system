@@ -283,13 +283,13 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   };
 
   const renderTimeline = () => (
-    <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden h-full">
-      <div className="p-5">
-        <h3 className="text-sm font-medium text-foreground mb-4">What happens next</h3>
-        <div className="relative pl-5">
+    <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden h-full flex flex-col">
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className="text-sm font-medium text-foreground mb-6">What happens next</h3>
+        <div className="relative pl-5 flex-1 flex flex-col justify-between">
           <div className="absolute left-[6px] top-1.5 bottom-1.5 w-px bg-border" />
-          {timelineSteps.map((step, index) => (
-            <div key={step.id} className={cn("relative", index < timelineSteps.length - 1 && "pb-4")}>
+          {timelineSteps.map((step) => (
+            <div key={step.id} className="relative">
               <div className={cn(
                 "absolute left-[-20px] w-3 h-3 rounded-full flex items-center justify-center",
                 step.active 
@@ -302,7 +302,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 "text-sm font-medium",
                 step.active ? "text-foreground" : "text-muted-foreground"
               )}>{step.title}</p>
-              <p className="text-[11px] text-muted-foreground">{step.description}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{step.description}</p>
             </div>
           ))}
         </div>
