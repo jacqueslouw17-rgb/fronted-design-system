@@ -546,17 +546,17 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
           <CardContent className="py-4 px-4 sm:py-6 sm:px-6">
             {/* Metrics Grid */}
-            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 sm:overflow-visible pb-1 mb-6">
-              <div className="flex sm:grid sm:grid-cols-4 gap-2 sm:gap-4 w-max sm:w-auto">
+            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0 lg:overflow-visible pb-1 mb-6">
+              <div className="flex lg:grid lg:grid-cols-4 gap-2 lg:gap-4 w-max lg:w-auto">
               {/* Gross Pay */}
-              <div className="w-32 sm:w-auto bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
-                <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                  <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">Gross Pay</span>
+              <div className="w-32 lg:w-auto bg-primary/[0.04] rounded-xl p-2.5 lg:p-4">
+                <div className="flex items-center gap-1 lg:gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <DollarSign className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Gross Pay</span>
                   <Popover>
                     <PopoverTrigger asChild>
                       <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
-                        <Info className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                        <Info className="h-3 w-3 lg:h-3.5 lg:w-3.5" />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
@@ -565,19 +565,19 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
                     </PopoverContent>
                   </Popover>
                 </div>
-                <p className="text-lg sm:text-2xl font-semibold text-foreground">{isPayrollSubmitted ? "" : "≈ "}{displayMetrics.grossPay}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{isPayrollSubmitted ? "" : "≈ "}{displayMetrics.grossPay}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Salaries + Contractor fees</p>
               </div>
 
               {/* Total Adjustments */}
-              <div className="w-32 sm:w-auto bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
-                <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                  <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">{isPayrollSubmitted ? "Adj. Approved" : "Adj. Requests"}</span>
+              <div className="w-32 lg:w-auto bg-primary/[0.04] rounded-xl p-2.5 lg:p-4">
+                <div className="flex items-center gap-1 lg:gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <Receipt className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">{isPayrollSubmitted ? "Adj. Approved" : "Adj. Requests"}</span>
                   <Popover>
                     <PopoverTrigger asChild>
                       <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
-                        <Info className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                        <Info className="h-3 w-3 lg:h-3.5 lg:w-3.5" />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
@@ -586,28 +586,28 @@ export const CA4_PayrollSection: React.FC<CA4_PayrollSectionProps> = ({ payPerio
                     </PopoverContent>
                   </Popover>
                 </div>
-                <p className="text-lg sm:text-2xl font-semibold text-foreground">{isPayrollSubmitted ? "" : "≈ "}{displayMetrics.adjustments}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Bonuses, overtime & expenses</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{isPayrollSubmitted ? "" : "≈ "}{displayMetrics.adjustments}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Bonuses, overtime & expenses</p>
               </div>
 
               {/* Fronted Fees */}
-              <div className="w-32 sm:w-auto bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
-                <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                  <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">Fronted Fees</span>
+              <div className="w-32 lg:w-auto bg-primary/[0.04] rounded-xl p-2.5 lg:p-4">
+                <div className="flex items-center gap-1 lg:gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <Building2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Fronted Fees</span>
                 </div>
-                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Transaction + Service</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Transaction + Service</p>
               </div>
 
               {/* Total Cost */}
-              <div className="w-32 sm:w-auto bg-primary/[0.04] rounded-xl p-2.5 sm:p-4">
-                <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                  <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">Total Cost</span>
+              <div className="w-32 lg:w-auto bg-primary/[0.04] rounded-xl p-2.5 lg:p-4">
+                <div className="flex items-center gap-1 lg:gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <TrendingUp className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Total Cost</span>
                 </div>
-                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Pay + All Fees</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Pay + All Fees</p>
               </div>
               </div>
             </div>
