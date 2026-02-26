@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -91,6 +91,13 @@ const ContractCreation: React.FC = () => {
   const returnTo = searchParams.get("returnTo");
   const companyParam = searchParams.get("company");
   const mockCandidates = useMockCandidates();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 16);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   const contractorsFromStore = useContractorStore((s) => s.contractors) as unknown as PipelineContractor[];
 
   // Only override navigation when the launching flow explicitly asks for it.
@@ -258,8 +265,8 @@ const ContractCreation: React.FC = () => {
               />
             </div>
             <div className="relative z-10">
-              {/* Logo and Close Button */}
-              <div className="flex items-center justify-between px-6 pt-6 pb-4">
+              {/* Sticky frosted-glass header */}
+              <div className={`sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 py-3 transition-all duration-300 ${scrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 border-b border-border/30 shadow-sm' : 'bg-transparent'}`}>
                 <img 
                   src={frontedLogo} 
                   alt="Fronted" 
