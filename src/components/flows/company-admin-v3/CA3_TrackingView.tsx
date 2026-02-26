@@ -158,6 +158,10 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                 <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedWorker.type === "employee" ? "Employee" : "Contractor"} · Jan 1 – Jan 31</p>
               </div>
             </div>
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">{isContractor ? "Invoice total" : "Estimated net"}</p>
+              <p className="text-sm font-semibold text-foreground tabular-nums">{approx}{formatCurrency(Math.round(cvt(netTotal)), dc)}</p>
+            </div>
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto">
