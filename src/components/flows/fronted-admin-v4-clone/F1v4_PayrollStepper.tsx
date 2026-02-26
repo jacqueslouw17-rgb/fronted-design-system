@@ -86,7 +86,7 @@ export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
                 )}
               </div>
               
-              <span className="hidden md:inline">{step.label}</span>
+              <span className={cn("md:inline", state === "active" ? "inline" : "hidden")}>{step.label}</span>
               
               
               {/* Badge for exceptions */}
