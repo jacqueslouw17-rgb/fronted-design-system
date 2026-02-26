@@ -354,7 +354,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
           </div>
 
           {/* ── Toolbar: tabs + actions ── */}
-          <div className="px-4 sm:px-6 py-2.5 border-b border-border/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 flex-shrink-0 bg-muted/10">
+          <div className="px-4 sm:px-6 py-2.5 border-b border-border/20 flex items-center justify-between gap-2 flex-shrink-0 bg-muted/10">
             {/* Left: Document tabs */}
             {isEditing ? (
               <div className="flex items-center gap-2 min-w-0">
