@@ -18,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  Sparkles, ChevronDown, User, Briefcase, Calendar, Shield, Clock,
+  ChevronDown, User, Briefcase, Calendar, Shield, Clock,
   MapPin, Globe, Building2, Banknote, FileText, Check, ChevronsUpDown,
 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
@@ -464,8 +464,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
             Previous
           </Button>
         )}
-        <Button onClick={handleNext} size="lg" className="gap-2">
-          <Sparkles className="h-5 w-5" />
+        <Button onClick={handleNext} size="lg">
           {currentIndex + 1 === totalCandidates
             ? (totalCandidates > 1 ? "Review Agreements" : "Review Agreement")
             : "Review Next Candidate"}
