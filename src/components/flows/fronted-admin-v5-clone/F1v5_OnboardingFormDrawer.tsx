@@ -250,11 +250,6 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           {/* ── Section 2: Working Engagement ── */}
           <SectionCard
             title="Working Engagement"
-            badge={formData.country ? (
-              <Badge variant="outline" className="text-xs font-medium gap-1">
-                {countryRule?.flag || candidate.flag} {formData.country}
-              </Badge>
-            ) : undefined}
           >
             <Field label="Role">
               {isFromATS ? (
