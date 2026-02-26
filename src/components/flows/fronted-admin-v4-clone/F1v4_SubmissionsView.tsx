@@ -1164,19 +1164,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           </div>
                           <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
                         </div>
-                        {currentPendingCount > 0 && !isWorkerFinalized(selectedSubmission.id) &&
-                          <div className="shrink-0">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <label className="flex items-center gap-1 cursor-pointer">
-                                  <Switch checked={showPendingOnly} onCheckedChange={setShowPendingOnly} className="h-3 w-6 data-[state=checked]:bg-primary [&>span]:h-2 [&>span]:w-2 [&>span]:data-[state=checked]:translate-x-3" />
-                                  <span className="text-[10px] text-muted-foreground">Pending</span>
-                                </label>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom"><p className="text-xs">Show only pending items</p></TooltipContent>
-                            </Tooltip>
-                          </div>
-                        }
                       </div>
 
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
