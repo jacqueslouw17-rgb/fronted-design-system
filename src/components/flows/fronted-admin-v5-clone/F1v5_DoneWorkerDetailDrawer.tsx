@@ -519,6 +519,14 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               </Badge>
             </div>
           )}
+          {!verificationMode && worker.documentsVerified && (
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                Documents verified
+              </Badge>
+            </div>
+          )}
           {!verificationMode && (
             <div className="flex items-center gap-2 mt-1">
             <DropdownMenu>
