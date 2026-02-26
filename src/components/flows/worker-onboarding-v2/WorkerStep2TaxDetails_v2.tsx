@@ -125,7 +125,7 @@ const COUNTRIES = [
 const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction }: Step2Props) => {
   const [countryOpen, setCountryOpen] = useState(false);
   const [data, setData] = useState({
-    taxCountry: formData.taxCountry || "",
+    taxCountry: formData.taxCountry || "IN",
     taxNumber: formData.taxNumber || formData.tinNumber || "",
     identityDocUploaded: formData.identityDocUploaded || false,
     // India-specific
@@ -199,19 +199,10 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
       toast.error("Please upload your identity document.");
       return;
     }
-    if (isIndia && !data.indiaTaxRegime) {
-      toast.error("Please select your income tax regime.");
-      return;
-    }
-    if (isIndia && data.indiaTaxRegime === "old" && !data.indiaInvestmentProofUploaded) {
-      toast.error("Please upload proof of investments/deductions.");
-      return;
-    }
     onComplete("tax_details", { ...data, identityFileName, investmentProofFileName });
   };
 
-  const isValid = data.taxCountry && data.taxNumber && 
-    (!isIndia || (data.indiaTaxRegime && (data.indiaTaxRegime === "new" || data.indiaInvestmentProofUploaded)));
+  const isValid = data.taxCountry && data.taxNumber;
 
   return (
     <AnimatePresence mode="wait">
