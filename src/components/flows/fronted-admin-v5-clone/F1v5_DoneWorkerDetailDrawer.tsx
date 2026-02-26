@@ -510,7 +510,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
           <SheetDescription className="sr-only">Worker details</SheetDescription>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.countryFlag} {worker.name}</SheetTitle>
+              <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.name}</SheetTitle>
+              <span className="text-base shrink-0">{worker.countryFlag}</span>
               {verificationMode && (
                 <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
                   In review

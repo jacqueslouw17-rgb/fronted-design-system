@@ -184,7 +184,10 @@ export const F1v4_SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps
           <SheetDescription className="sr-only">Contract progress</SheetDescription>
           {candidate && (
             <div className="min-w-0">
-              <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{candidate.flag} {candidate.name}</SheetTitle>
+              <div className="flex items-center gap-2">
+                <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{candidate.name}</SheetTitle>
+                <span className="text-base shrink-0">{candidate.flag}</span>
+              </div>
               <p className="text-[11px] text-muted-foreground/60 mt-0.5">{candidate.role} · {candidate.country}</p>
             </div>
           )}

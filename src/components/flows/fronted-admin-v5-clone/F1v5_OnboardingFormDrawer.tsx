@@ -207,7 +207,10 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
         <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
           <SheetDescription className="sr-only">Data collection form</SheetDescription>
           <div className="min-w-0">
-            <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{candidate.flag} {candidate.name}</SheetTitle>
+            <div className="flex items-center gap-2">
+              <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{candidate.name}</SheetTitle>
+              <span className="text-base shrink-0">{candidate.flag}</span>
+            </div>
             <p className="text-[11px] text-muted-foreground/60 mt-0.5">{candidate.role} · Data Collection</p>
           </div>
         </SheetHeader>

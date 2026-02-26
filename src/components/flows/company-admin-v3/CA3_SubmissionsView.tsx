@@ -1493,7 +1493,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{countryFlags[selectedSubmission.workerCountry] || ""} {selectedSubmission.workerName}</SheetTitle>
+                        <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{selectedSubmission.workerName}</SheetTitle>
+                        <span className="text-base shrink-0">{countryFlags[selectedSubmission.workerCountry] || ""}</span>
                         {(() => {
                           const endFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
                           if (!endFlag) return null;

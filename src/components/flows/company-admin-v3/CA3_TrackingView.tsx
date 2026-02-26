@@ -159,7 +159,8 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
             <div className="flex items-center justify-between">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{countryFlags[selectedWorker.country] || ""} {selectedWorker.name}</SheetTitle>
+                  <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{selectedWorker.name}</SheetTitle>
+                  <span className="text-base shrink-0">{countryFlags[selectedWorker.country] || ""}</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedWorker.type === "employee" ? "Employee" : "Contractor"} · Jan 1 – Jan 31</p>
               </div>
