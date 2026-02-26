@@ -168,7 +168,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               </p>
             </div>
 
-            {/* Financial ledger */}
+            {/* Approved / rejected summary */}
             <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1.5 text-muted-foreground">
@@ -187,23 +187,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                   <span className="text-muted-foreground/60 tabular-nums line-through">{formatCurrency(displayData.rejectedAmount)}</span>
                 </div>
               )}
-
-              {displayData.totalDeductions > 0 && (
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Tax deductions (employees)</span>
-                  <span className="text-foreground tabular-nums">-{formatCurrency(displayData.totalDeductions)}</span>
-                </div>
-              )}
-              
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Fronted fees (3%)</span>
-                <span className="text-foreground tabular-nums">{formatCurrency(displayData.fees)}</span>
-              </div>
-              
-              <div className="flex items-center justify-between text-xs pt-2.5 border-t border-border/40">
-                <span className="text-foreground font-medium">Net payout</span>
-                <span className="text-primary font-semibold tabular-nums">{formatCurrency(displayData.netPayout)}</span>
-              </div>
             </div>
 
 
@@ -249,16 +232,8 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             </p>
           </div>
 
-          {/* Financial ledger */}
+          {/* Approved / rejected summary */}
           <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2.5">
-            <div className="flex items-center justify-between text-xs">
-              <div>
-                <span className="text-muted-foreground">Total compensation before fees</span>
-                <p className="text-[10px] text-muted-foreground/60">Incl. statutory earnings & deductions</p>
-              </div>
-              <span className="text-foreground tabular-nums">$118,500</span>
-            </div>
-
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center gap-1.5 text-muted-foreground">
                 <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
@@ -276,16 +251,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 <span className="text-muted-foreground/60 tabular-nums line-through">{formatCurrency(displayData.rejectedAmount)}</span>
               </div>
             )}
-            
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Fronted fees</span>
-              <span className="text-foreground tabular-nums">{formatCurrency(displayData.fees)}</span>
-            </div>
-            
-            <div className="flex items-center justify-between text-xs pt-2.5 border-t border-border/40">
-              <span className="text-foreground font-medium">Net payout</span>
-              <span className="text-primary font-semibold tabular-nums">{formatCurrency(displayData.netPayout)}</span>
-            </div>
           </div>
         </div>
       </div>
