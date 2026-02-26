@@ -74,20 +74,21 @@ const SectionCard: React.FC<{
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
+      <div className="rounded-xl border border-border/30 bg-card/20 overflow-hidden transition-all">
         <CollapsibleTrigger asChild>
-          <button className="flex items-center gap-3 px-5 py-3 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
-              {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
+          <button className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-card/40 transition-colors text-left group">
+            <p className="text-sm font-medium text-foreground">{title}</p>
+            <div className="flex items-center gap-2">
+              {badge}
+              <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", !isOpen && "-rotate-90")} />
             </div>
-            {badge}
-            <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="p-4 pt-3 space-y-3">
-            {children}
+          <div className="border-t border-border/20">
+            <div className="p-4 pt-3 space-y-3">
+              {children}
+            </div>
           </div>
         </CollapsibleContent>
       </div>
