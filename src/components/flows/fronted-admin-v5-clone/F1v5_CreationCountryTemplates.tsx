@@ -197,7 +197,7 @@ const ManageTemplatesSheet: React.FC<{
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col h-full max-h-screen">
+      <SheetContent side="right" className="w-[85%] sm:w-[420px] sm:max-w-md p-0 flex flex-col">
         <div className="px-4 sm:px-5 pt-5 pb-4 border-b border-border/30 flex-shrink-0 pr-10 sm:pr-5">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="text-xl">{entry.flag}</span>
