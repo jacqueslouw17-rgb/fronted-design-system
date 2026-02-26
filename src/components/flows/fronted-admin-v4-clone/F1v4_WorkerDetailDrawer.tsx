@@ -330,7 +330,8 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
               <div className="flex items-center justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{countryFlags[worker.country] || ""} {worker.name}</SheetTitle>
+                    <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.name}</SheetTitle>
+                    <span className="text-base shrink-0">{countryFlags[worker.country] || ""}</span>
                   </div>
                   <p className="text-[11px] text-muted-foreground/60 mt-0.5">{worker.type === "employee" ? "Employee" : "Contractor"} · {isCustomBatch ? "Off-cycle" : "Jan 1 – Jan 31"}</p>
                 </div>
