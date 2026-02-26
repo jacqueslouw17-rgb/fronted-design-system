@@ -435,7 +435,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-              <DollarSign className="h-4 w-4 text-primary" />
               <span className="text-sm">Gross Pay</span>
             </div>
             <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
@@ -444,7 +443,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
 
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-              <Receipt className="h-4 w-4 text-primary" />
               <span className="text-sm">Adj. Approved</span>
             </div>
             <p className="text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
