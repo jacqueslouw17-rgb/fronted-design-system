@@ -304,7 +304,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
         >
           {/* ── Header ── */}
           <div className="px-4 sm:px-6 pt-5 pb-4 border-b border-border/30 flex-shrink-0">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-2 sm:gap-4 pr-0 sm:pr-0">
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2.5">
                   <span className="text-xl">{template.flag}</span>
