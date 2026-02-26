@@ -1181,11 +1181,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           handleSelectContractor(contractor.id, checked as boolean);
                         }
                       }} className={cn("h-4 w-4 mt-1", status === "payroll-ready" && "data-[state=checked]:bg-accent-green-fill data-[state=checked]:border-accent-green-outline data-[state=checked]:text-accent-green-text")} onClick={e => e.stopPropagation()} />}
-                          <Avatar className="h-8 w-8 bg-primary/10">
-                            <AvatarFallback className="text-xs">
-                              {contractor.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1">
                               <span className="font-medium text-sm text-foreground truncate">
