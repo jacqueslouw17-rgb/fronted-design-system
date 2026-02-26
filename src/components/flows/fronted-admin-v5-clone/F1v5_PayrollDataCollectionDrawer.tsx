@@ -350,11 +350,6 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
           {/* ── Section 1: Payroll Parameters ── */}
           <SectionCard
             title="Payroll Parameters"
-            badge={
-              <Badge variant="outline" className="text-xs font-medium gap-1">
-                {contractor.countryFlag} {contractor.country}
-              </Badge>
-            }
           >
             {config.payrollFields.map(field => (
               <React.Fragment key={field.key}>
