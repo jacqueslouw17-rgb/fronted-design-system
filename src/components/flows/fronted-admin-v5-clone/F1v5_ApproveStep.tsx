@@ -283,7 +283,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   };
 
   const renderTimeline = () => (
-    <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden h-fit">
+    <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden h-full">
       <div className="p-5">
         <h3 className="text-sm font-medium text-foreground mb-4">What happens next</h3>
         <div className="relative pl-5">
