@@ -175,6 +175,14 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
   const [isResetting, setIsResetting] = useState(false);
   const [showAuditLog, setShowAuditLog] = useState(false);
 
+  // Responsive: fewer visible tabs on mobile so toolbar stays single-row
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 640 : false);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   // Reset state when template changes
   useEffect(() => {
     if (template && template.documents.length > 0) {
@@ -228,7 +236,6 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
     const paragraphs = text.split("\n\n");
     return paragraphs.map(p => {
       const lines = p.split("\n");
-      // Check if first line looks like a heading (no period at end, short)
       if (lines[0] && lines[0].length < 80 && !lines[0].endsWith(".") && !lines[0].match(/^\d+\.\d+/)) {
         const heading = lines[0];
         const rest = lines.slice(1).join("<br>");
@@ -280,13 +287,6 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
   if (!template) return null;
 
   const docs = template.documents;
-  // Show fewer tabs on mobile so toolbar fits in one row with actions
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 640);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
   const MAX_VISIBLE = isMobile ? 2 : 4;
   const visibleDocs = docs.slice(0, MAX_VISIBLE);
   const overflowDocs = docs.slice(MAX_VISIBLE);
