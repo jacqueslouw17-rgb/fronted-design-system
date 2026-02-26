@@ -439,10 +439,10 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <span className="text-sm">Gross Pay</span>
-              <TooltipProvider>
+              <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button className="inline-flex items-center justify-center text-muted-foreground/50 hover:text-foreground transition-colors">
+                    <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
                       <Info className="h-3.5 w-3.5" />
                     </button>
                   </TooltipTrigger>
