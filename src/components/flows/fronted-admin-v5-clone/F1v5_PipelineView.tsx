@@ -1672,7 +1672,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         contractor={selectedForPayrollCollection}
         onSendForm={() => {
           if (selectedForPayrollCollection) {
-            handleStartOnboardingClick(selectedForPayrollCollection);
+            handleConfirmStartOnboarding_direct(selectedForPayrollCollection);
           }
           setPayrollCollectionDrawerOpen(false);
         }}
