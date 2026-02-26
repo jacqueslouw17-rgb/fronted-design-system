@@ -10,7 +10,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from "react"
 
 import { motion } from "framer-motion";
 import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase, X, ArrowLeftRight, Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -722,19 +722,17 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
                   <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   <span className="text-xs sm:text-sm">Gross Pay</span>
-                  <TooltipProvider delayDuration={0}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
-                          <Info className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="text-xs">
-                        <p>≈ USD → EUR 1.0842</p>
-                        <p className="text-muted-foreground text-[10px]">FX rate is an estimate</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
+                        <Info className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
+                      <p className="font-medium">≈ USD → EUR 1.0842</p>
+                      <p className="text-muted-foreground text-[10px]">FX rate is an estimate</p>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>

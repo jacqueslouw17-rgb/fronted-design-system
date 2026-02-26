@@ -24,7 +24,7 @@ import {
   ArrowLeftRight,
   Info,
 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -439,19 +439,17 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <span className="text-sm">Gross Pay</span>
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
-                      <Info className="h-3.5 w-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    <p>≈ USD → EUR 1.0842</p>
-                    <p className="text-muted-foreground text-[10px]">FX rate is an estimate</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
+                  <p className="font-medium">≈ USD → EUR 1.0842</p>
+                  <p className="text-muted-foreground text-[10px]">FX rate is an estimate</p>
+                </PopoverContent>
+              </Popover>
             </div>
             <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
             <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
