@@ -10,9 +10,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Info, Upload, FileText, X, Download, Check, ChevronsUpDown } from "lucide-react";
+import { ArrowRight, Info, Upload, FileText, X, Download, Check, ChevronsUpDown, IndianRupee } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -127,11 +128,19 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
     taxCountry: formData.taxCountry || "",
     taxNumber: formData.taxNumber || formData.tinNumber || "",
     identityDocUploaded: formData.identityDocUploaded || false,
+    // India-specific
+    indiaTaxRegime: formData.indiaTaxRegime || "",
+    india80CAmount: formData.india80CAmount || "",
+    india80DAmount: formData.india80DAmount || "",
+    indiaInvestmentProofUploaded: formData.indiaInvestmentProofUploaded || false,
   });
 
   const [identityFileName, setIdentityFileName] = useState<string>(formData.identityFileName || "");
 
+  const [investmentProofFileName, setInvestmentProofFileName] = useState<string>(formData.investmentProofFileName || "");
+
   const taxHelper = data.taxCountry ? TAX_HELPERS[data.taxCountry] : null;
+  const isIndia = data.taxCountry === "IN";
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -155,6 +164,28 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
     setData({ ...data, identityDocUploaded: false });
   };
 
+  const handleInvestmentProofUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validTypes = ["image/jpeg", "image/png", "application/pdf"];
+      if (!validTypes.includes(file.type)) {
+        toast.error("Please upload a JPG, PNG, or PDF file.");
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("File size must be under 10 MB.");
+        return;
+      }
+      setInvestmentProofFileName(file.name);
+      setData({ ...data, indiaInvestmentProofUploaded: true });
+    }
+  };
+
+  const handleRemoveInvestmentProof = () => {
+    setInvestmentProofFileName("");
+    setData({ ...data, indiaInvestmentProofUploaded: false });
+  };
+
   const handleContinue = () => {
     if (!data.taxCountry) {
       toast.error("Please select your country of tax residency.");
@@ -168,10 +199,19 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
       toast.error("Please upload your identity document.");
       return;
     }
-    onComplete("tax_details", { ...data, identityFileName });
+    if (isIndia && !data.indiaTaxRegime) {
+      toast.error("Please select your income tax regime.");
+      return;
+    }
+    if (isIndia && data.indiaTaxRegime === "old" && !data.indiaInvestmentProofUploaded) {
+      toast.error("Please upload proof of investments/deductions.");
+      return;
+    }
+    onComplete("tax_details", { ...data, identityFileName, investmentProofFileName });
   };
 
-  const isValid = data.taxCountry && data.taxNumber;
+  const isValid = data.taxCountry && data.taxNumber && 
+    (!isIndia || (data.indiaTaxRegime && (data.indiaTaxRegime === "new" || data.indiaInvestmentProofUploaded)));
 
   return (
     <AnimatePresence mode="wait">
@@ -218,7 +258,8 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
                           key={c.value}
                           value={`${c.label} ${c.value}`}
                           onSelect={() => {
-                            setData({ ...data, taxCountry: c.value, taxNumber: "" });
+                            setData({ ...data, taxCountry: c.value, taxNumber: "", indiaTaxRegime: "", india80CAmount: "", india80DAmount: "", indiaInvestmentProofUploaded: false });
+                            setInvestmentProofFileName("");
                             setCountryOpen(false);
                           }}
                         >
