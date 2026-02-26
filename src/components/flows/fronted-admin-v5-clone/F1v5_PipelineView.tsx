@@ -482,28 +482,52 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   React.useEffect(() => {
     const completedContractors = contractors.filter(c => c.status === "onboarding-pending" && c.checklistProgress === 100 && !notifiedPayrollReadyIds.current.has(c.id));
     if (completedContractors.length > 0) {
-      // Move to certified after brief delay
-      const timer = setTimeout(() => {
-        const updated = contractors.map(c => completedContractors.some(cc => cc.id === c.id) ? {
-          ...c,
-          status: "CERTIFIED" as const
-        } : c);
+      // Separate into auto-move (no doc verification needed) vs needs-verification
+      const autoMove = completedContractors.filter(c => !countriesRequiringDocVerification.includes(c.country));
+      const needsVerification = completedContractors.filter(c => countriesRequiringDocVerification.includes(c.country));
 
-        // Mark these contractors as notified
-        completedContractors.forEach(c => notifiedPayrollReadyIds.current.add(c.id));
-        setContractors(updated);
-        onContractorUpdate?.(updated);
-
-        // Show celebration message after moving to certified
+      // Mark needs-verification contractors
+      if (needsVerification.length > 0) {
+        needsVerification.forEach(c => notifiedPayrollReadyIds.current.add(c.id));
+        setContractors(current => current.map(c => 
+          needsVerification.some(nv => nv.id === c.id) 
+            ? { ...c, needsDocumentVerification: true }
+            : c
+        ));
         setTimeout(() => {
-          completedContractors.forEach(contractor => {
-            toast.success(`All done ✅ ${contractor.name.split(' ')[0]} is certified!`, {
-              duration: 5000
+          needsVerification.forEach(contractor => {
+            toast.info(`📄 ${contractor.name.split(' ')[0]} has submitted documents for review`, {
+              description: "Click 'View Status' to verify and approve",
+              duration: 6000
             });
           });
         }, 500);
-      }, 1500);
-      return () => clearTimeout(timer);
+      }
+
+      if (autoMove.length > 0) {
+        // Move to certified after brief delay
+        const timer = setTimeout(() => {
+          const updated = contractors.map(c => autoMove.some(cc => cc.id === c.id) ? {
+            ...c,
+            status: "CERTIFIED" as const
+          } : c);
+
+          // Mark these contractors as notified
+          autoMove.forEach(c => notifiedPayrollReadyIds.current.add(c.id));
+          setContractors(updated);
+          onContractorUpdate?.(updated);
+
+          // Show celebration message after moving to certified
+          setTimeout(() => {
+            autoMove.forEach(contractor => {
+              toast.success(`All done ✅ ${contractor.name.split(' ')[0]} is certified!`, {
+                duration: 5000
+              });
+            });
+          }, 500);
+        }, 1500);
+        return () => clearTimeout(timer);
+      }
     }
   }, [contractors, onContractorUpdate]);
 
