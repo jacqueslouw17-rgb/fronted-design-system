@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock, FileSignature, Circle, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -179,20 +179,19 @@ export const F1v4_SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
-        <SheetHeader className="space-y-1.5 pb-1">
-          <SheetTitle className="text-base font-semibold text-foreground">
-            Contract Progress
-          </SheetTitle>
+      <SheetContent className="w-full sm:max-w-xl p-0 flex flex-col overflow-hidden">
+        <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
+          <SheetDescription className="sr-only">Contract progress</SheetDescription>
           {candidate && (
-            <p className="text-xs text-muted-foreground">
-              {candidate.name} · {candidate.role} · {candidate.country}
-            </p>
+            <div className="min-w-0">
+              <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{candidate.name}</SheetTitle>
+              <p className="text-[11px] text-muted-foreground/60 mt-0.5">{candidate.role} · {candidate.country}</p>
+            </div>
           )}
         </SheetHeader>
 
         {candidate && (
-          <div className="space-y-5 mt-5">
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
             {/* Progress Bar */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
