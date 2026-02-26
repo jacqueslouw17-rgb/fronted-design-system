@@ -79,7 +79,7 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
                 )}
               </div>
               
-              <span className="hidden md:inline">{step.label}</span>
+              <span className={cn("md:inline", state === "active" ? "inline" : "hidden")}>{step.label}</span>
               
               {/* Badge for submissions - subtle */}
               {showSubmissionBadge && (
