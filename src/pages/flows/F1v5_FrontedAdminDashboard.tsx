@@ -806,44 +806,44 @@ const AdminContractingMultiCompany = () => {
       )}
 
 
-      {/* Logo and Close Button for Add New Company - No container */}
+      {/* Logo and Close Button for Add New Company */}
       {isAddingNewCompany && (
-        <>
+        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 sm:bg-transparent sm:backdrop-blur-none bg-background/60 backdrop-blur-md">
           <img 
             src={frontedLogo}
             alt="Fronted"
-            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
             onClick={handleCancelAddCompany}
           />
           <Button
             variant="ghost"
             size="icon"
             onClick={handleCancelAddCompany}
-            className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
+            className="h-8 w-8 sm:h-10 sm:w-10"
           >
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-        </>
+        </div>
       )}
 
-      {/* Logo and Close Button for Edit Company - No container */}
+      {/* Logo and Close Button for Edit Company */}
       {isEditingCompany && (
-        <>
+        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 sm:bg-transparent sm:backdrop-blur-none bg-background/60 backdrop-blur-md">
           <img 
             src={frontedLogo}
             alt="Fronted"
-            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
             onClick={handleCancelEditCompany}
           />
           <Button
             variant="ghost"
             size="icon"
             onClick={handleCancelEditCompany}
-            className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
+            className="h-8 w-8 sm:h-10 sm:w-10"
           >
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-        </>
+        </div>
       )}
 
       {/* Logo and Close Button for contract steps (not pipeline view) */}
