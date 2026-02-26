@@ -151,6 +151,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     bankDetails: "BDO Unibank ••••4521",
     payFrequency: "Fortnightly",
     workerStatus: "active",
+    documentsVerified: true,
   },
   {
     id: "done-2",
