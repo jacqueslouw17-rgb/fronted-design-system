@@ -21,6 +21,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { getCurrencyCode } from "@/utils/currencyUtils";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { WorkingCountryCombobox } from "@/components/shared/SearchableCountrySelect";
 
 // ─── Nationalities ──────────────────────────────────────────────────────
 const NATIONALITIES = [
@@ -463,18 +464,12 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 
                   {/* Country — gateway field */}
                   <Field label="Country" required>
-                    <Select value={formData.country} onValueChange={handleCountryChange}>
-                      <SelectTrigger className="h-11">
-                        <SelectValue placeholder="Select country to reveal fields..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {COUNTRIES.map(c => (
-                          <SelectItem key={c} value={c}>
-                            <span className="mr-2">{COUNTRY_RULES[c].flag}</span>{c}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <WorkingCountryCombobox
+                      value={formData.country}
+                      onChange={handleCountryChange}
+                      countries={COUNTRIES.map(c => ({ name: c, flag: COUNTRY_RULES[c].flag }))}
+                      placeholder="Select country to reveal fields..."
+                    />
                   </Field>
 
                   {/* Empty state */}

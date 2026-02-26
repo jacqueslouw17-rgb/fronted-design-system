@@ -18,6 +18,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { NationalityCombobox, WorkingCountryCombobox } from "@/components/shared/SearchableCountrySelect";
 
 // ─── Country Rules ───
 interface CountryRule {
@@ -233,14 +234,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               )}
             </Field>
             <Field label="Nationality" optional>
-              <Select value={formData.nationality} onValueChange={set("nationality")}>
-                <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "Singaporean", "American", "British", "German", "Spanish", "Romanian"].map(n => (
-                    <SelectItem key={n} value={n}>{n}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <NationalityCombobox value={formData.nationality} onChange={set("nationality")} />
             </Field>
             <Field label="Address" optional>
               <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
@@ -262,14 +256,11 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               )}
             </Field>
             <Field label="Country">
-              <Select value={formData.country} onValueChange={set("country")}>
-                <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {Object.entries(COUNTRY_RULES).map(([c, r]) => (
-                    <SelectItem key={c} value={c}><span className="mr-2">{r.flag}</span>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <WorkingCountryCombobox
+                value={formData.country}
+                onChange={set("country")}
+                countries={Object.entries(COUNTRY_RULES).map(([c, r]) => ({ name: c, flag: r.flag }))}
+              />
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Employment Type">
