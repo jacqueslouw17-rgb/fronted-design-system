@@ -327,7 +327,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="px-8 pb-8 pt-4 max-w-3xl mx-auto space-y-1.5"
+      className="px-4 sm:px-8 pb-8 pt-4 max-w-3xl mx-auto space-y-1.5"
     >
       <AgentHeader
         title={`Review ${candidate.name.split(" ")[0]}'s Details`}
@@ -385,7 +385,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
               countries={Object.entries(COUNTRY_RULES).map(([c, r]) => ({ name: c, flag: r.flag }))}
             />
           </Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Employment Type">
               <Select value={employmentType} onValueChange={(v: "employee" | "contractor") => setEmploymentType(v)}>
                 <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
@@ -416,7 +416,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
             <div className="border-t border-border/40 pt-3 mt-1">
               <p className="text-[11px] text-muted-foreground mb-3">Country defaults for {formData.country} — adjust as negotiated</p>
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
                     <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} />
                   </Field>
@@ -424,7 +424,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
                     <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} />
                   </Field>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`}>
                     <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} />
                   </Field>
@@ -432,7 +432,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
                     <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} />
                   </Field>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
                     <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} />
                   </Field>
@@ -457,7 +457,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="flex justify-end gap-3 pt-2"
+        className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2"
       >
         {currentIndex > 0 && onPrevious && (
           <Button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); onPrevious(); }} variant="outline" size="lg" className="px-8">
