@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   XCircle,
   Clock,
-  RefreshCw,
+  
   AlertCircle,
   UserMinus,
 } from "lucide-react";
@@ -56,12 +56,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   excludedWorkerCount = 0,
 }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [isRefreshingFx, setIsRefreshingFx] = useState(false);
-
-  const handleRefreshFx = () => {
-    setIsRefreshingFx(true);
-    setTimeout(() => setIsRefreshingFx(false), 1200);
-  };
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) return `$${(amount / 1000000).toFixed(2)}M`;
