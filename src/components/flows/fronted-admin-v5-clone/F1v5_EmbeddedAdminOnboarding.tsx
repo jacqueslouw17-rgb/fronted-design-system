@@ -260,15 +260,15 @@ const F1v4_EmbeddedAdminOnboarding = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-            className="text-center space-y-3 max-w-2xl"
+            className="text-center space-y-2 sm:space-y-3 max-w-2xl px-2 sm:px-0"
           >
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
               {isEditMode ? editModeTitle || "Edit Company" : "Add New Company"}
             </h1>
-            <p className="text-base text-center text-muted-foreground">
+            <p className="text-sm sm:text-base text-center text-muted-foreground">
               {isEditMode 
                 ? "Update your company details below."
-                : "Let's set up your new company and get ready to start managing contracts."}
+                : "Set up your company and start managing contracts."}
             </p>
           </motion.div>
         </div>
