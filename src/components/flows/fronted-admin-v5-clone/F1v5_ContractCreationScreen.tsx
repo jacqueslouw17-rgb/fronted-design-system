@@ -14,16 +14,82 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sparkles, ChevronDown, User, Briefcase, Calendar, Shield, Clock,
-  MapPin, Globe, Building2, Banknote, FileText,
+  MapPin, Globe, Building2, Banknote, FileText, Check, ChevronsUpDown,
 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+// ─── Nationalities (with flags) ───
+const NATIONALITIES = [
+  { label: "🇦🇫 Afghan", value: "Afghan" }, { label: "🇺🇸 American", value: "American" },
+  { label: "🇦🇷 Argentine", value: "Argentine" }, { label: "🇦🇺 Australian", value: "Australian" },
+  { label: "🇦🇹 Austrian", value: "Austrian" }, { label: "🇧🇪 Belgian", value: "Belgian" },
+  { label: "🇧🇷 Brazilian", value: "Brazilian" }, { label: "🇬🇧 British", value: "British" },
+  { label: "🇧🇬 Bulgarian", value: "Bulgarian" }, { label: "🇨🇦 Canadian", value: "Canadian" },
+  { label: "🇨🇳 Chinese", value: "Chinese" }, { label: "🇭🇷 Croatian", value: "Croatian" },
+  { label: "🇨🇾 Cypriot", value: "Cypriot" }, { label: "🇨🇿 Czech", value: "Czech" },
+  { label: "🇩🇰 Danish", value: "Danish" }, { label: "🇳🇱 Dutch", value: "Dutch" },
+  { label: "🇪🇪 Estonian", value: "Estonian" }, { label: "🇵🇭 Filipino", value: "Filipino" },
+  { label: "🇫🇮 Finnish", value: "Finnish" }, { label: "🇫🇷 French", value: "French" },
+  { label: "🇩🇪 German", value: "German" }, { label: "🇬🇷 Greek", value: "Greek" },
+  { label: "🇭🇺 Hungarian", value: "Hungarian" }, { label: "🇮🇳 Indian", value: "Indian" },
+  { label: "🇮🇩 Indonesian", value: "Indonesian" }, { label: "🇮🇪 Irish", value: "Irish" },
+  { label: "🇮🇱 Israeli", value: "Israeli" }, { label: "🇮🇹 Italian", value: "Italian" },
+  { label: "🇯🇵 Japanese", value: "Japanese" }, { label: "🇽🇰 Kosovar", value: "Kosovar" },
+  { label: "🇰🇷 South Korean", value: "South Korean" }, { label: "🇱🇻 Latvian", value: "Latvian" },
+  { label: "🇱🇹 Lithuanian", value: "Lithuanian" }, { label: "🇱🇺 Luxembourgish", value: "Luxembourgish" },
+  { label: "🇲🇾 Malaysian", value: "Malaysian" }, { label: "🇲🇹 Maltese", value: "Maltese" },
+  { label: "🇲🇽 Mexican", value: "Mexican" }, { label: "🇳🇿 New Zealander", value: "New Zealander" },
+  { label: "🇳🇴 Norwegian", value: "Norwegian" }, { label: "🇵🇰 Pakistani", value: "Pakistani" },
+  { label: "🇵🇱 Polish", value: "Polish" }, { label: "🇵🇹 Portuguese", value: "Portuguese" },
+  { label: "🇷🇴 Romanian", value: "Romanian" }, { label: "🇸🇬 Singaporean", value: "Singaporean" },
+  { label: "🇸🇰 Slovak", value: "Slovak" }, { label: "🇸🇮 Slovenian", value: "Slovenian" },
+  { label: "🇿🇦 South African", value: "South African" }, { label: "🇪🇸 Spanish", value: "Spanish" },
+  { label: "🇸🇪 Swedish", value: "Swedish" }, { label: "🇨🇭 Swiss", value: "Swiss" },
+  { label: "🇹🇭 Thai", value: "Thai" }, { label: "🇹🇷 Turkish", value: "Turkish" },
+  { label: "🇦🇪 Emirati", value: "Emirati" }, { label: "🇺🇦 Ukrainian", value: "Ukrainian" },
+  { label: "🇻🇳 Vietnamese", value: "Vietnamese" },
+];
+
+/** Searchable nationality combobox */
+const NationalityCombobox: React.FC<{ value: string; onChange: (val: string) => void }> = ({ value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const selected = NATIONALITIES.find(n => n.value === value);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between text-sm font-normal h-10">
+          {selected ? selected.label : <span className="text-muted-foreground">Select nationality</span>}
+          <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-background border border-border z-50" align="start">
+        <Command>
+          <CommandInput placeholder="Search nationality..." className="h-10" />
+          <CommandList className="max-h-[200px]">
+            <CommandEmpty>No nationality found.</CommandEmpty>
+            <CommandGroup>
+              {NATIONALITIES.map(n => (
+                <CommandItem key={n.value} value={n.label} onSelect={() => { onChange(n.value); setOpen(false); }} className="text-sm">
+                  <Check className={cn("mr-2 h-4 w-4", value === n.value ? "opacity-100" : "opacity-0")} />
+                  {n.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 // ─── Country Rules (mirrored from AddCandidateDrawer) ───
 interface CountryRule {
@@ -291,14 +357,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
             <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className={cn("h-10", errors.email && "border-destructive focus-visible:ring-destructive")} />
           </Field>
           <Field label="Nationality">
-            <Select value={formData.nationality} onValueChange={set("nationality")}>
-              <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
-              <SelectContent>
-                {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "Singaporean", "American", "British", "German"].map(n => (
-                  <SelectItem key={n} value={n}>{n}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <NationalityCombobox value={formData.nationality} onChange={set("nationality")} />
           </Field>
           <Field label="Address">
             <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
