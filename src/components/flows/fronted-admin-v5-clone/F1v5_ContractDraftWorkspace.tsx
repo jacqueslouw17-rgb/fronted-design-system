@@ -414,24 +414,34 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
     const viewport = getViewportEl();
     if (!viewport) return;
     const thresholdPx = 24;
-    const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
-    setHasScrolledToBottom(remaining <= thresholdPx);
+
+    // Check if container has its own scroll (desktop with fixed height)
+    const hasOwnScroll = viewport.scrollHeight > viewport.clientHeight + 2;
+    if (hasOwnScroll) {
+      const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+      setHasScrolledToBottom(remaining <= thresholdPx);
+    } else {
+      // Mobile: content flows with page — check if bottom of element is visible in window
+      const rect = viewport.getBoundingClientRect();
+      const bottomVisible = rect.bottom <= window.innerHeight + thresholdPx;
+      setHasScrolledToBottom(bottomVisible);
+    }
   }, [getViewportEl]);
 
   useEffect(() => {
     const viewport = getViewportEl();
     if (!viewport) return;
     const onScroll = () => checkScrolledToBottom();
+    // Listen to both container scroll AND window scroll (for mobile)
     viewport.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const vp = getViewportEl();
-        if (!vp) return;
-        const remaining = vp.scrollHeight - vp.scrollTop - vp.clientHeight;
-        setHasScrolledToBottom(remaining <= 24);
-      });
+      requestAnimationFrame(() => checkScrolledToBottom());
     });
-    return () => viewport.removeEventListener("scroll", onScroll);
+    return () => {
+      viewport.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, [getViewportEl, checkScrolledToBottom, candidate.id, activeDocument, activePageIndex]);
 
   // Reset on candidate change
