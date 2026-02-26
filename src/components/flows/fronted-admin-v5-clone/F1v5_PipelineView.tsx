@@ -1113,8 +1113,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     <p className="text-xs text-muted-foreground mb-4">
                       Add your first candidate to start the contracting process
                     </p>
-                    <Button size="sm" onClick={onAddCandidate} className="gap-2">
-                      <Plus className="h-4 w-4" />
+                    <Button size="sm" onClick={onAddCandidate}>
                       Add Candidate
                     </Button>
                   </motion.div>}

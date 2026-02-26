@@ -464,8 +464,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
             Previous
           </Button>
         )}
-        <Button onClick={handleNext} size="lg" className="gap-2">
-          <Sparkles className="h-5 w-5" />
+        <Button onClick={handleNext} size="lg">
           {currentIndex + 1 === totalCandidates
             ? (totalCandidates > 1 ? "Review Agreements" : "Review Agreement")
             : "Review Next Candidate"}
