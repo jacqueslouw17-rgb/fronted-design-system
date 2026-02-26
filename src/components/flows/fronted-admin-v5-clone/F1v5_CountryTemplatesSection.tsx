@@ -7,7 +7,7 @@
 
 import React, { useState, useMemo, useCallback } from "react";
 import { Globe, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { F1v5_CountryTemplateDrawer } from "./F1v5_CountryTemplateDrawer";
@@ -395,7 +395,8 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
             return (
               <div
                 key={tpl.id}
-                className="flex items-center gap-2 sm:gap-2.5 rounded-md border border-border/30 bg-background/60 px-2.5 sm:px-3 py-2"
+                className="flex items-center gap-2 sm:gap-2.5 rounded-md border border-border/30 bg-background/60 px-2.5 sm:px-3 py-2 cursor-pointer hover:bg-muted/30 transition-colors"
+                onClick={() => setSelectedTemplateId(tpl.id)}
               >
                 <span className="text-base shrink-0">{tpl.flag}</span>
                 <div className="flex-1 min-w-0">
@@ -411,15 +412,7 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
                     )}
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-1.5 sm:px-2 text-[11px] text-muted-foreground hover:text-foreground shrink-0"
-                  onClick={() => setSelectedTemplateId(tpl.id)}
-                >
-                  <span className="hidden sm:inline">Manage</span>
-                  <ChevronRight className="h-3 w-3 sm:ml-0.5" />
-                </Button>
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               </div>
             );
           })}

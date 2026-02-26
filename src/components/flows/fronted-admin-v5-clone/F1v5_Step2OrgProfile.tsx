@@ -8,7 +8,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -45,6 +48,23 @@ const CURRENCY_OPTIONS = [
   { code: "USD", label: "USD – US Dollar" },
 ];
 
+const HQ_COUNTRIES = [
+  { code: "NO", label: "🇳🇴 Norway" }, { code: "DK", label: "🇩🇰 Denmark" }, { code: "SE", label: "🇸🇪 Sweden" },
+  { code: "FI", label: "🇫🇮 Finland" }, { code: "DE", label: "🇩🇪 Germany" }, { code: "FR", label: "🇫🇷 France" },
+  { code: "NL", label: "🇳🇱 Netherlands" }, { code: "BE", label: "🇧🇪 Belgium" }, { code: "AT", label: "🇦🇹 Austria" },
+  { code: "IE", label: "🇮🇪 Ireland" }, { code: "ES", label: "🇪🇸 Spain" }, { code: "PT", label: "🇵🇹 Portugal" },
+  { code: "IT", label: "🇮🇹 Italy" }, { code: "GR", label: "🇬🇷 Greece" }, { code: "HR", label: "🇭🇷 Croatia" },
+  { code: "BG", label: "🇧🇬 Bulgaria" }, { code: "CY", label: "🇨🇾 Cyprus" }, { code: "EE", label: "🇪🇪 Estonia" },
+  { code: "LV", label: "🇱🇻 Latvia" }, { code: "LT", label: "🇱🇹 Lithuania" }, { code: "LU", label: "🇱🇺 Luxembourg" },
+  { code: "MT", label: "🇲🇹 Malta" }, { code: "SK", label: "🇸🇰 Slovakia" }, { code: "SI", label: "🇸🇮 Slovenia" },
+  { code: "PL", label: "🇵🇱 Poland" }, { code: "XK", label: "🇽🇰 Kosovo" }, { code: "CH", label: "🇨🇭 Switzerland" },
+  { code: "GB", label: "🇬🇧 United Kingdom" }, { code: "PH", label: "🇵🇭 Philippines" }, { code: "IN", label: "🇮🇳 India" },
+  { code: "SG", label: "🇸🇬 Singapore" }, { code: "JP", label: "🇯🇵 Japan" }, { code: "KR", label: "🇰🇷 South Korea" },
+  { code: "US", label: "🇺🇸 United States" }, { code: "CA", label: "🇨🇦 Canada" }, { code: "MX", label: "🇲🇽 Mexico" },
+  { code: "BR", label: "🇧🇷 Brazil" }, { code: "AU", label: "🇦🇺 Australia" }, { code: "NZ", label: "🇳🇿 New Zealand" },
+  { code: "AE", label: "🇦🇪 United Arab Emirates" }, { code: "ZA", label: "🇿🇦 South Africa" }, { code: "IL", label: "🇮🇱 Israel" },
+];
+
 const F1v5_Step2OrgProfile = ({
   formData,
   onComplete,
@@ -71,6 +91,7 @@ const F1v5_Step2OrgProfile = ({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hqCountryOpen, setHqCountryOpen] = useState(false);
 
   // Creation-mode country templates
   const [creationCountries, setCreationCountries] = useState<CreationCountryEntry[]>([]);
@@ -226,56 +247,36 @@ const F1v5_Step2OrgProfile = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="hqCountry" className="text-sm">HQ Country</Label>
-            <Select value={data.hqCountry} onValueChange={val => handleFieldChange('hqCountry', val)}>
-              <SelectTrigger className="text-sm">
-                <SelectValue placeholder="Select country" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NO">🇳🇴 Norway</SelectItem>
-                <SelectItem value="DK">🇩🇰 Denmark</SelectItem>
-                <SelectItem value="SE">🇸🇪 Sweden</SelectItem>
-                <SelectItem value="FI">🇫🇮 Finland</SelectItem>
-                <SelectItem value="DE">🇩🇪 Germany</SelectItem>
-                <SelectItem value="FR">🇫🇷 France</SelectItem>
-                <SelectItem value="NL">🇳🇱 Netherlands</SelectItem>
-                <SelectItem value="BE">🇧🇪 Belgium</SelectItem>
-                <SelectItem value="AT">🇦🇹 Austria</SelectItem>
-                <SelectItem value="IE">🇮🇪 Ireland</SelectItem>
-                <SelectItem value="ES">🇪🇸 Spain</SelectItem>
-                <SelectItem value="PT">🇵🇹 Portugal</SelectItem>
-                <SelectItem value="IT">🇮🇹 Italy</SelectItem>
-                <SelectItem value="GR">🇬🇷 Greece</SelectItem>
-                <SelectItem value="HR">🇭🇷 Croatia</SelectItem>
-                <SelectItem value="BG">🇧🇬 Bulgaria</SelectItem>
-                <SelectItem value="CY">🇨🇾 Cyprus</SelectItem>
-                <SelectItem value="EE">🇪🇪 Estonia</SelectItem>
-                <SelectItem value="LV">🇱🇻 Latvia</SelectItem>
-                <SelectItem value="LT">🇱🇹 Lithuania</SelectItem>
-                <SelectItem value="LU">🇱🇺 Luxembourg</SelectItem>
-                <SelectItem value="MT">🇲🇹 Malta</SelectItem>
-                <SelectItem value="SK">🇸🇰 Slovakia</SelectItem>
-                <SelectItem value="SI">🇸🇮 Slovenia</SelectItem>
-                <SelectItem value="PL">🇵🇱 Poland</SelectItem>
-                <SelectItem value="XK">🇽🇰 Kosovo</SelectItem>
-                <SelectItem value="CH">🇨🇭 Switzerland</SelectItem>
-                <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-                <SelectItem value="PH">🇵🇭 Philippines</SelectItem>
-                <SelectItem value="IN">🇮🇳 India</SelectItem>
-                <SelectItem value="SG">🇸🇬 Singapore</SelectItem>
-                <SelectItem value="JP">🇯🇵 Japan</SelectItem>
-                <SelectItem value="KR">🇰🇷 South Korea</SelectItem>
-                <SelectItem value="US">🇺🇸 United States</SelectItem>
-                <SelectItem value="CA">🇨🇦 Canada</SelectItem>
-                <SelectItem value="MX">🇲🇽 Mexico</SelectItem>
-                <SelectItem value="BR">🇧🇷 Brazil</SelectItem>
-                <SelectItem value="AU">🇦🇺 Australia</SelectItem>
-                <SelectItem value="NZ">🇳🇿 New Zealand</SelectItem>
-                <SelectItem value="AE">🇦🇪 United Arab Emirates</SelectItem>
-                <SelectItem value="ZA">🇿🇦 South Africa</SelectItem>
-                <SelectItem value="IL">🇮🇱 Israel</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label className="text-sm">HQ Country</Label>
+            <Popover open={hqCountryOpen} onOpenChange={setHqCountryOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={hqCountryOpen} className="w-full justify-between text-sm font-normal">
+                  {data.hqCountry ? HQ_COUNTRIES.find(c => c.code === data.hqCountry)?.label || data.hqCountry : "Select country"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-background border border-border z-50" align="start">
+                <Command>
+                  <CommandInput placeholder="Search country..." className="h-10" />
+                  <CommandList className="max-h-[240px]">
+                    <CommandEmpty>No country found.</CommandEmpty>
+                    <CommandGroup>
+                      {HQ_COUNTRIES.map(c => (
+                        <CommandItem
+                          key={c.code}
+                          value={c.label}
+                          onSelect={() => { handleFieldChange('hqCountry', c.code); setHqCountryOpen(false); }}
+                          className="text-sm"
+                        >
+                          <Check className={cn("mr-2 h-4 w-4", data.hqCountry === c.code ? "opacity-100" : "opacity-0")} />
+                          {c.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
           </div>
 
