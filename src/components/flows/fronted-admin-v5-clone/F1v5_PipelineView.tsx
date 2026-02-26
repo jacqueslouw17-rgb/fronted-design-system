@@ -1447,55 +1447,63 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         {inactiveItems.map((contractor) => (
                           <motion.div key={contractor.id} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
                             <Card 
-                              className="border border-border/40 cursor-pointer bg-card hover:shadow-md transition-all"
+                              className="border border-border/40 cursor-pointer bg-card hover:shadow-md transition-all opacity-75"
+                              onClick={() => {
+                                setSelectedForDoneDetail(contractor);
+                                setDoneDetailDrawerOpen(true);
+                              }}
                             >
                               <CardContent className="p-2.5 space-y-0">
-                                <div className="flex items-center gap-1">
-                                  <span className="font-medium text-[13px] text-muted-foreground truncate">
-                                    {contractor.name}
-                                  </span>
-                                  <span className="text-sm">{contractor.countryFlag}</span>
-                                  <Badge 
-                                    variant="outline" 
-                                    className={cn(
-                                      "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
-                                      contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
-                                      contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
-                                      contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
-                                    )}
-                                  >
-                                    {contractor.workerStatus === "contract-ended" ? "Ended" 
-                                      : contractor.workerStatus === "resigned" ? "Resigned"
-                                      : "Terminated"}
-                                  </Badge>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1">
+                                      <span className="font-medium text-[13px] text-muted-foreground truncate">
+                                        {contractor.name}
+                                      </span>
+                                      <span className="text-sm">{contractor.countryFlag}</span>
+                                      <Badge 
+                                        variant="outline" 
+                                        className={cn(
+                                          "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
+                                          contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
+                                          contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                          contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
+                                        )}
+                                      >
+                                        {contractor.workerStatus === "contract-ended" ? "Ended" 
+                                          : contractor.workerStatus === "resigned" ? "Resigned"
+                                          : "Terminated"}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground truncate">{contractor.role}</p>
+                                  </div>
                                 </div>
-                                <div className="mt-2 pt-2 border-t border-border/30 flex flex-col gap-1 text-[11px]">
+                                <div className="mt-3 pt-2.5 border-t border-border/30 flex flex-col gap-1 text-[11px]">
                                   <div className="flex justify-between items-center">
-                                    <span className="text-muted-foreground/60">{contractor.role}</span>
+                                    <span className="text-muted-foreground">
+                                      {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
+                                    </span>
+                                    <span className="font-medium text-muted-foreground tabular-nums">
+                                      {contractor.salary}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">Country</span>
+                                    <span className="font-medium text-muted-foreground">{contractor.country}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">Type</span>
                                     <span className="font-medium text-muted-foreground">
-                                      {contractor.employmentType === "contractor" ? "Contractor" : "Employee"}
+                                      {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
                                     </span>
                                   </div>
                                   {contractor.endDate && (
                                     <div className="flex justify-between items-center">
-                                      <span className="text-muted-foreground/60">End date</span>
+                                      <span className="text-muted-foreground">End date</span>
                                       <span className="font-medium text-muted-foreground text-[10px]">{contractor.endDate}</span>
                                     </div>
                                   )}
                                 </div>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
-                                  className="w-full text-xs h-7 gap-1 mt-2"
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    setSelectedForDoneDetail(contractor);
-                                    setDoneDetailDrawerOpen(true);
-                                  }}
-                                >
-                                  <Eye className="h-3 w-3" />
-                                  View details
-                                </Button>
                               </CardContent>
                             </Card>
                           </motion.div>
