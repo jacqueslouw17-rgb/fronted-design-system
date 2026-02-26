@@ -1231,7 +1231,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
                             </span>
                             <span className="font-medium text-foreground tabular-nums">
-                              {getCurrencyCode(contractor.country, contractor.employmentType)} {contractor.salary}
+                              {contractor.salary}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
