@@ -128,6 +128,11 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
     taxCountry: formData.taxCountry || "",
     taxNumber: formData.taxNumber || formData.tinNumber || "",
     identityDocUploaded: formData.identityDocUploaded || false,
+    // India-specific
+    indiaTaxRegime: formData.indiaTaxRegime || "",
+    india80CAmount: formData.india80CAmount || "",
+    india80DAmount: formData.india80DAmount || "",
+    indiaInvestmentProofUploaded: formData.indiaInvestmentProofUploaded || false,
   });
 
   const [identityFileName, setIdentityFileName] = useState<string>(formData.identityFileName || "");
