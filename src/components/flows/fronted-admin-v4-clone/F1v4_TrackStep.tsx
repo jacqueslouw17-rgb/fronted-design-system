@@ -22,7 +22,9 @@ import {
   TrendingUp,
   CheckCheck,
   ArrowLeftRight,
+  Info,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -437,9 +439,22 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <span className="text-sm">Gross Pay</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="inline-flex items-center justify-center text-muted-foreground/50 hover:text-foreground transition-colors">
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    <p>≈ USD → EUR 1.0842</p>
+                    <p className="text-muted-foreground text-[10px]">FX rate is an estimate</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
-            <p className="text-[10px] text-muted-foreground/70 mt-1">≈ USD → EUR 1.0842</p>
+            <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
           </div>
 
           <div className="bg-primary/[0.04] rounded-xl p-4">
