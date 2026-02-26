@@ -199,10 +199,19 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
       toast.error("Please upload your identity document.");
       return;
     }
-    onComplete("tax_details", { ...data, identityFileName });
+    if (isIndia && !data.indiaTaxRegime) {
+      toast.error("Please select your income tax regime.");
+      return;
+    }
+    if (isIndia && data.indiaTaxRegime === "old" && !data.indiaInvestmentProofUploaded) {
+      toast.error("Please upload proof of investments/deductions.");
+      return;
+    }
+    onComplete("tax_details", { ...data, identityFileName, investmentProofFileName });
   };
 
-  const isValid = data.taxCountry && data.taxNumber;
+  const isValid = data.taxCountry && data.taxNumber && 
+    (!isIndia || (data.indiaTaxRegime && (data.indiaTaxRegime === "new" || data.indiaInvestmentProofUploaded)));
 
   return (
     <AnimatePresence mode="wait">
