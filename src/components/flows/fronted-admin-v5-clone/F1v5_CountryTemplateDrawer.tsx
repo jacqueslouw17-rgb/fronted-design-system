@@ -280,7 +280,14 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
   if (!template) return null;
 
   const docs = template.documents;
-  const MAX_VISIBLE = 4;
+  // Show fewer tabs on mobile so toolbar fits in one row with actions
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const MAX_VISIBLE = isMobile ? 2 : 4;
   const visibleDocs = docs.slice(0, MAX_VISIBLE);
   const overflowDocs = docs.slice(MAX_VISIBLE);
   const activeInOverflow = overflowDocs.some(d => d.id === activeDocId);
