@@ -303,7 +303,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
           hideClose
         >
           {/* ── Header ── */}
-          <div className="px-6 pt-5 pb-4 border-b border-border/30 flex-shrink-0">
+          <div className="px-4 sm:px-6 pt-5 pb-4 border-b border-border/30 flex-shrink-0">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2.5">
@@ -347,7 +347,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
           </div>
 
           {/* ── Toolbar: tabs + actions ── */}
-          <div className="px-6 py-2.5 border-b border-border/20 flex items-center justify-between gap-3 flex-shrink-0 bg-muted/10">
+          <div className="px-4 sm:px-6 py-2.5 border-b border-border/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 flex-shrink-0 bg-muted/10">
             {/* Left: Document tabs */}
             {isEditing ? (
               <div className="flex items-center gap-2 min-w-0">
@@ -357,7 +357,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                 </p>
               </div>
             ) : (
-              <div className="flex items-center gap-1 min-w-0">
+              <div className="flex items-center gap-1 min-w-0 flex-wrap">
                 {visibleDocs.map((doc) => {
                   const isActive = doc.id === activeDocId;
                   const isEdited = doc.content !== doc.defaultContent;
@@ -465,7 +465,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
 
           {/* ── Document content ── */}
           <div
-            className={cn("flex-1 overflow-hidden", isEditing ? "flex flex-col px-0 py-0" : "overflow-y-auto px-6 py-3")}
+            className={cn("flex-1 overflow-hidden", isEditing ? "flex flex-col px-0 py-0" : "overflow-y-auto px-4 sm:px-6 py-3")}
             onClick={() => showAuditLog && setShowAuditLog(false)}
             onScroll={() => showAuditLog && setShowAuditLog(false)}
           >
@@ -552,7 +552,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
           <div className="border-t border-border/30 flex-shrink-0">
             <button
               onClick={() => setShowAuditLog(!showAuditLog)}
-              className="w-full px-6 py-2.5 flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="w-full px-4 sm:px-6 py-2.5 flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               <span className="font-medium">
                 Audit log
@@ -570,7 +570,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="px-6 pb-4 max-h-[200px] overflow-y-auto">
+                  <div className="px-4 sm:px-6 pb-4 max-h-[200px] overflow-y-auto">
                     {allAuditEntries.length === 0 ? (
                       <p className="text-center py-4 text-xs text-muted-foreground">No edits recorded yet.</p>
                     ) : (

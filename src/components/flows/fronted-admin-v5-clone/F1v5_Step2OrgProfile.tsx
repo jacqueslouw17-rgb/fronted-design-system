@@ -173,7 +173,7 @@ const F1v5_Step2OrgProfile = ({
   const resolvedCompanyName = companyNameProp || data.companyName || "Company";
 
   return (
-    <div className="space-y-5 max-w-xl mx-auto">
+    <div className="space-y-5 w-full max-w-xl mx-auto px-1 sm:px-0">
       {isEditMode && editModeTitle}
       
       <div className="space-y-3">
