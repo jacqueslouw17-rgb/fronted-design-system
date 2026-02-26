@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -92,13 +92,6 @@ const ContractCreation: React.FC = () => {
   const returnTo = searchParams.get("returnTo");
   const companyParam = searchParams.get("company");
   const mockCandidates = useMockCandidates();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 16);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
   const contractorsFromStore = useContractorStore((s) => s.contractors) as unknown as PipelineContractor[];
 
   // Only override navigation when the launching flow explicitly asks for it.
