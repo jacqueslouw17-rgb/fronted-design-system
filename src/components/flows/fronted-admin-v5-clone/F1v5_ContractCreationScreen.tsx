@@ -357,14 +357,7 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
             <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className={cn("h-10", errors.email && "border-destructive focus-visible:ring-destructive")} />
           </Field>
           <Field label="Nationality">
-            <Select value={formData.nationality} onValueChange={set("nationality")}>
-              <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
-              <SelectContent>
-                {["Swedish", "Norwegian", "Filipino", "Indian", "Kosovar", "Danish", "Singaporean", "American", "British", "German"].map(n => (
-                  <SelectItem key={n} value={n}>{n}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <NationalityCombobox value={formData.nationality} onChange={set("nationality")} />
           </Field>
           <Field label="Address">
             <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
