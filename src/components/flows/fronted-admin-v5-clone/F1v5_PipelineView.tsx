@@ -1211,7 +1211,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   : "bg-primary/10 text-primary border-primary/20"
                               )}
                             >
-                              {contractor.needsDocumentVerification ? "Submitted" : "In Progress"}
+                              {contractor.needsDocumentVerification ? "In Review" : "In Progress"}
                             </Badge>
                           )}
                           {/* Status badge top-right for Done column */}
@@ -1357,12 +1357,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           {status === "onboarding-pending" && <div className="w-full space-y-2">
                               {contractor.needsDocumentVerification && !contractor.documentsVerified ? (
                                 <>
-                                  <div className="flex items-center gap-1.5 justify-center">
-                                    <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-700 border-amber-500/20 gap-1">
-                                      <FileText className="h-3 w-3" />
-                                      Documents pending review
-                                    </Badge>
-                                  </div>
                                   <Button size="sm" className="w-full text-xs h-8 gap-1.5" variant="outline" onClick={e => {
                                     e.stopPropagation();
                                     setSelectedForVerification(contractor);
