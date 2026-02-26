@@ -323,7 +323,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     return <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4", c.className)}>{c.label}</Badge>;
   };
 
-  const DocumentRow = ({ name, status, fileName, actionType = "download", onView }: { 
+  const DocumentRow = ({ name, status, fileName, onView }: { 
     name: string; 
     status: "uploaded" | "verified" | "missing"; 
     fileName: string;
@@ -333,8 +333,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     if (status === "missing") {
       return (
         <div className="flex items-center justify-between gap-4 p-3 rounded-lg border border-border/40 bg-muted/20">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+          <div className="min-w-0">
             <span className="text-sm text-muted-foreground truncate">{name}</span>
           </div>
           <StatusBadge status="missing" />
@@ -342,49 +341,25 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
       );
     }
 
+    const handleOpen = () => {
+      if (onView) {
+        onView();
+      } else {
+        window.open("#", "_blank");
+      }
+    };
+
     return (
-      <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/40 bg-card/30">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className={cn(
-            "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
-            status === "verified" ? "bg-accent-green-fill/10" : "bg-primary/5"
-          )}>
-            <FileCheck className={cn(
-              "h-4 w-4",
-              status === "verified" ? "text-accent-green-text" : "text-primary"
-            )} />
-          </div>
-           <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <p className="text-sm font-medium text-foreground truncate">{name}</p>
-            </div>
-            <p className="text-[11px] text-muted-foreground">{fileName}</p>
-          </div>
+      <button
+        onClick={handleOpen}
+        className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border border-border/40 bg-card/30 hover:bg-muted/40 hover:border-border/60 transition-colors w-full text-left group cursor-pointer"
+      >
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-foreground truncate">{name}</p>
+          <p className="text-[11px] text-muted-foreground">{fileName}</p>
         </div>
-        {actionType === "view" ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
-            onClick={onView}
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            View
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
-            onClick={() => {
-              console.log(`Download: ${fileName}`);
-            }}
-          >
-            <Download className="h-3.5 w-3.5" />
-            Download
-          </Button>
-        )}
-      </div>
+        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-foreground shrink-0 transition-colors" />
+      </button>
     );
   };
 
