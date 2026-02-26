@@ -497,28 +497,12 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                     Paid
                   </span>
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
-                  <span className="text-lg text-muted-foreground">of {workers.length}</span>
-                  <span className="text-sm text-muted-foreground">payments paid</span>
-                </div>
-                {isHistorical && paidDate ? (
-                  <p className="text-xs text-muted-foreground mt-1">Paid on {paidDate}</p>
-                ) : (
-                  <p className="text-xs text-muted-foreground mt-1">All payments paid — export for your records</p>
-                )}
               </>
             ) : (
               <>
                 <div className="flex items-center gap-2 mb-1">
                   <p className="text-sm text-muted-foreground">Payment Status</p>
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
-                  <span className="text-lg text-muted-foreground">of {workers.length}</span>
-                  <span className="text-sm text-muted-foreground">payments reconciled</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Click a worker to view breakdown and mark as paid</p>
               </>
             )}
           </div>
@@ -545,37 +529,8 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                 Export CSV
               </Button>
             )}
-            <div className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5" />
-              <span className="font-medium text-foreground">{employees.length}</span>
-              <span>employees</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Briefcase className="h-3.5 w-3.5" />
-              <span className="font-medium text-foreground">{contractors.length}</span>
-              <span>contractors</span>
-            </div>
           </div>
         </div>
-        
-        {/* Progress bar */}
-        {!isHistorical && !allPaid && (
-          <div className="space-y-2">
-            <Progress value={progressPercent} className="h-1" />
-            <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1.5">
-                <div className="h-2 w-2 rounded-full bg-accent-green" />
-                <span className="text-muted-foreground">{paidCount} paid</span>
-              </div>
-              {inProgressCount > 0 && (
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full bg-amber-500" />
-                  <span className="text-muted-foreground">{inProgressCount} in progress</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Worker List */}
