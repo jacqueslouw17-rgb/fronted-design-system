@@ -238,14 +238,14 @@ const F1v4_EmbeddedAdminOnboarding = ({
 
       {/* Content */}
       <div 
-        className="flex-shrink-0 flex flex-col h-full overflow-y-auto px-6 pt-8 pb-32 space-y-6 relative z-10 mx-auto"
+        className="flex-shrink-0 flex flex-col h-full overflow-y-auto px-3 sm:px-6 pt-6 sm:pt-8 pb-32 space-y-4 sm:space-y-6 relative z-10 mx-auto"
         style={{
           width: '100%',
           maxWidth: '800px'
         }}
       >
         {/* Header */}
-        <div className="flex flex-col items-center space-y-6 mb-8">
+        <div className="flex flex-col items-center space-y-4 sm:space-y-6 mb-4 sm:mb-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
