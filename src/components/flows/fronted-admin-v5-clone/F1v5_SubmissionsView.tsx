@@ -1136,29 +1136,25 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 <>
                     <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30">
                       <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{countryFlags[selectedSubmission.workerCountry] || ""} {selectedSubmission.workerName}</SheetTitle>
-                            {(() => {
-                              const endFlag = selectedSubmission.flags?.find((f) => f.type === "end_date");
-                              if (!endFlag) return null;
-                              const label = endFlag.endReason === "Termination" ? "Terminated" : endFlag.endReason === "Resignation" ? "Resigned" : "Contract ended";
-                              return (
-                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
-                                  {label}
-                                </Badge>);
-                            })()}
-                          </div>
-                          <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
-                        </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{countryFlags[selectedSubmission.workerCountry] || ""} {selectedSubmission.workerName}</SheetTitle>
                           {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) &&
                             <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
                               <Plus className="h-2.5 w-2.5" /><span>Add</span>
                             </button>
                           }
+                          {(() => {
+                            const endFlag = selectedSubmission.flags?.find((f) => f.type === "end_date");
+                            if (!endFlag) return null;
+                            const label = endFlag.endReason === "Termination" ? "Terminated" : endFlag.endReason === "Resignation" ? "Resigned" : "Contract ended";
+                            return (
+                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
+                                {label}
+                              </Badge>);
+                          })()}
                         </div>
+                        <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
                       </div>
 
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
