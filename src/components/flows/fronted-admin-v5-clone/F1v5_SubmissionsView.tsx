@@ -1158,10 +1158,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
 
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
-                        <div>
-                          <p className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">{selectedSubmission.workerType === "employee" ? "Estimated net" : "Invoice total"}</p>
-                          <button onClick={() => setShowReceiptView(true)} className="text-[10px] text-muted-foreground/50 hover:text-primary transition-colors mt-0.5">View receipt →</button>
-                        </div>
+                        <p className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">{selectedSubmission.workerType === "employee" ? "Estimated net" : "Invoice total"}</p>
                         <CurrencyToggle
                           amount={adjustedNet}
                           localCurrency={currency}
