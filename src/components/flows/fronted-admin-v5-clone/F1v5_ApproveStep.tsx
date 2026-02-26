@@ -294,20 +294,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               </div>
             </div>
             
-            <div className="mt-3 pt-3 border-t border-primary/10 flex flex-wrap gap-2">
-              {displayData.approvedCount > 0 && (
-                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-accent-green-fill/10 border border-accent-green-outline/20">
-                  <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-                  <span className="text-[10px] font-medium text-accent-green-text">{displayData.approvedCount} approved</span>
-                </div>
-              )}
-              {displayData.rejectedCount > 0 && (
-                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/30 border border-border/40">
-                  <XCircle className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[10px] font-medium text-muted-foreground">{displayData.rejectedCount} rejected</span>
-                </div>
-              )}
-            </div>
           </div>
           
         </div>
