@@ -1220,21 +1220,28 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <Trash2 className="h-3 w-3" />
                               </Button>}
                             </div>
+                            <p className="text-xs text-muted-foreground truncate">{contractor.role}</p>
                           </div>
                         </div>
 
                         {/* Data rows */}
                         <div className="mt-2 pt-2 border-t border-border/30 flex flex-col gap-1 text-[11px]">
                           <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">{contractor.role}</span>
+                            <span className="text-muted-foreground">
+                              {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
+                            </span>
                             <span className="font-medium text-foreground tabular-nums">
                               {getCurrencyCode(contractor.country, contractor.employmentType)} {contractor.salary}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">{contractor.country}</span>
+                            <span className="text-muted-foreground">Country</span>
+                            <span className="font-medium text-foreground">{contractor.country}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Type</span>
                             <span className="font-medium text-foreground">
-                              {contractor.employmentType === "contractor" ? "Contractor" : "Employee"}
+                              {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
                             </span>
                           </div>
                           {status === "CERTIFIED" && contractor.workerStatus && contractor.workerStatus !== "active" && contractor.endDate && (
