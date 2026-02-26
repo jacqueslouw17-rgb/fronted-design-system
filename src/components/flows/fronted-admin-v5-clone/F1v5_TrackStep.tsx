@@ -485,8 +485,8 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   const renderTrackingTable = () => (
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
       {/* Progress Hero */}
-      <div className="px-6 pt-6 pb-5 border-b border-border/40">
-        <div className="flex items-start justify-between mb-4">
+      <div className="px-6 pt-4 pb-3 border-b border-border/40">
+        <div className="flex items-center justify-between">
           <div>
             {isHistorical || allPaid ? (
               <>
