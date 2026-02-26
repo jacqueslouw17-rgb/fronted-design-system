@@ -159,20 +159,7 @@ const F41v6_ProfileSettings = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
       {/* Logo and Close Button */}
-      <img 
-        src={frontedLogo}
-        alt="Fronted"
-        className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={handleClose}
-      />
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleClose}
-        className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
-      >
-        <X className="h-4 w-4 sm:h-5 sm:w-5" />
-      </Button>
+      <FrostedHeader onLogoClick={handleClose} onCloseClick={handleClose} />
       
       <AgentLayout context="employee-profile-settings-v6">
         <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
