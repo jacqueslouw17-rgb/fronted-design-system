@@ -1157,8 +1157,8 @@ const AdminContractingMultiCompany = () => {
               ) : contractFlow.phase === "drafting" ? (
                 <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full pt-16">
 
-                  <div className="flex-1 flex flex-col items-center p-8">
-                    <div className="w-full max-w-7xl space-y-8">
+                  <div className="flex-1 flex flex-col items-center p-4 sm:p-8">
+                    <div className="w-full max-w-7xl space-y-4 sm:space-y-8">
                       <F1v5_ContractDraftWorkspace
                         candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]} 
                         index={contractFlow.currentDraftIndex} 
