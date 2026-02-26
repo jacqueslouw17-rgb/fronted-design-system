@@ -191,7 +191,7 @@ export const F1v4_SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps
         </SheetHeader>
 
         {candidate && (
-          <div className="space-y-5 mt-5">
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
             {/* Progress Bar */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
