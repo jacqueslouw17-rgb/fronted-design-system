@@ -203,55 +203,7 @@ const F1v4_Step2OrgProfile = ({
 
           <div className="space-y-2">
             <Label htmlFor="hqCountry" className="text-sm">HQ Country</Label>
-            <Select value={data.hqCountry} onValueChange={val => handleFieldChange('hqCountry', val)}>
-              <SelectTrigger className="text-sm">
-                <SelectValue placeholder="Select country" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NO">🇳🇴 Norway</SelectItem>
-                <SelectItem value="DK">🇩🇰 Denmark</SelectItem>
-                <SelectItem value="SE">🇸🇪 Sweden</SelectItem>
-                <SelectItem value="FI">🇫🇮 Finland</SelectItem>
-                <SelectItem value="DE">🇩🇪 Germany</SelectItem>
-                <SelectItem value="FR">🇫🇷 France</SelectItem>
-                <SelectItem value="NL">🇳🇱 Netherlands</SelectItem>
-                <SelectItem value="BE">🇧🇪 Belgium</SelectItem>
-                <SelectItem value="AT">🇦🇹 Austria</SelectItem>
-                <SelectItem value="IE">🇮🇪 Ireland</SelectItem>
-                <SelectItem value="ES">🇪🇸 Spain</SelectItem>
-                <SelectItem value="PT">🇵🇹 Portugal</SelectItem>
-                <SelectItem value="IT">🇮🇹 Italy</SelectItem>
-                <SelectItem value="GR">🇬🇷 Greece</SelectItem>
-                <SelectItem value="HR">🇭🇷 Croatia</SelectItem>
-                <SelectItem value="BG">🇧🇬 Bulgaria</SelectItem>
-                <SelectItem value="CY">🇨🇾 Cyprus</SelectItem>
-                <SelectItem value="EE">🇪🇪 Estonia</SelectItem>
-                <SelectItem value="LV">🇱🇻 Latvia</SelectItem>
-                <SelectItem value="LT">🇱🇹 Lithuania</SelectItem>
-                <SelectItem value="LU">🇱🇺 Luxembourg</SelectItem>
-                <SelectItem value="MT">🇲🇹 Malta</SelectItem>
-                <SelectItem value="SK">🇸🇰 Slovakia</SelectItem>
-                <SelectItem value="SI">🇸🇮 Slovenia</SelectItem>
-                <SelectItem value="PL">🇵🇱 Poland</SelectItem>
-                <SelectItem value="XK">🇽🇰 Kosovo</SelectItem>
-                <SelectItem value="CH">🇨🇭 Switzerland</SelectItem>
-                <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-                <SelectItem value="PH">🇵🇭 Philippines</SelectItem>
-                <SelectItem value="IN">🇮🇳 India</SelectItem>
-                <SelectItem value="SG">🇸🇬 Singapore</SelectItem>
-                <SelectItem value="JP">🇯🇵 Japan</SelectItem>
-                <SelectItem value="KR">🇰🇷 South Korea</SelectItem>
-                <SelectItem value="US">🇺🇸 United States</SelectItem>
-                <SelectItem value="CA">🇨🇦 Canada</SelectItem>
-                <SelectItem value="MX">🇲🇽 Mexico</SelectItem>
-                <SelectItem value="BR">🇧🇷 Brazil</SelectItem>
-                <SelectItem value="AU">🇦🇺 Australia</SelectItem>
-                <SelectItem value="NZ">🇳🇿 New Zealand</SelectItem>
-                <SelectItem value="AE">🇦🇪 United Arab Emirates</SelectItem>
-                <SelectItem value="ZA">🇿🇦 South Africa</SelectItem>
-                <SelectItem value="IL">🇮🇱 Israel</SelectItem>
-              </SelectContent>
-            </Select>
+            <HQCountryCombobox value={data.hqCountry} onChange={val => handleFieldChange('hqCountry', val)} />
             {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
           </div>
 

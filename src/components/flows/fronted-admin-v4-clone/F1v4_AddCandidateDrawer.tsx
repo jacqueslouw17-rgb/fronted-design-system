@@ -207,37 +207,28 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="country">Country *</Label>
-                  <Select value={formData.country} onValueChange={value => {
-                const countryFlags: Record<string, string> = {
-                  "Norway": "🇳🇴",
-                  "Philippines": "🇵🇭",
-                  "India": "🇮🇳",
-                  "Kosovo": "🇽🇰",
-                  "Sweden": "🇸🇪",
-                  "Denmark": "🇩🇰"
-                };
-                const contractorOnlyCountries = ["Kosovo", "India", "Philippines"];
-                const isContractorOnly = contractorOnlyCountries.includes(value);
-                setFormData(prev => ({
-                  ...prev,
-                  country: value,
-                  countryFlag: countryFlags[value] || "",
-                  // Auto-set to contractor for contractor-only countries
-                  employmentType: isContractorOnly ? "contractor" : prev.employmentType
-                }));
-              }}>
-                    <SelectTrigger id="country">
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Norway">🇳🇴 Norway</SelectItem>
-                      <SelectItem value="Philippines">🇵🇭 Philippines</SelectItem>
-                      <SelectItem value="India">🇮🇳 India</SelectItem>
-                      <SelectItem value="Kosovo">🇽🇰 Kosovo</SelectItem>
-                      <SelectItem value="Sweden">🇸🇪 Sweden</SelectItem>
-                      <SelectItem value="Denmark">🇩🇰 Denmark</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <WorkingCountryCombobox
+                    value={formData.country}
+                    onChange={value => {
+                      const countryFlags: Record<string, string> = {
+                        "Norway": "🇳🇴", "Philippines": "🇵🇭", "India": "🇮🇳",
+                        "Kosovo": "🇽🇰", "Sweden": "🇸🇪", "Denmark": "🇩🇰"
+                      };
+                      const contractorOnlyCountries = ["Kosovo", "India", "Philippines"];
+                      const isContractorOnly = contractorOnlyCountries.includes(value);
+                      setFormData(prev => ({
+                        ...prev,
+                        country: value,
+                        countryFlag: countryFlags[value] || "",
+                        employmentType: isContractorOnly ? "contractor" : prev.employmentType
+                      }));
+                    }}
+                    countries={[
+                      { name: "Norway", flag: "🇳🇴" }, { name: "Philippines", flag: "🇵🇭" },
+                      { name: "India", flag: "🇮🇳" }, { name: "Kosovo", flag: "🇽🇰" },
+                      { name: "Sweden", flag: "🇸🇪" }, { name: "Denmark", flag: "🇩🇰" },
+                    ]}
+                  />
                 </div>
 
                 <div className="space-y-2">
