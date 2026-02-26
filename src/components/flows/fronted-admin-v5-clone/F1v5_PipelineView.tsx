@@ -1384,7 +1384,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 </>
                               ) : (
                                 <>
-                                  <p className="text-xs text-muted-foreground text-center">Awaiting payroll details</p>
+                                  <p className="text-xs text-muted-foreground text-center">Awaiting candidate response</p>
                                   <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
                               e.stopPropagation();
                               setSendingFormIds(prev => new Set([...prev, contractor.id]));
