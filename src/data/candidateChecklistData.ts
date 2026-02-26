@@ -284,7 +284,7 @@ export const checklistData: Record<string, Record<string, ChecklistProfile>> = {
 };
 
 // Countries that require document verification before moving to Done
-export const countriesRequiringDocVerification = ["IN"];
+export const countriesRequiringDocVerification = ["India"];
 
 export const getChecklistForProfile = (country: string, type: 'Contractor' | 'Employee'): ChecklistProfile | null => {
   return checklistData[country]?.[type] || null;
