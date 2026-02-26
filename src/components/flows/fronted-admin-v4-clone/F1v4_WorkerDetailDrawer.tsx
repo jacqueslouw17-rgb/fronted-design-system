@@ -335,6 +335,10 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                   <p className="text-[11px] text-muted-foreground/60 mt-0.5">{worker.type === "employee" ? "Employee" : "Contractor"} · {isCustomBatch ? "Off-cycle" : "Jan 1 – Jan 31"}</p>
                 </div>
               </div>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">{isContractor ? "Invoice total" : "Estimated net"}</p>
+                <p className="text-sm font-semibold text-foreground tabular-nums">{approx}{formatCurrency(Math.round(cvt(isCustomBatch ? (isContractor ? customBatchNet : customBatchNet * 0.90) : netTotal)), dc)}</p>
+              </div>
             </SheetHeader>
 
             {/* Scrollable Content */}
