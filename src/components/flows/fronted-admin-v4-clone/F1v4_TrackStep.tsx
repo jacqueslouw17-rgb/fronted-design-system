@@ -497,16 +497,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                     Paid
                   </span>
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
-                  <span className="text-lg text-muted-foreground">of {workers.length}</span>
-                  <span className="text-sm text-muted-foreground">payments paid</span>
-                </div>
-                {isHistorical && paidDate ? (
-                  <p className="text-xs text-muted-foreground mt-1">Paid on {paidDate}</p>
-                ) : (
-                  <p className="text-xs text-muted-foreground mt-1">All payments paid — export for your records</p>
-                )}
               </>
             ) : (
               <>
