@@ -446,8 +446,8 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                   </button>
                 </PopoverTrigger>
                 <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
-                  <p className="font-medium">≈ USD → EUR 1.0842</p>
-                  <p className="text-muted-foreground text-[10px]">FX rate is an estimate</p>
+                  <p className="font-medium">Locked at USD → EUR 1.0842</p>
+                  <p className="text-muted-foreground text-[10px]">FX rate locked upon approval</p>
                 </PopoverContent>
               </Popover>
             </div>
@@ -458,6 +458,17 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <span className="text-sm">Adj. Approved</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
+                  <p className="font-medium">Locked at USD → EUR 1.0842</p>
+                  <p className="text-muted-foreground text-[10px]">FX rate locked upon approval</p>
+                </PopoverContent>
+              </Popover>
             </div>
             <p className="text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
             <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
