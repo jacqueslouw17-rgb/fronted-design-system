@@ -395,13 +395,13 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
             return (
               <div
                 key={tpl.id}
-                className="flex items-center gap-2.5 rounded-md border border-border/30 bg-background/60 px-3 py-2"
+                className="flex items-center gap-2 sm:gap-2.5 rounded-md border border-border/30 bg-background/60 px-2.5 sm:px-3 py-2"
               >
                 <span className="text-base shrink-0">{tpl.flag}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                     <span className="text-xs font-medium text-foreground">{tpl.countryName}</span>
-                    <span className="text-[10px] text-muted-foreground/50">
+                    <span className="text-[10px] text-muted-foreground/50 hidden sm:inline">
                       {tpl.documents.length} docs · {tpl.workerCount} {tpl.workerCount === 1 ? "worker" : "workers"}
                     </span>
                     {editedCount > 0 && (
@@ -414,11 +414,11 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2 text-[11px] text-muted-foreground hover:text-foreground shrink-0"
+                  className="h-6 px-1.5 sm:px-2 text-[11px] text-muted-foreground hover:text-foreground shrink-0"
                   onClick={() => setSelectedTemplateId(tpl.id)}
                 >
-                  Manage
-                  <ChevronRight className="h-3 w-3 ml-0.5" />
+                  <span className="hidden sm:inline">Manage</span>
+                  <ChevronRight className="h-3 w-3 sm:ml-0.5" />
                 </Button>
               </div>
             );
