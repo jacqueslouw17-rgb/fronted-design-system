@@ -765,8 +765,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     name={isEmployee ? "Employment agreement" : "Contractor agreement"}
                     status="verified"
                     fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement_Signed.pdf`}
-                    actionType="view"
-                    onView={() => setShowAgreement(true)}
                   />
                   {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
                     <DocumentRow
