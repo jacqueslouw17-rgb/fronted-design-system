@@ -313,11 +313,11 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
           <div className="px-4 sm:px-6 pt-5 pb-4 border-b border-border/30 flex-shrink-0">
             <div className="flex items-start justify-between gap-2 sm:gap-4 pr-0 sm:pr-0">
               <div className="space-y-1 min-w-0">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xl">{template.flag}</span>
+                <div className="flex items-center gap-2">
                   <SheetTitle className="text-base font-semibold">
                     {template.countryName} templates
                   </SheetTitle>
+                  <span className="text-xl">{template.flag}</span>
                   {totalCount !== undefined && currentIndex !== undefined && (
                     <span className="text-[11px] text-muted-foreground">{currentIndex + 1} / {totalCount}</span>
                   )}
