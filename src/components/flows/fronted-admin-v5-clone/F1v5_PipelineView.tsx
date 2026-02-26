@@ -1225,7 +1225,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         </div>
 
                         {/* Data rows */}
-                        <div className="mt-2 pt-2 border-t border-border/30 flex flex-col gap-1 text-[11px]">
+                        <div className="mt-3 pt-2.5 border-t border-border/30 flex flex-col gap-1 text-[11px]">
                           <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">
                               {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
@@ -1257,7 +1257,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
 
 
                         {/* Quick Actions */}
-                        <div className="flex gap-2 pt-1">
+                        <div className="flex gap-2 pt-3">
                           {status === "offer-accepted" && <>
                               <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
                           e.stopPropagation();
