@@ -1157,6 +1157,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
                       </div>
 
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
                         <p className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">{selectedSubmission.workerType === "employee" ? "Estimated net" : "Invoice total"}</p>
                         <CurrencyToggle
                           amount={adjustedNet}
