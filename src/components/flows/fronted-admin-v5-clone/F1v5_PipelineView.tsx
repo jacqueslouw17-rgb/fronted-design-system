@@ -1157,6 +1157,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   "border cursor-pointer bg-card",
                   status === "onboarding-pending" && contractor.needsDocumentVerification && !contractor.documentsVerified
                     ? "border-amber-500/40 shadow-sm shadow-amber-500/10"
+                    : status === "onboarding-pending" && !contractor.needsDocumentVerification
+                    ? "border-primary/30 shadow-sm shadow-primary/5"
                     : "border-border/40"
                 )} onClick={() => {
                   if (status === "awaiting-signature") {
