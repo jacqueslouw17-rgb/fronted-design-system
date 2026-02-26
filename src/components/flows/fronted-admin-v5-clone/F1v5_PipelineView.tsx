@@ -1153,14 +1153,19 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 }
               }}>
                 <Card className={cn(
-                  "border border-border/40 cursor-pointer",
-                  "bg-card"
+                  "border cursor-pointer bg-card",
+                  status === "onboarding-pending" && contractor.needsDocumentVerification && !contractor.documentsVerified
+                    ? "border-amber-500/40 shadow-sm shadow-amber-500/10"
+                    : "border-border/40"
                 )} onClick={() => {
                   if (status === "awaiting-signature") {
                     handleOpenSignatureWorkflow(contractor);
                   } else if (status === "CERTIFIED") {
                     setSelectedForDoneDetail(contractor);
                     setDoneDetailDrawerOpen(true);
+                  } else if (status === "onboarding-pending" && contractor.needsDocumentVerification) {
+                    setSelectedForVerification(contractor);
+                    setVerificationDrawerOpen(true);
                   }
                 }}>
                       <CardContent className="p-3 space-y-2">
