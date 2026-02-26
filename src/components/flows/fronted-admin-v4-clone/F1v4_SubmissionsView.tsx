@@ -1055,7 +1055,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
       {/* Drawer - matching CA3 exactly */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-[420px] overflow-y-auto p-0" hideClose={isAddingAdjustment}>
+        <SheetContent side="right" className="w-[420px] sm:max-w-[420px] overflow-y-auto p-0" hideClose={isAddingAdjustment}>
           {selectedSubmission && (() => {
             const earnings = selectedSubmission.lineItems?.filter((item) => item.type === 'Earnings') || [];
             const deductions = selectedSubmission.lineItems?.filter((item) => item.type === 'Deduction') || [];
