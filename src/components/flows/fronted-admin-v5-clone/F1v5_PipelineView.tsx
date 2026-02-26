@@ -892,7 +892,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     const selectedSet = new Set(selectedForOnboarding.map(c => c.id));
     const updated = contractors.map(c => {
       if (!selectedSet.has(c.id)) return c;
-      const countryCode = c.country === "Philippines" ? "PH" : c.country === "Norway" ? "NO" : "XK";
+      const countryCode = c.country === "Philippines" ? "PH" : c.country === "Norway" ? "NO" : c.country === "India" ? "IN" : "XK";
       const employmentType = c.employmentType || "contractor";
       const checklistProfile = getChecklistForProfile(countryCode, employmentType === "contractor" ? "Contractor" : "Employee");
       if (!checklistProfile) return c;
@@ -1552,7 +1552,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       name: selectedContractor.name,
       role: selectedContractor.role,
       country: selectedContractor.country,
-      countryCode: selectedContractor.country === "Philippines" ? "PH" : selectedContractor.country === "Norway" ? "NO" : "XK",
+      countryCode: selectedContractor.country === "Philippines" ? "PH" : selectedContractor.country === "Norway" ? "NO" : selectedContractor.country === "India" ? "IN" : "XK",
       flag: selectedContractor.countryFlag,
       salary: selectedContractor.salary,
       email: selectedContractor.email || "",
@@ -1622,7 +1622,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
             name: selectedForCertificate.name,
             role: selectedForCertificate.role,
             country: selectedForCertificate.country,
-            countryCode: selectedForCertificate.country === "Philippines" ? "PH" : selectedForCertificate.country === "Norway" ? "NO" : "XK",
+            countryCode: selectedForCertificate.country === "Philippines" ? "PH" : selectedForCertificate.country === "Norway" ? "NO" : selectedForCertificate.country === "India" ? "IN" : "XK",
             flag: selectedForCertificate.countryFlag,
             salary: selectedForCertificate.salary,
             email: selectedForCertificate.email || "",
