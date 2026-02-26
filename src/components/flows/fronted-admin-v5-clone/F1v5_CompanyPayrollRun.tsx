@@ -724,6 +724,10 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 </div>
                 <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
+                <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/30">
+                  <ArrowLeftRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-muted-foreground/60" />
+                  <span className="text-[9px] sm:text-[10px] text-muted-foreground/70 font-medium tracking-wide">USD → EUR 1.0842</span>
+                </div>
               </div>
 
               {/* Total Adjustments */}

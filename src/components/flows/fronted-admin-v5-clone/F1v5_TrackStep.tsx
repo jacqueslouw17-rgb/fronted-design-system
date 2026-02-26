@@ -439,6 +439,10 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
             </div>
             <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
             <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
+            <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/30">
+              <ArrowLeftRight className="h-3 w-3 text-muted-foreground/60" />
+              <span className="text-[10px] text-muted-foreground/70 font-medium tracking-wide">USD → EUR 1.0842</span>
+            </div>
           </div>
 
           <div className="bg-primary/[0.04] rounded-xl p-4">
