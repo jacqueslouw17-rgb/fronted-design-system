@@ -732,12 +732,12 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 headerAction={verificationMode ? (
                   <Button
                     size="sm"
-                    className="h-6 px-3 text-[11px] gap-1 bg-accent-green-fill/10 text-accent-green-text border border-accent-green-outline/20 hover:bg-accent-green-fill/20 hover:text-accent-green-text transition-colors"
+                    className="h-6 px-3 text-[11px] gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-colors font-medium"
                     variant="ghost"
                     onClick={() => onDocumentsVerified?.(worker.id)}
                   >
                     <CheckCircle2 className="h-3 w-3" />
-                    Verified
+                    Verify All
                   </Button>
                 ) : undefined}
               >
