@@ -173,11 +173,11 @@ const F1v5_Step2OrgProfile = ({
   const resolvedCompanyName = companyNameProp || data.companyName || "Company";
 
   return (
-    <div className="space-y-5 w-full max-w-xl mx-auto px-1 sm:px-0">
+    <div className="space-y-5 w-full sm:max-w-xl sm:mx-auto px-1 sm:px-0">
       {isEditMode && editModeTitle}
       
       <div className="space-y-3">
-        <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
+        <div className="bg-card/40 border border-border/40 rounded-lg p-3 sm:p-4 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="companyName" className="text-sm">Company Name</Label>
             <Input
