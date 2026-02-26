@@ -116,6 +116,8 @@ export interface DoneWorkerData {
   completedOn?: string;
   // Missing data
   missingDetails?: { field: string; message: string }[];
+  // Document verification state
+  documentsVerified?: boolean;
 }
 
 interface F1v4_DoneWorkerDetailDrawerProps {
