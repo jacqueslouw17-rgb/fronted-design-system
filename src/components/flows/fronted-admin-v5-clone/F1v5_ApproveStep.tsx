@@ -207,23 +207,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               </div>
             </div>
 
-            {/* Worker type breakdown */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3.5 rounded-lg border border-border/40 bg-card/50">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-[11px] text-muted-foreground">Employees</span>
-                </div>
-                <p className="text-lg font-semibold text-foreground">{displayData.employeeCount}</p>
-              </div>
-              <div className="p-3.5 rounded-lg border border-border/40 bg-card/50">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-[11px] text-muted-foreground">Contractors</span>
-                </div>
-                <p className="text-lg font-semibold text-foreground">{displayData.contractorCount}</p>
-              </div>
-            </div>
 
             {/* Excluded / pending workers info */}
             {(pendingWorkerCount > 0 || excludedWorkerCount > 0) && (
@@ -327,29 +310,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-3">
-            <div className="p-4 rounded-lg border border-border/60 bg-card/80">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Employees</span>
-              </div>
-              <p className="text-xl font-semibold text-foreground">{displayData.employeeCount}</p>
-            </div>
-            <div className="p-4 rounded-lg border border-border/60 bg-card/80">
-              <div className="flex items-center gap-2 mb-2">
-                <Briefcase className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Contractors</span>
-              </div>
-              <p className="text-xl font-semibold text-foreground">{displayData.contractorCount}</p>
-            </div>
-            <div className="p-4 rounded-lg border border-border/60 bg-card/80">
-              <div className="flex items-center gap-2 mb-2">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Currencies</span>
-              </div>
-              <p className="text-xl font-semibold text-foreground">{displayData.currencyCount}</p>
-            </div>
-          </div>
         </div>
       </div>
     );
