@@ -1464,11 +1464,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             >
                               <CardContent className="p-3 space-y-2">
                                 <div className="flex items-start gap-2">
-                                  <Avatar className="h-8 w-8 bg-primary/10">
-                                    <AvatarFallback className="text-xs text-muted-foreground/60">
-                                      {contractor.name.split(' ').map(n => n[0]).join('')}
-                                    </AvatarFallback>
-                                  </Avatar>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-1">
                                       <span className="font-medium text-sm text-muted-foreground truncate">
