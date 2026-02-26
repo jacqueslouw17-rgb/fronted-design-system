@@ -48,6 +48,23 @@ const CURRENCY_OPTIONS = [
   { code: "USD", label: "USD – US Dollar" },
 ];
 
+const HQ_COUNTRIES = [
+  { code: "NO", label: "🇳🇴 Norway" }, { code: "DK", label: "🇩🇰 Denmark" }, { code: "SE", label: "🇸🇪 Sweden" },
+  { code: "FI", label: "🇫🇮 Finland" }, { code: "DE", label: "🇩🇪 Germany" }, { code: "FR", label: "🇫🇷 France" },
+  { code: "NL", label: "🇳🇱 Netherlands" }, { code: "BE", label: "🇧🇪 Belgium" }, { code: "AT", label: "🇦🇹 Austria" },
+  { code: "IE", label: "🇮🇪 Ireland" }, { code: "ES", label: "🇪🇸 Spain" }, { code: "PT", label: "🇵🇹 Portugal" },
+  { code: "IT", label: "🇮🇹 Italy" }, { code: "GR", label: "🇬🇷 Greece" }, { code: "HR", label: "🇭🇷 Croatia" },
+  { code: "BG", label: "🇧🇬 Bulgaria" }, { code: "CY", label: "🇨🇾 Cyprus" }, { code: "EE", label: "🇪🇪 Estonia" },
+  { code: "LV", label: "🇱🇻 Latvia" }, { code: "LT", label: "🇱🇹 Lithuania" }, { code: "LU", label: "🇱🇺 Luxembourg" },
+  { code: "MT", label: "🇲🇹 Malta" }, { code: "SK", label: "🇸🇰 Slovakia" }, { code: "SI", label: "🇸🇮 Slovenia" },
+  { code: "PL", label: "🇵🇱 Poland" }, { code: "XK", label: "🇽🇰 Kosovo" }, { code: "CH", label: "🇨🇭 Switzerland" },
+  { code: "GB", label: "🇬🇧 United Kingdom" }, { code: "PH", label: "🇵🇭 Philippines" }, { code: "IN", label: "🇮🇳 India" },
+  { code: "SG", label: "🇸🇬 Singapore" }, { code: "JP", label: "🇯🇵 Japan" }, { code: "KR", label: "🇰🇷 South Korea" },
+  { code: "US", label: "🇺🇸 United States" }, { code: "CA", label: "🇨🇦 Canada" }, { code: "MX", label: "🇲🇽 Mexico" },
+  { code: "BR", label: "🇧🇷 Brazil" }, { code: "AU", label: "🇦🇺 Australia" }, { code: "NZ", label: "🇳🇿 New Zealand" },
+  { code: "AE", label: "🇦🇪 United Arab Emirates" }, { code: "ZA", label: "🇿🇦 South Africa" }, { code: "IL", label: "🇮🇱 Israel" },
+];
+
 const F1v5_Step2OrgProfile = ({
   formData,
   onComplete,
@@ -74,6 +91,7 @@ const F1v5_Step2OrgProfile = ({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hqCountryOpen, setHqCountryOpen] = useState(false);
 
   // Creation-mode country templates
   const [creationCountries, setCreationCountries] = useState<CreationCountryEntry[]>([]);
