@@ -710,7 +710,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     const contractor = selectedForOnboarding;
 
     // Get country code for checklist
-    const countryCode = contractor.country === "Philippines" ? "PH" : contractor.country === "Norway" ? "NO" : "XK";
+    const countryCode = contractor.country === "Philippines" ? "PH" : contractor.country === "Norway" ? "NO" : contractor.country === "India" ? "IN" : "XK";
 
     // Get employment type (default to contractor if not set)
     const employmentType = contractor.employmentType || "contractor";
@@ -751,7 +751,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   };
   // Direct start onboarding without confirmation modal (matches offer-accepted Send Form behavior)
   const handleConfirmStartOnboarding_direct = (contractor: Contractor) => {
-    const countryCode = contractor.country === "Philippines" ? "PH" : contractor.country === "Norway" ? "NO" : "XK";
+    const countryCode = contractor.country === "Philippines" ? "PH" : contractor.country === "Norway" ? "NO" : contractor.country === "India" ? "IN" : "XK";
     const employmentType = contractor.employmentType || "contractor";
     const checklistProfile = getChecklistForProfile(countryCode, employmentType === "contractor" ? "Contractor" : "Employee");
     if (!checklistProfile) {
