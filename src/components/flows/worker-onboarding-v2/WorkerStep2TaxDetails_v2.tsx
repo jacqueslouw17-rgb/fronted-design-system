@@ -164,6 +164,28 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
     setData({ ...data, identityDocUploaded: false });
   };
 
+  const handleInvestmentProofUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validTypes = ["image/jpeg", "image/png", "application/pdf"];
+      if (!validTypes.includes(file.type)) {
+        toast.error("Please upload a JPG, PNG, or PDF file.");
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("File size must be under 10 MB.");
+        return;
+      }
+      setInvestmentProofFileName(file.name);
+      setData({ ...data, indiaInvestmentProofUploaded: true });
+    }
+  };
+
+  const handleRemoveInvestmentProof = () => {
+    setInvestmentProofFileName("");
+    setData({ ...data, indiaInvestmentProofUploaded: false });
+  };
+
   const handleContinue = () => {
     if (!data.taxCountry) {
       toast.error("Please select your country of tax residency.");
