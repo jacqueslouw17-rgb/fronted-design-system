@@ -314,10 +314,12 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                   </Avatar>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
                       <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      <span className="text-[11px] text-muted-foreground">· {countryFlags[worker.country] || ""} {worker.country}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[worker.country] || ""} {worker.country}</span>
                     </div>
                   </div>
 
