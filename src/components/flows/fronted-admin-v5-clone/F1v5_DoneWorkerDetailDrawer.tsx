@@ -663,11 +663,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               <SectionCard 
                 title="Working Engagement" 
                 defaultOpen={false}
-                badge={
-                  <Badge variant="outline" className="text-xs font-medium gap-1">
-                    {worker.countryFlag} {worker.country}
-                  </Badge>
-                }
               >
                 <div className="space-y-0.5">
                   <DetailRow 
