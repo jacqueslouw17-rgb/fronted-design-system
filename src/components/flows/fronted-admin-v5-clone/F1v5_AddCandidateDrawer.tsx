@@ -21,6 +21,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { getCurrencyCode } from "@/utils/currencyUtils";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { WorkingCountryCombobox } from "@/components/shared/SearchableCountrySelect";
 
 // ─── Nationalities ──────────────────────────────────────────────────────
 const NATIONALITIES = [

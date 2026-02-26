@@ -26,6 +26,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { WorkingCountryCombobox } from "@/components/shared/SearchableCountrySelect";
 
 // ─── Nationalities (with flags) ───
 const NATIONALITIES = [

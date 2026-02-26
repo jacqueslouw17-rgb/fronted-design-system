@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { User, Sparkles } from "lucide-react";
 import { getCurrencyCode } from "@/utils/currencyUtils";
+import { WorkingCountryCombobox } from "@/components/shared/SearchableCountrySelect";
 interface AddCandidateDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

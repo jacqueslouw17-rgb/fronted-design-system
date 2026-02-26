@@ -18,6 +18,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { NationalityCombobox, WorkingCountryCombobox } from "@/components/shared/SearchableCountrySelect";
 
 // ─── Country Rules ───
 interface CountryRule {
