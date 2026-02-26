@@ -206,6 +206,18 @@ const AdminContractingMultiCompany = () => {
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
   const [isEditingCompany, setIsEditingCompany] = useState<boolean>(false);
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+
+  // Track scroll for frosted header on mobile
+  useEffect(() => {
+    if (!isAddingNewCompany && !isEditingCompany) {
+      setHeaderScrolled(false);
+      return;
+    }
+    const onScroll = () => setHeaderScrolled(window.scrollY > 16);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isAddingNewCompany, isEditingCompany]);
   const [companies, setCompanies] = useState<CompanyData[]>(() => {
     const saved = localStorage.getItem('adminflow-v5-companies');
     return saved ? JSON.parse(saved) : MOCK_COMPANIES;
@@ -808,7 +820,7 @@ const AdminContractingMultiCompany = () => {
 
       {/* Logo and Close Button for Add New Company */}
       {isAddingNewCompany && (
-        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 sm:bg-transparent sm:backdrop-blur-none bg-background/60 backdrop-blur-md">
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 ${headerScrolled ? 'bg-background/70 backdrop-blur-md shadow-sm' : ''}`}>
           <img 
             src={frontedLogo}
             alt="Fronted"
@@ -828,7 +840,7 @@ const AdminContractingMultiCompany = () => {
 
       {/* Logo and Close Button for Edit Company */}
       {isEditingCompany && (
-        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 sm:bg-transparent sm:backdrop-blur-none bg-background/60 backdrop-blur-md">
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 ${headerScrolled ? 'bg-background/70 backdrop-blur-md shadow-sm' : ''}`}>
           <img 
             src={frontedLogo}
             alt="Fronted"
