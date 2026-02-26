@@ -1764,7 +1764,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed top-0 bottom-0 z-50 w-full sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto"
+              className="fixed top-0 bottom-0 z-50 w-[420px] sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto"
               style={{ right: chatWidth }}
             >
               {/* Close button */}
