@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
+import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import { cn } from "@/lib/utils";

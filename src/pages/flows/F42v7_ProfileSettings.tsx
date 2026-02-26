@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
+import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import WorkerStep2PersonalProfile_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2PersonalProfile_v2";
 import WorkerStep2TaxDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep2TaxDetails_v2";
 import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep4BankDetails_v2";
