@@ -248,8 +248,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     
     // Set up timers for each onboarding contractor
     onboardingContractors.forEach(contractor => {
-      // Skip if already has a timer or already transitioned
+      // Skip if already has a timer, already transitioned, or needs doc verification
       if (transitionTimersRef.current.has(contractor.id)) return;
+      if (countriesRequiringDocVerification.includes(contractor.country)) return;
       
       console.log(`Setting up 5s transition timer for ${contractor.name}`);
       
