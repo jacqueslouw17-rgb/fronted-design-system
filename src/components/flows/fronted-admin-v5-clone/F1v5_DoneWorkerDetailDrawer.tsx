@@ -504,21 +504,25 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     <>
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
-        {/* Header — matches configure drawer style */}
-        <SheetHeader className="px-6 pt-8 pb-4 shrink-0">
-          <SheetTitle className="text-base">{verificationMode ? "Documents in review" : "Worker Details"}</SheetTitle>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="text-lg">{worker.countryFlag}</span>
-            <span>{worker.name} • {worker.role}</span>
-          </div>
-          {!verificationMode && worker.documentsVerified && (
-            <div className="flex items-center gap-1.5 mt-1.5">
-              <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Documents verified
-              </Badge>
+        {/* Header — matches payroll drawer pattern */}
+        <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
+          <SheetDescription className="sr-only">Worker details</SheetDescription>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.countryFlag} {worker.name}</SheetTitle>
+              {verificationMode && (
+                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
+                  In review
+                </Badge>
+              )}
+              {!verificationMode && worker.documentsVerified && (
+                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
+                  Verified
+                </Badge>
+              )}
             </div>
-          )}
+            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{isEmployee ? "Employee" : "Contractor"} · {worker.role}</p>
+          </div>
           {!verificationMode && (
             <div className="flex items-center gap-2 mt-1">
             <DropdownMenu>

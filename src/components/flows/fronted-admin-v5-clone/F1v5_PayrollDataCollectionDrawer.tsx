@@ -337,13 +337,13 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="text-base">Payroll Data Collection</SheetTitle>
-          <SheetDescription className="flex items-center gap-2">
-            <span className="text-lg">{contractor.countryFlag}</span>
-            <span>{contractor.name} • {contractor.role}</span>
-          </SheetDescription>
+        <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col overflow-hidden">
+        <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
+          <SheetDescription className="sr-only">Payroll data collection</SheetDescription>
+          <div className="min-w-0">
+            <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{contractor.countryFlag} {contractor.name}</SheetTitle>
+            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{contractor.role} · Payroll Data Collection</p>
+          </div>
         </SheetHeader>
 
         <div className="mt-3 space-y-3">
