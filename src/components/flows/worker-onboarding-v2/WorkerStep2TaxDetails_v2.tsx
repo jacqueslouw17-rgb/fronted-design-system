@@ -137,7 +137,10 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
 
   const [identityFileName, setIdentityFileName] = useState<string>(formData.identityFileName || "");
 
+  const [investmentProofFileName, setInvestmentProofFileName] = useState<string>(formData.investmentProofFileName || "");
+
   const taxHelper = data.taxCountry ? TAX_HELPERS[data.taxCountry] : null;
+  const isIndia = data.taxCountry === "IN";
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
