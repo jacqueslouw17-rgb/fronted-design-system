@@ -820,7 +820,7 @@ const AdminContractingMultiCompany = () => {
 
       {/* Logo and Close Button for Add New Company */}
       {isAddingNewCompany && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 ${headerScrolled ? 'bg-background/70 backdrop-blur-md shadow-sm' : ''}`}>
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
           <img 
             src={frontedLogo}
             alt="Fronted"
@@ -840,7 +840,7 @@ const AdminContractingMultiCompany = () => {
 
       {/* Logo and Close Button for Edit Company */}
       {isEditingCompany && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 ${headerScrolled ? 'bg-background/70 backdrop-blur-md shadow-sm' : ''}`}>
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
           <img 
             src={frontedLogo}
             alt="Fronted"
