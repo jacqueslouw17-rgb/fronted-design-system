@@ -41,7 +41,10 @@ const HISTORICAL_WORKERS: HistoricalWorker[] = [
 
 const countryFlags: Record<string, string> = {
   Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
-  Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷"
+  Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", USA: "🇺🇸",
+  "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧",
+  Italy: "🇮🇹", Japan: "🇯🇵", India: "🇮🇳", Ireland: "🇮🇪",
+  Netherlands: "🇳🇱", Sweden: "🇸🇪", Denmark: "🇩🇰", Brazil: "🇧🇷",
 };
 
 export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewProps> = ({
