@@ -1201,18 +1201,16 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </p>}
                           </div>
                           {/* Status badge top-right for onboarding-pending */}
-                          {status === "onboarding-pending" && (
+                          {status === "onboarding-pending" && !contractor.needsDocumentVerification && (
                             <Badge 
                               variant="outline" 
-                              className={cn(
-                                "text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none",
-                                contractor.needsDocumentVerification
-                                  ? "bg-amber-500/10 text-amber-700 border-amber-500/20"
-                                  : "bg-primary/10 text-primary border-primary/20"
-                              )}
+                              className="text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20"
                             >
-                              {contractor.needsDocumentVerification ? "In Review" : "In Progress"}
+                              In Progress
                             </Badge>
+                          )}
+                          {status === "onboarding-pending" && contractor.needsDocumentVerification && (
+                            <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium flex-shrink-0">Pending</span>
                           )}
                           {/* Status badge top-right for Done column */}
                           {status === "CERTIFIED" && (
