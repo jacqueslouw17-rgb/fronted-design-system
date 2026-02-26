@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { F1v5_CountryTemplatesSection } from "./F1v5_CountryTemplatesSection";
@@ -281,10 +281,7 @@ const F1v5_Step2OrgProfile = ({
 
           <div className="space-y-1">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="space-y-0.5">
-                <Label className="text-sm">Default Currency</Label>
-                <p className="text-xs text-muted-foreground">Used across this company's dashboard</p>
-              </div>
+              <Label className="text-sm">Default Currency</Label>
               <div className="inline-flex rounded-lg bg-muted/50 p-0.5 gap-0.5 self-start sm:self-auto">
                 {CURRENCY_OPTIONS.map(c => (
                   <button
@@ -326,12 +323,7 @@ const F1v5_Step2OrgProfile = ({
       </div>
 
       <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing || isSubmitting || !isFormValid}>
-        {(externalProcessing || isSubmitting) ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            {isEditMode ? "Saving..." : "Adding..."}
-          </>
-        ) : isEditMode ? "Save Changes" : "Add"}
+        {(externalProcessing || isSubmitting) ? (isEditMode ? "Saving..." : "Adding...") : isEditMode ? "Save Changes" : "Add"}
       </Button>
     </div>
   );

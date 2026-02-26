@@ -435,7 +435,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                 <Button variant="outline" size="sm" className="h-7 text-xs" onClick={handleCancel}>Cancel</Button>
                 <Button size="sm" className="h-7 text-xs gap-1.5" onClick={handleSave} disabled={!isModified || !editContent.trim()}>
                   <Save className="h-3 w-3" />
-                  Save {activeDoc?.shortLabel}
+                  Save
                 </Button>
               </div>
             ) : (
@@ -447,7 +447,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                   className="flex items-center gap-1.5 h-7 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
                 >
                   <RotateCcw className={`h-3.5 w-3.5 ${isResetting ? 'animate-spin' : ''}`} />
-                  Reset {activeDoc?.shortLabel}
+                  Reset
                 </Button>
                 <Button
                   variant="outline" size="sm"
@@ -456,7 +456,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                   className="flex items-center gap-1.5 h-7 text-xs"
                 >
                   <Pencil className="h-3.5 w-3.5" />
-                  Edit {activeDoc?.shortLabel}
+                  Edit
                 </Button>
               </div>
             )}
