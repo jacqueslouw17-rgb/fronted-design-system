@@ -1147,6 +1147,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
                             <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{countryFlags[selectedSubmission.workerCountry] || ""} {selectedSubmission.workerName}</SheetTitle>
+                            {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) &&
+                              <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
+                                <Plus className="h-2.5 w-2.5" /><span>Add</span>
+                              </button>
+                            }
                             {(() => {
                               const endFlag = selectedSubmission.flags?.find((f) => f.type === "end_date");
                               if (!endFlag) return null;
@@ -1159,13 +1164,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           </div>
                           <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
                         </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) &&
-                            <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
-                              <Plus className="h-2.5 w-2.5" /><span>Add</span>
-                            </button>
-                          }
-                          {currentPendingCount > 0 && !isWorkerFinalized(selectedSubmission.id) &&
+                        {currentPendingCount > 0 && !isWorkerFinalized(selectedSubmission.id) &&
+                          <div className="shrink-0">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <label className="flex items-center gap-1 cursor-pointer">
@@ -1175,8 +1175,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                               </TooltipTrigger>
                               <TooltipContent side="bottom"><p className="text-xs">Show only pending items</p></TooltipContent>
                             </Tooltip>
-                          }
-                        </div>
+                          </div>
+                        }
                       </div>
 
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
