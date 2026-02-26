@@ -1,5 +1,4 @@
 import React from "react";
-import { Lock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -26,11 +25,6 @@ export const F1v4_ApproveConfirmationModal: React.FC<F1v4_ApproveConfirmationMod
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader className="text-center pb-2">
-          <div className="flex justify-center mb-3">
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Lock className="h-5 w-5 text-primary" />
-            </div>
-          </div>
           <DialogTitle className="text-lg font-semibold">
             {isCustomBatch ? "Lock this off-cycle batch?" : "Ready to lock and pay out?"}
           </DialogTitle>
