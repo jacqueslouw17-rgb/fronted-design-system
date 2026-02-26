@@ -285,6 +285,165 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
             )}
           </div>
 
+          {/* India Income Tax Regime — conditional */}
+          {isIndia && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4 p-4 rounded-lg border border-border/40 bg-muted/30"
+            >
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <IndianRupee className="h-4 w-4 text-primary" />
+                  <Label className="text-sm font-semibold">Income Tax Regime</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  India offers two tax regimes. The <strong>New Regime</strong> (default since FY 2023-24) has lower slab rates with minimal deductions. The <strong>Old Regime</strong> allows deductions under Sections 80C, 80D, HRA, etc.
+                </p>
+              </div>
+
+              <RadioGroup
+                value={data.indiaTaxRegime}
+                onValueChange={(value) => setData({ ...data, indiaTaxRegime: value, india80CAmount: "", india80DAmount: "", indiaInvestmentProofUploaded: false })}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+              >
+                <label
+                  className={cn(
+                    "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                    data.indiaTaxRegime === "new" ? "border-primary bg-primary/5" : "border-border/40 hover:bg-muted/50"
+                  )}
+                >
+                  <RadioGroupItem value="new" className="mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium">New Regime</p>
+                    <p className="text-xs text-muted-foreground">Lower rates, limited deductions. Default since FY 2023-24.</p>
+                  </div>
+                </label>
+                <label
+                  className={cn(
+                    "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                    data.indiaTaxRegime === "old" ? "border-primary bg-primary/5" : "border-border/40 hover:bg-muted/50"
+                  )}
+                >
+                  <RadioGroupItem value="old" className="mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium">Old Regime</p>
+                    <p className="text-xs text-muted-foreground">Higher rates, but allows 80C, 80D, HRA & other deductions.</p>
+                  </div>
+                </label>
+              </RadioGroup>
+
+              {/* Old Regime — deduction fields */}
+              <AnimatePresence>
+                {data.indiaTaxRegime === "old" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-4 pt-2"
+                  >
+                    <div className="flex items-start gap-2 p-2 rounded-md bg-primary/5">
+                      <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-muted-foreground">
+                        Under the Old Regime, you can claim deductions to reduce your taxable income. These fields are optional — fill what you have available.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="india80C">Section 80C deductions (₹)</Label>
+                      <Input
+                        id="india80C"
+                        type="number"
+                        value={data.india80CAmount}
+                        onChange={(e) => setData({ ...data, india80CAmount: e.target.value })}
+                        placeholder="e.g., 150000 (max ₹1,50,000)"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        PPF, ELSS, LIC, NSC, tax-saving FDs, tuition fees, home loan principal, etc.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="india80D">Section 80D deductions (₹)</Label>
+                      <Input
+                        id="india80D"
+                        type="number"
+                        value={data.india80DAmount}
+                        onChange={(e) => setData({ ...data, india80DAmount: e.target.value })}
+                        placeholder="e.g., 25000 (max ₹25,000 / ₹50,000 for seniors)"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Health insurance premiums for self, spouse, children, and parents.
+                      </p>
+                    </div>
+
+                    {/* Investment proof upload — optional */}
+                    <div className="space-y-2">
+                      <Label>Proof of investments / deductions</Label>
+                      <p className="text-xs text-muted-foreground -mt-1">
+                        Optionally upload consolidated proof (e.g., Form 16, premium receipts) — JPG, PNG, or PDF up to 10 MB.
+                      </p>
+
+                      {data.indiaInvestmentProofUploaded && investmentProofFileName ? (
+                        <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/40 bg-card/30">
+                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 bg-accent-green-fill/10">
+                              <FileText className="h-4 w-4 text-accent-green-text" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <p className="text-sm font-medium text-foreground truncate">{investmentProofFileName}</p>
+                                <span className="inline-flex items-center rounded-full bg-accent-green-fill/10 px-2 py-0.5 text-[10px] font-medium text-accent-green-text border border-accent-green-fill/20">
+                                  Uploaded
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                              onClick={() => toast.info("Downloading investment proof...")}
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Download</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-destructive"
+                              onClick={handleRemoveInvestmentProof}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Remove</span>
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary/5 transition-colors">
+                          <div className="flex flex-col items-center justify-center gap-2">
+                            <Upload className="h-6 w-6 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Click to upload proof</p>
+                          </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept=".jpg,.jpeg,.png,.pdf"
+                            onChange={handleInvestmentProofUpload}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
+
           {/* Identity Document Upload */}
           <div className="space-y-2">
             <Label>Identity document <span className="text-destructive">*</span></Label>
