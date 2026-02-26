@@ -14,9 +14,10 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, CheckCircle2 } from "lucide-react";
+import { ChevronDown, CheckCircle2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Country-specific payroll field definitions ───
 interface PayrollField {
@@ -356,12 +357,72 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
             }
           >
             {config.payrollFields.map(field => (
-              <PayrollFieldInput
-                key={field.key}
-                field={field}
-                value={formValues[field.key] || ""}
-                onChange={setValue(field.key)}
-              />
+              <React.Fragment key={field.key}>
+                <PayrollFieldInput
+                  field={field}
+                  value={formValues[field.key] || ""}
+                  onChange={setValue(field.key)}
+                />
+                {/* Old Regime conditional deduction fields for India */}
+                {field.key === "tax_regime" && contractor.country === "India" && (
+                  <AnimatePresence>
+                    {formValues.tax_regime === "old" && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="space-y-3 pl-3 border-l-2 border-primary/20 ml-1">
+                          <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted/40 border border-border/30">
+                            <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                              Old Regime allows deductions under Chapter VI-A. Configure the applicable deduction limits below.
+                            </p>
+                          </div>
+                          <Field label="Section 80C Limit" helpText="Max ₹1,50,000 — PPF, ELSS, LIC, NSC, tax-saving FDs">
+                            <Input
+                              type="number"
+                              value={formValues.section_80c || ""}
+                              onChange={e => setValue("section_80c")(e.target.value)}
+                              placeholder="e.g., 150000"
+                              className="h-10"
+                            />
+                          </Field>
+                          <Field label="Section 80D Limit" helpText="Max ₹25,000 (₹50,000 for senior citizens) — Health insurance premiums">
+                            <Input
+                              type="number"
+                              value={formValues.section_80d || ""}
+                              onChange={e => setValue("section_80d")(e.target.value)}
+                              placeholder="e.g., 25000"
+                              className="h-10"
+                            />
+                          </Field>
+                          <Field label="HRA Exemption" helpText="House Rent Allowance — based on salary structure and rent paid">
+                            <Select value={formValues.hra_exemption || ""} onValueChange={setValue("hra_exemption")}>
+                              <SelectTrigger className="h-10"><SelectValue placeholder="Select" /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="applicable">Applicable</SelectItem>
+                                <SelectItem value="not_applicable">Not Applicable</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </Field>
+                          <Field label="Other Deductions (80G, 80E, etc.)" helpText="Total of other applicable Chapter VI-A deductions">
+                            <Input
+                              type="number"
+                              value={formValues.other_deductions || ""}
+                              onChange={e => setValue("other_deductions")(e.target.value)}
+                              placeholder="e.g., 50000"
+                              className="h-10"
+                            />
+                          </Field>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                )}
+              </React.Fragment>
             ))}
           </SectionCard>
 
