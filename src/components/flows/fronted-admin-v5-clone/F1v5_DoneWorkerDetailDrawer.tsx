@@ -351,10 +351,9 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               status === "verified" ? "text-accent-green-text" : "text-primary"
             )} />
           </div>
-          <div className="min-w-0">
+           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="text-sm font-medium text-foreground truncate">{name}</p>
-              <StatusBadge status={status} />
             </div>
             <p className="text-[11px] text-muted-foreground">{fileName}</p>
           </div>
@@ -754,8 +753,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 headerAction={verificationMode ? (
                   <Button
                     size="sm"
-                    className="h-6 px-3 text-[11px] gap-1 bg-accent-green-fill/20 text-accent-green-text border border-accent-green-outline/30 hover:bg-accent-green-fill/40 transition-colors"
-                    variant="outline"
+                    className="h-6 px-3 text-[11px] gap-1 bg-accent-green-fill/10 text-accent-green-text border border-accent-green-outline/20 hover:bg-accent-green-fill/20 hover:text-accent-green-text transition-colors"
+                    variant="ghost"
                     onClick={() => onDocumentsVerified?.(worker.id)}
                   >
                     <CheckCircle2 className="h-3 w-3" />
