@@ -173,7 +173,7 @@ const F1v5_Step2OrgProfile = ({
   const resolvedCompanyName = companyNameProp || data.companyName || "Company";
 
   return (
-    <div className="space-y-5 max-w-xl mx-auto">
+    <div className="space-y-5 w-full max-w-xl mx-auto px-1 sm:px-0">
       {isEditMode && editModeTitle}
       
       <div className="space-y-3">
@@ -280,12 +280,12 @@ const F1v5_Step2OrgProfile = ({
           </div>
 
           <div className="space-y-1">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="space-y-0.5">
                 <Label className="text-sm">Default Currency</Label>
                 <p className="text-xs text-muted-foreground">Used across this company's dashboard</p>
               </div>
-              <div className="inline-flex rounded-lg bg-muted/50 p-0.5 gap-0.5">
+              <div className="inline-flex rounded-lg bg-muted/50 p-0.5 gap-0.5 self-start sm:self-auto">
                 {CURRENCY_OPTIONS.map(c => (
                   <button
                     key={c.code}
