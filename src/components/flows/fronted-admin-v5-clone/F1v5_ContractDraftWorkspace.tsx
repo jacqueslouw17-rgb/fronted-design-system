@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
 import {
   AlertDialog,
@@ -529,7 +530,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   }, [activeDocument, isLastDocument, currentDocIndex, documents, handleDocumentSwitch, scrollAgreementToTop, onNext]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <AgentHeader 
         title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} 
         subtitle="Preview how this contract will appear to the candidate before sending for signature." 
@@ -539,9 +540,62 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         progressIndicator={candidateStepper}
       />
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="h-full flex gap-4 items-start">
-        {/* Left: Candidate card + Audit Log */}
-        <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1, duration: 0.3 }} className="w-80 flex-shrink-0 flex flex-col h-[600px]">
+      {/* ── Mobile: Collapsible candidate details ── */}
+      <div className="lg:hidden">
+        <Collapsible>
+          <CollapsibleTrigger asChild>
+            <button className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-border/30 bg-card/20 hover:bg-card/40 transition-colors text-left">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-2xl">{candidate.flag}</span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{candidate.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{candidate.role} · {candidate.country}</p>
+                </div>
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="mt-2 rounded-xl border border-border/30 bg-card/20 overflow-hidden divide-y divide-border/20">
+              {/* Personal Details */}
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Personal Details</p>
+                <div className="space-y-1.5">
+                  <ReviewRow icon={User} label="Name" value={candidate.name} />
+                  <ReviewRow icon={Globe} label="Country" value={`${candidate.flag} ${candidate.country}`} />
+                  {candidate.email && <ReviewRow icon={FileText} label="Email" value={candidate.email} />}
+                  {candidate.nationality && <ReviewRow icon={Globe} label="Nationality" value={candidate.nationality} />}
+                  {candidate.city && <ReviewRow icon={Building2} label="City" value={candidate.city} />}
+                  {candidate.address && <ReviewRow icon={MapPin} label="Address" value={candidate.address} />}
+                  {candidate.idNumber && <ReviewRow icon={Shield} label={candidate.idType || "ID"} value={candidate.idNumber} />}
+                </div>
+              </div>
+              {/* Contract Details */}
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Contract Details</p>
+                <div className="space-y-1.5">
+                  <ReviewRow icon={Briefcase} label="Type" value={candidate.employmentType === "employee" ? "Employee" : "Contractor"} />
+                  <ReviewRow icon={FileText} label="Role" value={candidate.role} />
+                  <ReviewRow icon={Banknote} label="Salary" value={candidate.salary} />
+                  <ReviewRow icon={Calendar} label="Start Date" value={candidate.startDate} />
+                </div>
+              </div>
+              {/* Terms & Entitlements */}
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Terms & Entitlements</p>
+                <div className="space-y-1.5">
+                  <ReviewRow icon={Clock} label="Notice" value={candidate.noticePeriod} />
+                  <ReviewRow icon={Calendar} label="PTO" value={candidate.pto} />
+                </div>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="h-full flex flex-col lg:flex-row gap-4 items-start">
+        {/* Left: Candidate card + Audit Log — hidden on mobile */}
+        <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1, duration: 0.3 }} className="hidden lg:flex w-80 flex-shrink-0 flex-col h-[600px]">
           <Card className="border border-border/40 bg-card/50 backdrop-blur-sm flex-shrink-0 overflow-hidden">
             {/* Header */}
             <div className="px-5 py-4 border-b border-border/30">
@@ -605,25 +659,26 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         </motion.div>
 
         {/* Right: Contract viewer with tabs + editor */}
-        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col h-[600px] min-h-0">
+        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col h-[calc(100vh-280px)] sm:h-[600px] min-h-0 w-full">
           
           {/* Unified toolbar: tabs + actions in one row */}
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.3 }} className="rounded-lg border border-border bg-muted/30 p-2 mb-4 flex-shrink-0 flex items-center justify-between gap-3">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.3 }} className="rounded-lg border border-border bg-muted/30 p-2 mb-4 flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
             {/* Left: Document tabs or edit context */}
             {isEditMode ? (
               <div className="flex items-center gap-2 min-w-0">
                 <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isContentEmpty ? 'bg-destructive' : 'bg-warning animate-pulse'}`} />
-                <p className="text-sm text-muted-foreground truncate">
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
                   {isContentEmpty ? (
                     <>Editing <span className="font-medium text-foreground">{activeDocLabel}</span><span className="text-destructive ml-1">— cannot be empty</span></>
                   ) : (
-                    <>Edits to this <span className="font-medium text-foreground">{activeDocLabel}</span> apply only to {candidate.name}. To update your base template, <a href="#" onClick={(e) => e.preventDefault()} className="text-primary hover:underline font-medium">edit country defaults</a>.</>
+                    <>Edits to <span className="font-medium text-foreground">{activeDocLabel}</span> apply only to {candidate.name}</>
                   )}
                 </p>
               </div>
             ) : showTabs ? (
               <div className="min-w-0">
-                <div className="flex items-center gap-1">
+                {/* Desktop: inline tabs */}
+                <div className="hidden sm:flex items-center gap-1">
                   {visibleDocs.map((doc) => {
                     const isActive = activeDocument === doc.id;
                     const isConfirmed = confirmedDocs.has(doc.id);
@@ -703,9 +758,53 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                     </DropdownMenu>
                   )}
                 </div>
+                {/* Mobile: all docs in a dropdown */}
+                <div className="sm:hidden">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="inline-flex items-center gap-2 text-xs h-8 px-3 rounded-md bg-background text-foreground font-medium shadow-sm border border-border/60 w-full justify-between">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {confirmedDocs.has(activeDocument) ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+                          ) : (
+                            (() => { const DocIcon = documents.find(d => d.id === activeDocument)?.icon || FileText; return <DocIcon className="h-3.5 w-3.5 flex-shrink-0" />; })()
+                          )}
+                          <span className="truncate">{documents.find(d => d.id === activeDocument)?.label || "Document"}</span>
+                          <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal ml-1">
+                            {confirmedDocs.size}/{documents.length}
+                          </Badge>
+                        </div>
+                        <ChevronDown className="h-3 w-3 flex-shrink-0" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="min-w-[260px]">
+                      {documents.map((doc) => {
+                        const isConfirmed = confirmedDocs.has(doc.id);
+                        const isActive = activeDocument === doc.id;
+                        return (
+                          <DropdownMenuItem
+                            key={doc.id}
+                            onClick={() => handleDocumentSwitch(doc.id)}
+                            className={cn(
+                              "flex items-center gap-2 text-xs cursor-pointer",
+                              isActive && "bg-muted font-medium"
+                            )}
+                          >
+                            {isConfirmed ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+                            ) : (
+                              <doc.icon className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+                            )}
+                            <span>{doc.label}</span>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             ) : (
-              <p className="text-sm text-foreground pl-1">
+              <p className="text-xs sm:text-sm text-foreground pl-1">
                 {isResetting ? "Regenerating contract from template..." : "Review the contract details carefully before proceeding."}
               </p>
             )}
@@ -725,7 +824,8 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   className="flex items-center gap-1.5 h-7 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
                 >
                   <RotateCcw className={`h-3.5 w-3.5 ${isResetting ? 'animate-spin' : ''}`} />
-                  Reset {documents.find(d => d.id === activeDocument)?.shortLabel}
+                  <span className="hidden sm:inline">Reset {documents.find(d => d.id === activeDocument)?.shortLabel}</span>
+                  <span className="sm:hidden">Reset</span>
                 </Button>
                 <Button
                   variant="outline" size="sm"
@@ -734,7 +834,8 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   className="flex items-center gap-1.5 h-7 text-xs"
                 >
                   <Pencil className="h-3.5 w-3.5" />
-                  Edit {documents.find(d => d.id === activeDocument)?.shortLabel}
+                  <span className="hidden sm:inline">Edit {documents.find(d => d.id === activeDocument)?.shortLabel}</span>
+                  <span className="sm:hidden">Edit</span>
                 </Button>
               </div>
             )}
@@ -757,7 +858,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
             <div ref={scrollAreaRef} className="flex-1 min-h-0 overflow-y-auto rounded-t-lg border border-b-0 border-border bg-background">
               <AnimatePresence mode="wait">
                 {isResetting ? (
-                  <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="p-6">
+                  <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="p-4 sm:p-6">
                     <div className="space-y-4">
                       <div className="flex justify-center"><Skeleton className="h-6 w-48" /></div>
                       <div className="space-y-2">
@@ -783,17 +884,17 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   </motion.div>
                 ) : (
                   <motion.div key={`${activeDocument}-${activePageIndex}`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-                    <div className="p-6">
+                    <div className="p-4 sm:p-6">
                       <div className="space-y-4 select-none">
                         {currentPageContent.map((section, idx) => (
                           <div key={idx}>
                             {section.heading && (
-                              <h3 className={`${idx === 0 && activePageIndex === 0 ? 'text-lg font-medium mb-4' : 'text-sm font-medium mb-2'} text-foreground`}>
+                              <h3 className={`${idx === 0 && activePageIndex === 0 ? 'text-base sm:text-lg font-medium mb-4' : 'text-sm font-medium mb-2'} text-foreground`}>
                                 {section.heading}
                               </h3>
                             )}
                             {section.text && (
-                              <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                              <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
                                 {renderHighlightedText(section.text)}
                               </p>
                             )}
@@ -832,12 +933,13 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
           )}
 
           {/* Bottom bar - step navigation + pagination */}
-          <div className="flex-shrink-0 p-4 flex gap-3 justify-between items-center bg-background border border-t-0 border-border rounded-b-lg">
-            <div className="flex items-center gap-3">
+          <div className="flex-shrink-0 p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center bg-background border border-t-0 border-border rounded-b-lg">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Button
                 variant="outline"
                 onClick={() => { scrollAgreementToTop(); onPrevious(); }}
-                size="lg"
+                size="default"
+                className="sm:h-10"
                 disabled={isEditMode}
               >
                 Back
@@ -849,7 +951,8 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                     const prevDoc = documents[currentDocIndex - 1];
                     if (prevDoc) handleDocumentSwitch(prevDoc.id);
                   }}
-                  size="lg"
+                  size="default"
+                  className="sm:h-10 text-xs sm:text-sm"
                   disabled={isEditMode}
                 >
                   Previous Document
@@ -857,11 +960,11 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-end">
               {isEditMode ? (
                 <span className="text-xs text-primary">Save or cancel your edits to continue</span>
               ) : !canConfirmCurrentDoc ? (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground text-right">
                   {!allPriorDocsConfirmed
                     ? "Confirm prior documents first"
                     : !isOnLastPage
@@ -871,7 +974,8 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
               ) : null}
               <Button
                 onClick={handleConfirmDocument}
-                size="lg"
+                size="default"
+                className="sm:h-10 whitespace-nowrap"
                 disabled={!canConfirmCurrentDoc}
               >
                 {isLastDocument
@@ -883,6 +987,16 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Mobile: Audit log below contract */}
+      <div className="lg:hidden">
+        <ContractAuditLog
+          contractId={contractId}
+          workerName={candidate.name}
+          editEvents={editEvents}
+          maxHeightPx={300}
+        />
+      </div>
 
       {/* Reset Confirmation Dialog */}
       <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
