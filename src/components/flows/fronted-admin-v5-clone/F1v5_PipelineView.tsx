@@ -1649,6 +1649,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       employmentType: selectedForDoneDetail.employmentType || "contractor",
       email: selectedForDoneDetail.email,
       workerStatus: selectedForDoneDetail.workerStatus || "active",
+      documentsVerified: selectedForDoneDetail.documentsVerified || false,
       endDate: selectedForDoneDetail.endDate,
       endReason: selectedForDoneDetail.endReason,
     } : null} onGoToDataCollection={workerId => {
