@@ -124,6 +124,8 @@ interface F1v4_DoneWorkerDetailDrawerProps {
   worker: DoneWorkerData | null;
   onGoToDataCollection?: (workerId: string) => void;
   onLifecycleAction?: (workerId: string, action: WorkerLifecycleStatus, endDate: string, reason: string) => void;
+  verificationMode?: boolean;
+  onDocumentsVerified?: (workerId: string) => void;
 }
 
 const countryPayFrequencyDefaults: Record<string, { frequency: "monthly" | "fortnightly"; schedule: string }> = {
@@ -170,7 +172,8 @@ const SectionCard: React.FC<{
   badge?: React.ReactNode;
   defaultOpen?: boolean;
   children: React.ReactNode;
-}> = ({ title, badge, defaultOpen = true, children }) => {
+  headerAction?: React.ReactNode;
+}> = ({ title, badge, defaultOpen = true, children, headerAction }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -181,6 +184,11 @@ const SectionCard: React.FC<{
               <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
             </div>
             {badge}
+            {headerAction && (
+              <div onClick={(e) => e.stopPropagation()}>
+                {headerAction}
+              </div>
+            )}
             <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
           </button>
         </CollapsibleTrigger>
@@ -200,6 +208,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   worker,
   onGoToDataCollection,
   onLifecycleAction,
+  verificationMode = false,
+  onDocumentsVerified,
 }) => {
   const [actionView, setActionView] = useState<ActionType | null>(null);
   const [actionDate, setActionDate] = useState("");
@@ -500,7 +510,16 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <span className="text-lg">{worker.countryFlag}</span>
             <span>{worker.role} · {isEmployee ? "Employee (EOR)" : "Contractor (COR)"}</span>
           </div>
-          <div className="flex items-center gap-2 mt-1">
+          {verificationMode && (
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-700 border-amber-500/20 gap-1">
+                <FileText className="h-3 w-3" />
+                Documents pending verification
+              </Badge>
+            </div>
+          )}
+          {!verificationMode && (
+            <div className="flex items-center gap-2 mt-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className={cn(
@@ -568,7 +587,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
+            </div>
+          )}
           {!isActive && worker.endDate && (
             <p className="text-xs text-muted-foreground mt-1">
               {workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Terminated on" : "Contract ended"}: {worker.endDate}
@@ -728,13 +748,41 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               </SectionCard>
 
               {/* 5) Documents */}
-              <SectionCard title="Documents" defaultOpen={false}>
+              <SectionCard 
+                title="Documents" 
+                defaultOpen={verificationMode}
+                headerAction={verificationMode ? (
+                  <Button
+                    size="sm"
+                    className="h-6 px-3 text-[11px] gap-1 bg-accent-green-fill/20 text-accent-green-text border border-accent-green-outline/30 hover:bg-accent-green-fill/40 transition-colors"
+                    variant="outline"
+                    onClick={() => onDocumentsVerified?.(worker.id)}
+                  >
+                    <CheckCircle2 className="h-3 w-3" />
+                    Verified
+                  </Button>
+                ) : undefined}
+              >
                 <div className="space-y-2">
                   <DocumentRow 
                     name="Identity document"
-                    status={mockData.idDocumentStatus}
+                    status={verificationMode ? "uploaded" : mockData.idDocumentStatus}
                     fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
                   />
+                  {verificationMode && worker.country === "India" && (
+                    <>
+                      <DocumentRow 
+                        name="PAN Card"
+                        status="uploaded"
+                        fileName={`${worker.name.split(" ")[0]}_PAN_Card.pdf`}
+                      />
+                      <DocumentRow 
+                        name="Investment proof (80C/80D)"
+                        status="uploaded"
+                        fileName={`${worker.name.split(" ")[0]}_Investment_Proof.pdf`}
+                      />
+                    </>
+                  )}
                   <DocumentRow 
                     name={isEmployee ? "Employment agreement" : "Contractor agreement"}
                     status="verified"
