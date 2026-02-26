@@ -314,11 +314,6 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
         <SectionCard
           title="Working Engagement"
           forceOpen={forceOpenSections.working}
-          badge={formData.country ? (
-            <Badge variant="outline" className="text-xs font-medium gap-1">
-              {candidate.flag} {formData.country}
-            </Badge>
-          ) : undefined}
         >
           <Field label="Role" error={errors.role} ref={setFieldRef("role")}>
             <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Dev" className={cn("h-10", errors.role && "border-destructive focus-visible:ring-destructive")} />
