@@ -1643,7 +1643,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       setDoneDetailDrawerOpen(false);
       const actionLabel = action === "terminated" ? "terminated" : action === "resigned" ? "marked as resigned" : "contract ended";
       toast.success(`${selectedForDoneDetail?.name} has been ${actionLabel}.`);
-    }} />
+     }} />
       {/* Payroll Data Collection Drawer */}
       <F1v5_PayrollDataCollectionDrawer
         open={payrollCollectionDrawerOpen}
@@ -1654,6 +1654,38 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
             handleStartOnboardingClick(selectedForPayrollCollection);
           }
           setPayrollCollectionDrawerOpen(false);
+        }}
+      />
+
+      {/* Document Verification Drawer (reuses Done worker layout) */}
+      <F1v4_DoneWorkerDetailDrawer 
+        open={verificationDrawerOpen} 
+        onOpenChange={setVerificationDrawerOpen} 
+        worker={selectedForVerification ? {
+          id: selectedForVerification.id,
+          name: selectedForVerification.name,
+          country: selectedForVerification.country,
+          countryFlag: selectedForVerification.countryFlag,
+          role: selectedForVerification.role,
+          salary: selectedForVerification.salary,
+          employmentType: selectedForVerification.employmentType || "employee",
+          email: selectedForVerification.email,
+          workerStatus: "active",
+        } : null}
+        verificationMode={true}
+        onDocumentsVerified={(workerId) => {
+          setVerificationDrawerOpen(false);
+          // Gentle transition to Done
+          setTimeout(() => {
+            setContractors(current => current.map(c => 
+              c.id === workerId 
+                ? { ...c, status: "CERTIFIED" as const, documentsVerified: true, needsDocumentVerification: false }
+                : c
+            ));
+            toast.success(`✅ ${selectedForVerification?.name.split(' ')[0]}'s documents verified — moved to Done`, {
+              duration: 5000
+            });
+          }, 400);
         }}
       />
     </div>;
