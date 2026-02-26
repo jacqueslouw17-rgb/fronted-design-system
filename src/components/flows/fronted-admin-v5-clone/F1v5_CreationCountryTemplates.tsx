@@ -198,7 +198,7 @@ const ManageTemplatesSheet: React.FC<{
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
-        <div className="px-5 pt-5 pb-4 border-b border-border/30 flex-shrink-0">
+        <div className="px-4 sm:px-5 pt-5 pb-4 border-b border-border/30 flex-shrink-0 pr-10 sm:pr-5">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="text-xl">{entry.flag}</span>
             <SheetTitle className="text-base font-semibold">{entry.countryName} templates</SheetTitle>
@@ -208,7 +208,7 @@ const ManageTemplatesSheet: React.FC<{
           </SheetDescription>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 space-y-3">
           {/* Template slots */}
           <div className="space-y-1.5">
             {entry.slots.map(slot => (
