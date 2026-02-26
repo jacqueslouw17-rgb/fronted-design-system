@@ -477,14 +477,6 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           <span className="text-border">·</span>
           <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
         </div>
-
-        {/* Transfer Note */}
-        <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-muted/40 border border-border/30 mb-6">
-          <ArrowLeftRight className="h-3.5 w-3.5 text-muted-foreground/60 mt-0.5 shrink-0" />
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Transfer this amount outside of Fronted to complete the pay run. FX rate shown is an estimate and may vary at the time of transfer.
-          </p>
-        </div>
       </CardContent>
     </Card>
   );
