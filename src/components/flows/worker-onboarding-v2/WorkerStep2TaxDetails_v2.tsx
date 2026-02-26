@@ -258,7 +258,8 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
                           key={c.value}
                           value={`${c.label} ${c.value}`}
                           onSelect={() => {
-                            setData({ ...data, taxCountry: c.value, taxNumber: "" });
+                            setData({ ...data, taxCountry: c.value, taxNumber: "", indiaTaxRegime: "", india80CAmount: "", india80DAmount: "", indiaInvestmentProofUploaded: false });
+                            setInvestmentProofFileName("");
                             setCountryOpen(false);
                           }}
                         >
