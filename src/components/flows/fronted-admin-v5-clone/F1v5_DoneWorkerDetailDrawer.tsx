@@ -172,7 +172,8 @@ const SectionCard: React.FC<{
   badge?: React.ReactNode;
   defaultOpen?: boolean;
   children: React.ReactNode;
-}> = ({ title, badge, defaultOpen = true, children }) => {
+  headerAction?: React.ReactNode;
+}> = ({ title, badge, defaultOpen = true, children, headerAction }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -183,6 +184,11 @@ const SectionCard: React.FC<{
               <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
             </div>
             {badge}
+            {headerAction && (
+              <div onClick={(e) => e.stopPropagation()}>
+                {headerAction}
+              </div>
+            )}
             <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
           </button>
         </CollapsibleTrigger>
@@ -202,6 +208,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   worker,
   onGoToDataCollection,
   onLifecycleAction,
+  verificationMode = false,
+  onDocumentsVerified,
 }) => {
   const [actionView, setActionView] = useState<ActionType | null>(null);
   const [actionDate, setActionDate] = useState("");
