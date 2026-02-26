@@ -206,6 +206,18 @@ const AdminContractingMultiCompany = () => {
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
   const [isEditingCompany, setIsEditingCompany] = useState<boolean>(false);
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+
+  // Track scroll for frosted header on mobile
+  useEffect(() => {
+    if (!isAddingNewCompany && !isEditingCompany) {
+      setHeaderScrolled(false);
+      return;
+    }
+    const onScroll = () => setHeaderScrolled(window.scrollY > 16);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isAddingNewCompany, isEditingCompany]);
   const [companies, setCompanies] = useState<CompanyData[]>(() => {
     const saved = localStorage.getItem('adminflow-v5-companies');
     return saved ? JSON.parse(saved) : MOCK_COMPANIES;
