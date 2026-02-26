@@ -489,21 +489,9 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         <div className="flex items-center justify-between">
           <div>
             {isHistorical || allPaid ? (
-              <>
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-sm text-muted-foreground">Payment Status</p>
-                  <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Paid
-                  </span>
-                </div>
-              </>
+              <p className="text-sm text-muted-foreground">Payment Status</p>
             ) : (
-              <>
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-sm text-muted-foreground">Payment Status</p>
-                </div>
-              </>
+              <p className="text-sm text-muted-foreground">Payment Status</p>
             )}
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
