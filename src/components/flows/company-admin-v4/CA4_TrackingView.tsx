@@ -149,7 +149,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
     const isNonEUR = selectedWorker.currency !== "EUR";
     const dc = showEUR && isNonEUR ? "EUR" : selectedWorker.currency;
     const cvt = (amt: number) => showEUR && isNonEUR ? convertToEUR(amt, selectedWorker.currency) : amt;
-    const approx = showEUR && isNonEUR ? "≈ " : "";
+    const approx = "";
 
     return (
       <>
@@ -392,7 +392,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                   </div>
 
                   <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-                    {worker.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(worker.amount, worker.currency)), "EUR")}` : formatCurrency(worker.amount, "EUR")}
+                    {worker.currency !== "EUR" ? formatCurrency(Math.round(convertToEUR(worker.amount, worker.currency)), "EUR") : formatCurrency(worker.amount, "EUR")}
                   </p>
 
                   <div className={cn(
