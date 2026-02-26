@@ -203,16 +203,16 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="text-base">Data Collection Form</SheetTitle>
-          <SheetDescription className="flex items-center gap-2">
-            <span className="text-lg">{candidate.flag}</span>
-            <span>{candidate.name} • {candidate.role}</span>
-          </SheetDescription>
+        <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col overflow-hidden">
+        <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
+          <SheetDescription className="sr-only">Data collection form</SheetDescription>
+          <div className="min-w-0">
+            <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{candidate.flag} {candidate.name}</SheetTitle>
+            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{candidate.role} · Data Collection</p>
+          </div>
         </SheetHeader>
 
-        <div className="mt-3 space-y-3">
+        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
           {/* ── Section 1: Personal Profile ── */}
           <SectionCard title="Personal Profile">
             <Field label="Full Name">
