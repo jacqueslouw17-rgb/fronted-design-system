@@ -12,7 +12,7 @@ import {
   ChevronLeft,
   XCircle,
   Clock,
-  RefreshCw,
+  
   AlertCircle,
   UserMinus,
 } from "lucide-react";
@@ -54,12 +54,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   excludedWorkerCount = 0,
 }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [isRefreshingFx, setIsRefreshingFx] = useState(false);
-
-  const handleRefreshFx = () => {
-    setIsRefreshingFx(true);
-    setTimeout(() => setIsRefreshingFx(false), 1200);
-  };
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) return `$${(amount / 1000000).toFixed(2)}M`;
@@ -168,7 +162,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               </p>
             </div>
 
-
             {/* Financial ledger */}
             <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2.5">
               <div className="flex items-center justify-between text-xs">
@@ -237,65 +230,53 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     return (
       <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
         <div className="p-5 space-y-5">
+          {/* Hero payout */}
           <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs text-primary/70">Total payout</p>
-              <button 
-                onClick={handleRefreshFx}
-                disabled={isRefreshingFx}
-                className="flex items-center gap-1 text-[10px] text-primary/60 hover:text-primary transition-colors disabled:opacity-50"
-              >
-                <RefreshCw className={cn("h-2.5 w-2.5", isRefreshingFx && "animate-spin")} />
-                {isRefreshingFx ? "Refreshing..." : "Refresh FX"}
-              </button>
-            </div>
+            <p className="text-xs text-primary/70 mb-1">Total payout</p>
             <p className="text-3xl font-semibold text-primary tracking-tight">{formatCurrency(displayData.totalCost)}</p>
             <p className="text-[10px] text-muted-foreground mt-1">
-              Based on current rates · EUR 1.08 · PHP 0.018 · NOK 0.089
+              {company.employeeCount + company.contractorCount} workers · Based on current FX rates
             </p>
-            
-            <div className="mt-4 pt-3 border-t border-primary/10 space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <div>
-                  <span className="text-muted-foreground">Total Compensation before fees</span>
-                  <p className="text-[10px] text-muted-foreground/60">Incl. statutory earnings & deductions</p>
-                </div>
-                <span className="text-foreground tabular-nums">$118,500</span>
+          </div>
+
+          {/* Financial ledger */}
+          <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2.5">
+            <div className="flex items-center justify-between text-xs">
+              <div>
+                <span className="text-muted-foreground">Total compensation before fees</span>
+                <p className="text-[10px] text-muted-foreground/60">Incl. statutory earnings & deductions</p>
               </div>
-              
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5 text-muted-foreground">
-                  <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-                  Approved adjustments
-                  <span className="text-[10px] text-muted-foreground/70">({displayData.approvedCount} item{displayData.approvedCount !== 1 ? "s" : ""})</span>
-                </span>
-                <span className="text-accent-green-text tabular-nums">+{formatCurrency(displayData.totalApprovedAmount)}</span>
-              </div>
-              
-              {displayData.rejectedCount > 0 && (
-                <div className="flex items-center justify-between text-xs">
-                  <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <XCircle className="h-3 w-3 text-muted-foreground/50" />
-                    Rejected
-                    <span className="text-[10px] text-muted-foreground/70">({displayData.rejectedCount} item{displayData.rejectedCount !== 1 ? "s" : ""})</span>
-                  </span>
-                  <span className="text-muted-foreground/60 tabular-nums line-through">{formatCurrency(displayData.rejectedAmount)}</span>
-                </div>
-              )}
-              
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Fronted fees</span>
-                <span className="text-foreground tabular-nums">{formatCurrency(displayData.fees)}</span>
-              </div>
-              
-              <div className="flex items-center justify-between text-xs pt-1.5 border-t border-primary/10">
-                <span className="text-primary/80 font-medium">Net payout</span>
-                <span className="text-primary font-medium tabular-nums">{formatCurrency(displayData.netPayout)}</span>
-              </div>
+              <span className="text-foreground tabular-nums">$118,500</span>
+            </div>
+
+            <div className="flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
+                Approved adjustments ({displayData.approvedCount})
+              </span>
+              <span className="text-accent-green-text font-medium tabular-nums">+{formatCurrency(displayData.totalApprovedAmount)}</span>
             </div>
             
+            {displayData.rejectedCount > 0 && (
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <XCircle className="h-3 w-3 text-muted-foreground/50" />
+                  Rejected ({displayData.rejectedCount})
+                </span>
+                <span className="text-muted-foreground/60 tabular-nums line-through">{formatCurrency(displayData.rejectedAmount)}</span>
+              </div>
+            )}
+            
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Fronted fees</span>
+              <span className="text-foreground tabular-nums">{formatCurrency(displayData.fees)}</span>
+            </div>
+            
+            <div className="flex items-center justify-between text-xs pt-2.5 border-t border-border/40">
+              <span className="text-foreground font-medium">Net payout</span>
+              <span className="text-primary font-semibold tabular-nums">{formatCurrency(displayData.netPayout)}</span>
+            </div>
           </div>
-          
         </div>
       </div>
     );
