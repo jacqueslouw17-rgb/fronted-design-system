@@ -172,6 +172,17 @@ const AdminContractingMultiCompany = () => {
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
   const [isEditingCompany, setIsEditingCompany] = useState<boolean>(false);
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+
+  useEffect(() => {
+    if (!isAddingNewCompany && !isEditingCompany && contractFlow.phase === "idle") {
+      setHeaderScrolled(false);
+      return;
+    }
+    const onScroll = () => setHeaderScrolled(window.scrollY > 16);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isAddingNewCompany, isEditingCompany, contractFlow.phase]);
   const [companies, setCompanies] = useState<CompanyData[]>(() => {
     const saved = localStorage.getItem('adminflow-companies');
     return saved ? JSON.parse(saved) : MOCK_COMPANIES;
@@ -772,73 +783,37 @@ const AdminContractingMultiCompany = () => {
       )}
 
 
-      {/* Logo and Close Button for Add New Company - No container */}
+      {/* Logo and Close Button for Add New Company */}
       {isAddingNewCompany && (
-        <>
-          <img 
-            src={frontedLogo}
-            alt="Fronted"
-            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={handleCancelAddCompany}
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCancelAddCompany}
-            className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
-          >
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
+          <img src={frontedLogo} alt="Fronted" className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity" onClick={handleCancelAddCompany} />
+          <Button variant="ghost" size="icon" onClick={handleCancelAddCompany} className="h-8 w-8 sm:h-10 sm:w-10">
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-        </>
+        </div>
       )}
 
-      {/* Logo and Close Button for Edit Company - No container */}
+      {/* Logo and Close Button for Edit Company */}
       {isEditingCompany && (
-        <>
-          <img 
-            src={frontedLogo}
-            alt="Fronted"
-            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={handleCancelEditCompany}
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCancelEditCompany}
-            className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
-          >
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
+          <img src={frontedLogo} alt="Fronted" className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity" onClick={handleCancelEditCompany} />
+          <Button variant="ghost" size="icon" onClick={handleCancelEditCompany} className="h-8 w-8 sm:h-10 sm:w-10">
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-        </>
+        </div>
       )}
 
-      {/* Logo and Close Button for contract steps (not pipeline view) */}
+      {/* Logo and Close Button for contract steps */}
       {!isAddingNewCompany && !isEditingCompany &&
         contractFlow.phase !== "idle" &&
         contractFlow.phase !== "offer-accepted" &&
         contractFlow.phase !== "data-collection" && (
-        <>
-          <img 
-            src={frontedLogo}
-            alt="Fronted"
-            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => {
-              contractFlow.resetFlow();
-              navigate(FLOW_BASE_PATH);
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              contractFlow.resetFlow();
-              navigate(FLOW_BASE_PATH);
-            }}
-            className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
-          >
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
+          <img src={frontedLogo} alt="Fronted" className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { contractFlow.resetFlow(); navigate(FLOW_BASE_PATH); }} />
+          <Button variant="ghost" size="icon" onClick={() => { contractFlow.resetFlow(); navigate(FLOW_BASE_PATH); }} className="h-8 w-8 sm:h-10 sm:w-10">
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-        </>
+        </div>
       )}
 
       {/* Main Content Area */}

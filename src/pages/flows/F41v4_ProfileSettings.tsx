@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
+import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
 import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/CandidateStep3Compliance";
 import CandidateStep4Bank from "@/components/flows/candidate-onboarding/CandidateStep4Bank";
@@ -193,20 +194,7 @@ const F41v4_ProfileSettings = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
       {/* Logo and Close Button */}
-      <img 
-        src={frontedLogo}
-        alt="Fronted"
-        className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={handleClose}
-      />
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleClose}
-        className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
-      >
-        <X className="h-4 w-4 sm:h-5 sm:w-5" />
-      </Button>
+      <FrostedHeader onLogoClick={handleClose} onCloseClick={handleClose} />
       
       <AgentLayout context="employee-profile-settings-v4">
         <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">

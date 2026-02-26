@@ -7,6 +7,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, X, Loader2 } from "lucide-react";
+import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -94,20 +95,10 @@ const F1v5_ProfileSettings = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
       {/* Logo and Close Button */}
-      <img
-        src={frontedLogo}
-        alt="Fronted"
-        className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={() => navigate("/flows/fronted-admin-dashboard-v5-clone")}
+      <FrostedHeader
+        onLogoClick={() => navigate("/flows/fronted-admin-dashboard-v5-clone")}
+        onCloseClick={() => navigate(-1)}
       />
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => navigate(-1)}
-        className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
-      >
-        <X className="h-4 w-4 sm:h-5 sm:w-5" />
-      </Button>
 
       <AgentLayout context="admin-profile-settings-v5">
         <RBACProvider>
