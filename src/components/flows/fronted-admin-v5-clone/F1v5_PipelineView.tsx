@@ -1442,23 +1442,16 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             <Card 
                               className="border border-border/40 cursor-pointer bg-card hover:shadow-md transition-all"
                             >
-                              <CardContent className="p-3 space-y-2">
-                                <div className="flex items-start gap-2">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-1">
-                                      <span className="font-medium text-sm text-muted-foreground truncate">
-                                        {contractor.name}
-                                      </span>
-                                      <span className="text-base">{contractor.countryFlag}</span>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground/60 truncate">
-                                      {contractor.role}
-                                    </p>
-                                  </div>
+                              <CardContent className="p-2.5 space-y-0">
+                                <div className="flex items-center gap-1">
+                                  <span className="font-medium text-[13px] text-muted-foreground truncate">
+                                    {contractor.name}
+                                  </span>
+                                  <span className="text-sm">{contractor.countryFlag}</span>
                                   <Badge 
                                     variant="outline" 
                                     className={cn(
-                                      "text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none",
+                                      "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
                                       contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
                                       contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
                                       contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
@@ -1469,11 +1462,11 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                       : "Terminated"}
                                   </Badge>
                                 </div>
-                                <div className="flex flex-col gap-1.5 text-[11px]">
+                                <div className="mt-2 pt-2 border-t border-border/30 flex flex-col gap-1 text-[11px]">
                                   <div className="flex justify-between items-center">
-                                    <span className="text-muted-foreground/60">Type</span>
+                                    <span className="text-muted-foreground/60">{contractor.role}</span>
                                     <span className="font-medium text-muted-foreground">
-                                      {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
+                                      {contractor.employmentType === "contractor" ? "Contractor" : "Employee"}
                                     </span>
                                   </div>
                                   {contractor.endDate && (
@@ -1486,7 +1479,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <Button 
                                   size="sm" 
                                   variant="outline" 
-                                  className="w-full text-xs h-7 gap-1"
+                                  className="w-full text-xs h-7 gap-1 mt-2"
                                   onClick={e => {
                                     e.stopPropagation();
                                     setSelectedForDoneDetail(contractor);
