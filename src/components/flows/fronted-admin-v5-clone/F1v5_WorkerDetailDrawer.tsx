@@ -322,29 +322,14 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
         <Sheet open={open} onOpenChange={onOpenChange}>
           <SheetContent className="w-[440px] sm:max-w-[440px] p-0 flex flex-col overflow-hidden">
             {/* Clean Header */}
-            <SheetHeader className="px-6 py-5 border-b border-border/40 shrink-0 bg-background pt-12">
+            <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0 bg-background pt-12">
+              <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-xl font-semibold text-foreground">
-                    {isCustomBatch ? "Adjustment payout" : isContractor ? "Invoice breakdown" : "Payslip breakdown"}
-                  </h2>
-                  <Badge variant="outline" className="text-xs px-2 py-0.5 bg-muted/30">
-                    {isCustomBatch ? "Off-cycle" : "Jan 2026"}
-                  </Badge>
-                </div>
-              </div>
-              {/* Worker info */}
-              <div className="flex items-center gap-3 mt-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
-                    {getInitials(worker.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{worker.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {countryFlags[worker.country] || ""} {worker.country} · {worker.type === "employee" ? "Employee" : "Contractor"}
-                  </p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{countryFlags[worker.country] || ""} {worker.name}</SheetTitle>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground/60 mt-0.5">{worker.type === "employee" ? "Employee" : "Contractor"} · {isCustomBatch ? "Off-cycle" : "Jan 1 – Jan 31"}</p>
                 </div>
               </div>
             </SheetHeader>
