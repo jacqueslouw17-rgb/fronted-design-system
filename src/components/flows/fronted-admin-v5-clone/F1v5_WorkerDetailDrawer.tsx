@@ -525,65 +525,47 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="w-[480px] sm:max-w-[480px] p-0 flex flex-col overflow-hidden">
-          {/* Header */}
-          <SheetHeader className="px-4 py-5 border-b border-border/40 shrink-0 bg-background pt-12">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onNavigate(currentIndex - 1)}
-                disabled={!hasPrev}
-                className="h-9 w-9 shrink-0 rounded-full"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              <div className="flex-1 flex flex-col items-center text-center min-w-0">
-                <Avatar className="h-12 w-12 mb-2">
-                  <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                    {getInitials(worker.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-base font-semibold text-foreground truncate">
-                    {worker.name}
-                  </h2>
+          {/* Header — matches payroll drawer pattern */}
+          <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0 bg-background pt-12">
+            <SheetDescription className="sr-only">Worker details</SheetDescription>
+            <div className="flex items-center justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.name}</SheetTitle>
                   <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 shrink-0", config.className)}>
                     {config.label}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground flex-wrap">
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-muted/30">
-                    <TypeIcon className="h-2.5 w-2.5 mr-1" />
-                    {worker.type === "employee" ? "Employee" : "Contractor"}
-                  </Badge>
-                  <span className="text-muted-foreground/40">•</span>
-                  <span>{countryFlags[worker.country] || ""} {worker.country}</span>
-                  <span className="text-muted-foreground/40">•</span>
-                  <span>{worker.currency}</span>
+                <p className="text-[11px] text-muted-foreground/60 mt-0.5">
+                  {worker.type === "employee" ? "Employee" : "Contractor"} · {worker.country} · {worker.currency}
                   {overridesEnabled && (
-                    <>
-                      <span className="text-muted-foreground/40">•</span>
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-amber-500/10 text-amber-600 border-amber-500/20">
-                        Override active
-                      </Badge>
-                    </>
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 ml-1.5 bg-amber-500/10 text-amber-600 border-amber-500/20 inline-flex align-text-bottom">
+                      Override active
+                    </Badge>
                   )}
-                </div>
-                <span className="text-[10px] text-muted-foreground/60 mt-1.5">
-                  {currentIndex + 1} of {workers.length}
-                </span>
+                </p>
               </div>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onNavigate(currentIndex + 1)}
-                disabled={!hasNext}
-                className="h-9 w-9 shrink-0 rounded-full"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onNavigate(currentIndex - 1)}
+                  disabled={!hasPrev}
+                  className="h-8 w-8 rounded-full"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-[10px] text-muted-foreground/60 tabular-nums">{currentIndex + 1}/{workers.length}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onNavigate(currentIndex + 1)}
+                  disabled={!hasNext}
+                  className="h-8 w-8 rounded-full"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </SheetHeader>
 
