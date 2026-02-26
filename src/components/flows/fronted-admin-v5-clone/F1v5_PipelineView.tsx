@@ -1171,100 +1171,80 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     setVerificationDrawerOpen(true);
                   }
                 }}>
-                      <CardContent className="p-3 space-y-2">
-                         {/* Contractor Header - No checkbox for certain columns */}
-                        <div className="flex items-start gap-2">
+                      <CardContent className="p-2.5 space-y-0">
+                         {/* Contractor Header */}
+                        <div className="flex items-center gap-2">
                           {!["data-pending", "awaiting-signature", "onboarding-pending", "payroll-ready", "CERTIFIED"].includes(status) && !(status === "payroll-ready" && contractor.status !== "PAYROLL_PENDING") && <Checkbox checked={status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" ? batchSelectedIds.has(contractor.id) : selectedIds.has(contractor.id)} onCheckedChange={checked => {
                         if (status === "payroll-ready" && contractor.status === "PAYROLL_PENDING") {
                           handleBatchSelectContractor(contractor.id, checked as boolean);
                         } else {
                           handleSelectContractor(contractor.id, checked as boolean);
                         }
-                      }} className={cn("h-4 w-4 mt-1", status === "payroll-ready" && "data-[state=checked]:bg-accent-green-fill data-[state=checked]:border-accent-green-outline data-[state=checked]:text-accent-green-text")} onClick={e => e.stopPropagation()} />}
+                      }} className={cn("h-4 w-4", status === "payroll-ready" && "data-[state=checked]:bg-accent-green-fill data-[state=checked]:border-accent-green-outline data-[state=checked]:text-accent-green-text")} onClick={e => e.stopPropagation()} />}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1">
-                              <span className="font-medium text-sm text-foreground truncate">
+                              <span className="font-medium text-[13px] text-foreground truncate">
                                 {contractor.name}
                               </span>
-                              <span className="text-base">{contractor.countryFlag}</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {contractor.role}
-                            </p>
-                            {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && batchSelectedIds.has(contractor.id) && <p className="text-[10px] text-primary font-medium mt-0.5">
-                                Include in this month's batch
-                              </p>}
-                          </div>
-                          {/* Status badge top-right for onboarding-pending */}
-                          {status === "onboarding-pending" && !contractor.needsDocumentVerification && (
-                            <Badge 
-                              variant="outline" 
-                              className="text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20"
-                            >
-                              In Progress
-                            </Badge>
-                          )}
-                          {status === "onboarding-pending" && contractor.needsDocumentVerification && (
-                            <Badge 
-                              variant="outline" 
-                              className="text-[10px] px-1.5 py-0 h-4 border-amber-500/30 bg-amber-500/8 text-amber-600 dark:text-amber-400 flex-shrink-0"
-                            >
-                              In Review
-                            </Badge>
-                          )}
-                          {/* Status badge top-right for Done column */}
-                          {status === "CERTIFIED" && (
-                            <Badge 
-                              variant="outline" 
-                              className={cn(
-                                "text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none",
-                                (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
-                                contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
-                                contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
-                                contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
+                              <span className="text-sm">{contractor.countryFlag}</span>
+                              {/* Status badges inline */}
+                              {status === "onboarding-pending" && !contractor.needsDocumentVerification && (
+                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20 ml-auto">
+                                  In Progress
+                                </Badge>
                               )}
-                            >
-                              {contractor.workerStatus === "contract-ended" ? "Ended" 
-                                : contractor.workerStatus === "resigned" ? "Resigned"
-                                : contractor.workerStatus === "terminated" ? "Terminated"
-                                : "Active"}
-                            </Badge>
-                          )}
-                          {status === "offer-accepted" && onRemoveContractor && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0" onClick={e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleRemoveFromOfferAccepted(contractor.id);
-                      }}>
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>}
+                              {status === "onboarding-pending" && contractor.needsDocumentVerification && (
+                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] border-amber-500/30 bg-amber-500/8 text-amber-600 dark:text-amber-400 flex-shrink-0 ml-auto">
+                                  In Review
+                                </Badge>
+                              )}
+                              {status === "CERTIFIED" && (
+                                <Badge variant="outline" className={cn(
+                                  "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
+                                  (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                                  contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
+                                  contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                  contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
+                                )}>
+                                  {contractor.workerStatus === "contract-ended" ? "Ended" 
+                                    : contractor.workerStatus === "resigned" ? "Resigned"
+                                    : contractor.workerStatus === "terminated" ? "Terminated"
+                                    : "Active"}
+                                </Badge>
+                              )}
+                              {status === "offer-accepted" && onRemoveContractor && <Button variant="ghost" size="icon" className="h-5 w-5 ml-auto text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0" onClick={e => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleRemoveFromOfferAccepted(contractor.id);
+                              }}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>}
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Contractor Details */}
-                        <div className="flex flex-col gap-1.5 text-[11px]">
+                        {/* Data rows */}
+                        <div className="mt-2 pt-2 border-t border-border/30 flex flex-col gap-1 text-[11px]">
                           <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">
-                              {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
-                            </span>
-                            <span className="font-medium text-foreground">
+                            <span className="text-muted-foreground">{contractor.role}</span>
+                            <span className="font-medium text-foreground tabular-nums">
                               {getCurrencyCode(contractor.country, contractor.employmentType)} {contractor.salary}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Country</span>
-                            <span className="font-medium text-foreground">{contractor.country}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Type</span>
+                            <span className="text-muted-foreground">{contractor.country}</span>
                             <span className="font-medium text-foreground">
-                              {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
+                              {contractor.employmentType === "contractor" ? "Contractor" : "Employee"}
                             </span>
                           </div>
-                          {/* End date for inactive workers in Done column */}
                           {status === "CERTIFIED" && contractor.workerStatus && contractor.workerStatus !== "active" && contractor.endDate && (
                             <div className="flex justify-between items-center">
                               <span className="text-muted-foreground">End date</span>
                               <span className="font-medium text-foreground text-[10px]">{contractor.endDate}</span>
                             </div>
+                          )}
+                          {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && batchSelectedIds.has(contractor.id) && (
+                            <p className="text-[10px] text-primary font-medium mt-0.5">Include in this month's batch</p>
                           )}
                         </div>
 
@@ -1462,23 +1442,16 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             <Card 
                               className="border border-border/40 cursor-pointer bg-card hover:shadow-md transition-all"
                             >
-                              <CardContent className="p-3 space-y-2">
-                                <div className="flex items-start gap-2">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-1">
-                                      <span className="font-medium text-sm text-muted-foreground truncate">
-                                        {contractor.name}
-                                      </span>
-                                      <span className="text-base">{contractor.countryFlag}</span>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground/60 truncate">
-                                      {contractor.role}
-                                    </p>
-                                  </div>
+                              <CardContent className="p-2.5 space-y-0">
+                                <div className="flex items-center gap-1">
+                                  <span className="font-medium text-[13px] text-muted-foreground truncate">
+                                    {contractor.name}
+                                  </span>
+                                  <span className="text-sm">{contractor.countryFlag}</span>
                                   <Badge 
                                     variant="outline" 
                                     className={cn(
-                                      "text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none",
+                                      "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
                                       contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
                                       contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
                                       contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
@@ -1489,11 +1462,11 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                       : "Terminated"}
                                   </Badge>
                                 </div>
-                                <div className="flex flex-col gap-1.5 text-[11px]">
+                                <div className="mt-2 pt-2 border-t border-border/30 flex flex-col gap-1 text-[11px]">
                                   <div className="flex justify-between items-center">
-                                    <span className="text-muted-foreground/60">Type</span>
+                                    <span className="text-muted-foreground/60">{contractor.role}</span>
                                     <span className="font-medium text-muted-foreground">
-                                      {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
+                                      {contractor.employmentType === "contractor" ? "Contractor" : "Employee"}
                                     </span>
                                   </div>
                                   {contractor.endDate && (
@@ -1506,7 +1479,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <Button 
                                   size="sm" 
                                   variant="outline" 
-                                  className="w-full text-xs h-7 gap-1"
+                                  className="w-full text-xs h-7 gap-1 mt-2"
                                   onClick={e => {
                                     e.stopPropagation();
                                     setSelectedForDoneDetail(contractor);
