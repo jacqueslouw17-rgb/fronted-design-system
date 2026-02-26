@@ -385,10 +385,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
         {/* Sticky header */}
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border/50 px-6 py-4">
           <SheetHeader className="p-0">
-            <SheetTitle className="flex items-center gap-2.5 text-base">
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <User className="h-4 w-4 text-primary" />
-              </div>
+            <SheetTitle className="text-base font-semibold">
               Add Candidate
             </SheetTitle>
           </SheetHeader>
