@@ -9,7 +9,7 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 
 import { motion } from "framer-motion";
-import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase, X } from "lucide-react";
+import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase, X, ArrowLeftRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -724,6 +724,10 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 </div>
                 <p className="text-lg sm:text-2xl font-semibold text-foreground">≈ {displayMetrics.grossPay}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
+                <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/30">
+                  <ArrowLeftRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-muted-foreground/60" />
+                  <span className="text-[9px] sm:text-[10px] text-muted-foreground/70 font-medium tracking-wide">USD → EUR 1.0842</span>
+                </div>
               </div>
 
               {/* Total Adjustments */}
@@ -771,6 +775,13 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </span>
               <span className="text-border">·</span>
               <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
+            </div>
+            {/* Transfer Note */}
+            <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-muted/40 border border-border/30">
+              <ArrowLeftRight className="h-3.5 w-3.5 text-muted-foreground/60 mt-0.5 shrink-0" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Transfer this amount outside of Fronted to complete the pay run. FX rate shown is an estimate and may vary at the time of transfer.
+              </p>
             </div>
           </CardContent>
         </Card>

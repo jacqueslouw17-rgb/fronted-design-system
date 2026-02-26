@@ -21,6 +21,7 @@ import {
   Building2,
   TrendingUp,
   CheckCheck,
+  ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -439,6 +440,10 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
             </div>
             <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
             <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
+            <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/30">
+              <ArrowLeftRight className="h-3 w-3 text-muted-foreground/60" />
+              <span className="text-[10px] text-muted-foreground/70 font-medium tracking-wide">USD → EUR 1.0842</span>
+            </div>
           </div>
 
           <div className="bg-primary/[0.04] rounded-xl p-4">
@@ -475,6 +480,14 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
             <p className="text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
             <p className="text-xs text-muted-foreground mt-1">Multi-currency run</p>
           </div>
+        </div>
+
+        {/* Transfer Note */}
+        <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-muted/40 border border-border/30 mb-6">
+          <ArrowLeftRight className="h-3.5 w-3.5 text-muted-foreground/60 mt-0.5 shrink-0" />
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Transfer this amount outside of Fronted to complete the pay run. FX rate shown is an estimate and may vary at the time of transfer.
+          </p>
         </div>
       </CardContent>
     </Card>
