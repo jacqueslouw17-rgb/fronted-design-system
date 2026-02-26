@@ -154,26 +154,13 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
     return (
       <>
         {/* Header */}
-        <div className="px-6 py-5 border-b border-border/40 shrink-0 bg-background">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold text-foreground">
-              {isContractor ? "Invoice breakdown" : "Payslip breakdown"}
-            </h2>
-            <Badge variant="outline" className="text-xs px-2 py-0.5 bg-muted/30">
-              Jan 2026
-            </Badge>
-          </div>
-          <div className="flex items-center gap-3 mt-3">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
-                {getInitials(selectedWorker.name)}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-sm font-medium text-foreground">{selectedWorker.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {countryFlags[selectedWorker.country] || ""} {selectedWorker.country} · {selectedWorker.type === "employee" ? "Employee" : "Contractor"}
-              </p>
+        <div className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0 bg-background">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-semibold text-foreground leading-tight truncate">{countryFlags[selectedWorker.country] || ""} {selectedWorker.name}</h2>
+              </div>
+              <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedWorker.type === "employee" ? "Employee" : "Contractor"} · Jan 1 – Jan 31</p>
             </div>
           </div>
         </div>
