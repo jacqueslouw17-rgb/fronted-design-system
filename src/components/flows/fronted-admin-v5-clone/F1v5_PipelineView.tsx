@@ -1220,6 +1220,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <Trash2 className="h-3 w-3" />
                               </Button>}
                             </div>
+                            <p className="text-xs text-muted-foreground truncate">{contractor.role}</p>
                           </div>
                         </div>
 
