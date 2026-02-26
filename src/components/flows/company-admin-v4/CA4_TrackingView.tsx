@@ -18,7 +18,8 @@ const countryFlags: Record<string, string> = {
   Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
   Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", USA: "🇺🇸",
   "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧",
-  Italy: "🇮🇹"
+  Italy: "🇮🇹", Japan: "🇯🇵", India: "🇮🇳", Ireland: "🇮🇪",
+  Netherlands: "🇳🇱", Sweden: "🇸🇪", Denmark: "🇩🇰", Brazil: "🇧🇷",
 };
 
 export interface TrackingWorker {
