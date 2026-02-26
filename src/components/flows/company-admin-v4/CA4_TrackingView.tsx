@@ -272,82 +272,21 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
         {/* Stepper header removed — no back/close strip in payment status */}
-        {/* Progress Hero */}
-        <div className="px-6 pt-6 pb-5 border-b border-border/40">
-          <div className="flex items-start justify-between mb-4">
+        {/* Payment Status Header */}
+        <div className="px-6 pt-4 pb-3 border-b border-border/40">
+          <div className="flex items-center justify-between">
             <div>
-              {isHistorical || allPaid ? (
-                <>
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm text-muted-foreground">Payment Status</p>
-                    <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3" />
-                      Paid
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
-                    <span className="text-lg text-muted-foreground">of {workers.length}</span>
-                    <span className="text-sm text-muted-foreground">payments paid</span>
-                  </div>
-                  {isHistorical && paidDate ? (
-                    <p className="text-xs text-muted-foreground mt-1">Paid on {paidDate}</p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground mt-1">All payments paid — export for your records</p>
-                  )}
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm text-muted-foreground">Payment Status</p>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
-                    <span className="text-lg text-muted-foreground">of {workers.length}</span>
-                    <span className="text-sm text-muted-foreground">payments paid</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Workers will be marked as paid by Fronted once reconciled</p>
-                </>
-              )}
+              <p className="text-sm text-muted-foreground">Payment Status</p>
             </div>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               {(isHistorical || allPaid) && (
-                <Button variant="outline" size="sm" onClick={onExportCSV} className="h-8 text-xs gap-1.5">
+                <Button variant="outline" size="sm" onClick={onExportCSV} className="h-7 text-xs gap-1.5">
                   <Download className="h-3.5 w-3.5" />
                   Export CSV
                 </Button>
               )}
-              <div className="flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5" />
-                <span className="font-medium text-foreground">{workers.filter(w => w.type === "employee").length}</span>
-                <span>employees</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Briefcase className="h-3.5 w-3.5" />
-                <span className="font-medium text-foreground">{workers.filter(w => w.type === "contractor").length}</span>
-                <span>contractors</span>
-              </div>
             </div>
           </div>
-          
-          {/* Progress bar */}
-          {!isHistorical && !allPaid && (
-            <div className="space-y-2">
-              <Progress value={progressPercent} className="h-1" />
-              <div className="flex items-center gap-4 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full bg-accent-green" />
-                  <span className="text-muted-foreground">{paidCount} paid</span>
-                </div>
-                {inProgressCount > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-2 w-2 rounded-full bg-amber-500" />
-                    <span className="text-muted-foreground">{inProgressCount} in progress</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Worker List */}
