@@ -506,19 +506,11 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
       <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
         {/* Header — matches configure drawer style */}
         <SheetHeader className="px-6 pt-8 pb-4 shrink-0">
-          <SheetTitle className="text-base">{worker.name}</SheetTitle>
+          <SheetTitle className="text-base">{verificationMode ? "Documents in review" : "Worker Details"}</SheetTitle>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="text-lg">{worker.countryFlag}</span>
-            <span>{worker.role} · {isEmployee ? "Employee (EOR)" : "Contractor (COR)"}</span>
+            <span>{worker.name} • {worker.role}</span>
           </div>
-          {verificationMode && (
-            <div className="flex items-center gap-1.5 mt-1.5">
-              <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-700 border-amber-500/20 gap-1">
-                <FileText className="h-3 w-3" />
-                Documents in review
-              </Badge>
-            </div>
-          )}
           {!verificationMode && worker.documentsVerified && (
             <div className="flex items-center gap-1.5 mt-1.5">
               <Badge variant="outline" className="text-[10px] px-2 py-0.5 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 gap-1">
