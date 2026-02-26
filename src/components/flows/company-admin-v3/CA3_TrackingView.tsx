@@ -148,7 +148,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
     return (
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
         <SheetContent className="w-[440px] sm:max-w-[440px] p-0 flex flex-col overflow-hidden">
-          <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0 bg-background pt-12">
+          <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0 bg-background">
             <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
             <div className="flex items-center justify-between">
               <div className="min-w-0">
