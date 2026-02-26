@@ -346,7 +346,7 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
           </div>
         </SheetHeader>
 
-        <div className="mt-3 space-y-3">
+        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
           {/* ── Section 1: Payroll Parameters ── */}
           <SectionCard
             title="Payroll Parameters"
