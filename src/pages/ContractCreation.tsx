@@ -10,6 +10,7 @@ import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
+import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { useContractorStore } from "@/hooks/useContractorStore";
 
 type PipelineContractor = {
@@ -265,26 +266,10 @@ const ContractCreation: React.FC = () => {
               />
             </div>
             <div className="relative z-10">
-              {/* Sticky frosted-glass header */}
-              <div className={`sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 py-3 transition-all duration-300 ${scrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 border-b border-border/30 shadow-sm' : 'bg-transparent'}`}>
-                <img 
-                  src={frontedLogo} 
-                  alt="Fronted" 
-                  className="h-7 sm:h-8 w-auto cursor-pointer"
-                  onClick={() => navigate(closePath)}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => navigate(closePath)}
-                  aria-label="Close and return to pipeline"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
+              {/* Frosted-glass header (fixed, scroll-activated) */}
+              <FrostedHeader onLogoClick={() => navigate(closePath)} onCloseClick={() => navigate(closePath)} />
 
-                {returnTo === "f1v5" ? (
+              <div className="pt-16 sm:pt-20">
                   <F1v5_ContractCreationScreen
                     candidate={current}
                     currentIndex={index}
