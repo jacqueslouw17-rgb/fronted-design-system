@@ -146,7 +146,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                 variant="outline"
                 role="combobox"
                 aria-expanded={companySearchOpen}
-                className="w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
+                className="w-[140px] sm:w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
               >
                 <span className="truncate">
                   {companySwitcher.selectedCompany === "add-new" 
@@ -156,7 +156,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[280px] p-0 bg-background z-50" align="start">
+            <PopoverContent className="w-[280px] p-0 bg-background z-50" align="start" sideOffset={8}>
               <Command>
                 <CommandInput 
                   placeholder="Search companies..." 
