@@ -152,6 +152,11 @@ const countryFlags: Record<string, string> = {
   "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧",
   Italy: "🇮🇹", Japan: "🇯🇵", India: "🇮🇳", Ireland: "🇮🇪",
   Netherlands: "🇳🇱", Sweden: "🇸🇪", Denmark: "🇩🇰", Brazil: "🇧🇷",
+  Mexico: "🇲🇽", Egypt: "🇪🇬", Greece: "🇬🇷",
+  SG: "🇸🇬", ES: "🇪🇸", PH: "🇵🇭", NO: "🇳🇴", PT: "🇵🇹", DE: "🇩🇪",
+  FR: "🇫🇷", US: "🇺🇸", GB: "🇬🇧", IT: "🇮🇹", JP: "🇯🇵", IN: "🇮🇳",
+  IE: "🇮🇪", NL: "🇳🇱", SE: "🇸🇪", DK: "🇩🇰", BR: "🇧🇷", MX: "🇲🇽",
+  EG: "🇪🇬", GR: "🇬🇷",
 };
 
 export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({

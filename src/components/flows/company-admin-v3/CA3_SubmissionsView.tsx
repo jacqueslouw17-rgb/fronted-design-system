@@ -28,17 +28,16 @@ import { CurrencyToggle, convertToEUR } from "@/components/flows/shared/Currency
 
 // Country flag map for consistent display
 const countryFlags: Record<string, string> = {
-  Singapore: "🇸🇬",
-  Spain: "🇪🇸",
-  Philippines: "🇵🇭",
-  Norway: "🇳🇴",
-  Portugal: "🇵🇹",
-  Germany: "🇩🇪",
-  France: "🇫🇷",
-  USA: "🇺🇸",
-  "United States": "🇺🇸",
-  UK: "🇬🇧",
-  "United Kingdom": "🇬🇧"
+  Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
+  Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", USA: "🇺🇸",
+  "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧",
+  Italy: "🇮🇹", Japan: "🇯🇵", India: "🇮🇳", Ireland: "🇮🇪",
+  Netherlands: "🇳🇱", Sweden: "🇸🇪", Denmark: "🇩🇰", Brazil: "🇧🇷",
+  Mexico: "🇲🇽", Egypt: "🇪🇬", Greece: "🇬🇷",
+  SG: "🇸🇬", ES: "🇪🇸", PH: "🇵🇭", NO: "🇳🇴", PT: "🇵🇹", DE: "🇩🇪",
+  FR: "🇫🇷", US: "🇺🇸", GB: "🇬🇧", IT: "🇮🇹", JP: "🇯🇵", IN: "🇮🇳",
+  IE: "🇮🇪", NL: "🇳🇱", SE: "🇸🇪", DK: "🇩🇰", BR: "🇧🇷", MX: "🇲🇽",
+  EG: "🇪🇬", GR: "🇬🇷",
 };
 
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
