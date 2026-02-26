@@ -40,7 +40,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { useNavigate } from "react-router-dom";
 import type { PayrollPayee } from "@/types/payroll";
-import { getChecklistForProfile, type ChecklistRequirement } from "@/data/candidateChecklistData";
+import { getChecklistForProfile, countriesRequiringDocVerification, type ChecklistRequirement } from "@/data/candidateChecklistData";
 import { usePayrollState } from "@/hooks/usePayrollState";
 import { useContractorStore } from "@/hooks/useContractorStore";
 interface Contractor {
@@ -68,6 +68,9 @@ interface Contractor {
   endReason?: string;
   bankDetails?: string;
   payFrequency?: string;
+  // Document verification
+  needsDocumentVerification?: boolean;
+  documentsVerified?: boolean;
 }
 interface PayrollChecklistItem {
   id: string;

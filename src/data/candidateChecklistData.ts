@@ -210,8 +210,81 @@ export const checklistData: Record<string, Record<string, ChecklistProfile>> = {
         }
       ]
     }
+  },
+  IN: {
+    Employee: {
+      country: "IN",
+      type: "Employee",
+      requirements: [
+        {
+          id: "pan",
+          label: "Confirm PAN Number",
+          required: true,
+          status: "verified",
+          description: "Permanent Account Number verification"
+        },
+        {
+          id: "bank",
+          label: "Add Bank Account (IFSC)",
+          required: true,
+          status: "pending_review",
+          description: "Indian bank account for salary payments"
+        },
+        {
+          id: "tax_regime",
+          label: "Confirm Income Tax Regime",
+          required: true,
+          status: "todo",
+          description: "New or Old regime selection"
+        },
+        {
+          id: "id_doc",
+          label: "Upload Aadhaar / PAN Card",
+          required: true,
+          status: "todo",
+          description: "Government-issued identity document"
+        }
+      ]
+    },
+    Contractor: {
+      country: "IN",
+      type: "Contractor",
+      requirements: [
+        {
+          id: "pan",
+          label: "Confirm PAN Number",
+          required: true,
+          status: "verified",
+          description: "Permanent Account Number verification"
+        },
+        {
+          id: "bank",
+          label: "Add Bank Account (IFSC)",
+          required: true,
+          status: "todo",
+          description: "Indian bank account for salary payments"
+        },
+        {
+          id: "gst",
+          label: "GST Registration (if applicable)",
+          required: false,
+          status: "todo",
+          description: "GST details for invoicing"
+        },
+        {
+          id: "id_doc",
+          label: "Upload PAN Card / Aadhaar",
+          required: true,
+          status: "todo",
+          description: "Identity verification document"
+        }
+      ]
+    }
   }
 };
+
+// Countries that require document verification before moving to Done
+export const countriesRequiringDocVerification = ["IN"];
 
 export const getChecklistForProfile = (country: string, type: 'Contractor' | 'Employee'): ChecklistProfile | null => {
   return checklistData[country]?.[type] || null;
