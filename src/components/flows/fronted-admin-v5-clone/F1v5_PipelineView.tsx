@@ -1157,6 +1157,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   "border cursor-pointer bg-card",
                   status === "onboarding-pending" && contractor.needsDocumentVerification && !contractor.documentsVerified
                     ? "border-amber-500/40 shadow-sm shadow-amber-500/10"
+                    : status === "onboarding-pending" && !contractor.needsDocumentVerification
+                    ? "border-primary/30 shadow-sm shadow-primary/5"
                     : "border-border/40"
                 )} onClick={() => {
                   if (status === "awaiting-signature") {
@@ -1198,6 +1200,20 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 Include in this month's batch
                               </p>}
                           </div>
+                          {/* Status badge top-right for onboarding-pending */}
+                          {status === "onboarding-pending" && (
+                            <Badge 
+                              variant="outline" 
+                              className={cn(
+                                "text-[10px] px-1.5 py-0 h-4 flex-shrink-0 pointer-events-none",
+                                contractor.needsDocumentVerification
+                                  ? "bg-amber-500/10 text-amber-700 border-amber-500/20"
+                                  : "bg-primary/10 text-primary border-primary/20"
+                              )}
+                            >
+                              {contractor.needsDocumentVerification ? "Submitted" : "In Progress"}
+                            </Badge>
+                          )}
                           {/* Status badge top-right for Done column */}
                           {status === "CERTIFIED" && (
                             <Badge 
@@ -1253,6 +1269,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
                         </div>
+
+                        {/* Progress bar for onboarding-pending */}
+                        {status === "onboarding-pending" && !contractor.needsDocumentVerification && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[10px] text-muted-foreground">Onboarding progress</span>
+                              <span className="text-[10px] font-medium text-primary">{contractor.checklistProgress || 0}%</span>
+                            </div>
+                            <Progress value={contractor.checklistProgress || 0} className="h-1.5" />
+                          </div>
+                        )}
 
                         {/* Quick Actions */}
                         <div className="flex gap-2 pt-1">
@@ -1357,7 +1384,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 </>
                               ) : (
                                 <>
-                                  <p className="text-xs text-muted-foreground text-center">Awaiting payroll details</p>
+                                  <p className="text-xs text-muted-foreground text-center">Awaiting candidate response</p>
                                   <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
                               e.stopPropagation();
                               setSendingFormIds(prev => new Set([...prev, contractor.id]));
