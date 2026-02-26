@@ -168,7 +168,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               </p>
             </div>
 
-
             {/* Financial ledger */}
             <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2.5">
               <div className="flex items-center justify-between text-xs">
