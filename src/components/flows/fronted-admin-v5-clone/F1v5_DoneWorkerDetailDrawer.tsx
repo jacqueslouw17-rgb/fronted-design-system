@@ -738,13 +738,41 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               </SectionCard>
 
               {/* 5) Documents */}
-              <SectionCard title="Documents" defaultOpen={false}>
+              <SectionCard 
+                title="Documents" 
+                defaultOpen={verificationMode}
+                headerAction={verificationMode ? (
+                  <Button
+                    size="sm"
+                    className="h-6 px-3 text-[11px] gap-1 bg-accent-green-fill/20 text-accent-green-text border border-accent-green-outline/30 hover:bg-accent-green-fill/40 transition-colors"
+                    variant="outline"
+                    onClick={() => onDocumentsVerified?.(worker.id)}
+                  >
+                    <CheckCircle2 className="h-3 w-3" />
+                    Verified
+                  </Button>
+                ) : undefined}
+              >
                 <div className="space-y-2">
                   <DocumentRow 
                     name="Identity document"
-                    status={mockData.idDocumentStatus}
+                    status={verificationMode ? "uploaded" : mockData.idDocumentStatus}
                     fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
                   />
+                  {verificationMode && worker.country === "India" && (
+                    <>
+                      <DocumentRow 
+                        name="PAN Card"
+                        status="uploaded"
+                        fileName={`${worker.name.split(" ")[0]}_PAN_Card.pdf`}
+                      />
+                      <DocumentRow 
+                        name="Investment proof (80C/80D)"
+                        status="uploaded"
+                        fileName={`${worker.name.split(" ")[0]}_Investment_Proof.pdf`}
+                      />
+                    </>
+                  )}
                   <DocumentRow 
                     name={isEmployee ? "Employment agreement" : "Contractor agreement"}
                     status="verified"
