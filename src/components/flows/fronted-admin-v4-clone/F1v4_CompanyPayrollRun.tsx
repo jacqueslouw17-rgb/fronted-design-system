@@ -715,13 +715,13 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
           <CardContent className="py-6 px-6">
             {/* Metrics Grid - 5 equal tiles */}
-            <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0 sm:overflow-visible pb-1">
-              <div className="flex sm:grid sm:grid-cols-5 gap-3 w-max sm:w-auto">
+            <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 lg:mx-0 lg:px-0 lg:overflow-visible pb-1">
+              <div className="flex lg:grid lg:grid-cols-5 gap-3 w-max lg:w-auto">
               {/* Gross Pay */}
-              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                  <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">Gross Pay</span>
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <DollarSign className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Gross Pay</span>
                   <Popover>
                     <PopoverTrigger asChild>
                       <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
@@ -734,15 +734,15 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                     </PopoverContent>
                   </Popover>
                 </div>
-                <p className="text-lg sm:text-2xl font-semibold text-foreground">{isApproved ? "" : "≈ "}{displayMetrics.grossPay}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Salaries + Contractor fees</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{isApproved ? "" : "≈ "}{displayMetrics.grossPay}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Salaries + Contractor fees</p>
               </div>
 
               {/* Adjustments */}
-              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                  <Receipt className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">{isApproved ? "Adj. Approved" : "Adj. Requests"}</span>
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <Receipt className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">{isApproved ? "Adj. Approved" : "Adj. Requests"}</span>
                   <Popover>
                     <PopoverTrigger asChild>
                       <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
@@ -755,38 +755,38 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                     </PopoverContent>
                   </Popover>
                 </div>
-                <p className="text-lg sm:text-2xl font-semibold text-foreground">{isApproved ? "" : "≈ "}{displayMetrics.adjustments}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Bonuses, overtime & expenses</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{isApproved ? "" : "≈ "}{displayMetrics.adjustments}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Bonuses, overtime & expenses</p>
               </div>
 
               {/* Employees */}
-              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                  <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">Employees</span>
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <Users className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Employees</span>
                 </div>
-                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Active this period</p>
               </div>
 
               {/* Contractors */}
-              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                  <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">Contractors</span>
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <Briefcase className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Contractors</span>
                 </div>
-                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Active this period</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Active this period</p>
               </div>
 
               {/* Currencies */}
-              <div className="w-36 sm:w-auto bg-primary/[0.04] rounded-xl p-3 sm:p-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 sm:mb-2">
-                  <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                  <span className="text-xs sm:text-sm">Currencies</span>
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <DollarSign className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Currencies</span>
                 </div>
-                <p className="text-lg sm:text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">Multi-currency run</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Multi-currency run</p>
               </div>
               </div>
             </div>
