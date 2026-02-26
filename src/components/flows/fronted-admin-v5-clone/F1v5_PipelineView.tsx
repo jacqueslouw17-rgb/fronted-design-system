@@ -1268,6 +1268,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           )}
                         </div>
 
+                        {/* Progress bar for onboarding-pending */}
+                        {status === "onboarding-pending" && !contractor.needsDocumentVerification && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[10px] text-muted-foreground">Onboarding progress</span>
+                              <span className="text-[10px] font-medium text-primary">{contractor.checklistProgress || 0}%</span>
+                            </div>
+                            <Progress value={contractor.checklistProgress || 0} className="h-1.5" />
+                          </div>
+                        )}
+
                         {/* Quick Actions */}
                         <div className="flex gap-2 pt-1">
                           {status === "offer-accepted" && <>
