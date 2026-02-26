@@ -270,6 +270,7 @@ const ContractCreation: React.FC = () => {
               <FrostedHeader onLogoClick={() => navigate(closePath)} onCloseClick={() => navigate(closePath)} />
 
               <div className="pt-16 sm:pt-20">
+                {returnTo === "f1v5" ? (
                   <F1v5_ContractCreationScreen
                     candidate={current}
                     currentIndex={index}
@@ -330,6 +331,7 @@ const ContractCreation: React.FC = () => {
                     }}
                   />
                 )}
+              </div>
             </div>
           </div>
         </AgentLayout>
