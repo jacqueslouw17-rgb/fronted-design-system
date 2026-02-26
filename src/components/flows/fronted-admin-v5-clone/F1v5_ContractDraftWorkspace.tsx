@@ -997,7 +997,6 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
           maxHeightPx={300}
         />
       </div>
-      </motion.div>
 
       {/* Reset Confirmation Dialog */}
       <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
