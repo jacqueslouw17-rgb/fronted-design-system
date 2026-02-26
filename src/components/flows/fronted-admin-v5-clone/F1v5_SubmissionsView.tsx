@@ -1472,57 +1472,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 <CA3_BulkRejectDialog open={showBulkRejectDialog} onOpenChange={setShowBulkRejectDialog} onConfirm={handleBulkReject} pendingCount={currentPendingCount} />
                 {showExcludeDialog && <CA3_ExcludeWorkerDialog open={showExcludeDialog} onOpenChange={setShowExcludeDialog} onConfirm={() => { statusDecisions[selectedSubmission.id] = "exclude"; setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id)); setDrawerOpen(false); toast.info(`${selectedSubmission.workerName} excluded from this run`); }} workerName={selectedSubmission.workerName} />}
 
-                <AnimatePresence>
-                  {showReceiptView &&
-                  <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="absolute inset-0 bg-background z-50 flex flex-col">
-                      <div className="px-5 pt-5 pb-4 border-b border-border/30">
-                        <div className="flex items-center gap-3">
-                          <button onClick={() => setShowReceiptView(false)} className="p-1.5 -ml-1.5 rounded-md hover:bg-muted transition-colors">
-                            <ArrowLeft className="h-4 w-4 text-muted-foreground" />
-                          </button>
-                          <div className="flex-1">
-                            <h2 className="text-base font-semibold text-foreground">{selectedSubmission.workerType === "employee" ? "Payslip" : "Invoice"} Preview</h2>
-                            <p className="text-xs text-muted-foreground">{selectedSubmission.periodLabel || "January 2026"}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex-1 overflow-y-auto px-5 py-4">
-                        <div className="bg-muted/30 rounded-lg p-4 mb-4 border border-border/30">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10"><AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">{getInitials(selectedSubmission.workerName)}</AvatarFallback></Avatar>
-                            <div>
-                              <p className="font-medium text-foreground">{selectedSubmission.workerName}</p>
-                              <p className="text-xs text-muted-foreground">{selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="mb-4">
-                          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Earnings</h3>
-                          <div className="space-y-1.5">
-                            {earnings.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={item.amount} currency={currency} isPositive />)}
-                            <BreakdownRow label="Total earnings" amount={totalEarnings + approvedAdjustmentTotal + adminAdditionsTotal} currency={currency} isPositive isTotal />
-                          </div>
-                        </div>
-                        <div className="mb-4">
-                          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Deductions</h3>
-                          <div className="space-y-1.5">
-                            {deductions.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={Math.abs(item.amount)} currency={currency} isPositive={false} />)}
-                            <BreakdownRow label="Total deductions" amount={totalDeductions + approvedLeaveDeduction + adminDeductionsTotal} currency={currency} isPositive={false} isTotal />
-                          </div>
-                        </div>
-                        <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-foreground">{selectedSubmission.workerType === "employee" ? "Net Pay" : "Invoice Total"}</span>
-                            <span className="text-lg font-bold text-foreground tabular-nums">{formatCurrency(adjustedNet, currency)}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="border-t border-border/30 px-5 py-4">
-                        <Button className="w-full gap-2"><Download className="h-4 w-4" />Download {selectedSubmission.workerType === "employee" ? "Payslip" : "Invoice"}</Button>
-                      </div>
-                    </motion.div>
-                  }
-                </AnimatePresence>
               </>}
               </>
             );
