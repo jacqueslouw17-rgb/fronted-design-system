@@ -73,38 +73,16 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
   return (
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
       {/* Progress Hero */}
-      <div className="px-6 pt-6 pb-5 border-b border-border/40">
-        <div className="flex items-start justify-between mb-4">
+      <div className="px-6 pt-4 pb-3 border-b border-border/40">
+        <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm text-muted-foreground">Payment Status</p>
-              <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Paid
-              </span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
-              <span className="text-lg text-muted-foreground">of {workers.length}</span>
-              <span className="text-sm text-muted-foreground">payments paid</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">All payments paid — export for your records</p>
+            <p className="text-sm text-muted-foreground">Payment Status</p>
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <Button variant="outline" size="sm" onClick={handleExportCSV} className="h-8 text-xs gap-1.5">
+            <Button variant="outline" size="sm" onClick={handleExportCSV} className="h-7 text-xs gap-1.5">
               <Download className="h-3.5 w-3.5" />
               Export CSV
             </Button>
-            <div className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5" />
-              <span className="font-medium text-foreground">{employees.length}</span>
-              <span>employees</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Briefcase className="h-3.5 w-3.5" />
-              <span className="font-medium text-foreground">{contractors.length}</span>
-              <span>contractors</span>
-            </div>
           </div>
         </div>
       </div>
