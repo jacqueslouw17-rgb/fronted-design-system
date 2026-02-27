@@ -96,7 +96,7 @@ const StepAccountDetails: React.FC<StepAccountDetailsProps> = ({ formData, onCom
         <div className="border-t border-border/40 pt-4">
           <StandardInput
             id="password"
-            label="Create Password"
+            label="Password"
             value={password}
             onChange={setPassword}
             type="password"
