@@ -115,6 +115,7 @@ export interface DoneWorkerData {
   missingDetails?: { field: string; message: string }[];
   // Document verification state
   documentsVerified?: boolean;
+  needsDocumentVerification?: boolean;
 }
 
 interface F1v4_DoneWorkerDetailDrawerProps {
@@ -723,13 +724,13 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               {/* 5) Documents */}
               <SectionCard 
                 title="Documents" 
-                defaultOpen={verificationMode}
-                badge={!verificationMode && worker.documentsVerified ? (
+                defaultOpen={verificationMode || (worker.needsDocumentVerification && !worker.documentsVerified)}
+                badge={worker.documentsVerified ? (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
                     Verified
                   </Badge>
                 ) : undefined}
-                headerAction={verificationMode ? (
+                headerAction={(worker.needsDocumentVerification && !worker.documentsVerified) || verificationMode ? (
                   <Button
                     size="sm"
                     className="h-6 px-3 text-[11px] gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-colors font-medium"
