@@ -1586,7 +1586,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
 
       {/* Certificate Drawer */}
       <Sheet open={certificateDrawerOpen} onOpenChange={setCertificateDrawerOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
+        <SheetContent side="right" className="w-[85%] sm:w-full sm:max-w-xl overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Certificate of Contract</SheetTitle>
           </SheetHeader>

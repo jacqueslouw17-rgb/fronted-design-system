@@ -390,7 +390,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     const ActionIcon = actionView === "terminated" ? UserX : actionView === "resigned" ? LogOut : CalendarOff;
     return (
       <Sheet open={open} onOpenChange={handleClose}>
-        <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
+        <SheetContent className="w-[85%] sm:w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
           {/* Simplified header — no large icon circle */}
           <SheetHeader className="px-6 pt-8 pb-4 shrink-0">
             <div className="flex items-center gap-3">
@@ -475,7 +475,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   return (
     <>
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent className="w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
+      <SheetContent className="w-[85%] sm:w-[520px] sm:max-w-[520px] p-0 flex flex-col overflow-hidden">
         {/* Header — matches payroll drawer pattern */}
         <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
           <SheetDescription className="sr-only">Worker details</SheetDescription>
