@@ -110,6 +110,8 @@ const F6_ProfileSettings = () => {
   const header = SECTION_HEADERS[currentSection];
   const countryInfo = COUNTRIES[formData.hqCountry];
   const countryDisplay = countryInfo ? `${countryInfo.flag} ${countryInfo.label}` : formData.hqCountry;
+  const defaultCurrency = EUROZONE.includes(formData.hqCountry) ? "EUR" : "USD";
+  const baseTemplates = DEFAULT_TEMPLATES[formData.hqCountry] || ["Employment Agreement", "NDA"];
 
   const renderAccordionContent = (sectionId: string) => {
     switch (sectionId) {
