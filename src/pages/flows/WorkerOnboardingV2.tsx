@@ -7,9 +7,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
-import frontedLogo from "@/assets/fronted-logo.png";
 import { Button } from "@/components/ui/button";
+import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import { useWorkerFlowBridge } from "@/hooks/useWorkerFlowBridge";
@@ -124,20 +123,7 @@ const WorkerOnboardingV2 = () => {
   return (
     <AgentLayout context="Worker Onboarding">
         <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
-        <img 
-          src={frontedLogo}
-          alt="Fronted"
-          className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate('/?tab=flows')}
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/?tab=flows')}
-          className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
-        >
-          <X className="h-4 w-4 sm:h-5 sm:w-5" />
-        </Button>
+        <FrostedHeader onLogoClick={() => navigate('/?tab=flows')} onCloseClick={() => navigate('/?tab=flows')} />
 
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
