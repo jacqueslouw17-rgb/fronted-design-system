@@ -122,7 +122,7 @@ export function InviteMemberDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-[440px] overflow-y-auto p-0">
+      <SheetContent side="right" className="w-[85%] sm:w-full sm:max-w-[440px] overflow-y-auto p-0">
         <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/40 relative">
           <button
             onClick={() => onOpenChange(false)}
