@@ -124,16 +124,24 @@ export function InviteMemberDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-[85%] sm:w-full sm:max-w-[440px] overflow-y-auto p-0" hideClose>
         <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
-          <div className="min-w-0">
-            <SheetTitle className="text-base font-semibold text-foreground leading-tight">
-              {isEditMode ? "Edit team member" : "Invite team member"}
-            </SheetTitle>
-            <SheetDescription className="text-[11px] text-muted-foreground/60 mt-0.5">
-              {isEditMode 
-                ? "Update the role for this team member."
-                : "Add someone to your workspace and assign a role."
-              }
-            </SheetDescription>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <SheetTitle className="text-base font-semibold text-foreground leading-tight">
+                {isEditMode ? "Edit team member" : "Invite team member"}
+              </SheetTitle>
+              <SheetDescription className="text-[11px] text-muted-foreground/60 mt-0.5">
+                {isEditMode 
+                  ? "Update the role for this team member."
+                  : "Add someone to your workspace and assign a role."
+                }
+              </SheetDescription>
+            </div>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="shrink-0 p-1.5 rounded-md hover:bg-muted transition-colors -mt-0.5"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
           </div>
         </SheetHeader>
 
