@@ -24,11 +24,9 @@ import { useOnboardingStore } from "@/stores/onboardingStore";
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 
 import StepAccountDetails from "@/components/flows/onboarding/StepAccountDetails";
-import StepTermsConditions from "@/components/flows/onboarding/StepTermsConditions";
 
 const FLOW_STEPS = [
   { id: "account_details", title: "Account & Company Details" },
-  { id: "terms", title: "Terms & Conditions" },
 ];
 
 const CompanyAdminOnboardingV2 = () => {
@@ -180,12 +178,7 @@ const CompanyAdminOnboardingV2 = () => {
                               isProcessing={isProcessing}
                             />
                           )}
-                          {step.id === "terms" && (
-                            <StepTermsConditions
-                              onComplete={handleStepComplete}
-                              isProcessing={isProcessing}
-                            />
-                          )}
+                          
                         </motion.div>
                       )}
                     </AnimatePresence>
