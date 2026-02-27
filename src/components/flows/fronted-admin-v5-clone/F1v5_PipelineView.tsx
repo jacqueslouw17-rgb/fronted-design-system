@@ -1203,7 +1203,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   {contractor.workerStatus === "contract-ended" ? "Ended" 
                                     : contractor.workerStatus === "resigned" ? "Resigned"
                                     : contractor.workerStatus === "terminated" ? "Terminated"
-                                    : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Offboarded"
+                                    : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
                                     : "Active"}
                                 </Badge>
                               )}
