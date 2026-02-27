@@ -1156,9 +1156,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               }}>
                 <Card className={cn(
                   "border cursor-pointer bg-card",
-                  status === "onboarding-pending" && contractor.needsDocumentVerification && !contractor.documentsVerified
-                    ? "border-amber-500/40 shadow-sm shadow-amber-500/10"
-                    : status === "onboarding-pending" && !contractor.needsDocumentVerification
+                  status === "onboarding-pending"
                     ? "border-primary/30 shadow-sm shadow-primary/5"
                     : "border-border/40"
                 )} onClick={() => {
@@ -1167,9 +1165,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   } else if (status === "CERTIFIED") {
                     setSelectedForDoneDetail(contractor);
                     setDoneDetailDrawerOpen(true);
-                  } else if (status === "onboarding-pending" && contractor.needsDocumentVerification) {
-                    setSelectedForVerification(contractor);
-                    setVerificationDrawerOpen(true);
                   }
                 }}>
                       <CardContent className="p-2.5 space-y-0">
