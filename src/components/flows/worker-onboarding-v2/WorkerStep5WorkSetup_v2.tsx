@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight, FileText, Upload, X as XIcon } from "lucide-react";
+import { ArrowRight, FileText, Upload, X as XIcon, Lock } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CurrencyInput from "@/components/shared/CurrencyInput";
 
@@ -65,7 +65,17 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
 
       <div className="space-y-4">
         <div className="space-y-3">
-          <Label className="text-base">Did your company provide you with a device for work?</Label>
+          <Label className={allFieldsLocked ? "text-base flex items-center gap-2" : "text-base"}>
+            Did your company provide you with a device for work?
+            {allFieldsLocked && <Lock className="h-3 w-3 text-muted-foreground" />}
+          </Label>
+          {allFieldsLocked ? (
+            <Input
+              value={data.deviceProvided ? "Yes, I received a company device" : "No, I'm using my personal device"}
+              disabled
+              className="bg-muted/50 cursor-not-allowed"
+            />
+          ) : (
           <RadioGroup
             value={data.deviceProvided === undefined ? undefined : data.deviceProvided ? "yes" : "no"}
             onValueChange={(value) => setData({ ...data, deviceProvided: value === "yes" })}
@@ -83,6 +93,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
               </Label>
             </div>
           </RadioGroup>
+          )}
         </div>
 
         {data.deviceProvided !== undefined && (
