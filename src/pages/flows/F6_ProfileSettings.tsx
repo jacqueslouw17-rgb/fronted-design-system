@@ -38,7 +38,7 @@ const OVERVIEW_CARDS = [
 
 const SECTION_HEADERS: Record<Section, { title: string; subtitle: string }> = {
   "overview": { title: "Profile Settings", subtitle: "Manage your company profile and account." },
-  "profile-details": { title: "Profile Details", subtitle: "Update your company and admin details." },
+  "profile-details": { title: "Profile Details", subtitle: "Your company and admin details." },
   "change-password": { title: "Change Password", subtitle: "Update your login password." },
 };
 
