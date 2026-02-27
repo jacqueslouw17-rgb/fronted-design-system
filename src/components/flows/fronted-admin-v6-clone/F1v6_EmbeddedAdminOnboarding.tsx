@@ -17,12 +17,12 @@ import { useAgentState } from "@/hooks/useAgentState";
 import { motion } from "framer-motion";
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { F1v5_CountryTemplatesSection } from "./F1v5_CountryTemplatesSection";
+import { F1v5_CountryTemplatesSection } from "./F1v6_CountryTemplatesSection";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
-// Step2OrgProfileSimplified no longer used in v5 creation — replaced by F1v5_Step2OrgProfile
-import F1v5_Step2OrgProfile from "./F1v5_Step2OrgProfile";
+// Step2OrgProfileSimplified no longer used in v6 creation — replaced by F1v5_Step2OrgProfile
+import F1v5_Step2OrgProfile from "./F1v6_Step2OrgProfile";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";

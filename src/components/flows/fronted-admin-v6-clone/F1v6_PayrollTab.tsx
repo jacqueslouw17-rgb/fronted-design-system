@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from "react";
-import { F1v4_CompanyPayrollRun } from "./F1v5_CompanyPayrollRun";
+import { F1v4_CompanyPayrollRun } from "./F1v6_CompanyPayrollRun";
 
 export interface CompanyPayrollData {
   id: string;

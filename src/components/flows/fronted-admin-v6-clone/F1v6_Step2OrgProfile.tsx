@@ -15,8 +15,8 @@ import { cn } from "@/lib/utils";
 
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
-import { F1v5_CountryTemplatesSection } from "./F1v5_CountryTemplatesSection";
-import { F1v5_CreationCountryTemplates, type CreationCountryEntry } from "./F1v5_CreationCountryTemplates";
+import { F1v5_CountryTemplatesSection } from "./F1v6_CountryTemplatesSection";
+import { F1v5_CreationCountryTemplates, type CreationCountryEntry } from "./F1v6_CreationCountryTemplates";
 
 interface F1v5_Step2Props {
   formData: Record<string, any>;

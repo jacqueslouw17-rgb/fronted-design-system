@@ -39,7 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
-import { CompanyPayrollData } from "./F1v5_PayrollTab";
+import { CompanyPayrollData } from "./F1v6_PayrollTab";
 
 export type ExceptionCategory = "end_date" | "pay_delta" | "currency_mismatch" | "missing_from_run";
 export type ExceptionStatus = "active" | "skipped" | "overridden" | "explained" | "resolved";

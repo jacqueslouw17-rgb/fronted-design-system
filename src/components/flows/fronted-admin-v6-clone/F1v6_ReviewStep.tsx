@@ -7,7 +7,7 @@
  */
 
 import React from "react";
-import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v5_SubmissionsView";
+import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v6_SubmissionsView";
 
 interface F1v4_ReviewStepProps {
   submissions: WorkerSubmission[];

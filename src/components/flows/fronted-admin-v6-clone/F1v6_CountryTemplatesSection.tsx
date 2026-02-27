@@ -10,7 +10,7 @@ import { Globe, ChevronRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { F1v5_CountryTemplateDrawer } from "./F1v5_CountryTemplateDrawer";
+import { F1v5_CountryTemplateDrawer } from "./F1v6_CountryTemplateDrawer";
 
 // ── Types ──
 

@@ -29,7 +29,7 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { CountryTemplate, DocumentTemplate, TemplateAuditEntry } from "./F1v5_CountryTemplatesSection";
+import type { CountryTemplate, DocumentTemplate, TemplateAuditEntry } from "./F1v6_CountryTemplatesSection";
 
 // ── Icon map ──
 const DOC_ICONS: Record<string, React.ElementType> = {
