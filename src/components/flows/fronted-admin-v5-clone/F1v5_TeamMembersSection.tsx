@@ -181,14 +181,13 @@ export function F1v5_TeamMembersSection({ onBack, onNavigateToRoles }: Props) {
         )}
       </div>
 
-      {/* Action buttons */}
-      <div className="flex items-center justify-between mt-4">
+      {/* Action buttons — left-aligned pair per profile settings standard */}
+      <div className="flex items-center gap-2 mt-4">
         <Button variant="outline" size="sm" onClick={onBack} className="text-xs">
           Back
         </Button>
         {canInviteUsers && (
-          <Button onClick={() => setInviteOpen(true)} size="sm" className="gap-1.5 text-xs">
-            <UserPlus className="h-3.5 w-3.5" />
+          <Button onClick={() => setInviteOpen(true)} size="sm" className="text-xs">
             Invite
           </Button>
         )}
