@@ -92,50 +92,72 @@ export function F1v5_CompanyAdministratorsDetail({ onBack }: Props) {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -60 }}
-                className="flex items-center justify-between gap-3 rounded-xl border border-border/30 bg-card/20 px-4 py-3 hover:bg-card/40 transition-colors"
+                className="rounded-xl border border-border/30 bg-card/20 px-4 py-3.5 hover:bg-card/40 transition-colors"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                {/* Top row: company name + badge */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm font-medium text-foreground truncate">
                       {admin.companyName}
                     </span>
-                    <Badge className={config.className}>
+                    <Badge className={`shrink-0 ${config.className}`}>
                       <StatusIcon className="h-3 w-3 mr-1" />
                       {config.label}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-3 mt-0.5">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Mail className="h-3 w-3" />
-                      <span className="truncate">{admin.adminEmail}</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      · Invited {new Date(admin.inviteSentDate).toLocaleDateString()}
-                    </span>
-                    {admin.lastLoginDate && (
-                      <span className="text-xs text-muted-foreground">
-                        · Last login {new Date(admin.lastLoginDate).toLocaleDateString()}
-                      </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleResendPassword(admin.id, admin.companyName)}
+                    disabled={resendingId === admin.id}
+                    className="shrink-0 text-xs hidden sm:inline-flex"
+                  >
+                    {resendingId === admin.id ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        Sending…
+                      </>
+                    ) : (
+                      "Resend Invite"
                     )}
-                  </div>
+                  </Button>
                 </div>
 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleResendPassword(admin.id, admin.companyName)}
-                  disabled={resendingId === admin.id}
-                  className="shrink-0 text-xs"
-                >
-                  {resendingId === admin.id ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                      Sending…
-                    </>
-                  ) : (
-                    "Resend Invite"
+                {/* Meta row */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1.5">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Mail className="h-3 w-3 shrink-0" />
+                    <span className="truncate">{admin.adminEmail}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    · Invited {new Date(admin.inviteSentDate).toLocaleDateString()}
+                  </span>
+                  {admin.lastLoginDate && (
+                    <span className="text-xs text-muted-foreground">
+                      · Last login {new Date(admin.lastLoginDate).toLocaleDateString()}
+                    </span>
                   )}
-                </Button>
+                </div>
+
+                {/* Mobile action button */}
+                <div className="sm:hidden mt-2.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleResendPassword(admin.id, admin.companyName)}
+                    disabled={resendingId === admin.id}
+                    className="w-full text-xs h-8"
+                  >
+                    {resendingId === admin.id ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        Sending…
+                      </>
+                    ) : (
+                      "Resend Invite"
+                    )}
+                  </Button>
+                </div>
               </motion.div>
             );
           })}
