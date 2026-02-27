@@ -96,7 +96,7 @@ const F1v5_ProfileSettings = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
       {/* Logo and Close Button */}
       <FrostedHeader
-        onLogoClick={() => navigate("/flows/fronted-admin-dashboard-v5-clone")}
+        onLogoClick={() => navigate("/flows/fronted-admin-dashboard-v6-clone")}
         onCloseClick={() => navigate(-1)}
       />
 

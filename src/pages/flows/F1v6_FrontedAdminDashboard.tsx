@@ -1,9 +1,9 @@
 /**
- * Flow 1 — Fronted Admin Dashboard v5 (Clone of v4)
+ * Flow 1 — Fronted Admin Dashboard v6 (Clone of v5)
  * 
- * ISOLATED: This is an independent copy. Changes here do NOT affect v4 or any other flow.
+ * ISOLATED: This is an independent copy. Changes here do NOT affect v5 or any other flow.
  * 
- * Created: 2026-02-16
+ * Created: 2026-02-27
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -19,14 +19,14 @@ import { useContractFlow } from "@/hooks/useContractFlow";
 import { ContractFlowNotification } from "@/components/contract-flow/ContractFlowNotification";
 import { CandidateConfirmationScreen } from "@/components/contract-flow/CandidateConfirmationScreen";
 import { DocumentBundleCarousel } from "@/components/contract-flow/DocumentBundleCarousel";
-import { F1v5_ContractDraftWorkspace } from "@/components/flows/fronted-admin-v5-clone/F1v5_ContractDraftWorkspace";
+import { F1v5_ContractDraftWorkspace } from "@/components/flows/fronted-admin-v6-clone/F1v6_ContractDraftWorkspace";
 import { ContractReviewBoard } from "@/components/contract-flow/ContractReviewBoard";
 import { ContractSignaturePhase } from "@/components/contract-flow/ContractSignaturePhase";
 import { ContractFlowSummary } from "@/components/contract-flow/ContractFlowSummary";
 import { ComplianceTransitionNote } from "@/components/contract-flow/ComplianceTransitionNote";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import { DocumentBundleSignature } from "@/components/contract-flow/DocumentBundleSignature";
-import { F1v4_PipelineView } from "@/components/flows/fronted-admin-v5-clone/F1v5_PipelineView";
+import { F1v4_PipelineView } from "@/components/flows/fronted-admin-v6-clone/F1v6_PipelineView";
 import { ContractSignedMessage } from "@/components/contract-flow/ContractSignedMessage";
 import { AgentChatBox } from "@/components/contract-flow/AgentChatBox";
 import confetti from "canvas-confetti";
@@ -45,9 +45,9 @@ import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
 import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
 import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
-import F1v4_EmbeddedAdminOnboarding from "@/components/flows/fronted-admin-v5-clone/F1v5_EmbeddedAdminOnboarding";
-import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v5-clone/F1v5_AddCandidateDrawer";
-import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v5-clone/F1v5_PayrollTab";
+import F1v4_EmbeddedAdminOnboarding from "@/components/flows/fronted-admin-v6-clone/F1v6_EmbeddedAdminOnboarding";
+import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v6-clone/F1v6_AddCandidateDrawer";
+import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v6-clone/F1v6_PayrollTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
@@ -172,8 +172,8 @@ const DEFAULT_DRAFTING_CANDIDATES = [
   },
 ];
 
-// Keep all navigation inside this flow (Flow 1 v5 clone)
-const FLOW_BASE_PATH = "/flows/fronted-admin-dashboard-v5-clone";
+// Keep all navigation inside this flow (Flow 1 v6 clone)
+const FLOW_BASE_PATH = "/flows/fronted-admin-dashboard-v6-clone";
 
 const AdminContractingMultiCompany = () => {
   const navigate = useNavigate();
