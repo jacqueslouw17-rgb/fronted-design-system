@@ -132,14 +132,10 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     countryFlag: "🇮🇳",
     role: "Data Analyst",
     salary: "INR 1,20,000/mo",
-    status: "CERTIFIED",
+    status: "trigger-onboarding",
     employmentType: "employee",
     email: "priya.sharma@example.com",
     dataReceived: true,
-    bankDetails: "HDFC Bank ••••7890",
-    payFrequency: "Monthly",
-    needsDocumentVerification: true,
-    documentsVerified: false,
   },
   {
     id: "done-1",
@@ -232,9 +228,9 @@ const AdminContractingMultiCompany = () => {
     const saved = localStorage.getItem('adminflow-v5-company-contractors');
     const version = localStorage.getItem('adminflow-v5-data-version');
     // Bust cache when default data changes
-    if (saved && version === '7') return JSON.parse(saved);
+    if (saved && version === '8') return JSON.parse(saved);
     localStorage.removeItem('adminflow-v5-company-contractors');
-    localStorage.setItem('adminflow-v5-data-version', '7');
+    localStorage.setItem('adminflow-v5-data-version', '8');
     return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   
