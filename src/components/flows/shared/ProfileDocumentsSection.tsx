@@ -7,8 +7,9 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, ExternalLink, Upload, RefreshCw } from "lucide-react";
+import { FileText, ExternalLink, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ContractDocument {
   id: string;
@@ -115,15 +116,24 @@ const ProfileDocumentsSection = ({
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 {doc.replaceable && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleReplace(doc.id)}
-                    className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
-                  >
-                    <RefreshCw className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Replace</span>
-                  </Button>
+                  <TooltipProvider delayDuration={300}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleReplace(doc.id)}
+                          className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                        >
+                          <RefreshCw className="h-3.5 w-3.5" />
+                          <span className="hidden sm:inline">Replace</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        <p>Upload a new file to replace the existing document</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
                 <Button
                   variant="ghost"
