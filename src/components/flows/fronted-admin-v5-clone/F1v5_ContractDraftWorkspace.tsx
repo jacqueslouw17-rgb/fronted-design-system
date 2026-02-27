@@ -548,6 +548,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         isActive={isAgentSpeaking} 
         showInput={false}
         progressIndicator={candidateStepper}
+        className="[&_h1]:text-lg [&_h1]:sm:text-xl"
       />
 
       {/* ── Mobile: Collapsible candidate details ── */}
