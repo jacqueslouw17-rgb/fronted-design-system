@@ -671,7 +671,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         </motion.div>
 
         {/* Right: Contract viewer with tabs + editor */}
-        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col h-[calc(100vh-280px)] sm:h-[calc(100vh-260px)] lg:h-[600px] min-h-[400px] w-full rounded-lg border border-border overflow-hidden">
+        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col h-[calc(100vh-200px)] sm:h-[calc(100vh-180px)] lg:h-[700px] min-h-[500px] w-full rounded-lg border border-border overflow-hidden">
           
           {/* Document toolbar — always visible, never scrolls */}
           <div className="bg-muted/80 border-b border-border/50 p-2 flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
