@@ -155,7 +155,7 @@ const F41v7_ProfileSettings = () => {
 
     switch (sectionId) {
       case "personal_profile":
-        return <WorkerStep2PersonalProfile_v2 {...commonProps} />;
+        return <WorkerStep2PersonalProfile_v2 {...commonProps} allFieldsLocked hideHeader />;
       case "tax_details":
         return <WorkerStep2TaxDetails_v2 {...commonProps} />;
       case "bank_details":
