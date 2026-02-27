@@ -73,7 +73,7 @@ export const F42v7_AdjustmentDetailDrawer = ({
 
   return (
     <Sheet open={!!adjustment} onOpenChange={() => onClose()}>
-      <SheetContent className="w-full sm:max-w-[480px] overflow-y-auto flex flex-col">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-[480px] overflow-y-auto flex flex-col">
         <SheetHeader className="pb-4 border-b border-border/40 text-left">
           <SheetTitle className="flex items-center gap-3">
             <span>{adjustment.type} Request</span>

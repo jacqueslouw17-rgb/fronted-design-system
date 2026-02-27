@@ -580,7 +580,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="pb-4 border-b border-border/40 text-left">
           <div className="flex items-center gap-2">
             {(selectedType || showBackAtSelection) && (
