@@ -129,7 +129,7 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-lg overflow-y-auto">
         {/* Header */}
         <SheetHeader className="space-y-4 pb-2">
           <div className="flex items-start justify-between">
