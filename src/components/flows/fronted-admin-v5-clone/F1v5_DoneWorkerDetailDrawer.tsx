@@ -491,7 +491,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               )}
               {worker.documentsVerified && (
                 <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
-                  Verified
+                  Active
                 </Badge>
               )}
             </div>
