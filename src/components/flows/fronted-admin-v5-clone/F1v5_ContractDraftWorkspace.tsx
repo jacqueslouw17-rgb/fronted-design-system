@@ -306,6 +306,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   const currentPageContent = pages[activePageIndex] || pages[0] || [];
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const contractColumnRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   
   // Track which documents have been confirmed (scrolled through)
@@ -403,7 +404,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
     });
   }, []);
 
-  const getViewportEl = useCallback(() => scrollAreaRef.current, []);
+  const getViewportEl = useCallback(() => contractColumnRef.current, []);
 
   const scrollAgreementToTop = useCallback((behavior: ScrollBehavior = "smooth") => {
     const viewport = getViewportEl();
@@ -670,7 +671,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         </motion.div>
 
         {/* Right: Contract viewer with tabs + editor */}
-        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col lg:h-[600px] min-h-0 w-full overflow-y-auto rounded-lg border border-border">
+        <motion.div ref={contractColumnRef} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col lg:h-[600px] min-h-0 w-full overflow-y-auto rounded-lg border border-border">
           
           {/* Unified toolbar: tabs + actions — sticky inside scrollable area */}
           <div className="sticky top-0 z-10 bg-muted/80 backdrop-blur-xl border-b border-border/50 p-2 flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
