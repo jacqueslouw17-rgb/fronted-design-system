@@ -25,9 +25,11 @@ interface Step2Props {
   isLoadingFields?: boolean;
   buttonText?: string;
   backAction?: React.ReactNode;
+  allFieldsLocked?: boolean;
+  hideHeader?: boolean;
 }
 
-const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction }: Step2Props) => {
+const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader }: Step2Props) => {
   const country = formData.country || "Philippines";
 
   const [data, setData] = useState({
@@ -111,12 +113,14 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
         transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
         className="space-y-6 p-4 sm:p-6"
       >
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Personal Profile</h3>
-          <p className="text-sm text-muted-foreground">
-            Review and confirm your personal details. Some fields are pre-filled from your contract.
-          </p>
-        </div>
+        {!hideHeader && (
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Personal Profile</h3>
+            <p className="text-sm text-muted-foreground">
+              Review and confirm your personal details. Some fields are pre-filled from your contract.
+            </p>
+          </div>
+        )}
 
         {validationError && (
           <Alert variant="destructive">
@@ -158,12 +162,17 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
 
             {/* Phone */}
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone number</Label>
+              <Label htmlFor="phone" className={allFieldsLocked ? "flex items-center gap-2" : ""}>
+                Phone number
+                {allFieldsLocked && <Lock className="h-3 w-3 text-muted-foreground" />}
+              </Label>
               <Input
                 id="phone"
                 type="tel"
                 value={data.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
+                onChange={(e) => !allFieldsLocked && handleInputChange('phone', e.target.value)}
+                disabled={allFieldsLocked}
+                className={allFieldsLocked ? "bg-muted/50 cursor-not-allowed" : ""}
                 placeholder="+1 234 567 8900"
               />
             </div>
@@ -211,11 +220,16 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
             {/* Country-specific IDs */}
             {getCountrySpecificFields().map((field) => (
               <div key={field.id} className="space-y-2">
-                <Label htmlFor={field.id}>{field.label}</Label>
+                <Label htmlFor={field.id} className={allFieldsLocked ? "flex items-center gap-2" : ""}>
+                  {field.label}
+                  {allFieldsLocked && <Lock className="h-3 w-3 text-muted-foreground" />}
+                </Label>
                 <Input
                   id={field.id}
                   value={data[field.field as keyof typeof data] as string}
-                  onChange={(e) => handleInputChange(field.field, e.target.value)}
+                  onChange={(e) => !allFieldsLocked && handleInputChange(field.field, e.target.value)}
+                  disabled={allFieldsLocked}
+                  className={allFieldsLocked ? "bg-muted/50 cursor-not-allowed" : ""}
                   placeholder={`Enter your ${field.label.toLowerCase()}`}
                 />
               </div>
