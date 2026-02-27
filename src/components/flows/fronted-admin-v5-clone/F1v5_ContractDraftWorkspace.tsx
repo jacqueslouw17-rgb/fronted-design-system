@@ -507,14 +507,16 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   const showTabs = documents.length > 1;
   const showPagination = totalPages > 1 && !isEditMode;
 
-  // Overflow: show first 2 tabs inline on mobile, 3 on desktop, rest in "+N more" dropdown
-  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 640 : false);
+  // Overflow: on xs (<400px) put ALL docs in dropdown, on sm show 1 inline + overflow, on md+ show 2 inline
+  const [viewportWidth, setViewportWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 640);
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 640);
+    const onResize = () => setViewportWidth(window.innerWidth);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-  const MAX_VISIBLE_TABS = isMobile ? 1 : 2;
+  const isXs = viewportWidth < 400;
+  const isMobile = viewportWidth < 640;
+  const MAX_VISIBLE_TABS = isXs ? 0 : isMobile ? 1 : 2;
   const visibleDocs = documents.slice(0, MAX_VISIBLE_TABS);
   const overflowDocs = documents.slice(MAX_VISIBLE_TABS);
   const activeInOverflow = overflowDocs.some(d => d.id === activeDocument);
@@ -784,24 +786,24 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 <Button size="sm" className="h-7 text-xs" onClick={handleSaveChanges} disabled={isContentEmpty}>Save Changes</Button>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 flex-shrink-0">
+              <div className="flex items-center gap-1 flex-shrink-0">
                 <Button
                   variant="ghost" size="sm"
                   onClick={() => setIsResetDialogOpen(true)}
                   disabled={isResetting || !hasChangesSinceReset}
-                  className="flex items-center gap-1.5 h-7 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  className="flex items-center gap-1.5 h-7 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50 px-1.5 sm:px-3"
                 >
                    <RotateCcw className={`h-3.5 w-3.5 ${isResetting ? 'animate-spin' : ''}`} />
-                   Reset
+                   <span className="hidden sm:inline">Reset</span>
                  </Button>
                  <Button
                    variant="outline" size="sm"
                    onClick={handleEnterEditMode}
                    disabled={isResetting}
-                   className="flex items-center gap-1.5 h-7 text-xs"
+                   className="flex items-center gap-1.5 h-7 text-xs px-1.5 sm:px-3"
                  >
                    <Pencil className="h-3.5 w-3.5" />
-                   Edit
+                   <span className="hidden sm:inline">Edit</span>
                 </Button>
               </div>
             )}
