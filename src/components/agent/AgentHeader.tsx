@@ -92,7 +92,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
 
       {/* Title & Subtitle */}
       <div className="text-center space-y-1 sm:space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{title}</h1>
+        <h1 className="text-lg sm:text-xl font-bold text-foreground">{title}</h1>
         <div className="flex items-center justify-center gap-2 sm:gap-3">
           <p className="text-sm sm:text-base">
             {enableWordHighlight || isSpeaking ?
