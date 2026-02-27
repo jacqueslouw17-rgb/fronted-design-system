@@ -433,7 +433,7 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
           {/* Identity Document Upload */}
           {!hideIdentityDoc && (
           <div className="space-y-2">
-            <Label>Identity document <span className="text-destructive">*</span></Label>
+            <Label>Identity document</Label>
             <p className="text-xs text-muted-foreground -mt-1">
               Upload a scan of your government-issued ID — JPG, PNG, or PDF up to 10 MB.
             </p>
