@@ -29,9 +29,10 @@ interface Step2Props {
   hideHeader?: boolean;
   hideButtons?: boolean;
   hideIdentityDoc?: boolean;
+  showContactNotice?: boolean;
 }
 
-const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, hideIdentityDoc }: Step2Props) => {
+const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, hideIdentityDoc, showContactNotice }: Step2Props) => {
   const country = formData.country || "Philippines";
 
   const [data, setData] = useState({
@@ -313,6 +314,12 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
             )}
           </div>
         </div>
+
+        {showContactNotice && (
+          <p className="text-xs text-muted-foreground">
+            Need to update your details? Contact your Fronted admin.
+          </p>
+        )}
 
         {!hideButtons && (
         <div className={backAction ? "flex items-center gap-2" : ""}>
