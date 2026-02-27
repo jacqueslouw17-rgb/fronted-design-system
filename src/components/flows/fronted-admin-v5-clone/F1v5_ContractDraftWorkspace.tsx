@@ -507,12 +507,16 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   const showTabs = documents.length > 1;
   const showPagination = totalPages > 1 && !isEditMode;
 
-  // Overflow: show first 4 tabs inline, rest in a "More" dropdown
-  const MAX_VISIBLE_TABS = 3;
+  // Overflow: show first 2 tabs inline on mobile, 3 on desktop, rest in "+N more" dropdown
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 640 : false);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const MAX_VISIBLE_TABS = isMobile ? 2 : 3;
   const visibleDocs = documents.slice(0, MAX_VISIBLE_TABS);
   const overflowDocs = documents.slice(MAX_VISIBLE_TABS);
-  const activeInOverflow = overflowDocs.some(d => d.id === activeDocument);
-  const confirmedOverflowCount = overflowDocs.filter(d => confirmedDocs.has(d.id)).length;
 
   // Document confirmation flow: must scroll each doc (last page if multi-page) before confirming
   const currentDocIndex = documents.findIndex(d => d.id === activeDocument);
@@ -687,109 +691,60 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 </p>
               </div>
             ) : showTabs ? (
-              <div className="min-w-0">
-                {/* Desktop: inline tabs */}
-                <div className="hidden sm:flex items-center gap-1">
-                  {visibleDocs.map((doc) => {
-                    const isActive = activeDocument === doc.id;
-                    const isConfirmed = confirmedDocs.has(doc.id);
-                    return (
-                      <TooltipProvider key={doc.id} delayDuration={300}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => handleDocumentSwitch(doc.id)}
-                              className={cn(
-                                "inline-flex items-center gap-1.5 text-xs h-7 px-3 rounded-md transition-all duration-200 max-w-[160px] truncate",
-                                isActive && isConfirmed
-                                  ? "bg-primary/10 text-primary font-medium shadow-sm border border-primary/20"
-                                  : isActive
-                                    ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
-                                    : isConfirmed
-                                      ? "bg-primary/5 text-primary/80 hover:bg-primary/10 hover:text-primary border border-primary/10"
-                                      : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
-                              )}
-                            >
-                              {isConfirmed ? (
-                                <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
-                              ) : (
-                                <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
-                              )}
-                              <span className="truncate">{doc.shortLabel}</span>
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="text-xs">
-                            {doc.label}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    );
-                  })}
-                  {overflowDocs.length > 0 && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className={cn(
-                            "inline-flex items-center gap-1 text-xs h-7 px-2.5 rounded-md transition-all duration-200",
-                            activeInOverflow
-                              ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
-                              : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
-                          )}
-                        >
-                          {confirmedOverflowCount > 0 && !activeInOverflow && (
-                            <CheckCircle2 className="h-3 w-3 flex-shrink-0 text-primary" />
-                          )}
-                          <span>{activeInOverflow ? documents.find(d => d.id === activeDocument)?.shortLabel : `+${overflowDocs.length} more`}</span>
-                          <ChevronDown className="h-3 w-3" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="min-w-[200px]">
-                        {overflowDocs.map((doc) => {
-                          const isConfirmed = confirmedDocs.has(doc.id);
-                          const isActive = activeDocument === doc.id;
-                          return (
-                            <DropdownMenuItem
-                              key={doc.id}
-                              onClick={() => handleDocumentSwitch(doc.id)}
-                              className={cn(
-                                "flex items-center gap-2 text-xs cursor-pointer",
-                                isActive && "bg-muted font-medium"
-                              )}
-                            >
-                              {isConfirmed ? (
-                                <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
-                              ) : (
-                                <doc.icon className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
-                              )}
-                              <span>{doc.label}</span>
-                            </DropdownMenuItem>
-                          );
-                        })}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-                {/* Mobile: all docs in a dropdown */}
-                <div className="sm:hidden">
+              <div className="flex items-center gap-1 min-w-0 flex-wrap">
+                {visibleDocs.map((doc) => {
+                  const isActive = activeDocument === doc.id;
+                  const isConfirmed = confirmedDocs.has(doc.id);
+                  return (
+                    <TooltipProvider key={doc.id} delayDuration={300}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => handleDocumentSwitch(doc.id)}
+                            className={cn(
+                              "inline-flex items-center gap-1.5 text-xs h-7 px-3 rounded-md transition-all duration-200 max-w-[140px] truncate",
+                              isActive && isConfirmed
+                                ? "bg-primary/10 text-primary font-medium shadow-sm border border-primary/20"
+                                : isActive
+                                  ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
+                                  : isConfirmed
+                                    ? "bg-primary/5 text-primary/80 hover:bg-primary/10 hover:text-primary border border-primary/10"
+                                    : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                            )}
+                          >
+                            {isConfirmed ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+                            ) : (
+                              <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
+                            )}
+                            <span className="truncate">{doc.shortLabel}</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="text-xs">
+                          {doc.label}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  );
+                })}
+                {overflowDocs.length > 0 && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="inline-flex items-center gap-2 text-xs h-8 px-3 rounded-md bg-background text-foreground font-medium shadow-sm border border-border/60 w-full justify-between">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          {confirmedDocs.has(activeDocument) ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
-                          ) : (
-                            (() => { const DocIcon = documents.find(d => d.id === activeDocument)?.icon || FileText; return <DocIcon className="h-3.5 w-3.5 flex-shrink-0" />; })()
-                          )}
-                          <span className="truncate">{documents.find(d => d.id === activeDocument)?.label || "Document"}</span>
-                          <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal ml-1">
-                            {confirmedDocs.size}/{documents.length}
-                          </Badge>
-                        </div>
-                        <ChevronDown className="h-3 w-3 flex-shrink-0" />
+                      <button className={cn(
+                        "inline-flex items-center gap-1 text-xs h-7 px-2.5 rounded-md transition-all duration-200",
+                        activeInOverflow
+                          ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
+                          : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                      )}>
+                        {confirmedOverflowCount > 0 && !activeInOverflow && (
+                          <CheckCircle2 className="h-3 w-3 flex-shrink-0 text-primary" />
+                        )}
+                        <span>{activeInOverflow ? documents.find(d => d.id === activeDocument)?.shortLabel : `+${overflowDocs.length} more`}</span>
+                        <ChevronDown className="h-3 w-3" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="min-w-[260px]">
-                      {documents.map((doc) => {
+                    <DropdownMenuContent align="start" className="min-w-[200px]">
+                      {overflowDocs.map((doc) => {
                         const isConfirmed = confirmedDocs.has(doc.id);
                         const isActive = activeDocument === doc.id;
                         return (
@@ -812,7 +767,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                       })}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div>
+                )}
               </div>
             ) : (
               <p className="text-xs sm:text-sm text-foreground pl-1">
