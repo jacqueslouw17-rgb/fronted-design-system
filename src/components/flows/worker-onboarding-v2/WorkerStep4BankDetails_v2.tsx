@@ -27,9 +27,10 @@ interface Step4Props {
   allFieldsLocked?: boolean;
   hideHeader?: boolean;
   hideButtons?: boolean;
+  showContactNotice?: boolean;
 }
 
-const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons }: Step4Props) => {
+const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, showContactNotice }: Step4Props) => {
   const [data, setData] = useState({
     bankCountry: formData.bankCountry || formData.country || "",
     bankName: formData.bankName || "",
@@ -197,6 +198,12 @@ const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonT
             I confirm my bank details are correct and acknowledge the payment schedule
           </label>
         </div>
+        )}
+
+        {showContactNotice && (
+          <p className="text-xs text-muted-foreground">
+            Need to update your details? Contact your Fronted admin.
+          </p>
         )}
 
         {!hideButtons && (

@@ -155,13 +155,13 @@ const F41v7_ProfileSettings = () => {
 
     switch (sectionId) {
       case "personal_profile":
-        return <WorkerStep2PersonalProfile_v2 {...commonProps} allFieldsLocked hideHeader hideButtons hideIdentityDoc />;
+        return <WorkerStep2PersonalProfile_v2 {...commonProps} allFieldsLocked hideHeader hideButtons hideIdentityDoc showContactNotice />;
       case "tax_details":
-        return <WorkerStep2TaxDetails_v2 {...commonProps} allFieldsLocked hideHeader hideButtons hideIdentityDoc />;
+        return <WorkerStep2TaxDetails_v2 {...commonProps} allFieldsLocked hideHeader hideButtons hideIdentityDoc showContactNotice />;
       case "bank_details":
-        return <WorkerStep4BankDetails_v2 {...commonProps} allFieldsLocked hideHeader hideButtons />;
+        return <WorkerStep4BankDetails_v2 {...commonProps} allFieldsLocked hideHeader hideButtons showContactNotice />;
       case "work_setup":
-        return <WorkerStep5WorkSetup_v2 {...commonProps} allFieldsLocked hideHeader hideButtons />;
+        return <WorkerStep5WorkSetup_v2 {...commonProps} allFieldsLocked hideHeader hideButtons showContactNotice />;
       default:
         return null;
     }

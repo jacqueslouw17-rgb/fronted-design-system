@@ -22,9 +22,10 @@ interface Step5Props {
   allFieldsLocked?: boolean;
   hideHeader?: boolean;
   hideButtons?: boolean;
+  showContactNotice?: boolean;
 }
 
-const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons }: Step5Props) => {
+const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, showContactNotice }: Step5Props) => {
   const [data, setData] = useState({
     deviceProvided: formData.deviceProvided ?? undefined,
     reimbursementAmount: formData.reimbursementAmount || "",
@@ -177,6 +178,12 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
           </>
         )}
       </div>
+
+      {showContactNotice && (
+        <p className="text-xs text-muted-foreground">
+          Need to update your details? Contact your Fronted admin.
+        </p>
+      )}
 
       {!hideButtons && (
       <div className={backAction ? "flex items-center gap-2" : ""}>

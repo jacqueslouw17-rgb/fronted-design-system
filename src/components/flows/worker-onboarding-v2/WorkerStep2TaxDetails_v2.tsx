@@ -29,6 +29,7 @@ interface Step2Props {
   hideHeader?: boolean;
   hideButtons?: boolean;
   hideIdentityDoc?: boolean;
+  showContactNotice?: boolean;
 }
 
 const TAX_HELPERS: Record<string, { label: string; placeholder: string; hint: string }> = {
@@ -126,7 +127,7 @@ const COUNTRIES = [
   { value: "VN", label: "Vietnam", flag: "🇻🇳" },
 ];
 
-const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, hideIdentityDoc }: Step2Props) => {
+const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, hideIdentityDoc, showContactNotice }: Step2Props) => {
   const [countryOpen, setCountryOpen] = useState(false);
   const [data, setData] = useState({
     taxCountry: formData.taxCountry || "IN",
@@ -491,6 +492,12 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
           </div>
           )}
         </div>
+
+        {showContactNotice && (
+          <p className="text-xs text-muted-foreground">
+            Need to update your details? Contact your Fronted admin.
+          </p>
+        )}
 
         {!hideButtons && (
         <div className={backAction ? "flex items-center gap-2" : ""}>
