@@ -278,7 +278,7 @@ const Flows = () => {
     {
       id: "f1-fronted-admin-v6-clone",
       title: "Flow 1 — Fronted Admin Dashboard v6",
-      description: "Isolated copy of Flow 1 v5. Fresh clone for active development with full component isolation. Changes do NOT affect v5.",
+      description: "Isolated clone of Flow 1 v5. Fresh clone for active development with full component isolation. Changes do NOT affect v5.",
       steps: 7,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
       path: "/flows/fronted-admin-dashboard-v6-clone",
