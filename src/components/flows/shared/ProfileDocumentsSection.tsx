@@ -7,7 +7,7 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, ExternalLink, RefreshCw } from "lucide-react";
+import { ExternalLink, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -105,14 +105,9 @@ const ProfileDocumentsSection = ({
               key={doc.id}
               className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-card/40 transition-colors group"
             >
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="h-8 w-8 rounded-lg bg-muted/40 flex items-center justify-center shrink-0">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{doc.title}</p>
-                  <p className="text-xs text-muted-foreground">{doc.date} · {doc.fileType}</p>
-                </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground truncate">{doc.title}</p>
+                <p className="text-xs text-muted-foreground">{doc.date} · {doc.fileType}</p>
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 {doc.replaceable && (
