@@ -224,6 +224,9 @@ const F6_ProfileSettings = () => {
                         );
                       })}
                   </div>
+                  <div className="flex justify-center mt-4">
+                    <Button variant="outline" size="sm" onClick={() => setCurrentSection("overview")} className="text-xs">Back</Button>
+                  </div>
                 </motion.div>
               )}
 
