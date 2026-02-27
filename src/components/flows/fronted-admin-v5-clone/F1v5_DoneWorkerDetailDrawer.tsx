@@ -486,7 +486,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               <span className="text-base shrink-0">{worker.countryFlag}</span>
               {(worker.needsDocumentVerification && !worker.documentsVerified) && (
                 <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
-                  Inactive
+                  Offboarded
                 </Badge>
               )}
               {worker.documentsVerified && (
