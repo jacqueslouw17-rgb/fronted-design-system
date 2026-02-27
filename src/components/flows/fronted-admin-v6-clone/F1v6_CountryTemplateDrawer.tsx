@@ -366,7 +366,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                 </p>
               </div>
             ) : (
-              <div className="flex items-center gap-1 min-w-0 flex-wrap">
+              <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                 {visibleDocs.map((doc) => {
                   const isActive = doc.id === activeDocId;
                   const isEdited = doc.content !== doc.defaultContent;
