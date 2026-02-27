@@ -9,7 +9,7 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 
 import { motion } from "framer-motion";
-import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase, X, ArrowLeftRight, Info } from "lucide-react";
+import { ChevronLeft, DollarSign, Receipt, Clock, CheckCircle2, Users, Briefcase, X, ArrowLeftRight, Info } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";

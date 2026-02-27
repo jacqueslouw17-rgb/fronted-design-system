@@ -18,8 +18,6 @@ import {
   ChevronDown,
   DollarSign,
   Receipt,
-  Building2,
-  TrendingUp,
   CheckCheck,
   ArrowLeftRight,
   Info,
