@@ -464,6 +464,7 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
           )}
 
           {/* Identity Document Upload */}
+          {!hideIdentityDoc && (
           <div className="space-y-2">
             <Label>Identity document <span className="text-destructive">*</span></Label>
             <p className="text-xs text-muted-foreground -mt-1">
@@ -521,8 +522,10 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
               </label>
             )}
           </div>
+          )}
         </div>
 
+        {!hideButtons && (
         <div className={backAction ? "flex items-center gap-2" : ""}>
           {backAction}
           <Button
@@ -535,6 +538,7 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
             {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>
         </div>
+        )}
       </motion.div>
     </AnimatePresence>
   );

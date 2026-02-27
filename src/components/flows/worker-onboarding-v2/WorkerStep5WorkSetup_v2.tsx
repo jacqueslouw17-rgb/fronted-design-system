@@ -18,9 +18,12 @@ interface Step5Props {
   isLoadingFields?: boolean;
   buttonText?: string;
   backAction?: React.ReactNode;
+  allFieldsLocked?: boolean;
+  hideHeader?: boolean;
+  hideButtons?: boolean;
 }
 
-const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields, buttonText, backAction }: Step5Props) => {
+const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons }: Step5Props) => {
   const [data, setData] = useState({
     deviceProvided: formData.deviceProvided ?? undefined,
     reimbursementAmount: formData.reimbursementAmount || "",
@@ -51,12 +54,14 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
 
   return (
     <div className="space-y-5 sm:space-y-6 p-3 sm:p-6">
+      {!hideHeader && (
       <div className="space-y-2">
         <h3 className="text-base sm:text-lg font-semibold">Work Setup</h3>
         <p className="text-sm text-muted-foreground">
           Let us know about your device setup.
         </p>
       </div>
+      )}
 
       <div className="space-y-4">
         <div className="space-y-3">
@@ -161,6 +166,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         )}
       </div>
 
+      {!hideButtons && (
       <div className={backAction ? "flex items-center gap-2" : ""}>
         {backAction}
         <Button
@@ -173,6 +179,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
           {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
         </Button>
       </div>
+      )}
     </div>
   );
 };
