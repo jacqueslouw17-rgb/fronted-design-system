@@ -181,11 +181,17 @@ export function F1v5_TeamMembersSection({ onBack, onNavigateToRoles }: Props) {
         )}
       </div>
 
-      {/* Centered back button */}
-      <div className="flex justify-center mt-4">
+      {/* Action buttons */}
+      <div className="flex items-center justify-between mt-4">
         <Button variant="outline" size="sm" onClick={onBack} className="text-xs">
           Back
         </Button>
+        {canInviteUsers && (
+          <Button onClick={() => setInviteOpen(true)} size="sm" className="gap-1.5 text-xs">
+            <UserPlus className="h-3.5 w-3.5" />
+            Invite
+          </Button>
+        )}
       </div>
 
       {/* Invite / Edit Member Drawer */}
