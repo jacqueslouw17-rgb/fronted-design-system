@@ -204,6 +204,22 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 0,
       dataModel: null
     },
+    'flow-5-company-admin-onboarding-v2': {
+      path: "/flows/company-admin-onboarding-v2",
+      iconColor: "blue",
+      icon: Workflow,
+      title: "Flow 5 Company Admin Onboarding v2",
+      locked: false,
+      deprecated: false,
+      description: "Isolated clone of Flow 5 v1. Standalone onboarding flow for Company Admins accessed via email invite.",
+      steps: "3 steps",
+      patterns: "3 patterns",
+      badges: [
+        { label: "Step Card Stack + Progress Bar", path: "/step-card-pattern" }
+      ],
+      additionalCount: 0,
+      dataModel: null
+    },
     'flow-6-company-admin-dashboard': {
       path: "/flows/company-admin-dashboard",
       iconColor: "purple",
