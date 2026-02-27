@@ -285,7 +285,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isSubmitting || !selectedCategory || !supportMessage.trim()}
+                  disabled={isSubmitting || !selectedCategory || !supportMessage.trim() || (selectedCategory === "other" && !otherCategory.trim())}
                 >
                   {isSubmitting ? "Submitting..." : "Submit request"}
                 </Button>
