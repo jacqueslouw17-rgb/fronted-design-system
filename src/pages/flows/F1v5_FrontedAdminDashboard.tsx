@@ -1204,8 +1204,8 @@ const AdminContractingMultiCompany = () => {
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "reviewing" ? (
-                <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full pt-16">
-                  <div className="flex-1 p-8">
+                <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-screen pt-16">
+                  <div className="flex-1 px-4 py-6 sm:p-8">
                     <ContractReviewBoard 
                       candidates={contractFlow.selectedCandidates} 
                       onBack={() => {
