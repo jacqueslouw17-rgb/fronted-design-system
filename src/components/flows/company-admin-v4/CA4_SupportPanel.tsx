@@ -138,6 +138,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
     setSelectedCategory("");
     setOtherCategory("");
     setSupportMessage("");
+    setView("support-form");
   };
 
   // Standardized drawer header
