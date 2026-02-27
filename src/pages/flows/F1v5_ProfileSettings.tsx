@@ -214,7 +214,7 @@ const F1v5_ProfileSettings = () => {
               </AnimatePresence>
             </div>
           </div>
-          <FloatingKurtButton />
+          
         </RBACProvider>
       </AgentLayout>
     </div>
