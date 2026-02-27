@@ -514,7 +514,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-  const MAX_VISIBLE_TABS = isMobile ? 2 : 3;
+  const MAX_VISIBLE_TABS = isMobile ? 1 : 2;
   const visibleDocs = documents.slice(0, MAX_VISIBLE_TABS);
   const overflowDocs = documents.slice(MAX_VISIBLE_TABS);
   const activeInOverflow = overflowDocs.some(d => d.id === activeDocument);
