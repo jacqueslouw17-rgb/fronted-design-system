@@ -44,7 +44,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       />
 
       {/* Review cards */}
-      <div className="grid gap-4 grid-cols-1 max-w-md mx-auto">
+      <div className="grid gap-3 grid-cols-1 max-w-lg mx-auto">
         {candidates.map((candidate, index) => {
           const isLoading = loadingCardIds.has(candidate.id);
           
@@ -55,7 +55,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
             >
-              <Card className="p-5 hover:shadow-elevated transition-shadow relative overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm">
+              <Card className="p-4 hover:shadow-elevated transition-shadow relative overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm">
                 {/* Loading color animation overlay */}
                 {isLoading && (
                   <motion.div
@@ -66,48 +66,37 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
                   />
                 )}
                 
-                <div className="space-y-4 relative">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="relative space-y-3">
+                  {/* Header row */}
+                  <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-semibold text-foreground flex items-center gap-1.5">
+                      <h4 className="font-semibold text-sm text-foreground flex items-center gap-1.5">
                         {candidate.name}
-                        <span className="text-lg">{candidate.flag}</span>
+                        <span className="text-base">{candidate.flag}</span>
                       </h4>
                       <p className="text-xs text-muted-foreground">{candidate.role}</p>
                     </div>
+                    <div className="flex flex-col items-end gap-0.5">
+                      <span className="text-xs font-medium text-foreground">{candidate.salary}</span>
+                      <span className="text-[11px] text-muted-foreground">{candidate.startDate}</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckCircle2 className="h-3 w-3 text-success" />
-                    <span className="text-muted-foreground">Compliance check passed</span>
+                  {/* Compliance checks inline */}
+                  <div className="flex flex-wrap gap-x-4 gap-y-1">
+                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <CheckCircle2 className="h-3 w-3 text-success flex-shrink-0" />
+                      Compliance passed
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <CheckCircle2 className="h-3 w-3 text-success flex-shrink-0" />
+                      Currency ({candidate.currency})
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <CheckCircle2 className="h-3 w-3 text-success flex-shrink-0" />
+                      Policy aligned
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckCircle2 className="h-3 w-3 text-success" />
-                    <span className="text-muted-foreground">Currency verified ({candidate.currency})</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckCircle2 className="h-3 w-3 text-success" />
-                    <span className="text-muted-foreground">Country policy aligned</span>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-border space-y-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <DollarSign className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-foreground">{candidate.salary}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <Calendar className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-foreground">{candidate.startDate}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <Clock className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-foreground">{candidate.noticePeriod}</span>
-                  </div>
-                </div>
                 </div>
               </Card>
             </motion.div>
