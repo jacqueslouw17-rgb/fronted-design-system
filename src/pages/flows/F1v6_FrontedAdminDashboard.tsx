@@ -201,7 +201,7 @@ const AdminContractingMultiCompany = () => {
   const [selectedCompany, setSelectedCompany] = useState<string>(() => {
     // Priority: URL param > localStorage > default company
     if (companyFromUrl) return companyFromUrl;
-    const saved = localStorage.getItem('adminflow-v5-selected-company');
+    const saved = localStorage.getItem('adminflow-v6-selected-company');
     return saved || "company-default";
   });
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
@@ -221,32 +221,32 @@ const AdminContractingMultiCompany = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isAddingNewCompany, isEditingCompany, isInContractFlow]);
   const [companies, setCompanies] = useState<CompanyData[]>(() => {
-    const saved = localStorage.getItem('adminflow-v5-companies');
+    const saved = localStorage.getItem('adminflow-v6-companies');
     return saved ? JSON.parse(saved) : MOCK_COMPANIES;
   });
   const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>(() => {
-    const saved = localStorage.getItem('adminflow-v5-company-contractors');
-    const version = localStorage.getItem('adminflow-v5-data-version');
+    const saved = localStorage.getItem('adminflow-v6-company-contractors');
+    const version = localStorage.getItem('adminflow-v6-data-version');
     // Bust cache when default data changes
     if (saved && version === '7') return JSON.parse(saved);
-    localStorage.removeItem('adminflow-v5-company-contractors');
-    localStorage.setItem('adminflow-v5-data-version', '7');
+    localStorage.removeItem('adminflow-v6-company-contractors');
+    localStorage.setItem('adminflow-v6-data-version', '7');
     return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   
   // Persist companies to localStorage
   useEffect(() => {
-    localStorage.setItem('adminflow-v5-companies', JSON.stringify(companies));
+    localStorage.setItem('adminflow-v6-companies', JSON.stringify(companies));
   }, [companies]);
   
   // Persist selected company to localStorage
   useEffect(() => {
-    localStorage.setItem('adminflow-v5-selected-company', selectedCompany);
+    localStorage.setItem('adminflow-v6-selected-company', selectedCompany);
   }, [selectedCompany]);
   
   // Persist company contractors to localStorage
   useEffect(() => {
-    localStorage.setItem('adminflow-v5-company-contractors', JSON.stringify(companyContractors));
+    localStorage.setItem('adminflow-v6-company-contractors', JSON.stringify(companyContractors));
   }, [companyContractors]);
   
   // Derived state: check if this is a first-time admin (no companies)
@@ -396,9 +396,9 @@ const AdminContractingMultiCompany = () => {
 
   // Clear localStorage when leaving the flow (back arrow)
   const handleBackToFlows = () => {
-    localStorage.removeItem('adminflow-v5-companies');
-    localStorage.removeItem('adminflow-v5-selected-company');
-    localStorage.removeItem('adminflow-v5-company-contractors');
+    localStorage.removeItem('adminflow-v6-companies');
+    localStorage.removeItem('adminflow-v6-selected-company');
+    localStorage.removeItem('adminflow-v6-company-contractors');
   };
 
   const handleAddCandidate = () => {
