@@ -10,10 +10,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRight, Info, Upload, FileText, X, Download, Check, ChevronsUpDown, IndianRupee, Lock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -319,40 +319,22 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
                   <Label className="text-sm font-semibold">Income Tax Regime</Label>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  India offers two tax regimes. The <strong>New Regime</strong> (default since FY 2023-24) has lower slab rates with minimal deductions. The <strong>Old Regime</strong> allows deductions under Sections 80C, 80D, HRA, etc.
+                  Select your applicable tax regime for the current financial year.
                 </p>
               </div>
 
-              <RadioGroup
+              <Select
                 value={data.indiaTaxRegime}
                 onValueChange={(value) => setData({ ...data, indiaTaxRegime: value, india80CAmount: "", india80DAmount: "", indiaInvestmentProofUploaded: false })}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
               >
-                <label
-                  className={cn(
-                    "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
-                    data.indiaTaxRegime === "new" ? "border-primary bg-primary/5" : "border-border/40 hover:bg-muted/50"
-                  )}
-                >
-                  <RadioGroupItem value="new" className="mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">New Regime</p>
-                    <p className="text-xs text-muted-foreground">Lower rates, limited deductions. Default since FY 2023-24.</p>
-                  </div>
-                </label>
-                <label
-                  className={cn(
-                    "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
-                    data.indiaTaxRegime === "old" ? "border-primary bg-primary/5" : "border-border/40 hover:bg-muted/50"
-                  )}
-                >
-                  <RadioGroupItem value="old" className="mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Old Regime</p>
-                    <p className="text-xs text-muted-foreground">Higher rates, but allows 80C, 80D, HRA & other deductions.</p>
-                  </div>
-                </label>
-              </RadioGroup>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select tax regime" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="new">New Regime (FY 2024-25)</SelectItem>
+                  <SelectItem value="old">Old Regime (with deductions)</SelectItem>
+                </SelectContent>
+              </Select>
 
               {/* Old Regime — deduction fields */}
               <AnimatePresence>
