@@ -240,7 +240,7 @@ export const F41v7_TimeOffRequestDrawer = ({
   if (showSuccess) {
     return (
       <Sheet open={open} onOpenChange={handleClose}>
-        <SheetContent className="w-full sm:max-w-md border-l-0 sm:border-l">
+        <SheetContent className="w-[85%] sm:w-full sm:max-w-md border-l-0 sm:border-l">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -285,7 +285,7 @@ export const F41v7_TimeOffRequestDrawer = ({
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent className="w-full sm:max-w-2xl overflow-y-auto border-l-0 sm:border-l p-0">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-2xl overflow-y-auto border-l-0 sm:border-l p-0">
         <div className="bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] p-6 pb-8">
           <SheetHeader className="space-y-3">
             <div className="flex items-center gap-3">

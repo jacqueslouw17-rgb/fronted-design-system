@@ -99,7 +99,7 @@ export const F41v7_PayBreakdownDrawer = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-[420px] overflow-y-auto p-0">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-[420px] overflow-y-auto p-0">
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30 text-left">
           <div className="flex items-center gap-2 pr-6">
             <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
