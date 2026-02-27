@@ -1,12 +1,13 @@
 /**
  * ProfileDocumentsSection — Documents view for worker Profile Settings
  * 
- * Shows contract documents (supports multiple) and identity document.
+ * Flat list of all documents (contracts + identity). Workers can replace documents.
  * Used by both Flow 4.1 (Employee) and Flow 4.2 (Contractor).
  */
 
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, FileCheck, Shield } from "lucide-react";
+import { FileText, ExternalLink, Upload, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 interface ContractDocument {
@@ -27,79 +28,117 @@ const ProfileDocumentsSection = ({
   identityFileName,
   onBack,
 }: ProfileDocumentsSectionProps) => {
+  const [documents, setDocuments] = useState(() => {
+    const docs = contractDocuments.map(doc => ({
+      ...doc,
+      replaceable: false,
+    }));
+    if (identityFileName) {
+      docs.push({
+        id: "identity",
+        title: identityFileName,
+        date: "Uploaded during onboarding",
+        fileType: "PDF",
+        replaceable: true,
+      });
+    }
+    return docs;
+  });
 
-  const handleDownload = (docTitle: string) => {
-    toast.info(`Downloading ${docTitle}...`);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [replacingId, setReplacingId] = useState<string | null>(null);
+
+  const handleOpen = (docTitle: string) => {
+    toast.info(`Opening ${docTitle} in new tab...`);
+    // In production this would open a signed URL in a new tab
+  };
+
+  const handleReplace = (docId: string) => {
+    setReplacingId(docId);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !replacingId) return;
+
+    const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Please upload a JPG, PNG, or PDF file.");
+      setReplacingId(null);
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be under 10 MB.");
+      setReplacingId(null);
+      return;
+    }
+
+    setDocuments(prev =>
+      prev.map(doc =>
+        doc.id === replacingId
+          ? { ...doc, title: file.name, date: "Just now", fileType: file.type.includes("pdf") ? "PDF" : "Image" }
+          : doc
+      )
+    );
+    toast.success("Document replaced successfully");
+    setReplacingId(null);
+    // Reset file input
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
-    <div className="space-y-4">
-      {/* Contract Documents */}
+    <div className="space-y-3">
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        accept=".jpg,.jpeg,.png,.pdf"
+        onChange={handleFileChange}
+      />
+
       <div className="rounded-xl border border-border/30 bg-card/20 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border/20">
-          <div className="flex items-center gap-2">
-            <FileCheck className="h-4 w-4 text-primary" />
-            <p className="text-sm font-medium text-foreground">Contract</p>
-          </div>
-        </div>
-        <div className="p-2 space-y-1">
-          {contractDocuments.map((doc) => (
+        <div className="divide-y divide-border/20">
+          {documents.map((doc) => (
             <div
               key={doc.id}
-              className="flex items-center justify-between p-2.5 rounded-lg hover:bg-muted/30 transition-colors"
+              className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-card/40 transition-colors group"
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="h-8 w-8 rounded-lg bg-muted/40 flex items-center justify-center shrink-0">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                </div>
                 <div className="min-w-0">
-                  <p className="text-sm text-foreground truncate">{doc.title}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{doc.title}</p>
                   <p className="text-xs text-muted-foreground">{doc.date} · {doc.fileType}</p>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDownload(doc.title)}
-                className="h-7 text-xs gap-1.5 shrink-0"
-              >
-                <Download className="h-3.5 w-3.5" />
-                Download
-              </Button>
+              <div className="flex items-center gap-1 shrink-0">
+                {doc.replaceable && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleReplace(doc.id)}
+                    className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Replace</span>
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleOpen(doc.title)}
+                  className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Open</span>
+                </Button>
+              </div>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Identity Document */}
-      {identityFileName && (
-        <div className="rounded-xl border border-border/30 bg-card/20 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border/20">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              <p className="text-sm font-medium text-foreground">Identity Document</p>
-            </div>
-          </div>
-          <div className="p-2">
-            <div className="flex items-center justify-between p-2.5 rounded-lg hover:bg-muted/30 transition-colors">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm text-foreground truncate">{identityFileName}</p>
-                  <p className="text-xs text-muted-foreground">Uploaded during onboarding · PDF</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDownload(identityFileName)}
-                className="h-7 text-xs gap-1.5 shrink-0"
-              >
-                <Download className="h-3.5 w-3.5" />
-                Download
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Back */}
       <div className="flex justify-center mt-4">
