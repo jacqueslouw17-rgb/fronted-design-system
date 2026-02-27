@@ -1340,38 +1340,23 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             </>}
                           
                           {status === "onboarding-pending" && <div className="w-full space-y-2">
-                              {contractor.needsDocumentVerification && !contractor.documentsVerified ? (
-                                <>
-                                  <Button size="sm" className="w-full text-xs h-8 gap-1.5" variant="outline" onClick={e => {
-                                    e.stopPropagation();
-                                    setSelectedForVerification(contractor);
-                                    setVerificationDrawerOpen(true);
-                                  }}>
-                                    <Eye className="h-3.5 w-3.5" />
-                                    View Status
-                                  </Button>
-                                </>
-                              ) : (
-                                <>
-                                  <p className="text-xs text-muted-foreground text-center">Awaiting candidate response</p>
-                                  <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
-                              e.stopPropagation();
-                              setSendingFormIds(prev => new Set([...prev, contractor.id]));
-                              setTimeout(() => {
-                                setSendingFormIds(prev => {
-                                  const next = new Set(prev);
-                                  next.delete(contractor.id);
-                                  return next;
-                                });
-                                setResentFormIds(prev => new Set([...prev, contractor.id]));
-                                toast.info(`Form resent to ${contractor.name}`);
-                              }, 1500);
-                            }}>
-                                    <RotateCcw className={cn("h-3.5 w-3.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
-                                    Resend
-                                  </Button>
-                                </>
-                              )}
+                              <p className="text-xs text-muted-foreground text-center">Awaiting candidate response</p>
+                              <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
+                          e.stopPropagation();
+                          setSendingFormIds(prev => new Set([...prev, contractor.id]));
+                          setTimeout(() => {
+                            setSendingFormIds(prev => {
+                              const next = new Set(prev);
+                              next.delete(contractor.id);
+                              return next;
+                            });
+                            setResentFormIds(prev => new Set([...prev, contractor.id]));
+                            toast.info(`Form resent to ${contractor.name}`);
+                          }, 1500);
+                        }}>
+                                <RotateCcw className={cn("h-3.5 w-3.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
+                                Resend
+                              </Button>
                             </div>}
                           
                           {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && <div className="flex items-center justify-center w-full py-1">
