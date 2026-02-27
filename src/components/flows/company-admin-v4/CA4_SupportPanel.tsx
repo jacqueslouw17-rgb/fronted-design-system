@@ -48,6 +48,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [otherCategory, setOtherCategory] = useState("");
   const [supportMessage, setSupportMessage] = useState("");
   const [feedbackContext, setFeedbackContext] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -70,6 +71,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
       const timer = setTimeout(() => {
         setView("selection");
         setSelectedCategory("");
+        setOtherCategory("");
         setSupportMessage("");
         setFeedbackMessage("");
       }, 300);
@@ -81,6 +83,10 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
     e.preventDefault();
     if (!selectedCategory || !supportMessage.trim()) {
       toast.error("Please select a category and enter your message");
+      return;
+    }
+    if (selectedCategory === "other" && !otherCategory.trim()) {
+      toast.error("Please specify your topic");
       return;
     }
     setIsSubmitting(true);
@@ -122,6 +128,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
   const handleBack = () => {
     if (view === "support-submitted") {
       setSelectedCategory("");
+      setOtherCategory("");
       setSupportMessage("");
     }
     setView("selection");
@@ -129,6 +136,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
 
   const handleSubmitAnother = () => {
     setSelectedCategory("");
+    setOtherCategory("");
     setSupportMessage("");
     setView("support-form");
   };
@@ -250,6 +258,15 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                       </button>
                     ))}
                   </div>
+                  {selectedCategory === "other" && (
+                    <Input
+                      placeholder="Please specify…"
+                      value={otherCategory}
+                      onChange={(e) => setOtherCategory(e.target.value)}
+                      className="bg-background text-sm mt-2"
+                      autoFocus
+                    />
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -268,7 +285,7 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isSubmitting || !selectedCategory || !supportMessage.trim()}
+                  disabled={isSubmitting || !selectedCategory || !supportMessage.trim() || (selectedCategory === "other" && !otherCategory.trim())}
                 >
                   {isSubmitting ? "Submitting..." : "Submit request"}
                 </Button>
