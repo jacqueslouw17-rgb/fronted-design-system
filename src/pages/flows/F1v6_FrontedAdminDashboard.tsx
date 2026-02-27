@@ -228,9 +228,9 @@ const AdminContractingMultiCompany = () => {
     const saved = localStorage.getItem('adminflow-v6-company-contractors');
     const version = localStorage.getItem('adminflow-v6-data-version');
     // Bust cache when default data changes
-    if (saved && version === '7') return JSON.parse(saved);
+    if (saved && version === '8') return JSON.parse(saved);
     localStorage.removeItem('adminflow-v6-company-contractors');
-    localStorage.setItem('adminflow-v6-data-version', '7');
+    localStorage.setItem('adminflow-v6-data-version', '8');
     return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   
