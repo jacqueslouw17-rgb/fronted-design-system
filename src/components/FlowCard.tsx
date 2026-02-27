@@ -571,6 +571,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 3,
       dataModel: null
     },
+    'flow-1-fronted-admin-v6': {
+      path: "/flows/fronted-admin-dashboard-v6-clone",
+      iconColor: "cyan",
+      icon: Workflow,
+      title: "Flow 1 Fronted Admin Dashboard v6",
+      locked: false,
+      deprecated: false,
+      description: "Isolated copy of Flow 1 v5. Fresh clone for active development. Changes do NOT affect v5.",
+      steps: "7 steps",
+      patterns: "5 patterns",
+      badges: [
+        { label: "Genie-Led Conversational", path: "/onboarding" },
+        { label: "Contract Preview & E-Sign", path: "/contract-preview" }
+      ],
+      additionalCount: 3,
+      dataModel: null
+    },
     'shared-secure-link-error': {
       path: "/secure-link-error",
       iconColor: "amber",

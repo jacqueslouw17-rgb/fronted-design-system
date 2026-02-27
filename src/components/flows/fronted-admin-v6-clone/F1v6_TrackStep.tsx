@@ -1,0 +1,628 @@
+/**
+ * F1v4_TrackStep - Track & Reconcile with payment status
+ * 
+ * Simplified: Only two statuses - "in-progress" and "paid"
+ * Fronted admin manually marks each worker as paid
+ * Custom batches: only show approved workers from submissions, no base pay/statutory
+ */
+
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { 
+  CheckCircle2, 
+  Download, 
+  FileText,
+  Users,
+  Briefcase,
+  Clock,
+  ChevronLeft,
+  ChevronDown,
+  DollarSign,
+  Receipt,
+  Building2,
+  TrendingUp,
+  CheckCheck,
+  ArrowLeftRight,
+  Info,
+} from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { CompanyPayrollData } from "./F1v6_PayrollTab";
+import { toast } from "sonner";
+import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
+import { F1v4_WorkerDetailDrawer, WorkerData } from "./F1v6_WorkerDetailDrawer";
+import { F1v4_PayslipPreviewModal } from "./F1v6_PayslipPreviewModal";
+import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v6_PayrollStepper";
+
+interface PayrollPeriod {
+  id: string;
+  label: string;
+  status: "current" | "processing" | "paid";
+}
+
+// Historical payroll data
+interface HistoricalPayroll {
+  id: string;
+  period: string;
+  paidDate: string;
+  grossPay: string;
+  adjustments: string;
+  fees: string;
+  totalCost: string;
+  employeeCount: number;
+  contractorCount: number;
+  currencyCount: number;
+  workers: WorkerData[];
+}
+
+const HISTORICAL_PAYROLLS: HistoricalPayroll[] = [
+  {
+    id: "dec-2025",
+    period: "December 2025",
+    paidDate: "Dec 28, 2025",
+    grossPay: "€109.7K",
+    adjustments: "€6.3K",
+    fees: "€3,256",
+    totalCost: "€113.0K",
+    employeeCount: 3,
+    contractorCount: 4,
+    currencyCount: 3,
+    workers: [
+      { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112234" },
+      { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112235" },
+      { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "ready", netPay: 280000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112236" },
+      { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "ready", netPay: 65000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112237" },
+      { id: "5", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "ready", netPay: 72000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112238" },
+      { id: "6", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-112239" },
+    ],
+  },
+  {
+    id: "nov-2025",
+    period: "November 2025",
+    paidDate: "Nov 28, 2025",
+    grossPay: "€106.8K",
+    adjustments: "€5.0K",
+    fees: "€3,133",
+    totalCost: "€109.9K",
+    employeeCount: 3,
+    contractorCount: 3,
+    currencyCount: 3,
+    workers: [
+      { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111234" },
+      { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111235" },
+      { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "ready", netPay: 280000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111236" },
+      { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "ready", netPay: 65000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111237" },
+      { id: "5", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "ready", netPay: 72000, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111238" },
+      { id: "6", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0, paymentStatus: "paid", providerRef: "PAY-2025-111239" },
+    ],
+  },
+];
+
+interface F1v4_TrackStepProps {
+  company: CompanyPayrollData;
+  onBack?: () => void;
+  onClose?: () => void;
+  hideHeader?: boolean;
+  hideSummaryCard?: boolean;
+  isHistorical?: boolean;
+  paidDate?: string;
+  showStepper?: boolean;
+  currentStep?: F1v4_PayrollStep;
+  completedSteps?: F1v4_PayrollStep[];
+  onStepClick?: (step: F1v4_PayrollStep) => void;
+  onAllPaid?: () => void;
+  isCustomBatch?: boolean;
+  submissions?: { id: string; workerName: string; workerCountry: string; workerType: "employee" | "contractor"; currency?: string; estimatedNet?: number; submissions: { status?: string; amount?: number; label?: string }[] }[];
+}
+
+export type WorkerPaymentStatus = "paid" | "in-progress";
+
+const MOCK_TRACKED_WORKERS: WorkerData[] = [
+  { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000, issues: 0, paymentStatus: "in-progress" },
+  { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500, issues: 0, paymentStatus: "in-progress" },
+  { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "ready", netPay: 280000, issues: 0, paymentStatus: "in-progress" },
+  { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "ready", netPay: 65000, issues: 0, paymentStatus: "in-progress" },
+  { id: "5", name: "David Martinez", type: "contractor", country: "Portugal", currency: "EUR", status: "ready", netPay: 4200, issues: 0, paymentStatus: "in-progress" },
+  { id: "6", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "ready", netPay: 72000, issues: 0, paymentStatus: "in-progress" },
+  { id: "7", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0, paymentStatus: "in-progress" },
+];
+
+const paymentStatusConfig: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
+  paid: { label: "Paid", icon: CheckCircle2, color: "text-accent-green-text", bg: "bg-accent-green/10" },
+  "in-progress": { label: "In progress", icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10" },
+};
+
+const countryFlags: Record<string, string> = {
+  Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
+  Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", USA: "🇺🇸",
+  "United States": "🇺🇸", UK: "🇬🇧", "United Kingdom": "🇬🇧",
+  Italy: "🇮🇹", Japan: "🇯🇵", India: "🇮🇳", Ireland: "🇮🇪",
+  Netherlands: "🇳🇱", Sweden: "🇸🇪", Denmark: "🇩🇰", Brazil: "🇧🇷",
+  Mexico: "🇲🇽", Egypt: "🇪🇬", Greece: "🇬🇷",
+  SG: "🇸🇬", ES: "🇪🇸", PH: "🇵🇭", NO: "🇳🇴", PT: "🇵🇹", DE: "🇩🇪",
+  FR: "🇫🇷", US: "🇺🇸", GB: "🇬🇧", IT: "🇮🇹", JP: "🇯🇵", IN: "🇮🇳",
+  IE: "🇮🇪", NL: "🇳🇱", SE: "🇸🇪", DK: "🇩🇰", BR: "🇧🇷", MX: "🇲🇽",
+  EG: "🇪🇬", GR: "🇬🇷",
+};
+
+export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
+  company,
+  onBack,
+  onClose,
+  hideHeader = false,
+  hideSummaryCard = false,
+  isHistorical: isHistoricalProp = false,
+  paidDate: paidDateProp,
+  showStepper = false,
+  currentStep = "track",
+  completedSteps = ["submissions", "exceptions", "approve"],
+  onStepClick,
+  onAllPaid,
+  isCustomBatch = false,
+  submissions = [],
+}) => {
+  // For custom batches: derive workers from approved submissions only
+  const customBatchWorkers = useMemo((): WorkerData[] => {
+    if (!isCustomBatch || submissions.length === 0) return [];
+    return submissions
+      .filter(w => w.submissions.some(s => s.status === "approved"))
+      .map((w, i) => ({
+        id: w.id || String(i + 1),
+        name: w.workerName,
+        type: w.workerType,
+        country: w.workerCountry,
+        currency: w.currency || "EUR",
+        status: "ready" as const,
+        netPay: w.estimatedNet || w.submissions.filter(s => s.status === "approved").reduce((sum, s) => sum + (s.amount || 0), 0),
+        issues: 0,
+        paymentStatus: "in-progress" as const,
+      }));
+  }, [isCustomBatch, submissions]);
+
+  const [currentWorkers, setCurrentWorkers] = useState<WorkerData[]>(
+    isCustomBatch && customBatchWorkers.length > 0 ? customBatchWorkers : MOCK_TRACKED_WORKERS
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0);
+  const [payslipModalOpen, setPayslipModalOpen] = useState(false);
+  const [payslipWorker, setPayslipWorker] = useState<WorkerData | null>(null);
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("current");
+  
+  const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
+  const periodDropdownRef = useRef<HTMLDivElement>(null);
+
+  const currentPaidCount = currentWorkers.filter(w => w.paymentStatus === "paid").length;
+  const currentAllPaid = currentPaidCount === currentWorkers.length && currentWorkers.length > 0;
+
+  const periods: PayrollPeriod[] = [
+    { id: "current", label: "January 2026", status: currentAllPaid ? "paid" : "processing" },
+    { id: "dec-2025", label: "December 2025", status: "paid" },
+    { id: "nov-2025", label: "November 2025", status: "paid" },
+  ];
+
+  const selectedPeriod = periods.find(p => p.id === selectedPeriodId);
+  const isViewingHistorical = selectedPeriodId !== "current";
+  const selectedHistoricalPayroll = isViewingHistorical 
+    ? HISTORICAL_PAYROLLS.find(p => p.id === selectedPeriodId) 
+    : null;
+  
+  const workers = isViewingHistorical && selectedHistoricalPayroll 
+    ? selectedHistoricalPayroll.workers 
+    : currentWorkers;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (periodDropdownRef.current && !periodDropdownRef.current.contains(event.target as Node)) {
+        setIsPeriodDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const formatCurrency = (amount: number, currency: string) => {
+    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", SGD: "S$" };
+    return `${symbols[currency] || currency} ${amount.toLocaleString()}`;
+  };
+
+  const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+
+  const employees = workers.filter(w => w.type === "employee");
+  const contractors = workers.filter(w => w.type === "contractor");
+  const paidCount = workers.filter(w => w.paymentStatus === "paid").length;
+  const inProgressCount = workers.filter(w => w.paymentStatus === "in-progress").length;
+  const progressPercent = workers.length > 0 ? Math.round((paidCount / workers.length) * 100) : 0;
+  const allPaid = paidCount === workers.length && workers.length > 0;
+
+  const filteredWorkers = workers.filter(w =>
+    w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    w.country.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Sort: in-progress first, then paid
+  const sortedWorkers = [...filteredWorkers].sort((a, b) => {
+    const priority = (status: string | undefined) => {
+      if (status === "in-progress") return 0;
+      return 1;
+    };
+    return priority(a.paymentStatus) - priority(b.paymentStatus);
+  });
+
+  const handleMarkAsPaid = (workerId: string) => {
+    setCurrentWorkers(prev => {
+      const updated = prev.map(w => 
+        w.id === workerId ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } : w
+      );
+      if (updated.every(w => w.paymentStatus === "paid")) {
+        onAllPaid?.();
+      }
+      return updated;
+    });
+    toast.success("Marked as paid");
+  };
+
+  const handleMarkAllPaid = () => {
+    setCurrentWorkers(prev => prev.map(w => 
+      w.paymentStatus !== "paid" 
+        ? { ...w, paymentStatus: "paid" as const, providerRef: `PAY-2026-${Date.now().toString().slice(-6)}` } 
+        : w
+    ));
+    onAllPaid?.();
+    toast.success("All workers marked as paid");
+  };
+
+  const handleViewDetails = (worker: WorkerData) => {
+    const idx = workers.findIndex(w => w.id === worker.id);
+    setSelectedWorkerIndex(idx >= 0 ? idx : 0);
+    setDrawerOpen(true);
+  };
+
+  const handlePayslipPreview = (worker: WorkerData) => {
+    setPayslipWorker(worker);
+    setPayslipModalOpen(true);
+  };
+
+  const handleExportCSV = () => toast.success("CSV exported");
+  const handleDownloadAuditPDF = () => toast.success("Audit PDF downloaded");
+
+  const renderWorkerRow = (worker: WorkerData) => {
+    const config = paymentStatusConfig[worker.paymentStatus || "in-progress"];
+    const StatusIcon = config.icon;
+    const TypeIcon = worker.type === "employee" ? Users : Briefcase;
+
+    return (
+      <div 
+        key={worker.id}
+        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20 cursor-pointer hover:bg-muted/50 transition-colors"
+        onClick={() => handleViewDetails(worker)}
+      >
+        <Avatar className="h-6 w-6 flex-shrink-0">
+          <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
+            {getInitials(worker.name)}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
+            <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[worker.country] || ""} {worker.country}</span>
+          </div>
+        </div>
+
+        <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
+          {worker.currency !== "EUR" ? formatCurrency(Math.round(convertToEUR(worker.netPay, worker.currency)), "EUR") : formatCurrency(worker.netPay, "EUR")}
+        </p>
+
+        <div className={cn(
+          "flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium flex-shrink-0",
+          config.bg,
+          config.color
+        )}>
+          <StatusIcon className="h-3 w-3" />
+          {config.label}
+        </div>
+      </div>
+    );
+  };
+
+  const isHistorical = isViewingHistorical;
+  const paidDate = selectedHistoricalPayroll?.paidDate;
+  
+  const displayMetrics = isViewingHistorical && selectedHistoricalPayroll 
+    ? {
+        grossPay: selectedHistoricalPayroll.grossPay,
+        adjustments: selectedHistoricalPayroll.adjustments,
+        fees: selectedHistoricalPayroll.fees,
+        totalCost: selectedHistoricalPayroll.totalCost,
+        employeeCount: selectedHistoricalPayroll.employeeCount,
+        contractorCount: selectedHistoricalPayroll.contractorCount,
+        currencyCount: selectedHistoricalPayroll.currencyCount,
+      }
+    : {
+        grossPay: "€115.7K",
+        adjustments: "€7.6K",
+        fees: "€3,468",
+        totalCost: "€119.2K",
+        employeeCount: employees.length,
+        contractorCount: contractors.length,
+        currencyCount: 3,
+      };
+
+  const renderPeriodDropdown = () => (
+    <div className="relative" ref={periodDropdownRef}>
+      <button
+        onClick={() => setIsPeriodDropdownOpen(!isPeriodDropdownOpen)}
+        className={cn(
+          "flex items-center gap-1.5 text-lg font-semibold text-foreground",
+          "hover:text-foreground/80 transition-colors",
+          "focus:outline-none"
+        )}
+      >
+        {selectedPeriod?.label} Payroll
+        <ChevronDown className={cn(
+          "h-4 w-4 text-muted-foreground transition-transform duration-200",
+          isPeriodDropdownOpen && "rotate-180"
+        )} />
+      </button>
+
+      {isPeriodDropdownOpen && (
+        <div className="absolute top-full left-0 mt-2 z-50 min-w-[200px] bg-card border border-border/40 rounded-lg shadow-lg py-1 backdrop-blur-sm">
+          {periods.map((period) => (
+            <button
+              key={period.id}
+              onClick={() => {
+                setSelectedPeriodId(period.id);
+                setIsPeriodDropdownOpen(false);
+              }}
+              className={cn(
+                "w-full flex items-center justify-between px-3 py-2 text-left text-sm",
+                "hover:bg-muted/50 transition-colors",
+                period.id === selectedPeriodId && "bg-muted/30"
+              )}
+            >
+              <span className={cn(
+                "font-medium",
+                period.id === selectedPeriodId ? "text-foreground" : "text-muted-foreground"
+              )}>
+                {period.label}
+              </span>
+              {period.status === "paid" && (
+                <span className="flex items-center gap-1 text-[11px] text-accent-green-text">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Paid
+                </span>
+              )}
+              {period.status === "processing" && (
+                <span className="flex items-center gap-1 text-[11px] text-blue-600">
+                  <Clock className="h-3 w-3" />
+                  Processing
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderSummaryCard = () => (
+    <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+      <CardContent className="py-6 px-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            {renderPeriodDropdown()}
+            {isHistorical || allPaid ? (
+              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Paid
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                <Clock className="h-3 w-3 mr-1" />
+                Processing
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <span className="text-sm">Gross Pay</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
+                  <p className="font-medium">Locked at USD → EUR 1.0842</p>
+                  <p className="text-muted-foreground text-[10px]">FX rate locked upon approval</p>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
+            <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
+          </div>
+
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <span className="text-sm">Adj. Approved</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
+                  <p className="font-medium">Locked at USD → EUR 1.0842</p>
+                  <p className="text-muted-foreground text-[10px]">FX rate locked upon approval</p>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
+            <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
+          </div>
+
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <Building2 className="h-4 w-4 text-primary" />
+              <span className="text-sm">Fronted Fees</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
+            <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+          </div>
+
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <span className="text-sm">Total Cost</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
+            <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
+          </div>
+        </div>
+
+        {/* Footer Stats */}
+        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
+          <span>Employees: <strong className="text-foreground">{displayMetrics.employeeCount}</strong></span>
+          <span className="text-border">·</span>
+          <span>Contractors: <strong className="text-foreground">{displayMetrics.contractorCount}</strong></span>
+          <span className="text-border">·</span>
+          <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderTrackingTable = () => (
+    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
+      {/* Progress Hero */}
+      <div className="px-6 pt-4 pb-3 border-b border-border/40">
+        <div className="flex items-center justify-between">
+          <div>
+            {isHistorical || allPaid ? (
+              <p className="text-sm text-muted-foreground">Payment Status</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">Payment Status</p>
+            )}
+          </div>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            {!isHistorical && !allPaid && inProgressCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs gap-1.5"
+                onClick={handleMarkAllPaid}
+              >
+                <CheckCheck className="h-3.5 w-3.5" />
+                All Paid
+              </Button>
+            )}
+            {(isHistorical || allPaid) && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs gap-1.5"
+                onClick={handleExportCSV}
+              >
+                <Download className="h-3.5 w-3.5" />
+                Export CSV
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Worker List */}
+      <CardContent className="p-4">
+        <div className="max-h-[320px] overflow-y-auto space-y-1">
+          {sortedWorkers.map(renderWorkerRow)}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderContent = () => (
+    <div className="space-y-6">
+      {!hideSummaryCard && renderSummaryCard()}
+      {renderTrackingTable()}
+    </div>
+  );
+
+  if (hideHeader) {
+    return (
+      <>
+        {renderContent()}
+        
+        <F1v4_WorkerDetailDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          worker={workers[selectedWorkerIndex] || null}
+          workers={workers}
+          currentIndex={selectedWorkerIndex}
+          onNavigate={setSelectedWorkerIndex}
+          onPayslipPreview={handlePayslipPreview}
+          isTrackStep={true}
+          onMarkAsPaid={handleMarkAsPaid}
+          isCustomBatch={isCustomBatch}
+        />
+
+        <F1v4_PayslipPreviewModal
+          open={payslipModalOpen}
+          onOpenChange={setPayslipModalOpen}
+          worker={payslipWorker}
+        />
+
+      </>
+    );
+  }
+
+  return (
+    <>
+      {renderContent()}
+
+      <F1v4_WorkerDetailDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        worker={workers[selectedWorkerIndex] || null}
+        workers={workers}
+        currentIndex={selectedWorkerIndex}
+        onNavigate={setSelectedWorkerIndex}
+        onPayslipPreview={handlePayslipPreview}
+        isTrackStep={true}
+        onMarkAsPaid={handleMarkAsPaid}
+        isCustomBatch={isCustomBatch}
+      />
+
+      <F1v4_PayslipPreviewModal
+        open={payslipModalOpen}
+        onOpenChange={setPayslipModalOpen}
+        worker={payslipWorker}
+      />
+
+    </>
+  );
+};
+
+export default F1v4_TrackStep;
