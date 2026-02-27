@@ -22,9 +22,10 @@ interface Step5Props {
   allFieldsLocked?: boolean;
   hideHeader?: boolean;
   hideButtons?: boolean;
+  showContactNotice?: boolean;
 }
 
-const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons }: Step5Props) => {
+const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, showContactNotice }: Step5Props) => {
   const [data, setData] = useState({
     deviceProvided: formData.deviceProvided ?? undefined,
     reimbursementAmount: formData.reimbursementAmount || "",

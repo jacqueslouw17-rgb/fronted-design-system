@@ -27,9 +27,10 @@ interface Step4Props {
   allFieldsLocked?: boolean;
   hideHeader?: boolean;
   hideButtons?: boolean;
+  showContactNotice?: boolean;
 }
 
-const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons }: Step4Props) => {
+const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, showContactNotice }: Step4Props) => {
   const [data, setData] = useState({
     bankCountry: formData.bankCountry || formData.country || "",
     bankName: formData.bankName || "",
