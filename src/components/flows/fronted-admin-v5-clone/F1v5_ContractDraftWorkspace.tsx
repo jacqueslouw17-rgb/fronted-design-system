@@ -695,7 +695,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 </p>
               </div>
             ) : showTabs ? (
-              <div className="flex items-center gap-1 min-w-0 flex-wrap">
+              <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                 {visibleDocs.map((doc) => {
                   const isActive = activeDocument === doc.id;
                   const isConfirmed = confirmedDocs.has(doc.id);
