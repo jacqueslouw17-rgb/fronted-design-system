@@ -543,13 +543,12 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   return (
     <div className="space-y-2">
       <AgentHeader 
-        title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} 
+        title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract`} 
         subtitle="Preview how this contract will appear to the candidate before sending for signature." 
         showPulse={true} 
         isActive={isAgentSpeaking} 
         showInput={false}
         progressIndicator={candidateStepper}
-        className="[&_h1]:text-lg [&_h1]:sm:text-xl"
       />
 
       {/* ── Mobile: Collapsible candidate details ── */}
