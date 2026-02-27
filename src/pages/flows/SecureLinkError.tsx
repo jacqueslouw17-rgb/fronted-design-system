@@ -20,7 +20,7 @@ const SecureLinkError: React.FC = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/[0.08] via-transparent to-transparent pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/[0.05] rounded-full blur-3xl pointer-events-none" />
       
-      {/* Header with logo */}
+      <header className="px-4 py-4 sm:p-6 relative z-10">
         <div className="flex items-center gap-2">
           <button 
             onClick={() => navigate("/?tab=flows")} 
