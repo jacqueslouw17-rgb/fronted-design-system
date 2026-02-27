@@ -1624,16 +1624,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       toast.success(`${selectedForDoneDetail?.name} has been ${actionLabel}.`);
      }}
      onDocumentsVerified={(workerId) => {
+       setDoneDetailDrawerOpen(false);
        // Mark as verified and active
-       setContractors(current => current.map(c => 
-         c.id === workerId 
-           ? { ...c, documentsVerified: true, needsDocumentVerification: false }
-           : c
-       ));
-       setSelectedForDoneDetail(prev => prev ? { ...prev, documentsVerified: true, needsDocumentVerification: false } : null);
-       toast.success(`✅ ${selectedForDoneDetail?.name.split(' ')[0]}'s documents verified — now active`, {
-         duration: 5000
-       });
+       setTimeout(() => {
+         setContractors(current => current.map(c => 
+           c.id === workerId 
+             ? { ...c, documentsVerified: true, needsDocumentVerification: false }
+             : c
+         ));
+         toast.success(`✅ ${selectedForDoneDetail?.name.split(' ')[0]}'s documents verified — now active`, {
+           duration: 5000
+         });
+       }, 300);
      }} />
       {/* Payroll Data Collection Drawer */}
       <F1v5_PayrollDataCollectionDrawer
