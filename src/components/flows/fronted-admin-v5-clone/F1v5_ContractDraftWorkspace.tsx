@@ -517,6 +517,8 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   const MAX_VISIBLE_TABS = isMobile ? 2 : 3;
   const visibleDocs = documents.slice(0, MAX_VISIBLE_TABS);
   const overflowDocs = documents.slice(MAX_VISIBLE_TABS);
+  const activeInOverflow = overflowDocs.some(d => d.id === activeDocument);
+  const confirmedOverflowCount = overflowDocs.filter(d => confirmedDocs.has(d.id)).length;
 
   // Document confirmation flow: must scroll each doc (last page if multi-page) before confirming
   const currentDocIndex = documents.findIndex(d => d.id === activeDocument);
