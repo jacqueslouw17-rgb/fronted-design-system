@@ -27,10 +27,9 @@ export const CA4_SupportBubble: React.FC = () => {
             <Button
               onClick={() => setIsModalOpen(true)}
               className={cn(
-                "fixed bottom-8 right-8 h-12 w-12 rounded-full",
+                "fixed bottom-6 right-4 sm:bottom-8 sm:right-8 h-11 w-11 sm:h-12 sm:w-12 rounded-full",
                 "bg-primary/5 border border-primary/20",
-                "transform-gpu will-change-transform origin-bottom-right",
-                "transition-[transform,background-color,border-color,box-shadow] duration-200 ease-out",
+                "transition-all duration-200",
                 "hover:scale-[1.06] hover:bg-primary/10 hover:border-primary/30",
                 "active:scale-[0.98]",
                 "shadow-card hover:shadow-elevated",
