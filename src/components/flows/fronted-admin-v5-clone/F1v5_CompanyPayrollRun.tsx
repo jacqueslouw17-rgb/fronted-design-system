@@ -714,9 +714,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         {!isCustomBatch && (
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
           <CardContent className="py-6 px-6">
-            {/* Metrics Grid */}
-            <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 lg:mx-0 lg:px-0 lg:overflow-visible pb-1 mb-6">
-              <div className="flex lg:grid lg:grid-cols-4 gap-3 lg:gap-4 w-max lg:w-auto">
+            {/* Metrics Grid - 5 equal tiles */}
+            <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 lg:mx-0 lg:px-0 lg:overflow-visible pb-1">
+              <div className="flex lg:grid lg:grid-cols-5 gap-3 w-max lg:w-auto">
               {/* Gross Pay */}
               <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
@@ -738,7 +738,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Salaries + Contractor fees</p>
               </div>
 
-              {/* Total Adjustments */}
+              {/* Adjustments */}
               <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
                   <Receipt className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
@@ -759,41 +759,36 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                 <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Bonuses, overtime & expenses</p>
               </div>
 
-              {/* Fronted Fees */}
+              {/* Employees */}
               <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
-                  <Building2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
-                  <span className="text-xs lg:text-sm">Fronted Fees</span>
+                  <Users className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Employees</span>
                 </div>
-                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
-                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Transaction + Service</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.employeeCount}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Active this period</p>
               </div>
 
-              {/* Total Cost */}
+              {/* Contractors */}
               <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
-                  <TrendingUp className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
-                  <span className="text-xs lg:text-sm">Total Cost</span>
+                  <Briefcase className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Contractors</span>
                 </div>
-                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
-                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Pay + All Fees</p>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.contractorCount}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Active this period</p>
               </div>
-              </div>
-            </div>
 
-            {/* Footer Stats */}
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
-              <span className="flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5" />
-                Employees: <strong className="text-foreground">{displayMetrics.employeeCount}</strong>
-              </span>
-              <span className="text-border">·</span>
-              <span className="flex items-center gap-1.5">
-                <Briefcase className="h-3.5 w-3.5" />
-                Contractors: <strong className="text-foreground">{displayMetrics.contractorCount}</strong>
-              </span>
-              <span className="text-border">·</span>
-              <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
+              {/* Currencies */}
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <DollarSign className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Currencies</span>
+                </div>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.currencyCount}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Multi-currency run</p>
+              </div>
+              </div>
             </div>
           </CardContent>
         </Card>
