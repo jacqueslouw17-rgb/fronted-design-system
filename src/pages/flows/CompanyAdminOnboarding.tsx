@@ -138,26 +138,6 @@ const CompanyAdminOnboarding = () => {
             <LockedField label="Email" value={email} />
             <LockedField label="Company Name" value={companyName} />
             <LockedField label="HQ Country" value={countryDisplay} />
-            <LockedField label="Default Currency" value={defaultCurrency === "EUR" ? "€ EUR" : "$ USD"} />
-
-            {/* Base Templates — locked list */}
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1.5 text-muted-foreground">
-                <Lock className="h-3 w-3" />
-                Base Contract Templates
-              </Label>
-              <div className="space-y-1.5">
-                {baseTemplates.map((template: string, idx: number) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md bg-muted/50 text-sm text-muted-foreground"
-                  >
-                    <FileText className="h-3.5 w-3.5 shrink-0" />
-                    {template}
-                  </div>
-                ))}
-              </div>
-            </div>
 
             <p className="text-xs text-muted-foreground">
               Need to update your details? Contact your Fronted admin.
