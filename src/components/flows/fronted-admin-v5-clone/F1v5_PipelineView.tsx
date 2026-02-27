@@ -1203,7 +1203,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   {contractor.workerStatus === "contract-ended" ? "Ended" 
                                     : contractor.workerStatus === "resigned" ? "Resigned"
                                     : contractor.workerStatus === "terminated" ? "Terminated"
-                                    : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
+                                    : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Offboarded"
                                     : "Active"}
                                 </Badge>
                               )}
@@ -1417,7 +1417,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     <CollapsibleTrigger className="flex items-center gap-2 w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 group">
                       <div className="h-px flex-1 bg-border/60" />
                       <span className="flex items-center gap-1 font-medium shrink-0">
-                        Inactive ({inactiveItems.length})
+                        Offboarded ({inactiveItems.length})
                         <ChevronDown className="h-3 w-3 transition-transform group-data-[state=open]:rotate-180" />
                       </span>
                       <div className="h-px flex-1 bg-border/60" />
