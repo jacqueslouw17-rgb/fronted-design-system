@@ -671,10 +671,10 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         </motion.div>
 
         {/* Right: Contract viewer with tabs + editor */}
-        <motion.div ref={contractColumnRef} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col lg:h-[600px] min-h-0 w-full overflow-y-auto rounded-lg border border-border">
+        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col lg:h-[600px] min-h-0 w-full rounded-lg border border-border overflow-hidden">
           
-          {/* Unified toolbar: tabs + actions — sticky inside scrollable area */}
-          <div className="sticky top-0 z-10 bg-muted/80 backdrop-blur-xl border-b border-border/50 p-2 flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+          {/* Document toolbar — always visible, never scrolls */}
+          <div className="bg-muted/80 border-b border-border/50 p-2 flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
             {/* Left: Document tabs or edit context */}
             {isEditMode ? (
               <div className="flex items-center gap-2 min-w-0">
@@ -865,7 +865,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
               </AnimatePresence>
             </div>
           ) : (
-            <div ref={scrollAreaRef} className="flex-1 min-h-0 bg-background">
+            <div ref={contractColumnRef} className="flex-1 min-h-0 overflow-y-auto bg-background">
               <AnimatePresence mode="wait">
                 {isResetting ? (
                   <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="p-4 sm:p-6">
@@ -943,7 +943,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
           )}
 
           {/* Bottom bar - step navigation + pagination */}
-          <div className="sticky bottom-0 z-10 flex-shrink-0 p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center bg-background/90 backdrop-blur-xl border-t border-border/50">
+          <div className="flex-shrink-0 p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center bg-background border-t border-border/50">
             <div className="flex items-center gap-2 sm:gap-3">
               <Button
                 variant="outline"
