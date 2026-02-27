@@ -485,26 +485,28 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   React.useEffect(() => {
     const completedContractors = contractors.filter(c => c.status === "onboarding-pending" && c.checklistProgress === 100 && !notifiedPayrollReadyIds.current.has(c.id));
     if (completedContractors.length > 0) {
-      // Separate into auto-move (no doc verification needed) vs needs-verification
+      // All completed contractors move to Done — doc-verification ones go as "inactive" until verified
       const autoMove = completedContractors.filter(c => !countriesRequiringDocVerification.includes(c.country));
       const needsVerification = completedContractors.filter(c => countriesRequiringDocVerification.includes(c.country));
 
-      // Mark needs-verification contractors
+      // Move needs-verification contractors to Done as inactive (needs doc verification in Done drawer)
       if (needsVerification.length > 0) {
         needsVerification.forEach(c => notifiedPayrollReadyIds.current.add(c.id));
-        setContractors(current => current.map(c => 
-          needsVerification.some(nv => nv.id === c.id) 
-            ? { ...c, needsDocumentVerification: true }
-            : c
-        ));
-        setTimeout(() => {
-          needsVerification.forEach(contractor => {
-            toast.info(`📄 ${contractor.name.split(' ')[0]} has submitted documents for review`, {
-              description: "Click 'View Status' to verify and approve",
-              duration: 6000
+        const timer2 = setTimeout(() => {
+          setContractors(current => current.map(c => 
+            needsVerification.some(nv => nv.id === c.id) 
+              ? { ...c, status: "CERTIFIED" as const, needsDocumentVerification: true, documentsVerified: false }
+              : c
+          ));
+          setTimeout(() => {
+            needsVerification.forEach(contractor => {
+              toast.info(`📄 ${contractor.name.split(' ')[0]} moved to Done — documents pending verification`, {
+                description: "Open their profile to verify documents",
+                duration: 6000
+              });
             });
-          });
-        }, 500);
+          }, 500);
+        }, 1500);
       }
 
       if (autoMove.length > 0) {
@@ -1187,20 +1189,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </span>
                               <span className="text-sm">{contractor.countryFlag}</span>
                               {/* Status badges inline */}
-                              {status === "onboarding-pending" && !contractor.needsDocumentVerification && (
+                              {status === "onboarding-pending" && (
                                 <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20 ml-auto">
-                                  In Progress
-                                </Badge>
-                              )}
-                              {status === "onboarding-pending" && contractor.needsDocumentVerification && (
-                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] border-amber-500/30 bg-amber-500/8 text-amber-600 dark:text-amber-400 flex-shrink-0 ml-auto">
-                                  In Review
+                                  Awaiting
                                 </Badge>
                               )}
                               {status === "CERTIFIED" && (
                                 <Badge variant="outline" className={cn(
                                   "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
-                                  (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                                  // Inactive: needs doc verification but not yet verified
+                                  (contractor.needsDocumentVerification && !contractor.documentsVerified) && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                  // Active: no doc verification needed OR already verified
+                                  (!contractor.needsDocumentVerification || contractor.documentsVerified) && (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
                                   contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
                                   contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
                                   contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
@@ -1208,6 +1208,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   {contractor.workerStatus === "contract-ended" ? "Ended" 
                                     : contractor.workerStatus === "resigned" ? "Resigned"
                                     : contractor.workerStatus === "terminated" ? "Terminated"
+                                    : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
                                     : "Active"}
                                 </Badge>
                               )}
