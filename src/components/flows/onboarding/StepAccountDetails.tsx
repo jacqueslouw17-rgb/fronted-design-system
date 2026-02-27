@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Lock } from "lucide-react";
+import { ArrowRight, Lock, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import StandardInput from "@/components/shared/StandardInput";
@@ -23,6 +23,19 @@ const COUNTRIES: Record<string, { label: string; flag: string }> = {
   IN: { label: "India", flag: "🇮🇳" },
   PH: { label: "Philippines", flag: "🇵🇭" },
   XK: { label: "Kosovo", flag: "🇽🇰" },
+};
+
+const EUROZONE = ["AT", "BE", "CY", "EE", "FI", "FR", "DE", "GR", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PT", "SK", "SI", "ES", "NO", "DK", "SE"];
+
+const DEFAULT_TEMPLATES: Record<string, string[]> = {
+  NO: ["Employment Agreement", "NDA", "IP Assignment"],
+  DK: ["Employment Agreement", "NDA"],
+  SE: ["Employment Agreement", "NDA", "IP Assignment"],
+  US: ["Employment Agreement", "NDA", "IP Assignment", "At-Will Notice"],
+  GB: ["Employment Agreement", "NDA", "IP Assignment"],
+  IN: ["Employment Agreement", "NDA", "IP Assignment", "Gratuity Notice"],
+  PH: ["Employment Agreement", "NDA"],
+  XK: ["Employment Agreement", "NDA"],
 };
 
 interface StepAccountDetailsProps {
