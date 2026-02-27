@@ -1608,6 +1608,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       email: selectedForDoneDetail.email,
       workerStatus: selectedForDoneDetail.workerStatus || "active",
       documentsVerified: selectedForDoneDetail.documentsVerified || false,
+      needsDocumentVerification: selectedForDoneDetail.needsDocumentVerification || false,
       endDate: selectedForDoneDetail.endDate,
       endReason: selectedForDoneDetail.endReason,
     } : null} onGoToDataCollection={workerId => {
@@ -1617,11 +1618,22 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       setContractors(current => current.map(c => 
         c.id === workerId ? { ...c, workerStatus: action, endDate, endReason: reason } : c
       ));
-      // Update the selected worker too so the drawer reflects the change
       setSelectedForDoneDetail(prev => prev ? { ...prev, workerStatus: action, endDate, endReason: reason } : null);
       setDoneDetailDrawerOpen(false);
       const actionLabel = action === "terminated" ? "terminated" : action === "resigned" ? "marked as resigned" : "contract ended";
       toast.success(`${selectedForDoneDetail?.name} has been ${actionLabel}.`);
+     }}
+     onDocumentsVerified={(workerId) => {
+       // Mark as verified and active
+       setContractors(current => current.map(c => 
+         c.id === workerId 
+           ? { ...c, documentsVerified: true, needsDocumentVerification: false }
+           : c
+       ));
+       setSelectedForDoneDetail(prev => prev ? { ...prev, documentsVerified: true, needsDocumentVerification: false } : null);
+       toast.success(`✅ ${selectedForDoneDetail?.name.split(' ')[0]}'s documents verified — now active`, {
+         duration: 5000
+       });
      }} />
       {/* Payroll Data Collection Drawer */}
       <F1v5_PayrollDataCollectionDrawer
@@ -1636,36 +1648,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         }}
       />
 
-      {/* Document Verification Drawer (reuses Done worker layout) */}
-      <F1v4_DoneWorkerDetailDrawer 
-        open={verificationDrawerOpen} 
-        onOpenChange={setVerificationDrawerOpen} 
-        worker={selectedForVerification ? {
-          id: selectedForVerification.id,
-          name: selectedForVerification.name,
-          country: selectedForVerification.country,
-          countryFlag: selectedForVerification.countryFlag,
-          role: selectedForVerification.role,
-          salary: selectedForVerification.salary,
-          employmentType: selectedForVerification.employmentType || "employee",
-          email: selectedForVerification.email,
-          workerStatus: "active",
-        } : null}
-        verificationMode={true}
-        onDocumentsVerified={(workerId) => {
-          setVerificationDrawerOpen(false);
-          // Gentle transition to Done
-          setTimeout(() => {
-            setContractors(current => current.map(c => 
-              c.id === workerId 
-                ? { ...c, status: "CERTIFIED" as const, documentsVerified: true, needsDocumentVerification: false }
-                : c
-            ));
-            toast.success(`✅ ${selectedForVerification?.name.split(' ')[0]}'s documents verified — moved to Done`, {
-              duration: 5000
-            });
-          }, 400);
-        }}
-      />
+
+
     </div>;
 };
