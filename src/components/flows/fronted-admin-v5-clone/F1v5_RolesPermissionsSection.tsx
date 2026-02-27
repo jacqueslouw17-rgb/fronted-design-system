@@ -84,16 +84,6 @@ export function F1v5_RolesPermissionsSection({ onBack }: Props) {
 
   return (
     <div>
-      {/* Create button row */}
-      {canManageRoles && (
-        <div className="flex justify-end mb-3">
-          <Button onClick={handleCreateRole} size="sm" className="gap-1.5 text-xs">
-            <Plus className="h-3.5 w-3.5" />
-            Create Role
-          </Button>
-        </div>
-      )}
-
       {/* Role rows */}
       <div className="rounded-xl border border-border/30 bg-card/20 overflow-hidden divide-y divide-border/20">
         <AnimatePresence mode="popLayout">
@@ -174,11 +164,16 @@ export function F1v5_RolesPermissionsSection({ onBack }: Props) {
         )}
       </div>
 
-      {/* Centered back button */}
-      <div className="flex justify-center mt-4">
+      {/* Action buttons — left-aligned pair */}
+      <div className="flex items-center gap-2 mt-4">
         <Button variant="outline" size="sm" onClick={onBack} className="text-xs">
           Back
         </Button>
+        {canManageRoles && (
+          <Button onClick={handleCreateRole} size="sm" className="text-xs">
+            Create Role
+          </Button>
+        )}
       </div>
 
       {/* Role Editor Drawer */}
