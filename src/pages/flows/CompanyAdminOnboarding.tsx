@@ -1,49 +1,83 @@
 /**
  * Flow 5 — Company Admin Onboarding v1
  * 
- * Aligned with Flow 2 v2 / Flow 3 v2 UX pattern:
- * AgentLayout → AgentHeader → ProgressBar → StepCard accordion
- * 
- * Steps:
- * 1. Account & Company Details (prefilled from invite + company profile)
- * 2. Terms & Conditions (checkbox + sheet drawer)
+ * Single flat form: locked prefilled fields, password creation, inline T&C acceptance.
+ * No multi-step accordion — everything in one container.
  */
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
-import { AnimatePresence, motion } from "framer-motion";
-import ProgressBar from "@/components/ProgressBar";
-import StepCard from "@/components/StepCard";
+import { motion } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
+import StandardInput from "@/components/shared/StandardInput";
+import { Lock, FileText, ArrowRight, X, Shield } from "lucide-react";
 
-import StepAccountDetails from "@/components/flows/onboarding/StepAccountDetails";
-import StepTermsConditions from "@/components/flows/onboarding/StepTermsConditions";
+const COUNTRIES: Record<string, { label: string; flag: string }> = {
+  NO: { label: "Norway", flag: "🇳🇴" },
+  DK: { label: "Denmark", flag: "🇩🇰" },
+  SE: { label: "Sweden", flag: "🇸🇪" },
+  US: { label: "United States", flag: "🇺🇸" },
+  GB: { label: "United Kingdom", flag: "🇬🇧" },
+  IN: { label: "India", flag: "🇮🇳" },
+  PH: { label: "Philippines", flag: "🇵🇭" },
+  XK: { label: "Kosovo", flag: "🇽🇰" },
+};
 
-const FLOW_STEPS = [
-  { id: "account_details", title: "Account & Company Details" },
-  { id: "terms", title: "Terms & Conditions" },
-];
+const EUROZONE = ["AT", "BE", "CY", "EE", "FI", "FR", "DE", "GR", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PT", "SK", "SI", "ES", "NO", "DK", "SE"];
+
+const DEFAULT_TEMPLATES: Record<string, string[]> = {
+  NO: ["Employment Agreement", "NDA", "IP Assignment"],
+  DK: ["Employment Agreement", "NDA"],
+  SE: ["Employment Agreement", "NDA", "IP Assignment"],
+  US: ["Employment Agreement", "NDA", "IP Assignment", "At-Will Notice"],
+  GB: ["Employment Agreement", "NDA", "IP Assignment"],
+  IN: ["Employment Agreement", "NDA", "IP Assignment", "Gratuity Notice"],
+  PH: ["Employment Agreement", "NDA"],
+  XK: ["Employment Agreement", "NDA"],
+};
+
+const LockedField = ({ label, value }: { label: string; value: string }) => (
+  <div className="space-y-2">
+    <Label className="flex items-center gap-1.5 text-muted-foreground">
+      <Lock className="h-3 w-3" />
+      {label}
+    </Label>
+    <Input value={value} disabled className="bg-muted/50 text-muted-foreground cursor-not-allowed" />
+  </div>
+);
 
 const CompanyAdminOnboarding = () => {
   const navigate = useNavigate();
-  const { state, updateFormData, completeStep } = useAdminFlowBridge();
+  const { updateFormData, completeStep } = useAdminFlowBridge();
   const { resetAdminFlow } = useOnboardingStore();
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
 
-  const [currentStep, setCurrentStep] = useState("account_details");
-  const [expandedStep, setExpandedStep] = useState<string | null>("account_details");
-  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
-  const [formData, setFormData] = useState<Record<string, any>>({});
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsSheetOpen, setTermsSheetOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const hasInitialized = useRef(false);
+
+  const fullName = "Joe Smith";
+  const email = "joe.smith@jboxtech.com";
+  const companyName = "JBOX Technologies";
+  const hqCountry = "NO";
+  const defaultCurrency = EUROZONE.includes(hqCountry) ? "EUR" : "USD";
+  const baseTemplates = DEFAULT_TEMPLATES[hqCountry] || ["Employment Agreement", "NDA"];
+  const countryInfo = COUNTRIES[hqCountry];
+  const countryDisplay = countryInfo ? `${countryInfo.flag} ${countryInfo.label}` : hqCountry;
 
   useEffect(() => {
     setAgentSpeaking(isSpeaking);
@@ -52,75 +86,25 @@ const CompanyAdminOnboarding = () => {
   useEffect(() => {
     if (!hasInitialized.current) {
       resetAdminFlow();
-      const prefilled = {
-        adminName: "Joe Smith",
-        adminEmail: "joe.smith@jboxtech.com",
-        companyName: "JBOX Technologies",
-        hqCountry: "NO",
-      };
-      updateFormData(prefilled);
-      setFormData(prefilled);
-      setExpandedStep("account_details");
+      updateFormData({ adminName: fullName, adminEmail: email, companyName, hqCountry });
       hasInitialized.current = true;
     }
   }, [resetAdminFlow, updateFormData]);
 
-  const scrollToStep = (stepId: string) => {
-    utilScrollToStep(stepId, { focusHeader: true, delay: 100 });
+  const isValid = password.length >= 8 && termsAccepted;
+
+  const handleSubmit = async () => {
+    const newErrors: Record<string, string> = {};
+    if (!password || password.length < 8) newErrors.password = "Password must be at least 8 characters";
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    setIsSubmitting(true);
+    await new Promise(r => setTimeout(r, 800));
+    completeStep("account_details");
+    completeStep("terms");
+    navigate("/flows/company-admin-dashboard-v3");
   };
-
-  const getStepStatus = (stepId: string): "inactive" | "pending" | "active" | "completed" => {
-    if (completedSteps.has(stepId)) return "completed";
-    if (stepId === currentStep) return "active";
-    const currentIndex = FLOW_STEPS.findIndex(s => s.id === currentStep);
-    const stepIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-    if (stepIndex > currentIndex) return "inactive";
-    return "pending";
-  };
-
-  const handleStepComplete = async (stepId: string, data?: Record<string, any>) => {
-    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-    const isFinalStep = currentIndex === FLOW_STEPS.length - 1;
-
-    if (!isFinalStep) {
-      setIsProcessing(true);
-    }
-
-    if (data) {
-      setFormData(prev => ({ ...prev, ...data }));
-      updateFormData(data);
-    }
-
-    completeStep(stepId);
-    setCompletedSteps(prev => new Set(prev).add(stepId));
-
-    if (isFinalStep) {
-      navigate("/flows/company-admin-dashboard-v3");
-      return;
-    }
-
-    const nextStep = FLOW_STEPS[currentIndex + 1];
-    if (nextStep) {
-      await new Promise(r => setTimeout(r, 600));
-      setCurrentStep(nextStep.id);
-      setExpandedStep(nextStep.id);
-      setIsProcessing(false);
-      setTimeout(() => scrollToStep(nextStep.id), 50);
-    }
-  };
-
-  const handleStepClick = (stepId: string) => {
-    const status = getStepStatus(stepId);
-    if (status === "inactive") return;
-    const wasExpanded = expandedStep === stepId;
-    const newExpanded = wasExpanded ? null : stepId;
-    setExpandedStep(newExpanded);
-    if (newExpanded) {
-      setTimeout(() => scrollToStep(stepId), 50);
-    }
-  };
-
-  const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === currentStep);
 
   return (
     <AgentLayout context="Company Admin Onboarding">
@@ -143,59 +127,169 @@ const CompanyAdminOnboarding = () => {
             showInput={false}
           />
 
-          <div>
-            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={FLOW_STEPS.length} />
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.15 }}
+            className="bg-card/60 backdrop-blur-sm border border-border/40 rounded-xl p-4 sm:p-6 space-y-4"
+          >
+            {/* Locked fields */}
+            <LockedField label="Full Name" value={fullName} />
+            <LockedField label="Email" value={email} />
+            <LockedField label="Company Name" value={companyName} />
+            <LockedField label="HQ Country" value={countryDisplay} />
+            <LockedField label="Default Currency" value={defaultCurrency === "EUR" ? "€ EUR" : "$ USD"} />
 
-          <div className="space-y-4">
-            {FLOW_STEPS.map((step, index) => {
-              const status = getStepStatus(step.id);
-              const isExpanded = expandedStep === step.id;
-              const headerId = `step-header-${step.id}`;
-              const isLocked = index > currentStepIndex && status === "inactive";
-
-              return (
-                <div key={step.id} id={`step-${step.id}`} data-step={step.id} role="region" aria-labelledby={headerId}>
-                  <StepCard
-                    stepNumber={index + 1}
-                    title={step.title}
-                    status={status}
-                    isExpanded={isExpanded}
-                    isLocked={isLocked}
-                    onClick={() => handleStepClick(step.id)}
-                    headerId={headerId}
+            {/* Base Templates — locked list */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5 text-muted-foreground">
+                <Lock className="h-3 w-3" />
+                Base Contract Templates
+              </Label>
+              <div className="space-y-1.5">
+                {baseTemplates.map((template: string, idx: number) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md bg-muted/50 text-sm text-muted-foreground"
                   >
-                    <AnimatePresence mode="wait">
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          {step.id === "account_details" && (
-                            <StepAccountDetails
-                              formData={formData}
-                              onComplete={handleStepComplete}
-                              isProcessing={isProcessing}
-                            />
-                          )}
-                          {step.id === "terms" && (
-                            <StepTermsConditions
-                              onComplete={handleStepComplete}
-                              isProcessing={isProcessing}
-                            />
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </StepCard>
-                </div>
-              );
-            })}
-          </div>
+                    <FileText className="h-3.5 w-3.5 shrink-0" />
+                    {template}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Need to update your details? Contact your Fronted admin.
+            </p>
+
+            {/* Password field */}
+            <div className="border-t border-border/40 pt-4">
+              <StandardInput
+                id="password"
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                type="password"
+                error={errors.password}
+                helpText="Minimum 8 characters"
+                placeholder="••••••••"
+              />
+            </div>
+
+            {/* Inline Terms checkbox */}
+            <div className="flex items-center gap-3 pt-2">
+              <Checkbox
+                id="terms"
+                checked={termsAccepted}
+                onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+              />
+              <label htmlFor="terms" className="text-sm text-foreground leading-snug cursor-pointer select-none">
+                I agree to the{" "}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setTermsSheetOpen(true);
+                  }}
+                  className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+                >
+                  Terms & Conditions
+                </button>
+              </label>
+            </div>
+
+            {/* Submit */}
+            <Button
+              onClick={handleSubmit}
+              disabled={!isValid || isSubmitting}
+              className="w-full"
+              size="lg"
+            >
+              {isSubmitting ? "Processing..." : "Go to Dashboard"}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </motion.div>
         </div>
       </main>
+
+      {/* Terms Sheet */}
+      <Sheet open={termsSheetOpen} onOpenChange={setTermsSheetOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0 [&>button]:hidden">
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/40 px-6 py-5 flex items-center justify-between">
+            <SheetTitle className="text-lg font-semibold">Terms & Conditions</SheetTitle>
+            <button
+              onClick={() => setTermsSheetOpen(false)}
+              className="p-1.5 rounded-lg hover:bg-muted/60 transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          <div className="px-6 py-6 space-y-6">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              By accessing and using the Fronted platform, you agree to the following terms and conditions.
+              These terms govern your use of the platform as a Company Admin.
+            </p>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">1. Platform Usage</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You are granted access to manage payroll, employee data, and compliance workflows
+                on behalf of your organization. You agree to use the platform responsibly and in
+                accordance with applicable laws.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">2. Data Privacy</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                All employee and contractor data processed through the platform is handled in
+                compliance with GDPR and relevant data protection regulations. You are responsible
+                for ensuring the accuracy of the data you submit.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">3. Security</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You agree to maintain the confidentiality of your login credentials and to notify
+                us immediately of any unauthorized access to your account.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">4. Liability</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The platform is provided "as is." While we take reasonable measures to ensure
+                accuracy and uptime, we are not liable for any indirect damages arising from
+                platform use.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">5. Amendments</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                We reserve the right to update these terms at any time. Continued use of the
+                platform constitutes acceptance of any changes.
+              </p>
+            </section>
+
+            <div className="pt-4 pb-2">
+              <Button
+                onClick={() => {
+                  setTermsAccepted(true);
+                  setTermsSheetOpen(false);
+                }}
+                className="w-full"
+              >
+                I agree
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </AgentLayout>
   );
 };
