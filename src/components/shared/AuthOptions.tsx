@@ -36,7 +36,6 @@ const AuthOptions = ({ onComplete, isProcessing = false, hidePassword = false }:
           value={fullName}
           onChange={setFullName}
           type="text"
-          required
           error={errors.fullName}
           placeholder="John Doe"
         />
@@ -47,7 +46,6 @@ const AuthOptions = ({ onComplete, isProcessing = false, hidePassword = false }:
           value={email}
           onChange={setEmail}
           type="email"
-          required
           error={errors.email}
           placeholder="you@company.com"
         />
@@ -59,7 +57,6 @@ const AuthOptions = ({ onComplete, isProcessing = false, hidePassword = false }:
             value={password}
             onChange={setPassword}
             type="password"
-            required
             error={errors.password}
             helpText="Minimum 8 characters"
             placeholder="••••••••"
