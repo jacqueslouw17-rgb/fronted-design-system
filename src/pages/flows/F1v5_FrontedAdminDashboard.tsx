@@ -210,15 +210,16 @@ const AdminContractingMultiCompany = () => {
   const [headerScrolled, setHeaderScrolled] = useState(false);
 
   // Track scroll for frosted header on mobile
+  const isInContractFlow = contractFlow.phase !== "idle" && contractFlow.phase !== "offer-accepted" && contractFlow.phase !== "data-collection";
   useEffect(() => {
-    if (!isAddingNewCompany && !isEditingCompany) {
+    if (!isAddingNewCompany && !isEditingCompany && !isInContractFlow) {
       setHeaderScrolled(false);
       return;
     }
     const onScroll = () => setHeaderScrolled(window.scrollY > 16);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isAddingNewCompany, isEditingCompany]);
+  }, [isAddingNewCompany, isEditingCompany, isInContractFlow]);
   const [companies, setCompanies] = useState<CompanyData[]>(() => {
     const saved = localStorage.getItem('adminflow-v5-companies');
     return saved ? JSON.parse(saved) : MOCK_COMPANIES;
