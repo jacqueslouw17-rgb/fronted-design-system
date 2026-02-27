@@ -175,13 +175,15 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
   const [isResetting, setIsResetting] = useState(false);
   const [showAuditLog, setShowAuditLog] = useState(false);
 
-  // Responsive: fewer visible tabs on mobile so toolbar stays single-row
-  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 640 : false);
+  // Responsive: adaptive tab overflow — xs (<400px) all in dropdown, mobile (<640px) show 1, desktop show 4
+  const [viewportWidth, setViewportWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 640);
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 640);
+    const onResize = () => setViewportWidth(window.innerWidth);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+  const isXs = viewportWidth < 400;
+  const isMobile = viewportWidth < 640;
 
   // Reset state when template changes
   useEffect(() => {
@@ -287,7 +289,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
   if (!template) return null;
 
   const docs = template.documents;
-  const MAX_VISIBLE = isMobile ? 2 : 4;
+  const MAX_VISIBLE = isXs ? 0 : isMobile ? 1 : 4;
   const visibleDocs = docs.slice(0, MAX_VISIBLE);
   const overflowDocs = docs.slice(MAX_VISIBLE);
   const activeInOverflow = overflowDocs.some(d => d.id === activeDocId);
@@ -364,7 +366,7 @@ export const F1v5_CountryTemplateDrawer: React.FC<Props> = ({
                 </p>
               </div>
             ) : (
-              <div className="flex items-center gap-1 min-w-0 flex-wrap">
+              <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                 {visibleDocs.map((doc) => {
                   const isActive = doc.id === activeDocId;
                   const isEdited = doc.content !== doc.defaultContent;
