@@ -12,7 +12,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronRight, ChevronDown, Lock } from "lucide-react";
+import { ChevronRight, ChevronDown, Lock, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { AgentHeader } from "@/components/agent/AgentHeader";
@@ -58,6 +58,19 @@ const COUNTRIES: Record<string, { label: string; flag: string }> = {
   XK: { label: "Kosovo", flag: "🇽🇰" },
 };
 
+const EUROZONE = ["AT", "BE", "CY", "EE", "FI", "FR", "DE", "GR", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PT", "SK", "SI", "ES", "NO", "DK", "SE"];
+
+const DEFAULT_TEMPLATES: Record<string, string[]> = {
+  NO: ["Employment Agreement", "NDA", "IP Assignment"],
+  DK: ["Employment Agreement", "NDA"],
+  SE: ["Employment Agreement", "NDA", "IP Assignment"],
+  US: ["Employment Agreement", "NDA", "IP Assignment", "At-Will Notice"],
+  GB: ["Employment Agreement", "NDA", "IP Assignment"],
+  IN: ["Employment Agreement", "NDA", "IP Assignment", "Gratuity Notice"],
+  PH: ["Employment Agreement", "NDA"],
+  XK: ["Employment Agreement", "NDA"],
+};
+
 const LockedField = ({ label, value }: { label: string; value: string }) => (
   <div className="space-y-2">
     <Label className="flex items-center gap-1.5 text-muted-foreground text-sm">
@@ -97,6 +110,8 @@ const F6_ProfileSettings = () => {
   const header = SECTION_HEADERS[currentSection];
   const countryInfo = COUNTRIES[formData.hqCountry];
   const countryDisplay = countryInfo ? `${countryInfo.flag} ${countryInfo.label}` : formData.hqCountry;
+  const defaultCurrency = EUROZONE.includes(formData.hqCountry) ? "EUR" : "USD";
+  const baseTemplates = DEFAULT_TEMPLATES[formData.hqCountry] || ["Employment Agreement", "NDA"];
 
   const renderAccordionContent = (sectionId: string) => {
     switch (sectionId) {
@@ -105,6 +120,27 @@ const F6_ProfileSettings = () => {
           <div className="p-4 space-y-4">
             <LockedField label="Company Name" value={formData.companyName} />
             <LockedField label="HQ Country" value={countryDisplay} />
+            <LockedField label="Default Currency" value={defaultCurrency === "EUR" ? "€ EUR" : "$ USD"} />
+
+            {/* Base Contract Templates — locked list */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5 text-muted-foreground text-sm">
+                <Lock className="h-3 w-3" />
+                Base Contract Templates
+              </Label>
+              <div className="space-y-1.5">
+                {baseTemplates.map((template, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md bg-muted/50 text-sm text-muted-foreground"
+                  >
+                    <FileText className="h-3.5 w-3.5 shrink-0" />
+                    {template}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <p className="text-xs text-muted-foreground">
               Need to update your details? Contact your Fronted admin.
             </p>
