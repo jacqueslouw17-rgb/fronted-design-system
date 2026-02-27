@@ -20,9 +20,8 @@ const SecureLinkError: React.FC = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/[0.08] via-transparent to-transparent pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/[0.05] rounded-full blur-3xl pointer-events-none" />
       
-      {/* Header with logo */}
-      <header className="p-6 relative z-10">
-        <div className="flex items-center gap-3">
+      <header className="px-4 py-4 sm:p-6 relative z-10">
+        <div className="flex items-center gap-2">
           <button 
             onClick={() => navigate("/?tab=flows")} 
             className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" 
@@ -48,7 +47,7 @@ const SecureLinkError: React.FC = () => {
           className="w-full max-w-[420px]"
         >
           {/* Error Card */}
-          <div className="bg-card/95 backdrop-blur-sm rounded-3xl border border-border/60 shadow-xl shadow-black/[0.04] p-8 space-y-6">
+          <div className="bg-card/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-border/60 shadow-xl shadow-black/[0.04] p-5 sm:p-8 space-y-5 sm:space-y-6">
             {/* Illustration */}
             <motion.div 
               className="flex justify-center"
@@ -56,16 +55,16 @@ const SecureLinkError: React.FC = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.15, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <img 
+               <img 
                 src={secureLinkExpiredIllustration} 
                 alt="Secure link expired" 
-                className="w-28 h-28 object-contain"
+                className="w-20 h-20 sm:w-28 sm:h-28 object-contain"
               />
             </motion.div>
 
             {/* Title */}
             <motion.h1 
-              className="text-xl font-semibold text-center text-foreground leading-tight"
+              className="text-lg sm:text-xl font-semibold text-center text-foreground leading-tight"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25, duration: 0.4 }}
@@ -86,7 +85,7 @@ const SecureLinkError: React.FC = () => {
 
             {/* Bulleted hints */}
             <motion.div 
-              className="bg-muted/40 rounded-xl p-4 space-y-2.5 border border-border/40"
+              className="bg-muted/40 rounded-xl p-3 sm:p-4 space-y-2.5 border border-border/40"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45, duration: 0.4 }}
