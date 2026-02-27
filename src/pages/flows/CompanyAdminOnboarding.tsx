@@ -11,9 +11,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
-import frontedLogo from "@/assets/fronted-logo.png";
 import { Button } from "@/components/ui/button";
+import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { AnimatePresence, motion } from "framer-motion";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
