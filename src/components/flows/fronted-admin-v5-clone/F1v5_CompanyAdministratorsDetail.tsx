@@ -110,7 +110,7 @@ export function F1v5_CompanyAdministratorsDetail({ onBack }: Props) {
                     size="sm"
                     onClick={() => handleResendPassword(admin.id, admin.companyName)}
                     disabled={resendingId === admin.id}
-                    className="shrink-0 text-xs hidden sm:inline-flex"
+                    className="shrink-0 text-xs"
                   >
                     {resendingId === admin.id ? (
                       <>
@@ -118,7 +118,7 @@ export function F1v5_CompanyAdministratorsDetail({ onBack }: Props) {
                         Sending…
                       </>
                     ) : (
-                      "Resend Invite"
+                      "Resend"
                     )}
                   </Button>
                 </div>
@@ -137,26 +137,6 @@ export function F1v5_CompanyAdministratorsDetail({ onBack }: Props) {
                       · Last login {new Date(admin.lastLoginDate).toLocaleDateString()}
                     </span>
                   )}
-                </div>
-
-                {/* Mobile action button */}
-                <div className="sm:hidden mt-2.5">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleResendPassword(admin.id, admin.companyName)}
-                    disabled={resendingId === admin.id}
-                    className="w-full text-xs h-8"
-                  >
-                    {resendingId === admin.id ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                        Sending…
-                      </>
-                    ) : (
-                      "Resend Invite"
-                    )}
-                  </Button>
                 </div>
               </motion.div>
             );
