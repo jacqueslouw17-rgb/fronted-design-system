@@ -306,6 +306,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   const currentPageContent = pages[activePageIndex] || pages[0] || [];
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const contractColumnRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   
   // Track which documents have been confirmed (scrolled through)
@@ -403,7 +404,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
     });
   }, []);
 
-  const getViewportEl = useCallback(() => scrollAreaRef.current, []);
+  const getViewportEl = useCallback(() => contractColumnRef.current, []);
 
   const scrollAgreementToTop = useCallback((behavior: ScrollBehavior = "smooth") => {
     const viewport = getViewportEl();
@@ -540,7 +541,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
   }, [activeDocument, isLastDocument, currentDocIndex, documents, handleDocumentSwitch, scrollAgreementToTop, onNext]);
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-2">
       <AgentHeader 
         title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} 
         subtitle="Preview how this contract will appear to the candidate before sending for signature." 
@@ -604,7 +605,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         </Collapsible>
       </div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="h-full flex flex-col lg:flex-row gap-4 items-start">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="h-full flex flex-col lg:flex-row gap-2 items-start">
         {/* Left: Candidate card + Audit Log — hidden on mobile */}
         <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1, duration: 0.3 }} className="hidden lg:flex w-80 flex-shrink-0 flex-col h-[600px]">
           <Card className="border border-border/40 bg-card/50 backdrop-blur-sm flex-shrink-0 overflow-hidden">
@@ -670,10 +671,10 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         </motion.div>
 
         {/* Right: Contract viewer with tabs + editor */}
-        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col lg:h-[600px] min-h-0 w-full">
+        <motion.div ref={contractColumnRef} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col lg:h-[600px] min-h-0 w-full overflow-y-auto rounded-lg border border-border">
           
-          {/* Unified toolbar: tabs + actions in one row — sticky within this column */}
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.3 }} className="sticky top-0 z-10 rounded-t-lg border border-border bg-muted/30 backdrop-blur-xl p-2 flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+          {/* Unified toolbar: tabs + actions — sticky inside scrollable area */}
+          <div className="sticky top-0 z-10 bg-muted/80 backdrop-blur-xl border-b border-border/50 p-2 flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
             {/* Left: Document tabs or edit context */}
             {isEditMode ? (
               <div className="flex items-center gap-2 min-w-0">
@@ -848,11 +849,11 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 </Button>
               </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Contract content - Editor or Preview */}
           {isEditMode ? (
-            <div className="flex-1 min-h-0 border-x border-border bg-background flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 bg-background flex flex-col overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.div key="editor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="h-full flex flex-col">
                   <ContractRichTextEditor
@@ -864,7 +865,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
               </AnimatePresence>
             </div>
           ) : (
-            <div ref={scrollAreaRef} className="flex-1 min-h-0 overflow-y-auto border-x border-border bg-background">
+            <div ref={scrollAreaRef} className="flex-1 min-h-0 bg-background">
               <AnimatePresence mode="wait">
                 {isResetting ? (
                   <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="p-4 sm:p-6">
@@ -942,7 +943,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
           )}
 
           {/* Bottom bar - step navigation + pagination */}
-          <div className="flex-shrink-0 p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center bg-background border border-t-0 border-border rounded-b-lg">
+          <div className="sticky bottom-0 z-10 flex-shrink-0 p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center bg-background/90 backdrop-blur-xl border-t border-border/50">
             <div className="flex items-center gap-2 sm:gap-3">
               <Button
                 variant="outline"
