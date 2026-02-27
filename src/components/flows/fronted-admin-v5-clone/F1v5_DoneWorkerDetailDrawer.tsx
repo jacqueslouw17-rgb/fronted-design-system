@@ -686,16 +686,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               {/* 3) Payroll Parameters */}
               <SectionCard title="Payroll Parameters" defaultOpen={false}>
                 <div className="space-y-0.5">
-                  <div className="flex items-center justify-between gap-4 py-1.5">
-                    <span className="text-sm text-muted-foreground">Pay frequency</span>
-                    <Badge 
-                      variant="outline" 
-                      className="text-[10px] px-1.5 py-0 h-4 bg-primary/5 text-primary border-primary/20 capitalize"
-                    >
-                      {payFrequency}
-                    </Badge>
-                  </div>
-                  <DetailRow label="Payment schedule" value={paymentSchedule} />
                   <DetailRow label="TIN" value={mockData.tin} />
                   {isPhilippines && mockData.philHealthNumber && (
                     <DetailRow label="PhilHealth number" value={mockData.philHealthNumber} />
