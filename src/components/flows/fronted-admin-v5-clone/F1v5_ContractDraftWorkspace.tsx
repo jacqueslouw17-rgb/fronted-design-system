@@ -899,13 +899,13 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
           )}
 
           {/* Bottom bar - step navigation + pagination */}
-          <div className="flex-shrink-0 p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center bg-background border-t border-border/50">
-            <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex-shrink-0 p-3 sm:p-4 flex items-center justify-between bg-background border-t border-border/50">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 onClick={() => { scrollAgreementToTop(); onPrevious(); }}
-                size="default"
-                className="sm:h-10"
+                size="sm"
+                className="sm:size-default sm:h-10"
                 disabled={isEditMode}
               >
                 Back
@@ -917,31 +917,32 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                     const prevDoc = documents[currentDocIndex - 1];
                     if (prevDoc) handleDocumentSwitch(prevDoc.id);
                   }}
-                  size="default"
-                  className="sm:h-10 text-xs sm:text-sm"
+                  size="sm"
+                  className="sm:size-default sm:h-10"
                   disabled={isEditMode}
                 >
-                  Previous Document
+                  <span className="sm:hidden">Prev Doc</span>
+                  <span className="hidden sm:inline">Previous Document</span>
                 </Button>
               )}
             </div>
 
-            <div className="flex items-center gap-2 justify-end">
+            <div className="flex items-center gap-2">
               {isEditMode ? (
-                <span className="text-xs text-primary">Save or cancel your edits to continue</span>
+                <span className="text-xs text-primary hidden sm:inline">Save or cancel your edits</span>
               ) : !canConfirmCurrentDoc ? (
-                <span className="text-xs text-muted-foreground text-right">
+                <span className="text-xs text-muted-foreground text-right hidden sm:inline">
                   {!allPriorDocsConfirmed
-                    ? "Confirm prior documents first"
+                    ? "Confirm prior docs first"
                     : !isOnLastPage
-                      ? "Read through all pages to confirm"
-                      : "Scroll to the end to confirm"}
+                      ? "Read all pages to confirm"
+                      : "Scroll to end to confirm"}
                 </span>
               ) : null}
               <Button
                 onClick={handleConfirmDocument}
-                size="default"
-                className="sm:h-10 whitespace-nowrap"
+                size="sm"
+                className="sm:size-default sm:h-10 whitespace-nowrap"
                 disabled={!canConfirmCurrentDoc}
               >
                 {isLastDocument
