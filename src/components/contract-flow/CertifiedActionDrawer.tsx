@@ -35,7 +35,7 @@ export function CertifiedActionDrawer({ open, onOpenChange, contractor, onConfir
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+      <SheetContent side="right" className="w-[85%] sm:w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-lg font-semibold">Prepare for Payroll</SheetTitle>
         </SheetHeader>

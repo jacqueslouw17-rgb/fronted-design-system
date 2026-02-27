@@ -204,7 +204,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col overflow-hidden">
+        <SheetContent side="right" className="w-[85%] sm:w-full sm:max-w-xl p-0 flex flex-col overflow-hidden">
         <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
           <SheetDescription className="sr-only">Data collection form</SheetDescription>
           <div className="min-w-0">

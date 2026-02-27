@@ -179,7 +179,7 @@ export const F1v4_SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl p-0 flex flex-col overflow-hidden">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-xl p-0 flex flex-col overflow-hidden">
         <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
           <SheetDescription className="sr-only">Contract progress</SheetDescription>
           {candidate && (

@@ -72,7 +72,7 @@ export const PayrollStatusDrawer: React.FC<PayrollStatusDrawerProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-xl overflow-y-auto">
         <SheetHeader className="space-y-4">
           <div className="space-y-1">
             <SheetTitle className="text-2xl">Payroll Certification</SheetTitle>

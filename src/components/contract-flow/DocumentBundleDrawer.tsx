@@ -149,7 +149,7 @@ export const DocumentBundleDrawer: React.FC<DocumentBundleDrawerProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Package for Signing</SheetTitle>
           <p className="text-sm text-muted-foreground mt-1">Choose the files you want to include in the signing bundle.</p>
