@@ -11,9 +11,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, Building2, ArrowRight, Info, X } from "lucide-react";
-import frontedLogo from "@/assets/fronted-logo.png";
+import { Shield, Building2, ArrowRight, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
