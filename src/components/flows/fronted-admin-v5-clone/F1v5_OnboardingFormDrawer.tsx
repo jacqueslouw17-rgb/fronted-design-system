@@ -352,15 +352,6 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                     <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
                       <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} />
                     </Field>
-                    <Field label="Pay Frequency" hint={countryRule.payFrequency.locked ? `Fixed for ${formData.country}` : undefined}>
-                      <Select value={formData.payFrequency} onValueChange={v => set("payFrequency")(v)} disabled={countryRule.payFrequency.locked}>
-                        <SelectTrigger className={cn("h-10", countryRule.payFrequency.locked && "opacity-60")}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                          <SelectItem value="fortnightly">Fortnightly</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
                   </div>
                 </div>
               </div>
