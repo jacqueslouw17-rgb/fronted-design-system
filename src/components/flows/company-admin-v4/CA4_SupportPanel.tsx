@@ -307,10 +307,18 @@ export const CA4_SupportPanel: React.FC<CA4_SupportPanelProps> = ({
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
-                className="mb-6"
+                className="mb-6 relative"
               >
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                  <CheckCircle2 className="h-8 w-8 text-primary" strokeWidth={1.5} />
+                <div className="absolute inset-0 -m-2 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 blur-xl" />
+                <div className="relative h-16 w-16 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-accent/10 flex items-center justify-center border border-primary/15 shadow-lg shadow-primary/10">
+                  <svg className="h-7 w-7 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <motion.path
+                      d="M5 13l4 4L19 7"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
+                    />
+                  </svg>
                 </div>
               </motion.div>
 
