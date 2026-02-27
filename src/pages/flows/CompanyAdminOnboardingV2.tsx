@@ -141,9 +141,8 @@ const CompanyAdminOnboardingV2 = () => {
             showInput={false}
           />
 
-          <div>
-            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={FLOW_STEPS.length} />
-          </div>
+
+
 
           <div className="space-y-4">
             {FLOW_STEPS.map((step, index) => {
