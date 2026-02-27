@@ -303,21 +303,24 @@ export function RoleEditorDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-[560px] p-0 overflow-hidden flex flex-col">
-        <SheetHeader className="px-5 pt-5 pb-4 border-b border-border/40 relative">
-          <button
-            onClick={() => onOpenChange(false)}
-            className="absolute right-4 top-4 p-1.5 rounded-md hover:bg-muted transition-colors"
-          >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <SheetTitle className="text-base flex items-center gap-2 pr-8">
-            <Shield className="h-4 w-4 text-primary" />
-            {isEditMode ? "Edit role" : "Create role"}
-          </SheetTitle>
-          <SheetDescription>
-            {isEditMode ? "Update name and permissions." : "Name the role, then set access per module."}
-          </SheetDescription>
+      <SheetContent side="right" className="w-[85%] sm:w-full sm:max-w-[560px] p-0 overflow-hidden flex flex-col" hideClose>
+        <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <SheetTitle className="text-base font-semibold text-foreground leading-tight">
+                {isEditMode ? "Edit role" : "Create role"}
+              </SheetTitle>
+              <SheetDescription className="text-[11px] text-muted-foreground/60 mt-0.5">
+                {isEditMode ? "Update name and permissions." : "Name the role, then set access per module."}
+              </SheetDescription>
+            </div>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="shrink-0 p-1.5 rounded-md hover:bg-muted transition-colors -mt-0.5"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
         </SheetHeader>
 
         <ScrollArea className="flex-1">
@@ -518,7 +521,7 @@ export function RoleEditorDrawer({
                                       className={cn(
                                         "px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-150",
                                         isActive
-                                          ? "bg-foreground/10 text-foreground border border-foreground/20 shadow-sm"
+                                          ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
                                           : "text-muted-foreground/70 hover:text-muted-foreground hover:bg-muted/50"
                                       )}
                                     >
@@ -553,9 +556,7 @@ export function RoleEditorDrawer({
                   hasErrors ||
                   (isEditMode ? !hasChanges : !isCreateFormValid)
                 } 
-                className="gap-1.5"
               >
-                <Save className="h-4 w-4" />
                 {saving ? "Saving…" : isEditMode ? "Save changes" : "Create role"}
               </Button>
             </div>
