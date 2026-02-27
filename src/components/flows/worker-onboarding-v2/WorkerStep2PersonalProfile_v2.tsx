@@ -27,9 +27,11 @@ interface Step2Props {
   backAction?: React.ReactNode;
   allFieldsLocked?: boolean;
   hideHeader?: boolean;
+  hideButtons?: boolean;
+  hideIdentityDoc?: boolean;
 }
 
-const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader }: Step2Props) => {
+const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, hideIdentityDoc }: Step2Props) => {
   const country = formData.country || "Philippines";
 
   const [data, setData] = useState({
@@ -236,6 +238,7 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
             ))}
 
             {/* Identity Document */}
+            {!hideIdentityDoc && (
             <div className="space-y-2">
               <Label>Identity document (JPG, PNG, or PDF)</Label>
               {data.identityDocUploaded && identityFileName ? (
@@ -307,9 +310,11 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
               )}
               <p className="text-xs text-muted-foreground">Max file size: 10MB</p>
             </div>
+            )}
           </div>
         </div>
 
+        {!hideButtons && (
         <div className={backAction ? "flex items-center gap-2" : ""}>
           {backAction}
           <Button
@@ -322,6 +327,7 @@ const WorkerStep2PersonalProfile_v2 = ({ formData, onComplete, isProcessing, but
             {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>
         </div>
+        )}
       </motion.div>
     </AnimatePresence>
   );

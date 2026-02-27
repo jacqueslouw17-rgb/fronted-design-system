@@ -5,9 +5,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight, FileText, Upload, X as XIcon } from "lucide-react";
+import { ArrowRight, FileText, Upload, X as XIcon, Lock } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CurrencyInput from "@/components/shared/CurrencyInput";
 
@@ -18,9 +19,12 @@ interface Step5Props {
   isLoadingFields?: boolean;
   buttonText?: string;
   backAction?: React.ReactNode;
+  allFieldsLocked?: boolean;
+  hideHeader?: boolean;
+  hideButtons?: boolean;
 }
 
-const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields, buttonText, backAction }: Step5Props) => {
+const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoadingFields, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons }: Step5Props) => {
   const [data, setData] = useState({
     deviceProvided: formData.deviceProvided ?? undefined,
     reimbursementAmount: formData.reimbursementAmount || "",
@@ -51,16 +55,28 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
 
   return (
     <div className="space-y-5 sm:space-y-6 p-3 sm:p-6">
+      {!hideHeader && (
       <div className="space-y-2">
         <h3 className="text-base sm:text-lg font-semibold">Work Setup</h3>
         <p className="text-sm text-muted-foreground">
           Let us know about your device setup.
         </p>
       </div>
+      )}
 
       <div className="space-y-4">
         <div className="space-y-3">
-          <Label className="text-base">Did your company provide you with a device for work?</Label>
+          <Label className={allFieldsLocked ? "text-base flex items-center gap-2" : "text-base"}>
+            Did your company provide you with a device for work?
+            {allFieldsLocked && <Lock className="h-3 w-3 text-muted-foreground" />}
+          </Label>
+          {allFieldsLocked ? (
+            <Input
+              value={data.deviceProvided ? "Yes, I received a company device" : "No, I'm using my personal device"}
+              disabled
+              className="bg-muted/50 cursor-not-allowed"
+            />
+          ) : (
           <RadioGroup
             value={data.deviceProvided === undefined ? undefined : data.deviceProvided ? "yes" : "no"}
             onValueChange={(value) => setData({ ...data, deviceProvided: value === "yes" })}
@@ -78,9 +94,10 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
               </Label>
             </div>
           </RadioGroup>
+          )}
         </div>
 
-        {data.deviceProvided !== undefined && (
+        {!allFieldsLocked && data.deviceProvided !== undefined && (
           <>
             {data.deviceProvided ? (
               <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
@@ -161,6 +178,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         )}
       </div>
 
+      {!hideButtons && (
       <div className={backAction ? "flex items-center gap-2" : ""}>
         {backAction}
         <Button
@@ -173,6 +191,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
           {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
         </Button>
       </div>
+      )}
     </div>
   );
 };

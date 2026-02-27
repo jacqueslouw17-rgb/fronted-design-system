@@ -10,7 +10,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Info, Upload, FileText, X, Download, Check, ChevronsUpDown, IndianRupee } from "lucide-react";
+import { ArrowRight, Info, Upload, FileText, X, Download, Check, ChevronsUpDown, IndianRupee, Lock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -25,6 +25,10 @@ interface Step2Props {
   isLoadingFields?: boolean;
   buttonText?: string;
   backAction?: React.ReactNode;
+  allFieldsLocked?: boolean;
+  hideHeader?: boolean;
+  hideButtons?: boolean;
+  hideIdentityDoc?: boolean;
 }
 
 const TAX_HELPERS: Record<string, { label: string; placeholder: string; hint: string }> = {
@@ -122,7 +126,7 @@ const COUNTRIES = [
   { value: "VN", label: "Vietnam", flag: "🇻🇳" },
 ];
 
-const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction }: Step2Props) => {
+const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonText, backAction, allFieldsLocked, hideHeader, hideButtons, hideIdentityDoc }: Step2Props) => {
   const [countryOpen, setCountryOpen] = useState(false);
   const [data, setData] = useState({
     taxCountry: formData.taxCountry || "IN",
@@ -213,17 +217,29 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
         transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
         className="space-y-5 sm:space-y-6 p-3 sm:p-6"
       >
+        {!hideHeader && (
         <div className="space-y-2">
           <h3 className="text-base sm:text-lg font-semibold">Tax Details</h3>
           <p className="text-sm text-muted-foreground">
             We need your tax information to ensure compliance and correct withholding.
           </p>
         </div>
+        )}
 
         <div className="space-y-4">
           {/* Tax Country */}
           <div className="space-y-2">
-            <Label>Country of tax residency</Label>
+            <Label className={allFieldsLocked ? "flex items-center gap-2" : ""}>
+              Country of tax residency
+              {allFieldsLocked && <Lock className="h-3 w-3 text-muted-foreground" />}
+            </Label>
+            {allFieldsLocked ? (
+              <Input
+                value={(() => { const c = COUNTRIES.find(c => c.value === data.taxCountry); return c ? `${c.flag} ${c.label}` : data.taxCountry; })()}
+                disabled
+                className="bg-muted/50 cursor-not-allowed"
+              />
+            ) : (
             <Popover open={countryOpen} onOpenChange={setCountryOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -263,21 +279,24 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
                 </Command>
               </PopoverContent>
             </Popover>
+            )}
           </div>
 
           {/* Tax ID — adapts label/placeholder/hint to selected country */}
           <div className="space-y-2">
-            <Label htmlFor="taxNumber">
+            <Label htmlFor="taxNumber" className={allFieldsLocked ? "flex items-center gap-2" : ""}>
               {taxHelper?.label || "Tax identification number"}
+              {allFieldsLocked && <Lock className="h-3 w-3 text-muted-foreground" />}
             </Label>
             <Input
               id="taxNumber"
               value={data.taxNumber}
-              onChange={(e) => setData({ ...data, taxNumber: e.target.value })}
+              onChange={(e) => !allFieldsLocked && setData({ ...data, taxNumber: e.target.value })}
+              disabled={allFieldsLocked || !data.taxCountry}
+              className={allFieldsLocked ? "bg-muted/50 cursor-not-allowed" : ""}
               placeholder={taxHelper?.placeholder || "Select country first"}
-              disabled={!data.taxCountry}
             />
-            {taxHelper && (
+            {!allFieldsLocked && taxHelper && (
               <div className="flex items-start gap-2 p-2 rounded-md bg-muted/50">
                 <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                 <p className="text-xs text-muted-foreground">{taxHelper.hint}</p>
@@ -445,6 +464,7 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
           )}
 
           {/* Identity Document Upload */}
+          {!hideIdentityDoc && (
           <div className="space-y-2">
             <Label>Identity document <span className="text-destructive">*</span></Label>
             <p className="text-xs text-muted-foreground -mt-1">
@@ -502,8 +522,10 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
               </label>
             )}
           </div>
+          )}
         </div>
 
+        {!hideButtons && (
         <div className={backAction ? "flex items-center gap-2" : ""}>
           {backAction}
           <Button
@@ -516,6 +538,7 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
             {!buttonText && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>
         </div>
+        )}
       </motion.div>
     </AnimatePresence>
   );
