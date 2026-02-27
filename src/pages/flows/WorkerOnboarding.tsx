@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { Input } from "@/components/ui/input";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
@@ -146,28 +146,15 @@ const WorkerOnboarding = () => {
   return (
     <AgentLayout context="Worker Onboarding">
       <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
-        onClick={() => navigate('/?tab=flows')}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
+      <FrostedHeader onLogoClick={() => navigate('/?tab=flows')} onCloseClick={() => navigate('/?tab=flows')} />
 
-      {/* Static background (performance-safe) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
       </div>
 
       {/* Main Content - Steps & Progress */}
       <div 
-        className="flex-shrink-0 flex flex-col min-h-screen p-8 pb-32 space-y-8 relative z-10 mx-auto onboarding-scroll-container"
+        className="flex-shrink-0 flex flex-col min-h-screen px-3 py-4 sm:p-8 pb-16 sm:pb-32 space-y-5 sm:space-y-8 relative z-10 mx-auto onboarding-scroll-container"
         style={{
           width: '100%',
           maxWidth: '800px'
