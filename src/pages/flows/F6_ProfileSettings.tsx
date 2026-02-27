@@ -47,84 +47,39 @@ const PROFILE_SECTIONS = [
   { id: "admin_details", title: "Admin Details" },
 ];
 
-const COUNTRIES = [
-  { value: "AF", label: "Afghanistan", flag: "🇦🇫" },
-  { value: "AL", label: "Albania", flag: "🇦🇱" },
-  { value: "AR", label: "Argentina", flag: "🇦🇷" },
-  { value: "AU", label: "Australia", flag: "🇦🇺" },
-  { value: "AT", label: "Austria", flag: "🇦🇹" },
-  { value: "BE", label: "Belgium", flag: "🇧🇪" },
-  { value: "BR", label: "Brazil", flag: "🇧🇷" },
-  { value: "CA", label: "Canada", flag: "🇨🇦" },
-  { value: "CL", label: "Chile", flag: "🇨🇱" },
-  { value: "CN", label: "China", flag: "🇨🇳" },
-  { value: "CO", label: "Colombia", flag: "🇨🇴" },
-  { value: "HR", label: "Croatia", flag: "🇭🇷" },
-  { value: "CZ", label: "Czech Republic", flag: "🇨🇿" },
-  { value: "DK", label: "Denmark", flag: "🇩🇰" },
-  { value: "EE", label: "Estonia", flag: "🇪🇪" },
-  { value: "FI", label: "Finland", flag: "🇫🇮" },
-  { value: "FR", label: "France", flag: "🇫🇷" },
-  { value: "DE", label: "Germany", flag: "🇩🇪" },
-  { value: "GR", label: "Greece", flag: "🇬🇷" },
-  { value: "HK", label: "Hong Kong", flag: "🇭🇰" },
-  { value: "HU", label: "Hungary", flag: "🇭🇺" },
-  { value: "IS", label: "Iceland", flag: "🇮🇸" },
-  { value: "IN", label: "India", flag: "🇮🇳" },
-  { value: "ID", label: "Indonesia", flag: "🇮🇩" },
-  { value: "IE", label: "Ireland", flag: "🇮🇪" },
-  { value: "IL", label: "Israel", flag: "🇮🇱" },
-  { value: "IT", label: "Italy", flag: "🇮🇹" },
-  { value: "JP", label: "Japan", flag: "🇯🇵" },
-  { value: "KE", label: "Kenya", flag: "🇰🇪" },
-  { value: "XK", label: "Kosovo", flag: "🇽🇰" },
-  { value: "LV", label: "Latvia", flag: "🇱🇻" },
-  { value: "LT", label: "Lithuania", flag: "🇱🇹" },
-  { value: "LU", label: "Luxembourg", flag: "🇱🇺" },
-  { value: "MY", label: "Malaysia", flag: "🇲🇾" },
-  { value: "MX", label: "Mexico", flag: "🇲🇽" },
-  { value: "NL", label: "Netherlands", flag: "🇳🇱" },
-  { value: "NZ", label: "New Zealand", flag: "🇳🇿" },
-  { value: "NG", label: "Nigeria", flag: "🇳🇬" },
-  { value: "NO", label: "Norway", flag: "🇳🇴" },
-  { value: "PK", label: "Pakistan", flag: "🇵🇰" },
-  { value: "PH", label: "Philippines", flag: "🇵🇭" },
-  { value: "PL", label: "Poland", flag: "🇵🇱" },
-  { value: "PT", label: "Portugal", flag: "🇵🇹" },
-  { value: "RO", label: "Romania", flag: "🇷🇴" },
-  { value: "SA", label: "Saudi Arabia", flag: "🇸🇦" },
-  { value: "RS", label: "Serbia", flag: "🇷🇸" },
-  { value: "SG", label: "Singapore", flag: "🇸🇬" },
-  { value: "SK", label: "Slovakia", flag: "🇸🇰" },
-  { value: "SI", label: "Slovenia", flag: "🇸🇮" },
-  { value: "ZA", label: "South Africa", flag: "🇿🇦" },
-  { value: "KR", label: "South Korea", flag: "🇰🇷" },
-  { value: "ES", label: "Spain", flag: "🇪🇸" },
-  { value: "SE", label: "Sweden", flag: "🇸🇪" },
-  { value: "CH", label: "Switzerland", flag: "🇨🇭" },
-  { value: "TH", label: "Thailand", flag: "🇹🇭" },
-  { value: "TR", label: "Turkey", flag: "🇹🇷" },
-  { value: "UA", label: "Ukraine", flag: "🇺🇦" },
-  { value: "AE", label: "United Arab Emirates", flag: "🇦🇪" },
-  { value: "GB", label: "United Kingdom", flag: "🇬🇧" },
-  { value: "US", label: "United States", flag: "🇺🇸" },
-  { value: "VN", label: "Vietnam", flag: "🇻🇳" },
-];
+const COUNTRIES: Record<string, { label: string; flag: string }> = {
+  NO: { label: "Norway", flag: "🇳🇴" },
+  DK: { label: "Denmark", flag: "🇩🇰" },
+  SE: { label: "Sweden", flag: "🇸🇪" },
+  US: { label: "United States", flag: "🇺🇸" },
+  GB: { label: "United Kingdom", flag: "🇬🇧" },
+  IN: { label: "India", flag: "🇮🇳" },
+  PH: { label: "Philippines", flag: "🇵🇭" },
+  XK: { label: "Kosovo", flag: "🇽🇰" },
+};
+
+const LockedField = ({ label, value }: { label: string; value: string }) => (
+  <div className="space-y-2">
+    <Label className="flex items-center gap-1.5 text-muted-foreground text-sm">
+      <Lock className="h-3 w-3" />
+      {label}
+    </Label>
+    <Input value={value} disabled className="bg-muted/50 text-muted-foreground cursor-not-allowed text-sm" />
+  </div>
+);
 
 const F6_ProfileSettings = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentSection, setCurrentSection] = useState<Section>("overview");
   const [expandedAccordion, setExpandedAccordion] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [countryOpen, setCountryOpen] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const formData = {
     companyName: "JBOX Technologies",
     hqCountry: "NO",
     adminName: "Joe Smith",
     adminEmail: "joe.smith@jboxtech.com",
-  });
+  };
 
   const getReturnUrl = () => {
     const searchParams = new URLSearchParams(location.search);
@@ -135,123 +90,35 @@ const F6_ProfileSettings = () => {
     navigate(getReturnUrl());
   };
 
-  const handleFieldChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 600));
-    setIsSaving(false);
-    setExpandedAccordion(null);
-    toast.success("Changes saved", { position: "bottom-right", duration: 2500 });
-  };
-
   const handleAccordionToggle = (sectionId: string) => {
     setExpandedAccordion(prev => prev === sectionId ? null : sectionId);
   };
 
   const header = SECTION_HEADERS[currentSection];
-  const selectedCountry = COUNTRIES.find(c => c.value === formData.hqCountry);
+  const countryInfo = COUNTRIES[formData.hqCountry];
+  const countryDisplay = countryInfo ? `${countryInfo.flag} ${countryInfo.label}` : formData.hqCountry;
 
   const renderAccordionContent = (sectionId: string) => {
     switch (sectionId) {
       case "company_details":
         return (
           <div className="p-4 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="companyName" className="text-sm">Company Name</Label>
-              <Input
-                id="companyName"
-                value={formData.companyName}
-                onChange={(e) => handleFieldChange("companyName", e.target.value)}
-                placeholder="Company name"
-                className="text-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="hqCountry" className="text-sm">HQ Country</Label>
-              <Popover open={countryOpen} onOpenChange={setCountryOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={countryOpen}
-                    className="w-full justify-between text-sm font-normal h-10"
-                  >
-                    {selectedCountry ? (
-                      <span>{selectedCountry.flag} {selectedCountry.label}</span>
-                    ) : (
-                      <span className="text-muted-foreground">Select country</span>
-                    )}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-background border border-border z-50" align="start">
-                  <Command>
-                    <CommandInput placeholder="Search country..." className="h-10" />
-                    <CommandList className="max-h-[240px]">
-                      <CommandEmpty>No country found.</CommandEmpty>
-                      <CommandGroup>
-                        {COUNTRIES.map((country) => (
-                          <CommandItem
-                            key={country.value}
-                            value={country.label}
-                            onSelect={() => {
-                              handleFieldChange("hqCountry", country.value);
-                              setCountryOpen(false);
-                            }}
-                            className="cursor-pointer"
-                          >
-                            <Check className={cn("mr-2 h-4 w-4", formData.hqCountry === country.value ? "opacity-100" : "opacity-0")} />
-                            {country.flag} {country.label}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="flex items-center gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setCurrentSection("overview")} className="text-xs">Back</Button>
-              <Button size="sm" onClick={handleSave} disabled={isSaving}>
-                {isSaving ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Saving…</> : "Save changes"}
-              </Button>
-            </div>
+            <LockedField label="Company Name" value={formData.companyName} />
+            <LockedField label="HQ Country" value={countryDisplay} />
+            <p className="text-xs text-muted-foreground">
+              Need to update your details? Contact your Fronted admin.
+            </p>
           </div>
         );
 
       case "admin_details":
         return (
           <div className="p-4 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="adminName" className="text-sm">Full Name</Label>
-              <Input
-                id="adminName"
-                value={formData.adminName}
-                onChange={(e) => handleFieldChange("adminName", e.target.value)}
-                placeholder="Full name"
-                className="text-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="adminEmail" className="text-sm">Email</Label>
-              <Input
-                id="adminEmail"
-                type="email"
-                value={formData.adminEmail}
-                className="text-sm bg-muted/50"
-                disabled
-              />
-              <p className="text-xs text-muted-foreground">Linked to your invitation and cannot be changed</p>
-            </div>
-            <div className="flex items-center gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setCurrentSection("overview")} className="text-xs">Back</Button>
-              <Button size="sm" onClick={handleSave} disabled={isSaving}>
-                {isSaving ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Saving…</> : "Save changes"}
-              </Button>
-            </div>
+            <LockedField label="Full Name" value={formData.adminName} />
+            <LockedField label="Email" value={formData.adminEmail} />
+            <p className="text-xs text-muted-foreground">
+              Need to update your details? Contact your Fronted admin.
+            </p>
           </div>
         );
 
