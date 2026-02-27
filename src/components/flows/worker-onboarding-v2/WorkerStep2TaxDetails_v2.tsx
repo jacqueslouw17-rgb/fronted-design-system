@@ -311,18 +311,9 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="space-y-4 p-4 rounded-lg border border-border/40 bg-muted/30"
+              className="space-y-2"
             >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <IndianRupee className="h-4 w-4 text-primary" />
-                  <Label className="text-sm font-semibold">Income Tax Regime</Label>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Select your applicable tax regime for the current financial year.
-                </p>
-              </div>
-
+              <Label>Income Tax Regime</Label>
               <Select
                 value={data.indiaTaxRegime}
                 onValueChange={(value) => setData({ ...data, indiaTaxRegime: value, india80CAmount: "", india80DAmount: "", indiaInvestmentProofUploaded: false })}
@@ -336,7 +327,7 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
                 </SelectContent>
               </Select>
 
-              {/* Old Regime — deduction fields */}
+              {/* Old Regime — conditional deduction fields */}
               <AnimatePresence>
                 {data.indiaTaxRegime === "old" && (
                   <motion.div
@@ -344,14 +335,8 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="space-y-4 pt-2"
+                    className="space-y-4 pl-3 border-l-2 border-primary/20"
                   >
-                    <div className="flex items-start gap-2 p-2 rounded-md bg-primary/5">
-                      <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-muted-foreground">
-                        Under the Old Regime, you can claim deductions to reduce your taxable income. These fields are optional — fill what you have available.
-                      </p>
-                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="india80C">Section 80C deductions (₹)</Label>
