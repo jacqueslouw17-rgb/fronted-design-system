@@ -37,11 +37,6 @@ interface CountryPayrollConfig {
 
 const INDIA_CONFIG: CountryPayrollConfig = {
   payrollFields: [
-    {
-      key: "pay_frequency", label: "Pay Frequency", type: "select", required: true,
-      options: [{ value: "monthly", label: "Monthly" }],
-    },
-    { key: "payment_schedule", label: "Payment Schedule", type: "text", placeholder: "e.g., Last business day of month" },
     { key: "pan_number", label: "PAN Number", type: "text", required: true, placeholder: "e.g., ABCDE1234F" },
     {
       key: "tax_regime", label: "Income Tax Regime", type: "select", required: true,
@@ -81,11 +76,6 @@ const INDIA_CONFIG: CountryPayrollConfig = {
 
 const PHILIPPINES_CONFIG: CountryPayrollConfig = {
   payrollFields: [
-    {
-      key: "pay_frequency", label: "Pay Frequency", type: "select", required: true,
-      options: [{ value: "fortnightly", label: "Fortnightly" }],
-    },
-    { key: "payment_schedule", label: "Payment Schedule", type: "text", placeholder: "e.g., 15th and 30th of each month" },
     { key: "tin", label: "TIN (Tax ID)", type: "text", required: true, placeholder: "e.g., 123-456-789-000" },
     {
       key: "tax_status", label: "Tax Status", type: "select", required: true,
@@ -109,11 +99,6 @@ const PHILIPPINES_CONFIG: CountryPayrollConfig = {
 
 const NORWAY_CONFIG: CountryPayrollConfig = {
   payrollFields: [
-    {
-      key: "pay_frequency", label: "Pay Frequency", type: "select", required: true,
-      options: [{ value: "monthly", label: "Monthly" }],
-    },
-    { key: "payment_schedule", label: "Payment Schedule", type: "text", placeholder: "e.g., Last business day of month" },
     { key: "fodselsnummer", label: "Fødselsnummer (National ID)", type: "text", required: true, placeholder: "11-digit personal number" },
     {
       key: "tax_card_type", label: "Tax Card Type", type: "select", required: true,
@@ -143,14 +128,6 @@ const NORWAY_CONFIG: CountryPayrollConfig = {
 
 const DEFAULT_CONFIG: CountryPayrollConfig = {
   payrollFields: [
-    {
-      key: "pay_frequency", label: "Pay Frequency", type: "select", required: true,
-      options: [
-        { value: "monthly", label: "Monthly" },
-        { value: "fortnightly", label: "Fortnightly" },
-      ],
-    },
-    { key: "payment_schedule", label: "Payment Schedule", type: "text", placeholder: "e.g., Last business day of month" },
     { key: "tax_id", label: "Tax ID / TIN", type: "text", required: true, placeholder: "National tax identifier" },
     {
       key: "tax_residency", label: "Tax Residency", type: "select", required: true,
