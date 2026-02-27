@@ -179,6 +179,12 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         )}
       </div>
 
+      {showContactNotice && (
+        <p className="text-xs text-muted-foreground">
+          Need to update your details? Contact your Fronted admin.
+        </p>
+      )}
+
       {!hideButtons && (
       <div className={backAction ? "flex items-center gap-2" : ""}>
         {backAction}

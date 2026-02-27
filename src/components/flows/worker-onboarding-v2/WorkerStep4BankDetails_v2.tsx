@@ -200,6 +200,12 @@ const WorkerStep4BankDetails_v2 = ({ formData, onComplete, isProcessing, buttonT
         </div>
         )}
 
+        {showContactNotice && (
+          <p className="text-xs text-muted-foreground">
+            Need to update your details? Contact your Fronted admin.
+          </p>
+        )}
+
         {!hideButtons && (
         <div className={backAction ? "flex items-center gap-2" : ""}>
           {backAction}
