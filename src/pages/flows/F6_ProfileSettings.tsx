@@ -58,6 +58,19 @@ const COUNTRIES: Record<string, { label: string; flag: string }> = {
   XK: { label: "Kosovo", flag: "🇽🇰" },
 };
 
+const EUROZONE = ["AT", "BE", "CY", "EE", "FI", "FR", "DE", "GR", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PT", "SK", "SI", "ES", "NO", "DK", "SE"];
+
+const DEFAULT_TEMPLATES: Record<string, string[]> = {
+  NO: ["Employment Agreement", "NDA", "IP Assignment"],
+  DK: ["Employment Agreement", "NDA"],
+  SE: ["Employment Agreement", "NDA", "IP Assignment"],
+  US: ["Employment Agreement", "NDA", "IP Assignment", "At-Will Notice"],
+  GB: ["Employment Agreement", "NDA", "IP Assignment"],
+  IN: ["Employment Agreement", "NDA", "IP Assignment", "Gratuity Notice"],
+  PH: ["Employment Agreement", "NDA"],
+  XK: ["Employment Agreement", "NDA"],
+};
+
 const LockedField = ({ label, value }: { label: string; value: string }) => (
   <div className="space-y-2">
     <Label className="flex items-center gap-1.5 text-muted-foreground text-sm">
