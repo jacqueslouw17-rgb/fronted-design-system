@@ -485,26 +485,28 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   React.useEffect(() => {
     const completedContractors = contractors.filter(c => c.status === "onboarding-pending" && c.checklistProgress === 100 && !notifiedPayrollReadyIds.current.has(c.id));
     if (completedContractors.length > 0) {
-      // Separate into auto-move (no doc verification needed) vs needs-verification
+      // All completed contractors move to Done — doc-verification ones go as "inactive" until verified
       const autoMove = completedContractors.filter(c => !countriesRequiringDocVerification.includes(c.country));
       const needsVerification = completedContractors.filter(c => countriesRequiringDocVerification.includes(c.country));
 
-      // Mark needs-verification contractors
+      // Move needs-verification contractors to Done as inactive (needs doc verification in Done drawer)
       if (needsVerification.length > 0) {
         needsVerification.forEach(c => notifiedPayrollReadyIds.current.add(c.id));
-        setContractors(current => current.map(c => 
-          needsVerification.some(nv => nv.id === c.id) 
-            ? { ...c, needsDocumentVerification: true }
-            : c
-        ));
-        setTimeout(() => {
-          needsVerification.forEach(contractor => {
-            toast.info(`📄 ${contractor.name.split(' ')[0]} has submitted documents for review`, {
-              description: "Click 'View Status' to verify and approve",
-              duration: 6000
+        const timer2 = setTimeout(() => {
+          setContractors(current => current.map(c => 
+            needsVerification.some(nv => nv.id === c.id) 
+              ? { ...c, status: "CERTIFIED" as const, needsDocumentVerification: true, documentsVerified: false }
+              : c
+          ));
+          setTimeout(() => {
+            needsVerification.forEach(contractor => {
+              toast.info(`📄 ${contractor.name.split(' ')[0]} moved to Done — documents pending verification`, {
+                description: "Open their profile to verify documents",
+                duration: 6000
+              });
             });
-          });
-        }, 500);
+          }, 500);
+        }, 1500);
       }
 
       if (autoMove.length > 0) {
@@ -1154,9 +1156,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               }}>
                 <Card className={cn(
                   "border cursor-pointer bg-card",
-                  status === "onboarding-pending" && contractor.needsDocumentVerification && !contractor.documentsVerified
-                    ? "border-amber-500/40 shadow-sm shadow-amber-500/10"
-                    : status === "onboarding-pending" && !contractor.needsDocumentVerification
+                  status === "onboarding-pending"
                     ? "border-primary/30 shadow-sm shadow-primary/5"
                     : "border-border/40"
                 )} onClick={() => {
@@ -1165,9 +1165,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   } else if (status === "CERTIFIED") {
                     setSelectedForDoneDetail(contractor);
                     setDoneDetailDrawerOpen(true);
-                  } else if (status === "onboarding-pending" && contractor.needsDocumentVerification) {
-                    setSelectedForVerification(contractor);
-                    setVerificationDrawerOpen(true);
                   }
                 }}>
                       <CardContent className="p-2.5 space-y-0">
@@ -1187,20 +1184,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </span>
                               <span className="text-sm">{contractor.countryFlag}</span>
                               {/* Status badges inline */}
-                              {status === "onboarding-pending" && !contractor.needsDocumentVerification && (
+                              {status === "onboarding-pending" && (
                                 <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20 ml-auto">
-                                  In Progress
-                                </Badge>
-                              )}
-                              {status === "onboarding-pending" && contractor.needsDocumentVerification && (
-                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] border-amber-500/30 bg-amber-500/8 text-amber-600 dark:text-amber-400 flex-shrink-0 ml-auto">
-                                  In Review
+                                  Awaiting
                                 </Badge>
                               )}
                               {status === "CERTIFIED" && (
                                 <Badge variant="outline" className={cn(
                                   "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
-                                  (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                                  // Inactive: needs doc verification but not yet verified
+                                  (contractor.needsDocumentVerification && !contractor.documentsVerified) && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                  // Active: no doc verification needed OR already verified
+                                  (!contractor.needsDocumentVerification || contractor.documentsVerified) && (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
                                   contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
                                   contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
                                   contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
@@ -1208,6 +1203,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   {contractor.workerStatus === "contract-ended" ? "Ended" 
                                     : contractor.workerStatus === "resigned" ? "Resigned"
                                     : contractor.workerStatus === "terminated" ? "Terminated"
+                                    : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
                                     : "Active"}
                                 </Badge>
                               )}
@@ -1339,38 +1335,23 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             </>}
                           
                           {status === "onboarding-pending" && <div className="w-full space-y-2">
-                              {contractor.needsDocumentVerification && !contractor.documentsVerified ? (
-                                <>
-                                  <Button size="sm" className="w-full text-xs h-8 gap-1.5" variant="outline" onClick={e => {
-                                    e.stopPropagation();
-                                    setSelectedForVerification(contractor);
-                                    setVerificationDrawerOpen(true);
-                                  }}>
-                                    <Eye className="h-3.5 w-3.5" />
-                                    View Status
-                                  </Button>
-                                </>
-                              ) : (
-                                <>
-                                  <p className="text-xs text-muted-foreground text-center">Awaiting candidate response</p>
-                                  <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
-                              e.stopPropagation();
-                              setSendingFormIds(prev => new Set([...prev, contractor.id]));
-                              setTimeout(() => {
-                                setSendingFormIds(prev => {
-                                  const next = new Set(prev);
-                                  next.delete(contractor.id);
-                                  return next;
-                                });
-                                setResentFormIds(prev => new Set([...prev, contractor.id]));
-                                toast.info(`Form resent to ${contractor.name}`);
-                              }, 1500);
-                            }}>
-                                    <RotateCcw className={cn("h-3.5 w-3.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
-                                    Resend
-                                  </Button>
-                                </>
-                              )}
+                              <p className="text-xs text-muted-foreground text-center">Awaiting candidate response</p>
+                              <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
+                          e.stopPropagation();
+                          setSendingFormIds(prev => new Set([...prev, contractor.id]));
+                          setTimeout(() => {
+                            setSendingFormIds(prev => {
+                              const next = new Set(prev);
+                              next.delete(contractor.id);
+                              return next;
+                            });
+                            setResentFormIds(prev => new Set([...prev, contractor.id]));
+                            toast.info(`Form resent to ${contractor.name}`);
+                          }, 1500);
+                        }}>
+                                <RotateCcw className={cn("h-3.5 w-3.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
+                                Resend
+                              </Button>
                             </div>}
                           
                           {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && <div className="flex items-center justify-center w-full py-1">
@@ -1627,6 +1608,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       email: selectedForDoneDetail.email,
       workerStatus: selectedForDoneDetail.workerStatus || "active",
       documentsVerified: selectedForDoneDetail.documentsVerified || false,
+      needsDocumentVerification: selectedForDoneDetail.needsDocumentVerification || false,
       endDate: selectedForDoneDetail.endDate,
       endReason: selectedForDoneDetail.endReason,
     } : null} onGoToDataCollection={workerId => {
@@ -1636,11 +1618,22 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       setContractors(current => current.map(c => 
         c.id === workerId ? { ...c, workerStatus: action, endDate, endReason: reason } : c
       ));
-      // Update the selected worker too so the drawer reflects the change
       setSelectedForDoneDetail(prev => prev ? { ...prev, workerStatus: action, endDate, endReason: reason } : null);
       setDoneDetailDrawerOpen(false);
       const actionLabel = action === "terminated" ? "terminated" : action === "resigned" ? "marked as resigned" : "contract ended";
       toast.success(`${selectedForDoneDetail?.name} has been ${actionLabel}.`);
+     }}
+     onDocumentsVerified={(workerId) => {
+       // Mark as verified and active
+       setContractors(current => current.map(c => 
+         c.id === workerId 
+           ? { ...c, documentsVerified: true, needsDocumentVerification: false }
+           : c
+       ));
+       setSelectedForDoneDetail(prev => prev ? { ...prev, documentsVerified: true, needsDocumentVerification: false } : null);
+       toast.success(`✅ ${selectedForDoneDetail?.name.split(' ')[0]}'s documents verified — now active`, {
+         duration: 5000
+       });
      }} />
       {/* Payroll Data Collection Drawer */}
       <F1v5_PayrollDataCollectionDrawer
@@ -1655,36 +1648,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         }}
       />
 
-      {/* Document Verification Drawer (reuses Done worker layout) */}
-      <F1v4_DoneWorkerDetailDrawer 
-        open={verificationDrawerOpen} 
-        onOpenChange={setVerificationDrawerOpen} 
-        worker={selectedForVerification ? {
-          id: selectedForVerification.id,
-          name: selectedForVerification.name,
-          country: selectedForVerification.country,
-          countryFlag: selectedForVerification.countryFlag,
-          role: selectedForVerification.role,
-          salary: selectedForVerification.salary,
-          employmentType: selectedForVerification.employmentType || "employee",
-          email: selectedForVerification.email,
-          workerStatus: "active",
-        } : null}
-        verificationMode={true}
-        onDocumentsVerified={(workerId) => {
-          setVerificationDrawerOpen(false);
-          // Gentle transition to Done
-          setTimeout(() => {
-            setContractors(current => current.map(c => 
-              c.id === workerId 
-                ? { ...c, status: "CERTIFIED" as const, documentsVerified: true, needsDocumentVerification: false }
-                : c
-            ));
-            toast.success(`✅ ${selectedForVerification?.name.split(' ')[0]}'s documents verified — moved to Done`, {
-              duration: 5000
-            });
-          }, 400);
-        }}
-      />
+
+
     </div>;
 };

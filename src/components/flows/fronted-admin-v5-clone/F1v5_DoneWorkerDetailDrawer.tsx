@@ -115,6 +115,7 @@ export interface DoneWorkerData {
   missingDetails?: { field: string; message: string }[];
   // Document verification state
   documentsVerified?: boolean;
+  needsDocumentVerification?: boolean;
 }
 
 interface F1v4_DoneWorkerDetailDrawerProps {
@@ -483,12 +484,12 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <div className="flex items-center gap-2">
               <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.name}</SheetTitle>
               <span className="text-base shrink-0">{worker.countryFlag}</span>
-              {verificationMode && (
+              {(worker.needsDocumentVerification && !worker.documentsVerified) && (
                 <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
-                  In review
+                  Inactive
                 </Badge>
               )}
-              {!verificationMode && worker.documentsVerified && (
+              {worker.documentsVerified && (
                 <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
                   Verified
                 </Badge>
@@ -723,13 +724,13 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               {/* 5) Documents */}
               <SectionCard 
                 title="Documents" 
-                defaultOpen={verificationMode}
-                badge={!verificationMode && worker.documentsVerified ? (
+                defaultOpen={verificationMode || (worker.needsDocumentVerification && !worker.documentsVerified)}
+                badge={worker.documentsVerified ? (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
                     Verified
                   </Badge>
                 ) : undefined}
-                headerAction={verificationMode ? (
+                headerAction={(worker.needsDocumentVerification && !worker.documentsVerified) || verificationMode ? (
                   <Button
                     size="sm"
                     className="h-6 px-3 text-[11px] gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-colors font-medium"
