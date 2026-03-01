@@ -381,6 +381,10 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       newErrors['unpaid_leave_days'] = 'Maximum 30 days allowed';
     }
     
+    if (!unpaidLeaveDescription.trim()) {
+      newErrors['unpaid_leave_description'] = 'Please specify the date details';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -1052,8 +1056,14 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                     value={unpaidLeaveDescription}
                     onChange={(e) => setUnpaidLeaveDescription(e.target.value)}
                     placeholder="e.g. 22 Feb – 27 Feb 2025"
-                    className="h-9"
+                    className={cn(
+                      "h-9",
+                      errors['unpaid_leave_description'] && 'border-destructive'
+                    )}
                   />
+                  {errors['unpaid_leave_description'] && (
+                    <p className="text-xs text-destructive">{errors['unpaid_leave_description']}</p>
+                  )}
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Help your admin by specifying dates, e.g. <span className="font-medium text-foreground/70">"22–27 Feb"</span> or <span className="font-medium text-foreground/70">"Mon 24 – Fri 28 Feb"</span>.
                   </p>
