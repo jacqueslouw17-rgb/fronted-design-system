@@ -1025,25 +1025,32 @@ export const F42v7_AdjustmentDrawer = ({
                           ))}
                         </div>
                       )}
-                      <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
-                        <Upload className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          {item.attachment.length === 0 ? 'Upload documents' : 'Add more'}
-                        </span>
-                        <input
-                          type="file"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          multiple
-                          className="hidden"
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            if (files.length > 0) {
-                              updateCommissionItem(item.id, 'attachment', [...item.attachment, ...files]);
-                            }
-                            e.target.value = '';
-                          }}
-                        />
-                      </label>
+                      {item.attachment.length < FILE_UPLOAD_MAX_COUNT && (
+                        <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
+                            {item.attachment.length === 0 ? 'Upload documents' : 'Add more'}
+                          </span>
+                          <input
+                            type="file"
+                            accept={FILE_UPLOAD_ACCEPT}
+                            multiple
+                            className="hidden"
+                            onChange={(e) => {
+                              const files = Array.from(e.target.files || []);
+                              if (files.length > 0) {
+                                const { valid, error } = validateFiles(files, item.attachment.length);
+                                if (error) {
+                                  toast.error(error);
+                                } else if (valid.length > 0) {
+                                  updateCommissionItem(item.id, 'attachment', [...item.attachment, ...valid]);
+                                }
+                              }
+                              e.target.value = '';
+                            }}
+                          />
+                        </label>
+                      )}
                     </div>
                   </div>
                 ))}
