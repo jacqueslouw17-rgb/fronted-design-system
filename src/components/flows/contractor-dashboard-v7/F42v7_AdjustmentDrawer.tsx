@@ -1048,7 +1048,7 @@ export const F42v7_AdjustmentDrawer = ({
                 <Textarea
                   placeholder="Describe the correction needed"
                   value={correctionDescription}
-                  onChange={(e) => setCorrectionDescription(e.target.value)}
+                  onChange={(e) => { setCorrectionDescription(e.target.value); clearError('correctionDescription'); }}
                   className={cn(errors.correctionDescription && 'border-destructive')}
                 />
                 {errors.correctionDescription && <p className="text-xs text-destructive">{errors.correctionDescription}</p>}
