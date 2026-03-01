@@ -1050,7 +1050,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                     max="30"
                     step="0.5"
                     value={unpaidLeaveDays}
-                    onChange={(e) => setUnpaidLeaveDays(e.target.value)}
+                    onChange={(e) => { setUnpaidLeaveDays(e.target.value); clearError('unpaid_leave_days'); }}
                     placeholder="e.g. 2"
                     className={cn(
                       "h-9",
@@ -1072,7 +1072,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                   <Input
                     type="text"
                     value={unpaidLeaveDescription}
-                    onChange={(e) => setUnpaidLeaveDescription(e.target.value)}
+                    onChange={(e) => { setUnpaidLeaveDescription(e.target.value); clearError('unpaid_leave_description'); }}
                     placeholder="e.g. 22 Feb – 27 Feb 2025"
                     className={cn(
                       "h-9",
