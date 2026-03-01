@@ -415,7 +415,7 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
             <Input
               value={form.label}
               onChange={(e) => setForm({ label: e.target.value })}
-              placeholder={isRecurring ? "Monthly housing allowance" : "Q4 bonus, Commission, Expense reimbursement"}
+              placeholder={isRecurring ? "Monthly housing allowance" : "Bonus, Commission, Expense reimbursement"}
               className="mt-1 h-8 text-sm"
             />
           </div>
