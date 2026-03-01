@@ -213,6 +213,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               <span className="text-base shrink-0">{candidate.flag}</span>
             </div>
             <p className="text-[11px] text-muted-foreground/60 mt-0.5">{candidate.role} · Data Collection</p>
+            <p className="text-[11px] text-muted-foreground mt-1.5">Configure fields based on the agreed terms, and pre-fill any details you already have.</p>
           </div>
         </SheetHeader>
 
@@ -358,19 +359,6 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             )}
           </SectionCard>
 
-          {/* Preview message */}
-          <div className="rounded-lg border border-border bg-muted/30 p-4">
-            <p className="text-xs text-muted-foreground mb-2">
-              {isResend ? "This form was sent to:" : "This form will be sent to:"}
-            </p>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
-              <div>
-                <p className="text-sm font-medium text-foreground">{candidate.name}</p>
-                <p className="text-xs text-muted-foreground">{candidate.email || candidate.role}</p>
-              </div>
-            </div>
-          </div>
 
           {/* Action buttons */}
           <div className="flex gap-3 pt-4">
