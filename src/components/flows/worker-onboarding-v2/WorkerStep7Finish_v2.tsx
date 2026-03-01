@@ -43,7 +43,7 @@ const WorkerStep7Finish_v2 = ({
 
   // v2: Payroll details removed - collected later via separate secure form
   const completedItems = [{
-    label: "Tax details",
+    label: "Pre-employment requirements",
     icon: CheckCircle2,
     done: !!formData.taxNumber
   }, {

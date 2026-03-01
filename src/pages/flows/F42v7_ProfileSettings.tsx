@@ -44,7 +44,7 @@ const OVERVIEW_CARDS = [
 
 const PROFILE_SECTIONS = [
   { id: "personal_profile", title: "Personal Profile" },
-  { id: "tax_details", title: "Tax Details" },
+  { id: "tax_details", title: "Pre-employment Requirements" },
   { id: "bank_details", title: "Bank Details" },
   { id: "work_setup", title: "Work Setup" },
 ];
