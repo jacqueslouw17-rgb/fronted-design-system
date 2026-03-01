@@ -948,7 +948,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                               />
                             </div>
                             <Input
-                              placeholder="Label (e.g., Q4 Bonus)"
+                              placeholder="Label (e.g., Bonus)"
                               value={newAdjLabel}
                               onChange={(e) => setNewAdjLabel(e.target.value)}
                               className="h-7 text-xs"

@@ -171,7 +171,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
         ],
         attachmentsCount: 2,
       },
-      { type: "bonus", amount: 6500, description: "Q4 Performance Bonus", status: "pending",
+      { type: "bonus", amount: 6500, description: "Bonus", status: "pending",
         threadId: "thread-bonus-maria",
         previousSubmission: {
           submissionId: "prev-maria-1",
@@ -181,7 +181,7 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
           submittedBy: "Maria Santos",
           status: "rejected",
           decision: { decidedAt: "Jan 20, 2026", decidedBy: "Admin", reason: "Amount exceeds pre-approved bonus cap. Please resubmit with manager approval." },
-          payload: { amount: 8000, currency: "PHP", label: "Q4 Performance Bonus", type: "bonus" },
+          payload: { amount: 8000, currency: "PHP", label: "Bonus", type: "bonus" },
           attachments: [],
         },
         attachments: [
@@ -389,7 +389,7 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
         { type: "Deduction", label: "Income Tax", amount: -63000, locked: true },
         { type: "Deduction", label: "Social Insurance", amount: -42000, locked: true },
       ],
-      submissions: [{ type: "bonus", amount: 50000, currency: "JPY", description: "New year bonus", status: "pending" }],
+      submissions: [{ type: "bonus", amount: 50000, currency: "JPY", description: "Bonus", status: "pending" }],
       pendingLeaves: [],
       status: "pending",
       totalImpact: 50000,

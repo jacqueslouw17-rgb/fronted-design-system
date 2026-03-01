@@ -147,7 +147,7 @@ const MOCK_EXCEPTIONS: WorkerException[] = [
     deltaPercentage: 18,
     payDeltaStatus: "explained_by_submission",
     linkedSubmissions: [
-      { id: "sub-1", type: "bonus", label: "Performance Bonus", amount: 40000, currency: "PHP", status: "approved" },
+      { id: "sub-1", type: "bonus", label: "Bonus", amount: 40000, currency: "PHP", status: "approved" },
       { id: "sub-2", type: "expense", label: "Travel Expense", amount: 2000, currency: "PHP", status: "approved" },
     ],
     deltaCause: "Approved bonus and expense submissions explain this delta.",

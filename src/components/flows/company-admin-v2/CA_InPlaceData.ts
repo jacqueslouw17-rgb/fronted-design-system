@@ -84,7 +84,7 @@ export const mockPayAdjustments: CA_PayAdjustment[] = [
     type: "bonus",
     amount: 15000,
     currency: "PHP",
-    description: "Q4 performance bonus",
+    description: "Bonus",
     status: "pending"
   },
   {

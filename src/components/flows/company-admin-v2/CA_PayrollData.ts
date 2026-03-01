@@ -42,7 +42,7 @@ export const mockAdjustments: CA_Adjustment[] = [
     type: "bonus",
     amount: 500,
     currency: "EUR",
-    description: "Q3 performance bonus",
+    description: "Bonus",
     status: "pending",
     submittedAt: "2025-11-03T09:00:00Z"
   },
