@@ -104,8 +104,6 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         </div>
 
         {!allFieldsLocked && data.deviceProvided === true && (
-          <>
-            {data.deviceProvided ? (
               <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
                 <h4 className="font-semibold text-sm">Company Asset Acknowledgment</h4>
                 <p className="text-sm text-muted-foreground">
@@ -127,60 +125,6 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
                   </label>
                 </div>
               </div>
-            ) : (
-              <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Equipment Reimbursement (Optional)</h4>
-                  <p className="text-sm text-muted-foreground">
-                    If eligible, you may claim reimbursement for work-related equipment purchases.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <CurrencyInput
-                    label="Reimbursement Amount"
-                    value={data.reimbursementAmount}
-                    onChange={(value) => setData({ ...data, reimbursementAmount: value })}
-                    currency="USD"
-                    showCurrencySelect={false}
-                  />
-
-                  <div className="space-y-2">
-                    <Label>Upload Receipt (Optional)</Label>
-                    {data.receiptFile ? (
-                      <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted">
-                        <FileText className="h-4 w-4 text-primary" />
-                        <span className="text-sm flex-1 truncate">
-                          {data.receiptFile.name}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={handleRemoveFile}
-                        >
-                          <XIcon className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary/5 transition-colors">
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          <Upload className="h-6 w-6 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground">Click to upload receipt</p>
-                        </div>
-                        <input
-                          type="file"
-                          className="hidden"
-                          accept=".jpg,.jpeg,.png,.pdf"
-                          onChange={handleFileUpload}
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
         )}
       </div>
 
