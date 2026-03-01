@@ -232,6 +232,8 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   };
 
   const updateBonusItem = (id: string, field: keyof BonusLineItem, value: string | File[] | null) => {
+    const index = bonusItems.findIndex(item => item.id === id);
+    if (field === 'amount') clearError(`bonus_${index}_amount`);
     setBonusItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
