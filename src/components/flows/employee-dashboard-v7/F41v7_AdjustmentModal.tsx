@@ -139,7 +139,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     const { [key]: _, ...rest } = prev;
     return rest;
   });
-  const
+  const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
 
   const resetForm = () => {
     setSelectedType(initialType);
