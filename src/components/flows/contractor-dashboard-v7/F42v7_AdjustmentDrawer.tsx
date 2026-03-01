@@ -150,6 +150,11 @@ export const F42v7_AdjustmentDrawer = ({
   
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const clearError = (key: string) => setErrors(prev => {
+    if (!prev[key]) return prev;
+    const { [key]: _, ...rest } = prev;
+    return rest;
+  });
   
   // Track which date popover is open (by item id)
   const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
@@ -178,6 +183,11 @@ export const F42v7_AdjustmentDrawer = ({
   };
 
   const updateExpenseItem = (id: string, field: keyof ExpenseLineItem, value: string | File[] | null) => {
+    const index = expenseItems.findIndex(item => item.id === id);
+    if (field === 'category') clearError(`expense_${index}_category`);
+    if (field === 'amount') clearError(`expense_${index}_amount`);
+    if (field === 'otherCategory') clearError(`expense_${index}_otherCategory`);
+    if (field === 'receipt') clearError(`expense_${index}_receipt`);
     setExpenseItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -194,11 +204,14 @@ export const F42v7_AdjustmentDrawer = ({
   };
 
   const updateAdditionalHoursItem = (id: string, field: keyof AdditionalHoursLineItem, value: Date | undefined | string | number) => {
+    const index = additionalHoursItems.findIndex(item => item.id === id);
+    if (field === 'date') clearError(`additional_${index}_date`);
+    if (field === 'startTime') clearError(`additional_${index}_startTime`);
+    if (field === 'endTime') clearError(`additional_${index}_endTime`);
     setAdditionalHoursItems(prev => prev.map(item => {
       if (item.id !== id) return item;
       const updated = { ...item, [field]: value };
       
-      // Auto-calculate hours when times change
       if (field === 'startTime' || field === 'endTime') {
         updated.calculatedHours = calculateHours(
           field === 'startTime' ? value as string : item.startTime,
@@ -221,6 +234,8 @@ export const F42v7_AdjustmentDrawer = ({
   };
 
   const updateCommissionItem = (id: string, field: keyof CommissionLineItem, value: string | File[] | null) => {
+    const index = commissionItems.findIndex(item => item.id === id);
+    if (field === 'amount') clearError(`commission_${index}_amount`);
     setCommissionItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -1033,7 +1048,7 @@ export const F42v7_AdjustmentDrawer = ({
                 <Textarea
                   placeholder="Describe the correction needed"
                   value={correctionDescription}
-                  onChange={(e) => setCorrectionDescription(e.target.value)}
+                  onChange={(e) => { setCorrectionDescription(e.target.value); clearError('correctionDescription'); }}
                   className={cn(errors.correctionDescription && 'border-destructive')}
                 />
                 {errors.correctionDescription && <p className="text-xs text-destructive">{errors.correctionDescription}</p>}

@@ -134,6 +134,11 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const [unpaidLeaveDescription, setUnpaidLeaveDescription] = useState<string>('');
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const clearError = (key: string) => setErrors(prev => {
+    if (!prev[key]) return prev;
+    const { [key]: _, ...rest } = prev;
+    return rest;
+  });
   const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
 
   const resetForm = () => {
@@ -162,6 +167,11 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   };
 
   const updateExpenseItem = (id: string, field: keyof ExpenseLineItem, value: string | File[] | null) => {
+    const index = expenseItems.findIndex(item => item.id === id);
+    if (field === 'category') clearError(`expense_${index}_category`);
+    if (field === 'amount') clearError(`expense_${index}_amount`);
+    if (field === 'otherCategory') clearError(`expense_${index}_otherCategory`);
+    if (field === 'receipt') clearError(`expense_${index}_receipt`);
     setExpenseItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -193,6 +203,10 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   };
 
   const updateOvertimeItem = (id: string, field: keyof OvertimeLineItem, value: string | Date | undefined) => {
+    const index = overtimeItems.findIndex(item => item.id === id);
+    if (field === 'date') clearError(`overtime_${index}_date`);
+    if (field === 'startTime') clearError(`overtime_${index}_startTime`);
+    if (field === 'endTime') clearError(`overtime_${index}_endTime`);
     setOvertimeItems(prev => prev.map(item => {
       if (item.id !== id) return item;
       
@@ -218,6 +232,8 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   };
 
   const updateBonusItem = (id: string, field: keyof BonusLineItem, value: string | File[] | null) => {
+    const index = bonusItems.findIndex(item => item.id === id);
+    if (field === 'amount') clearError(`bonus_${index}_amount`);
     setBonusItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -1036,7 +1052,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                     max="30"
                     step="0.5"
                     value={unpaidLeaveDays}
-                    onChange={(e) => setUnpaidLeaveDays(e.target.value)}
+                    onChange={(e) => { setUnpaidLeaveDays(e.target.value); clearError('unpaid_leave_days'); }}
                     placeholder="e.g. 2"
                     className={cn(
                       "h-9",
@@ -1058,7 +1074,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                   <Input
                     type="text"
                     value={unpaidLeaveDescription}
-                    onChange={(e) => setUnpaidLeaveDescription(e.target.value)}
+                    onChange={(e) => { setUnpaidLeaveDescription(e.target.value); clearError('unpaid_leave_description'); }}
                     placeholder="e.g. 22 Feb – 27 Feb 2025"
                     className={cn(
                       "h-9",
