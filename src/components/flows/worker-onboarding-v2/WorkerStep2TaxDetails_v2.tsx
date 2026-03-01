@@ -1,6 +1,6 @@
 /**
  * Flow 3 – Candidate Onboarding v2
- * Step 2: Tax Details
+ * Step 2: Pre-employment Requirements
  * 
  * Collects tax residency, tax ID (country-adaptive), and identity document upload.
  * Worker-friendly terminology — no "payroll parameters" language.
@@ -220,9 +220,9 @@ const WorkerStep2TaxDetails_v2 = ({ formData, onComplete, isProcessing, buttonTe
       >
         {!hideHeader && (
         <div className="space-y-2">
-          <h3 className="text-base sm:text-lg font-semibold">Tax Details</h3>
+          <h3 className="text-base sm:text-lg font-semibold">Pre-employment Requirements</h3>
           <p className="text-sm text-muted-foreground">
-            We need your tax information to ensure compliance and correct withholding.
+            We need your tax and identification details to ensure compliance.
           </p>
         </div>
         )}
