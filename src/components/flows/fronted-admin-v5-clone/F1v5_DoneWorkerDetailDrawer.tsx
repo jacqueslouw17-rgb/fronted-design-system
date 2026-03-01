@@ -502,62 +502,64 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       <ChevronDown className="h-3 w-3 opacity-50" />
                     </button>
                   </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                {!isActive && (
-                  <>
-                    <DropdownMenuItem
-                      onClick={() => onLifecycleAction?.(worker.id, "active", "", "")}
-                      className="gap-2 text-accent-green-text focus:text-accent-green-text"
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      <div>
-                        <p className="text-sm font-medium">Reactivate</p>
-                        <p className="text-xs text-muted-foreground">Set back to active status</p>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                {workerStatus !== "terminated" && (
-                  <DropdownMenuItem 
-                    onClick={() => setActionView("terminated")}
-                    className="gap-2 text-destructive focus:text-destructive"
-                  >
-                    <UserX className="h-4 w-4" />
-                    <div>
-                      <p className="text-sm font-medium">Terminate</p>
-                      <p className="text-xs text-muted-foreground">End employment immediately</p>
-                    </div>
-                  </DropdownMenuItem>
-                )}
-                {isEmployee && workerStatus !== "resigned" && (
-                  <DropdownMenuItem 
-                    onClick={() => setActionView("resigned")}
-                    className="gap-2 text-amber-700 focus:text-amber-700"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <div>
-                      <p className="text-sm font-medium">Record resignation</p>
-                      <p className="text-xs text-muted-foreground">Employee has resigned</p>
-                    </div>
-                  </DropdownMenuItem>
-                )}
-                {workerStatus !== "contract-ended" && (
-                  <DropdownMenuItem 
-                    onClick={() => setActionView("contract-ended")}
-                    className="gap-2"
-                  >
-                    <CalendarOff className="h-4 w-4" />
-                    <div>
-                      <p className="text-sm font-medium">End contract</p>
-                      <p className="text-xs text-muted-foreground">Contract period has ended</p>
-                    </div>
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuContent align="start" className="w-56">
+                    {!isActive && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() => onLifecycleAction?.(worker.id, "active", "", "")}
+                          className="gap-2 text-accent-green-text focus:text-accent-green-text"
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                          <div>
+                            <p className="text-sm font-medium">Reactivate</p>
+                            <p className="text-xs text-muted-foreground">Set back to active status</p>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    {workerStatus !== "terminated" && (
+                      <DropdownMenuItem 
+                        onClick={() => setActionView("terminated")}
+                        className="gap-2 text-destructive focus:text-destructive"
+                      >
+                        <UserX className="h-4 w-4" />
+                        <div>
+                          <p className="text-sm font-medium">Terminate</p>
+                          <p className="text-xs text-muted-foreground">End employment immediately</p>
+                        </div>
+                      </DropdownMenuItem>
+                    )}
+                    {isEmployee && workerStatus !== "resigned" && (
+                      <DropdownMenuItem 
+                        onClick={() => setActionView("resigned")}
+                        className="gap-2 text-amber-700 focus:text-amber-700"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <div>
+                          <p className="text-sm font-medium">Record resignation</p>
+                          <p className="text-xs text-muted-foreground">Employee has resigned</p>
+                        </div>
+                      </DropdownMenuItem>
+                    )}
+                    {workerStatus !== "contract-ended" && (
+                      <DropdownMenuItem 
+                        onClick={() => setActionView("contract-ended")}
+                        className="gap-2"
+                      >
+                        <CalendarOff className="h-4 w-4" />
+                        <div>
+                          <p className="text-sm font-medium">End contract</p>
+                          <p className="text-xs text-muted-foreground">Contract period has ended</p>
+                        </div>
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : null}
             </div>
-          )}
+            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{isEmployee ? "Employee" : "Contractor"} · {worker.role}</p>
+          </div>
           {!isActive && worker.endDate && (
             <p className="text-xs text-muted-foreground mt-1">
               {workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Terminated on" : "Contract ended"}: {worker.endDate}
