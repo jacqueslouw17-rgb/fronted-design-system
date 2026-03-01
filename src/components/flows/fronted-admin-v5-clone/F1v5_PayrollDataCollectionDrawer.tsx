@@ -414,19 +414,6 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
             ))}
           </SectionCard>
 
-          {/* Preview message */}
-          <div className="rounded-lg border border-border bg-muted/30 p-4">
-            <p className="text-xs text-muted-foreground mb-2">
-              {isResend ? "This form was sent to:" : "This form will be sent to:"}
-            </p>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
-              <div>
-                <p className="text-sm font-medium text-foreground">{contractor.name}</p>
-                <p className="text-xs text-muted-foreground">{contractor.email || contractor.role}</p>
-              </div>
-            </div>
-          </div>
 
           {/* Action buttons */}
           <div className="flex gap-3 pt-4">
