@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { validateFiles, validateSingleFile, FILE_UPLOAD_ACCEPT, FILE_UPLOAD_MAX_COUNT, FILE_UPLOAD_HELPER, FILE_UPLOAD_HELPER_RECEIPT } from '../shared/fileUploadValidation';
 import {
   Sheet,
   SheetContent,
@@ -300,14 +301,9 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-    if (!allowedTypes.includes(file.type)) {
-      setErrors(prev => ({ ...prev, [fieldName]: 'Only PDF, JPG, and PNG files are allowed' }));
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      setErrors(prev => ({ ...prev, [fieldName]: 'File must be less than 10MB' }));
+    const error = validateSingleFile(file);
+    if (error) {
+      setErrors(prev => ({ ...prev, [fieldName]: error }));
       return;
     }
 
@@ -601,7 +597,7 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       {errors[fieldName] ? (
         <p className="text-xs text-destructive">{errors[fieldName]}</p>
       ) : (
-        <p className="text-xs text-muted-foreground">PDF, JPG, or PNG up to 10MB</p>
+        <p className="text-xs text-muted-foreground">{FILE_UPLOAD_HELPER}</p>
       )}
     </div>
   );
@@ -802,37 +798,47 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                           ))}
                         </div>
                       )}
-                      {/* Upload trigger */}
-                      <label className={cn(
-                        "flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed cursor-pointer transition-colors",
-                        errors[`expense_${index}_receipt`] 
-                          ? "border-destructive bg-destructive/5" 
-                          : "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]"
-                      )}>
-                        <Upload className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          {item.receipt.length === 0 ? 'Upload documents' : 'Add more'}
-                        </span>
-                        <input
-                          type="file"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          multiple
-                          className="hidden"
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            if (files.length > 0) {
-                              updateExpenseItem(item.id, 'receipt', [...item.receipt, ...files]);
-                              setErrors(prev => {
-                                const { [`expense_${index}_receipt`]: _, ...rest } = prev;
-                                return rest;
-                              });
-                            }
-                            e.target.value = '';
-                          }}
-                        />
-                      </label>
-                      {errors[`expense_${index}_receipt`] && <p className="text-[11px] text-destructive">{errors[`expense_${index}_receipt`]}</p>}
-                      <p className="text-[11px] text-muted-foreground/70">Receipts, invoices, or any proof of purchase — PDF, JPG, PNG</p>
+                      {/* Upload trigger — hidden when at max */}
+                      {item.receipt.length < FILE_UPLOAD_MAX_COUNT && (
+                        <label className={cn(
+                          "flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed cursor-pointer transition-colors",
+                          errors[`expense_${index}_receipt`] 
+                            ? "border-destructive bg-destructive/5" 
+                            : "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]"
+                        )}>
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
+                            {item.receipt.length === 0 ? 'Upload documents' : 'Add more'}
+                          </span>
+                          <input
+                            type="file"
+                            accept={FILE_UPLOAD_ACCEPT}
+                            multiple
+                            className="hidden"
+                            onChange={(e) => {
+                              const files = Array.from(e.target.files || []);
+                              if (files.length > 0) {
+                                const { valid, error } = validateFiles(files, item.receipt.length);
+                                if (error) {
+                                  setErrors(prev => ({ ...prev, [`expense_${index}_receipt`]: error }));
+                                } else if (valid.length > 0) {
+                                  updateExpenseItem(item.id, 'receipt', [...item.receipt, ...valid]);
+                                  setErrors(prev => {
+                                    const { [`expense_${index}_receipt`]: _, ...rest } = prev;
+                                    return rest;
+                                  });
+                                }
+                              }
+                              e.target.value = '';
+                            }}
+                          />
+                        </label>
+                      )}
+                      {errors[`expense_${index}_receipt`] ? (
+                        <p className="text-[11px] text-destructive">{errors[`expense_${index}_receipt`]}</p>
+                      ) : (
+                        <p className="text-[11px] text-muted-foreground/70">{FILE_UPLOAD_HELPER_RECEIPT}</p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1021,25 +1027,32 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                           ))}
                         </div>
                       )}
-                      <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
-                        <Upload className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          {item.attachment.length === 0 ? 'Upload documents' : 'Add more'}
-                        </span>
-                        <input
-                          type="file"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          multiple
-                          className="hidden"
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            if (files.length > 0) {
-                              updateBonusItem(item.id, 'attachment', [...item.attachment, ...files]);
-                            }
-                            e.target.value = '';
-                          }}
-                        />
-                      </label>
+                      {item.attachment.length < FILE_UPLOAD_MAX_COUNT && (
+                        <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
+                            {item.attachment.length === 0 ? 'Upload documents' : 'Add more'}
+                          </span>
+                          <input
+                            type="file"
+                            accept={FILE_UPLOAD_ACCEPT}
+                            multiple
+                            className="hidden"
+                            onChange={(e) => {
+                              const files = Array.from(e.target.files || []);
+                              if (files.length > 0) {
+                                const { valid, error } = validateFiles(files, item.attachment.length);
+                                if (error) {
+                                  toast.error(error);
+                                } else if (valid.length > 0) {
+                                  updateBonusItem(item.id, 'attachment', [...item.attachment, ...valid]);
+                                }
+                              }
+                              e.target.value = '';
+                            }}
+                          />
+                        </label>
+                      )}
                     </div>
                   </div>
                 ))}
