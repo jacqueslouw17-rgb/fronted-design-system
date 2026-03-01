@@ -134,7 +134,12 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const [unpaidLeaveDescription, setUnpaidLeaveDescription] = useState<string>('');
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
+  const clearError = (key: string) => setErrors(prev => {
+    if (!prev[key]) return prev;
+    const { [key]: _, ...rest } = prev;
+    return rest;
+  });
+  const
 
   const resetForm = () => {
     setSelectedType(initialType);

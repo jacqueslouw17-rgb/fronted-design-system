@@ -150,6 +150,11 @@ export const F42v7_AdjustmentDrawer = ({
   
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const clearError = (key: string) => setErrors(prev => {
+    if (!prev[key]) return prev;
+    const { [key]: _, ...rest } = prev;
+    return rest;
+  });
   
   // Track which date popover is open (by item id)
   const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
