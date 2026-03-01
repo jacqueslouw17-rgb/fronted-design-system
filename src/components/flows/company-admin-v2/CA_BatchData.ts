@@ -8,7 +8,7 @@ export const mockClientReviewItems: CA_BatchAdjustment[] = [
     type: "bonus",
     label: "+Bonus",
     amount: 500,
-    description: "Q3 performance bonus",
+    description: "Bonus",
     status: "client_review",
     workerId: "w-3",
     workerName: "David Martinez",

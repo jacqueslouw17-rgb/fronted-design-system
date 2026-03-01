@@ -155,7 +155,7 @@ async function handleJonasBonusQuery(callbacks: AgentCallbacks) {
   addMessage({
     role: 'assistant',
     content: '',
-    summary: `**Jonas Schmidt** received a **€2,000 performance bonus** in December 2025 (Q4 bonus cycle).\n\n**Recommendation for this cycle:**\nBased on team performance targets and Jonas's contributions, I suggest a **€2,200 Q1 bonus** (+10% from last cycle).\n\nWould you like me to draft this adjustment?`,
+    summary: `**Jonas Schmidt** received a **€2,000 bonus** in December 2025.\n\n**Recommendation for this cycle:**\nBased on team performance targets and Jonas's contributions, I suggest a **€2,200 bonus** (+10% from last cycle).\n\nWould you like me to draft this adjustment?`,
     context: {
       payPeriod: '15 Jan – 31 Jan 2026',
       worker: 'Jonas Schmidt',

@@ -59,7 +59,7 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Social Security", amount: -580, locked: true },
     ],
     submissions: [
-      { type: "bonus", amount: 500, currency: "EUR", description: "Q4 performance bonus", status: "pending" },
+      { type: "bonus", amount: 500, currency: "EUR", description: "Bonus", status: "pending" },
     ],
     status: "pending",
     totalImpact: 500,
@@ -241,7 +241,7 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Social Security", amount: -1650, locked: true },
     ],
     submissions: [
-      { type: "bonus", amount: 5000, currency: "SEK", description: "Q4 performance bonus", status: "pending" },
+      { type: "bonus", amount: 5000, currency: "SEK", description: "Bonus", status: "pending" },
     ],
     // No pending leaves - maternity leave handled separately in Leaves tab
     pendingLeaves: [],

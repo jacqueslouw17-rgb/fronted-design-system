@@ -61,7 +61,7 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Social Security", amount: -580, locked: true },
     ],
     submissions: [
-      { type: "bonus", amount: 500, currency: "EUR", description: "Q4 performance bonus", status: "pending",
+      { type: "bonus", amount: 500, currency: "EUR", description: "Bonus", status: "pending",
         threadId: "thread-bonus-sophie",
         previousSubmission: {
           submissionId: "prev-sophie-1",
@@ -70,8 +70,8 @@ const mockSubmissions: WorkerSubmission[] = [
           submittedAt: "Jan 20, 2026",
           submittedBy: "Sophie Laurent",
           status: "rejected",
-          decision: { decidedAt: "Jan 22, 2026", decidedBy: "Admin", reason: "Missing supporting documentation for Q4 bonus claim" },
-          payload: { amount: 750, currency: "EUR", label: "Q4 performance bonus", type: "bonus" },
+          decision: { decidedAt: "Jan 22, 2026", decidedBy: "Admin", reason: "Missing supporting documentation for bonus claim" },
+          payload: { amount: 750, currency: "EUR", label: "Bonus", type: "bonus" },
           attachments: [],
         },
         attachments: [
@@ -274,7 +274,7 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Social Security", amount: -1650, locked: true },
     ],
     submissions: [
-      { type: "bonus", amount: 5000, currency: "SEK", description: "Q4 performance bonus", status: "pending" },
+      { type: "bonus", amount: 5000, currency: "SEK", description: "Bonus", status: "pending" },
     ],
     // No pending leaves - maternity leave handled separately in Leaves tab
     pendingLeaves: [],

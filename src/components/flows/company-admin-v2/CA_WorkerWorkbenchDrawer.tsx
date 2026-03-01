@@ -197,7 +197,7 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
   // Mock leave & adjustments for this cycle
   const mockLeaveAdjustments: LeaveAdjustmentSummary[] = [
     { id: "la1", type: "leave", label: "2 days Annual Leave", amount: -Math.round(worker.baseSalary / 22 * 2), currency: worker.currency, status: "approved" },
-    { id: "la2", type: "adjustment", label: "Overtime bonus", amount: 5000, currency: worker.currency, status: "approved" }
+    { id: "la2", type: "adjustment", label: "Bonus", amount: 5000, currency: worker.currency, status: "approved" }
   ];
 
   // Calculate totals including custom adjustments
