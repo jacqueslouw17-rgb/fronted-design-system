@@ -31,11 +31,13 @@ interface TagInputProps {
   className?: string;
   maxTags?: number;
   label?: string;
+  required?: boolean;
+  error?: string;
 }
 
 const normalise = (tag: string) => tag.trim().toLowerCase();
 
-export const TagInput = ({ tags, onChange, className, maxTags = DEFAULT_MAX_TAGS, label }: TagInputProps) => {
+export const TagInput = ({ tags, onChange, className, maxTags = DEFAULT_MAX_TAGS, label, required, error }: TagInputProps) => {
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -96,14 +98,18 @@ export const TagInput = ({ tags, onChange, className, maxTags = DEFAULT_MAX_TAGS
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  const defaultLabel = required
+    ? (maxTags === 1 ? 'Tag' : 'Tags')
+    : (maxTags === 1 ? 'Tag (optional)' : 'Tags (optional)');
+
   return (
     <div className={cn('space-y-1.5', className)} ref={containerRef}>
-      <Label className="text-xs">{label || (maxTags === 1 ? 'Tag (optional)' : 'Tags (optional)')}</Label>
+      <Label className="text-xs">{label || defaultLabel}</Label>
 
       <div
         className={cn(
           'flex flex-wrap items-center gap-1.5 min-h-[36px] px-2.5 py-1.5 rounded-md border bg-background transition-colors cursor-text',
-          isFocused ? 'border-primary ring-2 ring-ring ring-offset-2' : 'border-input',
+          error ? 'border-destructive' : isFocused ? 'border-primary ring-2 ring-ring ring-offset-2' : 'border-input',
         )}
         onClick={() => inputRef.current?.focus()}
       >
@@ -162,11 +168,15 @@ export const TagInput = ({ tags, onChange, className, maxTags = DEFAULT_MAX_TAGS
         </div>
       )}
 
-      <p className="text-[11px] text-muted-foreground">
-        {maxTags === 1
-          ? "Add a tag to group expenses (e.g., \u2018NY trip\u2019)."
-          : "Add tags to group expenses or give context (e.g., \u2018NY trip\u2019, \u2018Client dinner\u2019)."}
-      </p>
+      {error ? (
+        <p className="text-[11px] text-destructive">{error}</p>
+      ) : (
+        <p className="text-[11px] text-muted-foreground">
+          {maxTags === 1
+            ? "Add a tag to group expenses (e.g., \u2018NY trip\u2019)."
+            : "Add tags to group expenses or give context (e.g., \u2018NY trip\u2019, \u2018Client dinner\u2019)."}
+        </p>
+      )}
     </div>
   );
 };

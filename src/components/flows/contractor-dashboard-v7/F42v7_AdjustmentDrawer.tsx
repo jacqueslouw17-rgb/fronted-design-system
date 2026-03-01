@@ -368,6 +368,12 @@ export const F42v7_AdjustmentDrawer = ({
         hasError = true;
       }
     });
+
+    // Tag is required when multiple expense items
+    if (expenseItems.length > 1 && expenseTags.length === 0) {
+      newErrors['expense_tag'] = 'Tag is required when submitting multiple expenses';
+      hasError = true;
+    }
     
     setErrors(newErrors);
     return !hasError;
@@ -839,8 +845,14 @@ export const F42v7_AdjustmentDrawer = ({
                 </button>
               </div>
 
-              {/* Tags (optional) */}
-              <TagInput tags={expenseTags} onChange={setExpenseTags} maxTags={1} />
+              {/* Tag */}
+              <TagInput
+                tags={expenseTags}
+                onChange={(tags) => { setExpenseTags(tags); clearError('expense_tag'); }}
+                maxTags={1}
+                required={expenseItems.length > 1}
+                error={errors['expense_tag']}
+              />
 
               {/* Session total - always show when items have amounts */}
               {expenseItems.length > 0 && (

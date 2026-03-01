@@ -340,6 +340,12 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         hasError = true;
       }
     });
+
+    // Tag is required when multiple expense items
+    if (expenseItems.length > 1 && expenseTags.length === 0) {
+      newErrors['expense_tag'] = 'Tag is required when submitting multiple expenses';
+      hasError = true;
+    }
     
     setErrors(newErrors);
     return !hasError;
@@ -842,8 +848,14 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 Add another expense
               </button>
 
-              {/* Tags (optional) */}
-              <TagInput tags={expenseTags} onChange={setExpenseTags} maxTags={1} />
+              {/* Tag */}
+              <TagInput
+                tags={expenseTags}
+                onChange={(tags) => { setExpenseTags(tags); clearError('expense_tag'); }}
+                maxTags={1}
+                required={expenseItems.length > 1}
+                error={errors['expense_tag']}
+              />
 
               {expenseItems.length > 0 && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
