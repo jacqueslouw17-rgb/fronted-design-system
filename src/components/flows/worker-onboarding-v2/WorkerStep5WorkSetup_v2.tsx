@@ -103,7 +103,7 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
           )}
         </div>
 
-        {!allFieldsLocked && data.deviceProvided !== undefined && (
+        {!allFieldsLocked && data.deviceProvided === true && (
           <>
             {data.deviceProvided ? (
               <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
