@@ -100,7 +100,7 @@ export const mockBatchWorkers: CA_BatchWorker[] = [
     hasClientReviewItem: true,
     lineItems: [
       { id: "li-9", name: "Base Consultancy Fee", amount: 4200, type: "earning" },
-      { id: "li-10", name: "Q3 Bonus", amount: 500, type: "earning" }
+      { id: "li-10", name: "Bonus", amount: 500, type: "earning" }
     ]
   },
   {

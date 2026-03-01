@@ -91,7 +91,7 @@ const mockPayslips: Payslip[] = [
     lineItems: [
       { label: 'Base Salary', amount: 50000, type: 'Earnings' },
       { label: 'Housing Allowance', amount: 5000, type: 'Earnings' },
-      { label: 'Performance Bonus', amount: 3000, type: 'Earnings' },
+      { label: 'Bonus', amount: 3000, type: 'Earnings' },
       { label: 'SSS', amount: 1125, type: 'Deduction' },
       { label: 'PhilHealth', amount: 900, type: 'Deduction' },
       { label: 'Pag-IBIG', amount: 100, type: 'Deduction' },

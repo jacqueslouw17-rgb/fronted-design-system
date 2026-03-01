@@ -69,7 +69,7 @@ const mockInvoices: Invoice[] = [
     status: 'paid',
     lineItems: [
       { label: 'Monthly Retainer', amount: 4000, meta: '160 hours @ $25/hr' },
-      { label: 'Commission', amount: 200, meta: 'Q3 referral bonus' },
+      { label: 'Commission', amount: 200, meta: 'Referral commission' },
     ],
     additionalHours: 0,
     additionalHoursAmount: 0,

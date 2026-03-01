@@ -178,7 +178,7 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
   // Mock earnings/deductions for breakdown
   const mockEarnings = [
     { id: "e1", name: worker.employmentType === "contractor" ? "Base Consultancy Fee" : "Base Monthly Salary", amount: worker.baseSalary, isLocked: true },
-    { id: "e2", name: "Performance Bonus", amount: worker.baseSalary * 0.05, isLocked: false },
+    { id: "e2", name: worker.employmentType === "contractor" ? "Commission" : "Bonus", amount: worker.baseSalary * 0.05, isLocked: false },
   ];
 
   const mockDeductions = worker.employmentType === "employee" ? [
@@ -415,7 +415,7 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
             <Input
               value={form.label}
               onChange={(e) => setForm({ label: e.target.value })}
-              placeholder={isRecurring ? "Monthly housing allowance" : "Q4 bonus, Commission, Expense reimbursement"}
+              placeholder={isRecurring ? "Monthly housing allowance" : "Bonus, Commission, Expense reimbursement"}
               className="mt-1 h-8 text-sm"
             />
           </div>

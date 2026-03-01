@@ -33,7 +33,7 @@ export const F41v7_PayoutBreakdownDrawer = ({
   earnings = [
     { label: "Base Salary", amount: 50000 },
     { label: "Overtime (8 hrs)", amount: 2500 },
-    { label: "Performance Bonus", amount: 5000 },
+    { label: "Bonus", amount: 5000 },
   ],
   deductions = [
     { label: "SSS Contribution", amount: 1125 },
