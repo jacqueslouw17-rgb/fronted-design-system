@@ -1312,9 +1312,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             e.stopPropagation();
                             setSelectedForPayrollCollection(contractor);
                             setPayrollCollectionDrawerOpen(true);
-                          }}>
-                                <Settings className="h-3 w-3" />
-                                Configure
+                           }}>
+                                <Eye className="h-3 w-3" />
+                                Preview
                               </Button>
                               <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
                             e.stopPropagation();

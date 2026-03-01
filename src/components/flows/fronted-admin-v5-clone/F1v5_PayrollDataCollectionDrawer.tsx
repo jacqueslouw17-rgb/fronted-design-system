@@ -323,6 +323,7 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
               <span className="text-base shrink-0">{contractor.countryFlag}</span>
             </div>
             <p className="text-[11px] text-muted-foreground/60 mt-0.5">{contractor.role} · Payroll Data Collection</p>
+            <p className="text-[11px] text-muted-foreground mt-1.5">Pre-fill any known fields — this form will be sent to {contractor.name} to complete.</p>
           </div>
         </SheetHeader>
 
