@@ -576,8 +576,11 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
           />
         </label>
       )}
-      {errors[fieldName] && <p className="text-xs text-destructive">{errors[fieldName]}</p>}
-      <p className="text-xs text-muted-foreground">PDF, JPG, or PNG up to 10MB</p>
+      {errors[fieldName] ? (
+        <p className="text-xs text-destructive">{errors[fieldName]}</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">PDF, JPG, or PNG up to 10MB</p>
+      )}
     </div>
   );
 
@@ -1040,12 +1043,13 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                       errors['unpaid_leave_days'] && 'border-destructive'
                     )}
                   />
-                  {errors['unpaid_leave_days'] && (
+                  {errors['unpaid_leave_days'] ? (
                     <p className="text-xs text-destructive">{errors['unpaid_leave_days']}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Supports half days (e.g. 1.5)
+                    </p>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    Supports half days (e.g. 1.5)
-                  </p>
                 </div>
 
                 {/* Description / Date details */}
@@ -1061,12 +1065,13 @@ export const F41v7_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                       errors['unpaid_leave_description'] && 'border-destructive'
                     )}
                   />
-                  {errors['unpaid_leave_description'] && (
+                  {errors['unpaid_leave_description'] ? (
                     <p className="text-xs text-destructive">{errors['unpaid_leave_description']}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Help your admin by specifying dates, e.g. <span className="font-medium text-foreground/70">"22–27 Feb"</span> or <span className="font-medium text-foreground/70">"Mon 24 – Fri 28 Feb"</span>.
+                    </p>
                   )}
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Help your admin by specifying dates, e.g. <span className="font-medium text-foreground/70">"22–27 Feb"</span> or <span className="font-medium text-foreground/70">"Mon 24 – Fri 28 Feb"</span>.
-                  </p>
                 </div>
               </div>
 

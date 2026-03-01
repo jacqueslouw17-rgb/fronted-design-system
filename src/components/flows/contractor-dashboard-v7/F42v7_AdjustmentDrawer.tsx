@@ -573,8 +573,11 @@ export const F42v7_AdjustmentDrawer = ({
           />
         </label>
       )}
-      {errors[fieldName] && <p className="text-xs text-destructive">{errors[fieldName]}</p>}
-      <p className="text-xs text-muted-foreground">PDF, JPG, or PNG up to 10MB</p>
+      {errors[fieldName] ? (
+        <p className="text-xs text-destructive">{errors[fieldName]}</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">PDF, JPG, or PNG up to 10MB</p>
+      )}
     </div>
   );
 
