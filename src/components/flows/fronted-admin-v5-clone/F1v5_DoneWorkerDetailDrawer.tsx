@@ -484,20 +484,16 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <div className="flex items-center gap-2">
               <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.name}</SheetTitle>
               <span className="text-base shrink-0">{worker.countryFlag}</span>
-              {(worker.needsDocumentVerification && !worker.documentsVerified) && (
-                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
-                  Inactive
-                </Badge>
-              )}
-              {worker.documentsVerified && (
-                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
-                  Active
-                </Badge>
-              )}
             </div>
             <p className="text-[11px] text-muted-foreground/60 mt-0.5">{isEmployee ? "Employee" : "Contractor"} · {worker.role}</p>
           </div>
-          {!verificationMode && (
+          {(worker.needsDocumentVerification && !worker.documentsVerified) ? (
+            <div className="flex items-center gap-2 mt-1">
+              <span className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 shrink-0">
+                Inactive
+              </span>
+            </div>
+          ) : !verificationMode && (
             <div className="flex items-center gap-2 mt-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -507,7 +503,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     ? "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20 hover:bg-accent-green-fill/20"
                     : cn(statusConfig.badgeClass, "hover:opacity-80")
                 )}>
-                  <statusConfig.icon className="h-3 w-3" />
+                  {!isActive && <statusConfig.icon className="h-3 w-3" />}
                   {statusConfig.label}
                   <ChevronDown className="h-3 w-3 opacity-50" />
                 </button>
