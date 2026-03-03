@@ -749,7 +749,7 @@ const AdminContractingMultiCompany = () => {
           name: c.name,
           role: c.role,
           country: c.country,
-          countryCode: c.countryCode || (c.country === "Singapore" ? "SG" : c.country === "Spain" ? "ES" : "US"),
+          countryCode: c.countryCode || ({ Singapore: "SG", Spain: "ES", Norway: "NO", Philippines: "PH", Ireland: "IE", India: "IN" }[c.country] || "US"),
           flag: c.countryFlag || c.flag || "",
           salary: c.salary || "",
           startDate: c.startDate || "",
@@ -760,6 +760,10 @@ const AdminContractingMultiCompany = () => {
           status: "Hired" as const,
           email: c.email,
           employmentType: c.employmentType,
+          nationality: c.nationality,
+          city: c.city,
+          address: c.address,
+          idNumber: c.idNumber,
         }));
 
       if (candidatesForDrafting.length > 0) {

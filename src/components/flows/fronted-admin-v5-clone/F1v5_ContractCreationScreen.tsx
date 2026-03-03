@@ -115,9 +115,27 @@ const COUNTRY_RULES: Record<string, CountryRule> = {
   Romania:     { flag: "🇷🇴", currency: "RON", probation: { default: 90, max: 90 }, noticePeriod: { default: 20, min: 20 }, annualLeave: { default: 20, min: 20 }, sickLeave: { default: 183, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
 };
 
+export interface ContractFormData {
+  fullName: string;
+  email: string;
+  role: string;
+  nationality: string;
+  city: string;
+  address: string;
+  idNumber: string;
+  country: string;
+  startDate: string;
+  salary: string;
+  employmentType: "employee" | "contractor";
+  noticePeriod: string;
+  annualLeave: string;
+  weeklyHours: string;
+  payFrequency: string;
+}
+
 interface Props {
   candidate: Candidate;
-  onNext: () => void;
+  onNext: (formData?: ContractFormData) => void;
   onPrevious?: () => void;
   currentIndex?: number;
   totalCandidates?: number;
@@ -329,7 +347,23 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   const handleNext = () => {
     if (handleValidate()) {
       window.scrollTo({ top: 0, behavior: "smooth" });
-      onNext();
+      onNext({
+        fullName: formData.fullName,
+        email: formData.email,
+        role: formData.role,
+        nationality: formData.nationality,
+        city: formData.city,
+        address: formData.address,
+        idNumber: formData.idNumber,
+        country: formData.country,
+        startDate: formData.startDate,
+        salary: formData.salary,
+        employmentType,
+        noticePeriod: formData.noticePeriod,
+        annualLeave: formData.annualLeave,
+        weeklyHours: formData.weeklyHours,
+        payFrequency: formData.payFrequency,
+      });
     }
   };
 
