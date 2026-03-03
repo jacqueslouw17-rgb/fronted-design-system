@@ -224,15 +224,25 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
     fieldRefs.current[key] = el;
   }, []);
 
+  const countryDefaults: Record<string, { city: string; address: string; idNumber: string }> = {
+    Philippines: { city: "Manila", address: "123 Rizal Avenue, Makati City", idNumber: "PH-2024-881204" },
+    Singapore: { city: "Singapore", address: "88 Orchard Road, #12-01", idNumber: "SG-2024-556789" },
+    Norway: { city: "Oslo", address: "Karl Johans gate 22", idNumber: "NO-2024-443210" },
+    Spain: { city: "Barcelona", address: "Carrer de Pau Claris 120", idNumber: "ES-2024-667890" },
+    Ireland: { city: "Dublin", address: "42 Grafton Street", idNumber: "IE-2024-334567" },
+    India: { city: "Bangalore", address: "100 MG Road, Indiranagar", idNumber: "IN-2024-778901" },
+  };
+  const defaults = countryDefaults[candidate.country] || { city: "", address: "", idNumber: "" };
+
   const [formData, setFormData] = useState({
     fullName: candidate.name,
     email: candidate.email || "",
     role: candidate.role,
     nationality: candidate.nationality || "",
-    city: candidate.city || "Manila",
-    address: candidate.address || "123 Rizal Avenue, Makati City",
+    city: candidate.city || defaults.city,
+    address: candidate.address || defaults.address,
     idType: candidate.idType || "",
-    idNumber: candidate.idNumber || "PH-2024-881204",
+    idNumber: candidate.idNumber || defaults.idNumber,
     country: candidate.country,
     startDate: parseToISODate(candidate.startDate) || "2025-12-01",
     salary: candidate.salary,
