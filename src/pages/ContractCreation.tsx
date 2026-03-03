@@ -150,6 +150,7 @@ const ContractCreation: React.FC = () => {
               salary: c.salary,
               email: c.email,
               employmentType: c.employmentType,
+              nationality: c.nationality,
             })
           );
       } catch (e) {
