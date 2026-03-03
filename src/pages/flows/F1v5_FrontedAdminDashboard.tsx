@@ -1213,7 +1213,33 @@ const AdminContractingMultiCompany = () => {
                 <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-screen pt-16">
                   <div className="flex-1 px-4 py-6 sm:p-8">
                     <ContractReviewBoard 
-                      candidates={contractFlow.selectedCandidates} 
+                      candidates={(() => {
+                        // Build review candidates from companyContractors for accurate, up-to-date data
+                        const candidateIds = contractFlow.selectedCandidates.map(c => c.id);
+                        const contractors = companyContractors[selectedCompany] || [];
+                        const countryCodeMap: Record<string, string> = { Singapore: "SG", Spain: "ES", Norway: "NO", Philippines: "PH", Ireland: "IE", India: "IN" };
+                        const currencyMap: Record<string, string> = { Singapore: "SGD", Spain: "EUR", Norway: "NOK", Philippines: "PHP", Ireland: "EUR", India: "INR" };
+                        return contractors
+                          .filter((c: any) => candidateIds.includes(c.id))
+                          .map((c: any) => ({
+                            id: c.id,
+                            name: c.name,
+                            role: c.role,
+                            country: c.country,
+                            countryCode: c.countryCode || countryCodeMap[c.country] || "US",
+                            flag: c.countryFlag || c.flag || "",
+                            salary: c.salary || "",
+                            startDate: c.startDate || "",
+                            noticePeriod: c.noticePeriod || "30 days",
+                            pto: c.pto || "15 days/year",
+                            currency: c.currency || currencyMap[c.country] || "USD",
+                            signingPortal: c.signingPortal || "DocuSign",
+                            status: "Hired" as const,
+                            email: c.email,
+                            employmentType: c.employmentType,
+                            nationality: c.nationality,
+                          }));
+                      })()}
                       onBack={() => {
                         // Go back to the last candidate in drafting with docs pre-confirmed
                         setCameFromReview(true);
