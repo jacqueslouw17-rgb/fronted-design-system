@@ -15,8 +15,6 @@ import { cn } from "@/lib/utils";
 
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
-import { F1v5_CountryTemplatesSection } from "./F1v5_CountryTemplatesSection";
-import { F1v5_CreationCountryTemplates, type CreationCountryEntry } from "./F1v5_CreationCountryTemplates";
 
 interface F1v5_Step2Props {
   formData: Record<string, any>;
@@ -33,20 +31,6 @@ interface F1v5_Step2Props {
   companyName?: string;
 }
 
-// Eurozone countries per acceptance criteria
-const EUROZONE_COUNTRY_CODES = new Set([
-  "AT", "BE", "BG", "HR", "CY", "EE", "FI", "FR", "DE", "GR",
-  "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PT", "SK", "SI", "ES",
-]);
-
-function getDefaultCurrency(countryCode: string): string {
-  return EUROZONE_COUNTRY_CODES.has(countryCode) ? "EUR" : "USD";
-}
-
-const CURRENCY_OPTIONS = [
-  { code: "EUR", label: "EUR – Euro" },
-  { code: "USD", label: "USD – US Dollar" },
-];
 
 const HQ_COUNTRIES = [
   { code: "NO", label: "🇳🇴 Norway" }, { code: "DK", label: "🇩🇰 Denmark" }, { code: "SE", label: "🇸🇪 Sweden" },
@@ -80,21 +64,16 @@ const F1v5_Step2OrgProfile = ({
     adminName: formData.adminName || "",
     adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
-    defaultCurrency: formData.defaultCurrency || "EUR",
   });
   const [originalData] = useState({
     companyName: formData.companyName || "",
     adminName: formData.adminName || "",
     adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
-    defaultCurrency: formData.defaultCurrency || "EUR",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hqCountryOpen, setHqCountryOpen] = useState(false);
-
-  // Creation-mode country templates
-  const [creationCountries, setCreationCountries] = useState<CreationCountryEntry[]>([]);
 
   useEffect(() => {
     if (formData.companyName && formData.companyName !== data.companyName) {
@@ -103,17 +82,10 @@ const F1v5_Step2OrgProfile = ({
         adminName: formData.adminName || "",
         adminEmail: formData.adminEmail || "",
         hqCountry: formData.hqCountry || "",
-        defaultCurrency: formData.defaultCurrency || "",
       });
     }
   }, [formData, data.companyName]);
 
-  // Auto-default currency when HQ country changes and currency is empty
-  useEffect(() => {
-    if (data.hqCountry && !data.defaultCurrency) {
-      setData(prev => ({ ...prev, defaultCurrency: getDefaultCurrency(prev.hqCountry) }));
-    }
-  }, [data.hqCountry]);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -124,22 +96,6 @@ const F1v5_Step2OrgProfile = ({
       newErrors.adminEmail = "Invalid email format";
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
-    if (!data.defaultCurrency) newErrors.defaultCurrency = "Default currency is required";
-
-    // Creation mode: validate country templates
-    if (!isEditMode) {
-      if (creationCountries.length === 0) {
-        newErrors.countryTemplates = "At least one country with templates is required";
-      } else {
-        // Check required slots per country
-        const missingRequired = creationCountries.filter(c =>
-          c.slots.some(s => s.required && s.status === "empty")
-        );
-        if (missingRequired.length > 0) {
-          newErrors.countryTemplates = `Required templates missing for: ${missingRequired.map(c => c.countryName).join(", ")}`;
-        }
-      }
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -153,45 +109,30 @@ const F1v5_Step2OrgProfile = ({
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const submitData = {
-      ...data,
-      ...(!isEditMode && { countryTemplates: creationCountries }),
-    };
+    const submitData = { ...data };
 
     onComplete("org_profile", submitData);
     setIsSubmitting(false);
   };
 
   const handleFieldChange = (fieldName: string, value: string) => {
-    setData(prev => {
-      const updated = { ...prev, [fieldName]: value };
-      if (fieldName === "hqCountry") {
-        updated.defaultCurrency = getDefaultCurrency(value);
-      }
-      return updated;
-    });
+    setData(prev => ({ ...prev, [fieldName]: value }));
   };
 
   const hasChanges = isEditMode ? (
     data.companyName !== originalData.companyName ||
     data.adminName !== originalData.adminName ||
     data.adminEmail !== originalData.adminEmail ||
-    data.hqCountry !== originalData.hqCountry ||
-    data.defaultCurrency !== originalData.defaultCurrency
+    data.hqCountry !== originalData.hqCountry
   ) : true;
 
   const isFormValid = data.companyName.trim().length > 0 &&
     data.adminName.trim().length > 0 &&
     data.adminEmail.trim().length > 0 &&
     data.hqCountry.trim().length > 0 &&
-    data.defaultCurrency.trim().length > 0 &&
-    hasChanges &&
-    (isEditMode || (
-      creationCountries.length > 0 &&
-      creationCountries.every(c => c.slots.filter(s => s.required).every(s => s.status !== "empty"))
-    ));
+    hasChanges;
 
-  const resolvedCompanyName = companyNameProp || data.companyName || "Company";
+  
 
   return (
     <div className="space-y-5 w-full sm:max-w-xl sm:mx-auto px-1 sm:px-0">
@@ -280,46 +221,6 @@ const F1v5_Step2OrgProfile = ({
             {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
           </div>
 
-          <div className="space-y-1">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <Label className="text-sm">Default Currency</Label>
-              <div className="inline-flex rounded-lg bg-muted/50 p-0.5 gap-0.5 self-start sm:self-auto">
-                {CURRENCY_OPTIONS.map(c => (
-                  <button
-                    key={c.code}
-                    type="button"
-                    onClick={() => handleFieldChange('defaultCurrency', c.code)}
-                    className={`px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all duration-200 ${
-                      data.defaultCurrency === c.code
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {c.code}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {errors.defaultCurrency && <p className="text-xs text-destructive mt-1">{errors.defaultCurrency}</p>}
-          </div>
-
-          {/* Country templates — creation mode: multi-select + manage */}
-          {!isEditMode && (
-            <F1v5_CreationCountryTemplates
-              selectedCountries={creationCountries}
-              onCountriesChange={setCreationCountries}
-              error={errors.countryTemplates}
-            />
-          )}
-
-          {/* Country templates — edit mode: existing editor */}
-          {isEditMode && companyId && (
-            <F1v5_CountryTemplatesSection
-              companyId={companyId}
-              companyName={resolvedCompanyName}
-              isEmbedded
-            />
-          )}
         </div>
       </div>
 
