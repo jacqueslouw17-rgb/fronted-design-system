@@ -131,8 +131,8 @@ const ContractCreation: React.FC = () => {
 
     const localStorageCandidates: Candidate[] = (() => {
       try {
-        // Check both v5 and legacy localStorage keys
-        const keys = ["adminflow-v5-company-contractors", "adminflow-company-contractors"];
+        // Check v5, v6, and legacy localStorage keys
+        const keys = ["adminflow-v5-company-contractors", "adminflow-v6-company-contractors", "adminflow-company-contractors"];
         const allParsed: any[] = [];
         for (const key of keys) {
           const raw = localStorage.getItem(key);
