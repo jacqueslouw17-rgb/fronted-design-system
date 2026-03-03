@@ -630,41 +630,56 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
               </div>
             </div>
 
-            {/* Scrollable sections */}
+            {/* Scrollable sections — collapsible on desktop */}
             <div className="overflow-y-auto max-h-[420px]">
               {/* Personal Details */}
-              <div className="px-5 py-3 border-b border-border/20">
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Personal Details</p>
-                <div className="space-y-1.5">
-                  <ReviewRow icon={User} label="Name" value={candidate.name} />
-                  <ReviewRow icon={Globe} label="Country" value={`${candidate.flag} ${candidate.country}`} />
-                  {candidate.email && <ReviewRow icon={FileText} label="Email" value={candidate.email} />}
-                  {candidate.nationality && <ReviewRow icon={Globe} label="Nationality" value={candidate.nationality} />}
-                  {candidate.city && <ReviewRow icon={Building2} label="City" value={candidate.city} />}
-                  {candidate.address && <ReviewRow icon={MapPin} label="Address" value={candidate.address} />}
-                  {candidate.idNumber && <ReviewRow icon={Shield} label={candidate.idType || "ID"} value={candidate.idNumber} />}
-                </div>
-              </div>
+              <Collapsible defaultOpen={false}>
+                <CollapsibleTrigger className="w-full px-5 py-3 border-b border-border/20 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors group">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Personal Details</p>
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="px-5 py-3 border-b border-border/20 space-y-1.5">
+                    <ReviewRow icon={User} label="Name" value={candidate.name} />
+                    <ReviewRow icon={Globe} label="Country" value={`${candidate.flag} ${candidate.country}`} />
+                    {candidate.email && <ReviewRow icon={FileText} label="Email" value={candidate.email} />}
+                    {candidate.nationality && <ReviewRow icon={Globe} label="Nationality" value={candidate.nationality} />}
+                    {candidate.city && <ReviewRow icon={Building2} label="City" value={candidate.city} />}
+                    {candidate.address && <ReviewRow icon={MapPin} label="Address" value={candidate.address} />}
+                    {candidate.idNumber && <ReviewRow icon={Shield} label={candidate.idType || "ID"} value={candidate.idNumber} />}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Contract Details */}
-              <div className="px-5 py-3 border-b border-border/20">
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Contract Details</p>
-                <div className="space-y-1.5">
-                  <ReviewRow icon={Briefcase} label="Type" value={candidate.employmentType === "employee" ? "Employee" : "Contractor"} />
-                  <ReviewRow icon={FileText} label="Role" value={candidate.role} />
-                  <ReviewRow icon={Banknote} label="Salary" value={candidate.salary} />
-                  <ReviewRow icon={Calendar} label="Start Date" value={candidate.startDate} />
-                </div>
-              </div>
+              <Collapsible defaultOpen={false}>
+                <CollapsibleTrigger className="w-full px-5 py-3 border-b border-border/20 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors group">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Contract Details</p>
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="px-5 py-3 border-b border-border/20 space-y-1.5">
+                    <ReviewRow icon={Briefcase} label="Type" value={candidate.employmentType === "employee" ? "Employee" : "Contractor"} />
+                    <ReviewRow icon={FileText} label="Role" value={candidate.role} />
+                    <ReviewRow icon={Banknote} label="Salary" value={candidate.salary} />
+                    <ReviewRow icon={Calendar} label="Start Date" value={candidate.startDate} />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Terms & Entitlements */}
-              <div className="px-5 py-3">
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Terms & Entitlements</p>
-                <div className="space-y-1.5">
-                  <ReviewRow icon={Clock} label="Notice" value={candidate.noticePeriod} />
-                  <ReviewRow icon={Calendar} label="PTO" value={candidate.pto} />
-                </div>
-              </div>
+              <Collapsible defaultOpen={false}>
+                <CollapsibleTrigger className="w-full px-5 py-3 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors group">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Terms & Entitlements</p>
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="px-5 py-3 space-y-1.5">
+                    <ReviewRow icon={Clock} label="Notice" value={candidate.noticePeriod} />
+                    <ReviewRow icon={Calendar} label="PTO" value={candidate.pto} />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           </Card>
           <div ref={auditLogSlotRef} className="flex-1 min-h-0 overflow-hidden">
