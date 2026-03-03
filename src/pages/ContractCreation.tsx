@@ -176,6 +176,48 @@ const ContractCreation: React.FC = () => {
     return result;
   }, [idsParam, mockCandidates, allCandidates, contractorsFromStore]);
 
+  // Save updated form data to localStorage so drafting step picks it up
+  const persistFormData = (candidateId: string, formData: ContractFormData) => {
+    const storageKey = returnTo === "f1v6" 
+      ? "adminflow-v6-company-contractors" 
+      : "adminflow-v5-company-contractors";
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const data = JSON.parse(raw) as Record<string, any[]>;
+        const companyId = companyParam || "company-default";
+        const contractors = data[companyId] || [];
+        const updated = contractors.map((c: any) => {
+          if (c.id === candidateId) {
+            return {
+              ...c,
+              name: formData.fullName,
+              email: formData.email,
+              role: formData.role,
+              nationality: formData.nationality,
+              city: formData.city,
+              address: formData.address,
+              idNumber: formData.idNumber,
+              country: formData.country,
+              startDate: formData.startDate,
+              salary: formData.salary,
+              employmentType: formData.employmentType,
+              noticePeriod: `${formData.noticePeriod} days`,
+              pto: `${formData.annualLeave} days/year`,
+              weeklyHours: formData.weeklyHours,
+              payFrequency: formData.payFrequency,
+            };
+          }
+          return c;
+        });
+        data[companyId] = updated;
+        localStorage.setItem(storageKey, JSON.stringify(data));
+      }
+    } catch (e) {
+      console.error("[ContractCreation] Failed to persist form data:", e);
+    }
+  };
+
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
