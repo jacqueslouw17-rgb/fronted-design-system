@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import { F1v5_ContractCreationScreen } from "@/components/flows/fronted-admin-v5-clone/F1v5_ContractCreationScreen";
+import { F1v5_ContractCreationScreen as F1v6_ContractCreationScreen } from "@/components/flows/fronted-admin-v6-clone/F1v6_ContractCreationScreen";
 import { Candidate, useMockCandidates } from "@/hooks/useContractFlow";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
@@ -101,6 +102,8 @@ const ContractCreation: React.FC = () => {
   const closePath =
     returnTo === "f1v5"
       ? "/flows/fronted-admin-dashboard-v5-clone"
+      : returnTo === "f1v6"
+      ? "/flows/fronted-admin-dashboard-v6-clone"
       : returnTo === "f1v4"
       ? "/flows/fronted-admin-dashboard-v4-clone"
       : "/flows/contract-flow-multi-company";
