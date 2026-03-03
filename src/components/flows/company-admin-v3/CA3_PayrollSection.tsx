@@ -755,7 +755,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     return (
       <>
         {/* Period Selector */}
-        <div className="flex items-center justify-center pt-2 pb-4">
+        <div className="flex items-center justify-center pt-2 pb-1">
           <CA3_PeriodDropdown 
             periods={periods}
             selectedPeriodId={selectedPeriodId}
@@ -772,7 +772,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     if (!selectedPrevious) return null;
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-3">
         {renderSummaryCard(false, {
           grossPay: selectedPrevious.grossPay,
           adjustments: selectedPrevious.adjustments,
@@ -804,7 +804,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
   // Render track view with summary card above
   const renderTrackView = () => (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Summary card with submitted status */}
       {renderSummaryCard(true)}
       
@@ -959,7 +959,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   if (isViewingPrevious) {
     return (
       <div>
-      <div className="mb-6">
+      <div className="mb-2">
           {renderSummaryCard(false, {
             grossPay: selectedPrevious?.grossPay || "€0",
             adjustments: selectedPrevious?.adjustments || "€0",
@@ -989,7 +989,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     const processingMetrics = RUN_METRICS[selectedPeriodId];
     return (
       <div>
-        <div className="mb-6">
+        <div className="mb-2">
           {renderSummaryCard(true, processingMetrics ? {
             grossPay: processingMetrics.grossPay,
             adjustments: processingMetrics.adjustments,
@@ -1015,7 +1015,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   if (currentStep === "track") {
     return (
       <div>
-        <div className="mb-6">
+        <div className="mb-2">
           {renderSummaryCard(true)}
         </div>
         <div>
@@ -1047,7 +1047,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   return (
     <div>
       {!(currentStep === "submit" && isPayrollSubmitted) && (
-        <div className="mb-6">
+        <div className="mb-2">
           {renderSummaryCard(false)}
         </div>
       )}

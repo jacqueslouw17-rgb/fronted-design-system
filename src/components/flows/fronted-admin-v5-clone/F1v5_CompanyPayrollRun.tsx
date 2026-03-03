@@ -690,7 +690,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     return (
       <>
         {/* Period Selector */}
-        <div className={cn("flex items-center justify-center gap-1.5 pt-2", isCustomBatch ? "pb-0" : "pb-4")}>
+        <div className={cn("flex items-center justify-center gap-1.5 pt-2", isCustomBatch ? "pb-0" : "pb-1")}>
           <F1v4_PeriodDropdown 
             periods={periods}
             selectedPeriodId={selectedPeriodId}
@@ -808,7 +808,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   if (isViewingPrevious) {
     return (
       <div className="mx-auto px-4 sm:px-8 pt-3 pb-4">
-        <div className="mb-5">
+        <div className="mb-2">
           {renderSummaryCard()}
         </div>
         <div>
@@ -826,7 +826,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Summary card + workflow step content below
   return (
     <div className="mx-auto px-4 sm:px-8 pt-3 pb-4">
-      <div className="mb-5">
+      <div className="mb-2">
         {renderSummaryCard()}
       </div>
       <motion.div
