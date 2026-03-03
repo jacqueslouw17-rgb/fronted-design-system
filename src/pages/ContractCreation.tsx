@@ -325,7 +325,11 @@ const ContractCreation: React.FC = () => {
                         onPrevious={() => {
                           if (index > 0) setIndex((i) => i - 1);
                         }}
-                        onNext={() => {
+                        onNext={(formData) => {
+                          // Persist form data to localStorage so drafting step picks it up
+                          if (formData && current) {
+                            persistFormData(current.id, formData);
+                          }
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                           if (index < selected.length - 1) {
                             setIndex((i) => i + 1);
