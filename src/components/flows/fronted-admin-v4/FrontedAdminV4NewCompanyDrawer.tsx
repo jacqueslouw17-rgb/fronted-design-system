@@ -16,7 +16,7 @@ import { toast } from "sonner";
 interface FrontedAdminV4NewCompanyDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCompanyCreated: (company: { id: string; name: string; country: string; currency: string }) => void;
+  onCompanyCreated: (company: { id: string; name: string; country: string }) => void;
 }
 
 const COUNTRIES = [
@@ -59,17 +59,6 @@ const COUNTRIES = [
   { code: "IL", name: "🇮🇱 Israel" },
 ];
 
-const CURRENCIES = [
-  { code: "USD", name: "US Dollar" },
-  { code: "EUR", name: "Euro" },
-  { code: "GBP", name: "British Pound" },
-  { code: "PHP", name: "Philippine Peso" },
-  { code: "SGD", name: "Singapore Dollar" },
-  { code: "NOK", name: "Norwegian Krone" },
-  { code: "MXN", name: "Mexican Peso" },
-  { code: "JPY", name: "Japanese Yen" },
-  { code: "AUD", name: "Australian Dollar" },
-];
 
 export const FrontedAdminV4NewCompanyDrawer: React.FC<FrontedAdminV4NewCompanyDrawerProps> = ({
   open,
@@ -78,7 +67,6 @@ export const FrontedAdminV4NewCompanyDrawer: React.FC<FrontedAdminV4NewCompanyDr
 }) => {
   const [companyName, setCompanyName] = useState("");
   const [country, setCountry] = useState("");
-  const [currency, setCurrency] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -88,10 +76,6 @@ export const FrontedAdminV4NewCompanyDrawer: React.FC<FrontedAdminV4NewCompanyDr
     }
     if (!country) {
       toast.error("Country is required");
-      return;
-    }
-    if (!currency) {
-      toast.error("Currency is required");
       return;
     }
 
@@ -104,7 +88,6 @@ export const FrontedAdminV4NewCompanyDrawer: React.FC<FrontedAdminV4NewCompanyDr
       id: `company-${Date.now()}`,
       name: companyName.trim(),
       country,
-      currency,
     };
 
     onCompanyCreated(newCompany);
@@ -112,7 +95,6 @@ export const FrontedAdminV4NewCompanyDrawer: React.FC<FrontedAdminV4NewCompanyDr
     // Reset form
     setCompanyName("");
     setCountry("");
-    setCurrency("");
     setIsSubmitting(false);
     onOpenChange(false);
 
@@ -122,7 +104,6 @@ export const FrontedAdminV4NewCompanyDrawer: React.FC<FrontedAdminV4NewCompanyDr
   const handleCancel = () => {
     setCompanyName("");
     setCountry("");
-    setCurrency("");
     onOpenChange(false);
   };
 
@@ -163,21 +144,6 @@ export const FrontedAdminV4NewCompanyDrawer: React.FC<FrontedAdminV4NewCompanyDr
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="currency">Payroll Currency *</Label>
-            <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger id="currency">
-                <SelectValue placeholder="Select currency" />
-              </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                {CURRENCIES.map((c) => (
-                  <SelectItem key={c.code} value={c.code}>
-                    {c.code} – {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         <SheetFooter className="flex gap-3">
