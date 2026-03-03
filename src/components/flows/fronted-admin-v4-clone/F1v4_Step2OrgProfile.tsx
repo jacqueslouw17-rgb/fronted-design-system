@@ -26,20 +26,6 @@ interface F1v4_Step2Props {
   hasCandidates?: boolean;
 }
 
-// Eurozone countries per acceptance criteria
-const EUROZONE_COUNTRY_CODES = new Set([
-  "AT", "BE", "BG", "HR", "CY", "EE", "FI", "FR", "DE", "GR",
-  "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PT", "SK", "SI", "ES",
-]);
-
-function getDefaultCurrency(countryCode: string): string {
-  return EUROZONE_COUNTRY_CODES.has(countryCode) ? "EUR" : "USD";
-}
-
-const CURRENCIES = [
-  { code: "EUR", label: "EUR – Euro" },
-  { code: "USD", label: "USD – US Dollar" },
-];
 
 const F1v4_Step2OrgProfile = ({
   formData,
@@ -54,14 +40,12 @@ const F1v4_Step2OrgProfile = ({
     adminName: formData.adminName || "",
     adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
-    defaultCurrency: formData.defaultCurrency || "EUR",
   });
   const [originalData] = useState({
     companyName: formData.companyName || "",
     adminName: formData.adminName || "",
     adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
-    defaultCurrency: formData.defaultCurrency || "EUR",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,21 +58,10 @@ const F1v4_Step2OrgProfile = ({
         adminName: formData.adminName || "",
         adminEmail: formData.adminEmail || "",
         hqCountry: formData.hqCountry || "",
-        defaultCurrency: formData.defaultCurrency || "",
       });
     }
   }, [formData, data.companyName]);
 
-  // Auto-default currency when HQ country changes (only if currency hasn't been manually set or is empty)
-  useEffect(() => {
-    if (data.hqCountry) {
-      const suggested = getDefaultCurrency(data.hqCountry);
-      // Only auto-set if currency is empty (user hasn't picked one yet)
-      if (!data.defaultCurrency) {
-        setData(prev => ({ ...prev, defaultCurrency: suggested }));
-      }
-    }
-  }, [data.hqCountry]);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -99,7 +72,6 @@ const F1v4_Step2OrgProfile = ({
       newErrors.adminEmail = "Invalid email format";
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
-    if (!data.defaultCurrency) newErrors.defaultCurrency = "Default currency is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -120,29 +92,20 @@ const F1v4_Step2OrgProfile = ({
   };
 
   const handleFieldChange = (fieldName: string, value: string) => {
-    setData(prev => {
-      const updated = { ...prev, [fieldName]: value };
-      // When country changes, auto-set currency
-      if (fieldName === "hqCountry") {
-        updated.defaultCurrency = getDefaultCurrency(value);
-      }
-      return updated;
-    });
+    setData(prev => ({ ...prev, [fieldName]: value }));
   };
 
   const hasChanges = isEditMode ? (
     data.companyName !== originalData.companyName ||
     data.adminName !== originalData.adminName ||
     data.adminEmail !== originalData.adminEmail ||
-    data.hqCountry !== originalData.hqCountry ||
-    data.defaultCurrency !== originalData.defaultCurrency
+    data.hqCountry !== originalData.hqCountry
   ) : true;
 
   const isFormValid = data.companyName.trim().length > 0 &&
     data.adminName.trim().length > 0 &&
     data.adminEmail.trim().length > 0 &&
     data.hqCountry.trim().length > 0 &&
-    data.defaultCurrency.trim().length > 0 &&
     hasChanges;
 
   return (
@@ -208,31 +171,6 @@ const F1v4_Step2OrgProfile = ({
             {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-sm">Default Currency</Label>
-                <p className="text-xs text-muted-foreground">Used across this company's dashboard</p>
-              </div>
-              <div className="inline-flex rounded-lg bg-muted/50 p-0.5 gap-0.5">
-                {CURRENCIES.map(c => (
-                  <button
-                    key={c.code}
-                    type="button"
-                    onClick={() => handleFieldChange('defaultCurrency', c.code)}
-                    className={`px-3 py-1 rounded-md text-xs font-semibold tracking-wide transition-all duration-200 ${
-                      data.defaultCurrency === c.code
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {c.code}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {errors.defaultCurrency && <p className="text-xs text-destructive mt-1">{errors.defaultCurrency}</p>}
-          </div>
         </div>
       </div>
 
