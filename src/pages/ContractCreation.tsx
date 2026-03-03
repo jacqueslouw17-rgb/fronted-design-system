@@ -22,6 +22,7 @@ type PipelineContractor = {
   salary?: string;
   email?: string;
   employmentType?: "contractor" | "employee";
+  nationality?: string;
 };
 
 const COUNTRY_CODE_BY_NAME: Record<string, string> = {
@@ -62,6 +63,7 @@ const contractorToCandidate = (c: PipelineContractor): Candidate => ({
   status: "Hired",
   email: c.email,
   employmentType: c.employmentType,
+  nationality: c.nationality,
 });
 
 // Additional display candidates that appear in PipelineView
