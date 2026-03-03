@@ -91,6 +91,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     email: "anika.lindqvist@example.com",
   },
   {
+    id: "default-1",
     name: "Marcus Chen",
     country: "Singapore",
     countryFlag: "🇸🇬",
@@ -99,6 +100,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     status: "drafting",
     employmentType: "contractor",
     email: "marcus.chen@example.com",
+    nationality: "Singaporean",
     dataReceived: true,
   },
   {
