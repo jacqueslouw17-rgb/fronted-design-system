@@ -168,7 +168,7 @@ export const ContractAuditLog: React.FC<ContractAuditLogProps> = ({
         <CollapsibleTrigger asChild>
           <button
             ref={triggerButtonRef}
-            className="w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-lg bg-card/50 backdrop-blur-sm hover:bg-muted/40 border border-border/40 transition-all duration-200 text-left group"
+            className="w-full flex flex-col gap-1.5 px-5 py-2.5 rounded-lg bg-card/50 backdrop-blur-sm hover:bg-muted/40 border border-border/40 transition-all duration-200 text-left group"
           >
             {/* Header row */}
             <div className="w-full flex items-center justify-between gap-2">
