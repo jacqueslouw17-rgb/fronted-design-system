@@ -3,7 +3,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
-import { F1v5_ContractCreationScreen } from "@/components/flows/fronted-admin-v5-clone/F1v5_ContractCreationScreen";
 import { F1v5_ContractCreationScreen, ContractFormData } from "@/components/flows/fronted-admin-v5-clone/F1v5_ContractCreationScreen";
 import { F1v5_ContractCreationScreen as F1v6_ContractCreationScreen } from "@/components/flows/fronted-admin-v6-clone/F1v6_ContractCreationScreen";
 import { Candidate, useMockCandidates } from "@/hooks/useContractFlow";
