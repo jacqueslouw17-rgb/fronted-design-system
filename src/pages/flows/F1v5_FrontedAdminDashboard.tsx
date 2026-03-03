@@ -238,7 +238,7 @@ const AdminContractingMultiCompany = () => {
           Object.entries(parsed).map(([companyId, contractors]) => [
             companyId,
             Array.isArray(contractors)
-              ? contractors.map((c: any) => {
+              ? (contractors as any[]).map((c: any) => {
                   const isDemoDraftCandidate =
                     c?.id === "default-1" ||
                     c?.id === "default-2" ||
@@ -247,9 +247,9 @@ const AdminContractingMultiCompany = () => {
 
                   return isDemoDraftCandidate ? { ...c, status: "drafting" } : c;
                 })
-              : contractors,
+              : [],
           ])
-        );
+        ) as Record<string, any[]>;
       } catch {
         localStorage.removeItem('adminflow-v5-company-contractors');
       }
