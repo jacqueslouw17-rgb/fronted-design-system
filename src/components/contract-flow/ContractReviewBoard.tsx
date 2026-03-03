@@ -74,11 +74,16 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
                         {candidate.name}
                         <span className="text-base">{candidate.flag}</span>
                       </h4>
-                      <p className="text-xs text-muted-foreground">{candidate.role}</p>
+                      <p className="text-xs text-muted-foreground">{candidate.role} · {candidate.country}</p>
                     </div>
                     <div className="flex flex-col items-end gap-0.5">
+                      <span className="text-xs text-muted-foreground">
+                        {candidate.employmentType === "employee" ? "Salary" : "Fee"}
+                      </span>
                       <span className="text-xs font-medium text-foreground">{candidate.salary}</span>
-                      <span className="text-[11px] text-muted-foreground">{candidate.startDate}</span>
+                      {candidate.startDate && (
+                        <span className="text-[11px] text-muted-foreground">Start: {candidate.startDate}</span>
+                      )}
                     </div>
                   </div>
 
@@ -94,7 +99,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
                     </div>
                     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                       <CheckCircle2 className="h-3 w-3 text-success flex-shrink-0" />
-                      Policy aligned
+                      {candidate.employmentType === "employee" ? "Employment" : "Contractor"} agreement
                     </div>
                   </div>
                 </div>
