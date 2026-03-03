@@ -347,7 +347,23 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
   const handleNext = () => {
     if (handleValidate()) {
       window.scrollTo({ top: 0, behavior: "smooth" });
-      onNext();
+      onNext({
+        fullName: formData.fullName,
+        email: formData.email,
+        role: formData.role,
+        nationality: formData.nationality,
+        city: formData.city,
+        address: formData.address,
+        idNumber: formData.idNumber,
+        country: formData.country,
+        startDate: formData.startDate,
+        salary: formData.salary,
+        employmentType,
+        noticePeriod: formData.noticePeriod,
+        annualLeave: formData.annualLeave,
+        weeklyHours: formData.weeklyHours,
+        payFrequency: formData.payFrequency,
+      });
     }
   };
 
