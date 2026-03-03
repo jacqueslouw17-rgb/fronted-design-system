@@ -229,10 +229,27 @@ const AdminContractingMultiCompany = () => {
   const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>(() => {
     const saved = localStorage.getItem('adminflow-v6-company-contractors');
 
-    // Preserve persisted contractor state across refreshes.
+    // Preserve persisted contractor state across refreshes,
+    // but keep demo drafting candidates in "Prepare Contract".
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return Object.fromEntries(
+          Object.entries(parsed).map(([companyId, contractors]) => [
+            companyId,
+            Array.isArray(contractors)
+              ? contractors.map((c: any) => {
+                  const isDemoDraftCandidate =
+                    c?.id === "default-1" ||
+                    c?.id === "default-2" ||
+                    c?.name === "Marcus Chen" ||
+                    c?.name === "Sofia Rodriguez";
+
+                  return isDemoDraftCandidate ? { ...c, status: "drafting" } : c;
+                })
+              : contractors,
+          ])
+        );
       } catch {
         localStorage.removeItem('adminflow-v6-company-contractors');
       }
