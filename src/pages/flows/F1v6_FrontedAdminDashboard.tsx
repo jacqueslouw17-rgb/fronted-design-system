@@ -228,11 +228,16 @@ const AdminContractingMultiCompany = () => {
   });
   const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>(() => {
     const saved = localStorage.getItem('adminflow-v6-company-contractors');
-    const version = localStorage.getItem('adminflow-v6-data-version');
-    // Bust cache when default data changes
-    if (saved && version === '10') return JSON.parse(saved);
-    localStorage.removeItem('adminflow-v6-company-contractors');
-    localStorage.setItem('adminflow-v6-data-version', '10');
+
+    // Preserve persisted contractor state across refreshes.
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        localStorage.removeItem('adminflow-v6-company-contractors');
+      }
+    }
+
     return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   
