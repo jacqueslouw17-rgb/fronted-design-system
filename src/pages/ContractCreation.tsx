@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import { F1v5_ContractCreationScreen } from "@/components/flows/fronted-admin-v5-clone/F1v5_ContractCreationScreen";
+import { F1v5_ContractCreationScreen as F1v6_ContractCreationScreen } from "@/components/flows/fronted-admin-v6-clone/F1v6_ContractCreationScreen";
 import { Candidate, useMockCandidates } from "@/hooks/useContractFlow";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
@@ -22,6 +23,7 @@ type PipelineContractor = {
   salary?: string;
   email?: string;
   employmentType?: "contractor" | "employee";
+  nationality?: string;
 };
 
 const COUNTRY_CODE_BY_NAME: Record<string, string> = {
@@ -62,6 +64,7 @@ const contractorToCandidate = (c: PipelineContractor): Candidate => ({
   status: "Hired",
   email: c.email,
   employmentType: c.employmentType,
+  nationality: c.nationality,
 });
 
 // Additional display candidates that appear in PipelineView
@@ -99,6 +102,8 @@ const ContractCreation: React.FC = () => {
   const closePath =
     returnTo === "f1v5"
       ? "/flows/fronted-admin-dashboard-v5-clone"
+      : returnTo === "f1v6"
+      ? "/flows/fronted-admin-dashboard-v6-clone"
       : returnTo === "f1v4"
       ? "/flows/fronted-admin-dashboard-v4-clone"
       : "/flows/contract-flow-multi-company";
@@ -126,8 +131,8 @@ const ContractCreation: React.FC = () => {
 
     const localStorageCandidates: Candidate[] = (() => {
       try {
-        // Check both v5 and legacy localStorage keys
-        const keys = ["adminflow-v5-company-contractors", "adminflow-company-contractors"];
+        // Check v5, v6, and legacy localStorage keys
+        const keys = ["adminflow-v5-company-contractors", "adminflow-v6-company-contractors", "adminflow-company-contractors"];
         const allParsed: any[] = [];
         for (const key of keys) {
           const raw = localStorage.getItem(key);
@@ -148,6 +153,7 @@ const ContractCreation: React.FC = () => {
               salary: c.salary,
               email: c.email,
               employmentType: c.employmentType,
+              nationality: c.nationality,
             })
           );
       } catch (e) {
@@ -263,29 +269,37 @@ const ContractCreation: React.FC = () => {
               <FrostedHeader onLogoClick={() => navigate(closePath)} onCloseClick={() => navigate(closePath)} />
 
               <div className="pt-16 sm:pt-20">
-                {returnTo === "f1v5" ? (
-                  <F1v5_ContractCreationScreen
-                    candidate={current}
-                    currentIndex={index}
-                    totalCandidates={selected.length}
-                    onPrevious={() => {
-                      if (index > 0) setIndex((i) => i - 1);
-                    }}
-                    onNext={() => {
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                      if (index < selected.length - 1) {
-                        setIndex((i) => i + 1);
-                      } else {
-                        const candidateIds = selected.map(c => c.id).join(',');
-                        const params = new URLSearchParams({
-                          phase: 'drafting',
-                          ids: candidateIds,
-                          ...(companyParam && { company: companyParam }),
-                        }).toString();
-                        navigate(`/flows/fronted-admin-dashboard-v5-clone?${params}`);
-                      }
-                    }}
-                  />
+                {(returnTo === "f1v5" || returnTo === "f1v6") ? (
+                  (() => {
+                    const Screen = returnTo === "f1v6" ? F1v6_ContractCreationScreen : F1v5_ContractCreationScreen;
+                    const dashboardPath = returnTo === "f1v6" 
+                      ? "/flows/fronted-admin-dashboard-v6-clone"
+                      : "/flows/fronted-admin-dashboard-v5-clone";
+                    return (
+                      <Screen
+                        candidate={current}
+                        currentIndex={index}
+                        totalCandidates={selected.length}
+                        onPrevious={() => {
+                          if (index > 0) setIndex((i) => i - 1);
+                        }}
+                        onNext={() => {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                          if (index < selected.length - 1) {
+                            setIndex((i) => i + 1);
+                          } else {
+                            const candidateIds = selected.map(c => c.id).join(',');
+                            const params = new URLSearchParams({
+                              phase: 'drafting',
+                              ids: candidateIds,
+                              ...(companyParam && { company: companyParam }),
+                            }).toString();
+                            navigate(`${dashboardPath}?${params}`);
+                          }
+                        }}
+                      />
+                    );
+                  })()
                 ) : (
                   <ContractCreationScreen
                     candidate={current}

@@ -91,6 +91,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     email: "anika.lindqvist@example.com",
   },
   {
+    id: "default-1",
     name: "Marcus Chen",
     country: "Singapore",
     countryFlag: "🇸🇬",
@@ -99,6 +100,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     status: "drafting",
     employmentType: "contractor",
     email: "marcus.chen@example.com",
+    nationality: "Singaporean",
     dataReceived: true,
   },
   {
@@ -228,9 +230,9 @@ const AdminContractingMultiCompany = () => {
     const saved = localStorage.getItem('adminflow-v6-company-contractors');
     const version = localStorage.getItem('adminflow-v6-data-version');
     // Bust cache when default data changes
-    if (saved && version === '8') return JSON.parse(saved);
+    if (saved && version === '9') return JSON.parse(saved);
     localStorage.removeItem('adminflow-v6-company-contractors');
-    localStorage.setItem('adminflow-v6-data-version', '8');
+    localStorage.setItem('adminflow-v6-data-version', '9');
     return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   
@@ -1077,7 +1079,7 @@ const AdminContractingMultiCompany = () => {
                                 onDraftContract={(ids) => {
                                   const params = new URLSearchParams({ 
                                     ids: ids.join(','),
-                                    returnTo: 'f1v5',
+                                    returnTo: 'f1v6',
                                     company: selectedCompany
                                   }).toString();
                                   navigate(`/flows/contract-creation?${params}`);
