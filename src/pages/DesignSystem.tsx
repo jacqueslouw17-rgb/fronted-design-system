@@ -332,6 +332,7 @@ const DesignSystem = () => {
   );
   const sharedFlows = flowOrder.filter(id => id.startsWith('shared-'));
 
+  const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
     if (component) {
       setSelectedComponent(component);
