@@ -1256,6 +1256,7 @@ const AdminContractingMultiCompany = () => {
         onSave={handleSaveCandidate}
       />
     </div>
+  </RoleLensProvider>
   );
 };
 

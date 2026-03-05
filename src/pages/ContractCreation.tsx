@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import { F1v5_ContractCreationScreen, ContractFormData } from "@/components/flows/fronted-admin-v5-clone/F1v5_ContractCreationScreen";
 import { F1v5_ContractCreationScreen as F1v6_ContractCreationScreen } from "@/components/flows/fronted-admin-v6-clone/F1v6_ContractCreationScreen";
+import { F1v5_ContractCreationScreen as F1v7_ContractCreationScreen } from "@/components/flows/fronted-admin-v7-clone/F1v7_ContractCreationScreen";
 import { Candidate, useMockCandidates } from "@/hooks/useContractFlow";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
@@ -104,6 +105,8 @@ const ContractCreation: React.FC = () => {
       ? "/flows/fronted-admin-dashboard-v5-clone"
       : returnTo === "f1v6"
       ? "/flows/fronted-admin-dashboard-v6-clone"
+      : returnTo === "f1v7"
+      ? "/flows/fronted-admin-dashboard-v7-clone"
       : returnTo === "f1v4"
       ? "/flows/fronted-admin-dashboard-v4-clone"
       : "/flows/contract-flow-multi-company";
@@ -311,10 +314,12 @@ const ContractCreation: React.FC = () => {
               <FrostedHeader onLogoClick={() => navigate(closePath)} onCloseClick={() => navigate(closePath)} />
 
               <div className="pt-16 sm:pt-20">
-                {(returnTo === "f1v5" || returnTo === "f1v6") ? (
+                {(returnTo === "f1v5" || returnTo === "f1v6" || returnTo === "f1v7") ? (
                   (() => {
-                    const Screen = returnTo === "f1v6" ? F1v6_ContractCreationScreen : F1v5_ContractCreationScreen;
-                    const dashboardPath = returnTo === "f1v6" 
+                    const Screen = returnTo === "f1v7" ? F1v7_ContractCreationScreen : returnTo === "f1v6" ? F1v6_ContractCreationScreen : F1v5_ContractCreationScreen;
+                    const dashboardPath = returnTo === "f1v7"
+                      ? "/flows/fronted-admin-dashboard-v7-clone"
+                      : returnTo === "f1v6" 
                       ? "/flows/fronted-admin-dashboard-v6-clone"
                       : "/flows/fronted-admin-dashboard-v5-clone";
                     return (
