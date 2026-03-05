@@ -805,8 +805,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 transition-colors",
-          (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "hover:bg-muted/30 cursor-pointer group"
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 transition-colors v7-worker-row",
+          (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "cursor-pointer group"
         )}
         onClick={() => { if (!isSkipped) handleRowClick(submission); }}>
 
