@@ -5,7 +5,25 @@
  * Only active when body has .v7-glass-active class.
  */
 
-/* ─── Sheet / Drawer panels — frosted mint glass background ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  CORE: Override CSS variables on body so ALL portals   */
+/*  inherit mint/teal palette automatically               */
+/* ═══════════════════════════════════════════════════════ */
+body.v7-glass-active {
+  --primary: 172 50% 45%;
+  --primary-foreground: 172 60% 98%;
+  --ring: 172 40% 60%;
+  --accent: 172 20% 94%;
+  --accent-foreground: 172 40% 22%;
+  --gradient-primary: linear-gradient(180deg, hsl(172 42% 52%) 0%, hsl(172 48% 45%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(172 42% 52%) 0%, hsl(170 48% 42%) 100%);
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  Sheet / Drawer panels — frosted mint glass background */
+/* ═══════════════════════════════════════════════════════ */
+
+/* Target Radix portal containers */
 body.v7-glass-active [data-radix-portal],
 body.v7-glass-active [data-radix-portal] [role="dialog"],
 body.v7-glass-active [data-radix-portal] > div,
@@ -13,28 +31,32 @@ body.v7-glass-active [data-radix-portal] > div > div {
   --primary: 172 50% 45%;
   --primary-foreground: 172 60% 98%;
   --ring: 172 40% 60%;
+  --gradient-primary: linear-gradient(180deg, hsl(172 42% 52%) 0%, hsl(172 48% 45%) 100%);
 }
 
-body.v7-glass-active [data-radix-portal] [role="dialog"] > [class*="SheetContent"],
+/* Sheet content (fixed, inset-y panels) */
 body.v7-glass-active [data-radix-portal] [role="dialog"][class*="fixed"],
-body.v7-glass-active [data-radix-portal] > div > div[class*="fixed"][class*="inset-y"] {
+body.v7-glass-active [data-radix-portal] > div > div[class*="fixed"][class*="inset-y"],
+body.v7-glass-active [role="dialog"][class*="fixed"][class*="inset-y"] {
   background: linear-gradient(
     180deg,
-    hsl(0 0% 100% / 0.92) 0%,
-    hsl(172 12% 98% / 0.95) 40%,
-    hsl(172 18% 96% / 0.97) 100%
+    hsl(0 0% 100% / 0.94) 0%,
+    hsl(172 12% 98% / 0.96) 40%,
+    hsl(172 18% 96% / 0.98) 100%
   ) !important;
   backdrop-filter: blur(28px) saturate(1.3) !important;
   -webkit-backdrop-filter: blur(28px) saturate(1.3) !important;
 }
 
 /* ─── Sheet overlay — subtle mint tint ─── */
-body.v7-glass-active [data-radix-portal] [data-state] > [class*="fixed"][class*="inset-0"][class*="bg-black"] {
+body.v7-glass-active [data-radix-portal] [class*="fixed"][class*="inset-0"][class*="bg-black"] {
   background: hsl(172 15% 20% / 0.3) !important;
   backdrop-filter: blur(4px) !important;
 }
 
-/* ─── All inputs inside portals ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  Inputs                                                 */
+/* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] input:not([type="checkbox"]):not([type="radio"]),
 body.v7-glass-active [data-radix-portal] textarea,
 body.v7-glass-active [data-radix-portal] select {
@@ -50,7 +72,9 @@ body.v7-glass-active [data-radix-portal] select:focus {
   box-shadow: 0 0 0 3px hsl(172 30% 85% / 0.12) !important;
 }
 
-/* ─── Section cards (bg-card/50) inside portals ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  Cards, backgrounds, muted sections in portals         */
+/* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] [class*="bg-card/50"],
 body.v7-glass-active [data-radix-portal] [class*="bg-card"] {
   background: linear-gradient(
@@ -61,7 +85,6 @@ body.v7-glass-active [data-radix-portal] [class*="bg-card"] {
   border-color: hsl(172 8% 92% / 0.6) !important;
 }
 
-/* ─── Section card headers (bg-muted/30) inside portals ─── */
 body.v7-glass-active [data-radix-portal] [class*="bg-muted/30"],
 body.v7-glass-active [data-radix-portal] [class*="bg-muted/40"],
 body.v7-glass-active [data-radix-portal] [class*="bg-muted/50"],
@@ -69,24 +92,20 @@ body.v7-glass-active [data-radix-portal] [class*="bg-muted/20"] {
   background: hsl(172 10% 96% / 0.45) !important;
 }
 
-/* ─── bg-muted inside portals ─── */
 body.v7-glass-active [data-radix-portal] .bg-muted {
   background: hsl(172 8% 95% / 0.5) !important;
 }
 
-/* ─── Border colors inside portals ─── */
 body.v7-glass-active [data-radix-portal] [class*="border-border"] {
   border-color: hsl(172 8% 90% / 0.5) !important;
 }
 
-/* ─── Separator / dividers inside portals ─── */
 body.v7-glass-active [data-radix-portal] [role="separator"],
 body.v7-glass-active [data-radix-portal] hr {
   border-color: hsl(172 10% 90% / 0.4) !important;
   background: hsl(172 10% 90% / 0.4) !important;
 }
 
-/* ─── bg-background inside portals ─── */
 body.v7-glass-active [data-radix-portal] [class*="bg-background/95"],
 body.v7-glass-active [data-radix-portal] [class*="bg-background/50"],
 body.v7-glass-active [data-radix-portal] [class*="bg-background/60"],
@@ -94,12 +113,13 @@ body.v7-glass-active [data-radix-portal] .bg-background {
   background: hsl(172 6% 99% / 0.85) !important;
 }
 
-/* ─── Primary text colors in portals ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  Primary colors in portals                              */
+/* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] [class*="text-primary"]:not(button) {
   color: hsl(172 50% 38%) !important;
 }
 
-/* ─── Primary backgrounds in portals (badges, etc.) ─── */
 body.v7-glass-active [data-radix-portal] [class*="bg-primary/10"],
 body.v7-glass-active [data-radix-portal] [class*="bg-primary/8"],
 body.v7-glass-active [data-radix-portal] [class*="bg-primary/5"],
@@ -107,33 +127,41 @@ body.v7-glass-active [data-radix-portal] [class*="bg-primary/20"] {
   background: hsl(172 30% 90% / 0.5) !important;
 }
 
-/* ─── Progress bars in portals ─── */
 body.v7-glass-active [data-radix-portal] .bg-primary {
   background: hsl(172 48% 48%) !important;
 }
 
-/* ─── Primary buttons inside portals — frosted glass pill ─── */
-body.v7-glass-active [data-radix-portal] button[class*="bg-primary"]:not([role="checkbox"]) {
+/* ═══════════════════════════════════════════════════════ */
+/*  Buttons — Primary / gradient-primary in portals       */
+/* ═══════════════════════════════════════════════════════ */
+body.v7-glass-active [data-radix-portal] button[class*="bg-primary"]:not([role="checkbox"]),
+body.v7-glass-active [data-radix-portal] button[class*="bg-gradient-primary"],
+body.v7-glass-active [data-radix-portal] button.bg-gradient-primary {
   background: linear-gradient(
     180deg,
     hsl(172 42% 52%) 0%,
     hsl(172 48% 45%) 100%
   ) !important;
+  background-image: none !important;
+  background-color: hsl(172 45% 48%) !important;
   color: hsl(0 0% 100%) !important;
   border-color: hsl(172 35% 55% / 0.6) !important;
   box-shadow: 0 2px 12px hsl(172 30% 40% / 0.2) !important;
 }
 
-body.v7-glass-active [data-radix-portal] button[class*="bg-primary"]:not([role="checkbox"]):hover {
+body.v7-glass-active [data-radix-portal] button[class*="bg-primary"]:not([role="checkbox"]):hover,
+body.v7-glass-active [data-radix-portal] button[class*="bg-gradient-primary"]:hover {
   background: linear-gradient(
     180deg,
     hsl(172 44% 48%) 0%,
     hsl(172 50% 40%) 100%
   ) !important;
+  background-image: none !important;
+  background-color: hsl(172 47% 44%) !important;
 }
 
-/* ─── bg-gradient-primary inside portals — override purple gradient ─── */
-body.v7-glass-active [data-radix-portal] [class*="bg-gradient-primary"] {
+/* bg-gradient-primary non-button elements */
+body.v7-glass-active [data-radix-portal] [class*="bg-gradient-primary"]:not(button) {
   background: linear-gradient(
     135deg,
     hsl(172 42% 52%) 0%,
@@ -141,12 +169,9 @@ body.v7-glass-active [data-radix-portal] [class*="bg-gradient-primary"] {
   ) !important;
 }
 
-/* ─── Avatar fallbacks in portals ─── */
-body.v7-glass-active [data-radix-portal] [class*="bg-primary/10"] {
-  background: hsl(172 30% 90% / 0.5) !important;
-}
-
-/* ─── Checkboxes inside portals ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  Checkboxes                                             */
+/* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] button[role="checkbox"] {
   background: hsl(0 0% 100% / 0.7) !important;
   border: 1.5px solid hsl(172 12% 78%) !important;
@@ -157,12 +182,15 @@ body.v7-glass-active [data-radix-portal] button[role="checkbox"][data-state="che
   border-color: hsl(172 48% 48%) !important;
 }
 
-/* ─── AlertDialog content — frosted glass ─── */
-body.v7-glass-active [data-radix-portal] [role="alertdialog"] {
+/* ═══════════════════════════════════════════════════════ */
+/*  AlertDialog / Dialog content — frosted glass           */
+/* ═══════════════════════════════════════════════════════ */
+body.v7-glass-active [data-radix-portal] [role="alertdialog"],
+body.v7-glass-active [data-radix-portal] [role="dialog"]:not([class*="fixed"][class*="inset-y"]) {
   background: linear-gradient(
     180deg,
-    hsl(0 0% 100% / 0.92) 0%,
-    hsl(172 14% 97% / 0.96) 100%
+    hsl(0 0% 100% / 0.94) 0%,
+    hsl(172 14% 97% / 0.97) 100%
   ) !important;
   backdrop-filter: blur(24px) saturate(1.3) !important;
   -webkit-backdrop-filter: blur(24px) saturate(1.3) !important;
@@ -172,7 +200,9 @@ body.v7-glass-active [data-radix-portal] [role="alertdialog"] {
     0 2px 8px hsl(172 15% 60% / 0.06) !important;
 }
 
-/* ─── Select / Dropdown / Popover content in portals ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  Select / Dropdown / Popover content                    */
+/* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] [role="listbox"],
 body.v7-glass-active [data-radix-portal] [data-radix-popper-content-wrapper] > div {
   background: hsl(0 0% 100% / 0.92) !important;
@@ -181,7 +211,6 @@ body.v7-glass-active [data-radix-portal] [data-radix-popper-content-wrapper] > d
   border-color: hsl(172 8% 90% / 0.5) !important;
 }
 
-/* ─── Dropdown menu items hover ─── */
 body.v7-glass-active [data-radix-portal] [role="option"]:hover,
 body.v7-glass-active [data-radix-portal] [role="option"][data-highlighted],
 body.v7-glass-active [data-radix-portal] [role="menuitem"]:hover,
@@ -189,19 +218,25 @@ body.v7-glass-active [data-radix-portal] [role="menuitem"][data-highlighted] {
   background: hsl(172 15% 94% / 0.6) !important;
 }
 
-/* ─── Outline buttons in portals ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  Outline buttons                                        */
+/* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] button[class*="border"][class*="variant-outline"],
 body.v7-glass-active [data-radix-portal] button[data-variant="outline"] {
   border-color: hsl(172 10% 88% / 0.6) !important;
 }
 
-/* ─── Tooltips in portals ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  Tooltips                                               */
+/* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] [role="tooltip"] {
   background: hsl(172 12% 18%) !important;
   color: hsl(172 10% 95%) !important;
 }
 
-/* ─── blue badge overrides (timesheets etc) ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  Blue overrides → teal in portals                       */
+/* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] [class*="bg-blue-500"],
 body.v7-glass-active [data-radix-portal] [class*="bg-blue-50"] {
   background: hsl(172 25% 92% / 0.5) !important;
@@ -218,7 +253,9 @@ body.v7-glass-active [data-radix-portal] [class*="border-blue-300"] {
   border-color: hsl(172 30% 75% / 0.3) !important;
 }
 
-/* ─── violet/purple overrides in portals ─── */
+/* ═══════════════════════════════════════════════════════ */
+/*  Violet/purple overrides → teal in portals              */
+/* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] [class*="bg-violet-500"],
 body.v7-glass-active [data-radix-portal] [class*="bg-violet-50"],
 body.v7-glass-active [data-radix-portal] [class*="bg-violet-600"] {
@@ -242,10 +279,24 @@ body.v7-glass-active [data-radix-portal] button[class*="bg-violet-700"] {
   color: hsl(0 0% 100%) !important;
 }
 
-body.v7-glass-active [data-radix-portal] [class*="hover\:bg-violet"]:hover {
+body.v7-glass-active [data-radix-portal] [class*="hover\\:bg-violet"]:hover {
   background: hsl(172 18% 94% / 0.5) !important;
 }
 
 body.v7-glass-active [data-radix-portal] [class*="ring-violet-500"] {
   --tw-ring-color: hsl(172 30% 75% / 0.2) !important;
 }
+
+/* ═══════════════════════════════════════════════════════ */
+/*  Teal badge for EUR toggle / currency badges            */
+/* ═══════════════════════════════════════════════════════ */
+body.v7-glass-active [data-radix-portal] [class*="bg-teal-100"],
+body.v7-glass-active [data-radix-portal] [class*="bg-teal-500/10"] {
+  background: hsl(172 25% 92% / 0.5) !important;
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  Orange "PENDING" badges — keep orange for status       */
+/*  (contextual color, not brand color)                    */
+/* ═══════════════════════════════════════════════════════ */
+/* Leave orange-100/80 and orange-600 as-is for status indicators */
