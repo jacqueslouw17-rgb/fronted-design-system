@@ -619,3 +619,181 @@
 .v7-glass-bg [class*="border-dashed"][class*="border-violet"] {
   border-color: hsl(172 30% 75% / 0.4) !important;
 }
+
+/* ══════════════════════════════════════════════════════ */
+/*  GLASS DEPTH & LAYERING ENHANCEMENTS                  */
+/* ══════════════════════════════════════════════════════ */
+
+/* Hero section — deeper glass with inner light edge */
+.v7-hero-glass {
+  background: linear-gradient(
+    180deg,
+    hsl(0 0% 100% / 0.42) 0%,
+    hsl(0 0% 100% / 0.32) 50%,
+    hsl(172 25% 94% / 0.38) 100%
+  );
+  backdrop-filter: blur(40px) saturate(1.4);
+  -webkit-backdrop-filter: blur(40px) saturate(1.4);
+  border: 1px solid hsl(0 0% 100% / 0.6);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 8px 48px hsl(172 18% 75% / 0.1),
+    0 1px 3px hsl(172 12% 80% / 0.06),
+    inset 0 1px 0 hsl(0 0% 100% / 0.7),
+    inset 0 -1px 0 hsl(172 20% 90% / 0.15);
+}
+
+/* Card lift-on-hover — adds translateY + stronger shadow */
+.v7-glass-item {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.v7-glass-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Column body — inner shadow for recessed feel */
+.v7-col-body {
+  box-shadow:
+    inset 0 2px 8px hsl(172 12% 85% / 0.08),
+    inset 0 -1px 0 hsl(172 15% 90% / 0.15);
+}
+
+/* Column header — stronger frosted top edge */
+.v7-col-header {
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.55),
+    0 1px 4px hsl(172 10% 85% / 0.06);
+}
+
+/* ══════════════════════════════════════════════════════ */
+/*  COLOR ACCENT REFINEMENT                              */
+/* ══════════════════════════════════════════════════════ */
+
+/* Status-aware column header tints */
+.v7-col-status-accepted .v7-col-header {
+  background: linear-gradient(
+    180deg,
+    hsl(172 30% 94% / 0.55) 0%,
+    hsl(172 22% 95% / 0.42) 100%
+  );
+}
+
+.v7-col-status-drafting .v7-col-header {
+  background: linear-gradient(
+    180deg,
+    hsl(40 45% 95% / 0.5) 0%,
+    hsl(40 25% 96% / 0.38) 100%
+  );
+}
+
+.v7-col-status-signature .v7-col-header {
+  background: linear-gradient(
+    180deg,
+    hsl(210 35% 95% / 0.5) 0%,
+    hsl(210 20% 96% / 0.38) 100%
+  );
+}
+
+.v7-col-status-onboarding .v7-col-header {
+  background: linear-gradient(
+    180deg,
+    hsl(270 25% 95% / 0.45) 0%,
+    hsl(270 15% 96% / 0.35) 100%
+  );
+}
+
+.v7-col-status-certified .v7-col-header {
+  background: linear-gradient(
+    180deg,
+    hsl(152 30% 93% / 0.55) 0%,
+    hsl(152 20% 95% / 0.42) 100%
+  );
+}
+
+.v7-col-status-payroll .v7-col-header {
+  background: linear-gradient(
+    180deg,
+    hsl(190 28% 94% / 0.5) 0%,
+    hsl(190 18% 96% / 0.38) 100%
+  );
+}
+
+/* Tab active — stronger mint accent pill */
+.v7-glass-tab-active {
+  background: hsl(0 0% 100% / 0.85);
+  border-radius: 0.5rem;
+  box-shadow:
+    0 2px 12px hsl(172 15% 78% / 0.14),
+    inset 0 1px 0 hsl(0 0% 100% / 0.5);
+}
+
+/* Count badge — mint-tinted pill */
+.v7-count-badge {
+  background: hsl(172 20% 93% / 0.6);
+  color: hsl(172 30% 35%);
+  font-weight: 600;
+  font-size: 12px;
+  min-width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid hsl(172 15% 88% / 0.5);
+}
+
+/* ══════════════════════════════════════════════════════ */
+/*  MICRO-INTERACTIONS & MOTION                          */
+/* ══════════════════════════════════════════════════════ */
+
+/* Button press feedback */
+.v7-glass-bg button {
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.v7-glass-bg button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Primary button glow pulse on hover */
+.v7-glass-bg button[class*="bg-primary"]:hover,
+.v7-glass-bg button[class*="bg-gradient-primary"]:hover {
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Tab switcher — smooth sliding indicator */
+.v7-glass-tabs [data-state="active"] {
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Checkbox — smooth fill transition */
+.v7-glass-bg button[role="checkbox"] {
+  transition: all 0.2s ease !important;
+}
+
+.v7-glass-bg button[role="checkbox"][data-state="checked"] {
+  box-shadow: 0 0 8px hsl(172 48% 48% / 0.25) !important;
+}
+
+/* Input focus glow animation */
+@keyframes v7-focus-glow {
+  0% { box-shadow: 0 0 0 3px hsl(172 30% 85% / 0); }
+  50% { box-shadow: 0 0 0 4px hsl(172 30% 85% / 0.15); }
+  100% { box-shadow: 0 0 0 3px hsl(172 30% 85% / 0.1); }
+}
+
+.v7-glass-bg input:focus,
+.v7-glass-bg textarea:focus,
+.v7-glass-bg select:focus {
+  animation: v7-focus-glow 0.4s ease-out forwards;
+}
+
+/* Stagger delay utility for pipeline columns */
+.v7-stagger-1 { animation-delay: 0ms; }
+.v7-stagger-2 { animation-delay: 60ms; }
+.v7-stagger-3 { animation-delay: 120ms; }
+.v7-stagger-4 { animation-delay: 180ms; }
+.v7-stagger-5 { animation-delay: 240ms; }
+.v7-stagger-6 { animation-delay: 300ms; }
+.v7-stagger-7 { animation-delay: 360ms; }
