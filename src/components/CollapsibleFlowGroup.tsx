@@ -12,7 +12,7 @@ const CollapsibleFlowGroup = ({ label, children, defaultOpen = true }: Collapsib
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-3 w-full group cursor-pointer"
