@@ -1012,9 +1012,9 @@ const AdminContractingMultiCompany = () => {
                       
                       <div className="flex items-center justify-center py-2">
                         <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "tracker" | "payroll")}>
-                          <TabsList className="grid w-[280px] grid-cols-2">
-                            <TabsTrigger value="tracker">Tracker</TabsTrigger>
-                            <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                          <TabsList className="grid w-[280px] grid-cols-2 v7-glass-tabs">
+                            <TabsTrigger value="tracker" className="data-[state=active]:v7-glass-tab-active">Tracker</TabsTrigger>
+                            <TabsTrigger value="payroll" className="data-[state=active]:v7-glass-tab-active">Payroll</TabsTrigger>
                           </TabsList>
                         </Tabs>
                       </div>
