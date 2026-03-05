@@ -671,7 +671,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
   const colors = colorClasses[flow.iconColor as keyof typeof colorClasses];
 
   return (
-    <Card className={`hover:shadow-lg transition-all group h-[280px] cursor-move flex flex-col ${flow.deprecated ? 'opacity-50' : ''}`}>
+    <Card className={`hover:shadow-lg transition-all group cursor-move flex flex-col ${flow.deprecated ? 'opacity-50' : ''}`}>
         <CardHeader className={`flex-1 min-h-0 ${flow.locked ? "relative" : ""}`}>
           <div className={`flex items-center gap-3 ${flow.locked ? 'mb-3' : 'mb-1.5'}`}>
             <div className={`p-2 rounded-xl ${colors.bg} ${colors.border} border transition-all duration-200 ${colors.hoverBg} ${colors.hoverBorder}`}>
