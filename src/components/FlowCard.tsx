@@ -670,14 +670,24 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
 
   const colors = colorClasses[flow.iconColor as keyof typeof colorClasses];
 
+  // Extract version tag from title (e.g. "v5", "v7 (Experimental)")
+  const versionMatch = flow.title.match(/\s+(v\d+.*)$/i);
+  const versionTag = versionMatch ? versionMatch[1].trim() : null;
+  const displayTitle = versionTag ? flow.title.replace(versionMatch[0], '') : flow.title;
+
   return (
     <Card className={`hover:shadow-lg transition-all group cursor-move flex flex-col ${flow.deprecated ? 'opacity-50' : ''}`}>
-        <CardHeader className={`flex-1 min-h-0 ${flow.locked ? "relative" : ""}`}>
-          <div className={`flex items-center gap-3 ${flow.locked ? 'mb-3' : 'mb-1.5'}`}>
+        <CardHeader className="flex-1 min-h-0 relative">
+          {versionTag && (
+            <Badge variant="outline" className="absolute top-3 right-3 text-[10px] font-medium text-muted-foreground border-border bg-muted/50">
+              {versionTag}
+            </Badge>
+          )}
+          <div className="flex items-center gap-3 mb-1.5">
             <div className={`p-2 rounded-xl ${colors.bg} ${colors.border} border transition-all duration-200 ${colors.hoverBg} ${colors.hoverBorder}`}>
               <Icon className={`h-5 w-5 ${colors.text} ${colors.darkText} transition-colors duration-200 group-hover:text-white`} />
           </div>
-          <CardTitle className="text-lg flex-1 truncate">{flow.title}</CardTitle>
+          <CardTitle className="text-lg flex-1 truncate pr-12">{displayTitle}</CardTitle>
           </div>
           <CardDescription className="line-clamp-2">
             {flow.description}
