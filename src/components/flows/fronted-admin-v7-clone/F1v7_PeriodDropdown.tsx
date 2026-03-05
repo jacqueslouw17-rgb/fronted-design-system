@@ -50,11 +50,11 @@ const StatusDot = ({ status, size = "sm", isCustom = false }: { status: PayrollR
     return (
       <span className="relative inline-flex">
         {status === "in-review" && (
-          <span className={cn("absolute inline-flex rounded-full opacity-40 animate-ping", pulseSize, "bg-violet-500")} />
+          <span className={cn("absolute inline-flex rounded-full opacity-40 animate-ping", pulseSize, "bg-teal-500")} />
         )}
         <span className={cn(
           "relative inline-flex rounded-full", dotSize,
-          status === "paid" ? "bg-emerald-500" : "bg-violet-500"
+          status === "paid" ? "bg-emerald-500" : "bg-teal-500"
         )} />
       </span>
     );

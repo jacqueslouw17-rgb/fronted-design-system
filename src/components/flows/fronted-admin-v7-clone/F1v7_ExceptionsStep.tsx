@@ -249,7 +249,7 @@ const MOCK_EXCEPTIONS: WorkerException[] = [
 const categoryConfig: Record<ExceptionCategory, { icon: React.ElementType; label: string; tagColor: string }> = {
   end_date: { icon: Calendar, label: "End date", tagColor: "bg-amber-500/15 text-amber-700 border-amber-500/30" },
   pay_delta: { icon: TrendingUp, label: "Pay delta", tagColor: "bg-blue-500/15 text-blue-700 border-blue-500/30" },
-  currency_mismatch: { icon: Coins, label: "Currency mismatch", tagColor: "bg-purple-500/15 text-purple-700 border-purple-500/30" },
+  currency_mismatch: { icon: Coins, label: "Currency mismatch", tagColor: "bg-teal-500/15 text-teal-700 border-teal-500/30" },
   missing_from_run: { icon: UserPlus, label: "Missing from run", tagColor: "bg-red-500/15 text-red-700 border-red-500/30" },
 };
 
@@ -645,14 +645,14 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
       case "currency_mismatch":
         return (
           <div className="space-y-3">
-            <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/20 flex items-center justify-center gap-4">
+            <div className="p-4 rounded-lg bg-teal-500/5 border border-teal-500/20 flex items-center justify-center gap-4">
               <div className="text-center">
                 <span className="text-lg font-semibold">{exception.salaryCurrency}</span>
                 <p className="text-xs text-muted-foreground">Salary currency</p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground" />
               <div className="text-center">
-                <span className="text-lg font-semibold text-purple-600">{exception.countryCurrency}</span>
+                <span className="text-lg font-semibold text-teal-600">{exception.countryCurrency}</span>
                 <p className="text-xs text-muted-foreground">Expected currency</p>
               </div>
             </div>
