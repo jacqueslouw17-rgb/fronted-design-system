@@ -19,10 +19,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { CompanyPayrollData } from "./F1v6_PayrollTab";
-import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v6_PayrollStepper";
-import { F1v4_ApproveConfirmationModal } from "./F1v6_ApproveConfirmationModal";
-import { WorkerSubmission } from "./F1v6_SubmissionsView";
+import { CompanyPayrollData } from "./F1v7_PayrollTab";
+import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v7_PayrollStepper";
+import { F1v4_ApproveConfirmationModal } from "./F1v7_ApproveConfirmationModal";
+import { WorkerSubmission } from "./F1v7_SubmissionsView";
 
 interface F1v4_ApproveStepProps {
   company: CompanyPayrollData;

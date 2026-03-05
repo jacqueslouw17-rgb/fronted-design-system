@@ -21,7 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Download, ChevronDown, Building2, User } from "lucide-react";
 import { toast } from "sonner";
-import type { WorkerData } from "./F1v6_WorkerDetailDrawer";
+import type { WorkerData } from "./F1v7_WorkerDetailDrawer";
 
 interface F1v4_PayslipPreviewModalProps {
   open: boolean;
