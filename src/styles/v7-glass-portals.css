@@ -198,18 +198,51 @@ body.v7-glass-active [data-radix-portal] [role="tooltip"] {
   color: hsl(172 10% 95%) !important;
 }
 
-/* ─── blue-500 badge overrides (timesheets etc) ─── */
-body.v7-glass-active [data-radix-portal] [class*="bg-blue-500/10"],
-body.v7-glass-active [data-radix-portal] .bg-blue-500\/10 {
+/* ─── blue badge overrides (timesheets etc) ─── */
+body.v7-glass-active [data-radix-portal] [class*="bg-blue-500"],
+body.v7-glass-active [data-radix-portal] [class*="bg-blue-50"] {
   background: hsl(172 25% 92% / 0.5) !important;
 }
 
 body.v7-glass-active [data-radix-portal] [class*="text-blue-600"],
-body.v7-glass-active [data-radix-portal] .text-blue-600 {
+body.v7-glass-active [data-radix-portal] [class*="text-blue-700"],
+body.v7-glass-active [data-radix-portal] [class*="text-blue-400"] {
   color: hsl(172 45% 38%) !important;
 }
 
 body.v7-glass-active [data-radix-portal] [class*="border-blue-500"],
-body.v7-glass-active [data-radix-portal] .border-blue-500\/20 {
+body.v7-glass-active [data-radix-portal] [class*="border-blue-300"] {
   border-color: hsl(172 30% 75% / 0.3) !important;
+}
+
+/* ─── violet/purple overrides in portals ─── */
+body.v7-glass-active [data-radix-portal] [class*="bg-violet-500"],
+body.v7-glass-active [data-radix-portal] [class*="bg-violet-50"],
+body.v7-glass-active [data-radix-portal] [class*="bg-violet-600"] {
+  background: hsl(172 22% 93% / 0.5) !important;
+}
+
+body.v7-glass-active [data-radix-portal] [class*="text-violet-600"],
+body.v7-glass-active [data-radix-portal] [class*="text-violet-500"],
+body.v7-glass-active [data-radix-portal] [class*="text-violet-400"] {
+  color: hsl(172 45% 38%) !important;
+}
+
+body.v7-glass-active [data-radix-portal] [class*="border-violet-500"],
+body.v7-glass-active [data-radix-portal] [class*="border-violet-300"] {
+  border-color: hsl(172 30% 75% / 0.3) !important;
+}
+
+body.v7-glass-active [data-radix-portal] button[class*="bg-violet-600"],
+body.v7-glass-active [data-radix-portal] button[class*="bg-violet-700"] {
+  background: linear-gradient(180deg, hsl(172 42% 52%) 0%, hsl(172 48% 45%) 100%) !important;
+  color: hsl(0 0% 100%) !important;
+}
+
+body.v7-glass-active [data-radix-portal] [class*="hover\:bg-violet"]:hover {
+  background: hsl(172 18% 94% / 0.5) !important;
+}
+
+body.v7-glass-active [data-radix-portal] [class*="ring-violet-500"] {
+  --tw-ring-color: hsl(172 30% 75% / 0.2) !important;
 }
