@@ -97,8 +97,17 @@ const ContractCreation: React.FC = () => {
   const idsParam = searchParams.get("ids");
   const returnTo = searchParams.get("returnTo");
   const companyParam = searchParams.get("company");
+  const isV7 = returnTo === "f1v7";
   const mockCandidates = useMockCandidates();
   const contractorsFromStore = useContractorStore((s) => s.contractors) as unknown as PipelineContractor[];
+
+  // Set body class for v7 glass theme portal overrides
+  useEffect(() => {
+    if (isV7) {
+      document.body.classList.add('v7-glass-active');
+      return () => document.body.classList.remove('v7-glass-active');
+    }
+  }, [isV7]);
 
   // Only override navigation when the launching flow explicitly asks for it.
   // (Keeps existing default behavior unchanged.)
