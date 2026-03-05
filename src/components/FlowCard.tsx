@@ -676,23 +676,8 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
           <div className={`flex items-center gap-3 ${flow.locked ? 'mb-3' : 'mb-1.5'}`}>
             <div className={`p-2 rounded-xl ${colors.bg} ${colors.border} border transition-all duration-200 ${colors.hoverBg} ${colors.hoverBorder}`}>
               <Icon className={`h-5 w-5 ${colors.text} ${colors.darkText} transition-colors duration-200 group-hover:text-white`} />
-            </div>
-            <CardTitle className="text-lg flex-1 truncate">{flow.title}</CardTitle>
-            {flow.locked && (
-              <Badge variant="secondary" className="bg-muted text-muted-foreground border-border flex-shrink-0">
-                🔒
-              </Badge>
-            )}
-            {((flow.locked && !flow.deprecated) || ('live' in flow && flow.live)) && (
-              <Badge variant="outline" className="bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30 flex-shrink-0">
-                Live
-              </Badge>
-            )}
-            {flow.deprecated && (
-              <Badge variant="outline" className="bg-background/50 text-muted-foreground border-muted flex-shrink-0">
-                Old
-              </Badge>
-            )}
+          </div>
+          <CardTitle className="text-lg flex-1 truncate">{flow.title}</CardTitle>
           </div>
           <CardDescription className="line-clamp-2">
             {flow.description}
