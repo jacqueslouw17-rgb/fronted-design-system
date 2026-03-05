@@ -307,19 +307,23 @@ const ContractCreation: React.FC = () => {
 
         {/* Contract Creation Area */}
         <AgentLayout context="Contract Drafting">
-          <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative min-h-screen">
-            {/* Static background */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-              <div
-                className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-                style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }}
-              />
-              <div
-                className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-                style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }}
-              />
-            </div>
+          <div className={`flex-1 overflow-auto relative min-h-screen ${isV7 ? 'v7-glass-bg' : 'bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]'}`}>
+            {/* Static background — only for non-v7 */}
+            {!isV7 && (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+                <div
+                  className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+                  style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }}
+                />
+                <div
+                  className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+                  style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }}
+                />
+              </div>
+            )}
+            {/* V7: floating mint orb */}
+            {isV7 && <div className="v7-orb-center" />}
             <div className="relative z-10">
               {/* Frosted-glass header (fixed, scroll-activated) */}
               <FrostedHeader onLogoClick={() => navigate(closePath)} onCloseClick={() => navigate(closePath)} />
