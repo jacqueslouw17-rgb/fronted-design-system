@@ -312,7 +312,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
 
   const StatusBadge = ({ status }: { status: "uploaded" | "verified" | "missing" }) => {
     const config = {
-      uploaded: { label: "Uploaded", className: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
+      uploaded: { label: "Uploaded", className: "bg-teal-100/50 text-teal-700 border-teal-300/20" },
       verified: { label: "Verified", className: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
       missing: { label: "Missing", className: "bg-destructive/10 text-destructive border-destructive/20" },
     };

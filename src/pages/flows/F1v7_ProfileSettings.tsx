@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from "react";
 import "@/styles/v7-glass-theme.css";
+import "@/styles/v7-glass-portals.css";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, X, Loader2 } from "lucide-react";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
@@ -60,6 +61,12 @@ const F1v7_ProfileSettings = () => {
   const [currentSection, setCurrentSection] = useState<Section>("overview");
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+
+  // Set body class for portal-level glass overrides
+  useEffect(() => {
+    document.body.classList.add('v7-glass-active');
+    return () => document.body.classList.remove('v7-glass-active');
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {

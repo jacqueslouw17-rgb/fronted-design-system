@@ -50,7 +50,7 @@ export const F1v4_StartOnboardingConfirmation: React.FC<StartOnboardingConfirmat
             initial={{ scale: 0, rotate: -10 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", duration: 0.6 }}
-            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-primary"
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-teal-600"
           >
             <CheckCircle2 className="h-8 w-8 text-white" />
           </motion.div>
@@ -93,7 +93,7 @@ export const F1v4_StartOnboardingConfirmation: React.FC<StartOnboardingConfirmat
           </Button>
           <Button 
             onClick={onConfirm}
-            className="w-full sm:w-auto bg-gradient-primary"
+            className="w-full sm:w-auto bg-gradient-to-br from-teal-400 to-teal-600 text-white hover:from-teal-500 hover:to-teal-700"
           >
             <CheckCircle2 className="mr-2 h-4 w-4" />
             Yes, Start Now

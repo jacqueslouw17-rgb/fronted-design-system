@@ -315,14 +315,14 @@
 .v7-glass-bg button[class*="bg-gradient-primary"] {
   background: linear-gradient(
     180deg,
-    hsl(0 0% 100% / 0.74) 0%,
-    hsl(172 30% 90% / 0.7) 100%
+    hsl(172 42% 52%) 0%,
+    hsl(172 48% 45%) 100%
   ) !important;
-  color: hsl(172 40% 22%) !important;
-  border: 1px solid hsl(172 22% 86% / 0.8) !important;
+  color: hsl(0 0% 100%) !important;
+  border: 1px solid hsl(172 35% 55% / 0.4) !important;
   box-shadow:
-    0 2px 14px hsl(172 20% 78% / 0.16),
-    inset 0 1px 0 hsl(0 0% 100% / 0.62);
+    0 2px 14px hsl(172 30% 40% / 0.2),
+    inset 0 1px 0 hsl(0 0% 100% / 0.15);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -331,12 +331,21 @@
 .v7-glass-bg button[class*="bg-gradient-primary"]:hover {
   background: linear-gradient(
     180deg,
-    hsl(0 0% 100% / 0.9) 0%,
-    hsl(172 34% 87% / 0.8) 100%
+    hsl(172 44% 48%) 0%,
+    hsl(172 50% 40%) 100%
   ) !important;
   box-shadow:
-    0 4px 22px hsl(172 20% 78% / 0.24),
-    inset 0 1px 0 hsl(0 0% 100% / 0.72);
+    0 4px 22px hsl(172 30% 40% / 0.28),
+    inset 0 1px 0 hsl(0 0% 100% / 0.2);
+}
+
+/* ─── bg-gradient-primary icon circles (like onboarding confirmation) ─── */
+.v7-glass-bg [class*="bg-gradient-primary"]:not(button) {
+  background: linear-gradient(
+    135deg,
+    hsl(172 42% 52%) 0%,
+    hsl(170 48% 42%) 100%
+  ) !important;
 }
 
 /* ─── Override ALL cards within v7 glass to have subtle mint glass ─── */
@@ -494,4 +503,46 @@
 
 .v7-glass-bg button[class*="border"][class*="bg-card"]:hover {
   background: hsl(0 0% 100% / 0.65) !important;
+}
+
+/* ─── Override accent-blue within glass to teal ─── */
+.v7-glass-bg [class*="bg-accent-blue-fill"] {
+  background: hsl(172 25% 92%) !important;
+}
+
+.v7-glass-bg [class*="text-accent-blue-text"] {
+  color: hsl(172 45% 38%) !important;
+}
+
+.v7-glass-bg [class*="border-accent-blue-outline"] {
+  border-color: hsl(172 30% 75% / 0.3) !important;
+}
+
+/* ─── Override accent-purple within glass to cyan/teal ─── */
+.v7-glass-bg [class*="bg-accent-purple-fill"] {
+  background: hsl(178 25% 90%) !important;
+}
+
+.v7-glass-bg [class*="text-accent-purple-text"] {
+  color: hsl(178 42% 36%) !important;
+}
+
+.v7-glass-bg [class*="border-accent-purple-outline"] {
+  border-color: hsl(178 28% 72% / 0.3) !important;
+}
+
+/* ─── Override blue-500 badges within glass ─── */
+.v7-glass-bg [class*="bg-blue-500\/10"],
+.v7-glass-bg .bg-blue-500\/10 {
+  background: hsl(172 22% 93% / 0.5) !important;
+}
+
+.v7-glass-bg [class*="text-blue-600"],
+.v7-glass-bg .text-blue-600 {
+  color: hsl(172 45% 38%) !important;
+}
+
+.v7-glass-bg [class*="border-blue-500"],
+.v7-glass-bg .border-blue-500\/20 {
+  border-color: hsl(172 30% 75% / 0.3) !important;
 }
