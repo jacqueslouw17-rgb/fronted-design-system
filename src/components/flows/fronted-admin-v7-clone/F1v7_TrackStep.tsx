@@ -308,7 +308,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
     return (
       <div 
         key={worker.id}
-        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20 cursor-pointer hover:bg-muted/50 transition-colors"
+        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20 cursor-pointer transition-colors v7-worker-row"
         onClick={() => handleViewDetails(worker)}
       >
         <Avatar className="h-6 w-6 flex-shrink-0">
