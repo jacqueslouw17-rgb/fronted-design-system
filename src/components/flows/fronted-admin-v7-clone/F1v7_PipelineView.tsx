@@ -1030,7 +1030,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           duration: 0.3
         }} className="flex-shrink-0 w-[280px]">
               {/* Column Header */}
-              <div className="p-3 rounded-t-lg border-t border-x bg-white/30 backdrop-blur-sm border-white/40">
+              <div className="p-3 rounded-t-lg border-t border-x v7-col-header">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
                     {/* Select All for all columns except data-pending, awaiting-signature, onboarding-pending, payroll-ready, and payroll statuses */}
@@ -1100,7 +1100,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               </div>
 
               {/* Column Body */}
-              <div className={cn("min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg", "bg-white/20 backdrop-blur-sm border-white/30")}>
+              <div className={cn("min-h-[400px] p-3 space-y-3 v7-col-body")}>
                 {/* Empty state for offer-accepted column */}
                 {status === "offer-accepted" && items.length === 0 && onAddCandidate && <motion.div initial={{
               opacity: 0,
