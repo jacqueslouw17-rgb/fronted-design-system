@@ -425,17 +425,51 @@ const DesignSystem = () => {
               </div>
             </CollapsibleFlowGroup>
             <CollapsibleFlowGroup label="End-client">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {endClientFlows.map((flowId) => (
-                  <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                ))}
+              <div className="space-y-6">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-3 ml-0.5">Onboarding</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {endClientOnboarding.map((flowId) => (
+                      <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-3 ml-0.5">Dashboard</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {endClientDashboard.map((flowId) => (
+                      <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                    ))}
+                  </div>
+                </div>
               </div>
             </CollapsibleFlowGroup>
             <CollapsibleFlowGroup label="Worker">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {workerFlows.map((flowId) => (
-                  <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                ))}
+              <div className="space-y-6">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-3 ml-0.5">Data Collection</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {workerDataCollection.map((flowId) => (
+                      <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-3 ml-0.5">Onboarding</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {workerOnboarding.map((flowId) => (
+                      <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-3 ml-0.5">Dashboard</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {workerDashboard.map((flowId) => (
+                      <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                    ))}
+                  </div>
+                </div>
               </div>
             </CollapsibleFlowGroup>
             {sharedFlows.length > 0 && (
