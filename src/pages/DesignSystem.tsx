@@ -416,27 +416,21 @@ const DesignSystem = () => {
             <CollapsibleFlowGroup label="Fronted">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {frontedFlows.map((flowId) => (
-                  <div key={flowId}>
-                    <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                  </div>
+                  <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
                 ))}
               </div>
             </CollapsibleFlowGroup>
             <CollapsibleFlowGroup label="End-client">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {endClientFlows.map((flowId) => (
-                  <div key={flowId}>
-                    <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                  </div>
+                  <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
                 ))}
               </div>
             </CollapsibleFlowGroup>
             <CollapsibleFlowGroup label="Worker">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {workerFlows.map((flowId) => (
-                  <div key={flowId}>
-                    <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                  </div>
+                  <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
                 ))}
               </div>
             </CollapsibleFlowGroup>
@@ -444,9 +438,7 @@ const DesignSystem = () => {
               <CollapsibleFlowGroup label="Shared">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {sharedFlows.map((flowId) => (
-                    <div key={flowId}>
-                      <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                    </div>
+                    <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
                   ))}
                 </div>
               </CollapsibleFlowGroup>
