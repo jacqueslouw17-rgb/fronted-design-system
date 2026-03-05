@@ -395,7 +395,7 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
             return (
               <div
                 key={tpl.id}
-                className="flex items-center gap-2 sm:gap-2.5 rounded-md border border-border/30 bg-background/60 px-2.5 sm:px-3 py-2 cursor-pointer hover:bg-muted/30 transition-colors"
+                className="flex items-center gap-2 sm:gap-2.5 rounded-md v7-glass-item px-2.5 sm:px-3 py-2 cursor-pointer transition-colors"
                 onClick={() => setSelectedTemplateId(tpl.id)}
               >
                 <span className="text-base shrink-0">{tpl.flag}</span>
@@ -430,7 +430,7 @@ export const F1v5_CountryTemplatesSection: React.FC<CountryTemplatesSectionProps
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
-          className="bg-card/40 border border-border/40 rounded-lg p-4"
+          className="v7-glass-card p-4"
         >
           {content}
         </motion.div>

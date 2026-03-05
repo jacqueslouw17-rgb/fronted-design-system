@@ -197,24 +197,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
 
   if (isBootstrapping) {
     return (
-      <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-          <div
-            className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-            style={{
-              background:
-                "linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))",
-            }}
-          />
-          <div
-            className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-            style={{
-              background:
-                "linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))",
-            }}
-          />
-        </div>
+      <div className="flex-1 relative overflow-hidden">
         <div className="relative z-10 flex items-center justify-center px-6 py-24">
           <p className="text-sm text-muted-foreground">Starting a fresh company…</p>
         </div>
@@ -226,15 +209,8 @@ const F1v4_EmbeddedAdminOnboarding = ({
   const stepsToShow = FLOW_STEPS;
 
   return (
-    <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden">
-      {/* Static background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
-      </div>
+    <div className="flex-1 relative overflow-hidden">
+      {/* V7 glass background is inherited from parent v7-glass-bg */}
 
       {/* Content */}
       <div 

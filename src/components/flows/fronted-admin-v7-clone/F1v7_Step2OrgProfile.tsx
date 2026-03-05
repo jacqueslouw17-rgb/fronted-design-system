@@ -198,7 +198,7 @@ const F1v5_Step2OrgProfile = ({
       {isEditMode && editModeTitle}
       
       <div className="space-y-3">
-        <div className="bg-card/40 border border-border/40 rounded-lg p-3 sm:p-4 space-y-4">
+        <div className="v7-glass-card p-3 sm:p-4 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="companyName" className="text-sm">Company Name</Label>
             <Input
@@ -323,7 +323,7 @@ const F1v5_Step2OrgProfile = ({
         </div>
       </div>
 
-      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing || isSubmitting || !isFormValid}>
+      <Button onClick={handleSave} size="lg" className="w-full bg-primary hover:bg-primary/90" disabled={externalProcessing || isSubmitting || !isFormValid}>
         {(externalProcessing || isSubmitting) ? (isEditMode ? "Saving..." : "Adding...") : isEditMode ? "Save Changes" : "Add"}
       </Button>
     </div>

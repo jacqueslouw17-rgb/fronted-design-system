@@ -94,7 +94,7 @@ const SlotRow: React.FC<{
   };
 
   return (
-    <div className="flex items-center gap-3 py-2.5 px-3 rounded-md border border-border/30 bg-background/60">
+    <div className="flex items-center gap-3 py-2.5 px-3 rounded-md v7-glass-item">
       <input
         ref={fileInputRef}
         type="file"
@@ -354,7 +354,7 @@ export const F1v5_CreationCountryTemplates: React.FC<Props> = ({
                 return (
                   <div
                     key={entry.countryCode}
-                    className="flex items-center gap-2 sm:gap-2.5 rounded-md border border-border/30 bg-background/60 px-2.5 sm:px-3 py-2 group"
+                    className="flex items-center gap-2 sm:gap-2.5 rounded-md v7-glass-item px-2.5 sm:px-3 py-2 group"
                   >
                     <span className="text-base shrink-0">{entry.flag}</span>
                     <div className="flex-1 min-w-0">
