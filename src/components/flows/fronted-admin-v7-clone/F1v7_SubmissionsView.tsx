@@ -146,7 +146,7 @@ interface F1v4_SubmissionsViewProps {
 const submissionTypeConfig: Record<SubmissionType, {icon: React.ElementType;label: string;color: string;}> = {
   timesheet: { icon: Clock, label: "Timesheet", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
   expenses: { icon: Receipt, label: "Expense", color: "bg-primary/10 text-primary border-primary/20" },
-  bonus: { icon: Award, label: "Bonus", color: "bg-purple-500/10 text-purple-600 border-purple-500/20" },
+  bonus: { icon: Award, label: "Bonus", color: "bg-teal-500/10 text-teal-600 border-teal-500/20" },
   overtime: { icon: Timer, label: "Overtime", color: "bg-orange-500/10 text-orange-600 border-orange-500/20" },
   adjustment: { icon: FileText, label: "Adjustment", color: "bg-muted text-muted-foreground border-border/50" },
   correction: { icon: FileText, label: "Correction", color: "bg-muted text-muted-foreground border-border/50" }

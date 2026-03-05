@@ -1,25 +1,33 @@
 /**
  * V7 Future Glass Theme
- * Ice-blue / cyan glassmorphism inspired by the reference card UI
+ * Ice-blue / mint glassmorphism inspired by the reference card UI
  * Only applied to Flow 1 v7 (Future) dashboard
  */
 
-/* Main background - clean light grey like the reference */
+/* ─── Override primary color to mint/teal within v7 ─── */
+.v7-glass-bg {
+  --primary: 172 50% 45%;
+  --primary-foreground: 172 60% 98%;
+  --ring: 172 40% 60%;
+}
+
+/* ─── Main background — clean light grey with mint wash ─── */
 .v7-glass-bg {
   background: linear-gradient(
     160deg,
-    hsl(210 20% 97%) 0%,
-    hsl(200 15% 96%) 25%,
-    hsl(195 12% 95%) 50%,
-    hsl(210 18% 96%) 75%,
-    hsl(200 14% 97%) 100%
+    hsl(170 18% 97%) 0%,
+    hsl(175 14% 96%) 20%,
+    hsl(180 12% 95.5%) 40%,
+    hsl(185 16% 95%) 60%,
+    hsl(178 14% 96%) 80%,
+    hsl(172 10% 97%) 100%
   );
   min-height: 100vh;
   position: relative;
   overflow: hidden;
 }
 
-/* Floating gradient orbs - soft ice-blue/cyan */
+/* ─── Floating gradient orbs — soft mint/cyan ─── */
 .v7-glass-bg::before {
   content: '';
   position: absolute;
@@ -32,8 +40,8 @@
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    hsl(195 45% 88% / 0.5) 0%,
-    hsl(200 35% 90% / 0.3) 35%,
+    hsl(172 40% 85% / 0.55) 0%,
+    hsl(178 30% 88% / 0.3) 35%,
     transparent 65%
   );
   filter: blur(90px);
@@ -53,8 +61,8 @@
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    hsl(185 40% 88% / 0.45) 0%,
-    hsl(195 30% 92% / 0.25) 40%,
+    hsl(168 38% 85% / 0.5) 0%,
+    hsl(175 28% 90% / 0.25) 40%,
     transparent 65%
   );
   filter: blur(90px);
@@ -75,8 +83,8 @@
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    hsl(190 30% 92% / 0.4) 0%,
-    hsl(200 20% 95% / 0.2) 40%,
+    hsl(170 28% 90% / 0.45) 0%,
+    hsl(178 20% 93% / 0.2) 40%,
     transparent 65%
   );
   filter: blur(100px);
@@ -84,21 +92,21 @@
   z-index: 0;
 }
 
-/* Glass card - primary container: ice-blue gradient bottom like reference */
+/* ─── Glass card — white-to-mint gradient bottom like reference ─── */
 .v7-glass-card {
   background: linear-gradient(
     180deg,
     hsl(0 0% 100% / 0.55) 0%,
-    hsl(0 0% 100% / 0.5) 50%,
-    hsl(192 35% 93% / 0.6) 100%
+    hsl(0 0% 100% / 0.5) 45%,
+    hsl(172 32% 92% / 0.6) 100%
   );
   backdrop-filter: blur(30px) saturate(1.3);
   -webkit-backdrop-filter: blur(30px) saturate(1.3);
   border: 1px solid hsl(0 0% 100% / 0.7);
   border-radius: 1.25rem;
   box-shadow:
-    0 4px 32px hsl(200 15% 80% / 0.1),
-    0 1px 4px hsl(200 15% 80% / 0.05),
+    0 4px 32px hsl(172 15% 80% / 0.1),
+    0 1px 4px hsl(172 15% 80% / 0.05),
     inset 0 1px 0 hsl(0 0% 100% / 0.6);
   transition: all 0.3s ease;
 }
@@ -107,76 +115,84 @@
   background: linear-gradient(
     180deg,
     hsl(0 0% 100% / 0.65) 0%,
-    hsl(0 0% 100% / 0.58) 50%,
-    hsl(192 38% 92% / 0.65) 100%
+    hsl(0 0% 100% / 0.58) 45%,
+    hsl(172 36% 90% / 0.65) 100%
   );
   border-color: hsl(0 0% 100% / 0.8);
   box-shadow:
-    0 8px 42px hsl(200 15% 80% / 0.14),
-    0 2px 8px hsl(200 15% 80% / 0.07),
+    0 8px 42px hsl(172 15% 80% / 0.14),
+    0 2px 8px hsl(172 15% 80% / 0.07),
     inset 0 1px 0 hsl(0 0% 100% / 0.7);
 }
 
-/* Glass card - inner item / nested card */
+/* ─── Glass card — inner item / nested card ─── */
 .v7-glass-item {
-  background: hsl(0 0% 100% / 0.5);
+  background: linear-gradient(
+    180deg,
+    hsl(0 0% 100% / 0.52) 0%,
+    hsl(172 20% 96% / 0.48) 100%
+  );
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid hsl(0 0% 100% / 0.6);
   border-radius: 0.875rem;
   box-shadow:
-    0 2px 14px hsl(200 12% 85% / 0.06),
+    0 2px 14px hsl(172 12% 85% / 0.06),
     inset 0 1px 0 hsl(0 0% 100% / 0.45);
   transition: all 0.25s ease;
 }
 
 .v7-glass-item:hover {
-  background: hsl(0 0% 100% / 0.6);
+  background: linear-gradient(
+    180deg,
+    hsl(0 0% 100% / 0.62) 0%,
+    hsl(172 24% 94% / 0.55) 100%
+  );
   border-color: hsl(0 0% 100% / 0.72);
   box-shadow:
-    0 4px 24px hsl(200 12% 85% / 0.1),
+    0 4px 24px hsl(172 12% 85% / 0.1),
     inset 0 1px 0 hsl(0 0% 100% / 0.55);
 }
 
-/* Glass header / topbar */
+/* ─── Glass header / topbar ─── */
 .v7-glass-header {
   background: hsl(0 0% 100% / 0.38);
   backdrop-filter: blur(24px) saturate(1.3);
   -webkit-backdrop-filter: blur(24px) saturate(1.3);
   border-bottom: 1px solid hsl(0 0% 100% / 0.5);
-  box-shadow: 0 1px 10px hsl(200 12% 85% / 0.06);
+  box-shadow: 0 1px 10px hsl(172 12% 85% / 0.06);
 }
 
-/* Glass input field */
+/* ─── Glass input field ─── */
 .v7-glass-input {
   background: hsl(0 0% 100% / 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid hsl(0 0% 100% / 0.6);
   border-radius: 0.75rem;
-  box-shadow: inset 0 1px 3px hsl(200 8% 88% / 0.06);
+  box-shadow: inset 0 1px 3px hsl(172 8% 88% / 0.06);
 }
 
 .v7-glass-input:focus {
   background: hsl(0 0% 100% / 0.72);
-  border-color: hsl(192 25% 82% / 0.5);
+  border-color: hsl(172 25% 82% / 0.5);
   box-shadow:
-    0 0 0 3px hsl(192 25% 85% / 0.12),
-    inset 0 1px 3px hsl(200 8% 88% / 0.06);
+    0 0 0 3px hsl(172 25% 85% / 0.12),
+    inset 0 1px 3px hsl(172 8% 88% / 0.06);
 }
 
-/* Glass badge */
+/* ─── Glass badge ─── */
 .v7-glass-badge {
   background: hsl(0 0% 100% / 0.55);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid hsl(0 0% 100% / 0.55);
   border-radius: 9999px;
-  color: hsl(200 15% 40%);
+  color: hsl(172 15% 40%);
   font-weight: 500;
 }
 
-/* Glass tab bar */
+/* ─── Glass tab bar ─── */
 .v7-glass-tabs {
   background: hsl(0 0% 100% / 0.35);
   backdrop-filter: blur(14px);
@@ -189,19 +205,19 @@
 .v7-glass-tab-active {
   background: hsl(0 0% 100% / 0.78);
   border-radius: 0.5rem;
-  box-shadow: 0 2px 10px hsl(200 12% 85% / 0.1);
+  box-shadow: 0 2px 10px hsl(172 12% 85% / 0.1);
 }
 
-/* Muted text for the glass theme */
+/* ─── Muted text for the glass theme ─── */
 .v7-text-muted {
-  color: hsl(200 8% 50%);
+  color: hsl(172 8% 50%);
 }
 
 .v7-text-heading {
-  color: hsl(210 12% 18%);
+  color: hsl(172 12% 18%);
 }
 
-/* Override Topbar within v7 glass context */
+/* ─── Override Topbar within v7 glass context ─── */
 .v7-glass-bg > header,
 .v7-glass-bg header.sticky,
 .v7-glass-bg > * > header {
@@ -209,7 +225,7 @@
   backdrop-filter: blur(28px) saturate(1.3) !important;
   -webkit-backdrop-filter: blur(28px) saturate(1.3) !important;
   border-bottom-color: hsl(0 0% 100% / 0.45) !important;
-  box-shadow: 0 1px 14px hsl(200 12% 85% / 0.06) !important;
+  box-shadow: 0 1px 14px hsl(172 12% 85% / 0.06) !important;
 }
 
 /* Override portal slot in Topbar */
@@ -217,7 +233,7 @@
   background: transparent !important;
 }
 
-/* Stats cards inside glass */
+/* ─── Stats cards inside glass ─── */
 .v7-stat-card {
   background: hsl(0 0% 100% / 0.48);
   backdrop-filter: blur(12px);
@@ -227,9 +243,13 @@
   padding: 1rem 1.25rem;
 }
 
-/* V7 column headers & bodies for pipeline */
+/* ─── V7 column headers & bodies for pipeline ─── */
 .v7-col-header {
-  background: hsl(0 0% 100% / 0.38);
+  background: linear-gradient(
+    180deg,
+    hsl(0 0% 100% / 0.42) 0%,
+    hsl(172 18% 96% / 0.35) 100%
+  );
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid hsl(0 0% 100% / 0.5);
@@ -238,7 +258,11 @@
 }
 
 .v7-col-body {
-  background: hsl(0 0% 100% / 0.18);
+  background: linear-gradient(
+    180deg,
+    hsl(0 0% 100% / 0.2) 0%,
+    hsl(172 15% 95% / 0.22) 100%
+  );
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid hsl(0 0% 100% / 0.38);
@@ -252,41 +276,41 @@
   margin-top: 0.75rem;
 }
 
-/* Checkboxes - clean empty squares when unchecked */
+/* ─── Checkboxes — clean empty squares when unchecked ─── */
 .v7-glass-bg button[role="checkbox"] {
   background: hsl(0 0% 100% / 0.7) !important;
-  border: 1.5px solid hsl(200 12% 78%) !important;
+  border: 1.5px solid hsl(172 12% 78%) !important;
   border-radius: 4px !important;
 }
 
 .v7-glass-bg button[role="checkbox"][data-state="checked"] {
-  background: hsl(192 35% 55%) !important;
-  border-color: hsl(192 35% 55%) !important;
+  background: hsl(172 48% 48%) !important;
+  border-color: hsl(172 48% 48%) !important;
 }
 
 .v7-glass-bg button[role="checkbox"][data-state="unchecked"] {
   background: hsl(0 0% 100% / 0.7) !important;
-  border: 1.5px solid hsl(200 12% 78%) !important;
+  border: 1.5px solid hsl(172 12% 78%) !important;
 }
 
-/* Badge circles / count badges in pipeline headers */
+/* ─── Badge circles / count badges in pipeline headers ─── */
 .v7-glass-bg .rounded-full[class*="bg-secondary"] {
-  background: hsl(195 12% 92%) !important;
-  color: hsl(200 12% 42%) !important;
+  background: hsl(172 12% 92%) !important;
+  color: hsl(172 12% 42%) !important;
 }
 
-/* Primary buttons - frosted glass pill like the reference card */
+/* ─── Primary buttons — frosted glass pill with mint tint ─── */
 .v7-glass-bg button[class*="bg-primary"],
 .v7-glass-bg button[class*="bg-gradient-primary"] {
   background: linear-gradient(
     180deg,
-    hsl(0 0% 100% / 0.7) 0%,
-    hsl(192 30% 93% / 0.65) 100%
+    hsl(0 0% 100% / 0.72) 0%,
+    hsl(172 28% 91% / 0.68) 100%
   ) !important;
-  color: hsl(210 12% 18%) !important;
-  border: 1px solid hsl(0 0% 100% / 0.8) !important;
+  color: hsl(172 40% 22%) !important;
+  border: 1px solid hsl(172 20% 88% / 0.8) !important;
   box-shadow:
-    0 2px 12px hsl(195 20% 80% / 0.15),
+    0 2px 14px hsl(172 20% 80% / 0.15),
     inset 0 1px 0 hsl(0 0% 100% / 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -296,15 +320,24 @@
 .v7-glass-bg button[class*="bg-gradient-primary"]:hover {
   background: linear-gradient(
     180deg,
-    hsl(0 0% 100% / 0.85) 0%,
-    hsl(192 35% 91% / 0.75) 100%
+    hsl(0 0% 100% / 0.88) 0%,
+    hsl(172 32% 88% / 0.78) 100%
   ) !important;
   box-shadow:
-    0 4px 18px hsl(195 20% 80% / 0.22),
+    0 4px 20px hsl(172 20% 80% / 0.22),
     inset 0 1px 0 hsl(0 0% 100% / 0.7);
 }
 
-/* Ensure content sits above the orbs */
+/* ─── Override AudioWaveVisualizer within v7 to use mint/teal ─── */
+.v7-glass-bg .relative.w-64.h-32 > div:first-child {
+  background: radial-gradient(circle, hsl(172 45% 55%) 0%, hsl(168 40% 65%) 30%, hsl(175 35% 70%) 55%, hsl(180 30% 80%) 75%, transparent 100%) !important;
+}
+
+.v7-glass-bg .relative.w-64.h-32 > div.w-1 {
+  background: linear-gradient(to bottom, hsl(172 50% 45%), hsl(170 45% 52%), hsl(175 40% 60%), hsl(180 35% 72%)) !important;
+}
+
+/* ─── Ensure content sits above the orbs ─── */
 .v7-glass-bg > *:not(.v7-orb-center) {
   position: relative;
   z-index: 1;
