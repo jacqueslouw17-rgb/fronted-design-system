@@ -212,7 +212,7 @@ export const F1v4_SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps
             </div>
 
             {/* Current Status */}
-            <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm">
+            <div className="flex items-center justify-between p-3.5 rounded-xl v7-glass-item">
               <div className="space-y-0.5">
                 <p className="text-sm font-semibold text-foreground">{getStatusLabel(signingStatus)}</p>
                 <p className="text-xs text-muted-foreground">
