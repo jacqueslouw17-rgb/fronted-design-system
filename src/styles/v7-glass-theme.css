@@ -251,8 +251,8 @@
 }
 
 .v7-glass-bg button[role="checkbox"][data-state="checked"] {
-  background: hsl(230 45% 58%) !important;
-  border-color: hsl(230 45% 58%) !important;
+  background: hsl(162 48% 48%) !important;
+  border-color: hsl(162 48% 48%) !important;
 }
 
 .v7-glass-bg button[role="checkbox"][data-state="unchecked"] {
@@ -266,18 +266,19 @@
   color: hsl(230 15% 45%) !important;
 }
 
-/* Softer primary buttons - pastel blue-indigo instead of harsh purple */
+/* Primary buttons - soft mint/teal brand (JBOX inspired) */
 .v7-glass-bg button[class*="bg-primary"],
 .v7-glass-bg button[class*="bg-gradient-primary"] {
-  background: hsl(230 45% 62%) !important;
-  box-shadow: 0 2px 8px hsl(230 40% 60% / 0.15);
+  background: linear-gradient(135deg, hsl(166 40% 68%), hsl(158 45% 58%)) !important;
+  color: hsl(164 60% 15%) !important;
+  box-shadow: 0 2px 10px hsl(162 40% 55% / 0.18);
   border: none;
 }
 
 .v7-glass-bg button[class*="bg-primary"]:hover,
 .v7-glass-bg button[class*="bg-gradient-primary"]:hover {
-  background: hsl(230 45% 56%) !important;
-  box-shadow: 0 4px 14px hsl(230 40% 60% / 0.22);
+  background: linear-gradient(135deg, hsl(166 42% 62%), hsl(158 48% 52%)) !important;
+  box-shadow: 0 4px 16px hsl(162 40% 55% / 0.28);
 }
 
 /* Ensure content sits above the orbs */
