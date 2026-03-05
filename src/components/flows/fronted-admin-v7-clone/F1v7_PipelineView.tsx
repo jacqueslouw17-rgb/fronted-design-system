@@ -1017,9 +1017,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   };
   return <div className={cn("overflow-x-auto pb-4", className)}>
       <div className="flex gap-4 min-w-max">
-        {columns.map(status => {
+        {columns.map((status, colIndex) => {
         const config = statusConfig[status];
         const items = getContractorsByStatus(status);
+        const statusTintClass = 
+          status === "offer-accepted" ? "v7-col-status-accepted" :
+          status === "data-pending" ? "v7-col-status-accepted" :
+          status === "drafting" ? "v7-col-status-drafting" :
+          status === "awaiting-signature" ? "v7-col-status-signature" :
+          status === "trigger-onboarding" || status === "onboarding-pending" ? "v7-col-status-onboarding" :
+          status === "payroll-ready" ? "v7-col-status-payroll" :
+          "v7-col-status-certified";
         return <motion.div key={status} initial={{
           opacity: 0,
           y: 20
@@ -1027,8 +1035,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           opacity: 1,
           y: 0
         }} transition={{
-          duration: 0.3
-        }} className="flex-shrink-0 w-[280px]">
+          duration: 0.35,
+          delay: colIndex * 0.06,
+          ease: [0.22, 1, 0.36, 1]
+        }} className={cn("flex-shrink-0 w-[280px]", statusTintClass)}>
               {/* Column Header */}
               <div className="p-3 rounded-t-lg border-t border-x v7-col-header">
                 <div className="flex items-center justify-between gap-2">
