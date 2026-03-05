@@ -504,3 +504,45 @@
 .v7-glass-bg button[class*="border"][class*="bg-card"]:hover {
   background: hsl(0 0% 100% / 0.65) !important;
 }
+
+/* ─── Override accent-blue within glass to teal ─── */
+.v7-glass-bg [class*="bg-accent-blue-fill"] {
+  background: hsl(172 25% 92%) !important;
+}
+
+.v7-glass-bg [class*="text-accent-blue-text"] {
+  color: hsl(172 45% 38%) !important;
+}
+
+.v7-glass-bg [class*="border-accent-blue-outline"] {
+  border-color: hsl(172 30% 75% / 0.3) !important;
+}
+
+/* ─── Override accent-purple within glass to cyan/teal ─── */
+.v7-glass-bg [class*="bg-accent-purple-fill"] {
+  background: hsl(178 25% 90%) !important;
+}
+
+.v7-glass-bg [class*="text-accent-purple-text"] {
+  color: hsl(178 42% 36%) !important;
+}
+
+.v7-glass-bg [class*="border-accent-purple-outline"] {
+  border-color: hsl(178 28% 72% / 0.3) !important;
+}
+
+/* ─── Override blue-500 badges within glass ─── */
+.v7-glass-bg [class*="bg-blue-500\/10"],
+.v7-glass-bg .bg-blue-500\/10 {
+  background: hsl(172 22% 93% / 0.5) !important;
+}
+
+.v7-glass-bg [class*="text-blue-600"],
+.v7-glass-bg .text-blue-600 {
+  color: hsl(172 45% 38%) !important;
+}
+
+.v7-glass-bg [class*="border-blue-500"],
+.v7-glass-bg .border-blue-500\/20 {
+  border-color: hsl(172 30% 75% / 0.3) !important;
+}
