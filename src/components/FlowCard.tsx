@@ -104,7 +104,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "emerald",
       icon: UserCheck,
       title: "Flow 3 Worker Onboarding v2",
-      locked: false,
+      status: "now" as const,
       deprecated: false,
       description: "Editable version of v1: Post-contract onboarding for workers with personal info verification, compliance docs, payroll setup, and work setup. This version is unlocked for development.",
       steps: "7 steps",
@@ -193,7 +193,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "blue",
       icon: Workflow,
       title: "Flow 5 Company Admin Onboarding v1",
-      locked: false,
+      status: "now" as const,
       deprecated: false,
       description: "Standalone onboarding flow for Company Admins accessed via email invite. Duplicated from Add Company flow with admin-focused messaging and no close button.",
       steps: "3 steps",
@@ -209,7 +209,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "blue",
       icon: Workflow,
       title: "Flow 5 Company Admin Onboarding v2",
-      locked: false,
+      status: "next" as const,
       deprecated: false,
       description: "Isolated clone of Flow 5 v1. Standalone onboarding flow for Company Admins accessed via email invite.",
       steps: "3 steps",
@@ -259,7 +259,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "purple",
       icon: UserCheck,
       title: "Flow 6 Company Dashboard v3",
-      locked: false,
+      status: "now" as const,
       deprecated: false,
       description: "Editable version of v2: Full payroll workbench for Company Admins. Isolated clone for further development.",
       steps: "4 steps",
@@ -276,7 +276,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "purple",
       icon: UserCheck,
       title: "Flow 6 Company Dashboard v4 (Agentic)",
-      locked: false,
+      status: "next" as const,
       deprecated: false,
       description: "Isolated clone of v3 with agent-first patterns and fully independent CA4_ components. Changes here do NOT affect v3.",
       steps: "4 steps",
@@ -505,7 +505,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "blue",
       icon: UserCheck,
       title: "Flow 4.1 Employee Dashboard v7",
-      locked: false,
+      status: "now" as const,
       deprecated: false,
       description: "Isolated clone of v6: Employee-specific dashboard with T-5 payroll confirmation, adjustments, leaves, and pay breakdown. Changes here do NOT affect v6.",
       steps: "1 view",
@@ -523,7 +523,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "emerald",
       icon: UserCheck,
       title: "Flow 4.2 Contractor Dashboard v7",
-      locked: false,
+      status: "now" as const,
       deprecated: false,
       description: "Isolated clone of v6: Contractor-specific dashboard with T-5 invoice confirmation, adjustments, and invoice breakdown. Changes here do NOT affect v6.",
       steps: "1 view",
@@ -575,7 +575,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "cyan",
       icon: Workflow,
       title: "Flow 1 Fronted Dashboard v5",
-      locked: false,
+      status: "now" as const,
       deprecated: false,
       description: "Isolated copy of Flow 1 v4. Fresh clone for active development. Changes do NOT affect v4.",
       steps: "7 steps",
@@ -592,7 +592,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "cyan",
       icon: Workflow,
       title: "Flow 1 Fronted Dashboard v6",
-      locked: false,
+      status: "next" as const,
       deprecated: false,
       description: "Isolated copy of Flow 1 v5. Fresh clone for active development. Changes do NOT affect v5.",
       steps: "7 steps",
@@ -609,7 +609,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "cyan",
       icon: Workflow,
       title: "Flow 1 Fronted Dashboard v7 (Experimental)",
-      locked: false,
+      status: "future" as const,
       deprecated: false,
       description: "Isolated clone of Flow 1 v6. Experimental branch for active development. Changes do NOT affect v6.",
       steps: "7 steps",
@@ -626,7 +626,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "amber",
       icon: ShieldAlert,
       title: "Shared – Secure Link Error (403)",
-      locked: false,
+      status: "now" as const,
       deprecated: false,
       description: "Full-screen error state shown when a secure data collection link is invalid, expired, or cannot be accessed. Reusable pattern for payroll/onboarding forms.",
       steps: "1 screen",
@@ -642,7 +642,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "amber",
       icon: ShieldAlert,
       title: "Shared – Server Error (500)",
-      locked: false,
+      status: "now" as const,
       deprecated: false,
       description: "Full-screen error state shown when the platform hits an unexpected server error. Reusable pattern for any page (payroll, onboarding, dashboards).",
       steps: "1 screen",
@@ -686,11 +686,28 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
               <Icon className={`h-5 w-5 ${colors.text} ${colors.darkText} transition-colors duration-200 group-hover:text-white`} />
             </div>
             <CardTitle className="text-lg flex-1 truncate">{displayTitle}</CardTitle>
-            {cleanVersionTag && (
-              <Badge variant="outline" className="text-[10px] font-medium text-muted-foreground border-border bg-muted/40 flex-shrink-0">
-                {cleanVersionTag}
-              </Badge>
-            )}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {cleanVersionTag && (
+                <Badge variant="outline" className="text-[10px] font-medium text-muted-foreground border-border bg-muted/40">
+                  {cleanVersionTag}
+                </Badge>
+              )}
+              {'status' in flow && flow.status === 'now' && (
+                <Badge className="text-[10px] font-medium bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30 hover:bg-emerald-100">
+                  Now
+                </Badge>
+              )}
+              {'status' in flow && flow.status === 'next' && (
+                <Badge className="text-[10px] font-medium bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/30 hover:bg-amber-100">
+                  Next
+                </Badge>
+              )}
+              {'status' in flow && flow.status === 'future' && (
+                <Badge className="text-[10px] font-medium bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30 hover:bg-blue-100">
+                  Future
+                </Badge>
+              )}
+            </div>
           </div>
           <CardDescription className="line-clamp-2">
             {flow.description}
