@@ -319,13 +319,13 @@ const DesignSystem = () => {
 
   const frontedFlows = flowOrder.filter(id => id.startsWith('flow-1-fronted-admin'));
   const endClientFlows = flowOrder.filter(id =>
-    id.startsWith('flow-3-candidate-data') ||
-    id.startsWith('flow-4-candidate-onboarding') ||
-    id.startsWith('flow-3-candidate-onboarding') ||
     id.startsWith('flow-5-company-admin') ||
     id.startsWith('flow-6-company-admin')
   );
   const workerFlows = flowOrder.filter(id =>
+    id.startsWith('flow-3-candidate-data') ||
+    id.startsWith('flow-4-candidate-onboarding') ||
+    id.startsWith('flow-3-candidate-onboarding') ||
     id.startsWith('flow-4a-worker') ||
     id.startsWith('flow-4.1-employee') ||
     id.startsWith('flow-4.2-contractor')
