@@ -1,42 +1,45 @@
 /**
  * V7 Future Glass Theme
- * Soft lavender/lilac glassmorphism inspired by the reference UI
+ * Soft lavender/lilac/rose glassmorphism inspired by the reference UI
  * Only applied to Flow 1 v7 (Future) dashboard
  */
 
-/* Main background gradient - soft pastels */
+/* Main background gradient - soft pastels with pink/mauve undertones */
 .v7-glass-bg {
   background: linear-gradient(
     145deg,
-    hsl(270 30% 92%) 0%,
-    hsl(240 30% 94%) 30%,
-    hsl(280 20% 93%) 50%,
-    hsl(220 35% 93%) 70%,
-    hsl(260 25% 91%) 100%
+    hsl(280 25% 93%) 0%,
+    hsl(260 20% 94%) 15%,
+    hsl(300 18% 93%) 30%,
+    hsl(240 25% 95%) 50%,
+    hsl(280 15% 94%) 65%,
+    hsl(220 30% 94%) 80%,
+    hsl(260 20% 93%) 100%
   );
   min-height: 100vh;
   position: relative;
   overflow: hidden;
 }
 
-/* Floating gradient orbs */
+/* Floating gradient orbs - pink/mauve */
 .v7-glass-bg::before {
   content: '';
   position: absolute;
-  top: -10%;
-  left: -10%;
-  width: 50vw;
-  height: 50vw;
-  max-width: 600px;
-  max-height: 600px;
+  top: -8%;
+  left: -8%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 650px;
+  max-height: 650px;
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    hsl(280 40% 88% / 0.7) 0%,
-    hsl(300 30% 90% / 0.4) 40%,
+    hsl(310 35% 88% / 0.6) 0%,
+    hsl(290 25% 90% / 0.4) 30%,
+    hsl(320 20% 92% / 0.2) 50%,
     transparent 70%
   );
-  filter: blur(60px);
+  filter: blur(70px);
   pointer-events: none;
   z-index: 0;
 }
@@ -44,8 +47,31 @@
 .v7-glass-bg::after {
   content: '';
   position: absolute;
-  bottom: -15%;
-  right: -5%;
+  bottom: -12%;
+  right: -3%;
+  width: 50vw;
+  height: 50vw;
+  max-width: 600px;
+  max-height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    hsl(230 35% 92% / 0.5) 0%,
+    hsl(250 25% 93% / 0.3) 40%,
+    hsl(210 30% 95% / 0.15) 60%,
+    transparent 70%
+  );
+  filter: blur(70px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Extra floating orb via child element - white/lavender */
+.v7-orb-center {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
   width: 45vw;
   height: 45vw;
   max-width: 550px;
@@ -53,153 +79,132 @@
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    hsl(220 40% 90% / 0.6) 0%,
-    hsl(240 35% 92% / 0.3) 50%,
+    hsl(0 0% 100% / 0.55) 0%,
+    hsl(270 15% 96% / 0.3) 35%,
+    hsl(300 10% 97% / 0.15) 55%,
     transparent 70%
   );
-  filter: blur(60px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Extra floating orb via child element */
-.v7-orb-center {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40vw;
-  height: 40vw;
-  max-width: 500px;
-  max-height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    hsl(0 0% 100% / 0.5) 0%,
-    hsl(260 20% 95% / 0.3) 40%,
-    transparent 70%
-  );
-  filter: blur(80px);
+  filter: blur(90px);
   pointer-events: none;
   z-index: 0;
 }
 
 /* Glass card - primary container */
 .v7-glass-card {
-  background: hsl(0 0% 100% / 0.45);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  border: 1px solid hsl(0 0% 100% / 0.6);
+  background: hsl(0 0% 100% / 0.5);
+  backdrop-filter: blur(28px) saturate(1.5);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  border: 1px solid hsl(0 0% 100% / 0.65);
   border-radius: 1.25rem;
   box-shadow: 
-    0 4px 30px hsl(260 30% 70% / 0.08),
-    0 1px 3px hsl(260 30% 70% / 0.05),
-    inset 0 1px 0 hsl(0 0% 100% / 0.5);
+    0 4px 32px hsl(270 25% 75% / 0.08),
+    0 1px 4px hsl(270 25% 75% / 0.04),
+    inset 0 1px 0 hsl(0 0% 100% / 0.55);
   transition: all 0.3s ease;
 }
 
 .v7-glass-card:hover {
-  background: hsl(0 0% 100% / 0.55);
-  border-color: hsl(0 0% 100% / 0.7);
+  background: hsl(0 0% 100% / 0.6);
+  border-color: hsl(0 0% 100% / 0.75);
   box-shadow: 
-    0 8px 40px hsl(260 30% 70% / 0.12),
-    0 2px 6px hsl(260 30% 70% / 0.06),
-    inset 0 1px 0 hsl(0 0% 100% / 0.6);
+    0 8px 42px hsl(270 25% 75% / 0.12),
+    0 2px 8px hsl(270 25% 75% / 0.06),
+    inset 0 1px 0 hsl(0 0% 100% / 0.65);
 }
 
 /* Glass card - inner item / nested card */
 .v7-glass-item {
-  background: hsl(0 0% 100% / 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid hsl(0 0% 100% / 0.5);
+  background: hsl(0 0% 100% / 0.42);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid hsl(0 0% 100% / 0.55);
   border-radius: 0.875rem;
   box-shadow: 
-    0 2px 12px hsl(260 20% 80% / 0.06),
-    inset 0 1px 0 hsl(0 0% 100% / 0.4);
+    0 2px 14px hsl(270 20% 82% / 0.06),
+    inset 0 1px 0 hsl(0 0% 100% / 0.45);
   transition: all 0.25s ease;
 }
 
 .v7-glass-item:hover {
-  background: hsl(0 0% 100% / 0.5);
-  border-color: hsl(0 0% 100% / 0.65);
+  background: hsl(0 0% 100% / 0.55);
+  border-color: hsl(0 0% 100% / 0.7);
   box-shadow: 
-    0 4px 20px hsl(260 20% 80% / 0.1),
-    inset 0 1px 0 hsl(0 0% 100% / 0.5);
+    0 4px 24px hsl(270 20% 82% / 0.1),
+    inset 0 1px 0 hsl(0 0% 100% / 0.55);
 }
 
 /* Glass header / topbar */
 .v7-glass-header {
-  background: hsl(0 0% 100% / 0.3);
-  backdrop-filter: blur(20px) saturate(1.3);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3);
-  border-bottom: 1px solid hsl(0 0% 100% / 0.4);
-  box-shadow: 0 1px 8px hsl(260 20% 80% / 0.06);
+  background: hsl(0 0% 100% / 0.35);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid hsl(0 0% 100% / 0.45);
+  box-shadow: 0 1px 10px hsl(270 20% 82% / 0.06);
 }
 
 /* Glass input field */
 .v7-glass-input {
-  background: hsl(0 0% 100% / 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid hsl(0 0% 100% / 0.6);
+  background: hsl(0 0% 100% / 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid hsl(0 0% 100% / 0.65);
   border-radius: 0.75rem;
-  box-shadow: inset 0 1px 2px hsl(260 20% 80% / 0.06);
+  box-shadow: inset 0 1px 3px hsl(270 15% 85% / 0.06);
 }
 
 .v7-glass-input:focus {
-  background: hsl(0 0% 100% / 0.65);
-  border-color: hsl(260 40% 80% / 0.5);
+  background: hsl(0 0% 100% / 0.7);
+  border-color: hsl(270 35% 82% / 0.5);
   box-shadow: 
-    0 0 0 3px hsl(260 40% 80% / 0.15),
-    inset 0 1px 2px hsl(260 20% 80% / 0.06);
+    0 0 0 3px hsl(270 35% 82% / 0.12),
+    inset 0 1px 3px hsl(270 15% 85% / 0.06);
 }
 
 /* Glass badge */
 .v7-glass-badge {
-  background: hsl(0 0% 100% / 0.5);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid hsl(0 0% 100% / 0.5);
+  background: hsl(0 0% 100% / 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid hsl(0 0% 100% / 0.55);
   border-radius: 9999px;
-  color: hsl(260 30% 45%);
+  color: hsl(270 25% 48%);
   font-weight: 500;
 }
 
 /* Glass tab bar */
 .v7-glass-tabs {
-  background: hsl(0 0% 100% / 0.3);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid hsl(0 0% 100% / 0.4);
+  background: hsl(0 0% 100% / 0.35);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid hsl(0 0% 100% / 0.45);
   border-radius: 0.75rem;
   padding: 3px;
 }
 
 .v7-glass-tab-active {
-  background: hsl(0 0% 100% / 0.7);
+  background: hsl(0 0% 100% / 0.75);
   border-radius: 0.5rem;
-  box-shadow: 0 2px 8px hsl(260 20% 80% / 0.12);
+  box-shadow: 0 2px 10px hsl(270 20% 82% / 0.12);
 }
 
 /* Muted text for the glass theme */
 .v7-text-muted {
-  color: hsl(260 15% 50%);
+  color: hsl(270 12% 52%);
 }
 
 .v7-text-heading {
-  color: hsl(260 20% 25%);
+  color: hsl(270 18% 22%);
 }
 
 /* Override Topbar within v7 glass context */
 .v7-glass-bg > header,
 .v7-glass-bg header.sticky,
 .v7-glass-bg > * > header {
-  background: hsl(0 0% 100% / 0.3) !important;
-  backdrop-filter: blur(24px) saturate(1.4) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(1.4) !important;
-  border-bottom-color: hsl(0 0% 100% / 0.35) !important;
-  box-shadow: 0 1px 12px hsl(260 20% 80% / 0.08) !important;
+  background: hsl(0 0% 100% / 0.32) !important;
+  backdrop-filter: blur(28px) saturate(1.5) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.5) !important;
+  border-bottom-color: hsl(0 0% 100% / 0.4) !important;
+  box-shadow: 0 1px 14px hsl(270 20% 82% / 0.08) !important;
 }
 
 /* Override portal slot in Topbar */
@@ -209,16 +214,97 @@
 
 /* Stats cards inside glass */
 .v7-stat-card {
-  background: hsl(0 0% 100% / 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid hsl(0 0% 100% / 0.5);
+  background: hsl(0 0% 100% / 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(0 0% 100% / 0.55);
   border-radius: 1rem;
   padding: 1rem 1.25rem;
+}
+
+/* V7 Button Styles - soft glass buttons */
+.v7-glass-bg .v7-btn-primary,
+.v7-glass-bg [data-v7-btn="primary"] {
+  background: linear-gradient(135deg, hsl(270 40% 65%) 0%, hsl(260 45% 60%) 100%);
+  color: hsl(0 0% 100%);
+  border: none;
+  border-radius: 0.625rem;
+  box-shadow: 0 2px 12px hsl(270 40% 60% / 0.25);
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.v7-glass-bg .v7-btn-primary:hover,
+.v7-glass-bg [data-v7-btn="primary"]:hover {
+  box-shadow: 0 4px 18px hsl(270 40% 60% / 0.35);
+  transform: translateY(-1px);
+}
+
+.v7-glass-bg .v7-btn-outline,
+.v7-glass-bg [data-v7-btn="outline"] {
+  background: hsl(0 0% 100% / 0.5);
+  border: 1px solid hsl(270 20% 85% / 0.5);
+  color: hsl(270 25% 40%);
+  border-radius: 0.625rem;
+  backdrop-filter: blur(8px);
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.v7-glass-bg .v7-btn-outline:hover,
+.v7-glass-bg [data-v7-btn="outline"]:hover {
+  background: hsl(0 0% 100% / 0.7);
+  border-color: hsl(270 25% 80% / 0.6);
 }
 
 /* Ensure content sits above the orbs */
 .v7-glass-bg > *:not(.v7-orb-center) {
   position: relative;
   z-index: 1;
+}
+
+/* V7 column headers & bodies for pipeline */
+.v7-glass-bg .v7-col-header {
+  background: hsl(0 0% 100% / 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(0 0% 100% / 0.45);
+  border-bottom: none;
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.v7-glass-bg .v7-col-body {
+  background: hsl(0 0% 100% / 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid hsl(0 0% 100% / 0.35);
+  border-top: none;
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+/* Override default button styles within v7 context */
+.v7-glass-bg button[class*="bg-primary"]:not(.v7-btn-primary) {
+  background: linear-gradient(135deg, hsl(270 38% 62%) 0%, hsl(255 42% 58%) 100%) !important;
+  box-shadow: 0 2px 10px hsl(270 38% 58% / 0.2);
+  border: none;
+}
+
+.v7-glass-bg button[class*="bg-primary"]:not(.v7-btn-primary):hover {
+  box-shadow: 0 4px 16px hsl(270 38% 58% / 0.3);
+}
+
+/* Override gradient-primary buttons */
+.v7-glass-bg button[class*="bg-gradient-primary"] {
+  background: linear-gradient(135deg, hsl(270 38% 62%) 0%, hsl(255 42% 58%) 100%) !important;
+  box-shadow: 0 2px 10px hsl(270 38% 58% / 0.2);
+}
+
+/* Override destructive to be softer */
+.v7-glass-bg .bg-destructive\/10 {
+  background: hsl(350 60% 95% / 0.5) !important;
+}
+
+/* Override accent-green to be gentler */
+.v7-glass-bg .bg-accent-green-fill {
+  background: hsl(150 35% 90%) !important;
 }
