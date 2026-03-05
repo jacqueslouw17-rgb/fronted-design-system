@@ -378,6 +378,25 @@
   background: hsl(172 12% 95% / 0.45) !important;
 }
 
+/* ─── Payroll worker rows — premium glass hover ─── */
+.v7-glass-bg .v7-worker-row {
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 1px solid transparent;
+}
+
+.v7-glass-bg .v7-worker-row:hover {
+  background: linear-gradient(
+    180deg,
+    hsl(0 0% 100% / 0.55) 0%,
+    hsl(172 18% 96% / 0.45) 100%
+  ) !important;
+  border-color: hsl(0 0% 100% / 0.5);
+  box-shadow:
+    0 2px 12px hsl(172 12% 85% / 0.08),
+    inset 0 1px 0 hsl(0 0% 100% / 0.4);
+  transform: translateY(-1px);
+}
+
 /* ─── Override bg-background within glass context ─── */
 .v7-glass-bg [class*="bg-background/50"],
 .v7-glass-bg [class*="bg-background/60"],
