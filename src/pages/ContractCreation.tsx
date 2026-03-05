@@ -192,7 +192,9 @@ const ContractCreation: React.FC = () => {
 
   // Save updated form data to localStorage so drafting step picks it up
   const persistFormData = (candidateId: string, formData: ContractFormData) => {
-    const storageKey = returnTo === "f1v6" 
+    const storageKey = returnTo === "f1v7"
+      ? "adminflow-v7-company-contractors"
+      : returnTo === "f1v6" 
       ? "adminflow-v6-company-contractors" 
       : "adminflow-v5-company-contractors";
     try {
