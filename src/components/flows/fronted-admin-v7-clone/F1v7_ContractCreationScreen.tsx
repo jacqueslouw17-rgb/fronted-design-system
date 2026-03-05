@@ -159,9 +159,9 @@ const SectionCard: React.FC<{
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="rounded-xl border border-border/30 bg-card/20 overflow-hidden transition-all">
+      <div className="rounded-xl v7-glass-item overflow-hidden transition-all">
         <CollapsibleTrigger asChild>
-          <button className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-card/40 transition-colors text-left group">
+          <button className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-white/20 transition-colors text-left group">
             <p className="text-sm font-medium text-foreground">{title}</p>
             <div className="flex items-center gap-2">
               {badge}
@@ -170,7 +170,7 @@ const SectionCard: React.FC<{
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="border-t border-border/20">
+          <div className="border-t border-white/30">
             <div className="p-4 pt-3 space-y-3">
               {children}
             </div>
@@ -208,7 +208,7 @@ const NumberFieldWithUnit: React.FC<{
   <div className="flex items-center gap-2">
     <Input type="number" value={value} onChange={e => onChange(e.target.value)} min={min} max={max} step={step}
       className="flex-1 h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100" />
-    <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">{unit}</span>
+    <span className="text-xs font-medium text-muted-foreground v7-glass-badge px-2.5 py-2 whitespace-nowrap select-none">{unit}</span>
   </div>
 );
 

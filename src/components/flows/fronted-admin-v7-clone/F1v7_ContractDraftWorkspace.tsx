@@ -563,7 +563,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
       <div className="lg:hidden">
         <Collapsible>
           <CollapsibleTrigger asChild>
-            <button className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-border/30 bg-card/20 hover:bg-card/40 transition-colors text-left">
+            <button className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl v7-glass-item hover:bg-white/20 transition-colors text-left">
               <div className="flex items-center gap-3 min-w-0">
                 <span className="text-2xl">{candidate.flag}</span>
                 <div className="min-w-0">
@@ -575,7 +575,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
             </button>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="mt-2 rounded-xl border border-border/30 bg-card/20 overflow-hidden divide-y divide-border/20">
+            <div className="mt-2 rounded-xl v7-glass-card overflow-hidden divide-y divide-white/20">
               {/* Personal Details */}
               <div className="px-4 py-3">
                 <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Personal Details</p>
@@ -615,9 +615,9 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="h-full flex flex-col lg:flex-row gap-2 items-start">
         {/* Left: Candidate card + Audit Log — hidden on mobile */}
         <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1, duration: 0.3 }} className="hidden lg:flex w-80 flex-shrink-0 flex-col h-[600px]">
-          <Card className="border border-border/40 bg-card/50 backdrop-blur-sm flex-shrink-0 overflow-hidden">
+          <Card className="v7-glass-card flex-shrink-0 overflow-hidden">
             {/* Header */}
-            <div className="px-5 py-4 border-b border-border/30">
+            <div className="px-5 py-4 border-b border-white/30">
               <div className="flex items-center gap-3">
                 <span className="text-3xl">{candidate.flag}</span>
                 <div className="flex-1 min-w-0">
@@ -634,12 +634,12 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
             <div className="overflow-y-auto max-h-[420px]">
               {/* Personal Details */}
               <Collapsible defaultOpen={false}>
-                <CollapsibleTrigger className="w-full px-5 py-3 border-b border-border/20 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors group">
+                 <CollapsibleTrigger className="w-full px-5 py-3 border-b border-white/20 flex items-center justify-between cursor-pointer hover:bg-white/20 transition-colors group">
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Personal Details</p>
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="px-5 py-3 border-b border-border/20 space-y-1.5">
+                   <div className="px-5 py-3 border-b border-white/20 space-y-1.5">
                     <ReviewRow icon={User} label="Name" value={candidate.name} />
                     <ReviewRow icon={Globe} label="Country" value={`${candidate.flag} ${candidate.country}`} />
                     {candidate.email && <ReviewRow icon={FileText} label="Email" value={candidate.email} />}
@@ -653,12 +653,12 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
 
               {/* Contract Details */}
               <Collapsible defaultOpen={false}>
-                <CollapsibleTrigger className="w-full px-5 py-3 border-b border-border/20 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors group">
+                <CollapsibleTrigger className="w-full px-5 py-3 border-b border-white/20 flex items-center justify-between cursor-pointer hover:bg-white/20 transition-colors group">
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Contract Details</p>
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="px-5 py-3 border-b border-border/20 space-y-1.5">
+                  <div className="px-5 py-3 border-b border-white/20 space-y-1.5">
                     <ReviewRow icon={Briefcase} label="Type" value={candidate.employmentType === "employee" ? "Employee" : "Contractor"} />
                     <ReviewRow icon={FileText} label="Role" value={candidate.role} />
                     <ReviewRow icon={Banknote} label="Salary" value={candidate.salary} />
@@ -669,7 +669,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
 
               {/* Terms & Entitlements */}
               <Collapsible defaultOpen={false}>
-                <CollapsibleTrigger className="w-full px-5 py-3 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors group">
+                <CollapsibleTrigger className="w-full px-5 py-3 flex items-center justify-between cursor-pointer hover:bg-white/20 transition-colors group">
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Terms & Entitlements</p>
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CollapsibleTrigger>
@@ -693,10 +693,10 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         </motion.div>
 
         {/* Right: Contract viewer with tabs + editor */}
-        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col h-[calc(100vh-200px)] sm:h-[calc(100vh-180px)] lg:h-[700px] min-h-[500px] w-full rounded-lg border border-border overflow-hidden">
+        <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.3 }} className="flex-1 flex flex-col h-[calc(100vh-200px)] sm:h-[calc(100vh-180px)] lg:h-[700px] min-h-[500px] w-full rounded-lg v7-glass-card overflow-hidden">
           
           {/* Document toolbar — always visible, never scrolls */}
-          <div className="bg-muted/80 border-b border-border/50 p-2 flex-shrink-0 flex items-center justify-between gap-2">
+          <div className="v7-glass-header border-b border-white/30 p-2 flex-shrink-0 flex items-center justify-between gap-2">
             {/* Left: Document tabs or edit context */}
             {isEditMode ? (
               <div className="flex items-center gap-2 min-w-0">
@@ -826,7 +826,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
 
           {/* Contract content - Editor or Preview */}
           {isEditMode ? (
-            <div className="flex-1 min-h-0 bg-background flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-sm flex flex-col overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.div key="editor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="h-full flex flex-col">
                   <ContractRichTextEditor
@@ -838,7 +838,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
               </AnimatePresence>
             </div>
           ) : (
-            <div ref={contractColumnRef} className="flex-1 min-h-0 overflow-y-auto bg-background">
+            <div ref={contractColumnRef} className="flex-1 min-h-0 overflow-y-auto bg-white/50 backdrop-blur-sm">
               <AnimatePresence mode="wait">
                 {isResetting ? (
                   <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="p-4 sm:p-6">
@@ -916,7 +916,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
           )}
 
           {/* Bottom bar - step navigation + pagination */}
-          <div className="flex-shrink-0 p-3 sm:p-4 flex items-center justify-between bg-background border-t border-border/50">
+          <div className="flex-shrink-0 p-3 sm:p-4 flex items-center justify-between v7-glass-header border-t border-white/30">
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
