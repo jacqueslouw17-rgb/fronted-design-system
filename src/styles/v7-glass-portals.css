@@ -6,7 +6,8 @@
  */
 
 /* ─── Sheet / Drawer panels — frosted mint glass background ─── */
-body.v7-glass-active [data-radix-portal] [role="dialog"] {
+body.v7-glass-active [data-radix-portal] [role="dialog"],
+body.v7-glass-active [data-radix-portal] > div {
   --primary: 172 50% 45%;
   --primary-foreground: 172 60% 98%;
   --ring: 172 40% 60%;
