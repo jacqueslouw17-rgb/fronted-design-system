@@ -288,8 +288,9 @@ const DesignSystem = () => {
     'flow-4-candidate-onboarding',   // Flow 3 Candidate Onboarding v1
     'flow-3-candidate-onboarding-v2',// Flow 3 Candidate Onboarding v2
     'flow-4a-worker-onboarding',     // Flow 4 Worker Onboarding v1
-    'flow-5-candidate-dashboard',    // Flow 4 Candidate Dashboard v1
-    'flow-5-candidate-dashboard-v2', // Flow 4 Candidate Dashboard v2
+    // HIDDEN: Flow 4 Candidate Dashboard v1-v2
+    // 'flow-5-candidate-dashboard',    // Flow 4 Candidate Dashboard v1
+    // 'flow-5-candidate-dashboard-v2', // Flow 4 Candidate Dashboard v2
     // HIDDEN: Flow 4.1 Employee Dashboard v3-v6
     // 'flow-4.1-employee-dashboard-v3',// Flow 4.1 Employee Dashboard v1
     // 'flow-4.1-employee-dashboard-v4',// Flow 4.1 Employee Dashboard v2
