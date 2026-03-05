@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FlowCard } from "@/components/FlowCard";
+import CollapsibleFlowGroup from "@/components/CollapsibleFlowGroup";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -315,6 +316,22 @@ const DesignSystem = () => {
     'shared-secure-link-error',      // Shared – Secure Link Error (403)
     'shared-server-error',           // Shared – Server Error (500)
   ];
+
+  const frontedFlows = flowOrder.filter(id => id.startsWith('flow-1-fronted-admin'));
+  const endClientFlows = flowOrder.filter(id =>
+    id.startsWith('flow-3-candidate-data') ||
+    id.startsWith('flow-4-candidate-onboarding') ||
+    id.startsWith('flow-3-candidate-onboarding') ||
+    id.startsWith('flow-5-company-admin') ||
+    id.startsWith('flow-6-company-admin')
+  );
+  const workerFlows = flowOrder.filter(id =>
+    id.startsWith('flow-4a-worker') ||
+    id.startsWith('flow-4.1-employee') ||
+    id.startsWith('flow-4.2-contractor')
+  );
+  const sharedFlows = flowOrder.filter(id => id.startsWith('shared-'));
+
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
     if (component) {
@@ -395,14 +412,45 @@ const DesignSystem = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="flows" className="mt-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {flowOrder.map((flowId) => (
-                <div key={flowId}>
-                  <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+          <TabsContent value="flows" className="mt-8 space-y-8">
+            <CollapsibleFlowGroup label="Fronted">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {frontedFlows.map((flowId) => (
+                  <div key={flowId}>
+                    <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                  </div>
+                ))}
+              </div>
+            </CollapsibleFlowGroup>
+            <CollapsibleFlowGroup label="End-client">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {endClientFlows.map((flowId) => (
+                  <div key={flowId}>
+                    <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                  </div>
+                ))}
+              </div>
+            </CollapsibleFlowGroup>
+            <CollapsibleFlowGroup label="Worker">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {workerFlows.map((flowId) => (
+                  <div key={flowId}>
+                    <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                  </div>
+                ))}
+              </div>
+            </CollapsibleFlowGroup>
+            {sharedFlows.length > 0 && (
+              <CollapsibleFlowGroup label="Shared">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sharedFlows.map((flowId) => (
+                    <div key={flowId}>
+                      <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </CollapsibleFlowGroup>
+            )}
           </TabsContent>
 
           <TabsContent value="components" className="mt-8">
