@@ -127,7 +127,7 @@ const F1v7_ProfileSettings = () => {
                     {OVERVIEW_CARDS.map((card) => (
                       <button
                         key={card.id}
-                        className="w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl border border-border/30 bg-card/20 hover:bg-card/40 hover:border-border/50 transition-all text-left group"
+                        className="v7-glass-item w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left group"
                         onClick={() => setCurrentSection(card.id)}
                       >
                         <div className="min-w-0">
