@@ -255,16 +255,17 @@ const Flows = () => {
       comingSoon: false,
       locked: false
     },
-    {
-      id: "f1-fronted-admin-v4-clone",
-      title: "Flow 1 — Fronted Admin Dashboard v4",
-      description: "Isolated copy of Flow 1 v2 (Fronted Admin Dashboard). Fresh clone for active development with full component isolation.",
-      steps: 7,
-      patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
-      path: "/flows/fronted-admin-dashboard-v4-clone",
-      comingSoon: false,
-      locked: false
-    },
+    // HIDDEN: Flow 1 Fronted Admin Dashboard v4
+    // {
+    //   id: "f1-fronted-admin-v4-clone",
+    //   title: "Flow 1 — Fronted Admin Dashboard v4",
+    //   description: "Isolated copy of Flow 1 v2 (Fronted Admin Dashboard). Fresh clone for active development with full component isolation.",
+    //   steps: 7,
+    //   patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
+    //   path: "/flows/fronted-admin-dashboard-v4-clone",
+    //   comingSoon: false,
+    //   locked: false
+    // },
     {
       id: "f1-fronted-admin-v5-clone",
       title: "Flow 1 — Fronted Admin Dashboard v5",
@@ -295,25 +296,27 @@ const Flows = () => {
       comingSoon: false,
       locked: false
     },
-    {
-      title: "Flow 4.1 — Employee Dashboard v6",
-      description: "Isolated clone of v5: Employee-specific dashboard with T-5 payroll confirmation, adjustments, leaves, and pay breakdown. Changes here do NOT affect v5.",
-      steps: 1,
-      patterns: ["data-cards", "compliance-checklist"],
-      path: "/candidate-dashboard-employee-v6",
-      comingSoon: false,
-      locked: false
-    },
-    {
-      id: "f4.2-contractor-dashboard-v6",
-      title: "Flow 4.2 — Contractor Dashboard v6",
-      description: "Isolated clone of v5: Contractor-specific dashboard with T-5 invoice confirmation, adjustments, and invoice breakdown. Changes here do NOT affect v5.",
-      steps: 1,
-      patterns: ["data-cards", "compliance-checklist"],
-      path: "/candidate-dashboard-contractor-v6",
-      comingSoon: false,
-      locked: false
-    },
+    // HIDDEN: Flow 4.1 Employee Dashboard v6
+    // {
+    //   title: "Flow 4.1 — Employee Dashboard v6",
+    //   description: "Isolated clone of v5: Employee-specific dashboard with T-5 payroll confirmation, adjustments, leaves, and pay breakdown. Changes here do NOT affect v5.",
+    //   steps: 1,
+    //   patterns: ["data-cards", "compliance-checklist"],
+    //   path: "/candidate-dashboard-employee-v6",
+    //   comingSoon: false,
+    //   locked: false
+    // },
+    // HIDDEN: Flow 4.2 Contractor Dashboard v6
+    // {
+    //   id: "f4.2-contractor-dashboard-v6",
+    //   title: "Flow 4.2 — Contractor Dashboard v6",
+    //   description: "Isolated clone of v5: Contractor-specific dashboard with T-5 invoice confirmation, adjustments, and invoice breakdown. Changes here do NOT affect v5.",
+    //   steps: 1,
+    //   patterns: ["data-cards", "compliance-checklist"],
+    //   path: "/candidate-dashboard-contractor-v6",
+    //   comingSoon: false,
+    //   locked: false
+    // },
     {
       id: "f4.1-employee-dashboard-v7",
       title: "Flow 4.1 — Employee Dashboard v7",
