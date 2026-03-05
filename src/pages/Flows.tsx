@@ -5,6 +5,10 @@ import { ArrowLeft, Workflow, Plus, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import CollapsibleFlowGroup from "@/components/CollapsibleFlowGroup";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const Flows = () => {
   const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
@@ -349,6 +353,19 @@ const Flows = () => {
     }
     // Flow 1 Fronted Admin Dashboard v3 hidden from view
   ];
+
+  const frontedFlows = flows.filter(f => !f.comingSoon && f.title.includes('Fronted Admin'));
+  const endClientFlows = flows.filter(f => !f.comingSoon && (
+    f.title.includes('Company Admin') ||
+    f.title.includes('Admin Workflow') ||
+    f.title.includes('Admin Contracting') ||
+    f.title.includes('Candidate')
+  ));
+  const workerFlows = flows.filter(f => !f.comingSoon && (
+    f.title.includes('Worker') ||
+    f.title.includes('Employee') ||
+    f.title.includes('Contractor')
+  ));
 
   const getPatternById = (id: string) => patterns.find(p => p.id === id);
 
