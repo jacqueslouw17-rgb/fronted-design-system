@@ -269,7 +269,7 @@ const Flows = () => {
     // },
     {
       id: "f1-fronted-admin-v5-clone",
-      title: "Flow 1 — Fronted Admin Dashboard v5",
+      title: "Flow 1 — Fronted Dashboard v5",
       description: "Isolated copy of Flow 1 v4. Fresh clone for active development with full component isolation. Changes do NOT affect v4.",
       steps: 7,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
@@ -279,7 +279,7 @@ const Flows = () => {
     },
     {
       id: "f1-fronted-admin-v6-clone",
-      title: "Flow 1 — Fronted Admin Dashboard v6",
+      title: "Flow 1 — Fronted Dashboard v6",
       description: "Isolated clone of Flow 1 v5. Fresh clone for active development with full component isolation. Changes do NOT affect v5.",
       steps: 7,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
@@ -289,7 +289,7 @@ const Flows = () => {
     },
     {
       id: "f1-fronted-admin-v7-clone",
-      title: "Flow 1 — Fronted Admin Dashboard v7 (Experimental)",
+      title: "Flow 1 — Fronted Dashboard v7 (Experimental)",
       description: "Isolated clone of Flow 1 v6. Experimental branch for active development with full component isolation. Changes do NOT affect v6.",
       steps: 7,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
@@ -340,7 +340,7 @@ const Flows = () => {
     },
     {
       id: "f6-company-admin-dashboard-v4",
-      title: "Flow 6 — Company Admin Dashboard v4 (Agent)",
+      title: "Flow 6 — Company Dashboard v4 (Agent)",
       description: "Isolated clone of v3 with agent-first design patterns. Independent components (CA4_ prefix) ensure changes do NOT affect v3 or any other versions.",
       steps: 1,
       patterns: ["data-cards", "genie-onboarding", "compliance-checklist"],
