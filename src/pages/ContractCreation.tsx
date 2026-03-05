@@ -14,6 +14,8 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { useContractorStore } from "@/hooks/useContractorStore";
+import "@/styles/v7-glass-theme.css";
+import "@/styles/v7-glass-portals.css";
 
 type PipelineContractor = {
   id: string;
