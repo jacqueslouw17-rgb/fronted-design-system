@@ -826,7 +826,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
 
           {/* Contract content - Editor or Preview */}
           {isEditMode ? (
-            <div className="flex-1 min-h-0 bg-background flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 bg-white/50 backdrop-blur-sm flex flex-col overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.div key="editor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="h-full flex flex-col">
                   <ContractRichTextEditor
@@ -838,7 +838,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
               </AnimatePresence>
             </div>
           ) : (
-            <div ref={contractColumnRef} className="flex-1 min-h-0 overflow-y-auto bg-background">
+            <div ref={contractColumnRef} className="flex-1 min-h-0 overflow-y-auto bg-white/50 backdrop-blur-sm">
               <AnimatePresence mode="wait">
                 {isResetting ? (
                   <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="p-4 sm:p-6">
