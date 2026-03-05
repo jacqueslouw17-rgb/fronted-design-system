@@ -286,7 +286,16 @@ const Flows = () => {
       locked: false
     },
     {
-      id: "f4.1-employee-dashboard-v6",
+      id: "f1-fronted-admin-v7-clone",
+      title: "Flow 1 — Fronted Admin Dashboard v7 (Experimental)",
+      description: "Isolated clone of Flow 1 v6. Experimental branch for active development with full component isolation. Changes do NOT affect v6.",
+      steps: 7,
+      patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
+      path: "/flows/fronted-admin-dashboard-v7-clone",
+      comingSoon: false,
+      locked: false
+    },
+    {
       title: "Flow 4.1 — Employee Dashboard v6",
       description: "Isolated clone of v5: Employee-specific dashboard with T-5 payroll confirmation, adjustments, leaves, and pay breakdown. Changes here do NOT affect v5.",
       steps: 1,
