@@ -4,6 +4,11 @@
  * Only applied to Flow 1 v7 (Future) dashboard
  */
 
+/* ─── Typography — sharp neo-grotesque for premium glass feel ─── */
+.v7-glass-bg {
+  font-family: "Outfit", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
 /* ─── Override primary + accent to mint/teal within v7 ─── */
 .v7-glass-bg {
   --primary: 172 50% 45%;
