@@ -14,6 +14,8 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { useContractorStore } from "@/hooks/useContractorStore";
+import "@/styles/v7-glass-theme.css";
+import "@/styles/v7-glass-portals.css";
 
 type PipelineContractor = {
   id: string;
@@ -95,8 +97,17 @@ const ContractCreation: React.FC = () => {
   const idsParam = searchParams.get("ids");
   const returnTo = searchParams.get("returnTo");
   const companyParam = searchParams.get("company");
+  const isV7 = returnTo === "f1v7";
   const mockCandidates = useMockCandidates();
   const contractorsFromStore = useContractorStore((s) => s.contractors) as unknown as PipelineContractor[];
+
+  // Set body class for v7 glass theme portal overrides
+  useEffect(() => {
+    if (isV7) {
+      document.body.classList.add('v7-glass-active');
+      return () => document.body.classList.remove('v7-glass-active');
+    }
+  }, [isV7]);
 
   // Only override navigation when the launching flow explicitly asks for it.
   // (Keeps existing default behavior unchanged.)
@@ -135,7 +146,7 @@ const ContractCreation: React.FC = () => {
     const localStorageCandidates: Candidate[] = (() => {
       try {
         // Check v5, v6, and legacy localStorage keys
-        const keys = ["adminflow-v5-company-contractors", "adminflow-v6-company-contractors", "adminflow-company-contractors"];
+        const keys = ["adminflow-v7-company-contractors", "adminflow-v5-company-contractors", "adminflow-v6-company-contractors", "adminflow-company-contractors"];
         const allParsed: any[] = [];
         for (const key of keys) {
           const raw = localStorage.getItem(key);
@@ -181,7 +192,9 @@ const ContractCreation: React.FC = () => {
 
   // Save updated form data to localStorage so drafting step picks it up
   const persistFormData = (candidateId: string, formData: ContractFormData) => {
-    const storageKey = returnTo === "f1v6" 
+    const storageKey = returnTo === "f1v7"
+      ? "adminflow-v7-company-contractors"
+      : returnTo === "f1v6" 
       ? "adminflow-v6-company-contractors" 
       : "adminflow-v5-company-contractors";
     try {
@@ -296,19 +309,23 @@ const ContractCreation: React.FC = () => {
 
         {/* Contract Creation Area */}
         <AgentLayout context="Contract Drafting">
-          <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative min-h-screen">
-            {/* Static background */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-              <div
-                className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-                style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }}
-              />
-              <div
-                className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-                style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }}
-              />
-            </div>
+          <div className={`flex-1 overflow-auto relative min-h-screen ${isV7 ? 'v7-glass-bg' : 'bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]'}`}>
+            {/* Static background — only for non-v7 */}
+            {!isV7 && (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+                <div
+                  className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+                  style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }}
+                />
+                <div
+                  className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+                  style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }}
+                />
+              </div>
+            )}
+            {/* V7: floating mint orb */}
+            {isV7 && <div className="v7-orb-center" />}
             <div className="relative z-10">
               {/* Frosted-glass header (fixed, scroll-activated) */}
               <FrostedHeader onLogoClick={() => navigate(closePath)} onCloseClick={() => navigate(closePath)} />
