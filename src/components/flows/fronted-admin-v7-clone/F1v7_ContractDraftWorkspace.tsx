@@ -752,11 +752,11 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                       <button className={cn(
                         "inline-flex items-center gap-1 text-xs h-7 px-2.5 rounded-md transition-all duration-200",
                         activeInOverflow
-                          ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
-                          : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                          ? "bg-white/70 text-foreground font-medium shadow-sm border border-white/60"
+                          : "text-muted-foreground/60 hover:text-foreground hover:bg-white/30"
                       )}>
                         {confirmedOverflowCount > 0 && !activeInOverflow && (
-                          <CheckCircle2 className="h-3 w-3 flex-shrink-0 text-primary" />
+                          <CheckCircle2 className="h-3 w-3 flex-shrink-0 text-emerald-500" />
                         )}
                         <span>{activeInOverflow ? documents.find(d => d.id === activeDocument)?.shortLabel : `+${overflowDocs.length} more`}</span>
                         <ChevronDown className="h-3 w-3" />
@@ -772,11 +772,12 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                             onClick={() => handleDocumentSwitch(doc.id)}
                             className={cn(
                               "flex items-center gap-2 text-xs cursor-pointer",
-                              isActive && "bg-muted font-medium"
+                              isActive && "bg-muted font-medium",
+                              isConfirmed && !isActive && "text-emerald-700"
                             )}
                           >
                             {isConfirmed ? (
-                              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+                              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-emerald-500" />
                             ) : (
                               <doc.icon className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
                             )}
