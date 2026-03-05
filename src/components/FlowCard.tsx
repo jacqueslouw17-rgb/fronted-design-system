@@ -673,7 +673,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
   // Extract version tag from title (e.g. "v5", "v7 (Experimental)")
   const versionMatch = flow.title.match(/\s+(v\d+.*)$/i);
   const versionTag = versionMatch ? versionMatch[1].trim() : null;
-  const displayTitle = versionTag ? flow.title.replace(versionMatch[0], '') : flow.title;
+  const displayTitle = (versionTag ? flow.title.replace(versionMatch[0], '') : flow.title).replace(/\s*Admin\s*/gi, ' ').replace(/\s+/g, ' ').trim();
 
   // Clean up version tag - remove parenthetical text like "(Experimental)"
   const cleanVersionTag = versionTag ? versionTag.replace(/\s*\(.*\)/, '') : null;
