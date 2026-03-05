@@ -216,7 +216,7 @@
 }
 
 /* Ensure content sits above the orbs */
-.v7-glass-bg > * {
+.v7-glass-bg > *:not(.v7-orb-center) {
   position: relative;
   z-index: 1;
 }
