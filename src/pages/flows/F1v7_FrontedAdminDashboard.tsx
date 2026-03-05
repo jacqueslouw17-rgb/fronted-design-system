@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, X, FileCheck } from "lucide-react";
+import "@/styles/v7-glass-theme.css";
 import frontedLogo from "@/assets/fronted-logo.png";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
@@ -777,7 +778,8 @@ const AdminContractingMultiCompany = () => {
 
   return (
     <RoleLensProvider initialRole="admin">
-      <div className="min-h-screen flex flex-col w-full bg-background">
+      <div className="v7-glass-bg flex flex-col w-full">
+        <div className="v7-orb-center" />
       {!isAddingNewCompany && !isEditingCompany && (
         contractFlow.phase === "idle" ||
         contractFlow.phase === "offer-accepted" ||
@@ -800,7 +802,7 @@ const AdminContractingMultiCompany = () => {
       )}
 
       {isAddingNewCompany && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'v7-glass-header' : ''}`}>
           <img 
             src={frontedLogo}
             alt="Fronted"
@@ -819,7 +821,7 @@ const AdminContractingMultiCompany = () => {
       )}
 
       {isEditingCompany && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'v7-glass-header' : ''}`}>
           <img 
             src={frontedLogo}
             alt="Fronted"
@@ -841,7 +843,7 @@ const AdminContractingMultiCompany = () => {
         contractFlow.phase !== "idle" &&
         contractFlow.phase !== "offer-accepted" &&
         contractFlow.phase !== "data-collection" && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'v7-glass-header' : ''}`}>
           <img src={frontedLogo} alt="Fronted" className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { contractFlow.resetFlow(); navigate(FLOW_BASE_PATH); }} />
           <Button variant="ghost" size="icon" onClick={() => { contractFlow.resetFlow(); navigate(FLOW_BASE_PATH); }} className="h-8 w-8 sm:h-10 sm:w-10">
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -850,13 +852,6 @@ const AdminContractingMultiCompany = () => {
       )}
 
       <main className="flex-1 flex overflow-hidden relative">
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]" />
-          <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-               style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-          <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-               style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
-        </div>
         
         <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
@@ -1017,9 +1012,9 @@ const AdminContractingMultiCompany = () => {
                       
                       <div className="flex items-center justify-center py-2">
                         <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "tracker" | "payroll")}>
-                          <TabsList className="grid w-[280px] grid-cols-2">
-                            <TabsTrigger value="tracker">Tracker</TabsTrigger>
-                            <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                          <TabsList className="grid w-[280px] grid-cols-2 v7-glass-tabs">
+                            <TabsTrigger value="tracker" className="data-[state=active]:v7-glass-tab-active">Tracker</TabsTrigger>
+                            <TabsTrigger value="payroll" className="data-[state=active]:v7-glass-tab-active">Payroll</TabsTrigger>
                           </TabsList>
                         </Tabs>
                       </div>

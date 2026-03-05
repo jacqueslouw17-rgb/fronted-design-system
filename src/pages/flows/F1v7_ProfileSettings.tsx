@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from "react";
+import "@/styles/v7-glass-theme.css";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, X, Loader2 } from "lucide-react";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
@@ -92,7 +93,8 @@ const F1v7_ProfileSettings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
+    <div className="v7-glass-bg">
+      <div className="v7-orb-center" />
       <FrostedHeader
         onLogoClick={() => navigate("/flows/fronted-admin-dashboard-v7-clone")}
         onCloseClick={() => navigate(-1)}
@@ -100,15 +102,7 @@ const F1v7_ProfileSettings = () => {
 
       <AgentLayout context="admin-profile-settings-v7">
         <RBACProvider>
-          <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-              <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-                style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-              <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-                style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
-            </div>
-
+          <div className="min-h-screen text-foreground relative">
             <div className="w-full max-w-[800px] mx-auto py-4 sm:py-8 px-3 sm:px-4 relative z-10">
               <div className="mb-5 sm:mb-8">
                 <AgentHeader
@@ -133,7 +127,7 @@ const F1v7_ProfileSettings = () => {
                     {OVERVIEW_CARDS.map((card) => (
                       <button
                         key={card.id}
-                        className="w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl border border-border/30 bg-card/20 hover:bg-card/40 hover:border-border/50 transition-all text-left group"
+                        className="v7-glass-item w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left group"
                         onClick={() => setCurrentSection(card.id)}
                       >
                         <div className="min-w-0">

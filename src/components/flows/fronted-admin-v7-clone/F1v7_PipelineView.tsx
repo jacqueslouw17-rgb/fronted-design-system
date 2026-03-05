@@ -7,6 +7,7 @@
  * Created: 2026-01-20
  * Source: src/components/contract-flow/PipelineView.tsx
  */
+import "@/styles/v7-glass-theme.css";
 
 import React, { useState, useEffect } from "react";
 import { getCurrencyCode } from "@/utils/currencyUtils";
@@ -1029,7 +1030,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           duration: 0.3
         }} className="flex-shrink-0 w-[280px]">
               {/* Column Header */}
-              <div className={cn("p-3 rounded-t-lg border-t border-x", config.color)}>
+              <div className="p-3 rounded-t-lg border-t border-x bg-white/30 backdrop-blur-sm border-white/40">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
                     {/* Select All for all columns except data-pending, awaiting-signature, onboarding-pending, payroll-ready, and payroll statuses */}
@@ -1099,7 +1100,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               </div>
 
               {/* Column Body */}
-              <div className={cn("min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg", config.color)}>
+              <div className={cn("min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg", "bg-white/20 backdrop-blur-sm border-white/30")}>
                 {/* Empty state for offer-accepted column */}
                 {status === "offer-accepted" && items.length === 0 && onAddCandidate && <motion.div initial={{
               opacity: 0,
@@ -1155,10 +1156,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 }
               }}>
                 <Card className={cn(
-                  "border cursor-pointer bg-card",
+                  "v7-glass-item border cursor-pointer",
                   status === "onboarding-pending"
                     ? "border-primary/30 shadow-sm shadow-primary/5"
-                    : "border-border/40"
+                    : ""
                 )} onClick={() => {
                   if (status === "awaiting-signature") {
                     handleOpenSignatureWorkflow(contractor);
@@ -1427,7 +1428,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         {inactiveItems.map((contractor) => (
                           <motion.div key={contractor.id} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
                             <Card 
-                              className="border border-border/40 cursor-pointer bg-card hover:shadow-md transition-all opacity-75"
+                              className="v7-glass-item border cursor-pointer opacity-75"
                               onClick={() => {
                                 setSelectedForDoneDetail(contractor);
                                 setDoneDetailDrawerOpen(true);
