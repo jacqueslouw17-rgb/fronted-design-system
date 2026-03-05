@@ -1030,7 +1030,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           duration: 0.3
         }} className="flex-shrink-0 w-[280px]">
               {/* Column Header */}
-              <div className={cn("p-3 rounded-t-lg border-t border-x", config.color)}>
+              <div className="p-3 rounded-t-lg border-t border-x bg-white/30 backdrop-blur-sm border-white/40">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
                     {/* Select All for all columns except data-pending, awaiting-signature, onboarding-pending, payroll-ready, and payroll statuses */}
