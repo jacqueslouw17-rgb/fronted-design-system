@@ -671,30 +671,30 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
   const colors = colorClasses[flow.iconColor as keyof typeof colorClasses];
 
   return (
-    <Card className={`hover:shadow-lg transition-all group h-full cursor-move ${flow.deprecated ? 'opacity-50' : ''}`}>
-        <CardHeader className={flow.locked ? "relative" : ""}>
+    <Card className={`hover:shadow-lg transition-all group h-[280px] cursor-move flex flex-col ${flow.deprecated ? 'opacity-50' : ''}`}>
+        <CardHeader className={`flex-1 min-h-0 ${flow.locked ? "relative" : ""}`}>
           <div className={`flex items-center gap-3 ${flow.locked ? 'mb-3' : 'mb-1.5'}`}>
             <div className={`p-2 rounded-xl ${colors.bg} ${colors.border} border transition-all duration-200 ${colors.hoverBg} ${colors.hoverBorder}`}>
               <Icon className={`h-5 w-5 ${colors.text} ${colors.darkText} transition-colors duration-200 group-hover:text-white`} />
             </div>
-            <CardTitle className="text-lg flex-1">{flow.title}</CardTitle>
+            <CardTitle className="text-lg flex-1 truncate">{flow.title}</CardTitle>
             {flow.locked && (
-              <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
+              <Badge variant="secondary" className="bg-muted text-muted-foreground border-border flex-shrink-0">
                 🔒
               </Badge>
             )}
             {((flow.locked && !flow.deprecated) || ('live' in flow && flow.live)) && (
-              <Badge variant="outline" className="bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30">
+              <Badge variant="outline" className="bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30 flex-shrink-0">
                 Live
               </Badge>
             )}
             {flow.deprecated && (
-              <Badge variant="outline" className="bg-background/50 text-muted-foreground border-muted">
+              <Badge variant="outline" className="bg-background/50 text-muted-foreground border-muted flex-shrink-0">
                 Old
               </Badge>
             )}
           </div>
-          <CardDescription className="line-clamp-3">
+          <CardDescription className="line-clamp-2">
             {flow.description}
           </CardDescription>
           <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
@@ -703,21 +703,21 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
             <span>{flow.patterns}</span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex flex-wrap gap-1.5">
-            {flow.badges.map((badge, idx) => (
+        <CardContent className="space-y-3 pt-0">
+          <div className="flex flex-nowrap gap-1.5 overflow-hidden">
+            {flow.badges.slice(0, 2).map((badge, idx) => (
               <Badge
                 key={idx}
                 variant="secondary"
-                className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200 truncate max-w-[160px] flex-shrink-0"
                 onClick={onPatternClick(badge.path)}
               >
                 {badge.label}
               </Badge>
             ))}
-            {flow.additionalCount > 0 && (
-              <Badge variant="outline" className="text-xs">
-                +{flow.additionalCount}
+            {(flow.additionalCount > 0 || flow.badges.length > 2) && (
+              <Badge variant="outline" className="text-xs flex-shrink-0">
+                +{flow.additionalCount + Math.max(0, flow.badges.length - 2)}
               </Badge>
             )}
           </div>
