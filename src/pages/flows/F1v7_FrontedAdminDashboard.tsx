@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, X, FileCheck } from "lucide-react";
+import "@/styles/v7-glass-theme.css";
 import frontedLogo from "@/assets/fronted-logo.png";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
@@ -777,7 +778,8 @@ const AdminContractingMultiCompany = () => {
 
   return (
     <RoleLensProvider initialRole="admin">
-      <div className="min-h-screen flex flex-col w-full bg-background">
+      <div className="v7-glass-bg flex flex-col w-full">
+        <div className="v7-orb-center" />
       {!isAddingNewCompany && !isEditingCompany && (
         contractFlow.phase === "idle" ||
         contractFlow.phase === "offer-accepted" ||
@@ -850,13 +852,6 @@ const AdminContractingMultiCompany = () => {
       )}
 
       <main className="flex-1 flex overflow-hidden relative">
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]" />
-          <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-               style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-          <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-               style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
-        </div>
         
         <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
