@@ -829,7 +829,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
               "text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium",
               flag.type === "end_date" ?
               "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20" :
-              "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+              "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20"
             )}>
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
                 {flag.type === "end_date" ?

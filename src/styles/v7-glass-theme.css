@@ -531,18 +531,86 @@
   border-color: hsl(178 28% 72% / 0.3) !important;
 }
 
-/* ─── Override blue-500 badges within glass ─── */
-.v7-glass-bg [class*="bg-blue-500\/10"],
-.v7-glass-bg .bg-blue-500\/10 {
+/* ─── Override ALL blue variants within glass ─── */
+.v7-glass-bg [class*="bg-blue-500"],
+.v7-glass-bg [class*="bg-blue-50"] {
   background: hsl(172 22% 93% / 0.5) !important;
 }
 
 .v7-glass-bg [class*="text-blue-600"],
-.v7-glass-bg .text-blue-600 {
+.v7-glass-bg [class*="text-blue-700"],
+.v7-glass-bg [class*="text-blue-400"] {
   color: hsl(172 45% 38%) !important;
 }
 
 .v7-glass-bg [class*="border-blue-500"],
-.v7-glass-bg .border-blue-500\/20 {
+.v7-glass-bg [class*="border-blue-300"] {
   border-color: hsl(172 30% 75% / 0.3) !important;
+}
+
+/* ─── Override ALL violet/purple variants within glass → teal ─── */
+.v7-glass-bg [class*="bg-violet-500"],
+.v7-glass-bg [class*="bg-violet-50"],
+.v7-glass-bg [class*="bg-violet-600"],
+.v7-glass-bg [class*="bg-purple-500"],
+.v7-glass-bg [class*="bg-purple-50"] {
+  background: hsl(172 22% 93% / 0.5) !important;
+}
+
+.v7-glass-bg [class*="text-violet-600"],
+.v7-glass-bg [class*="text-violet-500"],
+.v7-glass-bg [class*="text-violet-400"],
+.v7-glass-bg [class*="text-purple-600"],
+.v7-glass-bg [class*="text-purple-500"],
+.v7-glass-bg [class*="text-purple-400"] {
+  color: hsl(172 45% 38%) !important;
+}
+
+.v7-glass-bg [class*="border-violet-500"],
+.v7-glass-bg [class*="border-violet-300"],
+.v7-glass-bg [class*="border-purple-500"],
+.v7-glass-bg [class*="border-purple-300"] {
+  border-color: hsl(172 30% 75% / 0.3) !important;
+}
+
+.v7-glass-bg [class*="ring-violet-500"],
+.v7-glass-bg [class*="ring-purple-500"] {
+  --tw-ring-color: hsl(172 30% 75% / 0.2) !important;
+}
+
+/* ─── Violet hover states → teal within glass ─── */
+.v7-glass-bg [class*="hover\:bg-violet"]:hover,
+.v7-glass-bg [class*="dark\:hover\:bg-violet"]:hover {
+  background: hsl(172 18% 94% / 0.5) !important;
+}
+
+.v7-glass-bg [class*="hover\:bg-purple"]:hover {
+  background: hsl(172 18% 94% / 0.5) !important;
+}
+
+/* ─── Violet button overrides (Create Batch etc.) ─── */
+.v7-glass-bg button[class*="bg-violet-600"],
+.v7-glass-bg button[class*="bg-violet-700"],
+.v7-glass-bg button[class*="bg-purple-600"] {
+  background: linear-gradient(
+    180deg,
+    hsl(172 42% 52%) 0%,
+    hsl(172 48% 45%) 100%
+  ) !important;
+  color: hsl(0 0% 100%) !important;
+}
+
+.v7-glass-bg button[class*="bg-violet-600"]:hover,
+.v7-glass-bg button[class*="bg-violet-700"]:hover {
+  background: linear-gradient(
+    180deg,
+    hsl(172 44% 48%) 0%,
+    hsl(172 50% 40%) 100%
+  ) !important;
+}
+
+/* ─── Dashed border buttons (off-cycle create) ─── */
+.v7-glass-bg [class*="border-violet-300"],
+.v7-glass-bg [class*="border-dashed"][class*="border-violet"] {
+  border-color: hsl(172 30% 75% / 0.4) !important;
 }
