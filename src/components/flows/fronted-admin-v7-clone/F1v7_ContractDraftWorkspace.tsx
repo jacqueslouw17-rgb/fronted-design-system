@@ -721,18 +721,18 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                           <button
                             onClick={() => handleDocumentSwitch(doc.id)}
                             className={cn(
-                              "inline-flex items-center gap-1.5 text-xs h-7 px-3 rounded-md transition-all duration-200 max-w-[140px] truncate",
+                              "inline-flex items-center gap-1.5 text-xs h-7 px-3 rounded-md transition-all duration-200 max-w-[160px]",
                               isActive && isConfirmed
-                                ? "bg-primary/10 text-primary font-medium shadow-sm border border-primary/20"
+                                ? "bg-emerald-50 text-emerald-700 font-medium shadow-sm border border-emerald-200"
                                 : isActive
-                                  ? "bg-background text-foreground font-medium shadow-sm border border-border/60"
+                                  ? "bg-white/70 text-foreground font-medium shadow-sm border border-white/60"
                                   : isConfirmed
-                                    ? "bg-primary/5 text-primary/80 hover:bg-primary/10 hover:text-primary border border-primary/10"
-                                    : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                                    ? "text-emerald-600/80 hover:bg-emerald-50/60 hover:text-emerald-700"
+                                    : "text-muted-foreground/60 hover:text-foreground hover:bg-white/30"
                             )}
                           >
                             {isConfirmed ? (
-                              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+                              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
                             ) : (
                               <doc.icon className="h-3.5 w-3.5 flex-shrink-0" />
                             )}
@@ -740,7 +740,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom" className="text-xs">
-                          {doc.label}
+                          {isConfirmed ? `✓ ${doc.label}` : doc.label}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
