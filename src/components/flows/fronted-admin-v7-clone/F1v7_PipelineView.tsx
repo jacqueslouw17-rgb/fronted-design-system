@@ -107,14 +107,14 @@ const statusConfig = {
   },
   "drafting": {
     label: "Prepare Contract",
-    color: "bg-accent-blue-fill/30 border-accent-blue-outline/20",
-    badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
+    color: "bg-teal-100/30 border-teal-300/20",
+    badgeColor: "bg-teal-100 text-teal-700 border-teal-300/30",
     tooltip: "Review candidate details and confirm terms before generating"
   },
   "awaiting-signature": {
     label: "Waiting for Signature",
-    color: "bg-accent-purple-fill/30 border-accent-purple-outline/20",
-    badgeColor: "bg-accent-purple-fill text-accent-purple-text border-accent-purple-outline/30",
+    color: "bg-cyan-100/30 border-cyan-300/20",
+    badgeColor: "bg-cyan-100 text-cyan-700 border-cyan-300/30",
     tooltip: "Contract sent — awaiting candidate review"
   },
   "trigger-onboarding": {
@@ -125,8 +125,8 @@ const statusConfig = {
   },
   "onboarding-pending": {
     label: "Track Candidate Progress",
-    color: "bg-accent-blue-fill/30 border-accent-blue-outline/20",
-    badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
+    color: "bg-teal-100/30 border-teal-300/20",
+    badgeColor: "bg-teal-100 text-teal-700 border-teal-300/30",
     tooltip: "Monitor completion status and send reminders"
   },
   "CERTIFIED": {
@@ -144,14 +144,14 @@ const statusConfig = {
   },
   "IN_BATCH": {
     label: "In Batch",
-    color: "bg-accent-blue-fill/30 border-accent-blue-outline/20",
-    badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
+    color: "bg-teal-100/30 border-teal-300/20",
+    badgeColor: "bg-teal-100 text-teal-700 border-teal-300/30",
     tooltip: "Added to payroll batch for processing"
   },
   "EXECUTING": {
     label: "Executing",
-    color: "bg-accent-purple-fill/30 border-accent-purple-outline/20",
-    badgeColor: "bg-accent-purple-fill text-accent-purple-text border-accent-purple-outline/30",
+    color: "bg-cyan-100/30 border-cyan-300/20",
+    badgeColor: "bg-cyan-100 text-cyan-700 border-cyan-300/30",
     tooltip: "Payment in progress"
   },
   "PAID": {
@@ -785,7 +785,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         };
       case 'pending_review':
         return {
-          color: 'bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30',
+          color: 'bg-teal-100 text-teal-700 border-teal-300/30',
           icon: Loader2
         };
       case 'todo':

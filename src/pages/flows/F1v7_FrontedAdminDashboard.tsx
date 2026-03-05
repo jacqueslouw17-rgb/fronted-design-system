@@ -199,6 +199,13 @@ const AdminContractingMultiCompany = () => {
   const [headerScrolled, setHeaderScrolled] = useState(false);
 
   const isInContractFlow = contractFlow.phase !== "idle" && contractFlow.phase !== "offer-accepted" && contractFlow.phase !== "data-collection";
+
+  // Set body class so portal-level CSS overrides can target v7 glass theme
+  useEffect(() => {
+    document.body.classList.add('v7-glass-active');
+    return () => document.body.classList.remove('v7-glass-active');
+  }, []);
+
   useEffect(() => {
     if (!isAddingNewCompany && !isEditingCompany && !isInContractFlow) {
       setHeaderScrolled(false);

@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from "react";
 import "@/styles/v7-glass-theme.css";
+import "@/styles/v7-glass-portals.css";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, X, Loader2 } from "lucide-react";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
