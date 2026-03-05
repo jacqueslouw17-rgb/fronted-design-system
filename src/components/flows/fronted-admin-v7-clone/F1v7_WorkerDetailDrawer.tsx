@@ -117,7 +117,7 @@ interface ManualAdjustment {
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   ready: { label: "Ready", className: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
-  "auto-generated": { label: "Auto-generated", className: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
+  "auto-generated": { label: "Auto-generated", className: "bg-teal-100/50 text-teal-700 border-teal-300/20" },
   "missing-submission": { label: "Missing submission", className: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
   "needs-attention": { label: "Needs attention", className: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
   blocking: { label: "Blocking", className: "bg-destructive/10 text-destructive border-destructive/20" },
