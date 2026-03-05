@@ -318,18 +318,22 @@ const DesignSystem = () => {
   ];
 
   const frontedFlows = flowOrder.filter(id => id.startsWith('flow-1-fronted-admin'));
-  const endClientFlows = flowOrder.filter(id =>
-    id.startsWith('flow-5-company-admin') ||
-    id.startsWith('flow-6-company-admin')
-  );
-  const workerFlows = flowOrder.filter(id =>
-    id.startsWith('flow-3-candidate-data') ||
+  
+  // End-client sub-groups
+  const endClientOnboarding = flowOrder.filter(id => id.startsWith('flow-5-company-admin-onboarding'));
+  const endClientDashboard = flowOrder.filter(id => id.startsWith('flow-6-company-admin-dashboard'));
+  
+  // Worker sub-groups
+  const workerDataCollection = flowOrder.filter(id => id.startsWith('flow-3-candidate-data'));
+  const workerOnboarding = flowOrder.filter(id =>
     id.startsWith('flow-4-candidate-onboarding') ||
-    id.startsWith('flow-3-candidate-onboarding') ||
-    id.startsWith('flow-4a-worker') ||
+    id.startsWith('flow-3-candidate-onboarding')
+  );
+  const workerDashboard = flowOrder.filter(id =>
     id.startsWith('flow-4.1-employee') ||
     id.startsWith('flow-4.2-contractor')
   );
+  
   const sharedFlows = flowOrder.filter(id => id.startsWith('shared-'));
 
   const handleComponentClick = (componentId: string) => {
