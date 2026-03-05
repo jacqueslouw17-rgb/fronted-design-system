@@ -248,7 +248,7 @@ const MOCK_EXCEPTIONS: WorkerException[] = [
 
 const categoryConfig: Record<ExceptionCategory, { icon: React.ElementType; label: string; tagColor: string }> = {
   end_date: { icon: Calendar, label: "End date", tagColor: "bg-amber-500/15 text-amber-700 border-amber-500/30" },
-  pay_delta: { icon: TrendingUp, label: "Pay delta", tagColor: "bg-blue-500/15 text-blue-700 border-blue-500/30" },
+  pay_delta: { icon: TrendingUp, label: "Pay delta", tagColor: "bg-teal-500/15 text-teal-700 border-teal-500/30" },
   currency_mismatch: { icon: Coins, label: "Currency mismatch", tagColor: "bg-teal-500/15 text-teal-700 border-teal-500/30" },
   missing_from_run: { icon: UserPlus, label: "Missing from run", tagColor: "bg-red-500/15 text-red-700 border-red-500/30" },
 };
@@ -410,7 +410,7 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
             </span>
             <span className={cn(
               "text-xs font-medium",
-              (exception.deltaAmount || 0) >= 0 ? "text-blue-600" : "text-red-600"
+              (exception.deltaAmount || 0) >= 0 ? "text-teal-600" : "text-red-600"
             )}>
               {formatDelta(exception.deltaAmount || 0, exception.deltaPercentage || 0, exception.profile.currency)}
             </span>
@@ -560,7 +560,7 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
         return (
           <div className="space-y-4">
             {/* Delta visual card */}
-            <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+            <div className="p-4 rounded-lg bg-teal-500/5 border border-teal-500/20">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Last period</span>
@@ -573,9 +573,9 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
                 <Separator />
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Difference</span>
-                  <span className={cn(
+                 <span className={cn(
                     "text-base font-semibold",
-                    (exception.deltaAmount || 0) >= 0 ? "text-blue-600" : "text-red-600"
+                    (exception.deltaAmount || 0) >= 0 ? "text-teal-600" : "text-red-600"
                   )}>
                     {formatDelta(exception.deltaAmount || 0, exception.deltaPercentage || 0, exception.profile.currency)}
                   </span>
