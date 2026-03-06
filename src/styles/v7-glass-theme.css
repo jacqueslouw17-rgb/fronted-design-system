@@ -537,10 +537,9 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 .v7-glass-bg .relative.w-64.h-32 .absolute.inset-0.blur-3xl {
   background: radial-gradient(
     circle,
-    hsl(172 45% 55%) 0%,
-    hsl(168 40% 62%) 30%,
-    hsl(175 35% 68%) 55%,
-    hsl(180 30% 78%) 75%,
+    hsl(200 22% 65% / 0.25) 0%,
+    hsl(172 18% 72% / 0.15) 30%,
+    hsl(260 14% 78% / 0.1) 55%,
     transparent 100%
   ) !important;
 }
@@ -549,9 +548,8 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 .v7-glass-bg .relative.w-64.h-32 .absolute.inset-0.blur-2xl {
   background: radial-gradient(
     circle,
-    hsl(172 50% 50%) 0%,
-    hsl(170 42% 60%) 40%,
-    hsl(178 35% 72%) 70%,
+    hsl(172 22% 58% / 0.2) 0%,
+    hsl(200 18% 68% / 0.12) 40%,
     transparent 100%
   ) !important;
 }
@@ -560,14 +558,14 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 .v7-glass-bg .relative.w-64.h-32 .w-1.rounded-full {
   background: linear-gradient(
     to bottom,
-    hsl(172 52% 42%),
-    hsl(170 48% 50%),
-    hsl(175 42% 58%),
-    hsl(180 36% 70%)
+    hsl(210 12% 45%),
+    hsl(200 16% 52%),
+    hsl(172 14% 55%),
+    hsl(172 10% 65%)
   ) !important;
   box-shadow:
-    0 0 14px hsl(172 50% 50% / 0.4),
-    0 0 6px hsl(170 45% 55% / 0.25) !important;
+    0 0 10px hsl(200 15% 55% / 0.3),
+    0 0 4px hsl(172 12% 60% / 0.2) !important;
 }
 
 /* ─── Ensure content sits above the orbs ─── */
