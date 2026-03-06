@@ -250,15 +250,9 @@ body.v7-glass-active::after {
   background-color: transparent !important;
 }
 
-/* Keep content clear of fixed topbar in v7 */
+/* Keep v7 content flush to the top so transparent fixed header overlays seamlessly */
 .v7-glass-bg > main {
-  padding-top: 3.5rem;
-}
-
-@media (min-width: 640px) {
-  .v7-glass-bg > main {
-    padding-top: 4rem;
-  }
+  padding-top: 0 !important;
 }
 
 /* Override portal slot in Topbar */
