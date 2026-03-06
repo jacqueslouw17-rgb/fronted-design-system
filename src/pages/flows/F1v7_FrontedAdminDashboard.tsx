@@ -462,7 +462,7 @@ const AdminContractingMultiCompany = () => {
       }
     }
 
-    return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES], "company-globex": [...GLOBEX_CANDIDATES] };
+    return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES], "company-globex": [...GLOBEX_CANDIDATES], "company-initech": [...INITECH_CANDIDATES], "company-waystar": [...WAYSTAR_CANDIDATES] };
   });
   
   useEffect(() => {
