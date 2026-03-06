@@ -1420,14 +1420,7 @@ const AdminContractingMultiCompany = () => {
                             </motion.div>
                           </motion.div>
                         )
-                            </div>
-                            <div className="text-center space-y-1 sm:space-y-2">
-                              <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center justify-center gap-1 flex-wrap">
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <button className="inline-flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer border-b-2 border-dashed border-primary/30 hover:border-primary pb-0.5">
-                                      {isAllClientsMode ? "All Clients" : companies.find(c => c.id === selectedCompany)?.name || "Company"}
-                                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                        )
                                     </button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-[240px] p-0" align="center">
