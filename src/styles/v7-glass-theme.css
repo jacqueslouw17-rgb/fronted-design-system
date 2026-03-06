@@ -162,21 +162,16 @@ body.v7-glass-active::after {
 
 /* ─── Worker card hover-reveal — compact by default, expands on hover ─── */
 .v7-glass-bg .v7-card-reveal {
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transition: grid-template-rows 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-              opacity 0.3s ease;
-}
-
-.v7-glass-bg .v7-card-reveal > * {
+  max-height: 0;
   overflow: hidden;
-  min-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.25s ease 0.05s;
 }
 
 .v7-glass-bg .v7-glass-item:hover .v7-card-reveal,
 .v7-glass-bg .v7-glass-item:focus-within .v7-card-reveal {
-  grid-template-rows: 1fr;
+  max-height: 280px;
   opacity: 1;
 }
 
