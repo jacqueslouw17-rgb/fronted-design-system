@@ -407,7 +407,7 @@ const AdminContractingMultiCompany = () => {
   const [selectedCompany, setSelectedCompany] = useState<string>(() => {
     if (companyFromUrl) return companyFromUrl;
     const saved = localStorage.getItem('adminflow-v7-selected-company');
-    return saved || "company-default";
+    return saved || ALL_CLIENTS_ID;
   });
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
   const [isEditingCompany, setIsEditingCompany] = useState<boolean>(false);
