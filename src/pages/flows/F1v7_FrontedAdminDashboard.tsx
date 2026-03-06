@@ -669,11 +669,6 @@ const AdminContractingMultiCompany = () => {
     setIsAddingNewCompany(false);
   };
 
-  const handleBackToFlows = () => {
-    localStorage.removeItem('adminflow-v7-companies');
-    localStorage.removeItem('adminflow-v7-selected-company');
-    localStorage.removeItem('adminflow-v7-company-contractors');
-  };
 
   const handleAddCandidate = () => {
     setIsAddCandidateDrawerOpen(true);
