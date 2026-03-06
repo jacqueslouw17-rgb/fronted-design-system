@@ -433,7 +433,23 @@ const AdminContractingMultiCompany = () => {
   }, [isAddingNewCompany, isEditingCompany, isInContractFlow]);
   const [companies, setCompanies] = useState<CompanyData[]>(() => {
     const saved = localStorage.getItem('adminflow-v7-companies');
-    return saved ? JSON.parse(saved) : MOCK_COMPANIES;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as CompanyData[];
+        // Merge any new mock companies that don't exist in saved data
+        const savedIds = new Set(parsed.map((c: CompanyData) => c.id));
+        const missing = MOCK_COMPANIES.filter(c => !savedIds.has(c.id));
+        if (missing.length > 0) {
+          const merged = [...parsed, ...missing];
+          localStorage.setItem('adminflow-v7-companies', JSON.stringify(merged));
+          return merged;
+        }
+        return parsed;
+      } catch {
+        return MOCK_COMPANIES;
+      }
+    }
+    return MOCK_COMPANIES;
   });
   const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>(() => {
     const saved = localStorage.getItem('adminflow-v7-company-contractors');
