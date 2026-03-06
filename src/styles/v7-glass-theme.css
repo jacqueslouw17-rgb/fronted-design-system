@@ -229,6 +229,7 @@ html:has(.v7-glass-bg) {
 }
 
 /* ─── Override Topbar within v7 glass context ─── */
+/* Default: transparent, no border — glass effect appears on scroll via v7-topbar-scrolled class */
 .v7-glass-bg > header,
 .v7-glass-bg header.sticky,
 .v7-glass-bg > * > header {
@@ -237,11 +238,12 @@ html:has(.v7-glass-bg) {
   left: 0;
   right: 0;
   z-index: 50 !important;
-  background: hsl(0 0% 100% / 0.38) !important;
-  backdrop-filter: blur(28px) saturate(1.3) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(1.3) !important;
-  border-bottom-color: hsl(0 0% 100% / 0.48) !important;
-  box-shadow: 0 1px 14px hsl(172 12% 85% / 0.07) !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  transition: all 0.5s ease;
 }
 
 /* Keep content clear of fixed topbar in v7 */
