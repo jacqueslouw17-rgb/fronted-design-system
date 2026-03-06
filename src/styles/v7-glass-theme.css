@@ -18,18 +18,9 @@
   --accent-foreground: 172 40% 22%;
 }
 
-/* ─── Main background — clean light grey with rich mint wash ─── */
+/* ─── Main background — transparent; body carries the gradient via v7-glass-portals.css ─── */
 .v7-glass-bg {
-  background: linear-gradient(
-    160deg,
-    hsl(170 18% 97%) 0%,
-    hsl(175 16% 96%) 18%,
-    hsl(180 14% 95%) 36%,
-    hsl(174 20% 94%) 54%,
-    hsl(178 16% 95.5%) 72%,
-    hsl(172 12% 97%) 100%
-  );
-  background-attachment: fixed;
+  background: transparent;
   min-height: 100vh;
   position: relative;
 }
@@ -40,7 +31,8 @@ html:has(.v7-glass-bg) {
   overflow-x: hidden;
 }
 
-.v7-glass-bg::before {
+/* Orbs on BODY level so they show through the transparent header */
+body.v7-glass-active::before {
   content: '';
   position: fixed;
   top: -8%;
@@ -61,7 +53,7 @@ html:has(.v7-glass-bg) {
   z-index: 0;
 }
 
-.v7-glass-bg::after {
+body.v7-glass-active::after {
   content: '';
   position: fixed;
   bottom: -10%;
@@ -81,6 +73,7 @@ html:has(.v7-glass-bg) {
   pointer-events: none;
   z-index: 0;
 }
+
 
 /* Extra floating orb via child element — positioned to glow behind pipeline */
 .v7-orb-center {
@@ -230,21 +223,31 @@ html:has(.v7-glass-bg) {
 }
 
 /* ─── Override Topbar within v7 glass context ─── */
-/* Default: transparent, no border — glass effect appears on scroll via v7-topbar-scrolled class */
+/* Use same fixed gradient as body so header blends seamlessly — no visible band */
 .v7-glass-bg > header,
 .v7-glass-bg header.sticky,
-.v7-glass-bg > * > header {
+.v7-glass-bg header.fixed,
+.v7-glass-bg > * > header,
+.v7-glass-bg header {
   position: fixed !important;
   top: 0;
   left: 0;
   right: 0;
   z-index: 50 !important;
-  background: transparent !important;
+  background: linear-gradient(160deg, hsl(170 18% 97%) 0%, hsl(175 16% 96%) 18%, hsl(180 14% 95%) 36%, hsl(174 20% 94%) 54%, hsl(178 16% 95.5%) 72%, hsl(172 12% 97%) 100%) fixed !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border-bottom: none !important;
+  border-color: transparent !important;
   box-shadow: none !important;
-  transition: all 0.5s ease;
+  transition: background 0.5s ease, backdrop-filter 0.5s ease, border 0.5s ease, box-shadow 0.5s ease;
+}
+
+.v7-glass-bg header #topbar-portal-slot {
+  position: absolute !important;
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
 }
 
 /* Keep content clear of fixed topbar in v7 */
@@ -377,8 +380,9 @@ html:has(.v7-glass-bg) {
 }
 
 /* ─── Override ALL cards within v7 glass to have subtle mint glass ─── */
-.v7-glass-bg [class*="bg-card/50"],
-.v7-glass-bg [class*="bg-card"] {
+/* Exclude the header element so it can be transparent at rest */
+.v7-glass-bg [class*="bg-card/50"]:not(header),
+.v7-glass-bg [class*="bg-card"]:not(header):not(#topbar-portal-slot) {
   background: linear-gradient(
     180deg,
     hsl(0 0% 100% / 0.55) 0%,
