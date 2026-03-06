@@ -57,9 +57,10 @@ interface TopbarProps {
     onCompanyChange: (companyId: string) => void;
     onEditCompany?: (companyId: string) => void;
   };
+  centerCompanySwitcher?: boolean; // When true, renders company switcher centered in header
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, onBackClick, companySwitcher }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, onBackClick, companySwitcher, centerCompanySwitcher }: TopbarProps) => {
   const navigate = useNavigate();
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [companySearchValue, setCompanySearchValue] = useState("");
