@@ -1420,10 +1420,6 @@ const AdminContractingMultiCompany = () => {
                             </motion.div>
                           </motion.div>
                         )
-                                  : searchParams.get("moved") === "true" 
-                                    ? !hasSpokenPhase["data-collection-moved"]
-                                    : !hasSpokenPhase["offer-accepted"]
-                              )} isListening={false} />
                             </div>
                             <div className="text-center space-y-1 sm:space-y-2">
                               <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center justify-center gap-1 flex-wrap">
