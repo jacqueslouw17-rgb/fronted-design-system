@@ -331,7 +331,9 @@ body.v7-glass-active.v7-topbar-scrolled header.sticky {
 
 body.v7-glass-active #topbar-portal-slot {
   background: transparent !important;
+  background-image: none !important;
 }
 body.v7-glass-active.v7-topbar-scrolled #topbar-portal-slot {
   background: hsl(0 0% 100% / 0.4) !important;
+  background-image: none !important;
 }
