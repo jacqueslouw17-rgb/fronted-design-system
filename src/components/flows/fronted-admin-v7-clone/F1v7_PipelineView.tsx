@@ -1252,25 +1252,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 )}
 
                                 {status === "offer-accepted" && onRemoveContractor && (
-                                  <div className="relative h-5 w-5 flex-shrink-0 z-10 group/del">
-                                    {/* Ellipsis icon – visible by default, fades out on card hover */}
-                                    <span className="absolute inset-0 flex items-center justify-center transition-all duration-200 opacity-0 group-hover/card:opacity-60 group-hover/del:opacity-0 group-hover/del:scale-75">
-                                      <MoreHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
-                                    </span>
-                                    {/* Trash icon – hidden by default, slides in on ellipsis hover */}
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="absolute inset-0 h-5 w-5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200 opacity-0 scale-75 translate-x-1 group-hover/del:opacity-100 group-hover/del:scale-100 group-hover/del:translate-x-0"
-                                      onClick={e => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleRemoveFromOfferAccepted(contractor);
-                                      }}
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0 z-10 transition-all duration-200 opacity-0 scale-75 translate-x-2 group-hover/card:opacity-100 group-hover/card:scale-100 group-hover/card:translate-x-0"
+                                    onClick={e => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleRemoveFromOfferAccepted(contractor);
+                                    }}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
                                 )}
                               </div>
                             </div>
