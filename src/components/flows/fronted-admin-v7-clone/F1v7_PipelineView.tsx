@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown, MoreHorizontal } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -1186,7 +1186,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               }}>
                 <Card 
                   className={cn(
-                    "v7-glass-item border cursor-pointer overflow-hidden",
+                    "v7-glass-item border cursor-pointer overflow-hidden group/card",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
                       : ""
@@ -1251,13 +1251,27 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   </Badge>
                                 )}
 
-                                {status === "offer-accepted" && onRemoveContractor && <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0" onClick={e => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleRemoveFromOfferAccepted(contractor);
-                                }}>
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>}
+                                {status === "offer-accepted" && onRemoveContractor && (
+                                  <div className="relative h-5 w-5 flex-shrink-0 z-10 group/del">
+                                    {/* Ellipsis icon – visible by default, fades out on card hover */}
+                                    <span className="absolute inset-0 flex items-center justify-center transition-all duration-200 opacity-0 group-hover/card:opacity-60 group-hover/del:opacity-0 group-hover/del:scale-75">
+                                      <MoreHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
+                                    </span>
+                                    {/* Trash icon – hidden by default, slides in on ellipsis hover */}
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="absolute inset-0 h-5 w-5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200 opacity-0 scale-75 translate-x-1 group-hover/del:opacity-100 group-hover/del:scale-100 group-hover/del:translate-x-0"
+                                      onClick={e => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleRemoveFromOfferAccepted(contractor);
+                                      }}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             </div>
 
