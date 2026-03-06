@@ -495,7 +495,7 @@ html:has(.v7-glass-bg) {
 }
 
 /* ─── Ensure content sits above the orbs ─── */
-.v7-glass-bg > *:not(.v7-orb-center) {
+.v7-glass-bg > *:not(.v7-orb-center):not(header) {
   position: relative;
   z-index: 1;
 }
