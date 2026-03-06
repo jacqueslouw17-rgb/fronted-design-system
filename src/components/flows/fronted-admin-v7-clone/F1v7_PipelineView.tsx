@@ -73,6 +73,7 @@ interface Contractor {
   needsDocumentVerification?: boolean;
   documentsVerified?: boolean;
   // Multi-company "All clients" view
+  companyId?: string;
   companyName?: string;
   companyColor?: string;
 }
@@ -93,7 +94,7 @@ interface PipelineViewProps {
   filterNonCertified?: boolean;
   mode?: "certified" | "payroll-ready" | "full-pipeline-with-payroll";
   onAddCandidate?: () => void;
-  onRemoveContractor?: (contractorId: string) => void;
+  onRemoveContractor?: (contractor: Contractor) => void;
 }
 const statusConfig = {
   "offer-accepted": {
@@ -183,6 +184,21 @@ const COLUMNS_FULL_PIPELINE: ReadonlyArray<ColumnKey> = ["offer-accepted", "data
 
 // Payroll statuses that show within the payroll-ready column
 const payrollStatuses = ["CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"] as const;
+
+const COMPANY_CHIP_VARIANTS = [
+  "v7-company-chip--a",
+  "v7-company-chip--b",
+  "v7-company-chip--c",
+  "v7-company-chip--d",
+  "v7-company-chip--e",
+] as const;
+
+const getCompanyChipVariant = (seed: string) => {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  return COMPANY_CHIP_VARIANTS[hash % COMPANY_CHIP_VARIANTS.length];
+};
+
 export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   contractors: initialContractors,
   className,
@@ -849,9 +865,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
     }, 800);
   };
-  const handleRemoveFromOfferAccepted = (contractorId: string) => {
-    setContractors(prev => prev.filter(c => c.id !== contractorId));
-    onRemoveContractor?.(contractorId);
+  const handleRemoveFromOfferAccepted = (contractor: Contractor) => {
+    setContractors(prev => prev.filter(c => !(c.id === contractor.id && (contractor.companyId ? c.companyId === contractor.companyId : true))));
+    onRemoveContractor?.(contractor);
   };
   const handleBulkSendForms = () => {
     const selectedInOfferAccepted = contractors.filter(c => selectedIds.has(c.id) && c.status === "offer-accepted");
@@ -1185,7 +1201,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   }}>
                       <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-start gap-2">
                           {!["data-pending", "awaiting-signature", "onboarding-pending", "payroll-ready", "CERTIFIED"].includes(status) && !(status === "payroll-ready" && contractor.status !== "PAYROLL_PENDING") && <Checkbox checked={status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" ? batchSelectedIds.has(contractor.id) : selectedIds.has(contractor.id)} onCheckedChange={checked => {
                         if (status === "payroll-ready" && contractor.status === "PAYROLL_PENDING") {
                           handleBatchSelectContractor(contractor.id, checked as boolean);
@@ -1193,61 +1209,62 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           handleSelectContractor(contractor.id, checked as boolean);
                         }
                       }} className={cn("h-4 w-4", status === "payroll-ready" && "data-[state=checked]:bg-accent-green-fill data-[state=checked]:border-accent-green-outline data-[state=checked]:text-accent-green-text")} onClick={e => e.stopPropagation()} />}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1">
-                              <span className="font-medium text-[13px] text-foreground truncate">
-                                {contractor.name}
-                              </span>
-                              <span className="text-sm">{contractor.countryFlag}</span>
-                              {/* Status badges inline */}
-                              {status === "onboarding-pending" && (
-                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20 ml-auto">
-                                  Awaiting
-                                </Badge>
-                              )}
-                              {status === "CERTIFIED" && (
-                                <Badge variant="outline" className={cn(
-                                  "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
-                                  // Inactive: needs doc verification but not yet verified
-                                  (contractor.needsDocumentVerification && !contractor.documentsVerified) && "bg-amber-500/10 text-amber-700 border-amber-500/20",
-                                  // Active: no doc verification needed OR already verified
-                                  (!contractor.needsDocumentVerification || contractor.documentsVerified) && (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
-                                  contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
-                                  contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
-                                  contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
-                                )}>
-                                  {contractor.workerStatus === "contract-ended" ? "Ended" 
-                                    : contractor.workerStatus === "resigned" ? "Resigned"
-                                    : contractor.workerStatus === "terminated" ? "Terminated"
-                                    : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
-                                    : "Active"}
-                                </Badge>
-                              )}
-                              {status === "offer-accepted" && onRemoveContractor && <Button variant="ghost" size="icon" className="h-5 w-5 ml-auto text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0" onClick={e => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleRemoveFromOfferAccepted(contractor.id);
-                              }}>
-                                <Trash2 className="h-3 w-3" />
-                              </Button>}
-                            </div>
-                          </div>
 
-                        {/* Company tag — compact pill at bottom of header, only in "All clients" view */}
-                        {contractor.companyName && (
-                          <div className="mt-1.5 -mb-0.5">
-                            <span 
-                              className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-[1px] rounded-full"
-                              style={{ 
-                                backgroundColor: `${contractor.companyColor || 'hsl(162 48% 48%)'}15`,
-                                color: contractor.companyColor || 'hsl(162 48% 48%)',
-                                border: `1px solid ${contractor.companyColor || 'hsl(162 48% 48%)'}30`
-                              }}
-                            >
-                              {contractor.companyName}
-                            </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start gap-1.5">
+                              <div className="min-w-0 flex items-center gap-1">
+                                <span className="font-medium text-[13px] text-foreground truncate">
+                                  {contractor.name}
+                                </span>
+                                <span className="text-sm">{contractor.countryFlag}</span>
+                              </div>
+
+                              <div className="ml-auto flex items-center gap-1.5 pl-1">
+                                {contractor.companyName && (
+                                  <span className={cn("v7-company-chip", getCompanyChipVariant(contractor.companyId || contractor.companyName))}>
+                                    {contractor.companyName}
+                                  </span>
+                                )}
+
+                                {/* Status badges inline */}
+                                {status === "onboarding-pending" && (
+                                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20">
+                                    Awaiting
+                                  </Badge>
+                                )}
+                                {status === "CERTIFIED" && (
+                                  <Badge variant="outline" className={cn(
+                                    "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none",
+                                    // Inactive: needs doc verification but not yet verified
+                                    (contractor.needsDocumentVerification && !contractor.documentsVerified) && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                    // Active: no doc verification needed OR already verified
+                                    (!contractor.needsDocumentVerification || contractor.documentsVerified) && (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                                    contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
+                                    contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                    contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
+                                  )}>
+                                    {contractor.workerStatus === "contract-ended" ? "Ended" 
+                                      : contractor.workerStatus === "resigned" ? "Resigned"
+                                      : contractor.workerStatus === "terminated" ? "Terminated"
+                                      : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
+                                      : "Active"}
+                                  </Badge>
+                                )}
+
+                                {status === "offer-accepted" && onRemoveContractor && <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0" onClick={e => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleRemoveFromOfferAccepted(contractor);
+                                }}>
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>}
+                              </div>
+                            </div>
+
+                            <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                              {contractor.role}
+                            </p>
                           </div>
-                        )}
                         </div>
 
                         {/* Data rows */}
