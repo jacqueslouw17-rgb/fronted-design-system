@@ -1269,46 +1269,48 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </div>
                             </div>
 
-                            <p className="text-[11px] text-muted-foreground truncate mt-0.5 mb-1">
-                              {contractor.role}
-                            </p>
                           </div>
                         </div>
 
-                        {/* Data rows */}
-                        <div className="mt-3 pt-2.5 border-t border-border/30 flex flex-col gap-1 text-[11px]">
-                          <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">
-                              {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
-                            </span>
-                            <span className="font-medium text-foreground tabular-nums">
-                              {contractor.salary}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Country</span>
-                            <span className="font-medium text-foreground">{contractor.country}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Type</span>
-                            <span className="font-medium text-foreground">
-                              {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
-                            </span>
-                          </div>
-                          {status === "CERTIFIED" && contractor.workerStatus && contractor.workerStatus !== "active" && contractor.endDate && (
+                        {/* Hover-reveal section: profession, salary, country, type, actions */}
+                        <div className="v7-card-reveal">
+                          {/* Data rows */}
+                          <div className="mt-2.5 pt-2 border-t border-border/30 flex flex-col gap-1 text-[11px]">
                             <div className="flex justify-between items-center">
-                              <span className="text-muted-foreground">End date</span>
-                              <span className="font-medium text-foreground text-[10px]">{contractor.endDate}</span>
+                              <span className="text-muted-foreground">Profession</span>
+                              <span className="font-medium text-foreground truncate ml-2 text-right">{contractor.role}</span>
                             </div>
-                          )}
-                          {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && batchSelectedIds.has(contractor.id) && (
-                            <p className="text-[10px] text-primary font-medium mt-0.5">Include in this month's batch</p>
-                          )}
-                        </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-muted-foreground">
+                                {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
+                              </span>
+                              <span className="font-medium text-foreground tabular-nums">
+                                {contractor.salary}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-muted-foreground">Country</span>
+                              <span className="font-medium text-foreground">{contractor.country}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-muted-foreground">Type</span>
+                              <span className="font-medium text-foreground">
+                                {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee (EOR)"}
+                              </span>
+                            </div>
+                            {status === "CERTIFIED" && contractor.workerStatus && contractor.workerStatus !== "active" && contractor.endDate && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">End date</span>
+                                <span className="font-medium text-foreground text-[10px]">{contractor.endDate}</span>
+                              </div>
+                            )}
+                            {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && batchSelectedIds.has(contractor.id) && (
+                              <p className="text-[10px] text-primary font-medium mt-0.5">Include in this month's batch</p>
+                            )}
+                          </div>
 
-
-                        {/* Quick Actions */}
-                        <div className="flex gap-2 pt-3">
+                          {/* Quick Actions */}
+                          <div className="flex gap-2 pt-3">
                           {status === "offer-accepted" && <>
                               <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
                           e.stopPropagation();
@@ -1457,11 +1459,12 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             </>}
                         </div>
 
-                        {/* Display Flags */}
-                        {status === "data-pending" && contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-accent-green-text">
-                            <CheckCircle2 className="h-3 w-3" />
-                            <span>Data received</span>
-                          </div>}
+                          {/* Display Flags */}
+                          {status === "data-pending" && contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-accent-green-text">
+                              <CheckCircle2 className="h-3 w-3" />
+                              <span>Data received</span>
+                            </div>}
+                        </div>{/* end v7-card-reveal */}
                       </CardContent>
                     </Card>
                     </motion.div>)}
