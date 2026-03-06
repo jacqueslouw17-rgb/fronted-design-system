@@ -10,20 +10,41 @@
 /*  inherit mint/teal palette automatically               */
 /* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active {
-  --primary: 172 50% 45%;
-  --primary-foreground: 172 60% 98%;
-  --ring: 172 40% 60%;
-  --accent: 172 20% 94%;
-  --accent-foreground: 172 40% 22%;
-  --gradient-primary: linear-gradient(180deg, hsl(172 42% 52%) 0%, hsl(172 48% 45%) 100%);
-  --gradient-secondary: linear-gradient(135deg, hsl(172 42% 52%) 0%, hsl(170 48% 42%) 100%);
-  background: linear-gradient(160deg, hsl(170 18% 97%) 0%, hsl(175 16% 96%) 18%, hsl(180 14% 95%) 36%, hsl(174 20% 94%) 54%, hsl(178 16% 95.5%) 72%, hsl(172 12% 97%) 100%) fixed !important;
+  --primary: 172 28% 42%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 172 22% 58%;
+  --accent: 172 12% 94%;
+  --accent-foreground: 172 20% 24%;
+  --gradient-primary: linear-gradient(180deg, hsl(172 26% 46%) 0%, hsl(174 30% 38%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(172 26% 46%) 0%, hsl(174 30% 38%) 100%);
+  /* Rich layered gradient: warm cream → icy lavender → mint → soft peach → cool grey-blue */
+  background: linear-gradient(
+    155deg,
+    hsl(45 30% 97%) 0%,
+    hsl(200 20% 96%) 12%,
+    hsl(172 18% 95%) 28%,
+    hsl(260 12% 96%) 42%,
+    hsl(200 16% 94%) 56%,
+    hsl(172 14% 95%) 70%,
+    hsl(220 12% 96%) 84%,
+    hsl(340 8% 97%) 100%
+  ) fixed !important;
 }
 
 html:has(body.v7-glass-active),
 body.v7-glass-active {
-  background-color: hsl(170 18% 97%) !important;
-  background-image: linear-gradient(160deg, hsl(170 18% 97%) 0%, hsl(175 16% 96%) 18%, hsl(180 14% 95%) 36%, hsl(174 20% 94%) 54%, hsl(178 16% 95.5%) 72%, hsl(172 12% 97%) 100%) !important;
+  background-color: hsl(200 15% 96%) !important;
+  background-image: linear-gradient(
+    155deg,
+    hsl(45 30% 97%) 0%,
+    hsl(200 20% 96%) 12%,
+    hsl(172 18% 95%) 28%,
+    hsl(260 12% 96%) 42%,
+    hsl(200 16% 94%) 56%,
+    hsl(172 14% 95%) 70%,
+    hsl(220 12% 96%) 84%,
+    hsl(340 8% 97%) 100%
+  ) !important;
   background-attachment: fixed !important;
 }
 
@@ -36,10 +57,10 @@ body.v7-glass-active [data-radix-portal],
 body.v7-glass-active [data-radix-portal] [role="dialog"],
 body.v7-glass-active [data-radix-portal] > div,
 body.v7-glass-active [data-radix-portal] > div > div {
-  --primary: 172 50% 45%;
-  --primary-foreground: 172 60% 98%;
-  --ring: 172 40% 60%;
-  --gradient-primary: linear-gradient(180deg, hsl(172 42% 52%) 0%, hsl(172 48% 45%) 100%);
+  --primary: 172 28% 42%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 172 22% 58%;
+  --gradient-primary: linear-gradient(180deg, hsl(172 26% 46%) 0%, hsl(174 30% 38%) 100%);
 }
 
 /* Sheet content (fixed, inset-y panels) */
