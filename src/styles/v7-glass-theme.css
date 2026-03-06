@@ -29,6 +29,7 @@
     hsl(178 16% 95.5%) 72%,
     hsl(172 12% 97%) 100%
   );
+  background-attachment: fixed;
   min-height: 100vh;
   position: relative;
 }
