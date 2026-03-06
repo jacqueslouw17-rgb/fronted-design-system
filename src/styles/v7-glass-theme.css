@@ -31,13 +31,17 @@
   );
   min-height: 100vh;
   position: relative;
-  overflow-x: hidden;
 }
 
 /* ─── Floating gradient orbs — richer mint/cyan to pull through behind cards ─── */
+/* Prevent horizontal scrollbar from orbs */
+html:has(.v7-glass-bg) {
+  overflow-x: hidden;
+}
+
 .v7-glass-bg::before {
   content: '';
-  position: absolute;
+  position: fixed;
   top: -8%;
   left: -8%;
   width: 60vw;
@@ -58,7 +62,7 @@
 
 .v7-glass-bg::after {
   content: '';
-  position: absolute;
+  position: fixed;
   bottom: -10%;
   right: -3%;
   width: 55vw;
@@ -79,7 +83,7 @@
 
 /* Extra floating orb via child element — positioned to glow behind pipeline */
 .v7-orb-center {
-  position: absolute;
+  position: fixed;
   top: 25%;
   left: 50%;
   transform: translateX(-50%);
