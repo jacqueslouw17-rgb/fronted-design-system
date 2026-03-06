@@ -847,10 +847,10 @@ const AdminContractingMultiCompany = () => {
           onBackClick={handleBackToFlows}
           forceFixed
           companySwitcher={hasNoCompanies ? undefined : {
-            companies,
+            companies: [{ id: ALL_CLIENTS_ID, name: `All clients (${companies.length})` }, ...companies],
             selectedCompany,
             onCompanyChange: handleCompanyChange,
-            onEditCompany: handleEditCompany
+            onEditCompany: (id) => { if (id !== ALL_CLIENTS_ID) handleEditCompany(id); }
           }}
         />
       )}
