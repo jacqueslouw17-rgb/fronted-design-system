@@ -1219,25 +1219,26 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <span className="text-sm">{contractor.countryFlag}</span>
                               </div>
 
-                              <div className="ml-auto flex items-center gap-1.5 pl-1">
+                              <div className="ml-auto flex items-center pl-1 overflow-hidden">
                                 {contractor.companyName && (
-                                  <span className={cn("v7-company-chip", getCompanyChipVariant(contractor.companyId || contractor.companyName))}>
+                                  <span className={cn(
+                                    "v7-company-chip transition-transform duration-200",
+                                    status === "offer-accepted" && onRemoveContractor && "group-hover/card:translate-x-[-6px]"
+                                  )}>
                                     {contractor.companyName}
                                   </span>
                                 )}
 
                                 {/* Status badges inline */}
                                 {status === "onboarding-pending" && (
-                                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20">
+                                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20 ml-1.5">
                                     Awaiting
                                   </Badge>
                                 )}
                                 {status === "CERTIFIED" && (
                                   <Badge variant="outline" className={cn(
-                                    "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none",
-                                    // Inactive: needs doc verification but not yet verified
+                                    "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-1.5",
                                     (contractor.needsDocumentVerification && !contractor.documentsVerified) && "bg-amber-500/10 text-amber-700 border-amber-500/20",
-                                    // Active: no doc verification needed OR already verified
                                     (!contractor.needsDocumentVerification || contractor.documentsVerified) && (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
                                     contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
                                     contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
@@ -1255,7 +1256,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-5 w-5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0 z-10 transition-all duration-200 opacity-0 scale-75 translate-x-2 group-hover/card:opacity-100 group-hover/card:scale-100 group-hover/card:translate-x-0"
+                                    className="h-5 w-5 min-w-[20px] rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0 z-10 transition-all duration-200 opacity-0 w-0 group-hover/card:opacity-100 group-hover/card:w-5 ml-0.5"
                                     onClick={e => {
                                       e.preventDefault();
                                       e.stopPropagation();
