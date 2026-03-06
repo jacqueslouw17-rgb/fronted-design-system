@@ -328,9 +328,9 @@ const ContractCreation: React.FC = () => {
             {isV7 && <div className="v7-orb-center" />}
             <div className="relative z-10">
               {/* Frosted-glass header (fixed, scroll-activated) */}
-              <FrostedHeader onLogoClick={() => navigate(closePath)} onCloseClick={() => navigate(closePath)} />
+              {!isV7 && <FrostedHeader onLogoClick={() => navigate(closePath)} onCloseClick={() => navigate(closePath)} />}
 
-              <div className="pt-16 sm:pt-20">
+              <div className={isV7 ? "pt-0" : "pt-16 sm:pt-20"}>
                 {(returnTo === "f1v5" || returnTo === "f1v6" || returnTo === "f1v7") ? (
                   (() => {
                     const Screen = returnTo === "f1v7" ? F1v7_ContractCreationScreen : returnTo === "f1v6" ? F1v6_ContractCreationScreen : F1v5_ContractCreationScreen;
