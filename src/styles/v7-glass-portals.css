@@ -307,8 +307,10 @@ body.v7-glass-active [data-radix-portal] [class*="bg-teal-500/10"] {
 body.v7-glass-active header.fixed,
 body.v7-glass-active header.sticky {
   background: transparent !important;
+  border-bottom-width: 0 !important;
   border-bottom-color: transparent !important;
-  transition: background 0.5s ease, border-bottom-color 0.5s ease, backdrop-filter 0.5s ease, box-shadow 0.5s ease;
+  box-shadow: none !important;
+  transition: background 0.5s ease, border-bottom-color 0.5s ease, border-bottom-width 0.5s ease, backdrop-filter 0.5s ease, box-shadow 0.5s ease;
 }
 
 body.v7-glass-active.v7-topbar-scrolled header.fixed,
@@ -316,8 +318,9 @@ body.v7-glass-active.v7-topbar-scrolled header.sticky {
   background: hsl(0 0% 100% / 0.4) !important;
   backdrop-filter: blur(24px) saturate(1.5) !important;
   -webkit-backdrop-filter: blur(24px) saturate(1.5) !important;
+  border-bottom-width: 1px !important;
   border-bottom-color: hsl(var(--border) / 0.15) !important;
-  box-shadow: 0 1px 0 0 hsl(var(--border) / 0.1);
+  box-shadow: 0 1px 0 0 hsl(var(--border) / 0.1) !important;
 }
 
 /* Also hide the portal slot bg when not scrolled */
