@@ -55,1670 +55,343 @@ import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v7-clo
 import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v7-clone/F1v7_PayrollTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Company type with full details for edit functionality
 interface CompanyData {
   id: string;
   name: string;
-  adminName?: string;
-  adminEmail?: string;
-  hqCountry?: string;
-  defaultCurrency?: string;
-  payrollCurrency?: string[];
-  payoutDay?: string;
 }
 
 const MOCK_COMPANIES: CompanyData[] = [
-  {
-    id: "company-default",
-    name: "Acme Corp",
-    adminName: "Joe User",
-    adminEmail: "joe@example.com",
-    hqCountry: "SE",
-    defaultCurrency: "USD",
-    payrollCurrency: ["USD"],
-    payoutDay: "25",
-  },
-  {
-    id: "company-globex",
-    name: "Globex Inc",
-    adminName: "Sarah Park",
-    adminEmail: "sarah@globex.com",
-    hqCountry: "US",
-    defaultCurrency: "USD",
-    payrollCurrency: ["USD", "EUR"],
-    payoutDay: "28",
-  },
-  {
-    id: "company-initech",
-    name: "Initech Ltd",
-    adminName: "Bill Lumbergh",
-    adminEmail: "bill@initech.io",
-    hqCountry: "GB",
-    defaultCurrency: "GBP",
-    payrollCurrency: ["GBP", "EUR"],
-    payoutDay: "1",
-  },
-  {
-    id: "company-waystar",
-    name: "Waystar Royco",
-    adminName: "Kendall Roy",
-    adminEmail: "kendall@waystar.com",
-    hqCountry: "US",
-    defaultCurrency: "USD",
-    payrollCurrency: ["USD", "GBP", "EUR"],
-    payoutDay: "15",
-  },
+  { id: "1", name: "Acme Corp" },
+  { id: "2", name: "Beta Industries" },
+  { id: "3", name: "Gamma Solutions" },
+  { id: "4", name: "Delta Enterprises" },
+  { id: "5", name: "Epsilon Technologies" },
 ];
 
-const GLOBEX_CANDIDATES = [
-  {
-    id: "globex-1",
-    name: "Tomoko Hayashi",
-    country: "Japan",
-    countryFlag: "🇯🇵",
-    role: "Lead UX Researcher",
-    salary: "JPY 820,000/mo",
-    status: "drafting",
-    employmentType: "employee" as const,
-    email: "tomoko.hayashi@example.com",
-    dataReceived: true,
-  },
-  {
-    id: "globex-2",
-    name: "Erik Johansson",
-    country: "Sweden",
-    countryFlag: "🇸🇪",
-    role: "Platform Engineer",
-    salary: "SEK 58,000/mo",
-    status: "offer-accepted",
-    employmentType: "contractor" as const,
-    email: "erik.johansson@example.com",
-  },
-  {
-    id: "globex-3",
-    name: "Amara Osei",
-    country: "Ghana",
-    countryFlag: "🇬🇭",
-    role: "Growth Marketing Lead",
-    salary: "USD 5,500/mo",
-    status: "awaiting-signature",
-    employmentType: "contractor" as const,
-    email: "amara.osei@example.com",
-    dataReceived: true,
-  },
-  {
-    id: "globex-4",
-    name: "Lucas Müller",
-    country: "Germany",
-    countryFlag: "🇩🇪",
-    role: "Staff Engineer",
-    salary: "EUR 9,200/mo",
-    status: "CERTIFIED",
-    employmentType: "employee" as const,
-    email: "lucas.muller@example.com",
-    dataReceived: true,
-  },
+const candidate1 = {
+  id: "candidate-1",
+  firstName: "Alice",
+  lastName: "Smith",
+  email: "alice.smith@example.com",
+  companyId: "1",
+  status: "pending",
+  hourlyRate: 60,
+  country: "USA",
+  jobTitle: "Software Engineer",
+  department: "Engineering",
+  manager: "Bob Johnson",
+  startDate: "2024-07-01",
+};
+
+const candidate2 = {
+  id: "candidate-2",
+  firstName: "Bob",
+  lastName: "Johnson",
+  email: "bob.johnson@example.com",
+  companyId: "2",
+  status: "active",
+  hourlyRate: 75,
+  country: "Canada",
+  jobTitle: "Project Manager",
+  department: "Management",
+  manager: "Charlie Brown",
+  startDate: "2024-06-15",
+};
+
+const candidate3 = {
+  id: "candidate-3",
+  firstName: "Charlie",
+  lastName: "Brown",
+  email: "charlie.brown@example.com",
+  companyId: "1",
+  status: "offer",
+  hourlyRate: 55,
+  country: "UK",
+  jobTitle: "Data Analyst",
+  department: "Analytics",
+  manager: "Alice Smith",
+  startDate: "2024-08-01",
+};
+
+const candidate4 = {
+  id: "candidate-4",
+  firstName: "Diana",
+  lastName: "Miller",
+  email: "diana.miller@example.com",
+  companyId: "3",
+  status: "rejected",
+  hourlyRate: 80,
+  country: "Australia",
+  jobTitle: "UX Designer",
+  department: "Design",
+  manager: "Eve White",
+  startDate: "2024-07-15",
+};
+
+const candidate5 = {
+  id: "candidate-5",
+  firstName: "Eve",
+  lastName: "White",
+  email: "eve.white@example.com",
+  companyId: "2",
+  status: "pending",
+  hourlyRate: 70,
+  country: "Germany",
+  jobTitle: "Product Manager",
+  department: "Product",
+  manager: "Bob Johnson",
+  startDate: "2024-09-01",
+};
+
+const candidate6 = {
+  id: "candidate-6",
+  firstName: "Frank",
+  lastName: "Green",
+  email: "frank.green@example.com",
+  companyId: "4",
+  status: "active",
+  hourlyRate: 65,
+  country: "France",
+  jobTitle: "Marketing Specialist",
+  department: "Marketing",
+  manager: "Grace Black",
+  startDate: "2024-08-15",
+};
+
+const candidate7 = {
+  id: "candidate-7",
+  firstName: "Grace",
+  lastName: "Black",
+  email: "grace.black@example.com",
+  companyId: "3",
+  status: "offer",
+  hourlyRate: 50,
+  country: "Spain",
+  jobTitle: "Sales Representative",
+  department: "Sales",
+  manager: "Diana Miller",
+  startDate: "2024-10-01",
+};
+
+const candidate8 = {
+  id: "candidate-8",
+  firstName: "Harry",
+  lastName: "Taylor",
+  email: "harry.taylor@example.com",
+  companyId: "5",
+  status: "rejected",
+  hourlyRate: 90,
+  country: "Italy",
+  jobTitle: "Financial Analyst",
+  department: "Finance",
+  manager: "Ivy Brown",
+  startDate: "2024-09-15",
+};
+
+const candidate9 = {
+  id: "candidate-9",
+  firstName: "Ivy",
+  lastName: "Brown",
+  email: "ivy.brown@example.com",
+  companyId: "4",
+  status: "pending",
+  hourlyRate: 58,
+  country: "Japan",
+  jobTitle: "HR Manager",
+  department: "Human Resources",
+  manager: "Frank Green",
+  startDate: "2024-11-01",
+};
+
+const candidate10 = {
+  id: "candidate-10",
+  firstName: "Jack",
+  lastName: "White",
+  email: "jack.white@example.com",
+  companyId: "5",
+  status: "active",
+  hourlyRate: 72,
+  country: "China",
+  jobTitle: "Operations Manager",
+  department: "Operations",
+  manager: "Harry Taylor",
+  startDate: "2024-10-15",
+};
+
+const MOCK_CANDIDATES = [
+  candidate1,
+  candidate2,
+  candidate3,
+  candidate4,
+  candidate5,
+  candidate6,
+  candidate7,
+  candidate8,
+  candidate9,
+  candidate10,
 ];
 
-const INITECH_CANDIDATES = [
-  {
-    id: "initech-1",
-    name: "Fatima Al-Rashid",
-    country: "UAE",
-    countryFlag: "🇦🇪",
-    role: "Finance Controller",
-    salary: "AED 32,000/mo",
-    status: "offer-accepted",
-    employmentType: "employee" as const,
-    email: "fatima@initech.io",
-  },
-  {
-    id: "initech-2",
-    name: "Jakub Novák",
-    country: "Czech Republic",
-    countryFlag: "🇨🇿",
-    role: "Security Engineer",
-    salary: "CZK 95,000/mo",
-    status: "drafting",
-    employmentType: "contractor" as const,
-    email: "jakub.novak@initech.io",
-    dataReceived: true,
-  },
-  {
-    id: "initech-3",
-    name: "Chiara Bianchi",
-    country: "Italy",
-    countryFlag: "🇮🇹",
-    role: "Head of Compliance",
-    salary: "EUR 7,800/mo",
-    status: "CERTIFIED",
-    employmentType: "employee" as const,
-    email: "chiara@initech.io",
-    dataReceived: true,
-  },
-  {
-    id: "initech-4",
-    name: "Kwame Asante",
-    country: "Nigeria",
-    countryFlag: "🇳🇬",
-    role: "Mobile Developer",
-    salary: "USD 4,200/mo",
-    status: "awaiting-signature",
-    employmentType: "contractor" as const,
-    email: "kwame@initech.io",
-    dataReceived: true,
-  },
-  {
-    id: "initech-5",
-    name: "Yuki Tanaka",
-    country: "Japan",
-    countryFlag: "🇯🇵",
-    role: "QA Lead",
-    salary: "JPY 680,000/mo",
-    status: "trigger-onboarding",
-    employmentType: "employee" as const,
-    email: "yuki@initech.io",
-    dataReceived: true,
-  },
-];
+const FLOW_BASE_PATH = "/flows/f1/v7";
 
-const WAYSTAR_CANDIDATES = [
-  {
-    id: "waystar-1",
-    name: "Olivia Chen",
-    country: "Canada",
-    countryFlag: "🇨🇦",
-    role: "VP of Engineering",
-    salary: "CAD 18,500/mo",
-    status: "drafting",
-    employmentType: "employee" as const,
-    email: "olivia@waystar.com",
-    dataReceived: true,
-  },
-  {
-    id: "waystar-2",
-    name: "Raj Patel",
-    country: "India",
-    countryFlag: "🇮🇳",
-    role: "ML Engineer",
-    salary: "INR 2,40,000/mo",
-    status: "offer-accepted",
-    employmentType: "contractor" as const,
-    email: "raj@waystar.com",
-  },
-  {
-    id: "waystar-3",
-    name: "Isabella Rossi",
-    country: "Brazil",
-    countryFlag: "🇧🇷",
-    role: "Product Manager",
-    salary: "BRL 22,000/mo",
-    status: "drafting",
-    employmentType: "employee" as const,
-    email: "isabella@waystar.com",
-  },
-  {
-    id: "waystar-4",
-    name: "Sven Eriksen",
-    country: "Denmark",
-    countryFlag: "🇩🇰",
-    role: "Solutions Architect",
-    salary: "DKK 72,000/mo",
-    status: "CERTIFIED",
-    employmentType: "contractor" as const,
-    email: "sven@waystar.com",
-    dataReceived: true,
-  },
-  {
-    id: "waystar-5",
-    name: "Aisha Mohammed",
-    country: "Kenya",
-    countryFlag: "🇰🇪",
-    role: "Data Scientist",
-    salary: "USD 6,800/mo",
-    status: "awaiting-signature",
-    employmentType: "employee" as const,
-    email: "aisha@waystar.com",
-    dataReceived: true,
-  },
-  {
-    id: "waystar-6",
-    name: "Tomáš Horák",
-    country: "Slovakia",
-    countryFlag: "🇸🇰",
-    role: "DevRel Lead",
-    salary: "EUR 5,500/mo",
-    status: "trigger-onboarding",
-    employmentType: "contractor" as const,
-    email: "tomas@waystar.com",
-    dataReceived: true,
-  },
-];
-
-const DEFAULT_DRAFTING_CANDIDATES = [
-  {
-    id: "offer-1",
-    name: "Anika Lindqvist",
-    country: "Norway",
-    countryFlag: "🇳🇴",
-    role: "Frontend Engineer",
-    salary: "NOK 65,000/mo",
-    status: "offer-accepted",
-    employmentType: "employee",
-    email: "anika.lindqvist@example.com",
-  },
-  {
-    id: "default-1",
-    name: "Marcus Chen",
-    country: "Singapore",
-    countryFlag: "🇸🇬",
-    role: "Senior Backend Engineer",
-    salary: "SGD 12,000/mo",
-    status: "drafting",
-    employmentType: "contractor",
-    email: "marcus.chen@example.com",
-    nationality: "Singaporean",
-    dataReceived: true,
-  },
-  {
-    id: "default-2",
-    name: "Sofia Rodriguez",
-    country: "Spain",
-    countryFlag: "🇪🇸",
-    role: "Product Designer",
-    salary: "EUR 6,500/mo",
-    status: "drafting",
-    employmentType: "contractor",
-    email: "sofia.rodriguez@example.com",
-    dataReceived: true,
-  },
-  {
-    id: "sig-1",
-    name: "Liam O'Connor",
-    country: "Ireland",
-    countryFlag: "🇮🇪",
-    role: "DevOps Engineer",
-    salary: "EUR 7,200/mo",
-    status: "awaiting-signature",
-    employmentType: "contractor",
-    email: "liam.oconnor@example.com",
-    dataReceived: true,
-  },
-  {
-    id: "onboard-1",
-    name: "Priya Sharma",
-    country: "India",
-    countryFlag: "🇮🇳",
-    role: "Data Analyst",
-    salary: "INR 1,20,000/mo",
-    status: "trigger-onboarding",
-    employmentType: "employee",
-    email: "priya.sharma@example.com",
-    dataReceived: true,
-  },
-  {
-    id: "done-1",
-    name: "Maria Santos",
-    country: "Philippines",
-    countryFlag: "🇵🇭",
-    role: "Full-Stack Developer",
-    salary: "PHP 95,000/mo",
-    status: "CERTIFIED",
-    employmentType: "employee",
-    email: "maria.santos@example.com",
-    dataReceived: true,
-  },
-  {
-    id: "done-2",
-    name: "Liam O'Brien",
-    country: "Ireland",
-    countryFlag: "🇮🇪",
-    role: "DevOps Engineer",
-    salary: "EUR 7,200/mo",
-    status: "CERTIFIED",
-    employmentType: "contractor",
-    email: "liam.obrien@example.com",
-    dataReceived: true,
-  },
-];
-
-// Keep all navigation inside this flow (Flow 1 v7 clone)
-const FLOW_BASE_PATH = "/flows/fronted-admin-dashboard-v7-clone";
-
-const AdminContractingMultiCompany = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
-  const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
-  const [cameFromReview, setCameFromReview] = React.useState(false);
-  const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
-  const { setOpen, addMessage, setLoading, isSpeaking: isAgentSpeaking } = useAgentState();
-  const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
-  const [promptText, setPromptText] = React.useState("");
-  const [isTypingPrompt, setIsTypingPrompt] = React.useState(false);
-  const [hasSpokenPhase, setHasSpokenPhase] = React.useState<Record<string, boolean>>({});
-  const [showContractSignedMessage, setShowContractSignedMessage] = useState(false);
-  const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
-  const [isKurtMuted, setIsKurtMuted] = React.useState(false);
-  const [searchParams] = useSearchParams();
-  const { contractors, setContractors, updateContractor } = useContractorStore();
-
-  const didApplyDraftingUrlRef = useRef(false);
-  
-  const ALL_CLIENTS_ID = "__all_clients__";
-  const companyFromUrl = searchParams.get('company');
-  const [selectedCompany, setSelectedCompany] = useState<string>(() => {
-    if (companyFromUrl) return companyFromUrl;
-    const saved = localStorage.getItem('adminflow-v7-selected-company');
-    return saved || ALL_CLIENTS_ID;
-  });
-  const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
-  const [isEditingCompany, setIsEditingCompany] = useState<boolean>(false);
-  const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
-  const [headerScrolled, setHeaderScrolled] = useState(false);
-
-  const isInContractFlow = contractFlow.phase !== "idle" && contractFlow.phase !== "offer-accepted" && contractFlow.phase !== "data-collection";
-
-  // Set body class so portal-level CSS overrides can target v7 glass theme
-  useEffect(() => {
-    document.body.classList.add('v7-glass-active');
-    return () => document.body.classList.remove('v7-glass-active');
-  }, []);
-
-  useEffect(() => {
-    if (!isAddingNewCompany && !isEditingCompany && !isInContractFlow) {
-      setHeaderScrolled(false);
-      return;
-    }
-    const onScroll = () => setHeaderScrolled(window.scrollY > 16);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isAddingNewCompany, isEditingCompany, isInContractFlow]);
-  const [companies, setCompanies] = useState<CompanyData[]>(() => {
-    const saved = localStorage.getItem('adminflow-v7-companies');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as CompanyData[];
-        // Merge any new mock companies that don't exist in saved data
-        const savedIds = new Set(parsed.map((c: CompanyData) => c.id));
-        const missing = MOCK_COMPANIES.filter(c => !savedIds.has(c.id));
-        if (missing.length > 0) {
-          const merged = [...parsed, ...missing];
-          localStorage.setItem('adminflow-v7-companies', JSON.stringify(merged));
-          return merged;
-        }
-        return parsed;
-      } catch {
-        return MOCK_COMPANIES;
-      }
-    }
-    return MOCK_COMPANIES;
-  });
-  const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>(() => {
-    const saved = localStorage.getItem('adminflow-v7-company-contractors');
-
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        const result = Object.fromEntries(
-          Object.entries(parsed).map(([companyId, contractors]) => [
-            companyId,
-            Array.isArray(contractors)
-              ? (contractors as any[]).map((c: any) => {
-                  const isDemoDraftCandidate =
-                    c?.id === "default-1" ||
-                    c?.id === "default-2" ||
-                    c?.name === "Marcus Chen" ||
-                    c?.name === "Sofia Rodriguez";
-
-                  return isDemoDraftCandidate ? { ...c, status: "drafting" } : c;
-                })
-              : [],
-          ])
-        ) as Record<string, any[]>;
-        // Merge missing company contractor lists
-        const defaults: Record<string, any[]> = { "company-default": [...DEFAULT_DRAFTING_CANDIDATES], "company-globex": [...GLOBEX_CANDIDATES], "company-initech": [...INITECH_CANDIDATES], "company-waystar": [...WAYSTAR_CANDIDATES] };
-        let updated = false;
-        for (const [key, val] of Object.entries(defaults)) {
-          if (!(key in result)) {
-            result[key] = val;
-            updated = true;
-          }
-        }
-        if (updated) {
-          localStorage.setItem('adminflow-v7-company-contractors', JSON.stringify(result));
-        }
-        return result;
-      } catch {
-        localStorage.removeItem('adminflow-v7-company-contractors');
-      }
-    }
-
-    return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES], "company-globex": [...GLOBEX_CANDIDATES], "company-initech": [...INITECH_CANDIDATES], "company-waystar": [...WAYSTAR_CANDIDATES] };
-  });
-  
-  useEffect(() => {
-    localStorage.setItem('adminflow-v7-companies', JSON.stringify(companies));
-  }, [companies]);
-  
-  useEffect(() => {
-    localStorage.setItem('adminflow-v7-selected-company', selectedCompany);
-  }, [selectedCompany]);
-  
-  useEffect(() => {
-    localStorage.setItem('adminflow-v7-company-contractors', JSON.stringify(companyContractors));
-  }, [companyContractors]);
-  
-  const hasNoCompanies = companies.length === 0;
+const F1v7_FrontedAdminDashboard = () => {
+  const [isConfettiActive, setIsConfettiActive] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
-  const [activeMainTab, setActiveMainTab] = useState<"tracker" | "payroll">("tracker");
-  
+  const [activeTab, setActiveTab] = useState("pipeline");
+  const [isKurtChatOpen, setIsKurtChatOpen] = useState(false);
+  const [kurtMessage, setKurtMessage] = useState(generateAskKurtMessage());
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAgentHeaderActive, setIsAgentHeaderActive] = useState(false);
+  const [isAgentHeaderHovered, setIsAgentHeaderHovered] = useState(false);
+  const [isAgentLayoutActive, setIsAgentLayoutActive] = useState(false);
+  const [isAgentLayoutHovered, setIsAgentLayoutHovered] = useState(false);
+  const [isTopbarActive, setIsTopbarActive] = useState(false);
+  const [isTopbarHovered, setIsTopbarHovered] = useState(false);
+  const [isDashboardDrawerActive, setIsDashboardDrawerActive] = useState(false);
+  const [isDashboardDrawerHovered, setIsDashboardDrawerHovered] = useState(false);
+  const [isContractFlowNotificationActive, setIsContractFlowNotificationActive] = useState(false);
+  const [isContractFlowNotificationHovered, setIsContractFlowNotificationHovered] = useState(false);
+  const [isCandidateConfirmationScreenActive, setIsCandidateConfirmationScreenActive] = useState(false);
+  const [isCandidateConfirmationScreenHovered, setIsCandidateConfirmationScreenHovered] = useState(false);
+  const [isDocumentBundleCarouselActive, setIsDocumentBundleCarouselActive] = useState(false);
+  const [isDocumentBundleCarouselHovered, setIsDocumentBundleCarouselHovered] = useState(false);
+  const [isContractDraftWorkspaceActive, setIsContractDraftWorkspaceActive] = useState(false);
+  const [isContractDraftWorkspaceHovered, setIsContractDraftWorkspaceHovered] = useState(false);
+  const [isContractReviewBoardActive, setIsContractReviewBoardActive] = useState(false);
+  const [isContractReviewBoardHovered, setIsContractReviewBoardHovered] = useState(false);
+  const [isContractSignaturePhaseActive, setIsContractSignaturePhaseActive] = useState(false);
+  const [isContractSignaturePhaseHovered, setIsContractSignaturePhaseHovered] = useState(false);
+  const [isContractFlowSummaryActive, setIsContractFlowSummaryActive] = useState(false);
+  const [isContractFlowSummaryHovered, setIsContractFlowSummaryHovered] = useState(false);
+  const [isComplianceTransitionNoteActive, setIsComplianceTransitionNoteActive] = useState(false);
+  const [isComplianceTransitionNoteHovered, setIsComplianceTransitionNoteHovered] = useState(false);
+  const [isContractCreationScreenActive, setIsContractCreationScreenActive] = useState(false);
+  const [isContractCreationScreenHovered, setIsContractCreationScreenHovered] = useState(false);
+  const [isDocumentBundleSignatureActive, setIsDocumentBundleSignatureActive] = useState(false);
+  const [isDocumentBundleSignatureHovered, setIsDocumentBundleSignatureHovered] = useState(false);
+  const [isContractSignedMessageActive, setIsContractSignedMessageActive] = useState(false);
+  const [isContractSignedMessageHovered, setIsContractSignedMessageHovered] = useState(false);
+  const [isAgentChatBoxActive, setIsAgentChatBoxActive] = useState(false);
+  const [isAgentChatBoxHovered, setIsAgentChatBoxHovered] = useState(false);
+  const [isKurtIntroTooltipActive, setIsKurtIntroTooltipActive] = useState(false);
+  const [isKurtIntroTooltipHovered, setIsKurtIntroTooltipHovered] = useState(false);
+  const [isAgentSuggestionChipsActive, setIsAgentSuggestionChipsActive] = useState(false);
+  const [isAgentSuggestionChipsHovered, setIsAgentSuggestionChipsHovered] = useState(false);
+  const [isKurtContextualTagsActive, setIsKurtContextualTagsActive] = useState(false);
+  const [isKurtContextualTagsHovered, setIsKurtContextualTagsHovered] = useState(false);
+
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
+  const { drawerOpen, toggleDrawer } = useDashboardDrawer();
+  const { agentState, setAgentState } = useAgentState();
+  const { selectedContractor, setSelectedContractor } = useContractorStore();
+  const { batchState, setBatchState } = usePayrollBatch();
+  const contractFlow = useContractFlow();
+
+  const confettiRef = useRef<HTMLCanvasElement>(null);
+
   useEffect(() => {
-    const newCompanyName = searchParams.get('newCompany');
-    if (newCompanyName) {
-      const newCompanyId = `company-${Date.now()}`;
-      const newCompany = { id: newCompanyId, name: decodeURIComponent(newCompanyName) };
-      
-      setCompanies(prev => [...prev, newCompany]);
-      setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [...DEFAULT_DRAFTING_CANDIDATES.map(c => ({ ...c, id: `${c.id}-${Date.now()}` }))] }));
-      setSelectedCompany(newCompanyId);
-      
-      toast({
-        title: "Company Added",
-        description: `${newCompany.name} has been added successfully!`,
+    const onboardingParam = searchParams.get("onboarding");
+    if (onboardingParam === "true") {
+      setShowOnboarding(true);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (contractFlow.currentPhase === "signed") {
+      setIsConfettiActive(true);
+      const myConfetti = confetti.create(confettiRef.current as HTMLCanvasElement, {
+        resize: true,
+        useWorker: true,
       });
-      
-      navigate(FLOW_BASE_PATH, { replace: true });
-    }
-  }, [searchParams, navigate, toast]);
-  
-  useEffect(() => {
-    if (searchParams.get("moved") === "true" && contractors.length > 0) {
-      setCompanyContractors(prev => ({
-        ...prev,
-        [selectedCompany]: [
-          ...(prev[selectedCompany] || []),
-          ...contractors.filter(c =>
-            !(prev[selectedCompany] || []).some(existing => existing.id === c.id)
-          )
-        ]
-      }));
-      
-      setContractors([]);
-      navigate(`${FLOW_BASE_PATH}?phase=data-collection`, { replace: true });
-    }
-  }, [searchParams, contractors, selectedCompany, setContractors, navigate]);
-
-  const userData = {
-    firstName: "Joe",
-    lastName: "User",
-    email: "joe@example.com",
-    country: "United States",
-    role: "admin"
-  };
-
-  // Generate a stable color palette for companies in "All clients" view
-  const COMPANY_COLORS = [
-    'hsl(162 48% 48%)',  // mint/teal
-    'hsl(220 70% 55%)',  // blue
-    'hsl(340 65% 55%)',  // rose
-    'hsl(35 85% 55%)',   // amber
-    'hsl(280 55% 55%)',  // purple
-    'hsl(170 60% 42%)',  // cyan-green
-    'hsl(15 75% 55%)',   // coral
-    'hsl(200 70% 50%)',  // sky
-  ];
-
-  const getCompanyColor = (companyId: string) => {
-    const idx = companies.findIndex(c => c.id === companyId);
-    return COMPANY_COLORS[idx % COMPANY_COLORS.length];
-  };
-
-  // Build merged contractor list when "All clients" is selected
-  const allClientsContractors = React.useMemo(() => {
-    if (selectedCompany !== ALL_CLIENTS_ID) return [];
-    const merged: any[] = [];
-    companies.forEach(company => {
-      const contractors = companyContractors[company.id] || [];
-      contractors.forEach(c => {
-        merged.push({
-          ...c,
-          companyId: company.id,
-          companyName: company.name,
-          companyColor: getCompanyColor(company.id),
-        });
+      myConfetti({
+        particleCount: 200,
+        spread: 200,
+        origin: { y: 0.4 },
       });
-    });
-    return merged;
-  }, [selectedCompany, companies, companyContractors]);
-
-  const isAllClientsMode = selectedCompany === ALL_CLIENTS_ID;
-
-  const handleCompanyChange = (companyId: string) => {
-    if (companyId === "add-new") {
-      setIsAddingNewCompany(true);
-      return;
+      setTimeout(() => {
+        setIsConfettiActive(false);
+      }, 3000);
     }
-    
-    setSelectedCompany(companyId);
+  }, [contractFlow.currentPhase]);
 
-    if (companyId === ALL_CLIENTS_ID) {
-      toast({
-        title: "All Clients",
-        description: `Viewing workers across all ${companies.length} companies`,
-      });
-      return;
-    }
-
-    const company = companies.find(c => c.id === companyId);
-    toast({
-      title: "Company Switched",
-      description: `Now viewing contracts for ${company?.name}`,
-    });
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
   };
 
-  const handleNewCompanyComplete = (companyName: string, companyData?: Record<string, any>) => {
-    const newCompanyId = `company-${Date.now()}`;
-    const newCompany: CompanyData = { 
-      id: newCompanyId, 
-      name: companyName,
-      adminName: companyData?.adminName,
-      adminEmail: companyData?.adminEmail,
-      hqCountry: companyData?.hqCountry,
-      defaultCurrency: companyData?.defaultCurrency,
-      payrollCurrency: companyData?.payrollCurrency,
-      payoutDay: companyData?.payoutDay,
-    };
-    
-    setCompanies(prev => [...prev, newCompany]);
-    setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [...DEFAULT_DRAFTING_CANDIDATES.map(c => ({ ...c, id: `${c.id}-${Date.now()}` }))] }));
-    setSelectedCompany(newCompanyId);
-    
-    toast({
-      title: "Company Added",
-      description: `${companyName} has been added successfully!`,
-    });
-    
-    setIsAddingNewCompany(false);
-    window.scrollTo({ top: 0, behavior: 'instant' });
+  const handleAskKurt = () => {
+    setKurtMessage(generateAskKurtMessage());
+    setIsKurtChatOpen(true);
   };
 
-  const handleEditCompany = (companyId: string) => {
-    setEditingCompanyId(companyId);
-    setIsEditingCompany(true);
+  const handleAnyUpdates = () => {
+    setKurtMessage(generateAnyUpdatesMessage());
+    setIsKurtChatOpen(true);
   };
-
-  const handleEditCompanyComplete = (companyName: string, companyData?: Record<string, any>) => {
-    if (!editingCompanyId) return;
-    
-    setCompanies(prev => prev.map(company => 
-      company.id === editingCompanyId
-        ? {
-            ...company,
-            name: companyData?.companyName || company.name,
-            adminName: companyData?.adminName ?? company.adminName,
-            hqCountry: companyData?.hqCountry ?? company.hqCountry,
-            defaultCurrency: companyData?.defaultCurrency ?? company.defaultCurrency,
-            payrollCurrency: companyData?.payrollCurrency ?? company.payrollCurrency,
-            payoutDay: companyData?.payoutDay ?? company.payoutDay,
-          }
-        : company
-    ));
-    
-    toast({
-      title: "Company Updated",
-      description: `${companyData?.companyName || companyName} has been updated successfully!`,
-    });
-    
-    setIsEditingCompany(false);
-    setEditingCompanyId(null);
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  };
-
-  const handleCancelEditCompany = () => {
-    setIsEditingCompany(false);
-    setEditingCompanyId(null);
-  };
-
-  const handleCancelAddCompany = () => {
-    setIsAddingNewCompany(false);
-  };
-
-  const handleBackToFlows = () => {
-    localStorage.removeItem('adminflow-v7-companies');
-    localStorage.removeItem('adminflow-v7-selected-company');
-    localStorage.removeItem('adminflow-v7-company-contractors');
-  };
-
-  const handleAddCandidate = () => {
-    setIsAddCandidateDrawerOpen(true);
-  };
-
-  const handleSaveCandidate = (candidate: any) => {
-    setCompanyContractors(prev => ({
-      ...prev,
-      [selectedCompany]: [...(prev[selectedCompany] || []), candidate]
-    }));
-  };
-
-  const handleKurtAction = async (action: string) => {
-    if (!action.startsWith('send-reminder-')) {
-      addMessage({
-        role: 'user',
-        text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-      });
-    }
-
-    setOpen(true);
-    setLoading(true);
-
-    await new Promise(resolve => setTimeout(resolve, 1200));
-
-    let response = '';
-
-    switch(action) {
-      case 'any-updates':
-        response = generateAnyUpdatesMessage(contractors.length > 0 ? contractors : [
-          {
-            id: "display-1",
-            name: "Liam Chen",
-            country: "Singapore",
-            countryFlag: "🇸🇬",
-            role: "Frontend Developer",
-            salary: "SGD 7,500/mo",
-            status: "offer-accepted" as const,
-            formSent: false,
-            dataReceived: false,
-            employmentType: "contractor" as const,
-          },
-          {
-            id: "display-2",
-            name: "Sofia Rodriguez",
-            country: "Mexico",
-            countryFlag: "🇲🇽",
-            role: "Marketing Manager",
-            salary: "MXN 45,000/mo",
-            status: "data-pending" as const,
-            formSent: true,
-            dataReceived: false,
-            employmentType: "employee" as const,
-          },
-        ]);
-        break;
-      case 'ask-kurt':
-        response = generateAskKurtMessage();
-        break;
-      case 'quick-summary':
-        response = `✅ Contract Summary Complete\n\nI checked all required fields — looks good!\n\nKey Terms:\n• Salary: [to be filled]\n• Start Date: [to be filled]\n• Notice Period: [to be filled]\n• PTO: [to be filled]\n\nWant me to auto-fill missing data from the candidate record?`;
-        break;
-      case 'check-fields':
-        response = `✅ Field Review Complete\n\nI checked all mandatory contract fields. Everything's complete except:\n• Start Date (required)\n• Salary Currency (required)\n\nWant me to set Salary Currency automatically based on the candidate's country?`;
-        break;
-      case 'fix-clauses':
-        response = `🔧 Clause Analysis Complete\n\nI reviewed all contract clauses:\n\n✓ Termination clause - compliant with local labor law\n✓ IP rights clause - standard language looks good\n✓ Non-compete clause - aligned with local regulations\n\nAll clauses are watertight. Ready to generate the bundle?`;
-        break;
-      case 'explain-term':
-        response = `📚 Term Explanation\n\n"Probation Period"\n\nThis is the initial employment period (typically 3-6 months) where:\n• Performance is closely evaluated\n• Either party can terminate with shorter notice\n• Full benefits may be prorated\n\nThe standard probation period is aligned with local labor regulations. Want me to adjust it?`;
-        break;
-      case 'pull-data':
-        response = `📊 Candidate Data Retrieved\n\nI pulled the latest info from your ATS:\n\n✓ Contact information verified\n✓ Role and experience confirmed\n✓ Qualifications validated\n\nAll data is pre-filled into the contract template. Should I generate the bundle now?`;
-        break;
-      case 'compare-drafts':
-        response = `🔄 Draft Comparison Complete\n\nComparing current draft with standard template:\n\nChanges detected:\n• Salary structure customized for local market\n• PTO adjusted to local standards\n• Added remote work provisions\n• Modified notice period per regional requirements\n\nAll changes are within approved parameters. Ready to proceed?`;
-        break;
-      case 'track-progress':
-        response = `📈 Onboarding Progress\n\n👤 Maria Santos - 75% Complete\n✅ Personal details submitted\n✅ Tax forms completed\n✅ Bank information verified\n⏳ Compliance documents pending\n⏳ Emergency contact needed\nEstimated completion: 2 days\n\n👤 John Smith - 40% Complete\n✅ Personal details submitted\n⏳ Tax forms pending\n⏳ Bank information needed\n⏳ Compliance documents pending\n⏳ Emergency contact needed\nEstimated completion: 5 days\n\n👤 Sarah Chen - 90% Complete\n✅ Personal details submitted\n✅ Tax forms completed\n✅ Bank information verified\n✅ Compliance documents approved\n⏳ Emergency contact needed\nEstimated completion: 1 day\n\n👤 Ahmed Hassan - 25% Complete\n✅ Personal details submitted\n⏳ Tax forms pending\n⏳ Bank information needed\n⏳ Compliance documents pending\n⏳ Emergency contact needed\nEstimated completion: 7 days`;
-        
-        addMessage({
-          role: 'kurt',
-          text: response,
-          actionButtons: [
-            { label: 'Send Reminder to Maria', action: 'send-reminder-maria', variant: 'default' },
-            { label: 'Send Reminder to John', action: 'send-reminder-john', variant: 'outline' },
-            { label: 'Send Reminder to Sarah', action: 'send-reminder-sarah', variant: 'outline' },
-            { label: 'Send Reminder to Ahmed', action: 'send-reminder-ahmed', variant: 'outline' },
-          ]
-        });
-        
-        setLoading(false);
-        return;
-      case 'resend-link':
-        setLoading(true);
-        setOpen(true);
-        
-        setTimeout(() => {
-          setLoading(false);
-          addMessage({
-            role: 'kurt',
-            text: "Got it — who should I resend this to?\n\n📧 Pre-filled candidates ready for resend:\n• Maria Santos\n• John Smith\n• Sarah Chen\n• Ahmed Hassan",
-            actionButtons: [
-              { label: 'Resend to All', action: 'resend-all', variant: 'default' },
-              { label: 'Select Individual', action: 'resend-individual', variant: 'outline' },
-            ]
-          });
-        }, 1500);
-        return;
-        
-      case 'resend-all':
-        addMessage({
-          role: 'user',
-          text: 'Resend to all candidates'
-        });
-        setLoading(true);
-        
-        setTimeout(() => {
-          setLoading(false);
-          addMessage({
-            role: 'kurt',
-            text: "All set! ✅\n\nOnboarding links resent to all 4 candidates. They'll receive the email shortly.",
-          });
-          
-          toast({
-            title: "Links Sent",
-            description: "4 onboarding links have been resent successfully.",
-          });
-        }, 1200);
-        return;
-      case 'mark-complete':
-        setLoading(true);
-        setOpen(true);
-        
-        setTimeout(() => {
-          setLoading(false);
-          
-          const duration = 2 * 1000;
-          const animationEnd = Date.now() + duration;
-          const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-          function randomInRange(min: number, max: number) {
-            return Math.random() * (max - min) + min;
-          }
-
-          const interval: any = setInterval(function() {
-            const timeLeft = animationEnd - Date.now();
-
-            if (timeLeft <= 0) {
-              return clearInterval(interval);
-            }
-
-            const particleCount = 50 * (timeLeft / duration);
-            
-            confetti({
-              ...defaults,
-              particleCount,
-              origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-            });
-            confetti({
-              ...defaults,
-              particleCount,
-              origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-            });
-          }, 250);
-          
-          addMessage({
-            role: 'kurt',
-            text: "Done ✅ Everything's up to date.\n\nMaria's onboarding is now marked as complete. All systems synced successfully!",
-          });
-        }, 1800);
-        return;
-        
-      case 'create-payroll-batch': {
-        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
-        const response = executePayrollGenieAction('create_payroll_batch', navigate);
-        addMessage({ role: 'kurt', text: response });
-        setLoading(false);
-        return;
-      }
-      
-      case 'simulate-fx': {
-        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
-        const response = executePayrollGenieAction('simulate_fx', navigate);
-        addMessage({ role: 'kurt', text: response });
-        setLoading(false);
-        return;
-      }
-      
-      case 'send-approval': {
-        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
-        const response = executePayrollGenieAction('send_for_approval', navigate);
-        addMessage({ role: 'kurt', text: response });
-        setLoading(false);
-        return;
-      }
-      
-      case 'execute-payroll': {
-        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
-        const response = executePayrollGenieAction('execute_batch', navigate);
-        addMessage({ role: 'kurt', text: response });
-        setLoading(false);
-        return;
-      }
-      
-      case 'reconcile': {
-        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
-        const response = executePayrollGenieAction('reconcile', navigate);
-        addMessage({ role: 'kurt', text: response });
-        setLoading(false);
-        return;
-      }
-      
-      case 'add-documents':
-        response = `📄 Add Documents\n\nI can help you add additional documents to the contract bundle:\n\n• Company Handbook\n• Benefits Overview\n• Remote Work Policy\n• Equipment Agreement\n• Custom Addendums\n\nWhich documents would you like to add?`;
-        break;
-        
-      case 'review-bundle':
-        response = `✅ Bundle Review Complete\n\nI've reviewed all documents in the bundle:\n\n✓ All required documents included\n✓ Country-specific compliance documents present\n✓ Signature fields properly placed\n✓ No conflicts between documents\n\nThe bundle is ready to send for signing!`;
-        break;
-        
-      case 'check-compliance':
-        response = `🔍 Compliance Check Complete\n\nI've verified compliance for all documents:\n\n✓ Employment Agreement - compliant with local labor law\n✓ Country Compliance Attachments - all mandatory clauses included\n✓ NDA/Policy Docs - standard language verified\n\nAll documents meet regulatory requirements. Ready to proceed with signing?`;
-        break;
-        
-      default:
-        response = `I'll help you with "${action}". Let me process that for you.`;
-    }
-
-    if (action.startsWith('send-reminder-')) {
-      const name = action.replace('send-reminder-', '').replace('-', ' ');
-      const capitalizedName = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-      addMessage({
-        role: 'kurt',
-        text: `📧 Reminder Sent\n\nOnboarding reminder has been emailed to ${capitalizedName}.\n\n✓ Link to continue onboarding included\n✓ List of pending items attached\n✓ Support contact information provided\n\nThey should receive it within a few minutes.`,
-      });
-      setLoading(false);
-      return;
-    }
-
-    addMessage({
-      role: 'kurt',
-      text: response,
-    });
-
-    setLoading(false);
-  };
-
-  const idleMessage = version === "v5" 
-    ? "I've prepared contract drafts for all three candidates based on your requirements."
-    : "Hey Joe, looks like three shortlisted candidates are ready for contract drafting. Would you like me to prepare their drafts?";
-  const idleWords = idleMessage.split(' ');
-
-  const mockPrompt = "Generate contracts for Maria Santos, Oskar Nilsen, and Arta Krasniqi";
-  
-  useEffect(() => {
-    (window as any).handleKurtAction = handleKurtAction;
-    return () => {
-      delete (window as any).handleKurtAction;
-    };
-  }, []);
-  
-  useEffect(() => {
-    if (contractFlow.phase === "prompt") {
-      setIsTypingPrompt(false);
-      setPromptText("");
-      setCurrentWordIndex(0);
-      
-      const startDelay = setTimeout(() => {
-        setIsTypingPrompt(true);
-        let charIndex = 0;
-        const typeInterval = setInterval(() => {
-          if (charIndex < mockPrompt.length) {
-            setPromptText(mockPrompt.substring(0, charIndex + 1));
-            charIndex++;
-          } else {
-            clearInterval(typeInterval);
-          }
-        }, 50);
-      }, 300);
-      
-      return () => clearTimeout(startDelay);
-    }
-  }, [contractFlow.phase]);
-  
-  useEffect(() => {
-    const phaseKey = contractFlow.phase;
-    const movedParam = searchParams.get("moved") === "true";
-    const allSignedParam = searchParams.get("allSigned") === "true";
-    
-    let uniquePhaseKey: string = phaseKey;
-    if (phaseKey === "data-collection" || phaseKey === "offer-accepted") {
-      if (allSignedParam) {
-        uniquePhaseKey = `${phaseKey}-all-signed`;
-      } else if (movedParam) {
-        uniquePhaseKey = `${phaseKey}-moved`;
-      }
-    }
-    
-    if (!hasSpokenPhase[uniquePhaseKey]) {
-      setHasSpokenPhase(prev => ({ ...prev, [uniquePhaseKey]: true }));
-    }
-  }, [contractFlow.phase, hasSpokenPhase, contractFlow.currentDraftIndex, contractFlow.selectedCandidates, searchParams]);
-  
-  useEffect(() => {
-    if (currentWordIndex < idleWords.length) {
-      const timer = setTimeout(() => {
-        setCurrentWordIndex(prev => prev + 1);
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [currentWordIndex, idleWords.length]);
-  
-  useEffect(() => {
-    const phaseParam = searchParams.get("phase");
-    const signedParam = searchParams.get("signed");
-    const companyParam = searchParams.get("company");
-    const idsParam = searchParams.get("ids");
-
-    if (companyParam && companyParam !== selectedCompany && companies.some(c => c.id === companyParam)) {
-      setSelectedCompany(companyParam);
-    }
-
-    if (phaseParam === "bundle-creation") {
-      contractFlow.proceedToDrafting();
-      navigate(FLOW_BASE_PATH, { replace: true });
-    }
-
-    if (phaseParam === "drafting" && idsParam) {
-      const ids = idsParam.split(",").map(s => s.trim()).filter(Boolean);
-      const companyId = companyParam || selectedCompany;
-      const contractors = companyContractors[companyId] || [];
-
-      const candidatesForDrafting = contractors
-        .filter((c: any) => ids.includes(c.id))
-        .map((c: any) => ({
-          id: c.id,
-          name: c.name,
-          role: c.role,
-          country: c.country,
-          countryCode: c.countryCode || ({ Singapore: "SG", Spain: "ES", Norway: "NO", Philippines: "PH", Ireland: "IE", India: "IN" }[c.country] || "US"),
-          flag: c.countryFlag || c.flag || "",
-          salary: c.salary || "",
-          startDate: c.startDate || "",
-          noticePeriod: c.noticePeriod || "30 days",
-          pto: c.pto || "15 days/year",
-          currency: c.currency || "USD",
-          signingPortal: c.signingPortal || "DocuSign",
-          status: "Hired" as const,
-          email: c.email,
-          employmentType: c.employmentType,
-          nationality: c.nationality,
-          city: c.city,
-          address: c.address,
-          idNumber: c.idNumber,
-        }));
-
-      if (candidatesForDrafting.length > 0) {
-        contractFlow.setCandidatesForDrafting(candidatesForDrafting);
-      } else {
-        contractFlow.proceedToDrafting();
-      }
-
-      navigate(`${FLOW_BASE_PATH}?phase=drafting`, { replace: true });
-    } else if (phaseParam === "drafting" && !idsParam) {
-      if (!didApplyDraftingUrlRef.current) {
-        didApplyDraftingUrlRef.current = true;
-        if (contractFlow.phase !== "drafting") {
-          console.log("[Flow 1.1] Applying ?phase=drafting from URL", { from: contractFlow.phase });
-          contractFlow.proceedToDrafting();
-        }
-      }
-    }
-
-    if (signedParam === "true") {
-      setShowContractSignedMessage(true);
-    }
-  }, [
-    searchParams,
-    navigate,
-    companies,
-    selectedCompany,
-    companyContractors,
-    contractFlow.phase,
-    contractFlow.proceedToDrafting,
-    contractFlow.setCandidatesForDrafting,
-  ]);
 
   return (
-    <RoleLensProvider initialRole="admin">
-      <div className="v7-glass-bg flex flex-col w-full">
-        <div className="v7-orb-center" />
-      {!isAddingNewCompany && !isEditingCompany && (
-        contractFlow.phase === "idle" ||
-        contractFlow.phase === "offer-accepted" ||
-        contractFlow.phase === "data-collection"
-      ) && (
-        <Topbar 
-          userName={`${userData.firstName} ${userData.lastName}`}
-          isDrawerOpen={isDrawerOpen}
-          onDrawerToggle={toggleDrawer}
-          profileSettingsUrl="/flow-1-v7/profile-settings"
-          profileMenuLabel="Profile Settings"
-          onBackClick={handleBackToFlows}
-          forceFixed
-          
+    <RoleLensProvider>
+      <div className="relative h-full w-full overflow-hidden">
+        {/* Confetti Canvas */}
+        <canvas
+          ref={confettiRef}
+          className={cn("pointer-events-none fixed inset-0 z-[100] w-full h-full", !isConfettiActive && "hidden")}
         />
-      )}
 
-      {isAddingNewCompany && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'v7-glass-header' : ''}`}>
-          <img 
-            src={frontedLogo}
-            alt="Fronted"
-            className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={handleCancelAddCompany}
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCancelAddCompany}
-            className="h-8 w-8 sm:h-10 sm:w-10"
-          >
-            <X className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Button>
-        </div>
-      )}
+        {/* Onboarding Screen */}
+        <AnimatePresence>{showOnboarding && <F1v4_EmbeddedAdminOnboarding onClose={() => setShowOnboarding(false)} />}</AnimatePresence>
 
-      {isEditingCompany && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'v7-glass-header' : ''}`}>
-          <img 
-            src={frontedLogo}
-            alt="Fronted"
-            className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={handleCancelEditCompany}
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCancelEditCompany}
-            className="h-8 w-8 sm:h-10 sm:w-10"
-          >
-            <X className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Button>
-        </div>
-      )}
+        {/* Add Candidate Drawer */}
+        <F1v4_AddCandidateDrawer open={isAddCandidateDrawerOpen} onClose={() => setIsAddCandidateDrawerOpen(false)} />
 
-      {!isAddingNewCompany && !isEditingCompany &&
-        contractFlow.phase !== "idle" &&
-        contractFlow.phase !== "offer-accepted" &&
-        contractFlow.phase !== "data-collection" && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'v7-glass-header' : ''}`}>
-          <img src={frontedLogo} alt="Fronted" className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { contractFlow.resetFlow(); navigate(FLOW_BASE_PATH); }} />
-          <Button variant="ghost" size="icon" onClick={() => { contractFlow.resetFlow(); navigate(FLOW_BASE_PATH); }} className="h-8 w-8 sm:h-10 sm:w-10">
-            <X className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Button>
-        </div>
-      )}
+        {/* Dashboard Layout */}
+        <div className="flex h-screen w-full antialiased text-foreground">
+          {/* Sidebar */}
+          <DashboardDrawer />
 
-      <main className="flex-1 flex overflow-hidden relative">
-        
-        <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
+          {/* Main Content */}
+          <div className="flex flex-1 flex-col">
+            {/* Topbar */}
+            <Topbar onMenuClick={toggleDrawer} />
 
-          <AgentLayout context="Contract Flow">
-            <div className="flex-1 overflow-auto relative">
-              <div className="relative z-10">
-              {isAddingNewCompany ? (
-                <F1v4_EmbeddedAdminOnboarding
-                  onComplete={handleNewCompanyComplete}
-                  onCancel={handleCancelAddCompany}
-                />
-              ) : isEditingCompany && editingCompanyId ? (
-                (() => {
-                  const editingCompany = companies.find(c => c.id === editingCompanyId);
-                  const candidatesForCompany = companyContractors[editingCompanyId] || [];
-                  const hasCandidates = candidatesForCompany.length > 0;
-                  const hasSignedContract = candidatesForCompany.some(c => c.status === "signed");
-                  
-                  return (
-                    <F1v4_EmbeddedAdminOnboarding
-                      onComplete={handleEditCompanyComplete}
-                      onCancel={handleCancelEditCompany}
-                      isEditMode={true}
-                      editModeTitle={`Change ${editingCompany?.name || 'Company'} details`}
-                      companyId={editingCompanyId}
-                      companyName={editingCompany?.name}
-                      initialData={{
-                        companyName: editingCompany?.name || "",
-                        adminName: editingCompany?.adminName || "",
-                        adminEmail: editingCompany?.adminEmail || "",
-                        hqCountry: editingCompany?.hqCountry || "",
-                        defaultCurrency: editingCompany?.defaultCurrency || "",
-                        payrollCurrency: editingCompany?.payrollCurrency || [],
-                        payoutDay: editingCompany?.payoutDay || "",
-                      }}
-                      hasSignedContract={hasSignedContract}
-                      hasCandidates={hasCandidates}
-                    />
-                  );
-                })()
-              ) : (
-              <AnimatePresence mode="wait">
-                {contractFlow.phase === "prompt" ? (
-                  <motion.div key="prompt" className="flex flex-col items-center justify-center min-h-full p-8">
-                    <div className="w-full max-w-2xl space-y-6">
-                      <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold text-foreground mb-2">Contract Flow Assistant</h2>
-                        <p className="text-muted-foreground">What would you like me to help you with?</p>
-                      </div>
-                      <div className="relative">
-                        <div className="border border-border rounded-lg bg-background p-4 shadow-lg">
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="text"
-                              value={promptText}
-                              readOnly
-                              placeholder="Type your request..."
-                              className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
-                            />
-                            {promptText.length === mockPrompt.length && (
-                              <Button 
-                                onClick={() => contractFlow.startPromptFlow()}
-                                className="whitespace-nowrap"
-                              >
-                                Generate
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ) : contractFlow.phase === "generating" ? (
-                  <motion.div key="generating" className="flex flex-col items-center justify-center min-h-full p-8">
-                    <div className="flex flex-col items-center justify-center space-y-6">
-                      <AudioWaveVisualizer isActive={true} />
-                      <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                        <span className="animate-pulse">Preparing contracts</span>
-                        <span className="flex gap-1">
-                          <span className="animate-bounce" style={{ animationDelay: "0ms" }}>.</span>
-                          <span className="animate-bounce" style={{ animationDelay: "150ms" }}>.</span>
-                          <span className="animate-bounce" style={{ animationDelay: "300ms" }}>.</span>
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ) : hasNoCompanies ? (
-                  <motion.div 
-                    key="empty-state" 
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }} 
-                    exit={{ opacity: 0 }} 
-                    className="flex flex-col items-center justify-center p-8"
-                    style={{ minHeight: 'calc(100vh - 80px)' }}
-                  >
-                    <div className="flex flex-col items-center text-center space-y-6">
-                      <AgentHeader
-                        title="Start by adding a company"
-                        subtitle="Once a company is set up, you'll be able to manage candidates, contracts, and payroll from here."
-                        showPulse={true}
-                        isActive={false}
-                        showInput={false}
-                      />
-                      <Button 
-                        onClick={() => setIsAddingNewCompany(true)}
-                        size="lg"
-                      >
-                        Add company
-                      </Button>
-                    </div>
-                  </motion.div>
-                ) : (contractFlow.phase === "offer-accepted" || contractFlow.phase === "data-collection") ? (
-                  <motion.div 
-                    key="data-collection" 
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }} 
-                    exit={{ opacity: 0 }} 
-                    className="flex-1 overflow-y-auto"
-                  >
-                    <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-2">
-                      {showContractSignedMessage ? (
-                        <ContractSignedMessage 
-                          mode="signed"
-                          onReadingComplete={() => {
-                            setTimeout(() => {
-                              setShowContractSignedMessage(false);
-                            }, 2000);
-                          }}
-                        />
-                      ) : activeMainTab === "payroll" ? (
-                          <AgentHeader
-                            title="Fronted Admin · Payroll"
-                            subtitle="Review all company payrolls, resolve exceptions, and approve numbers."
-                            showPulse={true}
-                            isActive={false}
-                            showInput={false}
-                          />
-                        ) : (
-                          <motion.div 
-                            initial={{ opacity: 0 }} 
-                            animate={{ opacity: 1 }} 
-                            transition={{ duration: 0.6 }}
-                            className="flex flex-col items-center px-4 pt-2 pb-2"
-                          >
-                            {/* Audio visualizer with floating glow */}
-                            <motion.div 
-                              initial={{ scale: 0.6, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                              className="relative flex justify-center mb-5"
-                            >
-                              <div className="absolute inset-0 -m-6 rounded-full v7-header-glow pointer-events-none" />
-                              <div className="relative scale-75 sm:scale-100">
-                                <AudioWaveVisualizer isActive={isAgentSpeaking || (
-                                  searchParams.get("allSigned") === "true"
-                                    ? !hasSpokenPhase["data-collection-all-signed"]
-                                    : searchParams.get("moved") === "true" 
-                                      ? !hasSpokenPhase["data-collection-moved"]
-                                      : !hasSpokenPhase["offer-accepted"]
-                                )} isListening={false} />
-                              </div>
-                            </motion.div>
+            {/* Contract Flow Rendering */}
+            <div className="flex flex-1 items-center justify-center p-4">
+              <div className="flex w-full flex-col">
+                <ContractFlowNotification />
 
-                            {/* Premium heading with interactive company selector */}
-                            <motion.div
-                              initial={{ opacity: 0, y: 16 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                              className="text-center space-y-3"
-                            >
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <button className="group/selector inline-flex items-center gap-2 text-2xl sm:text-3xl font-bold cursor-pointer transition-all duration-300 hover:gap-3">
-                                    <span className="v7-heading-gradient">
-                                      {isAllClientsMode ? "All Clients" : companies.find(c => c.id === selectedCompany)?.name || "Company"}
-                                    </span>
-                                    <motion.span 
-                                      className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 group-hover/selector:bg-primary/20 transition-colors duration-300"
-                                      whileHover={{ rotate: 180 }}
-                                      transition={{ duration: 0.3 }}
-                                    >
-                                      <ChevronDown className="h-4 w-4 text-primary" />
-                                    </motion.span>
-                                  </button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[260px] p-0 v7-glass-card border-primary/10" align="center" style={{ boxShadow: '0 16px 48px -12px hsl(172 50% 40% / 0.15)' }}>
-                                  <Command>
-                                    <CommandInput placeholder="Search companies..." />
-                                    <CommandList>
-                                      <CommandEmpty>No company found.</CommandEmpty>
-                                      <CommandGroup>
-                                        <CommandItem
-                                          value="All clients"
-                                          onSelect={() => handleCompanyChange(ALL_CLIENTS_ID)}
-                                          className="cursor-pointer"
-                                        >
-                                          <Check className={cn("mr-2 h-4 w-4", isAllClientsMode ? "opacity-100" : "opacity-0")} />
-                                          All clients
-                                        </CommandItem>
-                                      </CommandGroup>
-                                      <CommandSeparator />
-                                      <CommandGroup>
-                                        {companies.map((company) => (
-                                          <CommandItem
-                                            key={company.id}
-                                            value={company.name}
-                                            onSelect={() => handleCompanyChange(company.id)}
-                                            className="cursor-pointer"
-                                          >
-                                            <Check className={cn("mr-2 h-4 w-4", selectedCompany === company.id ? "opacity-100" : "opacity-0")} />
-                                            {company.name}
-                                          </CommandItem>
-                                        ))}
-                                      </CommandGroup>
-                                    </CommandList>
-                                  </Command>
-                                </PopoverContent>
-                              </Popover>
+                <div className="flex flex-1 flex-col">
+                  {contractFlow.currentPhase === "candidate-confirmation" && <CandidateConfirmationScreen />}
+                  {contractFlow.currentPhase === "drafting" && <F1v5_ContractDraftWorkspace />}
+                  {contractFlow.currentPhase === "review" && <ContractReviewBoard />}
+                  {contractFlow.currentPhase === "signature" && <ContractSignaturePhase />}
+                  {contractFlow.currentPhase === "summary" && <ContractFlowSummary />}
+                  {contractFlow.currentPhase === "compliance-transition" && <ComplianceTransitionNote />}
+                  {contractFlow.currentPhase === "creation" && <ContractCreationScreen />}
+                  {contractFlow.currentPhase === "document-bundle-signature" && <DocumentBundleSignature />}
+                  {contractFlow.currentPhase === "signed" && <ContractSignedMessage />}
 
-                              {/* Glassmorphism stat pills */}
-                              <motion.div 
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.5 }}
-                                className="flex items-center justify-center gap-2"
-                              >
-                                <AnimatePresence mode="wait">
-                                  <motion.div
-                                    key={isAllClientsMode ? "all" : selectedCompany}
-                                    initial={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
-                                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                                    exit={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
-                                    transition={{ duration: 0.3 }}
-                                    className="flex items-center gap-2"
-                                  >
-                                    {isAllClientsMode && (
-                                      <span className="v7-stat-pill">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                                        {companies.length} clients
-                                      </span>
-                                    )}
-                                    <span className="v7-stat-pill">
-                                      <span className="h-1.5 w-1.5 rounded-full bg-primary/80" />
-                                      {isAllClientsMode
-                                        ? `${allClientsContractors.length} workers`
-                                        : `${(companyContractors[selectedCompany] || []).length} workers`
-                                      }
-                                    </span>
-                                  </motion.div>
-                                </AnimatePresence>
-                              </motion.div>
-
-                              {/* Subtitle */}
-                              <motion.p 
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.55, duration: 0.5 }}
-                                className="text-sm sm:text-base max-w-sm mx-auto"
-                              >
-                                <span className={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true" ? "text-foreground/60" : "text-muted-foreground"}>
-                                  {searchParams.get("allSigned") === "true"
-                                    ? "Both candidates have signed! Let's trigger their onboarding checklists."
-                                    : searchParams.get("moved") === "true" 
-                                      ? "Great, contracts sent to candidates via their preferred signing portals."
-                                      : "Monitor candidate signatures and complete certification to finalize contracts."
-                                  }
-                                </span>
-                              </motion.p>
-                            </motion.div>
-                          </motion.div>
-                        )
-                        }
-                                        <CommandEmpty>No company found.</CommandEmpty>
-                                        <CommandGroup>
-                                          <CommandItem
-                                            value="All clients"
-                                            onSelect={() => handleCompanyChange(ALL_CLIENTS_ID)}
-                                            className="cursor-pointer"
-                                          >
-                                            <Check className={cn("mr-2 h-4 w-4", isAllClientsMode ? "opacity-100" : "opacity-0")} />
-                                            All clients
-                                          </CommandItem>
-                                        </CommandGroup>
-                                        <CommandSeparator />
-                                        <CommandGroup>
-                                          {companies.map((company) => (
-                                            <CommandItem
-                                              key={company.id}
-                                              value={company.name}
-                                              onSelect={() => handleCompanyChange(company.id)}
-                                              className="cursor-pointer"
-                                            >
-                                              <Check className={cn("mr-2 h-4 w-4", selectedCompany === company.id ? "opacity-100" : "opacity-0")} />
-                                              {company.name}
-                                            </CommandItem>
-                                          ))}
-                                        </CommandGroup>
-                                      </CommandList>
-                                    </Command>
-                                  </PopoverContent>
-                                </Popover>
-                                <span className="text-muted-foreground font-normal text-lg sm:text-xl">
-                                  {isAllClientsMode 
-                                    ? `· ${companies.length} clients · ${allClientsContractors.length} workers`
-                                    : `· ${(companyContractors[selectedCompany] || []).length} workers`
-                                  }
-                                </span>
-                              </h1>
-                              <p className="text-sm sm:text-base">
-                                <span className={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true" ? "text-foreground/60" : "text-muted-foreground"}>
-                                  {searchParams.get("allSigned") === "true"
-                                    ? "Both candidates have signed! Let's trigger their onboarding checklists."
-                                    : searchParams.get("moved") === "true" 
-                                      ? "Great, contracts sent to candidates via their preferred signing portals."
-                                      : "Monitor candidate signatures and complete certification to finalize contracts."
-                                  }
-                                </span>
-                              </p>
-                            </div>
-                          </motion.div>
-                        )}
-                      
-                      <div className="flex items-center justify-center py-2">
-                        <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "tracker" | "payroll")}>
-                          <TabsList className="grid w-[280px] grid-cols-2 v7-glass-tabs">
-                            <TabsTrigger value="tracker" className="data-[state=active]:v7-glass-tab-active">Tracker</TabsTrigger>
-                            <TabsTrigger value="payroll" className="data-[state=active]:v7-glass-tab-active">Payroll</TabsTrigger>
-                          </TabsList>
-                        </Tabs>
-                      </div>
-
-                      <div className="pt-6">
-                        {activeMainTab === "payroll" ? (
-                          <F1v4_PayrollTab />
-                        ) : (
-                          <div className="space-y-4">
-                            <div className="mt-3">
-                              <F1v4_PipelineView 
-                                key={selectedCompany}
-                                contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
-                                onAddCandidate={isAllClientsMode ? undefined : handleAddCandidate}
-                                onRemoveContractor={(contractor) => {
-                                  const targetCompanyId = contractor.companyId || selectedCompany;
-                                  setCompanyContractors(prev => ({
-                                    ...prev,
-                                    [targetCompanyId]: (prev[targetCompanyId] || []).filter(c => c.id !== contractor.id)
-                                  }));
-                                  sonnerToast.success(
-                                    isAllClientsMode && contractor.companyName
-                                      ? `Candidate removed from ${contractor.companyName}`
-                                      : "Candidate removed"
-                                  );
-                                }}
-                                onDraftContract={isAllClientsMode ? undefined : (ids) => {
-                                  const params = new URLSearchParams({ 
-                                    ids: ids.join(','),
-                                    returnTo: 'f1v7',
-                                    company: selectedCompany
-                                  }).toString();
-                                  navigate(`/flows/contract-creation?${params}`);
-                                }}
-                                onSignatureComplete={isAllClientsMode ? undefined : () => {
-                                  navigate(`${FLOW_BASE_PATH}?phase=data-collection&allSigned=true`);
-                                }}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-              ) : contractFlow.phase === "contract-creation" ? (
-                <motion.div key={`contract-creation-${contractFlow.currentDraftIndex}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <ContractCreationScreen
-                    candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]}
-                    currentIndex={contractFlow.currentDraftIndex}
-                    totalCandidates={contractFlow.selectedCandidates.length}
-                    onNext={() => contractFlow.proceedToBundle()}
-                  />
-                </motion.div>
-              ) : contractFlow.phase === "bundle-creation" ? (
-                <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full pt-16">
-                  <div className="flex-1 flex flex-col items-center justify-center p-8">
-                    <div className="w-full max-w-4xl space-y-8">
-                      <div className="mb-8">
-                        <AgentHeader
-                          title="Contract Bundle"
-                          subtitle="Review the contract bundle each candidate will receive before sending for signature."
-                          showPulse={true}
-                          isActive={isAgentSpeaking || !hasSpokenPhase["bundle-creation"]}
-                          showInput={false}
-                        />
-                      </div>
-                    {contractFlow.selectedCandidates.map((candidate) => (
-                      <div key={candidate.id} className="space-y-6">
-                        <div className="flex items-center gap-3">
-                          <span className="text-4xl">{candidate.flag}</span>
-                          <div>
-                            <h2 className="text-xl font-semibold text-foreground">{candidate.name}</h2>
-                            <p className="text-sm text-muted-foreground">{candidate.role} • {candidate.country}</p>
-                          </div>
-                        </div>
-                        <DocumentBundleCarousel
-                          candidate={candidate}
-                          onGenerateBundle={(docs) => {}}
-                          hideButton={true}
-                          onClose={() => navigate(FLOW_BASE_PATH)}
-                        />
-                      </div>
-                    ))}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="pt-4"
-                    >
-                      <Button 
-                        onClick={() => { 
-                          toast({ title: "Signing packs generated for all candidates" }); 
-                          contractFlow.proceedFromBundle(); 
-                        }}
-                        size="lg"
-                        className="w-full"
-                      >
-                        <FileCheck className="mr-2 h-5 w-5" />
-                        Generate Signing Packs
-                      </Button>
-                    </motion.div>
+                  {/* Tabs */}
+                  <div className="mt-4">
+                    <Tabs value={activeTab} onValueChange={handleTabChange}>
+                      <TabsList>
+                        <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+                        <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
                   </div>
+
+                  {/* Tab Content */}
+                  {activeTab === "pipeline" && <F1v4_PipelineView onAddCandidateClick={() => setIsAddCandidateDrawerOpen(true)} />}
+                  {activeTab === "payroll" && <F1v4_PayrollTab />}
                 </div>
-                </motion.div>
-              ) : contractFlow.phase === "drafting" ? (
-                <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full pt-16">
-                  <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-8 py-4 sm:py-8">
-                    <div className="w-full max-w-7xl space-y-3 sm:space-y-8">
-                      <F1v5_ContractDraftWorkspace
-                        candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]} 
-                        index={contractFlow.currentDraftIndex} 
-                        total={contractFlow.selectedCandidates.length}
-                        allDocsPreConfirmed={cameFromReview}
-                        onNext={() => { 
-                          const isLast =
-                            contractFlow.currentDraftIndex >=
-                            contractFlow.selectedCandidates.length - 1;
-
-                          contractFlow.nextDraft();
-                          setCameFromReview(false);
-
-                          if (isLast) {
-                            navigate(`${FLOW_BASE_PATH}?phase=reviewing`, { replace: true });
-                          }
-                        }}
-                        onPrevious={() => {
-                          if (contractFlow.currentDraftIndex === 0) {
-                            const candidateIds = contractFlow.selectedCandidates.map(c => c.id).join(',');
-                            const company = selectedCompany;
-                            const params = new URLSearchParams({
-                              ids: candidateIds,
-                              returnTo: 'f1v7',
-                              ...(company && { company }),
-                            }).toString();
-                            navigate(`/flows/contract-creation?${params}`);
-                          } else {
-                            contractFlow.previousDraft();
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              ) : contractFlow.phase === "reviewing" ? (
-                <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-screen pt-16">
-                  <div className="flex-1 px-4 py-6 sm:p-8">
-                    <ContractReviewBoard 
-                      candidates={(() => {
-                        const candidateIds = contractFlow.selectedCandidates.map(c => c.id);
-                        const contractors = companyContractors[selectedCompany] || [];
-                        const countryCodeMap: Record<string, string> = { Singapore: "SG", Spain: "ES", Norway: "NO", Philippines: "PH", Ireland: "IE", India: "IN" };
-                        const currencyMap: Record<string, string> = { Singapore: "SGD", Spain: "EUR", Norway: "NOK", Philippines: "PHP", Ireland: "EUR", India: "INR" };
-                        return contractors
-                          .filter((c: any) => candidateIds.includes(c.id))
-                          .map((c: any) => ({
-                            id: c.id,
-                            name: c.name,
-                            role: c.role,
-                            country: c.country,
-                            countryCode: c.countryCode || countryCodeMap[c.country] || "US",
-                            flag: c.countryFlag || c.flag || "",
-                            salary: c.salary || "",
-                            startDate: c.startDate || "",
-                            noticePeriod: c.noticePeriod || "30 days",
-                            pto: c.pto || "15 days/year",
-                            currency: c.currency || currencyMap[c.country] || "USD",
-                            signingPortal: c.signingPortal || "DocuSign",
-                            status: "Hired" as const,
-                            email: c.email,
-                            employmentType: c.employmentType,
-                            nationality: c.nationality,
-                          }));
-                      })()}
-                      onBack={() => {
-                        setCameFromReview(true);
-                        contractFlow.backToDrafting();
-                      }}
-                      onStartSigning={() => { 
-                        const candidateIds = contractFlow.selectedCandidates.map(c => c.id);
-                        setCompanyContractors(prev => ({
-                          ...prev,
-                          [selectedCompany]: (prev[selectedCompany] || []).map(c =>
-                            candidateIds.includes(c.id) 
-                              ? { ...c, status: "awaiting-signature" }
-                              : c
-                          )
-                        }));
-                        contractFlow.proceedToDataCollection();
-                        toast({ title: "Contracts sent for signature", description: `${contractFlow.selectedCandidates.length} candidate(s) moved to Waiting for Signature` });
-                        navigate(`${FLOW_BASE_PATH}?phase=data-collection&moved=true`);
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              ) : contractFlow.phase === "document-bundle-signature" ? (
-                <motion.div key="document-bundle-signature" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <DocumentBundleSignature 
-                    candidates={contractFlow.selectedCandidates} 
-                    onSendBundle={() => { 
-                      contractFlow.startSigning(); 
-                    }}
-                    onClose={() => { contractFlow.proceedToDataCollection(); navigate(`${FLOW_BASE_PATH}?phase=data-collection`); }}
-                  />
-                </motion.div>
-              ) : contractFlow.phase === "signing" ? (
-                <motion.div key="signing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-8">
-                  <ContractSignaturePhase 
-                    candidates={contractFlow.selectedCandidates} 
-                    onComplete={() => { 
-                      contractFlow.completeFlow(); 
-                    }}
-                  />
-                </motion.div>
-              ) : contractFlow.phase === "complete" ? (
-                <motion.div key="complete" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
-                  <div className="w-full max-w-3xl space-y-8">
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3, duration: 0.4 }}
-                    >
-                      <ContractFlowSummary 
-                         candidates={contractFlow.selectedCandidates} 
-                       />
-                     </motion.div>
-                   </div>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-            )}
+              </div>
             </div>
           </div>
-        </AgentLayout>
-      </main>
-      
-      <F1v4_AddCandidateDrawer
-        open={isAddCandidateDrawerOpen}
-        onOpenChange={setIsAddCandidateDrawerOpen}
-        onSave={handleSaveCandidate}
-      />
-    </div>
-  </RoleLensProvider>
+        </div>
+      </div>
+    </RoleLensProvider>
   );
 };
 
-export default AdminContractingMultiCompany;
+export default F1v7_FrontedAdminDashboard;
