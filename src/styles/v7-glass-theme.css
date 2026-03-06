@@ -83,7 +83,7 @@ html:has(.v7-glass-bg) {
 
 /* Extra floating orb via child element — positioned to glow behind pipeline */
 .v7-orb-center {
-  position: absolute;
+  position: fixed;
   top: 25%;
   left: 50%;
   transform: translateX(-50%);
