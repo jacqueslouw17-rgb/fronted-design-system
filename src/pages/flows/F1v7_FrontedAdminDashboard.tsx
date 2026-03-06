@@ -1420,10 +1420,6 @@ const AdminContractingMultiCompany = () => {
                             </motion.div>
                           </motion.div>
                         )
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-[240px] p-0" align="center">
-                                    <Command>
-                                      <CommandInput placeholder="Search companies..." />
                                       <CommandList>
                                         <CommandEmpty>No company found.</CommandEmpty>
                                         <CommandGroup>
