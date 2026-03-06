@@ -1039,7 +1039,9 @@ const AdminContractingMultiCompany = () => {
                         <AgentHeader
                           title={activeMainTab === "payroll" 
                             ? "Fronted Admin · Payroll" 
-                            : `Welcome Joe, get to work at ${companies.find(c => c.id === selectedCompany)?.name || "your company"}!`
+                            : isAllClientsMode
+                              ? `All Clients · ${companies.length} companies, ${allClientsContractors.length} workers`
+                              : `Welcome Joe, get to work at ${companies.find(c => c.id === selectedCompany)?.name || "your company"}!`
                           }
                           subtitle={activeMainTab === "payroll"
                             ? "Review all company payrolls, resolve exceptions, and approve numbers."
