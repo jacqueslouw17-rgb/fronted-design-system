@@ -34,9 +34,14 @@
 }
 
 /* ─── Floating gradient orbs — richer mint/cyan to pull through behind cards ─── */
+/* Prevent horizontal scrollbar from orbs */
+html:has(.v7-glass-bg) {
+  overflow-x: hidden;
+}
+
 .v7-glass-bg::before {
   content: '';
-  position: absolute;
+  position: fixed;
   top: -8%;
   left: -8%;
   width: 60vw;
