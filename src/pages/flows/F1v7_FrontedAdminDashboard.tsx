@@ -12,15 +12,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, X, FileCheck, ChevronDown, Check } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import "@/styles/v7-glass-theme.css";
 import "@/styles/v7-glass-portals.css";
@@ -44,7 +35,7 @@ import { F1v4_PipelineView } from "@/components/flows/fronted-admin-v7-clone/F1v
 import { ContractSignedMessage } from "@/components/contract-flow/ContractSignedMessage";
 import { AgentChatBox } from "@/components/contract-flow/AgentChatBox";
 import confetti from "canvas-confetti";
-
+import Topbar from "@/components/dashboard/Topbar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
@@ -678,6 +669,11 @@ const AdminContractingMultiCompany = () => {
     setIsAddingNewCompany(false);
   };
 
+  const handleBackToFlows = () => {
+    localStorage.removeItem('adminflow-v7-companies');
+    localStorage.removeItem('adminflow-v7-selected-company');
+    localStorage.removeItem('adminflow-v7-company-contractors');
+  };
 
   const handleAddCandidate = () => {
     setIsAddCandidateDrawerOpen(true);
@@ -1014,6 +1010,22 @@ const AdminContractingMultiCompany = () => {
       {/* Floating orb */}
       <div className="v7-orb-center" />
 
+      {/* Topbar */}
+      {!isAddingNewCompany && !isEditingCompany && (
+        contractFlow.phase === "idle" ||
+        contractFlow.phase === "offer-accepted" ||
+        contractFlow.phase === "data-collection"
+      ) && (
+        <Topbar 
+          userName={`${userData.firstName} ${userData.lastName}`}
+          isDrawerOpen={isDrawerOpen}
+          onDrawerToggle={toggleDrawer}
+          profileSettingsUrl="/flow-1-v7/profile-settings"
+          profileMenuLabel="Profile Settings"
+          onBackClick={handleBackToFlows}
+          forceFixed
+        />
+      )}
 
       {/* Logo and Close Button for Add New Company */}
       {isAddingNewCompany && (
@@ -1045,42 +1057,6 @@ const AdminContractingMultiCompany = () => {
           <Button variant="ghost" size="icon" onClick={() => { contractFlow.resetFlow(); navigate(FLOW_BASE_PATH); }} className="h-8 w-8 sm:h-10 sm:w-10">
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-        </div>
-      )}
-
-      {/* Default dashboard header — logo + profile with frosted glass on scroll */}
-      {!isAddingNewCompany && !isEditingCompany &&
-        (contractFlow.phase === "idle" || contractFlow.phase === "offer-accepted" || contractFlow.phase === "data-collection") && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
-          <img src={frontedLogo} alt="Fronted" className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate(FLOW_BASE_PATH)} />
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 sm:h-10 rounded-full px-2 sm:px-3 gap-2 sm:gap-3">
-                <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
-                  <AvatarFallback className="text-[10px] sm:text-xs">
-                    {userData.firstName[0]}{userData.lastName[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden sm:inline text-sm font-medium text-foreground">
-                  {userData.firstName} {userData.lastName}
-                </span>
-                <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{userData.firstName} {userData.lastName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{userData.email}</p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate("/admin/profile-settings")}>
-                Profile Settings
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       )}
 
