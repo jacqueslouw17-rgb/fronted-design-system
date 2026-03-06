@@ -1268,7 +1268,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         </div>
 
                         {/* Data rows */}
-                        <div className="mt-3 pt-2.5 border-t border-border/30 flex flex-col gap-1 text-[11px]">
+                        <div className="mt-4 pt-2.5 border-t border-border/30 flex flex-col gap-1 text-[11px]">
                           <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">
                               {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
