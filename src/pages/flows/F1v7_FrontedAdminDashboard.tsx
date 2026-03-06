@@ -1293,7 +1293,7 @@ const AdminContractingMultiCompany = () => {
                             transition={{ duration: 0.6 }}
                             className="flex flex-col items-center px-4 pt-2 pb-2"
                           >
-                          >
+                            {/* Audio visualizer with floating glow */}
                             <div className="flex justify-center scale-75 sm:scale-100">
                               <AudioWaveVisualizer isActive={isAgentSpeaking || (
                                 searchParams.get("allSigned") === "true"
