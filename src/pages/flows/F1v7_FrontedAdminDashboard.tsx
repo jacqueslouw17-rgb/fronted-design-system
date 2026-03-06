@@ -396,6 +396,7 @@ const AdminContractingMultiCompany = () => {
       contractors.forEach(c => {
         merged.push({
           ...c,
+          companyId: company.id,
           companyName: company.name,
           companyColor: getCompanyColor(company.id),
         });
@@ -1145,12 +1146,17 @@ const AdminContractingMultiCompany = () => {
                                 key={selectedCompany}
                                 contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
                                 onAddCandidate={isAllClientsMode ? undefined : handleAddCandidate}
-                                onRemoveContractor={isAllClientsMode ? undefined : (contractorId) => {
+                                onRemoveContractor={(contractor) => {
+                                  const targetCompanyId = contractor.companyId || selectedCompany;
                                   setCompanyContractors(prev => ({
                                     ...prev,
-                                    [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
+                                    [targetCompanyId]: (prev[targetCompanyId] || []).filter(c => c.id !== contractor.id)
                                   }));
-                                  sonnerToast.success("Candidate removed");
+                                  sonnerToast.success(
+                                    isAllClientsMode && contractor.companyName
+                                      ? `Candidate removed from ${contractor.companyName}`
+                                      : "Candidate removed"
+                                  );
                                 }}
                                 onDraftContract={isAllClientsMode ? undefined : (ids) => {
                                   const params = new URLSearchParams({ 
