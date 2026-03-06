@@ -1196,62 +1196,57 @@ const AdminContractingMultiCompany = () => {
                             transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                             className="text-center space-y-3"
                           >
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <button className="group/selector inline-flex items-center gap-2 text-2xl sm:text-3xl font-bold cursor-pointer transition-all duration-300 hover:gap-3">
-                                  <span className="v7-heading-gradient">
-                                    {isAllClientsMode ? "All Clients" : companies.find(c => c.id === selectedCompany)?.name || "Company"}
-                                  </span>
-                                  <motion.span 
-                                    className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 group-hover/selector:bg-primary/20 transition-colors duration-300"
-                                    whileHover={{ rotate: 180 }}
-                                    transition={{ duration: 0.3 }}
-                                  >
-                                    <ChevronDown className="h-4 w-4 text-primary" />
-                                  </motion.span>
-                                </button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-[260px] p-0 v7-glass-card border-primary/10" align="center" style={{ boxShadow: '0 16px 48px -12px hsl(172 50% 40% / 0.15)' }}>
-                                <Command>
-                                  <CommandInput placeholder="Search companies..." />
-                                  <CommandList>
-                                    <CommandEmpty>No company found.</CommandEmpty>
-                                    <CommandGroup>
-                                      <CommandItem
-                                        value="All clients"
-                                        onSelect={() => handleCompanyChange(ALL_CLIENTS_ID)}
-                                        className="cursor-pointer"
-                                      >
-                                        <Check className={cn("mr-2 h-4 w-4", isAllClientsMode ? "opacity-100" : "opacity-0")} />
-                                        All clients
-                                      </CommandItem>
-                                    </CommandGroup>
-                                    <CommandSeparator />
-                                    <CommandGroup>
-                                      {companies.map((company) => (
+                            <div className="flex items-center justify-center gap-3 flex-wrap">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <button className="group/selector inline-flex items-center gap-2 text-2xl sm:text-3xl font-bold cursor-pointer transition-all duration-300 hover:gap-3">
+                                    <span className="v7-heading-gradient">
+                                      {isAllClientsMode ? "All Clients" : companies.find(c => c.id === selectedCompany)?.name || "Company"}
+                                    </span>
+                                    <motion.span 
+                                      className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 group-hover/selector:bg-primary/20 transition-colors duration-300"
+                                      whileHover={{ rotate: 180 }}
+                                      transition={{ duration: 0.3 }}
+                                    >
+                                      <ChevronDown className="h-4 w-4 text-primary" />
+                                    </motion.span>
+                                  </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[260px] p-0 v7-glass-card border-primary/10" align="center" style={{ boxShadow: '0 16px 48px -12px hsl(172 50% 40% / 0.15)' }}>
+                                  <Command>
+                                    <CommandInput placeholder="Search companies..." />
+                                    <CommandList>
+                                      <CommandEmpty>No company found.</CommandEmpty>
+                                      <CommandGroup>
                                         <CommandItem
-                                          key={company.id}
-                                          value={company.name}
-                                          onSelect={() => handleCompanyChange(company.id)}
+                                          value="All clients"
+                                          onSelect={() => handleCompanyChange(ALL_CLIENTS_ID)}
                                           className="cursor-pointer"
                                         >
-                                          <Check className={cn("mr-2 h-4 w-4", selectedCompany === company.id ? "opacity-100" : "opacity-0")} />
-                                          {company.name}
+                                          <Check className={cn("mr-2 h-4 w-4", isAllClientsMode ? "opacity-100" : "opacity-0")} />
+                                          All clients
                                         </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
+                                      </CommandGroup>
+                                      <CommandSeparator />
+                                      <CommandGroup>
+                                        {companies.map((company) => (
+                                          <CommandItem
+                                            key={company.id}
+                                            value={company.name}
+                                            onSelect={() => handleCompanyChange(company.id)}
+                                            className="cursor-pointer"
+                                          >
+                                            <Check className={cn("mr-2 h-4 w-4", selectedCompany === company.id ? "opacity-100" : "opacity-0")} />
+                                            {company.name}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
 
-                            {/* Glassmorphism stat pills */}
-                            <motion.div 
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.4, duration: 0.5 }}
-                              className="flex items-center justify-center gap-2"
-                            >
+                              {/* Inline stat pills */}
                               <AnimatePresence mode="wait">
                                 <motion.div
                                   key={isAllClientsMode ? "all" : selectedCompany}
@@ -1276,24 +1271,7 @@ const AdminContractingMultiCompany = () => {
                                   </span>
                                 </motion.div>
                               </AnimatePresence>
-                            </motion.div>
-
-                            {/* Subtitle */}
-                            <motion.p 
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.55, duration: 0.5 }}
-                              className="text-sm sm:text-base max-w-sm mx-auto"
-                            >
-                              <span className={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true" ? "text-foreground/60" : "text-muted-foreground"}>
-                                {searchParams.get("allSigned") === "true"
-                                  ? "Both candidates have signed! Let's trigger their onboarding checklists."
-                                  : searchParams.get("moved") === "true" 
-                                    ? "Great, contracts sent to candidates via their preferred signing portals."
-                                    : "Monitor candidate signatures and complete certification to finalize contracts."
-                                }
-                              </span>
-                            </motion.p>
+                            </div>
                           </motion.div>
                         </motion.div>
                       )}
