@@ -62,7 +62,7 @@ html:has(.v7-glass-bg) {
 
 .v7-glass-bg::after {
   content: '';
-  position: absolute;
+  position: fixed;
   bottom: -10%;
   right: -3%;
   width: 55vw;
