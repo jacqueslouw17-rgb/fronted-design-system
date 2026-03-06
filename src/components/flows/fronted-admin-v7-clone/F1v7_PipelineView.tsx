@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown, MoreHorizontal } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -1186,7 +1186,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               }}>
                 <Card 
                   className={cn(
-                    "v7-glass-item border cursor-pointer overflow-hidden",
+                    "v7-glass-item border cursor-pointer overflow-hidden group/card",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
                       : ""
