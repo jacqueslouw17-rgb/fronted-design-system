@@ -146,7 +146,7 @@ body.v7-glass-active [data-radix-portal] .bg-background {
 /*  Primary colors in portals                              */
 /* ═══════════════════════════════════════════════════════ */
 body.v7-glass-active [data-radix-portal] [class*="text-primary"]:not(button) {
-  color: hsl(172 50% 38%) !important;
+  color: hsl(172 28% 38%) !important;
 }
 
 body.v7-glass-active [data-radix-portal] [class*="bg-primary/10"],
@@ -157,7 +157,7 @@ body.v7-glass-active [data-radix-portal] [class*="bg-primary/20"] {
 }
 
 body.v7-glass-active [data-radix-portal] .bg-primary {
-  background: hsl(172 48% 48%) !important;
+  background: hsl(172 28% 42%) !important;
 }
 
 /* ═══════════════════════════════════════════════════════ */
@@ -168,33 +168,33 @@ body.v7-glass-active [data-radix-portal] button[class*="bg-gradient-primary"],
 body.v7-glass-active [data-radix-portal] button.bg-gradient-primary {
   background: linear-gradient(
     180deg,
-    hsl(172 42% 52%) 0%,
-    hsl(172 48% 45%) 100%
+    hsl(172 26% 44%) 0%,
+    hsl(174 30% 38%) 100%
   ) !important;
   background-image: none !important;
-  background-color: hsl(172 45% 48%) !important;
+  background-color: hsl(172 28% 42%) !important;
   color: hsl(0 0% 100%) !important;
-  border-color: hsl(172 35% 55% / 0.6) !important;
-  box-shadow: 0 2px 12px hsl(172 30% 40% / 0.2) !important;
+  border-color: hsl(172 20% 50% / 0.3) !important;
+  box-shadow: 0 1px 8px hsl(172 20% 35% / 0.12) !important;
 }
 
 body.v7-glass-active [data-radix-portal] button[class*="bg-primary"]:not([role="checkbox"]):hover,
 body.v7-glass-active [data-radix-portal] button[class*="bg-gradient-primary"]:hover {
   background: linear-gradient(
     180deg,
-    hsl(172 44% 48%) 0%,
-    hsl(172 50% 40%) 100%
+    hsl(172 28% 40%) 0%,
+    hsl(174 32% 34%) 100%
   ) !important;
   background-image: none !important;
-  background-color: hsl(172 47% 44%) !important;
+  background-color: hsl(172 30% 38%) !important;
 }
 
 /* bg-gradient-primary non-button elements */
 body.v7-glass-active [data-radix-portal] [class*="bg-gradient-primary"]:not(button) {
   background: linear-gradient(
     135deg,
-    hsl(172 42% 52%) 0%,
-    hsl(170 48% 42%) 100%
+    hsl(172 26% 46%) 0%,
+    hsl(174 30% 38%) 100%
   ) !important;
 }
 
@@ -207,8 +207,8 @@ body.v7-glass-active [data-radix-portal] button[role="checkbox"] {
 }
 
 body.v7-glass-active [data-radix-portal] button[role="checkbox"][data-state="checked"] {
-  background: hsl(172 48% 48%) !important;
-  border-color: hsl(172 48% 48%) !important;
+  background: hsl(172 28% 42%) !important;
+  border-color: hsl(172 28% 42%) !important;
 }
 
 /* ═══════════════════════════════════════════════════════ */
@@ -304,7 +304,7 @@ body.v7-glass-active [data-radix-portal] [class*="border-violet-300"] {
 
 body.v7-glass-active [data-radix-portal] button[class*="bg-violet-600"],
 body.v7-glass-active [data-radix-portal] button[class*="bg-violet-700"] {
-  background: linear-gradient(180deg, hsl(172 42% 52%) 0%, hsl(172 48% 45%) 100%) !important;
+  background: linear-gradient(180deg, hsl(172 26% 44%) 0%, hsl(174 30% 38%) 100%) !important;
   color: hsl(0 0% 100%) !important;
 }
 
