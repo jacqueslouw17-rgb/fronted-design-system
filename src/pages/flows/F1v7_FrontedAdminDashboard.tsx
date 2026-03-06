@@ -35,7 +35,7 @@ import { F1v4_PipelineView } from "@/components/flows/fronted-admin-v7-clone/F1v
 import { ContractSignedMessage } from "@/components/contract-flow/ContractSignedMessage";
 import { AgentChatBox } from "@/components/contract-flow/AgentChatBox";
 import confetti from "canvas-confetti";
-import Topbar from "@/components/dashboard/Topbar";
+
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
@@ -1010,22 +1010,6 @@ const AdminContractingMultiCompany = () => {
       {/* Floating orb */}
       <div className="v7-orb-center" />
 
-      {/* Topbar */}
-      {!isAddingNewCompany && !isEditingCompany && (
-        contractFlow.phase === "idle" ||
-        contractFlow.phase === "offer-accepted" ||
-        contractFlow.phase === "data-collection"
-      ) && (
-        <Topbar 
-          userName={`${userData.firstName} ${userData.lastName}`}
-          isDrawerOpen={isDrawerOpen}
-          onDrawerToggle={toggleDrawer}
-          profileSettingsUrl="/flow-1-v7/profile-settings"
-          profileMenuLabel="Profile Settings"
-          onBackClick={handleBackToFlows}
-          forceFixed
-        />
-      )}
 
       {/* Logo and Close Button for Add New Company */}
       {isAddingNewCompany && (
