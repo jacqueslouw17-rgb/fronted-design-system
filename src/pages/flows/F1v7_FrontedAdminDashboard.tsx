@@ -1091,12 +1091,7 @@ const AdminContractingMultiCompany = () => {
           profileMenuLabel="Profile Settings"
           onBackClick={handleBackToFlows}
           forceFixed
-          companySwitcher={hasNoCompanies ? undefined : {
-            companies: [{ id: ALL_CLIENTS_ID, name: `All clients (${companies.length})` }, ...companies],
-            selectedCompany,
-            onCompanyChange: handleCompanyChange,
-            onEditCompany: (id) => { if (id !== ALL_CLIENTS_ID) handleEditCompany(id); }
-          }}
+          
         />
       )}
 
