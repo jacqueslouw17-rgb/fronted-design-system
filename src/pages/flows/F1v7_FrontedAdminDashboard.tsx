@@ -457,7 +457,7 @@ const AdminContractingMultiCompany = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return Object.fromEntries(
+        const result = Object.fromEntries(
           Object.entries(parsed).map(([companyId, contractors]) => [
             companyId,
             Array.isArray(contractors)
@@ -473,6 +473,19 @@ const AdminContractingMultiCompany = () => {
               : [],
           ])
         ) as Record<string, any[]>;
+        // Merge missing company contractor lists
+        const defaults: Record<string, any[]> = { "company-default": [...DEFAULT_DRAFTING_CANDIDATES], "company-globex": [...GLOBEX_CANDIDATES], "company-initech": [...INITECH_CANDIDATES], "company-waystar": [...WAYSTAR_CANDIDATES] };
+        let updated = false;
+        for (const [key, val] of Object.entries(defaults)) {
+          if (!(key in result)) {
+            result[key] = val;
+            updated = true;
+          }
+        }
+        if (updated) {
+          localStorage.setItem('adminflow-v7-company-contractors', JSON.stringify(result));
+        }
+        return result;
       } catch {
         localStorage.removeItem('adminflow-v7-company-contractors');
       }
