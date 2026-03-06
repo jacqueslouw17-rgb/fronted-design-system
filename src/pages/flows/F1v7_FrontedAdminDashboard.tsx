@@ -187,6 +187,7 @@ const AdminContractingMultiCompany = () => {
 
   const didApplyDraftingUrlRef = useRef(false);
   
+  const ALL_CLIENTS_ID = "__all_clients__";
   const companyFromUrl = searchParams.get('company');
   const [selectedCompany, setSelectedCompany] = useState<string>(() => {
     if (companyFromUrl) return companyFromUrl;
@@ -309,6 +310,42 @@ const AdminContractingMultiCompany = () => {
     role: "admin"
   };
 
+  // Generate a stable color palette for companies in "All clients" view
+  const COMPANY_COLORS = [
+    'hsl(162 48% 48%)',  // mint/teal
+    'hsl(220 70% 55%)',  // blue
+    'hsl(340 65% 55%)',  // rose
+    'hsl(35 85% 55%)',   // amber
+    'hsl(280 55% 55%)',  // purple
+    'hsl(170 60% 42%)',  // cyan-green
+    'hsl(15 75% 55%)',   // coral
+    'hsl(200 70% 50%)',  // sky
+  ];
+
+  const getCompanyColor = (companyId: string) => {
+    const idx = companies.findIndex(c => c.id === companyId);
+    return COMPANY_COLORS[idx % COMPANY_COLORS.length];
+  };
+
+  // Build merged contractor list when "All clients" is selected
+  const allClientsContractors = React.useMemo(() => {
+    if (selectedCompany !== ALL_CLIENTS_ID) return [];
+    const merged: any[] = [];
+    companies.forEach(company => {
+      const contractors = companyContractors[company.id] || [];
+      contractors.forEach(c => {
+        merged.push({
+          ...c,
+          companyName: company.name,
+          companyColor: getCompanyColor(company.id),
+        });
+      });
+    });
+    return merged;
+  }, [selectedCompany, companies, companyContractors]);
+
+  const isAllClientsMode = selectedCompany === ALL_CLIENTS_ID;
+
   const handleCompanyChange = (companyId: string) => {
     if (companyId === "add-new") {
       setIsAddingNewCompany(true);
@@ -316,8 +353,16 @@ const AdminContractingMultiCompany = () => {
     }
     
     setSelectedCompany(companyId);
+
+    if (companyId === ALL_CLIENTS_ID) {
+      toast({
+        title: "All Clients",
+        description: `Viewing workers across all ${companies.length} companies`,
+      });
+      return;
+    }
+
     const company = companies.find(c => c.id === companyId);
-    
     toast({
       title: "Company Switched",
       description: `Now viewing contracts for ${company?.name}`,
@@ -802,10 +847,10 @@ const AdminContractingMultiCompany = () => {
           onBackClick={handleBackToFlows}
           forceFixed
           companySwitcher={hasNoCompanies ? undefined : {
-            companies,
+            companies: [{ id: ALL_CLIENTS_ID, name: `All clients (${companies.length})` }, ...companies],
             selectedCompany,
             onCompanyChange: handleCompanyChange,
-            onEditCompany: handleEditCompany
+            onEditCompany: (id) => { if (id !== ALL_CLIENTS_ID) handleEditCompany(id); }
           }}
         />
       )}
@@ -994,7 +1039,9 @@ const AdminContractingMultiCompany = () => {
                         <AgentHeader
                           title={activeMainTab === "payroll" 
                             ? "Fronted Admin · Payroll" 
-                            : `Welcome Joe, get to work at ${companies.find(c => c.id === selectedCompany)?.name || "your company"}!`
+                            : isAllClientsMode
+                              ? `All Clients · ${companies.length} companies, ${allClientsContractors.length} workers`
+                              : `Welcome Joe, get to work at ${companies.find(c => c.id === selectedCompany)?.name || "your company"}!`
                           }
                           subtitle={activeMainTab === "payroll"
                             ? "Review all company payrolls, resolve exceptions, and approve numbers."
@@ -1036,16 +1083,16 @@ const AdminContractingMultiCompany = () => {
                             <div className="mt-3">
                               <F1v4_PipelineView 
                                 key={selectedCompany}
-                                contractors={companyContractors[selectedCompany] || []}
-                                onAddCandidate={handleAddCandidate}
-                                onRemoveContractor={(contractorId) => {
+                                contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
+                                onAddCandidate={isAllClientsMode ? undefined : handleAddCandidate}
+                                onRemoveContractor={isAllClientsMode ? undefined : (contractorId) => {
                                   setCompanyContractors(prev => ({
                                     ...prev,
                                     [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
                                   }));
                                   sonnerToast.success("Candidate removed");
                                 }}
-                                onDraftContract={(ids) => {
+                                onDraftContract={isAllClientsMode ? undefined : (ids) => {
                                   const params = new URLSearchParams({ 
                                     ids: ids.join(','),
                                     returnTo: 'f1v7',
@@ -1053,7 +1100,7 @@ const AdminContractingMultiCompany = () => {
                                   }).toString();
                                   navigate(`/flows/contract-creation?${params}`);
                                 }}
-                                onSignatureComplete={() => {
+                                onSignatureComplete={isAllClientsMode ? undefined : () => {
                                   navigate(`${FLOW_BASE_PATH}?phase=data-collection&allSigned=true`);
                                 }}
                               />

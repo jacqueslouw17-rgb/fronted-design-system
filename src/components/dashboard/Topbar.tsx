@@ -162,7 +162,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                     <span className="truncate flex-1">
                       {highlightMatch(company.name, companySearchValue)}
                     </span>
-                    {companySwitcher.onEditCompany && (
+                    {companySwitcher.onEditCompany && !company.id.startsWith("__") && (
                       <button
                         type="button"
                         onClick={(e) => {

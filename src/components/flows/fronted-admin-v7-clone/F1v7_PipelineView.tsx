@@ -72,6 +72,9 @@ interface Contractor {
   // Document verification
   needsDocumentVerification?: boolean;
   documentsVerified?: boolean;
+  // Multi-company "All clients" view
+  companyName?: string;
+  companyColor?: string;
 }
 interface PayrollChecklistItem {
   id: string;
@@ -1165,19 +1168,23 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   duration: 0.2
                 }
               }}>
-                <Card className={cn(
-                  "v7-glass-item border cursor-pointer",
-                  status === "onboarding-pending"
-                    ? "border-primary/30 shadow-sm shadow-primary/5"
-                    : ""
-                )} onClick={() => {
-                  if (status === "awaiting-signature") {
-                    handleOpenSignatureWorkflow(contractor);
-                  } else if (status === "CERTIFIED") {
-                    setSelectedForDoneDetail(contractor);
-                    setDoneDetailDrawerOpen(true);
-                  }
-                }}>
+                <Card 
+                  className={cn(
+                    "v7-glass-item border cursor-pointer overflow-hidden",
+                    status === "onboarding-pending"
+                      ? "border-primary/30 shadow-sm shadow-primary/5"
+                      : "",
+                    contractor.companyName && "border-l-2"
+                  )} 
+                  style={contractor.companyColor ? { borderLeftColor: contractor.companyColor } : undefined}
+                  onClick={() => {
+                    if (status === "awaiting-signature") {
+                      handleOpenSignatureWorkflow(contractor);
+                    } else if (status === "CERTIFIED") {
+                      setSelectedForDoneDetail(contractor);
+                      setDoneDetailDrawerOpen(true);
+                    }
+                  }}>
                       <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
                         <div className="flex items-center gap-2">
@@ -1227,6 +1234,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Button>}
                             </div>
                             <p className="text-xs text-muted-foreground truncate">{contractor.role}</p>
+                            {/* Company tag — only visible in "All clients" multi-company view */}
+                            {contractor.companyName && (
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <div 
+                                  className="w-2 h-2 rounded-full flex-shrink-0" 
+                                  style={{ backgroundColor: contractor.companyColor || 'hsl(162 48% 48%)' }}
+                                />
+                                <span className="text-[10px] font-medium truncate" style={{ color: contractor.companyColor || 'hsl(162 48% 48%)' }}>
+                                  {contractor.companyName}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
 
