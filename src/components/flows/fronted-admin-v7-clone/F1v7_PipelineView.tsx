@@ -1257,7 +1257,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-5 w-5 min-w-[20px] rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0 z-10 transition-all duration-200 opacity-0 w-0 group-hover/card:opacity-100 group-hover/card:w-5 ml-0.5"
+                                    className="h-5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0 z-10 transition-all duration-200 opacity-0 w-0 min-w-0 overflow-hidden p-0 group-hover/card:opacity-100 group-hover/card:w-5 group-hover/card:min-w-[20px] ml-0.5"
                                     onClick={e => {
                                       e.preventDefault();
                                       e.stopPropagation();
