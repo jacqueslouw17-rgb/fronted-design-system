@@ -606,7 +606,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             )}
 
             {/* Sections */}
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               
               {/* 1) Personal Profile */}
               <SectionCard title="Personal Profile" defaultOpen={false}>

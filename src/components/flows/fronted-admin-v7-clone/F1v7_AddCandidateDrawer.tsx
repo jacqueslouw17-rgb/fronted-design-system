@@ -428,7 +428,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
-                className="space-y-3"
+                className="space-y-1.5"
               >
                 {/* ── Section 1: Personal Profile ── */}
                 <SectionCard title="Personal Profile">
