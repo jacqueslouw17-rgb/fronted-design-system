@@ -57,9 +57,10 @@ interface TopbarProps {
     onCompanyChange: (companyId: string) => void;
     onEditCompany?: (companyId: string) => void;
   };
+  centerCompanySwitcher?: boolean; // When true, renders company switcher centered in header
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, onBackClick, companySwitcher }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, onBackClick, companySwitcher, centerCompanySwitcher }: TopbarProps) => {
   const navigate = useNavigate();
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [companySearchValue, setCompanySearchValue] = useState("");
@@ -96,6 +97,97 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
       navigate("/auth");
     }
   };
+
+  const companySwitcherElement = companySwitcher ? (
+    <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={companySearchOpen}
+          className="w-[140px] sm:w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
+        >
+          <span className="truncate">
+            {companySwitcher.selectedCompany === "add-new" 
+              ? "Select company..."
+              : companySwitcher.companies.find((c) => c.id === companySwitcher.selectedCompany)?.name || "Select company..."}
+          </span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[280px] p-0 bg-background z-50" align="start" sideOffset={8}>
+        <Command>
+          <CommandInput 
+            placeholder="Search companies..." 
+            value={companySearchValue}
+            onValueChange={setCompanySearchValue}
+          />
+          <div className="border-b">
+            <CommandItem
+              value="add-new"
+              onSelect={() => {
+                companySwitcher.onCompanyChange("add-new");
+                setCompanySearchOpen(false);
+                setCompanySearchValue("");
+              }}
+              className="text-primary font-medium"
+            >
+              <span className="text-lg mr-2">+</span>
+              Add New Company
+            </CommandItem>
+          </div>
+          <CommandList className="max-h-[240px]">
+            <CommandEmpty>No company found.</CommandEmpty>
+            <CommandGroup>
+              {[...companySwitcher.companies].sort((a, b) => a.name.localeCompare(b.name)).map((company) => {
+                const isSelected = companySwitcher.selectedCompany === company.id;
+                return (
+                  <CommandItem
+                    key={company.id}
+                    value={company.name}
+                    onSelect={() => {
+                      companySwitcher.onCompanyChange(company.id);
+                      setCompanySearchOpen(false);
+                      setCompanySearchValue("");
+                    }}
+                    className="truncate group"
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4 flex-shrink-0",
+                        isSelected ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <span className="truncate flex-1">
+                      {highlightMatch(company.name, companySearchValue)}
+                    </span>
+                    {companySwitcher.onEditCompany && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          companySwitcher.onEditCompany?.(company.id);
+                          setCompanySearchOpen(false);
+                        }}
+                        className={cn(
+                          "ml-2 p-1.5 rounded-md bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all",
+                          isSelected ? "opacity-60 group-hover:opacity-100" : "opacity-0 group-hover:opacity-100"
+                        )}
+                        title="Edit company details"
+                      >
+                        <Settings className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  ) : null;
 
   return (
     <header className="sticky top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-3 sm:px-6 relative">
@@ -138,98 +230,16 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           onClick={() => navigate(dashboardUrl || '/candidate-dashboard')}
         />
         
-        {/* Company Switcher */}
-        {companySwitcher && (
-          <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={companySearchOpen}
-                className="w-[140px] sm:w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
-              >
-                <span className="truncate">
-                  {companySwitcher.selectedCompany === "add-new" 
-                    ? "Select company..."
-                    : companySwitcher.companies.find((c) => c.id === companySwitcher.selectedCompany)?.name || "Select company..."}
-                </span>
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[280px] p-0 bg-background z-50" align="start" sideOffset={8}>
-              <Command>
-                <CommandInput 
-                  placeholder="Search companies..." 
-                  value={companySearchValue}
-                  onValueChange={setCompanySearchValue}
-                />
-                <div className="border-b">
-                  <CommandItem
-                    value="add-new"
-                    onSelect={() => {
-                      companySwitcher.onCompanyChange("add-new");
-                      setCompanySearchOpen(false);
-                      setCompanySearchValue("");
-                    }}
-                    className="text-primary font-medium"
-                  >
-                    <span className="text-lg mr-2">+</span>
-                    Add New Company
-                  </CommandItem>
-                </div>
-                <CommandList className="max-h-[240px]">
-                  <CommandEmpty>No company found.</CommandEmpty>
-                  <CommandGroup>
-                    {[...companySwitcher.companies].sort((a, b) => a.name.localeCompare(b.name)).map((company) => {
-                      const isSelected = companySwitcher.selectedCompany === company.id;
-                      return (
-                        <CommandItem
-                          key={company.id}
-                          value={company.name}
-                          onSelect={() => {
-                            companySwitcher.onCompanyChange(company.id);
-                            setCompanySearchOpen(false);
-                            setCompanySearchValue("");
-                          }}
-                          className="truncate group"
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4 flex-shrink-0",
-                              isSelected ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          <span className="truncate flex-1">
-                            {highlightMatch(company.name, companySearchValue)}
-                          </span>
-                          {companySwitcher.onEditCompany && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                companySwitcher.onEditCompany?.(company.id);
-                                setCompanySearchOpen(false);
-                              }}
-                              className={cn(
-                                "ml-2 p-1.5 rounded-md bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all",
-                                isSelected ? "opacity-60 group-hover:opacity-100" : "opacity-0 group-hover:opacity-100"
-                              )}
-                              title="Edit company details"
-                            >
-                              <Settings className="h-3.5 w-3.5" />
-                            </button>
-                          )}
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        )}
+        {/* Company Switcher — inline (default position) */}
+        {!centerCompanySwitcher && companySwitcherElement}
       </div>
+
+      {/* Company Switcher — centered (when centerCompanySwitcher is true) */}
+      {centerCompanySwitcher && companySwitcherElement && (
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          {companySwitcherElement}
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
