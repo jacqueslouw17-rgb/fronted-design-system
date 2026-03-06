@@ -800,6 +800,7 @@ const AdminContractingMultiCompany = () => {
           profileSettingsUrl="/flow-1-v7/profile-settings"
           profileMenuLabel="Profile Settings"
           onBackClick={handleBackToFlows}
+          forceFixed
           companySwitcher={hasNoCompanies ? undefined : {
             companies,
             selectedCompany,
