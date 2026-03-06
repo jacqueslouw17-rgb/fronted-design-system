@@ -9,7 +9,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, X, FileCheck } from "lucide-react";
+import { ArrowLeft, X, FileCheck, ChevronDown, Check } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import "@/styles/v7-glass-theme.css";
 import "@/styles/v7-glass-portals.css";
 import frontedLogo from "@/assets/fronted-logo.png";
@@ -1091,12 +1094,7 @@ const AdminContractingMultiCompany = () => {
           profileMenuLabel="Profile Settings"
           onBackClick={handleBackToFlows}
           forceFixed
-          companySwitcher={hasNoCompanies ? undefined : {
-            companies: [{ id: ALL_CLIENTS_ID, name: `All clients (${companies.length})` }, ...companies],
-            selectedCompany,
-            onCompanyChange: handleCompanyChange,
-            onEditCompany: (id) => { if (id !== ALL_CLIENTS_ID) handleEditCompany(id); }
-          }}
+          
         />
       )}
 
@@ -1280,36 +1278,91 @@ const AdminContractingMultiCompany = () => {
                             }, 2000);
                           }}
                         />
-                      ) : (
-                        <AgentHeader
-                          title={activeMainTab === "payroll" 
-                            ? "Fronted Admin · Payroll" 
-                            : isAllClientsMode
-                              ? `All Clients · ${companies.length} companies, ${allClientsContractors.length} workers`
-                              : `Welcome Joe, get to work at ${companies.find(c => c.id === selectedCompany)?.name || "your company"}!`
-                          }
-                          subtitle={activeMainTab === "payroll"
-                            ? "Review all company payrolls, resolve exceptions, and approve numbers."
-                            : searchParams.get("allSigned") === "true"
-                              ? "Both candidates have signed! Let's trigger their onboarding checklists."
-                              : searchParams.get("moved") === "true" 
-                                ? "Great, contracts sent to candidates via their preferred signing portals."
-                                : "Monitor candidate signatures and complete certification to finalize contracts."
-                          }
-                          showPulse={true}
-                          hasChanges={activeMainTab === "tracker" && (searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true")}
-                          isActive={isAgentSpeaking || (
-                            activeMainTab === "tracker" && (
-                              searchParams.get("allSigned") === "true"
-                                ? !hasSpokenPhase["data-collection-all-signed"]
-                                : searchParams.get("moved") === "true" 
-                                  ? !hasSpokenPhase["data-collection-moved"]
-                                  : !hasSpokenPhase["offer-accepted"]
-                            )
-                          )}
-                          showInput={false}
-                        />
-                      )}
+                      ) : activeMainTab === "payroll" ? (
+                          <AgentHeader
+                            title="Fronted Admin · Payroll"
+                            subtitle="Review all company payrolls, resolve exceptions, and approve numbers."
+                            showPulse={true}
+                            isActive={false}
+                            showInput={false}
+                          />
+                        ) : (
+                          <motion.div 
+                            initial={{ opacity: 0, y: -20 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            className="flex flex-col items-center space-y-3 sm:space-y-4 px-4"
+                          >
+                            <div className="flex justify-center scale-75 sm:scale-100">
+                              <AudioWaveVisualizer isActive={isAgentSpeaking || (
+                                searchParams.get("allSigned") === "true"
+                                  ? !hasSpokenPhase["data-collection-all-signed"]
+                                  : searchParams.get("moved") === "true" 
+                                    ? !hasSpokenPhase["data-collection-moved"]
+                                    : !hasSpokenPhase["offer-accepted"]
+                              )} isListening={false} />
+                            </div>
+                            <div className="text-center space-y-1 sm:space-y-2">
+                              <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center justify-center gap-1 flex-wrap">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <button className="inline-flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer border-b-2 border-dashed border-primary/30 hover:border-primary pb-0.5">
+                                      {isAllClientsMode ? "All Clients" : companies.find(c => c.id === selectedCompany)?.name || "Company"}
+                                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-[240px] p-0" align="center">
+                                    <Command>
+                                      <CommandInput placeholder="Search companies..." />
+                                      <CommandList>
+                                        <CommandEmpty>No company found.</CommandEmpty>
+                                        <CommandGroup>
+                                          <CommandItem
+                                            value="All clients"
+                                            onSelect={() => handleCompanyChange(ALL_CLIENTS_ID)}
+                                            className="cursor-pointer"
+                                          >
+                                            <Check className={cn("mr-2 h-4 w-4", isAllClientsMode ? "opacity-100" : "opacity-0")} />
+                                            All clients
+                                          </CommandItem>
+                                        </CommandGroup>
+                                        <CommandSeparator />
+                                        <CommandGroup>
+                                          {companies.map((company) => (
+                                            <CommandItem
+                                              key={company.id}
+                                              value={company.name}
+                                              onSelect={() => handleCompanyChange(company.id)}
+                                              className="cursor-pointer"
+                                            >
+                                              <Check className={cn("mr-2 h-4 w-4", selectedCompany === company.id ? "opacity-100" : "opacity-0")} />
+                                              {company.name}
+                                            </CommandItem>
+                                          ))}
+                                        </CommandGroup>
+                                      </CommandList>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
+                                <span className="text-muted-foreground font-normal text-lg sm:text-xl">
+                                  {isAllClientsMode 
+                                    ? `· ${companies.map(c => c.name).join(", ")} · ${allClientsContractors.length} workers`
+                                    : `· ${(companyContractors[selectedCompany] || []).length} workers`
+                                  }
+                                </span>
+                              </h1>
+                              <p className="text-sm sm:text-base">
+                                <span className={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true" ? "text-foreground/60" : "text-muted-foreground"}>
+                                  {searchParams.get("allSigned") === "true"
+                                    ? "Both candidates have signed! Let's trigger their onboarding checklists."
+                                    : searchParams.get("moved") === "true" 
+                                      ? "Great, contracts sent to candidates via their preferred signing portals."
+                                      : "Monitor candidate signatures and complete certification to finalize contracts."
+                                  }
+                                </span>
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
                       
                       <div className="flex items-center justify-center py-2">
                         <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "tracker" | "payroll")}>
