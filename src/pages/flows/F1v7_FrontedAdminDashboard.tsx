@@ -1294,10 +1294,132 @@ const AdminContractingMultiCompany = () => {
                             className="flex flex-col items-center px-4 pt-2 pb-2"
                           >
                             {/* Audio visualizer with floating glow */}
-                            <div className="flex justify-center scale-75 sm:scale-100">
-                              <AudioWaveVisualizer isActive={isAgentSpeaking || (
-                                searchParams.get("allSigned") === "true"
-                                  ? !hasSpokenPhase["data-collection-all-signed"]
+                            <motion.div 
+                              initial={{ scale: 0.6, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                              className="relative flex justify-center mb-5"
+                            >
+                              <div className="absolute inset-0 -m-6 rounded-full v7-header-glow pointer-events-none" />
+                              <div className="relative scale-75 sm:scale-100">
+                                <AudioWaveVisualizer isActive={isAgentSpeaking || (
+                                  searchParams.get("allSigned") === "true"
+                                    ? !hasSpokenPhase["data-collection-all-signed"]
+                                    : searchParams.get("moved") === "true" 
+                                      ? !hasSpokenPhase["data-collection-moved"]
+                                      : !hasSpokenPhase["offer-accepted"]
+                                )} isListening={false} />
+                              </div>
+                            </motion.div>
+
+                            {/* Premium heading with interactive company selector */}
+                            <motion.div
+                              initial={{ opacity: 0, y: 16 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                              className="text-center space-y-3"
+                            >
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <button className="group/selector inline-flex items-center gap-2 text-2xl sm:text-3xl font-bold cursor-pointer transition-all duration-300 hover:gap-3">
+                                    <span className="v7-heading-gradient">
+                                      {isAllClientsMode ? "All Clients" : companies.find(c => c.id === selectedCompany)?.name || "Company"}
+                                    </span>
+                                    <motion.span 
+                                      className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 group-hover/selector:bg-primary/20 transition-colors duration-300"
+                                      whileHover={{ rotate: 180 }}
+                                      transition={{ duration: 0.3 }}
+                                    >
+                                      <ChevronDown className="h-4 w-4 text-primary" />
+                                    </motion.span>
+                                  </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[260px] p-0 v7-glass-card border-primary/10" align="center" style={{ boxShadow: '0 16px 48px -12px hsl(172 50% 40% / 0.15)' }}>
+                                  <Command>
+                                    <CommandInput placeholder="Search companies..." />
+                                    <CommandList>
+                                      <CommandEmpty>No company found.</CommandEmpty>
+                                      <CommandGroup>
+                                        <CommandItem
+                                          value="All clients"
+                                          onSelect={() => handleCompanyChange(ALL_CLIENTS_ID)}
+                                          className="cursor-pointer"
+                                        >
+                                          <Check className={cn("mr-2 h-4 w-4", isAllClientsMode ? "opacity-100" : "opacity-0")} />
+                                          All clients
+                                        </CommandItem>
+                                      </CommandGroup>
+                                      <CommandSeparator />
+                                      <CommandGroup>
+                                        {companies.map((company) => (
+                                          <CommandItem
+                                            key={company.id}
+                                            value={company.name}
+                                            onSelect={() => handleCompanyChange(company.id)}
+                                            className="cursor-pointer"
+                                          >
+                                            <Check className={cn("mr-2 h-4 w-4", selectedCompany === company.id ? "opacity-100" : "opacity-0")} />
+                                            {company.name}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+
+                              {/* Glassmorphism stat pills */}
+                              <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4, duration: 0.5 }}
+                                className="flex items-center justify-center gap-2"
+                              >
+                                <AnimatePresence mode="wait">
+                                  <motion.div
+                                    key={isAllClientsMode ? "all" : selectedCompany}
+                                    initial={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
+                                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                                    exit={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
+                                    transition={{ duration: 0.3 }}
+                                    className="flex items-center gap-2"
+                                  >
+                                    {isAllClientsMode && (
+                                      <span className="v7-stat-pill">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                                        {companies.length} clients
+                                      </span>
+                                    )}
+                                    <span className="v7-stat-pill">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-primary/80" />
+                                      {isAllClientsMode
+                                        ? `${allClientsContractors.length} workers`
+                                        : `${(companyContractors[selectedCompany] || []).length} workers`
+                                      }
+                                    </span>
+                                  </motion.div>
+                                </AnimatePresence>
+                              </motion.div>
+
+                              {/* Subtitle */}
+                              <motion.p 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.55, duration: 0.5 }}
+                                className="text-sm sm:text-base max-w-sm mx-auto"
+                              >
+                                <span className={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true" ? "text-foreground/60" : "text-muted-foreground"}>
+                                  {searchParams.get("allSigned") === "true"
+                                    ? "Both candidates have signed! Let's trigger their onboarding checklists."
+                                    : searchParams.get("moved") === "true" 
+                                      ? "Great, contracts sent to candidates via their preferred signing portals."
+                                      : "Monitor candidate signatures and complete certification to finalize contracts."
+                                  }
+                                </span>
+                              </motion.p>
+                            </motion.div>
+                          </motion.div>
+                        )
                                   : searchParams.get("moved") === "true" 
                                     ? !hasSpokenPhase["data-collection-moved"]
                                     : !hasSpokenPhase["offer-accepted"]
