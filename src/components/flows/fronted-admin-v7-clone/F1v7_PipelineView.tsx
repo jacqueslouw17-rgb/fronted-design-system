@@ -1201,74 +1201,66 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   }}>
                       <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
-                        <div className="flex items-start gap-2">
+                        <div className="flex items-center gap-2">
                           {!["data-pending", "awaiting-signature", "onboarding-pending", "payroll-ready", "CERTIFIED"].includes(status) && !(status === "payroll-ready" && contractor.status !== "PAYROLL_PENDING") && <Checkbox checked={status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" ? batchSelectedIds.has(contractor.id) : selectedIds.has(contractor.id)} onCheckedChange={checked => {
                         if (status === "payroll-ready" && contractor.status === "PAYROLL_PENDING") {
                           handleBatchSelectContractor(contractor.id, checked as boolean);
                         } else {
                           handleSelectContractor(contractor.id, checked as boolean);
                         }
-                      }} className={cn("h-4 w-4", status === "payroll-ready" && "data-[state=checked]:bg-accent-green-fill data-[state=checked]:border-accent-green-outline data-[state=checked]:text-accent-green-text")} onClick={e => e.stopPropagation()} />}
+                      }} className={cn("h-4 w-4 flex-shrink-0", status === "payroll-ready" && "data-[state=checked]:bg-accent-green-fill data-[state=checked]:border-accent-green-outline data-[state=checked]:text-accent-green-text")} onClick={e => e.stopPropagation()} />}
 
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start gap-1.5">
-                              <div className="min-w-0 flex items-center gap-1">
-                                <span className="font-medium text-[13px] text-foreground truncate">
-                                  {contractor.name}
-                                </span>
-                                <span className="text-sm">{contractor.countryFlag}</span>
-                              </div>
+                          <span className="font-medium text-[13px] text-foreground truncate">
+                            {contractor.name}
+                          </span>
+                          <span className="text-sm flex-shrink-0 leading-none">{contractor.countryFlag}</span>
 
-                              <div className="ml-auto flex items-center pl-1">
-                                {contractor.companyName && (
-                                  <span className={cn(
-                                    "v7-company-chip transition-all duration-200",
-                                    getCompanyChipVariant(contractor.companyId || contractor.companyName),
-                                  )}>
-                                    {contractor.companyName}
-                                  </span>
-                                )}
+                          <div className="ml-auto flex items-center gap-1.5 flex-shrink-0">
+                            {contractor.companyName && (
+                              <span className={cn(
+                                "v7-company-chip transition-all duration-200",
+                                getCompanyChipVariant(contractor.companyId || contractor.companyName),
+                              )}>
+                                {contractor.companyName}
+                              </span>
+                            )}
 
-                                {/* Status badges inline */}
-                                {status === "onboarding-pending" && (
-                                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20 ml-1.5">
-                                    Awaiting
-                                  </Badge>
-                                )}
-                                {status === "CERTIFIED" && (
-                                  <Badge variant="outline" className={cn(
-                                    "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-1.5",
-                                    (contractor.needsDocumentVerification && !contractor.documentsVerified) && "bg-amber-500/10 text-amber-700 border-amber-500/20",
-                                    (!contractor.needsDocumentVerification || contractor.documentsVerified) && (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
-                                    contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
-                                    contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
-                                    contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
-                                  )}>
-                                    {contractor.workerStatus === "contract-ended" ? "Ended" 
-                                      : contractor.workerStatus === "resigned" ? "Resigned"
-                                      : contractor.workerStatus === "terminated" ? "Terminated"
-                                      : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
-                                      : "Active"}
-                                  </Badge>
-                                )}
+                            {status === "onboarding-pending" && (
+                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none bg-primary/10 text-primary border-primary/20">
+                                Awaiting
+                              </Badge>
+                            )}
+                            {status === "CERTIFIED" && (
+                              <Badge variant="outline" className={cn(
+                                "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none",
+                                (contractor.needsDocumentVerification && !contractor.documentsVerified) && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                (!contractor.needsDocumentVerification || contractor.documentsVerified) && (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                                contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
+                                contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
+                              )}>
+                                {contractor.workerStatus === "contract-ended" ? "Ended" 
+                                  : contractor.workerStatus === "resigned" ? "Resigned"
+                                  : contractor.workerStatus === "terminated" ? "Terminated"
+                                  : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
+                                  : "Active"}
+                              </Badge>
+                            )}
 
-                                {status === "offer-accepted" && onRemoveContractor && (
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0 z-10 transition-all duration-200 opacity-0 w-0 min-w-0 overflow-hidden p-0 group-hover/card:opacity-100 group-hover/card:w-5 group-hover/card:min-w-[20px] ml-0.5"
-                                    onClick={e => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleRemoveFromOfferAccepted(contractor);
-                                    }}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-
+                            {status === "offer-accepted" && onRemoveContractor && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0 z-10 transition-all duration-200 opacity-0 w-0 min-w-0 overflow-hidden p-0 group-hover/card:opacity-100 group-hover/card:w-5 group-hover/card:min-w-[20px]"
+                                onClick={e => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleRemoveFromOfferAccepted(contractor);
+                                }}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            )}
                           </div>
                         </div>
 
