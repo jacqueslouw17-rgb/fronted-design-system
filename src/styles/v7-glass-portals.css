@@ -300,3 +300,30 @@ body.v7-glass-active [data-radix-portal] [class*="bg-teal-500/10"] {
 /*  (contextual color, not brand color)                    */
 /* ═══════════════════════════════════════════════════════ */
 /* Leave orange-100/80 and orange-600 as-is for status indicators */
+
+/* ═══════════════════════════════════════════════════════ */
+/*  Topbar: transparent by default, glass on scroll        */
+/* ═══════════════════════════════════════════════════════ */
+body.v7-glass-active header.fixed,
+body.v7-glass-active header.sticky {
+  background: transparent !important;
+  border-bottom-color: transparent !important;
+  transition: background 0.5s ease, border-bottom-color 0.5s ease, backdrop-filter 0.5s ease, box-shadow 0.5s ease;
+}
+
+body.v7-glass-active.v7-topbar-scrolled header.fixed,
+body.v7-glass-active.v7-topbar-scrolled header.sticky {
+  background: hsl(0 0% 100% / 0.4) !important;
+  backdrop-filter: blur(24px) saturate(1.5) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.5) !important;
+  border-bottom-color: hsl(var(--border) / 0.15) !important;
+  box-shadow: 0 1px 0 0 hsl(var(--border) / 0.1);
+}
+
+/* Also hide the portal slot bg when not scrolled */
+body.v7-glass-active #topbar-portal-slot {
+  background: transparent !important;
+}
+body.v7-glass-active.v7-topbar-scrolled #topbar-portal-slot {
+  background: hsl(0 0% 100% / 0.4) !important;
+}
