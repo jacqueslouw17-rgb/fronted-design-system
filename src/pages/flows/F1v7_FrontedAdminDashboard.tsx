@@ -1,20 +1,15 @@
 /**
- * Flow 1 — Fronted Admin Dashboard v7 (Experimental) (Clone of v6)
- *
- * ISOLATED: This is an independent copy. Changes here do NOT affect v6 or any other flow.
- *
- * Created: 2026-03-05
+ * Flow 1 — Fronted Admin Dashboard v6 (Clone of v5)
+ * 
+ * ISOLATED: This is an independent copy. Changes here do NOT affect v5 or any other flow.
+ * 
+ * Created: 2026-02-27
  */
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, X, FileCheck, ChevronDown, Check } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
-import { cn } from "@/lib/utils";
-import "@/styles/v7-glass-theme.css";
-import "@/styles/v7-glass-portals.css";
+import { ArrowLeft, X, FileCheck } from "lucide-react";
 import frontedLogo from "@/assets/fronted-logo.png";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
@@ -24,14 +19,14 @@ import { useContractFlow } from "@/hooks/useContractFlow";
 import { ContractFlowNotification } from "@/components/contract-flow/ContractFlowNotification";
 import { CandidateConfirmationScreen } from "@/components/contract-flow/CandidateConfirmationScreen";
 import { DocumentBundleCarousel } from "@/components/contract-flow/DocumentBundleCarousel";
-import { F1v5_ContractDraftWorkspace } from "@/components/flows/fronted-admin-v7-clone/F1v7_ContractDraftWorkspace";
+import { F1v5_ContractDraftWorkspace } from "@/components/flows/fronted-admin-v6-clone/F1v6_ContractDraftWorkspace";
 import { ContractReviewBoard } from "@/components/contract-flow/ContractReviewBoard";
 import { ContractSignaturePhase } from "@/components/contract-flow/ContractSignaturePhase";
 import { ContractFlowSummary } from "@/components/contract-flow/ContractFlowSummary";
 import { ComplianceTransitionNote } from "@/components/contract-flow/ComplianceTransitionNote";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import { DocumentBundleSignature } from "@/components/contract-flow/DocumentBundleSignature";
-import { F1v4_PipelineView } from "@/components/flows/fronted-admin-v7-clone/F1v7_PipelineView";
+import { F1v4_PipelineView } from "@/components/flows/fronted-admin-v6-clone/F1v6_PipelineView";
 import { ContractSignedMessage } from "@/components/contract-flow/ContractSignedMessage";
 import { AgentChatBox } from "@/components/contract-flow/AgentChatBox";
 import confetti from "canvas-confetti";
@@ -50,10 +45,11 @@ import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
 import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
 import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
-import F1v4_EmbeddedAdminOnboarding from "@/components/flows/fronted-admin-v7-clone/F1v7_EmbeddedAdminOnboarding";
-import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v7-clone/F1v7_AddCandidateDrawer";
-import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v7-clone/F1v7_PayrollTab";
+import F1v4_EmbeddedAdminOnboarding from "@/components/flows/fronted-admin-v6-clone/F1v6_EmbeddedAdminOnboarding";
+import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v6-clone/F1v6_AddCandidateDrawer";
+import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v6-clone/F1v6_PayrollTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 // Company type with full details for edit functionality
 interface CompanyData {
@@ -67,6 +63,7 @@ interface CompanyData {
   payoutDay?: string;
 }
 
+// Mock companies data - start with a default company to skip empty state
 const MOCK_COMPANIES: CompanyData[] = [
   {
     id: "company-default",
@@ -77,224 +74,10 @@ const MOCK_COMPANIES: CompanyData[] = [
     defaultCurrency: "USD",
     payrollCurrency: ["USD"],
     payoutDay: "25",
-  },
-  {
-    id: "company-globex",
-    name: "Globex Inc",
-    adminName: "Sarah Park",
-    adminEmail: "sarah@globex.com",
-    hqCountry: "US",
-    defaultCurrency: "USD",
-    payrollCurrency: ["USD", "EUR"],
-    payoutDay: "28",
-  },
-  {
-    id: "company-initech",
-    name: "Initech Ltd",
-    adminName: "Bill Lumbergh",
-    adminEmail: "bill@initech.io",
-    hqCountry: "GB",
-    defaultCurrency: "GBP",
-    payrollCurrency: ["GBP", "EUR"],
-    payoutDay: "1",
-  },
-  {
-    id: "company-waystar",
-    name: "Waystar Royco",
-    adminName: "Kendall Roy",
-    adminEmail: "kendall@waystar.com",
-    hqCountry: "US",
-    defaultCurrency: "USD",
-    payrollCurrency: ["USD", "GBP", "EUR"],
-    payoutDay: "15",
-  },
+  }
 ];
 
-const GLOBEX_CANDIDATES = [
-  {
-    id: "globex-1",
-    name: "Tomoko Hayashi",
-    country: "Japan",
-    countryFlag: "🇯🇵",
-    role: "Lead UX Researcher",
-    salary: "JPY 820,000/mo",
-    status: "drafting",
-    employmentType: "employee" as const,
-    email: "tomoko.hayashi@example.com",
-    dataReceived: true,
-  },
-  {
-    id: "globex-2",
-    name: "Erik Johansson",
-    country: "Sweden",
-    countryFlag: "🇸🇪",
-    role: "Platform Engineer",
-    salary: "SEK 58,000/mo",
-    status: "offer-accepted",
-    employmentType: "contractor" as const,
-    email: "erik.johansson@example.com",
-  },
-  {
-    id: "globex-3",
-    name: "Amara Osei",
-    country: "Ghana",
-    countryFlag: "🇬🇭",
-    role: "Growth Marketing Lead",
-    salary: "USD 5,500/mo",
-    status: "awaiting-signature",
-    employmentType: "contractor" as const,
-    email: "amara.osei@example.com",
-    dataReceived: true,
-  },
-  {
-    id: "globex-4",
-    name: "Lucas Müller",
-    country: "Germany",
-    countryFlag: "🇩🇪",
-    role: "Staff Engineer",
-    salary: "EUR 9,200/mo",
-    status: "CERTIFIED",
-    employmentType: "employee" as const,
-    email: "lucas.muller@example.com",
-    dataReceived: true,
-  },
-];
-
-const INITECH_CANDIDATES = [
-  {
-    id: "initech-1",
-    name: "Fatima Al-Rashid",
-    country: "UAE",
-    countryFlag: "🇦🇪",
-    role: "Finance Controller",
-    salary: "AED 32,000/mo",
-    status: "offer-accepted",
-    employmentType: "employee" as const,
-    email: "fatima@initech.io",
-  },
-  {
-    id: "initech-2",
-    name: "Jakub Novák",
-    country: "Czech Republic",
-    countryFlag: "🇨🇿",
-    role: "Security Engineer",
-    salary: "CZK 95,000/mo",
-    status: "drafting",
-    employmentType: "contractor" as const,
-    email: "jakub.novak@initech.io",
-    dataReceived: true,
-  },
-  {
-    id: "initech-3",
-    name: "Chiara Bianchi",
-    country: "Italy",
-    countryFlag: "🇮🇹",
-    role: "Head of Compliance",
-    salary: "EUR 7,800/mo",
-    status: "CERTIFIED",
-    employmentType: "employee" as const,
-    email: "chiara@initech.io",
-    dataReceived: true,
-  },
-  {
-    id: "initech-4",
-    name: "Kwame Asante",
-    country: "Nigeria",
-    countryFlag: "🇳🇬",
-    role: "Mobile Developer",
-    salary: "USD 4,200/mo",
-    status: "awaiting-signature",
-    employmentType: "contractor" as const,
-    email: "kwame@initech.io",
-    dataReceived: true,
-  },
-  {
-    id: "initech-5",
-    name: "Yuki Tanaka",
-    country: "Japan",
-    countryFlag: "🇯🇵",
-    role: "QA Lead",
-    salary: "JPY 680,000/mo",
-    status: "trigger-onboarding",
-    employmentType: "employee" as const,
-    email: "yuki@initech.io",
-    dataReceived: true,
-  },
-];
-
-const WAYSTAR_CANDIDATES = [
-  {
-    id: "waystar-1",
-    name: "Olivia Chen",
-    country: "Canada",
-    countryFlag: "🇨🇦",
-    role: "VP of Engineering",
-    salary: "CAD 18,500/mo",
-    status: "drafting",
-    employmentType: "employee" as const,
-    email: "olivia@waystar.com",
-    dataReceived: true,
-  },
-  {
-    id: "waystar-2",
-    name: "Raj Patel",
-    country: "India",
-    countryFlag: "🇮🇳",
-    role: "ML Engineer",
-    salary: "INR 2,40,000/mo",
-    status: "offer-accepted",
-    employmentType: "contractor" as const,
-    email: "raj@waystar.com",
-  },
-  {
-    id: "waystar-3",
-    name: "Isabella Rossi",
-    country: "Brazil",
-    countryFlag: "🇧🇷",
-    role: "Product Manager",
-    salary: "BRL 22,000/mo",
-    status: "drafting",
-    employmentType: "employee" as const,
-    email: "isabella@waystar.com",
-  },
-  {
-    id: "waystar-4",
-    name: "Sven Eriksen",
-    country: "Denmark",
-    countryFlag: "🇩🇰",
-    role: "Solutions Architect",
-    salary: "DKK 72,000/mo",
-    status: "CERTIFIED",
-    employmentType: "contractor" as const,
-    email: "sven@waystar.com",
-    dataReceived: true,
-  },
-  {
-    id: "waystar-5",
-    name: "Aisha Mohammed",
-    country: "Kenya",
-    countryFlag: "🇰🇪",
-    role: "Data Scientist",
-    salary: "USD 6,800/mo",
-    status: "awaiting-signature",
-    employmentType: "employee" as const,
-    email: "aisha@waystar.com",
-    dataReceived: true,
-  },
-  {
-    id: "waystar-6",
-    name: "Tomáš Horák",
-    country: "Slovakia",
-    countryFlag: "🇸🇰",
-    role: "DevRel Lead",
-    salary: "EUR 5,500/mo",
-    status: "trigger-onboarding",
-    employmentType: "contractor" as const,
-    email: "tomas@waystar.com",
-    dataReceived: true,
-  },
-];
-
+// Default candidates to pre-populate in the "drafting" (Prepare Contract) step
 const DEFAULT_DRAFTING_CANDIDATES = [
   {
     id: "offer-1",
@@ -321,7 +104,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     dataReceived: true,
   },
   {
-    id: "default-2",
+    id: "default-2", 
     name: "Sofia Rodriguez",
     country: "Spain",
     countryFlag: "🇪🇸",
@@ -367,6 +150,10 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     employmentType: "employee",
     email: "maria.santos@example.com",
     dataReceived: true,
+    bankDetails: "BDO Unibank ••••4521",
+    payFrequency: "Fortnightly",
+    workerStatus: "active",
+    documentsVerified: true,
   },
   {
     id: "done-2",
@@ -379,11 +166,16 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     employmentType: "contractor",
     email: "liam.obrien@example.com",
     dataReceived: true,
+    bankDetails: "AIB ••••8734",
+    payFrequency: "Monthly",
+    workerStatus: "contract-ended",
+    endDate: "January 31, 2026",
+    endReason: "Contract period completed",
   },
 ];
 
-// Keep all navigation inside this flow (Flow 1 v7 clone)
-const FLOW_BASE_PATH = "/flows/fronted-admin-dashboard-v7-clone";
+// Keep all navigation inside this flow (Flow 1 v6 clone)
+const FLOW_BASE_PATH = "/flows/fronted-admin-dashboard-v6-clone";
 
 const AdminContractingMultiCompany = () => {
   const navigate = useNavigate();
@@ -403,28 +195,24 @@ const AdminContractingMultiCompany = () => {
   const [searchParams] = useSearchParams();
   const { contractors, setContractors, updateContractor } = useContractorStore();
 
+  // Prevent URL-driven effects from resetting the draft index mid-flow.
   const didApplyDraftingUrlRef = useRef(false);
   
-  const ALL_CLIENTS_ID = "__all_clients__";
+  // Company switcher state - persist to localStorage, restore from URL if available
   const companyFromUrl = searchParams.get('company');
   const [selectedCompany, setSelectedCompany] = useState<string>(() => {
+    // Priority: URL param > localStorage > default company
     if (companyFromUrl) return companyFromUrl;
-    const saved = localStorage.getItem('adminflow-v7-selected-company');
-    return saved || ALL_CLIENTS_ID;
+    const saved = localStorage.getItem('adminflow-v6-selected-company');
+    return saved || "company-default";
   });
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
   const [isEditingCompany, setIsEditingCompany] = useState<boolean>(false);
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   const [headerScrolled, setHeaderScrolled] = useState(false);
 
+  // Track scroll for frosted header on mobile
   const isInContractFlow = contractFlow.phase !== "idle" && contractFlow.phase !== "offer-accepted" && contractFlow.phase !== "data-collection";
-
-  // Set body class so portal-level CSS overrides can target v7 glass theme
-  useEffect(() => {
-    document.body.classList.add('v7-glass-active');
-    return () => document.body.classList.remove('v7-glass-active');
-  }, []);
-
   useEffect(() => {
     if (!isAddingNewCompany && !isEditingCompany && !isInContractFlow) {
       setHeaderScrolled(false);
@@ -435,32 +223,18 @@ const AdminContractingMultiCompany = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isAddingNewCompany, isEditingCompany, isInContractFlow]);
   const [companies, setCompanies] = useState<CompanyData[]>(() => {
-    const saved = localStorage.getItem('adminflow-v7-companies');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as CompanyData[];
-        // Merge any new mock companies that don't exist in saved data
-        const savedIds = new Set(parsed.map((c: CompanyData) => c.id));
-        const missing = MOCK_COMPANIES.filter(c => !savedIds.has(c.id));
-        if (missing.length > 0) {
-          const merged = [...parsed, ...missing];
-          localStorage.setItem('adminflow-v7-companies', JSON.stringify(merged));
-          return merged;
-        }
-        return parsed;
-      } catch {
-        return MOCK_COMPANIES;
-      }
-    }
-    return MOCK_COMPANIES;
+    const saved = localStorage.getItem('adminflow-v6-companies');
+    return saved ? JSON.parse(saved) : MOCK_COMPANIES;
   });
   const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>(() => {
-    const saved = localStorage.getItem('adminflow-v7-company-contractors');
+    const saved = localStorage.getItem('adminflow-v6-company-contractors');
 
+    // Preserve persisted contractor state across refreshes,
+    // but keep demo drafting candidates in "Prepare Contract".
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        const result = Object.fromEntries(
+        return Object.fromEntries(
           Object.entries(parsed).map(([companyId, contractors]) => [
             companyId,
             Array.isArray(contractors)
@@ -476,43 +250,35 @@ const AdminContractingMultiCompany = () => {
               : [],
           ])
         ) as Record<string, any[]>;
-        // Merge missing company contractor lists
-        const defaults: Record<string, any[]> = { "company-default": [...DEFAULT_DRAFTING_CANDIDATES], "company-globex": [...GLOBEX_CANDIDATES], "company-initech": [...INITECH_CANDIDATES], "company-waystar": [...WAYSTAR_CANDIDATES] };
-        let updated = false;
-        for (const [key, val] of Object.entries(defaults)) {
-          if (!(key in result)) {
-            result[key] = val;
-            updated = true;
-          }
-        }
-        if (updated) {
-          localStorage.setItem('adminflow-v7-company-contractors', JSON.stringify(result));
-        }
-        return result;
       } catch {
-        localStorage.removeItem('adminflow-v7-company-contractors');
+        localStorage.removeItem('adminflow-v6-company-contractors');
       }
     }
 
-    return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES], "company-globex": [...GLOBEX_CANDIDATES], "company-initech": [...INITECH_CANDIDATES], "company-waystar": [...WAYSTAR_CANDIDATES] };
+    return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   
+  // Persist companies to localStorage
   useEffect(() => {
-    localStorage.setItem('adminflow-v7-companies', JSON.stringify(companies));
+    localStorage.setItem('adminflow-v6-companies', JSON.stringify(companies));
   }, [companies]);
   
+  // Persist selected company to localStorage
   useEffect(() => {
-    localStorage.setItem('adminflow-v7-selected-company', selectedCompany);
+    localStorage.setItem('adminflow-v6-selected-company', selectedCompany);
   }, [selectedCompany]);
   
+  // Persist company contractors to localStorage
   useEffect(() => {
-    localStorage.setItem('adminflow-v7-company-contractors', JSON.stringify(companyContractors));
+    localStorage.setItem('adminflow-v6-company-contractors', JSON.stringify(companyContractors));
   }, [companyContractors]);
   
+  // Derived state: check if this is a first-time admin (no companies)
   const hasNoCompanies = companies.length === 0;
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
   const [activeMainTab, setActiveMainTab] = useState<"tracker" | "payroll">("tracker");
   
+  // Check for new company from onboarding
   useEffect(() => {
     const newCompanyName = searchParams.get('newCompany');
     if (newCompanyName) {
@@ -528,23 +294,29 @@ const AdminContractingMultiCompany = () => {
         description: `${newCompany.name} has been added successfully!`,
       });
       
+      // Clean URL
       navigate(FLOW_BASE_PATH, { replace: true });
     }
   }, [searchParams, navigate, toast]);
   
+  // Merge contractors from store into the current company when moved=true
   useEffect(() => {
     if (searchParams.get("moved") === "true" && contractors.length > 0) {
       setCompanyContractors(prev => ({
         ...prev,
         [selectedCompany]: [
           ...(prev[selectedCompany] || []),
-          ...contractors.filter(c =>
+          ...contractors.filter(c => 
+            // Only add contractors that aren't already in this company
             !(prev[selectedCompany] || []).some(existing => existing.id === c.id)
           )
         ]
       }));
       
+      // Clear the contractor store after merging to prevent duplicates
       setContractors([]);
+      
+      // Clear the moved param to prevent re-triggering
       navigate(`${FLOW_BASE_PATH}?phase=data-collection`, { replace: true });
     }
   }, [searchParams, contractors, selectedCompany, setContractors, navigate]);
@@ -557,60 +329,16 @@ const AdminContractingMultiCompany = () => {
     role: "admin"
   };
 
-  // Generate a stable color palette for companies in "All clients" view
-  const COMPANY_COLORS = [
-    'hsl(162 48% 48%)',  // mint/teal
-    'hsl(220 70% 55%)',  // blue
-    'hsl(340 65% 55%)',  // rose
-    'hsl(35 85% 55%)',   // amber
-    'hsl(280 55% 55%)',  // purple
-    'hsl(170 60% 42%)',  // cyan-green
-    'hsl(15 75% 55%)',   // coral
-    'hsl(200 70% 50%)',  // sky
-  ];
-
-  const getCompanyColor = (companyId: string) => {
-    const idx = companies.findIndex(c => c.id === companyId);
-    return COMPANY_COLORS[idx % COMPANY_COLORS.length];
-  };
-
-  // Build merged contractor list when "All clients" is selected
-  const allClientsContractors = React.useMemo(() => {
-    if (selectedCompany !== ALL_CLIENTS_ID) return [];
-    const merged: any[] = [];
-    companies.forEach(company => {
-      const contractors = companyContractors[company.id] || [];
-      contractors.forEach(c => {
-        merged.push({
-          ...c,
-          companyId: company.id,
-          companyName: company.name,
-          companyColor: getCompanyColor(company.id),
-        });
-      });
-    });
-    return merged;
-  }, [selectedCompany, companies, companyContractors]);
-
-  const isAllClientsMode = selectedCompany === ALL_CLIENTS_ID;
-
   const handleCompanyChange = (companyId: string) => {
     if (companyId === "add-new") {
+      // Show embedded admin onboarding flow
       setIsAddingNewCompany(true);
       return;
     }
     
     setSelectedCompany(companyId);
-
-    if (companyId === ALL_CLIENTS_ID) {
-      toast({
-        title: "All Clients",
-        description: `Viewing workers across all ${companies.length} companies`,
-      });
-      return;
-    }
-
     const company = companies.find(c => c.id === companyId);
+    
     toast({
       title: "Company Switched",
       description: `Now viewing contracts for ${company?.name}`,
@@ -618,6 +346,7 @@ const AdminContractingMultiCompany = () => {
   };
 
   const handleNewCompanyComplete = (companyName: string, companyData?: Record<string, any>) => {
+    // Add the new company directly instead of relying on URL params
     const newCompanyId = `company-${Date.now()}`;
     const newCompany: CompanyData = { 
       id: newCompanyId, 
@@ -640,6 +369,8 @@ const AdminContractingMultiCompany = () => {
     });
     
     setIsAddingNewCompany(false);
+    
+    // Scroll to top after returning to dashboard
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
@@ -657,6 +388,7 @@ const AdminContractingMultiCompany = () => {
             ...company,
             name: companyData?.companyName || company.name,
             adminName: companyData?.adminName ?? company.adminName,
+            // Email cannot be changed in edit mode
             hqCountry: companyData?.hqCountry ?? company.hqCountry,
             defaultCurrency: companyData?.defaultCurrency ?? company.defaultCurrency,
             payrollCurrency: companyData?.payrollCurrency ?? company.payrollCurrency,
@@ -672,6 +404,8 @@ const AdminContractingMultiCompany = () => {
     
     setIsEditingCompany(false);
     setEditingCompanyId(null);
+    
+    // Scroll to top after returning to dashboard
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
@@ -684,10 +418,11 @@ const AdminContractingMultiCompany = () => {
     setIsAddingNewCompany(false);
   };
 
+  // Clear localStorage when leaving the flow (back arrow)
   const handleBackToFlows = () => {
-    localStorage.removeItem('adminflow-v7-companies');
-    localStorage.removeItem('adminflow-v7-selected-company');
-    localStorage.removeItem('adminflow-v7-company-contractors');
+    localStorage.removeItem('adminflow-v6-companies');
+    localStorage.removeItem('adminflow-v6-selected-company');
+    localStorage.removeItem('adminflow-v6-company-contractors');
   };
 
   const handleAddCandidate = () => {
@@ -695,12 +430,14 @@ const AdminContractingMultiCompany = () => {
   };
 
   const handleSaveCandidate = (candidate: any) => {
+    // Add candidate to current company's contractors
     setCompanyContractors(prev => ({
       ...prev,
       [selectedCompany]: [...(prev[selectedCompany] || []), candidate]
     }));
   };
 
+  // Copy all handleKurtAction code from ContractFlowDemo
   const handleKurtAction = async (action: string) => {
     if (!action.startsWith('send-reminder-')) {
       addMessage({
@@ -715,7 +452,7 @@ const AdminContractingMultiCompany = () => {
     await new Promise(resolve => setTimeout(resolve, 1200));
 
     let response = '';
-
+    
     switch(action) {
       case 'any-updates':
         response = generateAnyUpdatesMessage(contractors.length > 0 ? contractors : [
@@ -950,7 +687,7 @@ const AdminContractingMultiCompany = () => {
       delete (window as any).handleKurtAction;
     };
   }, []);
-  
+
   useEffect(() => {
     if (contractFlow.phase === "prompt") {
       setIsTypingPrompt(false);
@@ -973,7 +710,7 @@ const AdminContractingMultiCompany = () => {
       return () => clearTimeout(startDelay);
     }
   }, [contractFlow.phase]);
-  
+
   useEffect(() => {
     const phaseKey = contractFlow.phase;
     const movedParam = searchParams.get("moved") === "true";
@@ -992,7 +729,7 @@ const AdminContractingMultiCompany = () => {
       setHasSpokenPhase(prev => ({ ...prev, [uniquePhaseKey]: true }));
     }
   }, [contractFlow.phase, hasSpokenPhase, contractFlow.currentDraftIndex, contractFlow.selectedCandidates, searchParams]);
-  
+
   useEffect(() => {
     if (currentWordIndex < idleWords.length) {
       const timer = setTimeout(() => {
@@ -1001,27 +738,32 @@ const AdminContractingMultiCompany = () => {
       return () => clearTimeout(timer);
     }
   }, [currentWordIndex, idleWords.length]);
-  
+
   useEffect(() => {
     const phaseParam = searchParams.get("phase");
     const signedParam = searchParams.get("signed");
     const companyParam = searchParams.get("company");
     const idsParam = searchParams.get("ids");
 
+    // Restore company from URL if provided (e.g. returning from contract-creation)
     if (companyParam && companyParam !== selectedCompany && companies.some(c => c.id === companyParam)) {
       setSelectedCompany(companyParam);
     }
 
     if (phaseParam === "bundle-creation") {
+      // Bundle step is hidden in Flow 1.1 — treat this as drafting.
       contractFlow.proceedToDrafting();
       navigate(FLOW_BASE_PATH, { replace: true });
     }
 
     if (phaseParam === "drafting" && idsParam) {
+      // Returning from contract-creation with candidate IDs
+      // Load candidates from company contractors
       const ids = idsParam.split(",").map(s => s.trim()).filter(Boolean);
       const companyId = companyParam || selectedCompany;
       const contractors = companyContractors[companyId] || [];
 
+      // Convert contractors to Candidate format for the drafting phase
       const candidatesForDrafting = contractors
         .filter((c: any) => ids.includes(c.id))
         .map((c: any) => ({
@@ -1049,11 +791,14 @@ const AdminContractingMultiCompany = () => {
       if (candidatesForDrafting.length > 0) {
         contractFlow.setCandidatesForDrafting(candidatesForDrafting);
       } else {
+        // Fallback: just proceed to drafting with existing candidates
         contractFlow.proceedToDrafting();
       }
 
+      // Clean up the URL
       navigate(`${FLOW_BASE_PATH}?phase=drafting`, { replace: true });
     } else if (phaseParam === "drafting" && !idsParam) {
+      // Returning without IDs: only force drafting once (avoid resetting draft index mid-flow)
       if (!didApplyDraftingUrlRef.current) {
         didApplyDraftingUrlRef.current = true;
         if (contractFlow.phase !== "drafting") {
@@ -1079,8 +824,8 @@ const AdminContractingMultiCompany = () => {
 
   return (
     <RoleLensProvider initialRole="admin">
-      <div className="v7-glass-bg flex flex-col w-full">
-        <div className="v7-orb-center" />
+      <div className="min-h-screen flex flex-col w-full bg-background">
+      {/* Topbar - shown on pipeline view (idle + offer-accepted + data-collection) */}
       {!isAddingNewCompany && !isEditingCompany && (
         contractFlow.phase === "idle" ||
         contractFlow.phase === "offer-accepted" ||
@@ -1090,16 +835,22 @@ const AdminContractingMultiCompany = () => {
           userName={`${userData.firstName} ${userData.lastName}`}
           isDrawerOpen={isDrawerOpen}
           onDrawerToggle={toggleDrawer}
-          profileSettingsUrl="/flow-1-v7/profile-settings"
+          profileSettingsUrl="/flow-1-v6/profile-settings"
           profileMenuLabel="Profile Settings"
           onBackClick={handleBackToFlows}
-          forceFixed
-          
+          companySwitcher={hasNoCompanies ? undefined : {
+            companies,
+            selectedCompany,
+            onCompanyChange: handleCompanyChange,
+            onEditCompany: handleEditCompany
+          }}
         />
       )}
 
+
+      {/* Logo and Close Button for Add New Company */}
       {isAddingNewCompany && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'v7-glass-header' : ''}`}>
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
           <img 
             src={frontedLogo}
             alt="Fronted"
@@ -1117,8 +868,9 @@ const AdminContractingMultiCompany = () => {
         </div>
       )}
 
+      {/* Logo and Close Button for Edit Company */}
       {isEditingCompany && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'v7-glass-header' : ''}`}>
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
           <img 
             src={frontedLogo}
             alt="Fronted"
@@ -1136,11 +888,12 @@ const AdminContractingMultiCompany = () => {
         </div>
       )}
 
+      {/* Logo and Close Button for contract steps */}
       {!isAddingNewCompany && !isEditingCompany &&
         contractFlow.phase !== "idle" &&
         contractFlow.phase !== "offer-accepted" &&
         contractFlow.phase !== "data-collection" && (
-        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'v7-glass-header' : ''}`}>
+        <div className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 transition-all duration-500 ease-out ${headerScrolled ? 'bg-background/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_1px_0_0_hsl(var(--border)/0.15)]' : ''}`}>
           <img src={frontedLogo} alt="Fronted" className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { contractFlow.resetFlow(); navigate(FLOW_BASE_PATH); }} />
           <Button variant="ghost" size="icon" onClick={() => { contractFlow.resetFlow(); navigate(FLOW_BASE_PATH); }} className="h-8 w-8 sm:h-10 sm:w-10">
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -1148,10 +901,21 @@ const AdminContractingMultiCompany = () => {
         </div>
       )}
 
+      {/* Main Content Area */}
       <main className="flex-1 flex overflow-hidden relative">
+        {/* Static background */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]" />
+          <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+               style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
+          <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+               style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
+        </div>
         
+        {/* Dashboard Drawer */}
         <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
+          {/* Contract Flow Main Area with Agent Layout */}
           <AgentLayout context="Contract Flow">
             <div className="flex-1 overflow-auto relative">
               <div className="relative z-10">
@@ -1236,6 +1000,7 @@ const AdminContractingMultiCompany = () => {
                     </div>
                   </motion.div>
                 ) : hasNoCompanies ? (
+                  /* First-time admin empty state */
                   <motion.div 
                     key="empty-state" 
                     initial={{ opacity: 0 }} 
@@ -1269,6 +1034,7 @@ const AdminContractingMultiCompany = () => {
                     className="flex-1 overflow-y-auto"
                   >
                     <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-2">
+                      {/* Agent Header */}
                       {showContractSignedMessage ? (
                         <ContractSignedMessage 
                           mode="signed"
@@ -1278,132 +1044,73 @@ const AdminContractingMultiCompany = () => {
                             }, 2000);
                           }}
                         />
-                      ) : activeMainTab === "payroll" ? (
-                          <AgentHeader
-                            title="Fronted Admin · Payroll"
-                            subtitle="Review all company payrolls, resolve exceptions, and approve numbers."
-                            showPulse={true}
-                            isActive={false}
-                            showInput={false}
-                          />
-                        ) : (
-                          <motion.div 
-                            initial={{ opacity: 0, y: -20 }} 
-                            animate={{ opacity: 1, y: 0 }} 
-                            className="flex flex-col items-center space-y-3 sm:space-y-4 px-4"
-                          >
-                            <div className="flex justify-center scale-75 sm:scale-100">
-                              <AudioWaveVisualizer isActive={isAgentSpeaking || (
-                                searchParams.get("allSigned") === "true"
-                                  ? !hasSpokenPhase["data-collection-all-signed"]
-                                  : searchParams.get("moved") === "true" 
-                                    ? !hasSpokenPhase["data-collection-moved"]
-                                    : !hasSpokenPhase["offer-accepted"]
-                              )} isListening={false} />
-                            </div>
-                            <div className="text-center space-y-1 sm:space-y-2">
-                              <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center justify-center gap-1 flex-wrap">
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <button className="inline-flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer border-b-2 border-dashed border-primary/30 hover:border-primary pb-0.5">
-                                      {isAllClientsMode ? "All Clients" : companies.find(c => c.id === selectedCompany)?.name || "Company"}
-                                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                                    </button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-[240px] p-0" align="center">
-                                    <Command>
-                                      <CommandInput placeholder="Search companies..." />
-                                      <CommandList>
-                                        <CommandEmpty>No company found.</CommandEmpty>
-                                        <CommandGroup>
-                                          <CommandItem
-                                            value="All clients"
-                                            onSelect={() => handleCompanyChange(ALL_CLIENTS_ID)}
-                                            className="cursor-pointer"
-                                          >
-                                            <Check className={cn("mr-2 h-4 w-4", isAllClientsMode ? "opacity-100" : "opacity-0")} />
-                                            All clients
-                                          </CommandItem>
-                                        </CommandGroup>
-                                        <CommandSeparator />
-                                        <CommandGroup>
-                                          {companies.map((company) => (
-                                            <CommandItem
-                                              key={company.id}
-                                              value={company.name}
-                                              onSelect={() => handleCompanyChange(company.id)}
-                                              className="cursor-pointer"
-                                            >
-                                              <Check className={cn("mr-2 h-4 w-4", selectedCompany === company.id ? "opacity-100" : "opacity-0")} />
-                                              {company.name}
-                                            </CommandItem>
-                                          ))}
-                                        </CommandGroup>
-                                      </CommandList>
-                                    </Command>
-                                  </PopoverContent>
-                                </Popover>
-                                <span className="text-muted-foreground font-normal text-lg sm:text-xl">
-                                  {isAllClientsMode 
-                                    ? `· ${companies.length} clients · ${allClientsContractors.length} workers`
-                                    : `· ${(companyContractors[selectedCompany] || []).length} workers`
-                                  }
-                                </span>
-                              </h1>
-                              <p className="text-sm sm:text-base">
-                                <span className={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true" ? "text-foreground/60" : "text-muted-foreground"}>
-                                  {searchParams.get("allSigned") === "true"
-                                    ? "Both candidates have signed! Let's trigger their onboarding checklists."
-                                    : searchParams.get("moved") === "true" 
-                                      ? "Great, contracts sent to candidates via their preferred signing portals."
-                                      : "Monitor candidate signatures and complete certification to finalize contracts."
-                                  }
-                                </span>
-                              </p>
-                            </div>
-                          </motion.div>
-                        )}
-                      
+                      ) : (
+                        <AgentHeader
+                          title={activeMainTab === "payroll" 
+                            ? "Fronted Admin · Payroll" 
+                            : `Welcome Joe, get to work at ${companies.find(c => c.id === selectedCompany)?.name || "your company"}!`
+                          }
+                          subtitle={activeMainTab === "payroll"
+                            ? "Review all company payrolls, resolve exceptions, and approve numbers."
+                            : searchParams.get("allSigned") === "true"
+                              ? "Both candidates have signed! Let's trigger their onboarding checklists."
+                              : searchParams.get("moved") === "true" 
+                                ? "Great, contracts sent to candidates via their preferred signing portals."
+                                : "Monitor candidate signatures and complete certification to finalize contracts."
+                          }
+                          showPulse={true}
+                          hasChanges={activeMainTab === "tracker" && (searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true")}
+                          isActive={isAgentSpeaking || (
+                            activeMainTab === "tracker" && (
+                              searchParams.get("allSigned") === "true"
+                                ? !hasSpokenPhase["data-collection-all-signed"]
+                                : searchParams.get("moved") === "true" 
+                                  ? !hasSpokenPhase["data-collection-moved"]
+                                  : !hasSpokenPhase["offer-accepted"]
+                            )
+                          )}
+                          showInput={false}
+                        />
+                      )}
+
+                      {/* Tracker | Payroll Tab Toggle */}
                       <div className="flex items-center justify-center py-2">
                         <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "tracker" | "payroll")}>
-                          <TabsList className="grid w-[280px] grid-cols-2 v7-glass-tabs">
-                            <TabsTrigger value="tracker" className="data-[state=active]:v7-glass-tab-active">Tracker</TabsTrigger>
-                            <TabsTrigger value="payroll" className="data-[state=active]:v7-glass-tab-active">Payroll</TabsTrigger>
+                          <TabsList className="grid w-[280px] grid-cols-2">
+                            <TabsTrigger value="tracker">Tracker</TabsTrigger>
+                            <TabsTrigger value="payroll">Payroll</TabsTrigger>
                           </TabsList>
                         </Tabs>
                       </div>
 
+                      {/* Conditional Content */}
                       <div className="pt-6">
                         {activeMainTab === "payroll" ? (
                           <F1v4_PayrollTab />
                         ) : (
+                          /* Pipeline Tracking */
                           <div className="space-y-4">
                             <div className="mt-3">
                               <F1v4_PipelineView 
                                 key={selectedCompany}
-                                contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
-                                onAddCandidate={isAllClientsMode ? undefined : handleAddCandidate}
-                                onRemoveContractor={(contractor) => {
-                                  const targetCompanyId = contractor.companyId || selectedCompany;
+                                contractors={companyContractors[selectedCompany] || []}
+                                onAddCandidate={handleAddCandidate}
+                                onRemoveContractor={(contractorId) => {
                                   setCompanyContractors(prev => ({
                                     ...prev,
-                                    [targetCompanyId]: (prev[targetCompanyId] || []).filter(c => c.id !== contractor.id)
+                                    [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
                                   }));
-                                  sonnerToast.success(
-                                    isAllClientsMode && contractor.companyName
-                                      ? `Candidate removed from ${contractor.companyName}`
-                                      : "Candidate removed"
-                                  );
+                                  sonnerToast.success("Candidate removed");
                                 }}
-                                onDraftContract={isAllClientsMode ? undefined : (ids) => {
+                                onDraftContract={(ids) => {
                                   const params = new URLSearchParams({ 
                                     ids: ids.join(','),
-                                    returnTo: 'f1v7',
+                                    returnTo: 'f1v6',
                                     company: selectedCompany
                                   }).toString();
                                   navigate(`/flows/contract-creation?${params}`);
                                 }}
-                                onSignatureComplete={isAllClientsMode ? undefined : () => {
+                                onSignatureComplete={() => {
                                   navigate(`${FLOW_BASE_PATH}?phase=data-collection&allSigned=true`);
                                 }}
                               />
@@ -1424,8 +1131,10 @@ const AdminContractingMultiCompany = () => {
                 </motion.div>
               ) : contractFlow.phase === "bundle-creation" ? (
                 <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full pt-16">
+
                   <div className="flex-1 flex flex-col items-center justify-center p-8">
                     <div className="w-full max-w-4xl space-y-8">
+                      
                       <div className="mb-8">
                         <AgentHeader
                           title="Contract Bundle"
@@ -1435,6 +1144,7 @@ const AdminContractingMultiCompany = () => {
                           showInput={false}
                         />
                       </div>
+
                     {contractFlow.selectedCandidates.map((candidate) => (
                       <div key={candidate.id} className="space-y-6">
                         <div className="flex items-center gap-3">
@@ -1459,9 +1169,9 @@ const AdminContractingMultiCompany = () => {
                       className="pt-4"
                     >
                       <Button 
-                        onClick={() => { 
-                          toast({ title: "Signing packs generated for all candidates" }); 
-                          contractFlow.proceedFromBundle(); 
+                        onClick={() => {
+                          toast({ title: "Signing packs generated for all candidates" });
+                          contractFlow.proceedFromBundle();
                         }}
                         size="lg"
                         className="w-full"
@@ -1475,6 +1185,7 @@ const AdminContractingMultiCompany = () => {
                 </motion.div>
               ) : contractFlow.phase === "drafting" ? (
                 <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full pt-16">
+
                   <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-8 py-4 sm:py-8">
                     <div className="w-full max-w-7xl space-y-3 sm:space-y-8">
                       <F1v5_ContractDraftWorkspace
@@ -1487,20 +1198,28 @@ const AdminContractingMultiCompany = () => {
                             contractFlow.currentDraftIndex >=
                             contractFlow.selectedCandidates.length - 1;
 
+                          console.log("[Flow 1.1] Confirm click", {
+                            currentDraftIndex: contractFlow.currentDraftIndex,
+                            total: contractFlow.selectedCandidates.length,
+                            isLast,
+                          });
+
                           contractFlow.nextDraft();
                           setCameFromReview(false);
 
+                          // Ensure "Confirm & Continue" lands on the final review screen (Send for Signature)
                           if (isLast) {
                             navigate(`${FLOW_BASE_PATH}?phase=reviewing`, { replace: true });
                           }
                         }}
                         onPrevious={() => {
                           if (contractFlow.currentDraftIndex === 0) {
+                            // Go back to the v5 Prepare Contract form
                             const candidateIds = contractFlow.selectedCandidates.map(c => c.id).join(',');
                             const company = selectedCompany;
                             const params = new URLSearchParams({
                               ids: candidateIds,
-                              returnTo: 'f1v7',
+                              returnTo: 'f1v5',
                               ...(company && { company }),
                             }).toString();
                             navigate(`/flows/contract-creation?${params}`);
@@ -1517,6 +1236,7 @@ const AdminContractingMultiCompany = () => {
                   <div className="flex-1 px-4 py-6 sm:p-8">
                     <ContractReviewBoard 
                       candidates={(() => {
+                        // Build review candidates from companyContractors for accurate, up-to-date data
                         const candidateIds = contractFlow.selectedCandidates.map(c => c.id);
                         const contractors = companyContractors[selectedCompany] || [];
                         const countryCodeMap: Record<string, string> = { Singapore: "SG", Spain: "ES", Norway: "NO", Philippines: "PH", Ireland: "IE", India: "IN" };
@@ -1543,10 +1263,12 @@ const AdminContractingMultiCompany = () => {
                           }));
                       })()}
                       onBack={() => {
+                        // Go back to the last candidate in drafting with docs pre-confirmed
                         setCameFromReview(true);
                         contractFlow.backToDrafting();
                       }}
                       onStartSigning={() => { 
+                        // Move selected candidates to "awaiting-signature" status in companyContractors
                         const candidateIds = contractFlow.selectedCandidates.map(c => c.id);
                         setCompanyContractors(prev => ({
                           ...prev,
@@ -1604,6 +1326,7 @@ const AdminContractingMultiCompany = () => {
         </AgentLayout>
       </main>
       
+      {/* Add Candidate Drawer */}
       <F1v4_AddCandidateDrawer
         open={isAddCandidateDrawerOpen}
         onOpenChange={setIsAddCandidateDrawerOpen}
