@@ -786,48 +786,48 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 .v7-col-status-accepted .v7-col-header {
   background: linear-gradient(
     180deg,
-    hsl(172 30% 94% / 0.55) 0%,
-    hsl(172 22% 95% / 0.42) 100%
+    hsl(172 38% 88% / 0.7) 0%,
+    hsl(172 28% 93% / 0.5) 100%
   );
 }
 
 .v7-col-status-drafting .v7-col-header {
   background: linear-gradient(
     180deg,
-    hsl(40 45% 95% / 0.5) 0%,
-    hsl(40 25% 96% / 0.38) 100%
+    hsl(40 55% 90% / 0.65) 0%,
+    hsl(40 35% 94% / 0.45) 100%
   );
 }
 
 .v7-col-status-signature .v7-col-header {
   background: linear-gradient(
     180deg,
-    hsl(210 35% 95% / 0.5) 0%,
-    hsl(210 20% 96% / 0.38) 100%
+    hsl(210 45% 90% / 0.65) 0%,
+    hsl(210 28% 94% / 0.45) 100%
   );
 }
 
 .v7-col-status-onboarding .v7-col-header {
   background: linear-gradient(
     180deg,
-    hsl(270 25% 95% / 0.45) 0%,
-    hsl(270 15% 96% / 0.35) 100%
+    hsl(270 32% 90% / 0.6) 0%,
+    hsl(270 20% 94% / 0.42) 100%
   );
 }
 
 .v7-col-status-certified .v7-col-header {
   background: linear-gradient(
     180deg,
-    hsl(152 30% 93% / 0.55) 0%,
-    hsl(152 20% 95% / 0.42) 100%
+    hsl(152 40% 87% / 0.7) 0%,
+    hsl(152 25% 93% / 0.5) 100%
   );
 }
 
 .v7-col-status-payroll .v7-col-header {
   background: linear-gradient(
     180deg,
-    hsl(190 28% 94% / 0.5) 0%,
-    hsl(190 18% 96% / 0.38) 100%
+    hsl(190 38% 88% / 0.65) 0%,
+    hsl(190 24% 94% / 0.45) 100%
   );
 }
 
