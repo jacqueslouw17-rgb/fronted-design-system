@@ -223,30 +223,26 @@ body.v7-glass-active::after {
 }
 
 /* ─── Override Topbar within v7 glass context ─── */
-/* Default: fully transparent, no border — glass effect appears on scroll via v7-topbar-scrolled class */
+/* Use same fixed gradient as body so header blends seamlessly — no visible band */
 .v7-glass-bg > header,
 .v7-glass-bg header.sticky,
 .v7-glass-bg header.fixed,
 .v7-glass-bg > * > header,
-.v7-glass-bg header,
-.v7-glass-bg header #topbar-portal-slot {
+.v7-glass-bg header {
   position: fixed !important;
   top: 0;
   left: 0;
   right: 0;
   z-index: 50 !important;
-  background: transparent !important;
-  background-image: none !important;
-  background-color: transparent !important;
+  background: linear-gradient(160deg, hsl(170 18% 97%) 0%, hsl(175 16% 96%) 18%, hsl(180 14% 95%) 36%, hsl(174 20% 94%) 54%, hsl(178 16% 95.5%) 72%, hsl(172 12% 97%) 100%) fixed !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border-bottom: none !important;
   border-color: transparent !important;
   box-shadow: none !important;
-  transition: all 0.5s ease;
+  transition: background 0.5s ease, backdrop-filter 0.5s ease, border 0.5s ease, box-shadow 0.5s ease;
 }
 
-/* Portal slot inside header — also force transparent and reset positioning */
 .v7-glass-bg header #topbar-portal-slot {
   position: absolute !important;
   background: transparent !important;
