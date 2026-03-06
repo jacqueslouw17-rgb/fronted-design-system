@@ -217,7 +217,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           </div>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
+        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-1.5">
           {/* ── Section 1: Personal Profile ── */}
           <SectionCard title="Personal Profile">
             <Field label="Full Name">
