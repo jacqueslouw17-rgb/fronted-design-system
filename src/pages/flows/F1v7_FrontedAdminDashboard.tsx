@@ -1010,8 +1010,8 @@ const AdminContractingMultiCompany = () => {
       {/* Floating orb */}
       <div className="v7-orb-center" />
 
-      {/* Topbar (v7 only): hidden at top, appears after scroll) */}
-      {!isAddingNewCompany && !isEditingCompany && headerScrolled && (
+      {/* Topbar — always visible; CSS makes bg transparent at rest, frosted on scroll */}
+      {!isAddingNewCompany && !isEditingCompany && (
         contractFlow.phase === "idle" ||
         contractFlow.phase === "offer-accepted" ||
         contractFlow.phase === "data-collection"
