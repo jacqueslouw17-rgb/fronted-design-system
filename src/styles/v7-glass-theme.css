@@ -31,7 +31,6 @@
   );
   min-height: 100vh;
   position: relative;
-  overflow-x: hidden;
 }
 
 /* ─── Floating gradient orbs — richer mint/cyan to pull through behind cards ─── */
