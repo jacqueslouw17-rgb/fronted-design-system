@@ -806,7 +806,6 @@ const AdminContractingMultiCompany = () => {
             onCompanyChange: handleCompanyChange,
             onEditCompany: handleEditCompany
           }}
-          centerCompanySwitcher
         />
       )}
 
