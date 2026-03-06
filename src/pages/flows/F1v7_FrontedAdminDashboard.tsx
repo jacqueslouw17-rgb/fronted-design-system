@@ -1420,8 +1420,6 @@ const AdminContractingMultiCompany = () => {
                             </motion.div>
                           </motion.div>
                         )
-                        )
-                                    </button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-[240px] p-0" align="center">
                                     <Command>
