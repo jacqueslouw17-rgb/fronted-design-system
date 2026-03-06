@@ -1288,9 +1288,11 @@ const AdminContractingMultiCompany = () => {
                           />
                         ) : (
                           <motion.div 
-                            initial={{ opacity: 0, y: -20 }} 
-                            animate={{ opacity: 1, y: 0 }} 
-                            className="flex flex-col items-center space-y-3 sm:space-y-4 px-4"
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            transition={{ duration: 0.6 }}
+                            className="flex flex-col items-center px-4 pt-2 pb-2"
+                          >
                           >
                             <div className="flex justify-center scale-75 sm:scale-100">
                               <AudioWaveVisualizer isActive={isAgentSpeaking || (
