@@ -1420,7 +1420,7 @@ const AdminContractingMultiCompany = () => {
                             </motion.div>
                           </motion.div>
                         )
-                                      <CommandList>
+                        }
                                         <CommandEmpty>No company found.</CommandEmpty>
                                         <CommandGroup>
                                           <CommandItem
