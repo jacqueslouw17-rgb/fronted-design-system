@@ -9,7 +9,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, X, FileCheck } from "lucide-react";
+import { ArrowLeft, X, FileCheck, ChevronDown, Check } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import "@/styles/v7-glass-theme.css";
 import "@/styles/v7-glass-portals.css";
 import frontedLogo from "@/assets/fronted-logo.png";
