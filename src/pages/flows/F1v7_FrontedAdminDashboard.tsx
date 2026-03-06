@@ -426,14 +426,18 @@ const AdminContractingMultiCompany = () => {
   }, []);
 
   useEffect(() => {
-    if (!isAddingNewCompany && !isEditingCompany && !isInContractFlow) {
-      setHeaderScrolled(false);
-      return;
-    }
-    const onScroll = () => setHeaderScrolled(window.scrollY > 16);
+    const onScroll = () => {
+      const scrolled = window.scrollY > 16;
+      setHeaderScrolled(scrolled);
+      document.body.classList.toggle("v7-topbar-scrolled", scrolled);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isAddingNewCompany, isEditingCompany, isInContractFlow]);
+    onScroll(); // check initial state
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.body.classList.remove("v7-topbar-scrolled");
+    };
+  }, []);
 
   const [companies, setCompanies] = useState<CompanyData[]>(() => {
     const saved = localStorage.getItem('adminflow-v7-companies');
