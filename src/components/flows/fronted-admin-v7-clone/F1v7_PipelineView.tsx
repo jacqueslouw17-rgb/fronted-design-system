@@ -1223,6 +1223,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 {contractor.companyName && (
                                   <span className={cn(
                                     "v7-company-chip transition-transform duration-200",
+                                    getCompanyChipVariant(contractor.companyId || contractor.companyName),
                                     status === "offer-accepted" && onRemoveContractor && "group-hover/card:translate-x-[-6px]"
                                   )}>
                                     {contractor.companyName}
