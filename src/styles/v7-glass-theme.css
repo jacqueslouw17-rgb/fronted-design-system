@@ -97,37 +97,38 @@ body.v7-glass-active::after {
   z-index: 0;
 }
 
-/* ─── Glass card — white-to-mint gradient bottom like reference screenshot ─── */
+/* ─── Glass card — refined white glass with stronger depth ─── */
 .v7-glass-card {
   background: linear-gradient(
     180deg,
-    hsl(0 0% 100% / 0.58) 0%,
-    hsl(0 0% 100% / 0.52) 42%,
-    hsl(172 35% 91% / 0.62) 100%
+    hsl(0 0% 100% / 0.62) 0%,
+    hsl(0 0% 100% / 0.55) 45%,
+    hsl(0 0% 99% / 0.5) 100%
   );
-  backdrop-filter: blur(30px) saturate(1.3);
-  -webkit-backdrop-filter: blur(30px) saturate(1.3);
-  border: 1px solid hsl(0 0% 100% / 0.72);
+  backdrop-filter: blur(36px) saturate(1.4);
+  -webkit-backdrop-filter: blur(36px) saturate(1.4);
+  border: 1px solid hsl(0 0% 100% / 0.78);
   border-radius: 1.25rem;
   box-shadow:
-    0 4px 32px hsl(172 15% 78% / 0.12),
-    0 1px 4px hsl(172 15% 80% / 0.06),
-    inset 0 1px 0 hsl(0 0% 100% / 0.65);
+    0 4px 40px hsl(220 10% 75% / 0.1),
+    0 1px 3px hsl(220 10% 80% / 0.05),
+    inset 0 1px 0 hsl(0 0% 100% / 0.7),
+    inset 0 -1px 0 hsl(0 0% 95% / 0.3);
   transition: all 0.3s ease;
 }
 
 .v7-glass-card:hover {
   background: linear-gradient(
     180deg,
-    hsl(0 0% 100% / 0.68) 0%,
-    hsl(0 0% 100% / 0.6) 42%,
-    hsl(172 38% 89% / 0.68) 100%
+    hsl(0 0% 100% / 0.72) 0%,
+    hsl(0 0% 100% / 0.65) 45%,
+    hsl(0 0% 99% / 0.58) 100%
   );
-  border-color: hsl(0 0% 100% / 0.82);
+  border-color: hsl(0 0% 100% / 0.88);
   box-shadow:
-    0 8px 42px hsl(172 15% 78% / 0.16),
-    0 2px 8px hsl(172 15% 80% / 0.08),
-    inset 0 1px 0 hsl(0 0% 100% / 0.72);
+    0 8px 48px hsl(220 10% 75% / 0.14),
+    0 2px 6px hsl(220 10% 80% / 0.07),
+    inset 0 1px 0 hsl(0 0% 100% / 0.78);
 }
 
 /* ─── Glass card — inner item / nested card with mint gradient ─── */
@@ -159,13 +160,13 @@ body.v7-glass-active::after {
     inset 0 1px 0 hsl(0 0% 100% / 0.58);
 }
 
-/* ─── Glass header / topbar ─── */
+/* ─── Glass header / topbar — frosted appearance on scroll ─── */
 .v7-glass-header {
-  background: hsl(0 0% 100% / 0.4);
-  backdrop-filter: blur(24px) saturate(1.3);
-  -webkit-backdrop-filter: blur(24px) saturate(1.3);
-  border-bottom: 1px solid hsl(0 0% 100% / 0.52);
-  box-shadow: 0 1px 10px hsl(172 12% 85% / 0.07);
+  background: hsl(0 0% 100% / 0.35);
+  backdrop-filter: blur(28px) saturate(1.4);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  border-bottom: 1px solid hsl(0 0% 100% / 0.5);
+  box-shadow: 0 1px 8px hsl(220 8% 85% / 0.06);
 }
 
 /* ─── Glass input field ─── */
@@ -896,16 +897,16 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 .v7-stagger-6 { animation-delay: 300ms; }
 .v7-stagger-7 { animation-delay: 360ms; }
 
-/* ─── Visionary Header ─── */
+/* ─── Visionary Header Glow — subtle multi-hue ─── */
 .v7-header-glow {
-  background: radial-gradient(circle, hsl(172 45% 75% / 0.25) 0%, hsl(180 40% 80% / 0.12) 50%, transparent 70%);
-  filter: blur(24px);
-  animation: v7-glow-pulse 3s ease-in-out infinite;
+  background: radial-gradient(circle, hsl(260 15% 82% / 0.2) 0%, hsl(200 18% 85% / 0.1) 50%, transparent 70%);
+  filter: blur(28px);
+  animation: v7-glow-pulse 4s ease-in-out infinite;
 }
 
 @keyframes v7-glow-pulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.06); }
 }
 
 /* Heading — clean dark charcoal, NO teal/green gradient */
