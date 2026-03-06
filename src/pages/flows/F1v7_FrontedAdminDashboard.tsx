@@ -433,7 +433,23 @@ const AdminContractingMultiCompany = () => {
   }, [isAddingNewCompany, isEditingCompany, isInContractFlow]);
   const [companies, setCompanies] = useState<CompanyData[]>(() => {
     const saved = localStorage.getItem('adminflow-v7-companies');
-    return saved ? JSON.parse(saved) : MOCK_COMPANIES;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as CompanyData[];
+        // Merge any new mock companies that don't exist in saved data
+        const savedIds = new Set(parsed.map((c: CompanyData) => c.id));
+        const missing = MOCK_COMPANIES.filter(c => !savedIds.has(c.id));
+        if (missing.length > 0) {
+          const merged = [...parsed, ...missing];
+          localStorage.setItem('adminflow-v7-companies', JSON.stringify(merged));
+          return merged;
+        }
+        return parsed;
+      } catch {
+        return MOCK_COMPANIES;
+      }
+    }
+    return MOCK_COMPANIES;
   });
   const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>(() => {
     const saved = localStorage.getItem('adminflow-v7-company-contractors');
@@ -441,7 +457,7 @@ const AdminContractingMultiCompany = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return Object.fromEntries(
+        const result = Object.fromEntries(
           Object.entries(parsed).map(([companyId, contractors]) => [
             companyId,
             Array.isArray(contractors)
@@ -457,6 +473,19 @@ const AdminContractingMultiCompany = () => {
               : [],
           ])
         ) as Record<string, any[]>;
+        // Merge missing company contractor lists
+        const defaults: Record<string, any[]> = { "company-default": [...DEFAULT_DRAFTING_CANDIDATES], "company-globex": [...GLOBEX_CANDIDATES], "company-initech": [...INITECH_CANDIDATES], "company-waystar": [...WAYSTAR_CANDIDATES] };
+        let updated = false;
+        for (const [key, val] of Object.entries(defaults)) {
+          if (!(key in result)) {
+            result[key] = val;
+            updated = true;
+          }
+        }
+        if (updated) {
+          localStorage.setItem('adminflow-v7-company-contractors', JSON.stringify(result));
+        }
+        return result;
       } catch {
         localStorage.removeItem('adminflow-v7-company-contractors');
       }
