@@ -1083,16 +1083,16 @@ const AdminContractingMultiCompany = () => {
                             <div className="mt-3">
                               <F1v4_PipelineView 
                                 key={selectedCompany}
-                                contractors={companyContractors[selectedCompany] || []}
-                                onAddCandidate={handleAddCandidate}
-                                onRemoveContractor={(contractorId) => {
+                                contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
+                                onAddCandidate={isAllClientsMode ? undefined : handleAddCandidate}
+                                onRemoveContractor={isAllClientsMode ? undefined : (contractorId) => {
                                   setCompanyContractors(prev => ({
                                     ...prev,
                                     [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
                                   }));
                                   sonnerToast.success("Candidate removed");
                                 }}
-                                onDraftContract={(ids) => {
+                                onDraftContract={isAllClientsMode ? undefined : (ids) => {
                                   const params = new URLSearchParams({ 
                                     ids: ids.join(','),
                                     returnTo: 'f1v7',
@@ -1100,7 +1100,7 @@ const AdminContractingMultiCompany = () => {
                                   }).toString();
                                   navigate(`/flows/contract-creation?${params}`);
                                 }}
-                                onSignatureComplete={() => {
+                                onSignatureComplete={isAllClientsMode ? undefined : () => {
                                   navigate(`${FLOW_BASE_PATH}?phase=data-collection&allSigned=true`);
                                 }}
                               />
