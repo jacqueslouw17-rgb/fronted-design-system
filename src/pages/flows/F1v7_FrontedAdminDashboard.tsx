@@ -1345,7 +1345,7 @@ const AdminContractingMultiCompany = () => {
                                 </Popover>
                                 <span className="text-muted-foreground font-normal text-lg sm:text-xl">
                                   {isAllClientsMode 
-                                    ? `· ${companies.map(c => c.name).join(", ")} · ${allClientsContractors.length} workers`
+                                    ? `· ${companies.length} clients · ${allClientsContractors.length} workers`
                                     : `· ${(companyContractors[selectedCompany] || []).length} workers`
                                   }
                                 </span>
