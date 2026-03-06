@@ -223,7 +223,7 @@ body.v7-glass-active::after {
 }
 
 /* ─── Override Topbar within v7 glass context ─── */
-/* Use same fixed gradient as body so header blends seamlessly — no visible band */
+/* Transparent at rest — no visible bar, just logo + profile floating */
 .v7-glass-bg > header,
 .v7-glass-bg header.sticky,
 .v7-glass-bg header.fixed,
@@ -234,7 +234,7 @@ body.v7-glass-active::after {
   left: 0;
   right: 0;
   z-index: 50 !important;
-  background: linear-gradient(160deg, hsl(170 18% 97%) 0%, hsl(175 16% 96%) 18%, hsl(180 14% 95%) 36%, hsl(174 20% 94%) 54%, hsl(178 16% 95.5%) 72%, hsl(172 12% 97%) 100%) fixed !important;
+  background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border-bottom: none !important;
@@ -243,7 +243,19 @@ body.v7-glass-active::after {
   transition: background 0.5s ease, backdrop-filter 0.5s ease, border 0.5s ease, box-shadow 0.5s ease;
 }
 
-.v7-glass-bg header #topbar-portal-slot {
+/* On scroll — frosted glass bar appears */
+body.v7-glass-active.v7-topbar-scrolled header.fixed,
+body.v7-glass-active.v7-topbar-scrolled header.sticky,
+body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
+  background: hsl(0 0% 100% / 0.4) !important;
+  backdrop-filter: blur(24px) saturate(1.5) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.5) !important;
+  border-bottom: 1px solid hsl(var(--border) / 0.15) !important;
+  box-shadow: 0 1px 0 0 hsl(var(--border) / 0.1) !important;
+}
+
+.v7-glass-bg header #topbar-portal-slot,
+.v7-glass-bg #topbar-portal-slot {
   position: absolute !important;
   background: transparent !important;
   background-image: none !important;
@@ -253,11 +265,6 @@ body.v7-glass-active::after {
 /* Keep v7 content flush to the top so transparent fixed header overlays seamlessly */
 .v7-glass-bg > main {
   padding-top: 0 !important;
-}
-
-/* Override portal slot in Topbar */
-.v7-glass-bg #topbar-portal-slot {
-  background: transparent !important;
 }
 
 /* ─── Stats cards inside glass ─── */
