@@ -31,24 +31,24 @@ html:has(.v7-glass-bg) {
   overflow-x: hidden;
 }
 
-/* Orbs on BODY level so they show through the transparent header */
+/* Orbs on BODY level — multi-hue floating light for depth */
 body.v7-glass-active::before {
   content: '';
   position: fixed;
-  top: -8%;
-  left: -8%;
-  width: 60vw;
-  height: 60vw;
-  max-width: 700px;
-  max-height: 700px;
+  top: -12%;
+  left: -10%;
+  width: 65vw;
+  height: 65vw;
+  max-width: 750px;
+  max-height: 750px;
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    hsl(172 45% 82% / 0.6) 0%,
-    hsl(178 35% 86% / 0.35) 35%,
+    hsl(260 20% 88% / 0.5) 0%,
+    hsl(200 25% 90% / 0.3) 35%,
     transparent 65%
   );
-  filter: blur(80px);
+  filter: blur(90px);
   pointer-events: none;
   z-index: 0;
 }
@@ -56,30 +56,30 @@ body.v7-glass-active::before {
 body.v7-glass-active::after {
   content: '';
   position: fixed;
-  bottom: -10%;
-  right: -3%;
-  width: 55vw;
-  height: 55vw;
-  max-width: 650px;
-  max-height: 650px;
+  bottom: -12%;
+  right: -5%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 700px;
+  max-height: 700px;
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    hsl(168 42% 82% / 0.55) 0%,
-    hsl(175 32% 88% / 0.3) 40%,
+    hsl(172 20% 85% / 0.45) 0%,
+    hsl(340 12% 90% / 0.25) 40%,
     transparent 65%
   );
-  filter: blur(80px);
+  filter: blur(90px);
   pointer-events: none;
   z-index: 0;
 }
 
 
-/* Extra floating orb via child element — positioned to glow behind pipeline */
+/* Extra floating orb — warm rose/peach glow for visual richness */
 .v7-orb-center {
   position: fixed;
-  top: 25%;
-  left: 50%;
+  top: 30%;
+  left: 45%;
   transform: translateX(-50%);
   width: 50vw;
   height: 50vw;
@@ -88,11 +88,11 @@ body.v7-glass-active::after {
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    hsl(170 32% 88% / 0.5) 0%,
-    hsl(178 22% 92% / 0.25) 40%,
+    hsl(30 25% 92% / 0.4) 0%,
+    hsl(200 18% 94% / 0.22) 40%,
     transparent 65%
   );
-  filter: blur(90px);
+  filter: blur(100px);
   pointer-events: none;
   z-index: 0;
 }
