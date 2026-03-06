@@ -31,7 +31,48 @@ html:has(.v7-glass-bg) {
   overflow-x: hidden;
 }
 
-.v7-glass-bg::before {
+/* Orbs on BODY level so they show through the transparent header */
+body.v7-glass-active::before {
+  content: '';
+  position: fixed;
+  top: -8%;
+  left: -8%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 700px;
+  max-height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    hsl(172 45% 82% / 0.6) 0%,
+    hsl(178 35% 86% / 0.35) 35%,
+    transparent 65%
+  );
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.v7-glass-active::after {
+  content: '';
+  position: fixed;
+  bottom: -10%;
+  right: -3%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 650px;
+  max-height: 650px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    hsl(168 42% 82% / 0.55) 0%,
+    hsl(175 32% 88% / 0.3) 40%,
+    transparent 65%
+  );
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
   content: '';
   position: fixed;
   top: -8%;
