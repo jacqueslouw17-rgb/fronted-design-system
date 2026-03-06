@@ -1277,8 +1277,7 @@ const AdminContractingMultiCompany = () => {
                             }, 2000);
                           }}
                         />
-                      ) : (
-                        {activeMainTab === "payroll" ? (
+                      ) : activeMainTab === "payroll" ? (
                           <AgentHeader
                             title="Fronted Admin · Payroll"
                             subtitle="Review all company payrolls, resolve exceptions, and approve numbers."
@@ -1363,7 +1362,6 @@ const AdminContractingMultiCompany = () => {
                             </div>
                           </motion.div>
                         )}
-                      )}
                       
                       <div className="flex items-center justify-center py-2">
                         <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "tracker" | "payroll")}>
