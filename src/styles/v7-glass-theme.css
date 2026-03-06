@@ -9,13 +9,13 @@
   font-family: "Outfit", ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
-/* ─── Override primary + accent to mint/teal within v7 ─── */
+/* ─── Override primary + accent to sophisticated muted teal within v7 ─── */
 .v7-glass-bg {
-  --primary: 172 50% 45%;
-  --primary-foreground: 172 60% 98%;
-  --ring: 172 40% 60%;
-  --accent: 172 20% 94%;
-  --accent-foreground: 172 40% 22%;
+  --primary: 172 28% 42%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 172 22% 58%;
+  --accent: 172 12% 94%;
+  --accent-foreground: 172 20% 24%;
 }
 
 /* ─── Main background — transparent; body carries the gradient via v7-glass-portals.css ─── */
@@ -327,8 +327,8 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 }
 
 .v7-glass-bg button[role="checkbox"][data-state="checked"] {
-  background: hsl(172 48% 48%) !important;
-  border-color: hsl(172 48% 48%) !important;
+  background: hsl(172 28% 42%) !important;
+  border-color: hsl(172 28% 42%) !important;
 }
 
 .v7-glass-bg button[role="checkbox"][data-state="unchecked"] {
@@ -342,19 +342,19 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
   color: hsl(172 12% 42%) !important;
 }
 
-/* ─── Primary buttons — frosted glass pill with mint tint ─── */
+/* ─── Primary buttons — sophisticated muted teal, subtle not loud ─── */
 .v7-glass-bg button[class*="bg-primary"],
 .v7-glass-bg button[class*="bg-gradient-primary"] {
   background: linear-gradient(
     180deg,
-    hsl(172 42% 52%) 0%,
-    hsl(172 48% 45%) 100%
+    hsl(172 26% 44%) 0%,
+    hsl(174 30% 38%) 100%
   ) !important;
   color: hsl(0 0% 100%) !important;
-  border: 1px solid hsl(172 35% 55% / 0.4) !important;
+  border: 1px solid hsl(172 20% 50% / 0.25) !important;
   box-shadow:
-    0 2px 14px hsl(172 30% 40% / 0.2),
-    inset 0 1px 0 hsl(0 0% 100% / 0.15);
+    0 1px 8px hsl(172 20% 35% / 0.12),
+    inset 0 1px 0 hsl(0 0% 100% / 0.1);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -363,20 +363,20 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 .v7-glass-bg button[class*="bg-gradient-primary"]:hover {
   background: linear-gradient(
     180deg,
-    hsl(172 44% 48%) 0%,
-    hsl(172 50% 40%) 100%
+    hsl(172 28% 40%) 0%,
+    hsl(174 32% 34%) 100%
   ) !important;
   box-shadow:
-    0 4px 22px hsl(172 30% 40% / 0.28),
-    inset 0 1px 0 hsl(0 0% 100% / 0.2);
+    0 3px 16px hsl(172 22% 35% / 0.18),
+    inset 0 1px 0 hsl(0 0% 100% / 0.15);
 }
 
 /* ─── bg-gradient-primary icon circles (like onboarding confirmation) ─── */
 .v7-glass-bg [class*="bg-gradient-primary"]:not(button) {
   background: linear-gradient(
     135deg,
-    hsl(172 42% 52%) 0%,
-    hsl(170 48% 42%) 100%
+    hsl(172 26% 46%) 0%,
+    hsl(174 30% 38%) 100%
   ) !important;
 }
 
@@ -514,10 +514,10 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
   border-radius: 0.75rem;
 }
 
-/* ─── Progress bars — mint ─── */
+/* ─── Progress bars — muted teal ─── */
 .v7-glass-bg [class*="bg-primary"][role="progressbar"] > div,
 .v7-glass-bg .bg-primary {
-  background: hsl(172 48% 48%) !important;
+  background: hsl(172 28% 42%) !important;
 }
 
 /* ─── Separator / dividers within glass ─── */
@@ -593,7 +593,7 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 }
 
 .v7-glass-bg [class*="text-primary"]:not(button):not([role="checkbox"]) {
-  color: hsl(172 50% 38%) !important;
+  color: hsl(172 28% 38%) !important;
 }
 
 /* ─── Outline buttons within glass ─── */
@@ -691,14 +691,14 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
   background: hsl(172 18% 94% / 0.5) !important;
 }
 
-/* ─── Violet button overrides (Create Batch etc.) ─── */
+/* ─── Violet button overrides — use same muted teal ─── */
 .v7-glass-bg button[class*="bg-violet-600"],
 .v7-glass-bg button[class*="bg-violet-700"],
 .v7-glass-bg button[class*="bg-purple-600"] {
   background: linear-gradient(
     180deg,
-    hsl(172 42% 52%) 0%,
-    hsl(172 48% 45%) 100%
+    hsl(172 26% 44%) 0%,
+    hsl(174 30% 38%) 100%
   ) !important;
   color: hsl(0 0% 100%) !important;
 }
@@ -707,8 +707,8 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 .v7-glass-bg button[class*="bg-violet-700"]:hover {
   background: linear-gradient(
     180deg,
-    hsl(172 44% 48%) 0%,
-    hsl(172 50% 40%) 100%
+    hsl(172 28% 40%) 0%,
+    hsl(174 32% 34%) 100%
   ) !important;
 }
 
@@ -871,7 +871,7 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 }
 
 .v7-glass-bg button[role="checkbox"][data-state="checked"] {
-  box-shadow: 0 0 8px hsl(172 48% 48% / 0.25) !important;
+  box-shadow: 0 0 8px hsl(172 28% 42% / 0.2) !important;
 }
 
 /* Input focus glow animation */
@@ -908,19 +908,14 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
   50% { opacity: 1; transform: scale(1.08); }
 }
 
+/* Heading — clean dark charcoal, NO teal/green gradient */
 .v7-heading-gradient {
-  background: linear-gradient(135deg, hsl(172 50% 32%) 0%, hsl(178 45% 38%) 40%, hsl(168 55% 42%) 70%, hsl(172 50% 32%) 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: v7-gradient-shift 6s ease-in-out infinite;
-}
-
-@keyframes v7-gradient-shift {
-  0% { background-position: 0% center; }
-  50% { background-position: 100% center; }
-  100% { background-position: 0% center; }
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: hsl(210 8% 15%) !important;
+  background-clip: unset !important;
+  animation: none !important;
+  color: hsl(210 8% 15%) !important;
 }
 
 .v7-stat-pill {
@@ -931,9 +926,9 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
-  background: hsl(172 40% 92% / 0.7);
-  color: hsl(172 50% 30%);
+  background: hsl(0 0% 100% / 0.45);
+  color: hsl(210 6% 35%);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid hsl(172 40% 80% / 0.3);
+  border: 1px solid hsl(0 0% 100% / 0.5);
 }
