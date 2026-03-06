@@ -377,8 +377,9 @@ html:has(.v7-glass-bg) {
 }
 
 /* ─── Override ALL cards within v7 glass to have subtle mint glass ─── */
-.v7-glass-bg [class*="bg-card/50"],
-.v7-glass-bg [class*="bg-card"] {
+/* Exclude the header element so it can be transparent at rest */
+.v7-glass-bg [class*="bg-card/50"]:not(header),
+.v7-glass-bg [class*="bg-card"]:not(header):not(#topbar-portal-slot) {
   background: linear-gradient(
     180deg,
     hsl(0 0% 100% / 0.55) 0%,
