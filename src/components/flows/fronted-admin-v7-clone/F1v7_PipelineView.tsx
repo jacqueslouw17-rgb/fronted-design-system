@@ -1168,19 +1168,23 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   duration: 0.2
                 }
               }}>
-                <Card className={cn(
-                  "v7-glass-item border cursor-pointer",
-                  status === "onboarding-pending"
-                    ? "border-primary/30 shadow-sm shadow-primary/5"
-                    : ""
-                )} onClick={() => {
-                  if (status === "awaiting-signature") {
-                    handleOpenSignatureWorkflow(contractor);
-                  } else if (status === "CERTIFIED") {
-                    setSelectedForDoneDetail(contractor);
-                    setDoneDetailDrawerOpen(true);
-                  }
-                }}>
+                <Card 
+                  className={cn(
+                    "v7-glass-item border cursor-pointer overflow-hidden",
+                    status === "onboarding-pending"
+                      ? "border-primary/30 shadow-sm shadow-primary/5"
+                      : "",
+                    contractor.companyName && "border-l-2"
+                  )} 
+                  style={contractor.companyColor ? { borderLeftColor: contractor.companyColor } : undefined}
+                  onClick={() => {
+                    if (status === "awaiting-signature") {
+                      handleOpenSignatureWorkflow(contractor);
+                    } else if (status === "CERTIFIED") {
+                      setSelectedForDoneDetail(contractor);
+                      setDoneDetailDrawerOpen(true);
+                    }
+                  }}>
                       <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
                         <div className="flex items-center gap-2">
