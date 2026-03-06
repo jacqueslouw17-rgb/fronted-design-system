@@ -1219,12 +1219,11 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <span className="text-sm">{contractor.countryFlag}</span>
                               </div>
 
-                              <div className="ml-auto flex items-center pl-1 overflow-hidden">
+                              <div className="ml-auto flex items-center pl-1">
                                 {contractor.companyName && (
                                   <span className={cn(
-                                    "v7-company-chip transition-transform duration-200",
+                                    "v7-company-chip transition-all duration-200",
                                     getCompanyChipVariant(contractor.companyId || contractor.companyName),
-                                    status === "offer-accepted" && onRemoveContractor && "group-hover/card:translate-x-[-6px]"
                                   )}>
                                     {contractor.companyName}
                                   </span>
