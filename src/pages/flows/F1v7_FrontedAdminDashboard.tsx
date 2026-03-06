@@ -74,7 +74,67 @@ const MOCK_COMPANIES: CompanyData[] = [
     defaultCurrency: "USD",
     payrollCurrency: ["USD"],
     payoutDay: "25",
+  },
+  {
+    id: "company-globex",
+    name: "Globex Inc",
+    adminName: "Sarah Park",
+    adminEmail: "sarah@globex.com",
+    hqCountry: "US",
+    defaultCurrency: "USD",
+    payrollCurrency: ["USD", "EUR"],
+    payoutDay: "28",
   }
+];
+
+const GLOBEX_CANDIDATES = [
+  {
+    id: "globex-1",
+    name: "Tomoko Hayashi",
+    country: "Japan",
+    countryFlag: "🇯🇵",
+    role: "Lead UX Researcher",
+    salary: "JPY 820,000/mo",
+    status: "drafting",
+    employmentType: "employee" as const,
+    email: "tomoko.hayashi@example.com",
+    dataReceived: true,
+  },
+  {
+    id: "globex-2",
+    name: "Erik Johansson",
+    country: "Sweden",
+    countryFlag: "🇸🇪",
+    role: "Platform Engineer",
+    salary: "SEK 58,000/mo",
+    status: "offer-accepted",
+    employmentType: "contractor" as const,
+    email: "erik.johansson@example.com",
+  },
+  {
+    id: "globex-3",
+    name: "Amara Osei",
+    country: "Ghana",
+    countryFlag: "🇬🇭",
+    role: "Growth Marketing Lead",
+    salary: "USD 5,500/mo",
+    status: "awaiting-signature",
+    employmentType: "contractor" as const,
+    email: "amara.osei@example.com",
+    dataReceived: true,
+  },
+  {
+    id: "globex-4",
+    name: "Lucas Müller",
+    country: "Germany",
+    countryFlag: "🇩🇪",
+    role: "Staff Engineer",
+    salary: "EUR 9,200/mo",
+    status: "CERTIFIED",
+    employmentType: "employee" as const,
+    email: "lucas.muller@example.com",
+    dataReceived: true,
+  },
 ];
 
 const DEFAULT_DRAFTING_CANDIDATES = [
@@ -247,7 +307,7 @@ const AdminContractingMultiCompany = () => {
       }
     }
 
-    return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
+    return { "company-default": [...DEFAULT_DRAFTING_CANDIDATES], "company-globex": [...GLOBEX_CANDIDATES] };
   });
   
   useEffect(() => {

@@ -1173,10 +1173,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     "v7-glass-item border cursor-pointer overflow-hidden",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
-                      : "",
-                    contractor.companyName && "border-l-2"
+                      : ""
                   )} 
-                  style={contractor.companyColor ? { borderLeftColor: contractor.companyColor } : undefined}
                   onClick={() => {
                     if (status === "awaiting-signature") {
                       handleOpenSignatureWorkflow(contractor);
@@ -1233,20 +1231,23 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <Trash2 className="h-3 w-3" />
                               </Button>}
                             </div>
-                            <p className="text-xs text-muted-foreground truncate">{contractor.role}</p>
-                            {/* Company tag — only visible in "All clients" multi-company view */}
-                            {contractor.companyName && (
-                              <div className="flex items-center gap-1.5 mt-1">
-                                <div 
-                                  className="w-2 h-2 rounded-full flex-shrink-0" 
-                                  style={{ backgroundColor: contractor.companyColor || 'hsl(162 48% 48%)' }}
-                                />
-                                <span className="text-[10px] font-medium truncate" style={{ color: contractor.companyColor || 'hsl(162 48% 48%)' }}>
-                                  {contractor.companyName}
-                                </span>
-                              </div>
-                            )}
                           </div>
+
+                        {/* Company tag — compact pill at bottom of header, only in "All clients" view */}
+                        {contractor.companyName && (
+                          <div className="mt-1.5 -mb-0.5">
+                            <span 
+                              className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-[1px] rounded-full"
+                              style={{ 
+                                backgroundColor: `${contractor.companyColor || 'hsl(162 48% 48%)'}15`,
+                                color: contractor.companyColor || 'hsl(162 48% 48%)',
+                                border: `1px solid ${contractor.companyColor || 'hsl(162 48% 48%)'}30`
+                              }}
+                            >
+                              {contractor.companyName}
+                            </span>
+                          </div>
+                        )}
                         </div>
 
                         {/* Data rows */}

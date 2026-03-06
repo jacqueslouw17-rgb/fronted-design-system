@@ -140,49 +140,56 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           <CommandList className="max-h-[240px]">
             <CommandEmpty>No company found.</CommandEmpty>
             <CommandGroup>
-              {[...companySwitcher.companies].sort((a, b) => a.name.localeCompare(b.name)).map((company) => {
-                const isSelected = companySwitcher.selectedCompany === company.id;
-                return (
-                  <CommandItem
-                    key={company.id}
-                    value={company.name}
-                    onSelect={() => {
-                      companySwitcher.onCompanyChange(company.id);
-                      setCompanySearchOpen(false);
-                      setCompanySearchValue("");
-                    }}
-                    className="truncate group"
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4 flex-shrink-0",
-                        isSelected ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    <span className="truncate flex-1">
-                      {highlightMatch(company.name, companySearchValue)}
-                    </span>
-                    {companySwitcher.onEditCompany && !company.id.startsWith("__") && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          companySwitcher.onEditCompany?.(company.id);
-                          setCompanySearchOpen(false);
-                        }}
+              {(() => {
+                // Separate special entries (e.g. __all_clients__) from regular companies
+                const specialEntries = companySwitcher.companies.filter(c => c.id.startsWith("__"));
+                const regularEntries = companySwitcher.companies.filter(c => !c.id.startsWith("__"));
+                const sorted = [...specialEntries, ...regularEntries.sort((a, b) => a.name.localeCompare(b.name))];
+                return sorted.map((company) => {
+                  const isSpecial = company.id.startsWith("__");
+                  const isSelected = companySwitcher.selectedCompany === company.id;
+                  return (
+                    <CommandItem
+                      key={company.id}
+                      value={company.name}
+                      onSelect={() => {
+                        companySwitcher.onCompanyChange(company.id);
+                        setCompanySearchOpen(false);
+                        setCompanySearchValue("");
+                      }}
+                      className={cn("truncate group", isSpecial && "font-medium border-b mb-1 pb-2")}
+                    >
+                      <Check
                         className={cn(
-                          "ml-2 p-1.5 rounded-md bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all",
-                          isSelected ? "opacity-60 group-hover:opacity-100" : "opacity-0 group-hover:opacity-100"
+                          "mr-2 h-4 w-4 flex-shrink-0",
+                          isSelected ? "opacity-100" : "opacity-0"
                         )}
-                        title="Edit company details"
-                      >
-                        <Settings className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </CommandItem>
-                );
-              })}
+                      />
+                      <span className="truncate flex-1">
+                        {highlightMatch(company.name, companySearchValue)}
+                      </span>
+                      {companySwitcher.onEditCompany && !isSpecial && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            companySwitcher.onEditCompany?.(company.id);
+                            setCompanySearchOpen(false);
+                          }}
+                          className={cn(
+                            "ml-2 p-1.5 rounded-md bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all",
+                            isSelected ? "opacity-60 group-hover:opacity-100" : "opacity-0 group-hover:opacity-100"
+                          )}
+                          title="Edit company details"
+                        >
+                          <Settings className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </CommandItem>
+                  );
+                });
+              })()}
             </CommandGroup>
           </CommandList>
         </Command>
