@@ -58,9 +58,10 @@ interface TopbarProps {
     onEditCompany?: (companyId: string) => void;
   };
   centerCompanySwitcher?: boolean; // When true, renders company switcher centered in header
+  forceFixed?: boolean; // When true, pins header with fixed positioning
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, onBackClick, companySwitcher, centerCompanySwitcher }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, onBackClick, companySwitcher, centerCompanySwitcher, forceFixed }: TopbarProps) => {
   const navigate = useNavigate();
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [companySearchValue, setCompanySearchValue] = useState("");
@@ -190,7 +191,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
   ) : null;
 
   return (
-    <header className="sticky top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-3 sm:px-6 relative">
+    <header className={cn(forceFixed ? "fixed left-0 right-0" : "sticky", "top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-3 sm:px-6 relative")}>
       {/* Portal slot — when a child portals content here, it overlays the header */}
       <div id="topbar-portal-slot" className="absolute inset-0 z-[60] flex items-center justify-center bg-card pointer-events-none empty:hidden [&:not(:empty)]:pointer-events-auto" />
       {/* Brand */}
