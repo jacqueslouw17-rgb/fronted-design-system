@@ -91,6 +91,7 @@ const HISTORICAL_PAYROLLS: HistoricalPayroll[] = [
 interface F1v4_CompanyPayrollRunProps {
   company: CompanyPayrollData;
   initialStep?: number; // 1=submissions, 2=exceptions, 3=approve, 4=track
+  isAllClients?: boolean;
 }
 
 // Mock submissions data
