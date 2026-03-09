@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Calendar, Shield, Bell, AlertTriangle, 
   ChevronDown, Zap, Users, Clock,
-  MessageSquare, Mail, CheckCircle2
+  MessageSquare, Mail
 } from "lucide-react";
 
 export interface PolicyData {
