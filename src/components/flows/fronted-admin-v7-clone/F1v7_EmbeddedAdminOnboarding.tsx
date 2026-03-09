@@ -218,8 +218,8 @@ const F1v4_EmbeddedAdminOnboarding = ({
     );
   }
 
-  const stepsToShow = FLOW_STEPS;
-  const activeStep = FLOW_STEPS[currentStep];
+  const steps = isEditMode ? EDIT_STEPS : FLOW_STEPS;
+  const activeStep = steps[currentStep] || steps[0];
 
   const getStepTitle = () => {
     if (isEditMode) {
