@@ -115,7 +115,7 @@ const CompanyAdminOnboardingV3 = () => {
     switch (activeStep.id) {
       case "account_details":
         return (
-          <StepAccountDetails
+          <F5v3_AccountDetailsStep
             formData={formData}
             onComplete={handleStepComplete}
             isProcessing={isProcessing}
