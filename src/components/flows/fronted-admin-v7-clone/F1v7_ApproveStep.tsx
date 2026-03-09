@@ -458,7 +458,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 </div>
 
                 {/* Per-client breakdown when viewing all */}
-                {selectedClient === ALL_CLIENTS_KEY && hasMultipleClients && (
+                {isAllSelected && hasMultipleClients && (
                   <div className="pt-2.5 border-t border-border/30 space-y-1.5">
                     <p className="text-[10px] text-muted-foreground/60 font-medium uppercase tracking-wider">By client</p>
                     {clientNames.map(name => {
