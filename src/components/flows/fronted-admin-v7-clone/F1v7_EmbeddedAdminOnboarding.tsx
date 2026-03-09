@@ -321,7 +321,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
                     style={
                       idx === currentStep
                         ? { background: 'hsl(172 28% 42% / 0.05)' }
-                        : completedSteps.has(step.id)
+                        : isEditMode || completedSteps.has(step.id)
                         ? { background: 'hsl(172 28% 42% / 0.03)' }
                         : undefined
                     }
