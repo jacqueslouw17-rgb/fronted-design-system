@@ -24,6 +24,7 @@ interface PolicySummaryProps {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
+  isEditMode?: boolean;
 }
 
 const SummaryRow = ({ icon: Icon, label, className }: { icon: React.ElementType; label: string; className?: string }) => (
