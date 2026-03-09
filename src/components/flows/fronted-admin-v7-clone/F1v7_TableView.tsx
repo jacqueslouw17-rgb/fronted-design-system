@@ -6,8 +6,9 @@ import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { ArrowUpDown, ArrowUp, ArrowDown, Eye } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Eye, Send, FileEdit, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Contractor {
@@ -30,6 +31,9 @@ interface Contractor {
 interface TableViewProps {
   contractors: Contractor[];
   onWorkerClick?: (contractor: Contractor) => void;
+  selectedIds?: Set<string>;
+  onSelectContractor?: (id: string, checked: boolean) => void;
+  onBulkAction?: (status: string) => void;
 }
 
 type SortKey = "name" | "status" | "country" | "role" | "salary" | "company" | "type";
@@ -65,6 +69,9 @@ const statusDotColors: Record<string, string> = {
   "ON_HOLD": "bg-red-400",
 };
 
+/** Statuses that support checkbox selection */
+const SELECTABLE_STATUSES = ["offer-accepted", "drafting", "trigger-onboarding"];
+
 const COMPANY_CHIP_VARIANTS = [
   "v7-company-chip--a",
   "v7-company-chip--b",
@@ -79,7 +86,7 @@ const getCompanyChipVariant = (seed: string) => {
   return COMPANY_CHIP_VARIANTS[hash % COMPANY_CHIP_VARIANTS.length];
 };
 
-const columns: { key: SortKey; label: string; className?: string }[] = [
+const tableColumns: { key: SortKey; label: string; className?: string }[] = [
   { key: "name", label: "Worker", className: "min-w-[160px] flex-[2]" },
   { key: "company", label: "Client", className: "min-w-[90px] flex-1 hidden md:flex" },
   { key: "status", label: "Status", className: "min-w-[110px] flex-1" },
@@ -89,7 +96,19 @@ const columns: { key: SortKey; label: string; className?: string }[] = [
   { key: "type", label: "Type", className: "min-w-[50px] flex-[0.5] hidden xl:flex" },
 ];
 
-export const F1v7_TableView: React.FC<TableViewProps> = ({ contractors, onWorkerClick }) => {
+const bulkActionLabels: Record<string, { label: string; icon: React.ReactNode }> = {
+  "offer-accepted": { label: "Send Forms", icon: <Send className="h-3 w-3 mr-1" /> },
+  "drafting": { label: "Draft Contracts", icon: <FileEdit className="h-3 w-3 mr-1" /> },
+  "trigger-onboarding": { label: "Start All", icon: <CheckCircle2 className="h-3 w-3 mr-1" /> },
+};
+
+export const F1v7_TableView: React.FC<TableViewProps> = ({
+  contractors,
+  onWorkerClick,
+  selectedIds = new Set(),
+  onSelectContractor,
+  onBulkAction,
+}) => {
   const [sortKey, setSortKey] = useState<SortKey>("status");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
@@ -126,6 +145,21 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({ contractors, onWorker
     return arr;
   }, [contractors, sortKey, sortDir]);
 
+  const isSelectable = (status: string) => SELECTABLE_STATUSES.includes(status);
+
+  // Compute bulk action info for the floating bar
+  const selectedByStatus = useMemo(() => {
+    const map: Record<string, number> = {};
+    contractors.forEach(c => {
+      if (selectedIds.has(c.id) && isSelectable(c.status)) {
+        map[c.status] = (map[c.status] || 0) + 1;
+      }
+    });
+    return map;
+  }, [contractors, selectedIds]);
+
+  const totalSelected = Object.values(selectedByStatus).reduce((a, b) => a + b, 0);
+
   const SortIcon = ({ col }: { col: SortKey }) => {
     if (sortKey !== col) return <ArrowUpDown className="h-3 w-3 opacity-30" />;
     return sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
@@ -136,11 +170,13 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({ contractors, onWorker
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="v7-table-container"
+      className="v7-table-container relative"
     >
       {/* Header */}
       <div className="v7-table-header">
-        {columns.map(col => (
+        {/* Checkbox column header */}
+        <div className="w-6 shrink-0" />
+        {tableColumns.map(col => (
           <button
             key={col.key}
             className={cn("v7-table-header-cell", col.className)}
@@ -155,96 +191,122 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({ contractors, onWorker
 
       {/* Rows */}
       <div className="v7-table-body">
-        {sorted.map((contractor, idx) => (
-          <motion.div
-            key={contractor.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: idx * 0.015 }}
-            className={cn(
-              "v7-table-row group/trow",
-              contractor.workerStatus && contractor.workerStatus !== "active" && "opacity-60"
-            )}
-            onClick={() => onWorkerClick?.(contractor)}
-          >
-            {/* Worker */}
-            <div className={cn("flex items-center gap-2", columns[0].className)}>
-              <span className="text-sm leading-none">{contractor.countryFlag}</span>
-              <span className="text-[13px] font-medium text-foreground truncate">
-                {contractor.name}
-              </span>
-            </div>
+        {sorted.map((contractor, idx) => {
+          const selectable = isSelectable(contractor.status);
+          const isSelected = selectedIds.has(contractor.id);
 
-            {/* Client */}
-            <div className={cn("flex items-center", columns[1].className)}>
-              {contractor.companyName ? (
-                <span className={cn(
-                  "v7-company-chip",
-                  getCompanyChipVariant(contractor.companyId || contractor.companyName),
-                )}>
-                  {contractor.companyName}
+          return (
+            <motion.div
+              key={contractor.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: idx * 0.015 }}
+              className={cn(
+                "v7-table-row group/trow",
+                contractor.workerStatus && contractor.workerStatus !== "active" && "opacity-60"
+              )}
+              onClick={() => onWorkerClick?.(contractor)}
+            >
+              {/* Checkbox */}
+              <div className="w-6 shrink-0 flex items-center justify-center">
+                {selectable && onSelectContractor ? (
+                  <div className={cn(
+                    "transition-all duration-150",
+                    isSelected
+                      ? "opacity-100"
+                      : "opacity-0 group-hover/trow:opacity-100"
+                  )}>
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={(checked) =>
+                        onSelectContractor(contractor.id, checked as boolean)
+                      }
+                      className="h-3.5 w-3.5"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Worker */}
+              <div className={cn("flex items-center gap-2", tableColumns[0].className)}>
+                <span className="text-sm leading-none">{contractor.countryFlag}</span>
+                <span className="text-[13px] font-medium text-foreground truncate">
+                  {contractor.name}
                 </span>
-              ) : (
-                <span className="text-[11px] text-muted-foreground">—</span>
-              )}
-            </div>
+              </div>
 
-            {/* Status */}
-            <div className={cn("flex items-center gap-1.5", columns[2].className)}>
-              <div className={cn("h-2 w-2 rounded-full shrink-0", statusDotColors[contractor.status] || "bg-gray-400")} />
-              <span className="text-[11px] text-foreground truncate">
-                {contractor.workerStatus === "contract-ended" ? "Ended"
-                  : contractor.workerStatus === "resigned" ? "Resigned"
-                  : contractor.workerStatus === "terminated" ? "Terminated"
-                  : contractor.needsDocumentVerification && !contractor.documentsVerified ? "Inactive"
-                  : statusLabels[contractor.status] || contractor.status}
-              </span>
-              {contractor.status === "onboarding-pending" && typeof contractor.checklistProgress === "number" && (
-                <div className="flex items-center gap-1 ml-1">
-                  <Progress value={contractor.checklistProgress} className="h-1 w-10" />
-                  <span className="text-[9px] tabular-nums text-muted-foreground">{contractor.checklistProgress}%</span>
-                </div>
-              )}
-            </div>
+              {/* Client */}
+              <div className={cn("flex items-center", tableColumns[1].className)}>
+                {contractor.companyName ? (
+                  <span className={cn(
+                    "v7-company-chip",
+                    getCompanyChipVariant(contractor.companyId || contractor.companyName),
+                  )}>
+                    {contractor.companyName}
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-muted-foreground">—</span>
+                )}
+              </div>
 
-            {/* Role */}
-            <div className={cn("flex items-center", columns[3].className)}>
-              <span className="text-[11px] text-muted-foreground truncate">{contractor.role}</span>
-            </div>
+              {/* Status */}
+              <div className={cn("flex items-center gap-1.5", tableColumns[2].className)}>
+                <div className={cn("h-2 w-2 rounded-full shrink-0", statusDotColors[contractor.status] || "bg-gray-400")} />
+                <span className="text-[11px] text-foreground truncate">
+                  {contractor.workerStatus === "contract-ended" ? "Ended"
+                    : contractor.workerStatus === "resigned" ? "Resigned"
+                    : contractor.workerStatus === "terminated" ? "Terminated"
+                    : contractor.needsDocumentVerification && !contractor.documentsVerified ? "Inactive"
+                    : statusLabels[contractor.status] || contractor.status}
+                </span>
+                {contractor.status === "onboarding-pending" && typeof contractor.checklistProgress === "number" && (
+                  <div className="flex items-center gap-1 ml-1">
+                    <Progress value={contractor.checklistProgress} className="h-1 w-10" />
+                    <span className="text-[9px] tabular-nums text-muted-foreground">{contractor.checklistProgress}%</span>
+                  </div>
+                )}
+              </div>
 
-            {/* Salary */}
-            <div className={cn("flex items-center justify-end", columns[4].className)}>
-              <span className="text-[11px] font-medium text-foreground tabular-nums">{contractor.salary}</span>
-            </div>
+              {/* Role */}
+              <div className={cn("flex items-center", tableColumns[3].className)}>
+                <span className="text-[11px] text-muted-foreground truncate">{contractor.role}</span>
+              </div>
 
-            {/* Country */}
-            <div className={cn("flex items-center", columns[5].className)}>
-              <span className="text-[11px] text-muted-foreground">{contractor.country}</span>
-            </div>
+              {/* Salary */}
+              <div className={cn("flex items-center justify-end", tableColumns[4].className)}>
+                <span className="text-[11px] font-medium text-foreground tabular-nums">{contractor.salary}</span>
+              </div>
 
-            {/* Type */}
-            <div className={cn("flex items-center", columns[6].className)}>
-              <span className="text-[10px] text-muted-foreground">
-                {contractor.employmentType === "contractor" ? "COR" : "EOR"}
-              </span>
-            </div>
+              {/* Country */}
+              <div className={cn("flex items-center", tableColumns[5].className)}>
+                <span className="text-[11px] text-muted-foreground">{contractor.country}</span>
+              </div>
 
-            {/* Action */}
-            <div className="w-8 shrink-0 flex items-center justify-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover/trow:opacity-100 transition-opacity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onWorkerClick?.(contractor);
-                }}
-              >
-                <Eye className="h-3 w-3" />
-              </Button>
-            </div>
-          </motion.div>
-        ))}
+              {/* Type */}
+              <div className={cn("flex items-center", tableColumns[6].className)}>
+                <span className="text-[10px] text-muted-foreground">
+                  {contractor.employmentType === "contractor" ? "COR" : "EOR"}
+                </span>
+              </div>
+
+              {/* Action */}
+              <div className="w-8 shrink-0 flex items-center justify-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-0 group-hover/trow:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onWorkerClick?.(contractor);
+                  }}
+                >
+                  <Eye className="h-3 w-3" />
+                </Button>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Footer */}
@@ -252,6 +314,30 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({ contractors, onWorker
         <span className="text-[11px] text-muted-foreground">
           {contractors.length} worker{contractors.length !== 1 ? "s" : ""} total
         </span>
+        {/* Floating bulk action bar */}
+        {totalSelected > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-muted-foreground">{totalSelected} selected</span>
+            {Object.entries(selectedByStatus).map(([status, count]) => {
+              const cfg = bulkActionLabels[status];
+              if (!cfg) return null;
+              return (
+                <Button
+                  key={status}
+                  size="sm"
+                  className="h-6 text-[10px] px-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBulkAction?.(status);
+                  }}
+                >
+                  {cfg.icon}
+                  {cfg.label} ({count})
+                </Button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </motion.div>
   );
