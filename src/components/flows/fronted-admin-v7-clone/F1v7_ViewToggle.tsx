@@ -3,7 +3,7 @@
  * ISOLATED: Only used in Flow 1 v7 (Future)
  */
 import React from "react";
-import { LayoutGrid, List, Table2 } from "lucide-react";
+import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ViewMode = "board" | "list";
