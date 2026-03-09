@@ -98,11 +98,11 @@ const PolicySection = ({
     <button
       type="button"
       onClick={onToggle}
-      className="w-full flex items-center gap-3 p-4 text-left hover:bg-primary/[0.02] transition-colors"
+      className="w-full flex items-center gap-3 p-4 text-left transition-colors"
     >
       <div className={cn(
         "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-300",
-        isCompleted ? "bg-primary/15 text-primary" : "bg-muted/60 text-muted-foreground"
+        isCompleted ? "bg-foreground/8 text-foreground/70" : isOpen ? "bg-foreground/6 text-foreground/60" : "bg-muted/40 text-muted-foreground/60"
       )}>
         {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
       </div>
@@ -114,7 +114,7 @@ const PolicySection = ({
         animate={{ rotate: isOpen ? 180 : 0 }}
         transition={{ duration: 0.2 }}
       >
-        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        <ChevronDown className={cn("h-4 w-4 transition-colors", isOpen ? "text-foreground/50" : "text-muted-foreground/40")} />
       </motion.div>
     </button>
     <AnimatePresence>
@@ -125,7 +125,7 @@ const PolicySection = ({
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="px-4 pb-4 space-y-4 border-t border-border/30 pt-4">
+          <div className="px-4 pb-4 space-y-4 border-t border-border/20 pt-4">
             {children}
           </div>
         </motion.div>
