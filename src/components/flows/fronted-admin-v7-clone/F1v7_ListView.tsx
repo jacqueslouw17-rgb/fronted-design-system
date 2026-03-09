@@ -185,7 +185,7 @@ export const F1v7_ListView: React.FC<ListViewProps> = ({
                       {selectable && onSelectContractor ? (
                         <div className={cn(
                           "w-5 shrink-0 flex items-center justify-center transition-opacity duration-150",
-                          selectedIds.has(contractor.id)
+                          selectedIds.has(contractor.id) || contractor.status === "drafting"
                             ? "opacity-100"
                             : "opacity-0 group-hover/row:opacity-100"
                         )}>
