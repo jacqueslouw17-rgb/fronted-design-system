@@ -251,7 +251,7 @@ const ThresholdSelector = ({
   </div>
 );
 
-const F1v7_PolicySetupStep = ({ formData, onComplete, isProcessing }: PolicySetupStepProps) => {
+const F1v7_PolicySetupStep = ({ formData, onComplete, isProcessing, isEditMode }: PolicySetupStepProps) => {
   const [policy, setPolicy] = useState<PolicyData>(() => ({
     ...DEFAULT_POLICY,
     ...formData,
