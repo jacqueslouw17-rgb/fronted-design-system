@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Calendar, Shield, Bell, AlertTriangle, 
   ChevronDown, Zap, Users, Clock,
-  MessageSquare, Mail, CheckCircle2
+  MessageSquare, Mail
 } from "lucide-react";
 
 export interface PolicyData {
@@ -77,14 +77,13 @@ interface PolicySetupStepProps {
   isEditMode?: boolean;
 }
 
-// Collapsible section component
+// Collapsible section component — matches v7 profile settings glass-item style
 const PolicySection = ({ 
   icon: Icon, 
   title, 
   subtitle, 
   isOpen, 
   onToggle, 
-  isCompleted,
   children 
 }: {
   icon: React.ElementType;
@@ -92,37 +91,33 @@ const PolicySection = ({
   subtitle: string;
   isOpen: boolean;
   onToggle: () => void;
-  isCompleted: boolean;
+  isCompleted?: boolean;
   children: React.ReactNode;
 }) => (
   <div className={cn(
-    "v7-glass-card overflow-hidden transition-all duration-300",
-    isOpen && "ring-1 ring-primary/[0.08]"
+    "v7-glass-item overflow-hidden transition-all duration-200",
+    isOpen && "ring-1 ring-border/20"
   )}>
     <button
       type="button"
       onClick={onToggle}
-      className="w-full flex items-center gap-3 p-4 text-left transition-colors"
+      className="w-full flex items-center gap-3 px-4 py-3.5 text-left group"
     >
       <div className={cn(
-        "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300",
-        isCompleted
-          ? "bg-primary/[0.08] text-primary/70"
-          : isOpen
-          ? "bg-primary/[0.06] text-primary/60"
-          : "bg-muted/30 text-muted-foreground/50"
+        "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+        isOpen ? "bg-muted/50 text-foreground/70" : "bg-muted/30 text-muted-foreground/50"
       )}>
-        {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+        <Icon className="h-4 w-4" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className={cn("text-sm font-semibold", isOpen ? "text-foreground" : "text-foreground/80")}>{title}</p>
-        <p className="text-[11px] text-muted-foreground truncate">{subtitle}</p>
+        <p className={cn("text-sm font-medium", isOpen ? "text-foreground" : "text-foreground/80")}>{title}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
       </div>
       <motion.div
         animate={{ rotate: isOpen ? 180 : 0 }}
         transition={{ duration: 0.2 }}
       >
-        <ChevronDown className={cn("h-4 w-4 transition-colors", isOpen ? "text-primary/50" : "text-muted-foreground/30")} />
+        <ChevronDown className={cn("h-4 w-4 transition-colors", isOpen ? "text-muted-foreground/60" : "text-muted-foreground/30")} />
       </motion.div>
     </button>
     <AnimatePresence>
@@ -133,7 +128,7 @@ const PolicySection = ({
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="px-4 pb-4 space-y-4 border-t border-primary/[0.06] pt-4">
+          <div className="px-4 pb-4 space-y-4 border-t border-border/20 pt-4">
             {children}
           </div>
         </motion.div>
