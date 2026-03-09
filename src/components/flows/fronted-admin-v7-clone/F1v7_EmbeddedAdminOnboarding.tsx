@@ -31,6 +31,11 @@ const FLOW_STEPS = [
   { id: "policy_summary", title: "Summary", stepNumber: 3 },
 ];
 
+const EDIT_STEPS = [
+  { id: "org_profile", title: "Client details", stepNumber: 1 },
+  { id: "policy_setup", title: "Policies & guardrails", stepNumber: 2 },
+];
+
 interface EmbeddedAdminOnboardingProps {
   onComplete: (companyName: string, companyData?: Record<string, any>) => void;
   onCancel: () => void;
