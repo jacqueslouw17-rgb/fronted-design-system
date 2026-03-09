@@ -1,11 +1,12 @@
 /**
  * Flow 5 — Company Admin Onboarding v3 (Future)
  * 
- * Isolated clone of Flow 5 v2.
- * AgentLayout → AgentHeader → StepCard accordion
- * 
+ * Isolated clone with v7 Future glassmorphism stepper UI.
  * Steps:
- * 1. Account & Company Details (prefilled from invite + company profile)
+ * 1. Account & Company Details
+ * 2. Policies & Guardrails
+ * 
+ * DO NOT modify any other flows or versions!
  */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -13,19 +14,23 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { AnimatePresence, motion } from "framer-motion";
-import ProgressBar from "@/components/ProgressBar";
-import StepCard from "@/components/StepCard";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
+import { cn } from "@/lib/utils";
+import { CheckCircle2 } from "lucide-react";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { toast } from "sonner";
 
 import StepAccountDetails from "@/components/flows/onboarding/StepAccountDetails";
+import F5v3_PolicySetupStep from "@/components/flows/flow5-v3/F5v3_PolicySetupStep";
 
 const FLOW_STEPS = [
-  { id: "account_details", title: "Account & Company Details" },
+  { id: "account_details", title: "Account & company details", stepNumber: 1 },
+  { id: "policy_setup", title: "Policies & guardrails", stepNumber: 2 },
 ];
 
 const CompanyAdminOnboardingV3 = () => {
@@ -34,9 +39,9 @@ const CompanyAdminOnboardingV3 = () => {
   const { resetAdminFlow } = useOnboardingStore();
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
 
-  const [currentStep, setCurrentStep] = useState("account_details");
-  const [expandedStep, setExpandedStep] = useState<string | null>("account_details");
+  const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [stepData, setStepData] = useState<Record<string, Record<string, any>>>({});
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -57,130 +62,192 @@ const CompanyAdminOnboardingV3 = () => {
       };
       updateFormData(prefilled);
       setFormData(prefilled);
-      setExpandedStep("account_details");
       hasInitialized.current = true;
     }
   }, [resetAdminFlow, updateFormData]);
 
-  const scrollToStep = (stepId: string) => {
-    utilScrollToStep(stepId, { focusHeader: true, delay: 100 });
-  };
-
-  const getStepStatus = (stepId: string): "inactive" | "pending" | "active" | "completed" => {
-    if (completedSteps.has(stepId)) return "completed";
-    if (stepId === currentStep) return "active";
-    const currentIndex = FLOW_STEPS.findIndex(s => s.id === currentStep);
-    const stepIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-    if (stepIndex > currentIndex) return "inactive";
-    return "pending";
-  };
-
   const handleStepComplete = async (stepId: string, data?: Record<string, any>) => {
-    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-    const isFinalStep = currentIndex === FLOW_STEPS.length - 1;
-
-    if (!isFinalStep) {
-      setIsProcessing(true);
-    }
+    setIsProcessing(true);
 
     if (data) {
       setFormData(prev => ({ ...prev, ...data }));
+      setStepData(prev => ({ ...prev, [stepId]: data }));
       updateFormData(data);
     }
 
     completeStep(stepId);
     setCompletedSteps(prev => new Set(prev).add(stepId));
 
-    if (isFinalStep) {
-      navigate("/flows/company-admin-dashboard-v3");
-      return;
+    const currentIdx = FLOW_STEPS.findIndex(s => s.id === stepId);
+
+    if (currentIdx < FLOW_STEPS.length - 1) {
+      // Move to next step
+      await new Promise(r => setTimeout(r, 400));
+      setCurrentStep(currentIdx + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Final step — complete
+      toast.success("Onboarding complete! Redirecting to dashboard…");
+      setTimeout(() => {
+        navigate("/?tab=flows");
+      }, 1200);
     }
 
-    const nextStep = FLOW_STEPS[currentIndex + 1];
-    if (nextStep) {
-      await new Promise(r => setTimeout(r, 600));
-      setCurrentStep(nextStep.id);
-      setExpandedStep(nextStep.id);
-      setIsProcessing(false);
-      setTimeout(() => scrollToStep(nextStep.id), 50);
+    setIsProcessing(false);
+  };
+
+  const activeStep = FLOW_STEPS[currentStep] || FLOW_STEPS[0];
+
+  const getStepTitle = () => {
+    switch (activeStep.id) {
+      case "account_details": return "Hi Joe! Let's complete your onboarding";
+      case "policy_setup": return "Set the rules";
+      default: return "Setup";
     }
   };
 
-  const handleStepClick = (stepId: string) => {
-    const status = getStepStatus(stepId);
-    if (status === "inactive") return;
-    const wasExpanded = expandedStep === stepId;
-    const newExpanded = wasExpanded ? null : stepId;
-    setExpandedStep(newExpanded);
-    if (newExpanded) {
-      setTimeout(() => scrollToStep(stepId), 50);
+  const getStepSubtitle = () => {
+    switch (activeStep.id) {
+      case "account_details": return "You've been invited as a Company Admin. Confirm your details below.";
+      case "policy_setup": return "Define what your AI agent can auto-handle vs escalate.";
+      default: return "";
     }
   };
 
-  const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === currentStep);
+  const renderStepContent = () => {
+    switch (activeStep.id) {
+      case "account_details":
+        return (
+          <StepAccountDetails
+            formData={formData}
+            onComplete={handleStepComplete}
+            isProcessing={isProcessing}
+          />
+        );
+      case "policy_setup":
+        return (
+          <F5v3_PolicySetupStep
+            formData={stepData["policy_setup"] || {}}
+            onComplete={handleStepComplete}
+            isProcessing={isProcessing}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <AgentLayout context="Company Admin Onboarding v3 — Future">
-      <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
+      <main className="flex min-h-screen text-foreground relative v7-future-bg">
         <FrostedHeader onLogoClick={() => navigate("/?tab=flows")} onCloseClick={() => navigate("/?tab=flows")} />
 
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-        </div>
-
         <div
-          className="flex-shrink-0 flex flex-col min-h-screen p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 sm:space-y-8 relative z-10 mx-auto onboarding-scroll-container"
+          className="flex-shrink-0 flex flex-col min-h-screen p-4 sm:p-8 pb-16 sm:pb-32 space-y-4 sm:space-y-6 relative z-10 mx-auto onboarding-scroll-container"
           style={{ width: "100%", maxWidth: "800px" }}
         >
-          <AgentHeader
-            title="Hi Joe! Let's complete your onboarding"
-            subtitle="You've been invited as a Company Admin. Confirm your details below."
-            showPulse={true}
-            isActive={isSpeaking}
-            showInput={false}
-          />
+          {/* Header with audio visualizer */}
+          <div className="flex flex-col items-center space-y-4 sm:space-y-6 mb-4 sm:mb-8">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="flex justify-center"
+              style={{ maxHeight: '240px' }}
+            >
+              <AudioWaveVisualizer isActive={isSpeaking} />
+            </motion.div>
 
-          <div className="space-y-4">
-            {FLOW_STEPS.map((step, index) => {
-              const status = getStepStatus(step.id);
-              const isExpanded = expandedStep === step.id;
-              const headerId = `step-header-${step.id}`;
-              const isLocked = index > currentStepIndex && status === "inactive";
+            {/* Title + subtitle */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeStep.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="text-center space-y-2 sm:space-y-3 max-w-2xl px-2 sm:px-0"
+              >
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: 'hsl(210 8% 15%)' }}>
+                  {getStepTitle()}
+                </h1>
+                <p className="text-sm sm:text-base text-center text-muted-foreground">
+                  {getStepSubtitle()}
+                </p>
+              </motion.div>
+            </AnimatePresence>
 
-              return (
-                <div key={step.id} id={`step-${step.id}`} data-step={step.id} role="region" aria-labelledby={headerId}>
-                  <StepCard
-                    stepNumber={index + 1}
-                    title={step.title}
-                    status={status}
-                    isExpanded={isExpanded}
-                    isLocked={isLocked}
-                    onClick={() => handleStepClick(step.id)}
-                    headerId={headerId}
+            {/* v7 Stepper indicator */}
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="flex items-center gap-1.5"
+            >
+              {FLOW_STEPS.map((step, idx) => (
+                <div key={step.id} className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (completedSteps.has(step.id) || idx <= currentStep) {
+                        setCurrentStep(idx);
+                      }
+                    }}
+                    disabled={!completedSteps.has(step.id) && idx > currentStep}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 border",
+                      idx === currentStep
+                        ? "border-[hsl(172_28%_42%/0.15)] text-foreground"
+                        : completedSteps.has(step.id)
+                        ? "border-[hsl(172_28%_42%/0.08)] text-foreground/60 cursor-pointer"
+                        : "border-transparent text-muted-foreground/35 cursor-not-allowed"
+                    )}
+                    style={
+                      idx === currentStep
+                        ? { background: 'hsl(172 28% 42% / 0.05)' }
+                        : completedSteps.has(step.id)
+                        ? { background: 'hsl(172 28% 42% / 0.03)' }
+                        : undefined
+                    }
                   >
-                    <AnimatePresence mode="wait">
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          {step.id === "account_details" && (
-                            <StepAccountDetails
-                              formData={formData}
-                              onComplete={handleStepComplete}
-                              isProcessing={isProcessing}
-                            />
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </StepCard>
+                    {completedSteps.has(step.id) ? (
+                      <CheckCircle2 className="h-3 w-3" style={{ color: 'hsl(172 28% 42% / 0.5)' }} />
+                    ) : (
+                      <span
+                        className={cn(
+                          "h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-bold",
+                          idx === currentStep ? "" : "text-muted-foreground/25"
+                        )}
+                        style={idx === currentStep ? { background: 'hsl(172 28% 42% / 0.08)', color: 'hsl(172 28% 42% / 0.7)' } : undefined}
+                      >
+                        {idx + 1}
+                      </span>
+                    )}
+                    <span className="hidden sm:inline">{step.title}</span>
+                  </button>
+                  {idx < FLOW_STEPS.length - 1 && (
+                    <div
+                      className="w-5 h-px transition-colors duration-300"
+                      style={{ background: completedSteps.has(step.id) ? 'hsl(172 28% 42% / 0.15)' : 'hsl(0 0% 0% / 0.04)' }}
+                    />
+                  )}
                 </div>
-              );
-            })}
+              ))}
+            </motion.div>
           </div>
+
+          {/* Step Content */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeStep.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {renderStepContent()}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
     </AgentLayout>
