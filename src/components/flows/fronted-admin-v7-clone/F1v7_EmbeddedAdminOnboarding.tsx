@@ -1,34 +1,34 @@
 /**
- * Flow 1 — Fronted Admin Dashboard v4 (CLONE)
+ * Flow 1 — Fronted Admin Dashboard v7 (CLONE)
  * 
  * ISOLATED: This is an independent copy of EmbeddedAdminOnboarding.tsx from v2.
  * Changes here do NOT affect v2 or any other flow.
+ * 
+ * v7: Multi-step onboarding with Policy & Guardrails setup for Kurt AI agent
  */
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
-import StepCard from "@/components/StepCard";
-import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useAgentState } from "@/hooks/useAgentState";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { F1v5_CountryTemplatesSection } from "./F1v7_CountryTemplatesSection";
+import { cn } from "@/lib/utils";
+import { CheckCircle2 } from "lucide-react";
 
 // Step components
-import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
-// Step2OrgProfileSimplified no longer used in v7 creation — replaced by F1v5_Step2OrgProfile
 import F1v5_Step2OrgProfile from "./F1v7_Step2OrgProfile";
-import Step3Localization from "@/components/flows/onboarding/Step3Localization";
-import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
-import Step7Finish from "@/components/flows/onboarding/Step7Finish";
+import F1v7_PolicySetupStep from "./F1v7_PolicySetupStep";
+import F1v7_PolicySummary from "./F1v7_PolicySummary";
 
 const FLOW_STEPS = [
-  { id: "org_profile", title: "Company details", stepNumber: 1 },
+  { id: "org_profile", title: "Client details", stepNumber: 1 },
+  { id: "policy_setup", title: "Policies & guardrails", stepNumber: 2 },
+  { id: "policy_summary", title: "Summary", stepNumber: 3 },
 ];
 
 interface EmbeddedAdminOnboardingProps {
@@ -63,10 +63,14 @@ const F1v4_EmbeddedAdminOnboarding = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
-  // Prevent step components from mounting with stale persisted values before we reset the store
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const hasInitialized = useRef(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Multi-step state for v7
+  const [currentStep, setCurrentStep] = useState(0);
+  const [stepData, setStepData] = useState<Record<string, Record<string, any>>>({});
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
   // Sync local speaking state with agent state
   useEffect(() => {
@@ -77,11 +81,8 @@ const F1v4_EmbeddedAdminOnboarding = ({
   useEffect(() => {
     if (!hasInitialized.current) {
       setIsBootstrapping(true);
-
-      // Always reset for a fresh start
       resetAdminFlow();
 
-      // In edit mode, pre-populate the form data AFTER reset
       if (isEditMode && initialData) {
         updateAdminStepData("org_profile", initialData);
       }
@@ -91,13 +92,11 @@ const F1v4_EmbeddedAdminOnboarding = ({
       setIsBootstrapping(false);
     }
 
-    // Reset on unmount so next mount starts fresh
     return () => {
       hasInitialized.current = false;
     };
   }, [resetAdminFlow, setExpandedStep, isEditMode, initialData, updateAdminStepData]);
 
-  // Scroll to step helper
   const scrollToStep = (stepId: string) => {
     utilScrollToStep(stepId, { focusHeader: true, delay: 100 });
   };
@@ -105,72 +104,77 @@ const F1v4_EmbeddedAdminOnboarding = ({
   const handleStepComplete = async (stepId: string, data?: any) => {
     setIsProcessing(true);
 
-    // Update form data if provided - explicitly save under the step's ID
     if (data) {
       updateAdminStepData(stepId, data);
+      setStepData(prev => ({ ...prev, [stepId]: data }));
     }
     
-    // Complete the step
     completeStep(stepId);
+    setCompletedSteps(prev => new Set(prev).add(stepId));
 
-    // Since we only have org_profile step now, complete immediately
-    const orgProfileData = data || getStepData("org_profile");
-    const companyName = orgProfileData?.companyName || (isEditMode ? "Company" : "New Company");
+    // In edit mode, complete immediately (only org_profile step shown)
+    if (isEditMode) {
+      const orgProfileData = data || getStepData("org_profile");
+      const companyName = orgProfileData?.companyName || "Company";
+      
+      toast({
+        title: "Company Updated",
+        description: `${companyName} has been updated successfully!`,
+      });
+
+      setTimeout(() => {
+        onComplete(companyName, orgProfileData);
+      }, 500);
+
+      setIsProcessing(false);
+      return;
+    }
+
+    // Multi-step: advance to next step
+    const currentIdx = FLOW_STEPS.findIndex(s => s.id === stepId);
     
-    toast({
-      title: isEditMode ? "Company Updated" : "Company Added",
-      description: `${companyName} has been ${isEditMode ? "updated" : "added"} successfully!`,
-    });
+    if (stepId === "policy_summary") {
+      // Final step — complete the whole flow
+      const orgData = stepData["org_profile"] || getStepData("org_profile") || {};
+      const policyData = stepData["policy_setup"] || {};
+      const companyName = orgData.companyName || "New Company";
+      
+      toast({
+        title: "Client Added",
+        description: `${companyName} has been added with policies configured!`,
+      });
 
-    setTimeout(() => {
-      onComplete(companyName, orgProfileData);
-    }, 500);
+      setTimeout(() => {
+        onComplete(companyName, { ...orgData, policies: policyData });
+      }, 500);
+    } else if (currentIdx < FLOW_STEPS.length - 1) {
+      // Move to next step
+      setCurrentStep(currentIdx + 1);
+      // Scroll to top smoothly
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     setIsProcessing(false);
   };
 
-  const handleStepClick = (stepId: string) => {
-    const status = getStepStatus(stepId);
-    
-    // In edit mode, all steps are clickable
-    if (isEditMode || status !== 'inactive') {
-      if (expandedStep === stepId) {
-        setExpandedStep(null);
-      } else {
-        setExpandedStep(stepId);
-        
-        setTimeout(() => {
-          scrollToStep(stepId);
-        }, 50);
-      }
-    }
-  };
+  const renderStepContent = () => {
+    const step = FLOW_STEPS[currentStep];
+    if (!step) return null;
 
-  const renderStepContent = (stepId: string) => {
-    // For the final step, provide a merged view of earlier steps so it can
-    // reflect completion states (e.g. hiring locations)
-    const stepData = stepId === "finish_dashboard_transition"
-      ? {
-          ...(state.formData["org_profile"] || {}),
-          ...(state.formData["localization_country_blocks"] || {}),
-          ...(state.formData[stepId] || {}),
-        }
-      : (state.formData[stepId] || {});
-
-    const stepProps = {
-      formData: stepData,
+    const commonProps = {
+      formData: stepData[step.id] || state.formData[step.id] || {},
       onComplete: handleStepComplete,
-      onOpenDrawer: () => {},
-      isProcessing: isProcessing,
-      isLoadingFields: isLoadingFields
+      isProcessing,
+      isLoadingFields,
     };
 
-    switch (stepId) {
+    switch (step.id) {
       case "org_profile":
         return (
           <F1v5_Step2OrgProfile 
-            {...stepProps} 
-            formData={isEditMode ? { ...initialData, ...stepProps.formData } : stepProps.formData}
+            {...commonProps} 
+            formData={isEditMode ? { ...initialData, ...commonProps.formData } : commonProps.formData}
+            onOpenDrawer={() => {}}
             isEditMode={isEditMode}
             hasSignedContract={hasSignedContract}
             hasCandidates={hasCandidates}
@@ -178,18 +182,10 @@ const F1v4_EmbeddedAdminOnboarding = ({
             companyName={companyNameProp || initialData?.companyName}
           />
         );
-      case "localization_country_blocks":
-        return (
-          <Step3Localization 
-            {...stepProps} 
-            showSkipButton={!isEditMode}
-            isEditMode={isEditMode}
-            hasCandidates={hasCandidates}
-            existingCountries={initialData?.selectedCountries || []}
-          />
-        );
-      case "finish_dashboard_transition":
-        return <Step7Finish {...stepProps} />;
+      case "policy_setup":
+        return <F1v7_PolicySetupStep {...commonProps} formData={stepData["policy_setup"] || {}} />;
+      case "policy_summary":
+        return <F1v7_PolicySummary {...commonProps} formData={stepData["policy_setup"] || {}} />;
       default:
         return null;
     }
@@ -205,20 +201,35 @@ const F1v4_EmbeddedAdminOnboarding = ({
     );
   }
 
-  // Only show the company details step
-  const stepsToShow = FLOW_STEPS;
+  // Edit mode: only show org_profile
+  const stepsToShow = isEditMode ? [FLOW_STEPS[0]] : FLOW_STEPS;
+  const activeStep = FLOW_STEPS[currentStep];
+
+  const getStepTitle = () => {
+    if (isEditMode) return editModeTitle || "Edit Company";
+    switch (activeStep.id) {
+      case "org_profile": return "Add new client";
+      case "policy_setup": return "Set the rules";
+      case "policy_summary": return "Review & confirm";
+      default: return "Setup";
+    }
+  };
+
+  const getStepSubtitle = () => {
+    if (isEditMode) return "Update your company details below.";
+    switch (activeStep.id) {
+      case "org_profile": return "Basic client details to get started.";
+      case "policy_setup": return "Define what your AI agent can auto-handle vs escalate.";
+      case "policy_summary": return "Here's how your agent will run this client's operations.";
+      default: return "";
+    }
+  };
 
   return (
     <div className="flex-1 relative overflow-hidden">
-      {/* V7 glass background is inherited from parent v7-glass-bg */}
-
-      {/* Content */}
       <div 
         className="flex-shrink-0 flex flex-col h-full overflow-y-auto px-3 sm:px-6 pt-6 sm:pt-8 pb-32 space-y-4 sm:space-y-6 relative z-10 mx-auto"
-        style={{
-          width: '100%',
-          maxWidth: '800px'
-        }}
+        style={{ width: '100%', maxWidth: '800px' }}
       >
         {/* Header */}
         <div className="flex flex-col items-center space-y-4 sm:space-y-6 mb-4 sm:mb-8">
@@ -232,37 +243,87 @@ const F1v4_EmbeddedAdminOnboarding = ({
             <AudioWaveVisualizer isActive={isSpeaking} />
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-            className="text-center space-y-2 sm:space-y-3 max-w-2xl px-2 sm:px-0"
-          >
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-              {isEditMode ? editModeTitle || "Edit Company" : "Add New Company"}
-            </h1>
-            <p className="text-sm sm:text-base text-center text-muted-foreground">
-              {isEditMode 
-                ? "Update your company details below."
-                : "Set up your company and start managing contracts."}
-            </p>
-          </motion.div>
+          {/* Step indicator — only in create mode with multiple steps */}
+          {!isEditMode && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center gap-2"
+            >
+              {FLOW_STEPS.map((step, idx) => (
+                <div key={step.id} className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (completedSteps.has(step.id) || idx <= currentStep) {
+                        setCurrentStep(idx);
+                      }
+                    }}
+                    disabled={!completedSteps.has(step.id) && idx > currentStep}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium transition-all duration-300",
+                      idx === currentStep
+                        ? "bg-primary/10 text-primary"
+                        : completedSteps.has(step.id)
+                        ? "bg-primary/5 text-primary/70 cursor-pointer hover:bg-primary/10"
+                        : "bg-muted/30 text-muted-foreground/50 cursor-not-allowed"
+                    )}
+                  >
+                    {completedSteps.has(step.id) ? (
+                      <CheckCircle2 className="h-3 w-3" />
+                    ) : (
+                      <span className={cn(
+                        "h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-bold border",
+                        idx === currentStep ? "border-primary/30 text-primary" : "border-muted-foreground/20 text-muted-foreground/40"
+                      )}>
+                        {idx + 1}
+                      </span>
+                    )}
+                    <span className="hidden sm:inline">{step.title}</span>
+                  </button>
+                  {idx < FLOW_STEPS.length - 1 && (
+                    <div className={cn(
+                      "w-6 h-px transition-colors duration-300",
+                      completedSteps.has(step.id) ? "bg-primary/30" : "bg-border/40"
+                    )} />
+                  )}
+                </div>
+              ))}
+            </motion.div>
+          )}
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeStep.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="text-center space-y-2 sm:space-y-3 max-w-2xl px-2 sm:px-0"
+            >
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+                {getStepTitle()}
+              </h1>
+              <p className="text-sm sm:text-base text-center text-muted-foreground">
+                {getStepSubtitle()}
+              </p>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Step Content */}
-        <div className="space-y-3">
-          {stepsToShow.map((step) => (
-            <div 
-              key={step.id}
-              data-step={step.id}
-              role="region"
-            >
-              <div ref={(el) => stepRefs.current[step.id] = el}>
-                {renderStepContent(step.id)}
-              </div>
-            </div>
-          ))}
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeStep.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {renderStepContent()}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
