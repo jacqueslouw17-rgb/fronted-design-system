@@ -98,6 +98,7 @@ interface PipelineViewProps {
   mode?: "certified" | "payroll-ready" | "full-pipeline-with-payroll";
   onAddCandidate?: () => void;
   onRemoveContractor?: (contractor: Contractor) => void;
+  initialViewMode?: ViewMode;
 }
 const statusConfig = {
   "offer-accepted": {
@@ -211,7 +212,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   filterNonCertified = false,
   mode = "certified",
   onAddCandidate,
-  onRemoveContractor
+  onRemoveContractor,
+  initialViewMode = "board"
 }) => {
   const columns = mode === "full-pipeline-with-payroll" ? COLUMNS_FULL_PIPELINE : mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
@@ -226,7 +228,15 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     setContractors: updateContractorStore
   } = useContractorStore();
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
-  const [viewMode, setViewMode] = useState<ViewMode>("board");
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = sessionStorage.getItem("f1v7-view-mode");
+    if (saved === "board" || saved === "list" || saved === "table") return saved;
+    return initialViewMode;
+  });
+  const handleSetViewMode = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+    sessionStorage.setItem("f1v7-view-mode", mode);
+  }, []);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [configureDrawerOpen, setConfigureDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
@@ -1074,7 +1084,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   return <div className={cn("pb-4", className)}>
       {/* View mode toggle — minimal, right-aligned */}
       <div className="flex items-center justify-end mb-1.5">
-        <F1v7_ViewToggle value={viewMode} onChange={setViewMode} />
+        <F1v7_ViewToggle value={viewMode} onChange={handleSetViewMode} />
       </div>
 
       {/* List View */}
