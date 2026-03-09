@@ -300,7 +300,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
               transition={{ duration: 0.3, delay: 0.1 }}
               className="flex items-center gap-1.5"
             >
-              {FLOW_STEPS.map((step, idx) => (
+              {steps.map((step, idx) => (
                 <div key={step.id} className="flex items-center gap-1.5">
                   <button
                     type="button"
