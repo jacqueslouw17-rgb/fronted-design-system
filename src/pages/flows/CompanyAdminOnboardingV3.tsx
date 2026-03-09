@@ -6,7 +6,7 @@
  * 1. Company Details
  * 2. Policies & Guardrails
  * 
- * DO NOT modify any other flows or versions!
+ * DO NOT modify any other flows or versions.
  */
 
 import React, { useState, useEffect, useRef } from "react";
