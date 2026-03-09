@@ -522,8 +522,15 @@ const AdminContractingMultiCompany = () => {
   const activeContractorsList = isAllClientsMode
     ? allClientsContractors
     : (companyContractors[selectedCompany] || []);
-  const employeeCount = activeContractorsList.filter(c => c.employmentType === "employee").length;
-  const contractorCount = activeContractorsList.filter(c => c.employmentType !== "employee").length;
+  const employees = activeContractorsList.filter(c => c.employmentType === "employee");
+  const contractors = activeContractorsList.filter(c => c.employmentType !== "employee");
+  const employeeCount = employees.length;
+  const contractorCount = contractors.length;
+
+  // Dot color: orange if any worker of that type has pending work, green if all resolved
+  const terminalStatuses = ["PAID", "CERTIFIED"];
+  const employeesAllResolved = employees.length > 0 && employees.every(c => terminalStatuses.includes(c.status));
+  const contractorsAllResolved = contractors.length > 0 && contractors.every(c => terminalStatuses.includes(c.status));
 
   // Persist companies to localStorage
   useEffect(() => {
