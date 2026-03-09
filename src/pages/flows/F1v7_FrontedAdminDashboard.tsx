@@ -527,10 +527,8 @@ const AdminContractingMultiCompany = () => {
   const employeeCount = employeesList.length;
   const contractorCount = contractorsList.length;
 
-  // Dot color: orange if any worker of that type has pending work, green if all resolved
+  // Dot color logic moved below activeMainTab declaration
   const terminalStatuses = ["PAID", "CERTIFIED"];
-  const employeesAllResolved = employeesList.length > 0 && employeesList.every(c => terminalStatuses.includes(c.status));
-  const contractorsAllResolved = contractorsList.length > 0 && contractorsList.every(c => terminalStatuses.includes(c.status));
 
   // Persist companies to localStorage
   useEffect(() => {
@@ -551,6 +549,11 @@ const AdminContractingMultiCompany = () => {
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
   const [activeMainTab, setActiveMainTab] = useState<"tracker" | "payroll">("tracker");
   
+  // Dot color: orange if any worker of that type has pending work, green if all resolved
+  // When on payroll tab, workers in payroll are already active/onboarded, so show green
+  const employeesAllResolved = activeMainTab === "payroll" || (employeesList.length > 0 && employeesList.every(c => terminalStatuses.includes(c.status)));
+  const contractorsAllResolved = activeMainTab === "payroll" || (contractorsList.length > 0 && contractorsList.every(c => terminalStatuses.includes(c.status)));
+
   // Check for new company from onboarding
   useEffect(() => {
     const newCompanyName = searchParams.get('newCompany');
