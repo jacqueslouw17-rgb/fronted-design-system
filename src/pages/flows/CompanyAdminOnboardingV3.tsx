@@ -11,21 +11,18 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { AnimatePresence, motion } from "framer-motion";
-import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import { cn } from "@/lib/utils";
 import { CheckCircle2 } from "lucide-react";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { toast } from "sonner";
 
-import StepAccountDetails from "@/components/flows/onboarding/StepAccountDetails";
+import F5v3_AccountDetailsStep from "@/components/flows/flow5-v3/F5v3_AccountDetailsStep";
 import F5v3_PolicySetupStep from "@/components/flows/flow5-v3/F5v3_PolicySetupStep";
 
 const FLOW_STEPS = [
