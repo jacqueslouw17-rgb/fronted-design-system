@@ -341,7 +341,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
                     )}
                     <span className="hidden sm:inline">{step.title}</span>
                   </button>
-                  {idx < FLOW_STEPS.length - 1 && (
+                  {idx < steps.length - 1 && (
                     <div
                       className="w-5 h-px transition-colors duration-300"
                       style={{ background: completedSteps.has(step.id) ? 'hsl(172 28% 42% / 0.15)' : 'hsl(0 0% 0% / 0.04)' }}
