@@ -431,8 +431,21 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
             </Select>
           </div>
 
+          {/* CSV Bulk Upload Mode */}
+          {selectedAtsId === "csv-upload" && (
+            <F1v7_CsvBulkUpload
+              onImport={(workers) => {
+                workers.forEach((w: any) => onSave(w));
+                toast.success(`✅ ${workers.length} worker${workers.length !== 1 ? "s" : ""} added to pipeline`);
+                resetForm();
+                onOpenChange(false);
+              }}
+              onCancel={() => { resetForm(); onOpenChange(false); }}
+            />
+          )}
+
           <AnimatePresence mode="wait">
-            {showForm && (
+            {showForm && selectedAtsId !== "csv-upload" && (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
