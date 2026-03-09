@@ -1261,10 +1261,20 @@ const AdminContractingMultiCompany = () => {
                                             key={company.id}
                                             value={company.name}
                                             onSelect={() => handleCompanyChange(company.id)}
-                                            className="cursor-pointer"
+                                            className="cursor-pointer group/company"
                                           >
                                             <Check className={cn("mr-2 h-4 w-4", selectedCompany === company.id ? "opacity-100" : "opacity-0")} />
-                                            {company.name}
+                                            <span className="flex-1">{company.name}</span>
+                                            <button
+                                              className="opacity-0 group-hover/company:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setCompanyDropdownOpen(false);
+                                                handleEditCompany(company.id);
+                                              }}
+                                            >
+                                              <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                                            </button>
                                           </CommandItem>
                                         ))}
                                       </CommandGroup>
