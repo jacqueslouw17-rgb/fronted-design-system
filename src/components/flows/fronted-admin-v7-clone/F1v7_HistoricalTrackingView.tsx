@@ -1,15 +1,19 @@
 /**
  * F1v4_HistoricalTrackingView - Read-only tracking view for historical payroll periods
  * 
- * Matches CA3_TrackingView historical view pattern
+ * Row layout matches TrackStep and SubmissionsView:
+ * Line 1: Name + TypeIcon + CompanyChip
+ * Line 2: Flag + Country
+ * Includes All/Employees/Contractors filter tabs and search
  */
 
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
-import { CheckCircle2, Download, FileText, Users, Briefcase } from "lucide-react";
+import { CheckCircle2, Download, Users, Briefcase, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -54,13 +58,32 @@ const countryFlags: Record<string, string> = {
   EG: "🇪🇬", GR: "🇬🇷",
 };
 
+type FilterTab = "all" | "employees" | "contractors";
+
 export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewProps> = ({
   workers = HISTORICAL_WORKERS,
   paidDate,
 }) => {
-  const paidCount = workers.filter(w => w.status === "paid" || w.status === "posted").length;
+  const [activeTab, setActiveTab] = useState<FilterTab>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
   const employees = workers.filter(w => w.type === "employee");
   const contractors = workers.filter(w => w.type === "contractor");
+
+  const filteredWorkers = useMemo(() => {
+    let filtered = workers;
+    if (activeTab === "employees") filtered = employees;
+    if (activeTab === "contractors") filtered = contractors;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(w =>
+        w.name.toLowerCase().includes(q) ||
+        w.country.toLowerCase().includes(q) ||
+        (w.companyName || "").toLowerCase().includes(q)
+      );
+    }
+    return filtered;
+  }, [workers, activeTab, searchQuery, employees, contractors]);
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", SGD: "S$" };
@@ -70,11 +93,16 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
   const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   const handleExportCSV = () => toast.success("CSV exported");
-  
+
+  const tabs: { key: FilterTab; label: string; count: number }[] = [
+    { key: "all", label: "All", count: workers.length },
+    { key: "employees", label: "Employees", count: employees.length },
+    { key: "contractors", label: "Contractors", count: contractors.length },
+  ];
 
   return (
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-      {/* Progress Hero */}
+      {/* Header */}
       <div className="px-6 pt-4 pb-3 border-b border-border/40">
         <div className="flex items-center justify-between">
           <div>
@@ -89,10 +117,39 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
         </div>
       </div>
 
+      {/* Filter Tabs + Search */}
+      <div className="px-6 pt-3 pb-2 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-1">
+          {tabs.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={cn(
+                "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
+                activeTab === tab.key
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              )}
+            >
+              {tab.label} ({tab.count})
+            </button>
+          ))}
+        </div>
+        <div className="relative w-48">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="h-8 pl-8 text-xs"
+          />
+        </div>
+      </div>
+
       {/* Worker List */}
       <CardContent className="p-4">
         <div className="max-h-[380px] overflow-y-auto space-y-1">
-          {workers.map((worker) => {
+          {filteredWorkers.map((worker) => {
             const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
             return (
@@ -107,9 +164,9 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
                   </AvatarFallback>
                 </Avatar>
 
-                {/* Name & Country */}
+                {/* Name + Country (two-line layout matching TrackStep) */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
                     <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                     {worker.companyName && (
@@ -117,7 +174,9 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
                         {worker.companyName}
                       </span>
                     )}
-                    <span className="text-[11px] text-muted-foreground">· {countryFlags[worker.country] || ""} {worker.country}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[worker.country] || ""} {worker.country}</span>
                   </div>
                 </div>
 
@@ -137,6 +196,9 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
               </div>
             );
           })}
+          {filteredWorkers.length === 0 && (
+            <p className="text-center text-sm text-muted-foreground py-8">No workers found</p>
+          )}
         </div>
       </CardContent>
     </Card>
