@@ -887,29 +887,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
             </div>
 
-            {/* Footer Stats */}
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
-              {isAllClients && 'clientCount' in displayMetrics && (
-                <>
-                  <span className="flex items-center gap-1.5">
-                    <Building2 className="h-3.5 w-3.5" />
-                    Clients: <strong className="text-foreground">{(displayMetrics as any).clientCount}</strong>
-                  </span>
-                  <span className="text-border">·</span>
-                </>
-              )}
-              <span className="flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5" />
-                Employees: <strong className="text-foreground">{displayMetrics.employeeCount}</strong>
-              </span>
-              <span className="text-border">·</span>
-              <span className="flex items-center gap-1.5">
-                <Briefcase className="h-3.5 w-3.5" />
-                Contractors: <strong className="text-foreground">{displayMetrics.contractorCount}</strong>
-              </span>
-              <span className="text-border">·</span>
-              <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
-            </div>
           </CardContent>
         </Card>
         )}
