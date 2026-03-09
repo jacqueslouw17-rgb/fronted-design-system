@@ -819,9 +819,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
         {/* KPI Metrics Card - hidden for custom batches */}
         {!isCustomBatch && (
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
-          <CardContent className="py-6 px-6">
+          <CardContent className="py-4 px-6">
             {/* Metrics Grid */}
-            <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 lg:mx-0 lg:px-0 lg:overflow-visible pb-1 mb-6">
+            <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 lg:mx-0 lg:px-0 lg:overflow-visible">
               <div className="flex lg:grid lg:grid-cols-4 gap-3 lg:gap-4 w-max lg:w-auto">
               {/* Gross Pay */}
               <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
@@ -886,7 +886,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
               </div>
             </div>
-
           </CardContent>
         </Card>
         )}
