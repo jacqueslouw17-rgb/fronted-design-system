@@ -233,7 +233,7 @@ const CompanyAdminOnboardingV3 = () => {
             </motion.div>
           </div>
 
-          {/* Step Content — hide redundant heading from shared component */}
+          {/* Step Content */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeStep.id}
@@ -241,7 +241,6 @@ const CompanyAdminOnboardingV3 = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="[&>div>div:first-child]:hidden"
             >
               {renderStepContent()}
             </motion.div>
