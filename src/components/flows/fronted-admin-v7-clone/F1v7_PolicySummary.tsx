@@ -178,7 +178,7 @@ const F1v7_PolicySummary = ({ formData, onComplete, isProcessing }: PolicySummar
         className="w-full bg-primary hover:bg-primary/90" 
         disabled={isProcessing}
       >
-        {isProcessing ? "Setting up..." : "Confirm & add client"}
+        {isProcessing ? "Saving..." : isEditMode ? "Confirm & save changes" : "Confirm & add client"}
       </Button>
     </div>
   );
