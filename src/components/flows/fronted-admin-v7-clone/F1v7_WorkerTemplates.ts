@@ -54,7 +54,7 @@ export function contractorToTemplate(
     countryFlag?: string;
     role: string;
     salary: string;
-    employmentType: string;
+    employmentType?: string;
     companyName?: string;
     companyId?: string;
     probationPeriod?: string;
