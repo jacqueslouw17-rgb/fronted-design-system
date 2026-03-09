@@ -1230,13 +1230,19 @@ const AdminContractingMultiCompany = () => {
                                     <CommandInput placeholder="Search clients..." />
                                     <CommandList>
                                       <CommandEmpty>
-                                        <div className="flex flex-col items-center gap-2 py-2">
-                                          <p className="text-xs text-muted-foreground">No client found</p>
+                                        <div className="flex flex-col items-center gap-3 py-4 px-3">
+                                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                            <Plus className="h-4.5 w-4.5 text-primary" />
+                                          </div>
+                                          <div className="text-center space-y-0.5">
+                                            <p className="text-sm font-medium text-foreground">No matching client</p>
+                                            <p className="text-[11px] text-muted-foreground">Can't find who you're looking for?</p>
+                                          </div>
                                           <button
                                             onClick={() => handleCompanyChange("add-new")}
-                                            className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                                            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors duration-200"
                                           >
-                                            <Plus className="h-3.5 w-3.5" />
+                                            <Plus className="h-3 w-3" />
                                             Add new client
                                           </button>
                                         </div>
