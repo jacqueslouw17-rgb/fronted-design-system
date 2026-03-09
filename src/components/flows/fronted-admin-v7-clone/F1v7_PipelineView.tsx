@@ -205,17 +205,23 @@ const getCompanyChipVariant = (seed: string) => {
   return COMPANY_CHIP_VARIANTS[hash % COMPANY_CHIP_VARIANTS.length];
 };
 
-/** Small component to handle Save as Template with local state */
+/** Small component to handle Save as Template — syncs with global template changes */
 const SaveAsTemplateButton: React.FC<{ contractor: Contractor }> = ({ contractor }) => {
   const tplKey = `${contractor.role} · ${contractor.country}`;
   const [isSaved, setIsSaved] = useState(() => getWorkerTemplates().some(t => t.name === tplKey));
+
+  useEffect(() => {
+    const sync = () => setIsSaved(getWorkerTemplates().some(t => t.name === tplKey));
+    window.addEventListener(TEMPLATES_CHANGED_EVENT, sync);
+    return () => window.removeEventListener(TEMPLATES_CHANGED_EVENT, sync);
+  }, [tplKey]);
+
   return (
     <Button variant="ghost" size="sm" className={cn("w-full text-xs h-6 gap-1", isSaved ? "text-primary" : "text-muted-foreground hover:text-primary")} onClick={e => {
       e.stopPropagation();
       if (!isSaved) {
         const template = contractorToTemplate(contractor, tplKey);
         saveWorkerTemplate(template);
-        setIsSaved(true);
         toast.success(`Template "${tplKey}" saved`);
       } else {
         toast.info("Already saved as template");
