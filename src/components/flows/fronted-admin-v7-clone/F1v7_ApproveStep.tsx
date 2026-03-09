@@ -185,42 +185,81 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
         { id: 4, title: "Track & reconcile", description: "Mark as paid/not paid", active: false },
       ];
 
-  // Client switcher pill component
+  // Toggle a client in the multi-select
+  const toggleClient = (name: string) => {
+    setSelectedClients(prev =>
+      prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]
+    );
+  };
+
+  const clientFilterLabel = isAllSelected
+    ? `All Clients (${submissions.length})`
+    : selectedClients.length === 1
+      ? `${selectedClients[0]} (${filteredSubmissions.length})`
+      : `${selectedClients.length} clients (${filteredSubmissions.length})`;
+
+  // Client multi-select dropdown
   const renderClientSwitcher = () => {
     if (!hasMultipleClients) return null;
 
-    const allOptions = [
-      { key: ALL_CLIENTS_KEY, label: "All Clients", count: submissions.length },
-      ...clientNames.map(name => ({
-        key: name,
-        label: name,
-        count: submissions.filter(s => s.companyName === name).length,
-      })),
-    ];
-
     return (
-      <div className="flex items-center gap-1 p-0.5 rounded-lg bg-primary/[0.04] border border-primary/10 overflow-x-auto scrollbar-hide">
-        {allOptions.map(opt => (
+      <Popover open={clientDropdownOpen} onOpenChange={setClientDropdownOpen}>
+        <PopoverTrigger asChild>
+          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-muted/60 border border-border/40 transition-all w-full justify-between">
+            <span className="flex items-center gap-1.5 truncate">
+              <Building2 className="h-3 w-3 flex-shrink-0" />
+              {clientFilterLabel}
+            </span>
+            <ChevronDown className="h-3 w-3 flex-shrink-0 opacity-50" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-56 p-1.5" align="start" sideOffset={6}>
           <button
-            key={opt.key}
-            onClick={() => setSelectedClient(opt.key)}
+            onClick={() => setSelectedClients([])}
             className={cn(
-              "relative px-2.5 py-1 rounded-md text-[10px] font-medium whitespace-nowrap transition-all duration-200",
-              selectedClient === opt.key
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-primary/5"
+              "flex items-center justify-between w-full px-2.5 py-2 rounded-md text-xs transition-colors",
+              isAllSelected
+                ? "bg-primary/5 text-foreground font-medium"
+                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
             )}
           >
-            {opt.label}
-            <span className={cn(
-              "ml-1 tabular-nums",
-              selectedClient === opt.key ? "text-primary-foreground/70" : "text-muted-foreground/60"
-            )}>
-              ({opt.count})
+            <span className="flex items-center gap-2">
+              <Globe className="h-3.5 w-3.5" />
+              All Clients
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-muted-foreground/60 tabular-nums">{submissions.length}</span>
+              {isAllSelected && <Check className="h-3.5 w-3.5 text-primary" />}
             </span>
           </button>
-        ))}
-      </div>
+          <div className="h-px bg-border/40 my-1" />
+          {clientNames.map(name => {
+            const count = submissions.filter(s => s.companyName === name).length;
+            const isSelected = selectedClients.includes(name);
+            return (
+              <button
+                key={name}
+                onClick={() => toggleClient(name)}
+                className={cn(
+                  "flex items-center justify-between w-full px-2.5 py-2 rounded-md text-xs transition-colors",
+                  isSelected
+                    ? "bg-primary/5 text-foreground font-medium"
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <Building2 className="h-3.5 w-3.5" />
+                  {name}
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="text-muted-foreground/60 tabular-nums">{count}</span>
+                  {isSelected && <Check className="h-3.5 w-3.5 text-primary" />}
+                </span>
+              </button>
+            );
+          })}
+        </PopoverContent>
+      </Popover>
     );
   };
 
