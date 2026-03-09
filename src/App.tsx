@@ -183,6 +183,7 @@ const App = () => (
         <Route path="/flows/contractor-payroll" element={<ContractorPayroll />} />
         <Route path="/flows/company-admin-onboarding" element={<CompanyAdminOnboarding />} />
         <Route path="/flows/company-admin-onboarding-v2" element={<CompanyAdminOnboardingV2 />} />
+        <Route path="/flows/company-admin-onboarding-v3" element={<CompanyAdminOnboardingV3 />} />
         <Route path="/flows/company-admin-dashboard" element={<CompanyAdminDashboard />} />
         <Route path="/flows/company-admin-dashboard-v2" element={<CompanyAdminDashboardV2 />} />
         <Route path="/flows/company-admin-dashboard-v3" element={<CompanyAdminDashboardV3 />} />

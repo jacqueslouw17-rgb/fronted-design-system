@@ -307,6 +307,7 @@ const DesignSystem = () => {
     // 'flow-1-admin-onboarding',    // Flow 5 Company Admin Onboarding v1 (deprecated/hidden)
     'flow-5-company-admin-onboarding',// Flow 5 Company Admin Onboarding v1
     'flow-5-company-admin-onboarding-v2',// Flow 5 Company Admin Onboarding v2
+    'flow-5-company-admin-onboarding-v3',// Flow 5 Company Admin Onboarding v3 (Future)
     // HIDDEN: Flow 6 Company Admin Dashboard v1-v2
     // 'flow-6-company-admin-dashboard',// Flow 6 Company Admin Dashboard v1
     // 'flow-6-company-admin-dashboard-v2',// Flow 6 Company Admin Dashboard v2
