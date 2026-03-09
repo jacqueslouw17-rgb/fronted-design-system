@@ -172,11 +172,9 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({
       transition={{ duration: 0.3 }}
       className="v7-table-container relative"
     >
-      {/* Header */}
-      <div className="v7-table-header">
-        {/* Checkbox column header */}
-        <div className="w-6 shrink-0" />
-        {tableColumns.map(col => (
+       {/* Header */}
+       <div className="v7-table-header">
+         {tableColumns.map(col => (
           <button
             key={col.key}
             className={cn("v7-table-header-cell", col.className)}
