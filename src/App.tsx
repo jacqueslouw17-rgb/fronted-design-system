@@ -50,6 +50,7 @@ import EmployeePayroll from "./pages/flows/EmployeePayroll";
 import ContractorPayroll from "./pages/flows/ContractorPayroll";
 import CompanyAdminOnboarding from "./pages/flows/CompanyAdminOnboarding";
 import CompanyAdminOnboardingV2 from "./pages/flows/CompanyAdminOnboardingV2";
+import CompanyAdminOnboardingV3 from "./pages/flows/CompanyAdminOnboardingV3";
 import CompanyAdminDashboard from "./pages/flows/CompanyAdminDashboard";
 import CompanyAdminDashboardV2 from "./pages/flows/CompanyAdminDashboardV2";
 import CompanyAdminDashboardV3 from "./pages/flows/CompanyAdminDashboardV3";
