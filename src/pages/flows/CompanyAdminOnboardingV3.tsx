@@ -150,9 +150,8 @@ const CompanyAdminOnboardingV3 = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="flex justify-center"
-              style={{ maxHeight: '160px' }}
             >
-              <AudioWaveVisualizer isActive={isSpeaking} />
+              <F5v3_WaveVisualizer isActive={isSpeaking} />
             </motion.div>
 
             {/* Title + subtitle */}
