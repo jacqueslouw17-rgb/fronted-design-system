@@ -212,7 +212,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   filterNonCertified = false,
   mode = "certified",
   onAddCandidate,
-  onRemoveContractor
+  onRemoveContractor,
+  initialViewMode = "board"
 }) => {
   const columns = mode === "full-pipeline-with-payroll" ? COLUMNS_FULL_PIPELINE : mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
