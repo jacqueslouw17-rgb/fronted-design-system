@@ -283,18 +283,18 @@ const F1v4_EmbeddedAdminOnboarding = ({
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 border",
                       idx === currentStep
-                        ? "border-foreground/15 bg-foreground/[0.05] text-foreground"
+                        ? "border-primary/15 bg-primary/[0.04] text-foreground"
                         : completedSteps.has(step.id)
-                        ? "border-foreground/8 bg-foreground/[0.03] text-foreground/60 cursor-pointer hover:bg-foreground/[0.06]"
-                        : "border-transparent bg-transparent text-muted-foreground/40 cursor-not-allowed"
+                        ? "border-primary/8 bg-primary/[0.02] text-foreground/60 cursor-pointer hover:bg-primary/[0.05]"
+                        : "border-transparent bg-transparent text-muted-foreground/35 cursor-not-allowed"
                     )}
                   >
                     {completedSteps.has(step.id) ? (
-                      <CheckCircle2 className="h-3 w-3 text-foreground/50" />
+                      <CheckCircle2 className="h-3 w-3 text-primary/50" />
                     ) : (
                       <span className={cn(
                         "h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-bold",
-                        idx === currentStep ? "bg-foreground/10 text-foreground/70" : "text-muted-foreground/30"
+                        idx === currentStep ? "bg-primary/[0.08] text-primary/70" : "text-muted-foreground/25"
                       )}>
                         {idx + 1}
                       </span>
@@ -304,7 +304,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
                   {idx < FLOW_STEPS.length - 1 && (
                     <div className={cn(
                       "w-5 h-px transition-colors duration-300",
-                      completedSteps.has(step.id) ? "bg-foreground/15" : "bg-foreground/5"
+                      completedSteps.has(step.id) ? "bg-primary/15" : "bg-foreground/[0.04]"
                     )} />
                   )}
                 </div>
