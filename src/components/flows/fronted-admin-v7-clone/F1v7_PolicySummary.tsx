@@ -34,7 +34,7 @@ const SummaryRow = ({ icon: Icon, label, className }: { icon: React.ElementType;
   </div>
 );
 
-const F1v7_PolicySummary = ({ formData, onComplete, isProcessing }: PolicySummaryProps) => {
+const F1v7_PolicySummary = ({ formData, onComplete, isProcessing, isEditMode }: PolicySummaryProps) => {
   const policy = formData as F1v7_PolicyData;
   
   const getThresholdLabel = (level: string, customAmount?: string) => {
