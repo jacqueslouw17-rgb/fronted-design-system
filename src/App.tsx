@@ -50,6 +50,7 @@ import EmployeePayroll from "./pages/flows/EmployeePayroll";
 import ContractorPayroll from "./pages/flows/ContractorPayroll";
 import CompanyAdminOnboarding from "./pages/flows/CompanyAdminOnboarding";
 import CompanyAdminOnboardingV2 from "./pages/flows/CompanyAdminOnboardingV2";
+import CompanyAdminOnboardingV3 from "./pages/flows/CompanyAdminOnboardingV3";
 import CompanyAdminDashboard from "./pages/flows/CompanyAdminDashboard";
 import CompanyAdminDashboardV2 from "./pages/flows/CompanyAdminDashboardV2";
 import CompanyAdminDashboardV3 from "./pages/flows/CompanyAdminDashboardV3";
@@ -182,6 +183,7 @@ const App = () => (
         <Route path="/flows/contractor-payroll" element={<ContractorPayroll />} />
         <Route path="/flows/company-admin-onboarding" element={<CompanyAdminOnboarding />} />
         <Route path="/flows/company-admin-onboarding-v2" element={<CompanyAdminOnboardingV2 />} />
+        <Route path="/flows/company-admin-onboarding-v3" element={<CompanyAdminOnboardingV3 />} />
         <Route path="/flows/company-admin-dashboard" element={<CompanyAdminDashboard />} />
         <Route path="/flows/company-admin-dashboard-v2" element={<CompanyAdminDashboardV2 />} />
         <Route path="/flows/company-admin-dashboard-v3" element={<CompanyAdminDashboardV3 />} />
