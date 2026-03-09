@@ -124,10 +124,14 @@ const F1v4_EmbeddedAdminOnboarding = ({
     completeStep(stepId);
     setCompletedSteps(prev => new Set(prev).add(stepId));
 
-    // In edit mode on final step, or create mode on final step — complete
-    if (isEditMode && stepId === "policy_summary") {
-      const orgData = stepData["org_profile"] || getStepData("org_profile") || initialData || {};
-      const policyData = data || stepData["policy_setup"] || {};
+    // In edit mode — save immediately from any step
+    if (isEditMode) {
+      const orgData = stepId === "org_profile" 
+        ? (data || {}) 
+        : (stepData["org_profile"] || getStepData("org_profile") || initialData || {});
+      const policyData = stepId === "policy_setup"
+        ? (data || {})
+        : (stepData["policy_setup"] || initialPolicyData || {});
       const companyName = orgData.companyName || companyNameProp || "Company";
       
       toast({
