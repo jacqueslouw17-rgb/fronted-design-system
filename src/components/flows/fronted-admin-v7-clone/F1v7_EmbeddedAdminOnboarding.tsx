@@ -243,56 +243,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
             <AudioWaveVisualizer isActive={isSpeaking} />
           </motion.div>
 
-          {/* Step indicator — only in create mode with multiple steps */}
-          {!isEditMode && (
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex items-center gap-2"
-            >
-              {FLOW_STEPS.map((step, idx) => (
-                <div key={step.id} className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (completedSteps.has(step.id) || idx <= currentStep) {
-                        setCurrentStep(idx);
-                      }
-                    }}
-                    disabled={!completedSteps.has(step.id) && idx > currentStep}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium transition-all duration-300",
-                      idx === currentStep
-                        ? "bg-primary/10 text-primary"
-                        : completedSteps.has(step.id)
-                        ? "bg-primary/5 text-primary/70 cursor-pointer hover:bg-primary/10"
-                        : "bg-muted/30 text-muted-foreground/50 cursor-not-allowed"
-                    )}
-                  >
-                    {completedSteps.has(step.id) ? (
-                      <CheckCircle2 className="h-3 w-3" />
-                    ) : (
-                      <span className={cn(
-                        "h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-bold border",
-                        idx === currentStep ? "border-primary/30 text-primary" : "border-muted-foreground/20 text-muted-foreground/40"
-                      )}>
-                        {idx + 1}
-                      </span>
-                    )}
-                    <span className="hidden sm:inline">{step.title}</span>
-                  </button>
-                  {idx < FLOW_STEPS.length - 1 && (
-                    <div className={cn(
-                      "w-6 h-px transition-colors duration-300",
-                      completedSteps.has(step.id) ? "bg-primary/30" : "bg-border/40"
-                    )} />
-                  )}
-                </div>
-              ))}
-            </motion.div>
-          )}
-
+          {/* Title + subtitle first */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeStep.id}
@@ -302,7 +253,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
               transition={{ duration: 0.3, ease: "easeOut" }}
               className="text-center space-y-2 sm:space-y-3 max-w-2xl px-2 sm:px-0"
             >
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: 'hsl(210 8% 15%)' }}>
                 {getStepTitle()}
               </h1>
               <p className="text-sm sm:text-base text-center text-muted-foreground">
@@ -310,6 +261,56 @@ const F1v4_EmbeddedAdminOnboarding = ({
               </p>
             </motion.div>
           </AnimatePresence>
+
+          {/* Step indicator — below subtitle, only in create mode */}
+          {!isEditMode && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="flex items-center gap-1.5"
+            >
+              {FLOW_STEPS.map((step, idx) => (
+                <div key={step.id} className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (completedSteps.has(step.id) || idx <= currentStep) {
+                        setCurrentStep(idx);
+                      }
+                    }}
+                    disabled={!completedSteps.has(step.id) && idx > currentStep}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 border",
+                      idx === currentStep
+                        ? "border-foreground/15 bg-foreground/[0.05] text-foreground"
+                        : completedSteps.has(step.id)
+                        ? "border-foreground/8 bg-foreground/[0.03] text-foreground/60 cursor-pointer hover:bg-foreground/[0.06]"
+                        : "border-transparent bg-transparent text-muted-foreground/40 cursor-not-allowed"
+                    )}
+                  >
+                    {completedSteps.has(step.id) ? (
+                      <CheckCircle2 className="h-3 w-3 text-foreground/50" />
+                    ) : (
+                      <span className={cn(
+                        "h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-bold",
+                        idx === currentStep ? "bg-foreground/10 text-foreground/70" : "text-muted-foreground/30"
+                      )}>
+                        {idx + 1}
+                      </span>
+                    )}
+                    <span className="hidden sm:inline">{step.title}</span>
+                  </button>
+                  {idx < FLOW_STEPS.length - 1 && (
+                    <div className={cn(
+                      "w-5 h-px transition-colors duration-300",
+                      completedSteps.has(step.id) ? "bg-foreground/15" : "bg-foreground/5"
+                    )} />
+                  )}
+                </div>
+              ))}
+            </motion.div>
+          )}
         </div>
 
         {/* Step Content */}
