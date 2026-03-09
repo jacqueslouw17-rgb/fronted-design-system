@@ -115,7 +115,7 @@ function parseWorkers(text: string): { workers: ParsedWorker[]; errors: string[]
   // Check required headers
   const missing = REQUIRED_HEADERS.filter(h => !headers.includes(h));
   if (missing.length > 0) {
-    globalErrors.push(`Missing columns: ${missing.join(", ")}. Expected: ${REQUIRED_HEADERS.join(", ")}`);
+    globalErrors.push(`Missing columns: ${missing.join(", ")}`);
     return { workers: [], errors: globalErrors };
   }
 
