@@ -1084,7 +1084,13 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
         >
-          <F1v7_ListView contractors={contractors} onWorkerClick={handleListOrTableWorkerClick} />
+          <F1v7_ListView
+            contractors={contractors}
+            onWorkerClick={handleListOrTableWorkerClick}
+            selectedIds={selectedIds}
+            onSelectContractor={handleSelectContractor}
+            onBulkAction={handleViewBulkAction}
+          />
         </motion.div>
       )}
 
