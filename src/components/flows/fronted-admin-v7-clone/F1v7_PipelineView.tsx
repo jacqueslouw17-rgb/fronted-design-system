@@ -9,7 +9,10 @@
  */
 import "@/styles/v7-glass-theme.css";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { F1v7_ViewToggle, type ViewMode } from "./F1v7_ViewToggle";
+import { F1v7_ListView } from "./F1v7_ListView";
+import { F1v7_TableView } from "./F1v7_TableView";
 import { getCurrencyCode } from "@/utils/currencyUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -223,6 +226,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     setContractors: updateContractorStore
   } = useContractorStore();
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
+  const [viewMode, setViewMode] = useState<ViewMode>("board");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [configureDrawerOpen, setConfigureDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
@@ -1034,7 +1038,51 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     // Navigate to batch review page
     navigate(`/payroll/batch/current?batchId=${batchId}`);
   };
-  return <div className={cn("overflow-x-auto pb-4", className)}>
+  const handleListOrTableWorkerClick = useCallback((contractor: any) => {
+    if (contractor.status === "CERTIFIED" || ["PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"].includes(contractor.status)) {
+      setSelectedForDoneDetail(contractor);
+      setDoneDetailDrawerOpen(true);
+    } else if (contractor.status === "awaiting-signature") {
+      handleOpenSignatureWorkflow(contractor);
+    } else if (contractor.status === "data-pending") {
+      handleOpenConfigure(contractor);
+    } else if (contractor.status === "drafting") {
+      handleOpenDocumentBundle(contractor);
+    }
+  }, []);
+
+  return <div className={cn("pb-4", className)}>
+      {/* View mode toggle */}
+      <div className="flex items-center justify-end mb-4">
+        <F1v7_ViewToggle value={viewMode} onChange={setViewMode} />
+      </div>
+
+      {/* List View */}
+      {viewMode === "list" && (
+        <motion.div
+          key="list"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          <F1v7_ListView contractors={contractors} onWorkerClick={handleListOrTableWorkerClick} />
+        </motion.div>
+      )}
+
+      {/* Table View */}
+      {viewMode === "table" && (
+        <motion.div
+          key="table"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          <F1v7_TableView contractors={contractors} onWorkerClick={handleListOrTableWorkerClick} />
+        </motion.div>
+      )}
+
+      {/* Board View (existing Kanban) */}
+      {viewMode === "board" && <div className="overflow-x-auto">
       <div className="flex gap-4 min-w-max">
         {columns.map((status, colIndex) => {
         const config = statusConfig[status];
@@ -1551,6 +1599,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               </motion.div>;
       })}
         </div>
+      </div>}
 
       {/* Configuration Drawer */}
       <F1v4_OnboardingFormDrawer open={configureDrawerOpen} onOpenChange={setConfigureDrawerOpen} candidate={selectedContractor ? {

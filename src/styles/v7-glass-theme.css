@@ -947,3 +947,202 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
   border: 1px solid hsl(0 0% 100% / 0.5);
 }
 
+/* ══════════════════════════════════════════════════════ */
+/*  VIEW MODE TOGGLE — Premium glassmorphism pill         */
+/* ══════════════════════════════════════════════════════ */
+
+.v7-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: hsl(0 0% 100% / 0.35);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid hsl(0 0% 100% / 0.5);
+  box-shadow:
+    0 2px 12px hsl(172 12% 85% / 0.08),
+    inset 0 1px 0 hsl(0 0% 100% / 0.4);
+}
+
+.v7-view-toggle-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  color: hsl(210 6% 50%);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: color 0.2s ease;
+  z-index: 1;
+}
+
+.v7-view-toggle-item:hover:not(.v7-view-toggle-item--active) {
+  color: hsl(210 8% 35%);
+  background: hsl(0 0% 100% / 0.25);
+}
+
+.v7-view-toggle-item--active {
+  color: hsl(172 30% 32%);
+}
+
+.v7-view-toggle-indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: hsl(0 0% 100% / 0.82);
+  box-shadow:
+    0 2px 8px hsl(172 15% 78% / 0.12),
+    0 1px 2px hsl(0 0% 0% / 0.04),
+    inset 0 1px 0 hsl(0 0% 100% / 0.6);
+  z-index: 0;
+}
+
+/* ══════════════════════════════════════════════════════ */
+/*  LIST VIEW — Condensed rows                            */
+/* ══════════════════════════════════════════════════════ */
+
+.v7-list-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.v7-list-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+  background: hsl(172 20% 93% / 0.6);
+  color: hsl(172 30% 38%);
+  border: 1px solid hsl(172 15% 88% / 0.4);
+}
+
+.v7-list-rows {
+  padding: 0 0 8px;
+}
+
+.v7-list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  margin: 1px 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.v7-list-row:hover {
+  background: linear-gradient(
+    180deg,
+    hsl(0 0% 100% / 0.55) 0%,
+    hsl(172 18% 96% / 0.45) 100%
+  );
+  border-color: hsl(0 0% 100% / 0.5);
+  box-shadow:
+    0 2px 12px hsl(172 12% 85% / 0.08),
+    inset 0 1px 0 hsl(0 0% 100% / 0.4);
+  transform: translateX(2px);
+}
+
+/* ══════════════════════════════════════════════════════ */
+/*  TABLE VIEW — Sortable data table with glass           */
+/* ══════════════════════════════════════════════════════ */
+
+.v7-table-container {
+  background: linear-gradient(
+    180deg,
+    hsl(0 0% 100% / 0.42) 0%,
+    hsl(0 0% 100% / 0.32) 50%,
+    hsl(172 20% 96% / 0.38) 100%
+  );
+  backdrop-filter: blur(28px) saturate(1.3);
+  -webkit-backdrop-filter: blur(28px) saturate(1.3);
+  border: 1px solid hsl(0 0% 100% / 0.6);
+  border-radius: 1rem;
+  box-shadow:
+    0 4px 32px hsl(172 12% 80% / 0.08),
+    inset 0 1px 0 hsl(0 0% 100% / 0.6);
+  overflow: hidden;
+}
+
+.v7-table-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(
+    180deg,
+    hsl(0 0% 100% / 0.48) 0%,
+    hsl(172 18% 95% / 0.4) 100%
+  );
+  border-bottom: 1px solid hsl(172 10% 90% / 0.4);
+}
+
+.v7-table-header-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: hsl(210 6% 45%);
+  cursor: pointer;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  transition: color 0.15s ease;
+  user-select: none;
+}
+
+.v7-table-header-cell:hover {
+  color: hsl(172 30% 32%);
+}
+
+.v7-table-body {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.v7-table-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid hsl(172 10% 93% / 0.3);
+}
+
+.v7-table-row:last-child {
+  border-bottom: none;
+}
+
+.v7-table-row:hover {
+  background: hsl(0 0% 100% / 0.4);
+}
+
+.v7-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: hsl(0 0% 100% / 0.2);
+  border-top: 1px solid hsl(172 10% 90% / 0.3);
+}
