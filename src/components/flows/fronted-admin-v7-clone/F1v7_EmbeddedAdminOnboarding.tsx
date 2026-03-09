@@ -314,7 +314,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 border",
                       idx === currentStep
                         ? "border-[hsl(172_28%_42%/0.15)] text-foreground"
-                        : completedSteps.has(step.id)
+                        : isEditMode || completedSteps.has(step.id)
                         ? "border-[hsl(172_28%_42%/0.08)] text-foreground/60 cursor-pointer"
                         : "border-transparent text-muted-foreground/35 cursor-not-allowed"
                     )}
