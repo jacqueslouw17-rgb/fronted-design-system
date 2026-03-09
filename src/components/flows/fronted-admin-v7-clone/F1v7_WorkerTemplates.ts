@@ -74,7 +74,7 @@ export function contractorToTemplate(
     countryFlag: contractor.countryFlag || "",
     role: contractor.role,
     salary: contractor.salary,
-    employmentType: contractor.employmentType as "contractor" | "employee",
+    employmentType: (contractor.employmentType || "contractor") as "contractor" | "employee",
     companyName: contractor.companyName,
     companyId: contractor.companyId,
     probationPeriod: contractor.probationPeriod,
