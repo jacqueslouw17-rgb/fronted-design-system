@@ -19,7 +19,9 @@ import {
   UserMinus,
   Building2,
   ChevronDown,
+  Check,
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -61,7 +63,8 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   excludedWorkerCount = 0,
 }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(ALL_CLIENTS_KEY);
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
+  const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) return `$${(amount / 1000000).toFixed(2)}M`;
@@ -80,11 +83,12 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
 
   const hasMultipleClients = clientNames.length > 1;
 
-  // Filter submissions by selected client
+  // Filter submissions by selected clients (empty = all)
+  const isAllSelected = selectedClients.length === 0;
   const filteredSubmissions = useMemo(() => {
-    if (selectedClient === ALL_CLIENTS_KEY) return submissions;
-    return submissions.filter(s => s.companyName === selectedClient);
-  }, [submissions, selectedClient]);
+    if (selectedClients.length === 0) return submissions;
+    return submissions.filter(s => selectedClients.includes(s.companyName || ""));
+  }, [submissions, selectedClients]);
 
   // Compute totals from filtered submissions
   const computeTotals = (workers: WorkerSubmission[]) => {
@@ -181,49 +185,86 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
         { id: 4, title: "Track & reconcile", description: "Mark as paid/not paid", active: false },
       ];
 
-  // Client switcher pill component
+  // Toggle a client in the multi-select
+  const toggleClient = (name: string) => {
+    setSelectedClients(prev =>
+      prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]
+    );
+  };
+
+  const clientFilterLabel = isAllSelected
+    ? `All Clients (${submissions.length})`
+    : selectedClients.length === 1
+      ? `${selectedClients[0]} (${filteredSubmissions.length})`
+      : `${selectedClients.length} clients (${filteredSubmissions.length})`;
+
+  // Client multi-select dropdown
   const renderClientSwitcher = () => {
     if (!hasMultipleClients) return null;
 
-    const allOptions = [
-      { key: ALL_CLIENTS_KEY, label: "All Clients", count: submissions.length },
-      ...clientNames.map(name => ({
-        key: name,
-        label: name,
-        count: submissions.filter(s => s.companyName === name).length,
-      })),
-    ];
-
     return (
-      <div className="flex items-center gap-1 p-0.5 rounded-lg bg-primary/[0.04] border border-primary/10 overflow-x-auto scrollbar-hide">
-        {allOptions.map(opt => (
+      <Popover open={clientDropdownOpen} onOpenChange={setClientDropdownOpen}>
+        <PopoverTrigger asChild>
+          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-muted/60 border border-border/40 transition-all w-full justify-between">
+            <span className="flex items-center gap-1.5 truncate">
+              <Building2 className="h-3 w-3 flex-shrink-0" />
+              {clientFilterLabel}
+            </span>
+            <ChevronDown className="h-3 w-3 flex-shrink-0 opacity-50" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-56 p-1.5" align="start" sideOffset={6}>
           <button
-            key={opt.key}
-            onClick={() => setSelectedClient(opt.key)}
+            onClick={() => setSelectedClients([])}
             className={cn(
-              "relative px-2.5 py-1 rounded-md text-[10px] font-medium whitespace-nowrap transition-all duration-200",
-              selectedClient === opt.key
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-primary/5"
+              "flex items-center justify-between w-full px-2.5 py-2 rounded-md text-xs transition-colors",
+              isAllSelected
+                ? "bg-primary/5 text-foreground font-medium"
+                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
             )}
           >
-            {opt.label}
-            <span className={cn(
-              "ml-1 tabular-nums",
-              selectedClient === opt.key ? "text-primary-foreground/70" : "text-muted-foreground/60"
-            )}>
-              ({opt.count})
+            <span className="flex items-center gap-2">
+              <Globe className="h-3.5 w-3.5" />
+              All Clients
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-muted-foreground/60 tabular-nums">{submissions.length}</span>
+              {isAllSelected && <Check className="h-3.5 w-3.5 text-primary" />}
             </span>
           </button>
-        ))}
-      </div>
+          <div className="h-px bg-border/40 my-1" />
+          {clientNames.map(name => {
+            const count = submissions.filter(s => s.companyName === name).length;
+            const isSelected = selectedClients.includes(name);
+            return (
+              <button
+                key={name}
+                onClick={() => toggleClient(name)}
+                className={cn(
+                  "flex items-center justify-between w-full px-2.5 py-2 rounded-md text-xs transition-colors",
+                  isSelected
+                    ? "bg-primary/5 text-foreground font-medium"
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <Building2 className="h-3.5 w-3.5" />
+                  {name}
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="text-muted-foreground/60 tabular-nums">{count}</span>
+                  {isSelected && <Check className="h-3.5 w-3.5 text-primary" />}
+                </span>
+              </button>
+            );
+          })}
+        </PopoverContent>
+      </Popover>
     );
   };
 
   const renderBatchOverview = () => {
-    const selectedLabel = selectedClient === ALL_CLIENTS_KEY
-      ? `${clientNames.length} clients`
-      : selectedClient;
+    const animKey = isAllSelected ? "__all__" : [...selectedClients].sort().join(",");
 
     if (isCustomBatch) {
       return (
@@ -234,7 +275,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               <p className="text-xs text-primary/70 mb-1">Off-cycle payout total</p>
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={selectedClient}
+                  key={animKey}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
@@ -261,7 +302,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             {/* Financial ledger */}
             <AnimatePresence mode="wait">
               <motion.div
-                key={selectedClient}
+                key={animKey}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -338,11 +379,13 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
           {/* Hero payout */}
           <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
             <p className="text-xs text-primary/70 mb-1">
-              {selectedClient !== ALL_CLIENTS_KEY ? `${selectedClient} payout` : "Total payout"}
+              {!isAllSelected
+                ? selectedClients.length === 1 ? `${selectedClients[0]} payout` : `${selectedClients.length} clients payout`
+                : "Total payout"}
             </p>
             <AnimatePresence mode="wait">
               <motion.div
-                key={selectedClient}
+                key={animKey}
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
@@ -351,7 +394,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 <p className="text-3xl font-semibold text-primary tracking-tight">{formatCurrency(displayData.totalCost)}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">
                   {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""}
-                  {selectedClient === ALL_CLIENTS_KEY && hasMultipleClients && ` · ${clientNames.length} clients`}
+                  {isAllSelected && hasMultipleClients && ` · ${clientNames.length} clients`}
                   {" · "}USD → EUR 1.0842
                 </p>
               </motion.div>
@@ -371,7 +414,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
           {/* Financial ledger */}
           <AnimatePresence mode="wait">
             <motion.div
-              key={selectedClient}
+              key={animKey}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -415,7 +458,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 </div>
 
                 {/* Per-client breakdown when viewing all */}
-                {selectedClient === ALL_CLIENTS_KEY && hasMultipleClients && (
+                {isAllSelected && hasMultipleClients && (
                   <div className="pt-2.5 border-t border-border/30 space-y-1.5">
                     <p className="text-[10px] text-muted-foreground/60 font-medium uppercase tracking-wider">By client</p>
                     {clientNames.map(name => {
@@ -424,7 +467,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                       return (
                         <button
                           key={name}
-                          onClick={() => setSelectedClient(name)}
+                          onClick={() => setSelectedClients([name])}
                           className="flex items-center justify-between w-full text-xs px-2 py-1.5 rounded-md hover:bg-muted/40 transition-colors group"
                         >
                           <span className="flex items-center gap-1.5">
