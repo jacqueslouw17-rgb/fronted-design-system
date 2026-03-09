@@ -528,10 +528,10 @@ const AdminContractingMultiCompany = () => {
   const contractorCount = contractorsList.length;
 
   // Dot color: orange if any worker of that type has pending work, green if all resolved
-  // In payroll tab, consider workers resolved if they are CERTIFIED, PAID, or have completed onboarding stages
-  const terminalStatuses = ["PAID", "CERTIFIED", "active", "trigger-onboarding", "onboarding"];
-  const employeesAllResolved = employeesList.length > 0 && employeesList.every(c => terminalStatuses.includes(c.status));
-  const contractorsAllResolved = contractorsList.length > 0 && contractorsList.every(c => terminalStatuses.includes(c.status));
+  // When on payroll tab, workers in payroll are already active/onboarded, so show green
+  const terminalStatuses = ["PAID", "CERTIFIED"];
+  const employeesAllResolved = activeMainTab === "payroll" || (employeesList.length > 0 && employeesList.every(c => terminalStatuses.includes(c.status)));
+  const contractorsAllResolved = activeMainTab === "payroll" || (contractorsList.length > 0 && contractorsList.every(c => terminalStatuses.includes(c.status)));
 
   // Persist companies to localStorage
   useEffect(() => {
