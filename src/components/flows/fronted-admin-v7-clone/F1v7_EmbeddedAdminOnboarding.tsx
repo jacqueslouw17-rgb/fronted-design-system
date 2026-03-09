@@ -50,6 +50,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
   isEditMode = false,
   editModeTitle,
   initialData,
+  initialPolicyData,
   hasSignedContract = false,
   hasCandidates = false,
   companyId,
