@@ -230,7 +230,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const saved = sessionStorage.getItem("f1v7-view-mode");
-    if (saved === "board" || saved === "list" || saved === "table") return saved;
+    if (saved === "board" || saved === "list") return saved;
     return initialViewMode;
   });
   const handleSetViewMode = useCallback((mode: ViewMode) => {
