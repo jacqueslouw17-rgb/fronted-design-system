@@ -47,7 +47,7 @@ import type { PayrollPayee } from "@/types/payroll";
 import { getChecklistForProfile, countriesRequiringDocVerification, type ChecklistRequirement } from "@/data/candidateChecklistData";
 import { usePayrollState } from "@/hooks/usePayrollState";
 import { useContractorStore } from "@/hooks/useContractorStore";
-import { contractorToTemplate, saveWorkerTemplate } from "./F1v7_WorkerTemplates";
+import { contractorToTemplate, saveWorkerTemplate, getWorkerTemplates } from "./F1v7_WorkerTemplates";
 import { Bookmark } from "lucide-react";
 interface Contractor {
   id: string;
@@ -1395,16 +1395,25 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   Send Form
                                 </Button>
                               </div>
-                              <Button variant="ghost" size="sm" className="w-full text-xs h-6 gap-1 text-muted-foreground hover:text-primary" onClick={e => {
-                                e.stopPropagation();
-                                const templateName = `${contractor.role} · ${contractor.country}`;
-                                const template = contractorToTemplate(contractor, templateName);
-                                saveWorkerTemplate(template);
-                                toast.success(`Template "${templateName}" saved`, { description: "Use it when adding new candidates" });
-                              }}>
-                                <Bookmark className="h-3 w-3" />
-                                Save as Template
-                              </Button>
+                              {(() => {
+                                const tplKey = `${contractor.role} · ${contractor.country}`;
+                                const isSaved = getWorkerTemplates().some(t => t.name === tplKey);
+                                return (
+                                  <Button variant="ghost" size="sm" className={cn("w-full text-xs h-6 gap-1", isSaved ? "text-primary" : "text-muted-foreground hover:text-primary")} onClick={e => {
+                                    e.stopPropagation();
+                                    if (isSaved) {
+                                      toast.info("Already saved as template");
+                                      return;
+                                    }
+                                    const template = contractorToTemplate(contractor, tplKey);
+                                    saveWorkerTemplate(template);
+                                    toast.success(`Template "${tplKey}" saved`, { description: "Use it when adding new candidates" });
+                                  }}>
+                                    <Bookmark className={cn("h-3 w-3", isSaved && "fill-primary")} />
+                                    {isSaved ? "Saved as Template" : "Save as Template"}
+                                  </Button>
+                                );
+                              })()}
                             </>}
                           
                           {status === "data-pending" && <div className="w-full space-y-2">
