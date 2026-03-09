@@ -212,7 +212,7 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({
                 {selectable && onSelectContractor ? (
                   <div className={cn(
                     "flex items-center justify-center transition-opacity duration-150",
-                    isSelected
+                    isSelected || contractor.status === "drafting"
                       ? "opacity-100"
                       : "opacity-0 group-hover/trow:opacity-100"
                   )}>
