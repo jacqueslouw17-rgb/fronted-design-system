@@ -401,7 +401,6 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
   };
 
   const isATSSelected = selectedAtsId && selectedAtsId !== "manual" && !selectedAtsId.startsWith("tpl-");
-  const isTemplateSelected = selectedAtsId.startsWith("tpl-");
   const showForm = !!selectedAtsId;
   const showContractFields = !!formData.country && !!countryRule;
   const isFormValid = formData.name && formData.email && formData.country && formData.role && formData.salary && formData.startDate && formData.employmentType;
