@@ -90,9 +90,9 @@ const F1v7_PolicySummary = ({ formData, onComplete, isProcessing }: PolicySummar
         transition={{ delay: 0.1, duration: 0.4 }}
         className="v7-glass-card p-4 space-y-3"
       >
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-foreground/8 flex items-center justify-center">
-            <Zap className="h-3.5 w-3.5 text-foreground/60" />
+        <div className="flex items-center gap-2.5">
+          <div className="h-7 w-7 rounded-lg bg-primary/[0.08] flex items-center justify-center">
+            <Zap className="h-3.5 w-3.5 text-primary/60" />
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">Kurt will auto-handle</p>
@@ -101,7 +101,7 @@ const F1v7_PolicySummary = ({ formData, onComplete, isProcessing }: PolicySummar
         </div>
         <div className="space-y-0.5">
           {autoItems.map((item, i) => (
-            <SummaryRow key={i} icon={CheckCircle2} label={item} className="text-foreground" />
+            <SummaryRow key={i} icon={CheckCircle2} label={item} className="text-foreground/80" />
           ))}
         </div>
       </motion.div>
@@ -114,8 +114,8 @@ const F1v7_PolicySummary = ({ formData, onComplete, isProcessing }: PolicySummar
         className="v7-glass-card p-4 space-y-3"
       >
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-foreground/6 flex items-center justify-center">
-            <AlertTriangle className="h-3.5 w-3.5 text-foreground/40" />
+          <div className="h-7 w-7 rounded-lg bg-foreground/[0.05] flex items-center justify-center">
+            <AlertTriangle className="h-3.5 w-3.5 text-foreground/35" />
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">Kurt will escalate</p>
@@ -142,19 +142,19 @@ const F1v7_PolicySummary = ({ formData, onComplete, isProcessing }: PolicySummar
         </div>
         <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-foreground/25" />
+            <span className="h-1.5 w-1.5 rounded-full bg-primary/30" />
             {policy?.notificationChannel === "both" ? "In-app + email" : policy?.notificationChannel === "in-app" ? "In-app only" : "Email only"}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-foreground/25" />
+            <span className="h-1.5 w-1.5 rounded-full bg-primary/30" />
             {policy?.notificationFrequency === "digest" ? "Daily digest" : "Immediate alerts"}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-foreground/25" />
+            <span className="h-1.5 w-1.5 rounded-full bg-primary/30" />
             {policy?.escalationScope === "admin-plus-backup" ? "Admin + backup approver" : "Admin only"}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-foreground/25" />
+            <span className="h-1.5 w-1.5 rounded-full bg-primary/30" />
             {policy?.bundlePreference === "daily-digest" ? "Bundled decisions" : "Per-event decisions"}
           </div>
         </div>

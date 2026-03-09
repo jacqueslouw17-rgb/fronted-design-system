@@ -94,27 +94,34 @@ const PolicySection = ({
   isCompleted: boolean;
   children: React.ReactNode;
 }) => (
-  <div className="v7-glass-card overflow-hidden transition-all duration-300">
+  <div className={cn(
+    "v7-glass-card overflow-hidden transition-all duration-300",
+    isOpen && "ring-1 ring-primary/[0.08]"
+  )}>
     <button
       type="button"
       onClick={onToggle}
       className="w-full flex items-center gap-3 p-4 text-left transition-colors"
     >
       <div className={cn(
-        "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-300",
-        isCompleted ? "bg-foreground/8 text-foreground/70" : isOpen ? "bg-foreground/6 text-foreground/60" : "bg-muted/40 text-muted-foreground/60"
+        "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300",
+        isCompleted
+          ? "bg-primary/[0.08] text-primary/70"
+          : isOpen
+          ? "bg-primary/[0.06] text-primary/60"
+          : "bg-muted/30 text-muted-foreground/50"
       )}>
         {isCompleted ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground">{title}</p>
+        <p className={cn("text-sm font-semibold", isOpen ? "text-foreground" : "text-foreground/80")}>{title}</p>
         <p className="text-[11px] text-muted-foreground truncate">{subtitle}</p>
       </div>
       <motion.div
         animate={{ rotate: isOpen ? 180 : 0 }}
         transition={{ duration: 0.2 }}
       >
-        <ChevronDown className={cn("h-4 w-4 transition-colors", isOpen ? "text-foreground/50" : "text-muted-foreground/40")} />
+        <ChevronDown className={cn("h-4 w-4 transition-colors", isOpen ? "text-primary/50" : "text-muted-foreground/30")} />
       </motion.div>
     </button>
     <AnimatePresence>
@@ -125,7 +132,7 @@ const PolicySection = ({
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="px-4 pb-4 space-y-4 border-t border-border/20 pt-4">
+          <div className="px-4 pb-4 space-y-4 border-t border-primary/[0.06] pt-4">
             {children}
           </div>
         </motion.div>
@@ -156,22 +163,28 @@ const PillSelect = <T extends string>({
           type="button"
           onClick={() => onChange(opt.value)}
           className={cn(
-            "relative flex flex-col items-start gap-1 rounded-xl p-3 text-left transition-all duration-200 border",
+            "relative flex flex-col items-start gap-1.5 rounded-xl p-3 text-left transition-all duration-200",
             isSelected
-              ? "border-foreground/15 bg-foreground/[0.04] shadow-sm"
-              : "border-border/30 bg-background/30 hover:border-border/50 hover:bg-background/50"
+              ? "shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
+              : "hover:shadow-sm"
           )}
+          style={
+            isSelected
+              ? { border: '1px solid hsl(172 28% 42% / 0.18)', background: 'hsl(172 28% 42% / 0.04)' }
+              : { border: '1px solid hsl(0 0% 0% / 0.06)', background: 'hsl(0 0% 100% / 0.2)' }
+          }
         >
           {isSelected && (
             <motion.div
               layoutId="pill-indicator"
-              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-foreground/40"
+              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full"
+              style={{ background: 'hsl(172 28% 42% / 0.45)' }}
               transition={{ duration: 0.2 }}
             />
           )}
-          {Icon && <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-foreground/70" : "text-muted-foreground/50")} />}
-          <span className={cn("text-xs font-semibold", isSelected ? "text-foreground" : "text-muted-foreground")}>{opt.label}</span>
-          {opt.description && <span className={cn("text-[10px] leading-tight", isSelected ? "text-muted-foreground" : "text-muted-foreground/60")}>{opt.description}</span>}
+          {Icon && <Icon className="h-3.5 w-3.5" style={{ color: isSelected ? 'hsl(172 28% 42% / 0.6)' : 'hsl(0 0% 0% / 0.25)' }} />}
+          <span className={cn("text-xs font-semibold", isSelected ? "text-foreground" : "text-muted-foreground/80")}>{opt.label}</span>
+          {opt.description && <span className={cn("text-[10px] leading-tight", isSelected ? "text-muted-foreground/80" : "text-muted-foreground/50")}>{opt.description}</span>}
         </button>
       );
     })}
@@ -203,13 +216,16 @@ const ThresholdSelector = ({
             type="button"
             onClick={() => onChange(key)}
             className={cn(
-              "flex flex-col items-center gap-0.5 rounded-lg p-2 text-center transition-all duration-200 border",
-              value === key
-                ? "border-foreground/15 bg-foreground/[0.04]"
-                : "border-border/20 bg-background/20 hover:bg-background/40"
+              "flex flex-col items-center gap-0.5 rounded-lg p-2.5 text-center transition-all duration-200",
+              value === key && "shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
             )}
+            style={
+              value === key
+                ? { border: '1px solid hsl(172 28% 42% / 0.18)', background: 'hsl(172 28% 42% / 0.04)' }
+                : { border: '1px solid hsl(0 0% 0% / 0.05)', background: 'hsl(0 0% 100% / 0.15)' }
+            }
           >
-            <span className={cn("text-[10px] font-semibold", value === key ? "text-foreground" : "text-muted-foreground")}>{preset.label}</span>
+            <span className={cn("text-[10px] font-semibold", value === key ? "text-foreground" : "text-muted-foreground/70")}>{preset.label}</span>
             {key !== "custom" && <span className="text-[9px] text-muted-foreground">≤ €{preset.amount}</span>}
           </button>
         );
