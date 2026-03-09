@@ -367,14 +367,9 @@ export const F1v7_CsvBulkUpload: React.FC<CsvBulkUploadProps> = ({ onImport, onC
             Template
           </Button>
         </div>
-            </div>
-            {globalErrors.map((err, i) => (
-              <p key={i} className="text-[11px] text-destructive/80 pl-5">{err}</p>
-            ))}
-          </div>
-        )}
       </motion.div>
     );
+  }
   }
 
   // ─── Preview Table ──────────────────────────────────────────────────
