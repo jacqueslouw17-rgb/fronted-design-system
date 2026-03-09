@@ -149,6 +149,7 @@ const PillSelect = <T extends string>({
   <div className={cn("grid gap-2", columns === 2 ? "grid-cols-2" : columns === 3 ? "grid-cols-3" : "grid-cols-4")}>
     {options.map(opt => {
       const Icon = opt.icon;
+      const isSelected = value === opt.value;
       return (
         <button
           key={opt.value}
@@ -156,21 +157,21 @@ const PillSelect = <T extends string>({
           onClick={() => onChange(opt.value)}
           className={cn(
             "relative flex flex-col items-start gap-1 rounded-xl p-3 text-left transition-all duration-200 border",
-            value === opt.value
-              ? "border-primary/30 bg-primary/[0.06] shadow-sm"
-              : "border-border/40 bg-background/40 hover:border-border/60 hover:bg-background/60"
+            isSelected
+              ? "border-foreground/15 bg-foreground/[0.04] shadow-sm"
+              : "border-border/30 bg-background/30 hover:border-border/50 hover:bg-background/50"
           )}
         >
-          {value === opt.value && (
+          {isSelected && (
             <motion.div
               layoutId="pill-indicator"
-              className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary"
+              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-foreground/40"
               transition={{ duration: 0.2 }}
             />
           )}
-          {Icon && <Icon className={cn("h-3.5 w-3.5", value === opt.value ? "text-primary" : "text-muted-foreground")} />}
-          <span className={cn("text-xs font-semibold", value === opt.value ? "text-foreground" : "text-muted-foreground")}>{opt.label}</span>
-          {opt.description && <span className="text-[10px] text-muted-foreground leading-tight">{opt.description}</span>}
+          {Icon && <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-foreground/70" : "text-muted-foreground/50")} />}
+          <span className={cn("text-xs font-semibold", isSelected ? "text-foreground" : "text-muted-foreground")}>{opt.label}</span>
+          {opt.description && <span className={cn("text-[10px] leading-tight", isSelected ? "text-muted-foreground" : "text-muted-foreground/60")}>{opt.description}</span>}
         </button>
       );
     })}
