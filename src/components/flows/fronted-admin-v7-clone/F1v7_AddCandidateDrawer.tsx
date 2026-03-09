@@ -16,7 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { toast } from "sonner";
-import { User, Sparkles, MapPin, FileText, Check, ChevronsUpDown, Info, ChevronDown, FileSpreadsheet } from "lucide-react";
+import { User, Sparkles, MapPin, FileText, Check, ChevronsUpDown, Info, ChevronDown, FileSpreadsheet, Bookmark, Trash2 } from "lucide-react";
+import { getWorkerTemplates, deleteWorkerTemplate, type WorkerTemplate } from "./F1v7_WorkerTemplates";
 import { F1v7_CsvBulkUpload } from "./F1v7_CsvBulkUpload";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { getCurrencyCode } from "@/utils/currencyUtils";
@@ -277,6 +278,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
   onSave,
 }) => {
   const [selectedAtsId, setSelectedAtsId] = useState("");
+  const [templates, setTemplates] = useState<WorkerTemplate[]>([]);
   const [formData, setFormData] = useState({
     name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
     country: "", role: "",
@@ -289,6 +291,11 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
   const countryRule = formData.country ? COUNTRY_RULES[formData.country] : null;
   const isContractorOnly = countryRule?.employmentTypes.length === 1 && countryRule.employmentTypes[0] === "contractor";
 
+  // Refresh templates when drawer opens
+  React.useEffect(() => {
+    if (open) setTemplates(getWorkerTemplates());
+  }, [open]);
+
   const handleATSSelect = (value: string) => {
     setSelectedAtsId(value);
     if (value === "manual") {
@@ -298,6 +305,25 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
         probationPeriod: "", noticePeriod: "", annualLeave: "", sickLeave: "",
         weeklyHours: "", payFrequency: "",
       });
+    } else if (value.startsWith("tpl-")) {
+      // Load from saved template — fill engagement fields, leave personal empty
+      const tpl = templates.find(t => t.id === value);
+      if (tpl) {
+        const rule = COUNTRY_RULES[tpl.country];
+        setFormData({
+          name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
+          country: tpl.country, role: tpl.role,
+          employmentType: tpl.employmentType,
+          salary: tpl.salary?.replace(/[^0-9]/g, '') || "",
+          startDate: "",
+          probationPeriod: tpl.probationPeriod || (rule ? String(rule.probation.default) : ""),
+          noticePeriod: tpl.noticePeriod || (rule ? String(rule.noticePeriod.default) : ""),
+          annualLeave: tpl.annualLeave || (rule ? String(rule.annualLeave.default) : ""),
+          sickLeave: tpl.sickLeave || (rule ? String(rule.sickLeave.default) : ""),
+          weeklyHours: tpl.weeklyHours || (rule ? String(rule.weeklyHours.default) : ""),
+          payFrequency: tpl.payFrequency || (rule ? rule.payFrequency.default : ""),
+        });
+      }
     } else {
       const candidate = ATS_CANDIDATES.find(c => c.id === value);
       if (candidate) {
@@ -374,7 +400,8 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
     });
   };
 
-  const isATSSelected = selectedAtsId && selectedAtsId !== "manual";
+  const isATSSelected = selectedAtsId && selectedAtsId !== "manual" && !selectedAtsId.startsWith("tpl-");
+  const isTemplateSelected = selectedAtsId.startsWith("tpl-");
   const showForm = !!selectedAtsId;
   const showContractFields = !!formData.country && !!countryRule;
   const isFormValid = formData.name && formData.email && formData.country && formData.role && formData.salary && formData.startDate && formData.employmentType;
@@ -398,7 +425,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
           <div className="space-y-1.5">
             <Select value={selectedAtsId} onValueChange={handleATSSelect}>
               <SelectTrigger className="h-10 rounded-xl px-5">
-                <SelectValue placeholder="Choose from ATS, CSV, or add manually" />
+                <SelectValue placeholder="Choose from ATS, template, CSV, or add manually" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="manual">
@@ -416,17 +443,42 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                     </Badge>
                   </div>
                 </SelectItem>
-                {ATS_CANDIDATES.map(c => (
-                  <SelectItem key={c.id} value={c.id}>
-                    <div className="flex items-center gap-2">
-                      <span>{COUNTRY_RULES[c.country]?.flag}</span>
-                      <span className="font-medium">{c.name}</span>
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
-                        <Sparkles className="h-2.5 w-2.5 mr-0.5" />ATS
-                      </Badge>
+                {templates.length > 0 && (
+                  <>
+                    <div className="px-2 py-1.5 mt-1 border-t border-border/40">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Saved Templates</p>
                     </div>
-                  </SelectItem>
-                ))}
+                    {templates.map(tpl => (
+                      <SelectItem key={tpl.id} value={tpl.id}>
+                        <div className="flex items-center gap-2">
+                          <Bookmark className="h-3.5 w-3.5 text-primary/70" />
+                          <span className="font-medium">{tpl.name}</span>
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 ml-1">
+                            Template
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
+                {ATS_CANDIDATES.length > 0 && (
+                  <>
+                    <div className="px-2 py-1.5 mt-1 border-t border-border/40">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">From ATS</p>
+                    </div>
+                    {ATS_CANDIDATES.map(c => (
+                      <SelectItem key={c.id} value={c.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{COUNTRY_RULES[c.country]?.flag}</span>
+                          <span className="font-medium">{c.name}</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                            <Sparkles className="h-2.5 w-2.5 mr-0.5" />ATS
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -442,6 +494,31 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
               }}
               onCancel={() => { resetForm(); onOpenChange(false); }}
             />
+          )}
+
+          {/* Template info banner */}
+          {isTemplateSelected && (
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/15 text-xs text-primary"
+            >
+              <Bookmark className="h-3.5 w-3.5 shrink-0" />
+              <span>
+                Contract details pre-filled from template — add personal info below
+              </span>
+              <button
+                className="ml-auto text-destructive/70 hover:text-destructive transition-colors"
+                onClick={() => {
+                  deleteWorkerTemplate(selectedAtsId);
+                  setTemplates(getWorkerTemplates());
+                  handleATSSelect("manual");
+                  toast.info("Template removed");
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </motion.div>
           )}
 
           <AnimatePresence mode="wait">

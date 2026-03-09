@@ -47,6 +47,8 @@ import type { PayrollPayee } from "@/types/payroll";
 import { getChecklistForProfile, countriesRequiringDocVerification, type ChecklistRequirement } from "@/data/candidateChecklistData";
 import { usePayrollState } from "@/hooks/usePayrollState";
 import { useContractorStore } from "@/hooks/useContractorStore";
+import { contractorToTemplate, saveWorkerTemplate } from "./F1v7_WorkerTemplates";
+import { Bookmark } from "lucide-react";
 interface Contractor {
   id: string;
   name: string;
@@ -1377,19 +1379,31 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                           {/* Quick Actions */}
                           <div className="flex gap-2 pt-3">
                           {status === "offer-accepted" && <>
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
-                          e.stopPropagation();
-                          handleOpenConfigure(contractor);
-                        }}>
-                                <Settings className="h-3 w-3" />
-                                Configure
-                              </Button>
-                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
-                          e.stopPropagation();
-                          handleSendForm(contractor.id);
-                        }}>
-                                <Send className="h-3 w-3" />
-                                Send Form
+                              <div className="flex gap-2 w-full">
+                                <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
+                            e.stopPropagation();
+                            handleOpenConfigure(contractor);
+                          }}>
+                                  <Settings className="h-3 w-3" />
+                                  Configure
+                                </Button>
+                                <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
+                            e.stopPropagation();
+                            handleSendForm(contractor.id);
+                          }}>
+                                  <Send className="h-3 w-3" />
+                                  Send Form
+                                </Button>
+                              </div>
+                              <Button variant="ghost" size="sm" className="w-full text-xs h-6 gap-1 text-muted-foreground hover:text-primary" onClick={e => {
+                                e.stopPropagation();
+                                const templateName = `${contractor.role} · ${contractor.country}`;
+                                const template = contractorToTemplate(contractor, templateName);
+                                saveWorkerTemplate(template);
+                                toast.success(`Template "${templateName}" saved`, { description: "Use it when adding new candidates" });
+                              }}>
+                                <Bookmark className="h-3 w-3" />
+                                Save as Template
                               </Button>
                             </>}
                           
