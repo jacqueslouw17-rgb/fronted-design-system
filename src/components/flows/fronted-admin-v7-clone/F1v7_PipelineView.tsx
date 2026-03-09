@@ -1059,6 +1059,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     }
   }, []);
 
+  /** Handle bulk actions triggered from List/Table views */
+  const handleViewBulkAction = useCallback((status: string) => {
+    if (status === "offer-accepted") {
+      handleBulkSendForms();
+    } else if (status === "drafting") {
+      handleBulkDraft();
+    } else if (status === "trigger-onboarding") {
+      handleBulkStartOnboarding();
+    }
+  }, []);
+
   return <div className={cn("pb-4", className)}>
       {/* View mode toggle — minimal, right-aligned */}
       <div className="flex items-center justify-end mb-1.5">
