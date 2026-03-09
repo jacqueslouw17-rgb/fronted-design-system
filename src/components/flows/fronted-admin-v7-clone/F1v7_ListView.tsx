@@ -131,47 +131,40 @@ export const F1v7_ListView: React.FC<ListViewProps> = ({
 
         return (
           <Collapsible key={group.status} defaultOpen>
-            <CollapsibleTrigger className="group w-full">
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: groupIdx * 0.05 }}
-                className="v7-list-group-header"
-              >
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: groupIdx * 0.05 }}
+              className="v7-list-group-header"
+            >
+              <CollapsibleTrigger className="group flex items-center gap-1.5">
                 <ChevronRight className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-90" />
-                {/* Select-all checkbox for selectable groups */}
-                {selectable && onSelectContractor && group.items.length > 0 && (
-                  <Checkbox
-                    checked={allSelected}
-                    onCheckedChange={(checked) => {
-                      // Stop collapsible from toggling
-                      handleSelectAll(group.items, checked as boolean);
-                    }}
-                    className="h-3.5 w-3.5"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                )}
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {group.label}
                 </span>
-                <span className="v7-list-count-badge">{group.items.length}</span>
-                {/* Selected count + bulk action */}
-                {selectable && selectedCount > 0 && bulkCfg && (
-                  <Button
-                    size="sm"
-                    className="h-5 text-[10px] px-2 ml-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onBulkAction?.(group.status);
-                    }}
-                  >
-                    {bulkCfg.icon}
-                    {bulkCfg.label} ({selectedCount})
-                  </Button>
-                )}
-                <div className="h-px flex-1 bg-border/30 ml-2" />
-              </motion.div>
-            </CollapsibleTrigger>
+              </CollapsibleTrigger>
+              {/* Select-all checkbox — outside CollapsibleTrigger to avoid button-in-button */}
+              {selectable && onSelectContractor && group.items.length > 0 && (
+                <Checkbox
+                  checked={allSelected}
+                  onCheckedChange={(checked) => handleSelectAll(group.items, checked as boolean)}
+                  className="h-3.5 w-3.5 ml-1"
+                />
+              )}
+              <span className="v7-list-count-badge">{group.items.length}</span>
+              {/* Selected count + bulk action */}
+              {selectable && selectedCount > 0 && bulkCfg && (
+                <Button
+                  size="sm"
+                  className="h-5 text-[10px] px-2 ml-1"
+                  onClick={() => onBulkAction?.(group.status)}
+                >
+                  {bulkCfg.icon}
+                  {bulkCfg.label} ({selectedCount})
+                </Button>
+              )}
+              <div className="h-px flex-1 bg-border/30 ml-2" />
+            </motion.div>
             <CollapsibleContent>
               <div className="v7-list-rows">
                 <AnimatePresence>
