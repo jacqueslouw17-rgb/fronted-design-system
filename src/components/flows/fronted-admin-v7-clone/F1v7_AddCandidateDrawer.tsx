@@ -5,7 +5,7 @@
  * ISOLATED: Changes here do NOT affect v4 or any other flow.
  */
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { toast } from "sonner";
-import { User, Sparkles, MapPin, FileText, Check, ChevronsUpDown, Info, ChevronDown } from "lucide-react";
+import { User, Sparkles, MapPin, FileText, Check, ChevronsUpDown, Info, ChevronDown, FileSpreadsheet } from "lucide-react";
+import { F1v7_CsvBulkUpload } from "./F1v7_CsvBulkUpload";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { getCurrencyCode } from "@/utils/currencyUtils";
 import { cn } from "@/lib/utils";
@@ -397,13 +398,22 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
           <div className="space-y-1.5">
             <Select value={selectedAtsId} onValueChange={handleATSSelect}>
               <SelectTrigger className="h-10 rounded-xl px-5">
-                <SelectValue placeholder="Choose from ATS or add manually" />
+                <SelectValue placeholder="Choose from ATS, CSV, or add manually" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="manual">
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span>Enter manually</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="csv-upload">
+                  <div className="flex items-center gap-2">
+                    <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+                    <span>Bulk import from CSV</span>
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                      Bulk
+                    </Badge>
                   </div>
                 </SelectItem>
                 {ATS_CANDIDATES.map(c => (
@@ -421,8 +431,21 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
             </Select>
           </div>
 
+          {/* CSV Bulk Upload Mode */}
+          {selectedAtsId === "csv-upload" && (
+            <F1v7_CsvBulkUpload
+              onImport={(workers) => {
+                workers.forEach((w: any) => onSave(w));
+                toast.success(`✅ ${workers.length} worker${workers.length !== 1 ? "s" : ""} added to pipeline`);
+                resetForm();
+                onOpenChange(false);
+              }}
+              onCancel={() => { resetForm(); onOpenChange(false); }}
+            />
+          )}
+
           <AnimatePresence mode="wait">
-            {showForm && (
+            {showForm && selectedAtsId !== "csv-upload" && (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
