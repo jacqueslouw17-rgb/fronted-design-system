@@ -233,6 +233,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     if (saved === "board" || saved === "list" || saved === "table") return saved;
     return initialViewMode;
   });
+  const handleSetViewMode = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+    sessionStorage.setItem("f1v7-view-mode", mode);
+  }, []);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [configureDrawerOpen, setConfigureDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
