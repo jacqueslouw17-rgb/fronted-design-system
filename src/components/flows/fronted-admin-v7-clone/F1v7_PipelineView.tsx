@@ -12,7 +12,7 @@ import "@/styles/v7-glass-theme.css";
 import React, { useState, useEffect, useCallback } from "react";
 import { F1v7_ViewToggle, type ViewMode } from "./F1v7_ViewToggle";
 import { F1v7_ListView } from "./F1v7_ListView";
-import { F1v7_TableView } from "./F1v7_TableView";
+
 import { getCurrencyCode } from "@/utils/currencyUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -230,7 +230,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const saved = sessionStorage.getItem("f1v7-view-mode");
-    if (saved === "board" || saved === "list" || saved === "table") return saved;
+    if (saved === "board" || saved === "list") return saved;
     return initialViewMode;
   });
   const handleSetViewMode = useCallback((mode: ViewMode) => {
@@ -1105,23 +1105,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         </motion.div>
       )}
 
-      {/* Table View */}
-      {viewMode === "table" && (
-        <motion.div
-          key="table"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          <F1v7_TableView
-            contractors={contractors}
-            onWorkerClick={handleListOrTableWorkerClick}
-            selectedIds={selectedIds}
-            onSelectContractor={handleSelectContractor}
-            onBulkAction={handleViewBulkAction}
-          />
-        </motion.div>
-      )}
 
       {/* Board View (existing Kanban) */}
       {viewMode === "board" && <div className="overflow-x-auto">

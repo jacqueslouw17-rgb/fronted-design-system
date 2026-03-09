@@ -3,10 +3,10 @@
  * ISOLATED: Only used in Flow 1 v7 (Future)
  */
 import React from "react";
-import { LayoutGrid, List, Table2 } from "lucide-react";
+import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type ViewMode = "board" | "list" | "table";
+export type ViewMode = "board" | "list";
 
 interface ViewToggleProps {
   value: ViewMode;
@@ -16,7 +16,6 @@ interface ViewToggleProps {
 const modes: { key: ViewMode; icon: React.ElementType; label: string }[] = [
   { key: "board", icon: LayoutGrid, label: "Board" },
   { key: "list", icon: List, label: "List" },
-  { key: "table", icon: Table2, label: "Table" },
 ];
 
 export const F1v7_ViewToggle: React.FC<ViewToggleProps> = ({ value, onChange }) => {
