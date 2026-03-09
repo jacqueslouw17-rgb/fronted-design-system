@@ -213,7 +213,14 @@ const F1v4_EmbeddedAdminOnboarding = ({
   const activeStep = FLOW_STEPS[currentStep];
 
   const getStepTitle = () => {
-    if (isEditMode) return editModeTitle || "Edit Company";
+    if (isEditMode) {
+      switch (activeStep.id) {
+        case "org_profile": return editModeTitle || "Edit Company";
+        case "policy_setup": return "Update the rules";
+        case "policy_summary": return "Review & confirm";
+        default: return "Edit";
+      }
+    }
     switch (activeStep.id) {
       case "org_profile": return "Add new client";
       case "policy_setup": return "Set the rules";
@@ -223,7 +230,14 @@ const F1v4_EmbeddedAdminOnboarding = ({
   };
 
   const getStepSubtitle = () => {
-    if (isEditMode) return "Update your company details below.";
+    if (isEditMode) {
+      switch (activeStep.id) {
+        case "org_profile": return "Update your company details below.";
+        case "policy_setup": return "Review and adjust what your AI agent can auto-handle vs escalate.";
+        case "policy_summary": return "Here's how your agent will run this client's operations.";
+        default: return "";
+      }
+    }
     switch (activeStep.id) {
       case "org_profile": return "Basic client details to get started.";
       case "policy_setup": return "Define what your AI agent can auto-handle vs escalate.";
