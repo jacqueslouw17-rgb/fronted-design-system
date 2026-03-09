@@ -1048,6 +1048,14 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       handleOpenConfigure(contractor);
     } else if (contractor.status === "drafting") {
       handleOpenDocumentBundle(contractor);
+    } else if (contractor.status === "offer-accepted") {
+      handleOpenConfigure(contractor);
+    } else if (contractor.status === "trigger-onboarding") {
+      setSelectedForPayrollCollection(contractor);
+      setPayrollCollectionDrawerOpen(true);
+    } else if (contractor.status === "onboarding-pending") {
+      setSelectedForPayrollCollection(contractor);
+      setPayrollCollectionDrawerOpen(true);
     }
   }, []);
 
