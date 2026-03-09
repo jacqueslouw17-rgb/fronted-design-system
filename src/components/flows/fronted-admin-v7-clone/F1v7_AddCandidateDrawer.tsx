@@ -278,6 +278,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
   onSave,
 }) => {
   const [selectedAtsId, setSelectedAtsId] = useState("");
+  const [templates, setTemplates] = useState<WorkerTemplate[]>([]);
   const [formData, setFormData] = useState({
     name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
     country: "", role: "",
