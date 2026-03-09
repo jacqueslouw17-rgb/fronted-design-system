@@ -322,10 +322,10 @@ export const F1v7_CsvBulkUpload: React.FC<CsvBulkUploadProps> = ({ onImport, onC
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">
-                {dragOver ? "Drop your CSV here" : "Drag & drop a CSV file"}
+                {dragOver ? "Drop your file here" : "Drag & drop a CSV or Excel file"}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                or <span className="text-primary underline underline-offset-2">browse files</span> — max 2MB
+                or <span className="text-primary underline underline-offset-2">browse files</span> · .csv, .xlsx — max 5MB
               </p>
             </div>
           </div>
