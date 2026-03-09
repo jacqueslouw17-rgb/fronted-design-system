@@ -3,6 +3,7 @@
  * ISOLATED: Only used in Flow 1 v7 (Future)
  */
 import React, { useState, useCallback, useRef } from "react";
+import * as XLSX from "xlsx";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
