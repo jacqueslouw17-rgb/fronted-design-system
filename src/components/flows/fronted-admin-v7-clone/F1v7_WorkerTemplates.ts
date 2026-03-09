@@ -36,15 +36,19 @@ export function getWorkerTemplates(): WorkerTemplate[] {
   }
 }
 
+export const TEMPLATES_CHANGED_EVENT = "v7-worker-templates-changed";
+
 export function saveWorkerTemplate(template: WorkerTemplate): void {
   const templates = getWorkerTemplates();
   templates.unshift(template);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
+  window.dispatchEvent(new Event(TEMPLATES_CHANGED_EVENT));
 }
 
 export function deleteWorkerTemplate(id: string): void {
   const templates = getWorkerTemplates().filter(t => t.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
+  window.dispatchEvent(new Event(TEMPLATES_CHANGED_EVENT));
 }
 
 /** Build a template from a contractor object (strips personal details) */
