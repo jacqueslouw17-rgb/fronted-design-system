@@ -200,7 +200,7 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({
               animate={{ opacity: 1 }}
               transition={{ delay: idx * 0.015 }}
               className={cn(
-                "v7-table-row group/trow",
+                "v7-table-row group",
                 contractor.workerStatus && contractor.workerStatus !== "active" && "opacity-60"
               )}
               onClick={() => onWorkerClick?.(contractor)}
@@ -212,7 +212,7 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({
                     "shrink-0 flex items-center justify-center overflow-hidden transition-all duration-200 ease-out",
                     isSelected
                       ? "w-5 opacity-100"
-                      : "w-0 opacity-0 group-hover/trow:w-5 group-hover/trow:opacity-100"
+                      : "w-0 opacity-0 group-hover:w-5 group-hover:opacity-100"
                   )}>
                     <Checkbox
                       checked={isSelected}
@@ -289,7 +289,7 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 opacity-0 group-hover/trow:opacity-100 transition-opacity"
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                   onClick={(e) => {
                     e.stopPropagation();
                     onWorkerClick?.(contractor);
