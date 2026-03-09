@@ -569,6 +569,7 @@ const MOCK_PERIODS_BASE: PayrollPeriod[] = [
 export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   company,
   initialStep,
+  isAllClients = false,
 }) => {
 
   // Period view state - default to first "in-review" run
@@ -596,9 +597,12 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Custom batch state
   const [customBatches, setCustomBatches] = useState<PayrollPeriod[]>([]);
 
-  // Get current run metrics and submissions
-  const currentRunMetrics = RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"];
-  const currentRunSubmissions = deduplicateByWorker(RUN_SUBMISSIONS[selectedPeriodId] || MOCK_SUBMISSIONS);
+  // Get current run metrics and submissions - use aggregate data when in All Clients mode
+  const allClientsMetrics = ALL_CLIENTS_METRICS[selectedPeriodId] || ALL_CLIENTS_METRICS["jan-monthly"];
+  const currentRunMetrics = isAllClients ? allClientsMetrics : (RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"]);
+  const currentRunSubmissions = isAllClients
+    ? deduplicateByWorker(ALL_CLIENTS_SUBMISSIONS[selectedPeriodId] || ALL_CLIENTS_SUBMISSIONS["jan-monthly"] || MOCK_SUBMISSIONS)
+    : deduplicateByWorker(RUN_SUBMISSIONS[selectedPeriodId] || MOCK_SUBMISSIONS);
   
   // Dynamic periods - include custom batches
   const periods = useMemo(() => {
