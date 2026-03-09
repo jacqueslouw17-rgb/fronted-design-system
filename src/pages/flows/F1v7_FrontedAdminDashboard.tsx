@@ -1156,14 +1156,6 @@ const AdminContractingMultiCompany = () => {
                             setTimeout(() => setShowContractSignedMessage(false), 2000);
                           }}
                         />
-                      ) : activeMainTab === "payroll" ? (
-                        <AgentHeader
-                          title="Fronted Admin · Payroll"
-                          subtitle="Review all company payrolls, resolve exceptions, and approve numbers."
-                          showPulse={true}
-                          isActive={false}
-                          showInput={false}
-                        />
                       ) : (
                         /* ═══════════════════════════════════════════════════════
                          *  VISIONARY HEADER — Company selector + stat pills
