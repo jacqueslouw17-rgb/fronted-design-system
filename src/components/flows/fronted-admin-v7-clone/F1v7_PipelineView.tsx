@@ -1599,6 +1599,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               </motion.div>;
       })}
         </div>
+      </div>}
 
       {/* Configuration Drawer */}
       <F1v4_OnboardingFormDrawer open={configureDrawerOpen} onOpenChange={setConfigureDrawerOpen} candidate={selectedContractor ? {
