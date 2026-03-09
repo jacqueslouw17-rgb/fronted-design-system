@@ -424,7 +424,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
           <div className="space-y-1.5">
             <Select value={selectedAtsId} onValueChange={handleATSSelect}>
               <SelectTrigger className="h-10 rounded-xl px-5">
-                <SelectValue placeholder="Choose from ATS, CSV, or add manually" />
+                <SelectValue placeholder="Choose from ATS, template, CSV, or add manually" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="manual">
@@ -442,17 +442,42 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                     </Badge>
                   </div>
                 </SelectItem>
-                {ATS_CANDIDATES.map(c => (
-                  <SelectItem key={c.id} value={c.id}>
-                    <div className="flex items-center gap-2">
-                      <span>{COUNTRY_RULES[c.country]?.flag}</span>
-                      <span className="font-medium">{c.name}</span>
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
-                        <Sparkles className="h-2.5 w-2.5 mr-0.5" />ATS
-                      </Badge>
+                {templates.length > 0 && (
+                  <>
+                    <div className="px-2 py-1.5 mt-1 border-t border-border/40">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Saved Templates</p>
                     </div>
-                  </SelectItem>
-                ))}
+                    {templates.map(tpl => (
+                      <SelectItem key={tpl.id} value={tpl.id}>
+                        <div className="flex items-center gap-2">
+                          <Bookmark className="h-3.5 w-3.5 text-primary/70" />
+                          <span className="font-medium">{tpl.name}</span>
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 ml-1">
+                            Template
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
+                {ATS_CANDIDATES.length > 0 && (
+                  <>
+                    <div className="px-2 py-1.5 mt-1 border-t border-border/40">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">From ATS</p>
+                    </div>
+                    {ATS_CANDIDATES.map(c => (
+                      <SelectItem key={c.id} value={c.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{COUNTRY_RULES[c.country]?.flag}</span>
+                          <span className="font-medium">{c.name}</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                            <Sparkles className="h-2.5 w-2.5 mr-0.5" />ATS
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
               </SelectContent>
             </Select>
           </div>
