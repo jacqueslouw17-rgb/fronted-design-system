@@ -65,6 +65,7 @@ interface CompanyData {
   defaultCurrency?: string;
   payrollCurrency?: string[];
   payoutDay?: string;
+  policies?: Record<string, any>;
 }
 
 const MOCK_COMPANIES: CompanyData[] = [
