@@ -305,11 +305,11 @@ const F1v4_EmbeddedAdminOnboarding = ({
                   <button
                     type="button"
                     onClick={() => {
-                      if (completedSteps.has(step.id) || idx <= currentStep) {
+                      if (isEditMode || completedSteps.has(step.id) || idx <= currentStep) {
                         setCurrentStep(idx);
                       }
                     }}
-                    disabled={!completedSteps.has(step.id) && idx > currentStep}
+                    disabled={!isEditMode && !completedSteps.has(step.id) && idx > currentStep}
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 border",
                       idx === currentStep
