@@ -11,21 +11,18 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { AnimatePresence, motion } from "framer-motion";
-import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import { cn } from "@/lib/utils";
 import { CheckCircle2 } from "lucide-react";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { toast } from "sonner";
 
-import StepAccountDetails from "@/components/flows/onboarding/StepAccountDetails";
+import F5v3_AccountDetailsStep from "@/components/flows/flow5-v3/F5v3_AccountDetailsStep";
 import F5v3_PolicySetupStep from "@/components/flows/flow5-v3/F5v3_PolicySetupStep";
 
 const FLOW_STEPS = [
@@ -118,7 +115,7 @@ const CompanyAdminOnboardingV3 = () => {
     switch (activeStep.id) {
       case "account_details":
         return (
-          <StepAccountDetails
+          <F5v3_AccountDetailsStep
             formData={formData}
             onComplete={handleStepComplete}
             isProcessing={isProcessing}
@@ -236,7 +233,7 @@ const CompanyAdminOnboardingV3 = () => {
             </motion.div>
           </div>
 
-          {/* Step Content — hide redundant heading from shared component */}
+          {/* Step Content */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeStep.id}
@@ -244,7 +241,6 @@ const CompanyAdminOnboardingV3 = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="[&>div>div:first-child]:hidden"
             >
               {renderStepContent()}
             </motion.div>
