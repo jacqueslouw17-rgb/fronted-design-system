@@ -98,6 +98,7 @@ interface PipelineViewProps {
   mode?: "certified" | "payroll-ready" | "full-pipeline-with-payroll";
   onAddCandidate?: () => void;
   onRemoveContractor?: (contractor: Contractor) => void;
+  initialViewMode?: ViewMode;
 }
 const statusConfig = {
   "offer-accepted": {
