@@ -510,6 +510,16 @@ const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
   ],
 };
 
+// "All Clients" aggregated submissions — merges all companies with companyName tags
+const ALL_CLIENTS_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
+  "jan-monthly": [
+    ...MOCK_SUBMISSIONS.map(s => ({ ...s, companyName: "Acme Corp" })),
+    ...GLOBEX_SUBMISSIONS,
+    ...INITECH_SUBMISSIONS,
+    ...WAYSTAR_SUBMISSIONS,
+  ],
+};
+
 // Multiple runs can be "in-review" simultaneously
 const MOCK_PERIODS_BASE: PayrollPeriod[] = [
   // Current active runs (can have multiple in-review)
