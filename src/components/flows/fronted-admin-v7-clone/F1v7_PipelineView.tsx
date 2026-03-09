@@ -47,7 +47,7 @@ import type { PayrollPayee } from "@/types/payroll";
 import { getChecklistForProfile, countriesRequiringDocVerification, type ChecklistRequirement } from "@/data/candidateChecklistData";
 import { usePayrollState } from "@/hooks/usePayrollState";
 import { useContractorStore } from "@/hooks/useContractorStore";
-import { contractorToTemplate, saveWorkerTemplate } from "./F1v7_WorkerTemplates";
+import { contractorToTemplate, saveWorkerTemplate, getWorkerTemplates } from "./F1v7_WorkerTemplates";
 import { Bookmark } from "lucide-react";
 interface Contractor {
   id: string;
