@@ -291,6 +291,11 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
   const countryRule = formData.country ? COUNTRY_RULES[formData.country] : null;
   const isContractorOnly = countryRule?.employmentTypes.length === 1 && countryRule.employmentTypes[0] === "contractor";
 
+  // Refresh templates when drawer opens
+  React.useEffect(() => {
+    if (open) setTemplates(getWorkerTemplates());
+  }, [open]);
+
   const handleATSSelect = (value: string) => {
     setSelectedAtsId(value);
     if (value === "manual") {
@@ -300,6 +305,25 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
         probationPeriod: "", noticePeriod: "", annualLeave: "", sickLeave: "",
         weeklyHours: "", payFrequency: "",
       });
+    } else if (value.startsWith("tpl-")) {
+      // Load from saved template — fill engagement fields, leave personal empty
+      const tpl = templates.find(t => t.id === value);
+      if (tpl) {
+        const rule = COUNTRY_RULES[tpl.country];
+        setFormData({
+          name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
+          country: tpl.country, role: tpl.role,
+          employmentType: tpl.employmentType,
+          salary: tpl.salary?.replace(/[^0-9]/g, '') || "",
+          startDate: "",
+          probationPeriod: tpl.probationPeriod || (rule ? String(rule.probation.default) : ""),
+          noticePeriod: tpl.noticePeriod || (rule ? String(rule.noticePeriod.default) : ""),
+          annualLeave: tpl.annualLeave || (rule ? String(rule.annualLeave.default) : ""),
+          sickLeave: tpl.sickLeave || (rule ? String(rule.sickLeave.default) : ""),
+          weeklyHours: tpl.weeklyHours || (rule ? String(rule.weeklyHours.default) : ""),
+          payFrequency: tpl.payFrequency || (rule ? rule.payFrequency.default : ""),
+        });
+      }
     } else {
       const candidate = ATS_CANDIDATES.find(c => c.id === value);
       if (candidate) {
