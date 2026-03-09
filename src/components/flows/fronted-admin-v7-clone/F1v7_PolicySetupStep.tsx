@@ -163,20 +163,26 @@ const PillSelect = <T extends string>({
           type="button"
           onClick={() => onChange(opt.value)}
           className={cn(
-            "relative flex flex-col items-start gap-1.5 rounded-xl p-3 text-left transition-all duration-200 border",
+            "relative flex flex-col items-start gap-1.5 rounded-xl p-3 text-left transition-all duration-200",
             isSelected
-              ? "border-primary/20 bg-primary/[0.04] shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
-              : "border-border/20 bg-background/20 hover:border-primary/10 hover:bg-primary/[0.02]"
+              ? "shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
+              : "hover:shadow-sm"
           )}
+          style={
+            isSelected
+              ? { border: '1px solid hsl(172 28% 42% / 0.18)', background: 'hsl(172 28% 42% / 0.04)' }
+              : { border: '1px solid hsl(0 0% 0% / 0.06)', background: 'hsl(0 0% 100% / 0.2)' }
+          }
         >
           {isSelected && (
             <motion.div
               layoutId="pill-indicator"
-              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-primary/50"
+              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full"
+              style={{ background: 'hsl(172 28% 42% / 0.45)' }}
               transition={{ duration: 0.2 }}
             />
           )}
-          {Icon && <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary/70" : "text-muted-foreground/40")} />}
+          {Icon && <Icon className="h-3.5 w-3.5" style={{ color: isSelected ? 'hsl(172 28% 42% / 0.6)' : 'hsl(0 0% 0% / 0.25)' }} />}
           <span className={cn("text-xs font-semibold", isSelected ? "text-foreground" : "text-muted-foreground/80")}>{opt.label}</span>
           {opt.description && <span className={cn("text-[10px] leading-tight", isSelected ? "text-muted-foreground/80" : "text-muted-foreground/50")}>{opt.description}</span>}
         </button>
