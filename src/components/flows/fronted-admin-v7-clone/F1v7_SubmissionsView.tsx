@@ -819,6 +819,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
           <div className="flex items-center gap-2">
             <span className={cn("text-sm font-medium text-foreground truncate", isExcluded && "line-through")}>{submission.workerName}</span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+            {submission.companyName && (
+              <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium bg-muted text-muted-foreground border border-border/40 shrink-0 truncate max-w-[100px]">
+                {submission.companyName}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[submission.workerCountry] || ""} {submission.workerCountry}</span>
