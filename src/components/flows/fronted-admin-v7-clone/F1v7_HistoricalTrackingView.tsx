@@ -22,6 +22,7 @@ export interface HistoricalWorker {
   currency: string;
   status: "paid" | "posted";
   providerRef: string;
+  companyName?: string;
 }
 
 interface F1v4_HistoricalTrackingViewProps {
@@ -31,12 +32,13 @@ interface F1v4_HistoricalTrackingViewProps {
 
 // Mock historical workers data
 const HISTORICAL_WORKERS: HistoricalWorker[] = [
-  { id: "1", name: "Marcus Chen", country: "Singapore", type: "contractor", amount: 12000, currency: "SGD", status: "paid", providerRef: "PAY-2025-112234" },
-  { id: "2", name: "Sofia Rodriguez", country: "Spain", type: "contractor", amount: 6500, currency: "EUR", status: "paid", providerRef: "PAY-2025-112235" },
-  { id: "3", name: "Maria Santos", country: "Philippines", type: "employee", amount: 280000, currency: "PHP", status: "paid", providerRef: "PAY-2025-112236" },
-  { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 65000, currency: "NOK", status: "paid", providerRef: "PAY-2025-112237" },
-  { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 72000, currency: "NOK", status: "paid", providerRef: "PAY-2025-112238" },
-  { id: "6", name: "Jonas Schmidt", country: "Germany", type: "employee", amount: 5800, currency: "EUR", status: "posted", providerRef: "PAY-2025-112239" },
+  { id: "1", name: "Marcus Chen", country: "Singapore", type: "contractor", amount: 12000, currency: "SGD", status: "paid", providerRef: "PAY-2025-112234", companyName: "Acme Corp" },
+  { id: "2", name: "Sofia Rodriguez", country: "Spain", type: "contractor", amount: 6500, currency: "EUR", status: "paid", providerRef: "PAY-2025-112235", companyName: "Acme Corp" },
+  { id: "3", name: "Maria Santos", country: "Philippines", type: "employee", amount: 280000, currency: "PHP", status: "paid", providerRef: "PAY-2025-112236", companyName: "Globex Inc" },
+  { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 65000, currency: "NOK", status: "paid", providerRef: "PAY-2025-112237", companyName: "Globex Inc" },
+  { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 72000, currency: "NOK", status: "paid", providerRef: "PAY-2025-112238", companyName: "Waystar Royco" },
+  { id: "6", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4200, currency: "EUR", status: "paid", providerRef: "PAY-2025-112139", companyName: "Initech Ltd" },
+  { id: "7", name: "Jonas Schmidt", country: "Germany", type: "employee", amount: 5800, currency: "EUR", status: "paid", providerRef: "PAY-2025-112239", companyName: "Initech Ltd" },
 ];
 
 const countryFlags: Record<string, string> = {
@@ -110,6 +112,11 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
                     <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                    {worker.companyName && (
+                      <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium bg-muted text-muted-foreground border border-border/40 shrink-0 truncate max-w-[100px]">
+                        {worker.companyName}
+                      </span>
+                    )}
                     <span className="text-[11px] text-muted-foreground">· {countryFlags[worker.country] || ""} {worker.country}</span>
                   </div>
                 </div>
