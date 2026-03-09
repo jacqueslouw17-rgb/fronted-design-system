@@ -184,10 +184,10 @@ export const F1v7_ListView: React.FC<ListViewProps> = ({
                       {/* Checkbox — visible on hover for selectable statuses */}
                       {selectable && onSelectContractor ? (
                         <div className={cn(
-                          "shrink-0 transition-all duration-150",
+                          "w-5 shrink-0 flex items-center justify-center transition-opacity duration-150",
                           selectedIds.has(contractor.id)
-                            ? "w-5 opacity-100"
-                            : "w-0 opacity-0 group-hover/row:w-5 group-hover/row:opacity-100"
+                            ? "opacity-100"
+                            : "opacity-0 group-hover/row:opacity-100"
                         )}>
                           <Checkbox
                             checked={selectedIds.has(contractor.id)}
