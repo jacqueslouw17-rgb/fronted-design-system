@@ -518,6 +518,13 @@ const AdminContractingMultiCompany = () => {
     });
   }, [isAllClientsMode, companyContractors, companies]);
 
+  // Compute employee/contractor counts for the active view
+  const activeContractorsList = isAllClientsMode
+    ? allClientsContractors
+    : (companyContractors[selectedCompany] || []);
+  const employeeCount = activeContractorsList.filter(c => c.employmentType === "employee").length;
+  const contractorCount = activeContractorsList.filter(c => c.employmentType !== "employee").length;
+
   // Persist companies to localStorage
   useEffect(() => {
     localStorage.setItem('adminflow-v7-companies', JSON.stringify(companies));
