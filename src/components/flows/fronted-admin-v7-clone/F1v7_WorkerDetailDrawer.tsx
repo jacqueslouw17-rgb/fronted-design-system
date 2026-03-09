@@ -90,6 +90,7 @@ export interface WorkerData {
   paymentStatus?: "paid" | "in-progress";
   providerRef?: string;
   receiptUrl?: string;
+  companyName?: string;
 }
 
 interface F1v4_WorkerDetailDrawerProps {
