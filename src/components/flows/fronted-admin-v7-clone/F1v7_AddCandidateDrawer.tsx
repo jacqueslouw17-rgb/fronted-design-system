@@ -398,13 +398,22 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
           <div className="space-y-1.5">
             <Select value={selectedAtsId} onValueChange={handleATSSelect}>
               <SelectTrigger className="h-10 rounded-xl px-5">
-                <SelectValue placeholder="Choose from ATS or add manually" />
+                <SelectValue placeholder="Choose from ATS, CSV, or add manually" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="manual">
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span>Enter manually</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="csv-upload">
+                  <div className="flex items-center gap-2">
+                    <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+                    <span>Bulk import from CSV</span>
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                      Bulk
+                    </Badge>
                   </div>
                 </SelectItem>
                 {ATS_CANDIDATES.map(c => (
