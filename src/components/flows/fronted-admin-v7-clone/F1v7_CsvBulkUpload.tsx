@@ -3,6 +3,7 @@
  * ISOLATED: Only used in Flow 1 v7 (Future)
  */
 import React, { useState, useCallback, useRef } from "react";
+import * as XLSX from "xlsx";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -181,31 +182,50 @@ export const F1v7_CsvBulkUpload: React.FC<CsvBulkUploadProps> = ({ onImport, onC
   const [showErrors, setShowErrors] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = useCallback((file: File) => {
-    if (!file.name.endsWith(".csv")) {
-      toast.error("Please upload a .csv file");
-      return;
+  const processText = useCallback((text: string) => {
+    const { workers, errors } = parseWorkers(text);
+    setParsedWorkers(workers);
+    setGlobalErrors(errors);
+    if (errors.length > 0) {
+      toast.error(errors[0]);
+    } else if (workers.length === 0) {
+      toast.error("No workers found");
+    } else {
+      toast.success(`Found ${workers.length} worker${workers.length > 1 ? "s" : ""}`);
     }
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("File too large — max 2MB");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      const { workers, errors } = parseWorkers(text);
-      setParsedWorkers(workers);
-      setGlobalErrors(errors);
-      if (errors.length > 0) {
-        toast.error(errors[0]);
-      } else if (workers.length === 0) {
-        toast.error("No workers found in CSV");
-      } else {
-        toast.success(`Found ${workers.length} worker${workers.length > 1 ? "s" : ""}`);
-      }
-    };
-    reader.readAsText(file);
   }, []);
+
+  const handleFile = useCallback((file: File) => {
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (!["csv", "xlsx", "xls"].includes(ext || "")) {
+      toast.error("Please upload a .csv or .xlsx file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File too large — max 5MB");
+      return;
+    }
+
+    if (ext === "xlsx" || ext === "xls") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const csvText = XLSX.utils.sheet_to_csv(sheet);
+          processText(csvText);
+        } catch {
+          toast.error("Could not read spreadsheet — check the format");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => processText(e.target?.result as string);
+      reader.readAsText(file);
+    }
+  }, [processText]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -285,7 +305,7 @@ export const F1v7_CsvBulkUpload: React.FC<CsvBulkUploadProps> = ({ onImport, onC
           <input
             ref={inputRef}
             type="file"
-            accept=".csv"
+            accept=".csv,.xlsx,.xls"
             className="hidden"
             onChange={handleFileInput}
           />
@@ -302,10 +322,10 @@ export const F1v7_CsvBulkUpload: React.FC<CsvBulkUploadProps> = ({ onImport, onC
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">
-                {dragOver ? "Drop your CSV here" : "Drag & drop a CSV file"}
+                {dragOver ? "Drop your file here" : "Drag & drop a CSV or Excel file"}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                or <span className="text-primary underline underline-offset-2">browse files</span> — max 2MB
+                or <span className="text-primary underline underline-offset-2">browse files</span> · .csv, .xlsx — max 5MB
               </p>
             </div>
           </div>
