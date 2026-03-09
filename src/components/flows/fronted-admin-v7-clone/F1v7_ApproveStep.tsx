@@ -467,7 +467,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                       return (
                         <button
                           key={name}
-                          onClick={() => setSelectedClient(name)}
+                          onClick={() => setSelectedClients([name])}
                           className="flex items-center justify-between w-full text-xs px-2 py-1.5 rounded-md hover:bg-muted/40 transition-colors group"
                         >
                           <span className="flex items-center gap-1.5">
