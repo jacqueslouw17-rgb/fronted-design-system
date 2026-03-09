@@ -7,7 +7,7 @@
 
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -390,14 +390,17 @@ const F5v3_PolicySetupStep = ({ formData, onComplete, isProcessing }: PolicySetu
         </PolicySection>
       </div>
 
-      <Button 
+      <button 
         onClick={handleContinue} 
-        size="lg" 
-        className="w-full bg-primary hover:bg-primary/90" 
         disabled={isProcessing || !allComplete}
+        className="w-full h-12 rounded-xl text-sm font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+        style={{
+          background: 'linear-gradient(135deg, hsl(172 28% 38%), hsl(172 32% 48%))',
+          boxShadow: allComplete && !isProcessing ? '0 4px 14px -3px hsl(172 28% 42% / 0.35)' : 'none',
+        }}
       >
-        {isProcessing ? "Saving..." : "Continue"}
-      </Button>
+        {isProcessing ? "Saving..." : "Complete setup"}
+      </button>
     </div>
   );
 };

@@ -6,7 +6,6 @@
  */
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -161,15 +160,18 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
         </div>
       </div>
 
-      <Button
+      <button
         onClick={handleContinue}
         disabled={!isValid || isProcessing}
-        className="w-full"
-        size="lg"
+        className="w-full h-12 rounded-xl text-sm font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+        style={{
+          background: 'linear-gradient(135deg, hsl(172 28% 38%), hsl(172 32% 48%))',
+          boxShadow: isValid && !isProcessing ? '0 4px 14px -3px hsl(172 28% 42% / 0.35)' : 'none',
+        }}
       >
         {isProcessing ? "Processing..." : "Continue"}
-        <ArrowRight className="ml-2 h-4 w-4" />
-      </Button>
+        <ArrowRight className="h-4 w-4" />
+      </button>
 
       {/* Terms Sheet */}
       <Sheet open={termsSheetOpen} onOpenChange={setTermsSheetOpen}>
@@ -220,15 +222,19 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
               </p>
             </section>
             <div className="pt-4 pb-2">
-              <Button
+              <button
                 onClick={() => {
                   setTermsAccepted(true);
                   setTermsSheetOpen(false);
                 }}
-                className="w-full"
+                className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg active:scale-[0.98]"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(172 28% 38%), hsl(172 32% 48%))',
+                  boxShadow: '0 4px 14px -3px hsl(172 28% 42% / 0.35)',
+                }}
               >
                 I agree
-              </Button>
+              </button>
             </div>
           </div>
         </SheetContent>
