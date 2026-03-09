@@ -1232,7 +1232,7 @@ const AdminContractingMultiCompany = () => {
                                       <CommandEmpty>
                                         <div className="flex flex-col items-center gap-3 py-4 px-3">
                                           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                            <Plus className="h-4.5 w-4.5 text-primary" />
+                                            <FileCheck className="h-4 w-4 text-primary" />
                                           </div>
                                           <div className="text-center space-y-0.5">
                                             <p className="text-sm font-medium text-foreground">No matching client</p>
