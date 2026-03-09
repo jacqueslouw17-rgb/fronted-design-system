@@ -34,10 +34,10 @@ const FLOW_STEPS = [
 interface EmbeddedAdminOnboardingProps {
   onComplete: (companyName: string, companyData?: Record<string, any>) => void;
   onCancel: () => void;
-  // Edit mode props
   isEditMode?: boolean;
   editModeTitle?: string;
   initialData?: Record<string, any>;
+  initialPolicyData?: Record<string, any>;
   hasSignedContract?: boolean;
   hasCandidates?: boolean;
   companyId?: string;
@@ -50,6 +50,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
   isEditMode = false,
   editModeTitle,
   initialData,
+  initialPolicyData,
   hasSignedContract = false,
   hasCandidates = false,
   companyId,
@@ -69,7 +70,13 @@ const F1v4_EmbeddedAdminOnboarding = ({
 
   // Multi-step state for v7
   const [currentStep, setCurrentStep] = useState(0);
-  const [stepData, setStepData] = useState<Record<string, Record<string, any>>>({});
+  const [stepData, setStepData] = useState<Record<string, Record<string, any>>>(() => {
+    const initial: Record<string, Record<string, any>> = {};
+    if (isEditMode && initialPolicyData) {
+      initial["policy_setup"] = initialPolicyData;
+    }
+    return initial;
+  });
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
   // Sync local speaking state with agent state
@@ -112,10 +119,11 @@ const F1v4_EmbeddedAdminOnboarding = ({
     completeStep(stepId);
     setCompletedSteps(prev => new Set(prev).add(stepId));
 
-    // In edit mode, complete immediately (only org_profile step shown)
-    if (isEditMode) {
-      const orgProfileData = data || getStepData("org_profile");
-      const companyName = orgProfileData?.companyName || "Company";
+    // In edit mode on final step, or create mode on final step — complete
+    if (isEditMode && stepId === "policy_summary") {
+      const orgData = stepData["org_profile"] || getStepData("org_profile") || initialData || {};
+      const policyData = data || stepData["policy_setup"] || {};
+      const companyName = orgData.companyName || companyNameProp || "Company";
       
       toast({
         title: "Company Updated",
@@ -123,7 +131,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
       });
 
       setTimeout(() => {
-        onComplete(companyName, orgProfileData);
+        onComplete(companyName, { ...orgData, policies: policyData });
       }, 500);
 
       setIsProcessing(false);
@@ -185,7 +193,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
       case "policy_setup":
         return <F1v7_PolicySetupStep {...commonProps} formData={stepData["policy_setup"] || {}} />;
       case "policy_summary":
-        return <F1v7_PolicySummary {...commonProps} formData={stepData["policy_setup"] || {}} />;
+        return <F1v7_PolicySummary {...commonProps} formData={stepData["policy_setup"] || {}} isEditMode={isEditMode} />;
       default:
         return null;
     }
@@ -201,12 +209,18 @@ const F1v4_EmbeddedAdminOnboarding = ({
     );
   }
 
-  // Edit mode: only show org_profile
-  const stepsToShow = isEditMode ? [FLOW_STEPS[0]] : FLOW_STEPS;
+  const stepsToShow = FLOW_STEPS;
   const activeStep = FLOW_STEPS[currentStep];
 
   const getStepTitle = () => {
-    if (isEditMode) return editModeTitle || "Edit Company";
+    if (isEditMode) {
+      switch (activeStep.id) {
+        case "org_profile": return editModeTitle || "Edit Company";
+        case "policy_setup": return "Update the rules";
+        case "policy_summary": return "Review & confirm";
+        default: return "Edit";
+      }
+    }
     switch (activeStep.id) {
       case "org_profile": return "Add new client";
       case "policy_setup": return "Set the rules";
@@ -216,7 +230,14 @@ const F1v4_EmbeddedAdminOnboarding = ({
   };
 
   const getStepSubtitle = () => {
-    if (isEditMode) return "Update your company details below.";
+    if (isEditMode) {
+      switch (activeStep.id) {
+        case "org_profile": return "Update your company details below.";
+        case "policy_setup": return "Review and adjust what your AI agent can auto-handle vs escalate.";
+        case "policy_summary": return "Here's how your agent will run this client's operations.";
+        default: return "";
+      }
+    }
     switch (activeStep.id) {
       case "org_profile": return "Basic client details to get started.";
       case "policy_setup": return "Define what your AI agent can auto-handle vs escalate.";
@@ -262,8 +283,8 @@ const F1v4_EmbeddedAdminOnboarding = ({
             </motion.div>
           </AnimatePresence>
 
-          {/* Step indicator — below subtitle, only in create mode */}
-          {!isEditMode && (
+          {/* Step indicator */}
+          {(
             <motion.div
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}

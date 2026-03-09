@@ -65,6 +65,7 @@ interface CompanyData {
   defaultCurrency?: string;
   payrollCurrency?: string[];
   payoutDay?: string;
+  policies?: Record<string, any>;
 }
 
 const MOCK_COMPANIES: CompanyData[] = [
@@ -630,6 +631,7 @@ const AdminContractingMultiCompany = () => {
       defaultCurrency: companyData?.defaultCurrency,
       payrollCurrency: companyData?.payrollCurrency,
       payoutDay: companyData?.payoutDay,
+      policies: companyData?.policies,
     };
     
     setCompanies(prev => [...prev, newCompany]);
@@ -663,6 +665,7 @@ const AdminContractingMultiCompany = () => {
             defaultCurrency: companyData?.defaultCurrency ?? company.defaultCurrency,
             payrollCurrency: companyData?.payrollCurrency ?? company.payrollCurrency,
             payoutDay: companyData?.payoutDay ?? company.payoutDay,
+            policies: companyData?.policies ?? company.policies,
           }
         : company
     ));
@@ -1115,6 +1118,7 @@ const AdminContractingMultiCompany = () => {
                         payrollCurrency: editingCompany?.payrollCurrency || [],
                         payoutDay: editingCompany?.payoutDay || "",
                       }}
+                      initialPolicyData={editingCompany?.policies}
                       hasSignedContract={hasSignedContract}
                       hasCandidates={hasCandidates}
                     />

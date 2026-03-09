@@ -24,6 +24,7 @@ interface PolicySummaryProps {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
+  isEditMode?: boolean;
 }
 
 const SummaryRow = ({ icon: Icon, label, className }: { icon: React.ElementType; label: string; className?: string }) => (
@@ -33,7 +34,7 @@ const SummaryRow = ({ icon: Icon, label, className }: { icon: React.ElementType;
   </div>
 );
 
-const F1v7_PolicySummary = ({ formData, onComplete, isProcessing }: PolicySummaryProps) => {
+const F1v7_PolicySummary = ({ formData, onComplete, isProcessing, isEditMode }: PolicySummaryProps) => {
   const policy = formData as F1v7_PolicyData;
   
   const getThresholdLabel = (level: string, customAmount?: string) => {
@@ -177,7 +178,7 @@ const F1v7_PolicySummary = ({ formData, onComplete, isProcessing }: PolicySummar
         className="w-full bg-primary hover:bg-primary/90" 
         disabled={isProcessing}
       >
-        {isProcessing ? "Setting up..." : "Confirm & add client"}
+        {isProcessing ? "Saving..." : isEditMode ? "Confirm & save changes" : "Confirm & add client"}
       </Button>
     </div>
   );
