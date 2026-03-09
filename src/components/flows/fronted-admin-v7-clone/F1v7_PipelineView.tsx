@@ -1047,7 +1047,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     } else if (contractor.status === "data-pending") {
       handleOpenConfigure(contractor);
     } else if (contractor.status === "drafting") {
-      handleOpenDocumentBundle(contractor);
+      // Navigate directly into draft contract workflow (not a side panel)
+      handleDraftContract([contractor.id]);
     } else if (contractor.status === "offer-accepted") {
       handleOpenConfigure(contractor);
     } else if (contractor.status === "trigger-onboarding") {
