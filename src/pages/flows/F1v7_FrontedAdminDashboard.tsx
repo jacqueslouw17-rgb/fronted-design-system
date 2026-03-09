@@ -1265,13 +1265,18 @@ const AdminContractingMultiCompany = () => {
                                       {companies.length} clients
                                     </span>
                                   )}
-                                  <span className="v7-stat-pill">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-primary/80" />
-                                    {isAllClientsMode
-                                      ? `${allClientsContractors.length} workers`
-                                      : `${(companyContractors[selectedCompany] || []).length} workers`
-                                    }
-                                  </span>
+                                    {employeeCount > 0 && (
+                                      <span className="v7-stat-pill">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500/80" />
+                                        {employeeCount} {employeeCount === 1 ? "employee" : "employees"}
+                                      </span>
+                                    )}
+                                    {contractorCount > 0 && (
+                                      <span className="v7-stat-pill">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500/80" />
+                                        {contractorCount} {contractorCount === 1 ? "contractor" : "contractors"}
+                                      </span>
+                                    )}
                                 </motion.div>
                               </AnimatePresence>
                             </div>
