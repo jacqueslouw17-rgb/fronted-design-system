@@ -321,9 +321,9 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-            {(worker as any).companyName && (
+            {worker.companyName && (
               <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium bg-muted text-muted-foreground border border-border/40 shrink-0 truncate max-w-[100px]">
-                {(worker as any).companyName}
+                {worker.companyName}
               </span>
             )}
           </div>
