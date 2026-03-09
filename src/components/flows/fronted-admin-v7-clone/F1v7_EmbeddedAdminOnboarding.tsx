@@ -175,7 +175,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
   };
 
   const renderStepContent = () => {
-    const step = FLOW_STEPS[currentStep];
+    const step = steps[currentStep];
     if (!step) return null;
 
     const commonProps = {

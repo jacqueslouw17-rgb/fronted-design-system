@@ -74,6 +74,7 @@ interface PolicySetupStepProps {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
+  isEditMode?: boolean;
 }
 
 // Collapsible section component
