@@ -181,27 +181,26 @@ export const F1v7_ListView: React.FC<ListViewProps> = ({
                       )}
                       onClick={() => onWorkerClick?.(contractor)}
                     >
-                      {/* Checkbox — visible on hover for selectable statuses */}
-                      {selectable && onSelectContractor ? (
-                        <div className={cn(
-                          "w-5 shrink-0 flex items-center justify-center transition-opacity duration-150",
-                          selectedIds.has(contractor.id) || contractor.status === "drafting"
-                            ? "opacity-100"
-                            : "opacity-0 group-hover/row:opacity-100"
-                        )}>
-                          <Checkbox
-                            checked={selectedIds.has(contractor.id)}
-                            onCheckedChange={(checked) =>
-                              onSelectContractor(contractor.id, checked as boolean)
-                            }
-                            className="h-3.5 w-3.5"
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </div>
-                      ) : null}
-
-                      {/* Name + Flag */}
+                      {/* Name + Flag with hover-reveal checkbox */}
                       <div className="flex items-center gap-2 min-w-[160px] flex-1">
+                        {/* Checkbox slides in from left on hover for selectable statuses */}
+                        {selectable && onSelectContractor ? (
+                          <div className={cn(
+                            "shrink-0 flex items-center justify-center overflow-hidden transition-all duration-200 ease-out",
+                            selectedIds.has(contractor.id)
+                              ? "w-5 opacity-100"
+                              : "w-0 opacity-0 group-hover/row:w-5 group-hover/row:opacity-100"
+                          )}>
+                            <Checkbox
+                              checked={selectedIds.has(contractor.id)}
+                              onCheckedChange={(checked) =>
+                                onSelectContractor(contractor.id, checked as boolean)
+                              }
+                              className="h-3.5 w-3.5"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        ) : null}
                         <span className="text-sm leading-none">{contractor.countryFlag}</span>
                         <span className="text-[13px] font-medium text-foreground truncate">
                           {contractor.name}
