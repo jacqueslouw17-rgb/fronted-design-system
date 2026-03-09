@@ -70,7 +70,13 @@ const F1v4_EmbeddedAdminOnboarding = ({
 
   // Multi-step state for v7
   const [currentStep, setCurrentStep] = useState(0);
-  const [stepData, setStepData] = useState<Record<string, Record<string, any>>>({});
+  const [stepData, setStepData] = useState<Record<string, Record<string, any>>>(() => {
+    const initial: Record<string, Record<string, any>> = {};
+    if (isEditMode && initialPolicyData) {
+      initial["policy_setup"] = initialPolicyData;
+    }
+    return initial;
+  });
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
   // Sync local speaking state with agent state
