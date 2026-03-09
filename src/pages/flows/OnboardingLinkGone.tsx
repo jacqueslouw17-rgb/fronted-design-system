@@ -72,7 +72,7 @@ const OnboardingLinkGone: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25, duration: 0.4 }}
             >
-              This link has already been used
+              This onboarding link is no longer active
             </motion.h1>
 
             {/* Body copy */}
@@ -82,8 +82,8 @@ const OnboardingLinkGone: React.FC = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.35, duration: 0.4 }}
             >
-              Sorry, the link you used has already expired. It looks like your 
-              onboarding has already been completed, so this link is no longer active.
+              This link has expired and can't be used again. It may have already 
+              been completed, or it was replaced by a newer invitation from your team.
             </motion.p>
 
             {/* Bulleted hints */}
@@ -94,9 +94,9 @@ const OnboardingLinkGone: React.FC = () => {
               transition={{ delay: 0.45, duration: 0.4 }}
             >
               {[
-                "Your account setup was already completed successfully.",
-                "Each onboarding link can only be used once.",
-                "If you need to update your details, head to Settings."
+                "Onboarding links are single-use and expire after completion.",
+                "A newer link may have been sent to your email.",
+                "If you've already set up your account, you can log in directly."
               ].map((hint, index) => (
                 <p key={index} className="text-xs text-muted-foreground flex items-start gap-2.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-primary/60 flex-shrink-0 mt-0.5" />
@@ -114,15 +114,15 @@ const OnboardingLinkGone: React.FC = () => {
             >
               <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
                 <HelpCircle className="w-4 h-4 text-primary" />
-                <span>Need help?</span>
+                <span>Need to start over?</span>
               </div>
               <p className="text-xs text-center text-muted-foreground leading-relaxed">
-                If you believe this is a mistake or need to redo your setup, 
-                please contact support and we'll get you sorted.
+                If you haven't completed your setup or believe this is a mistake, 
+                reach out and we'll get you a fresh link.
               </p>
               <div className="flex justify-center pt-1">
                 <a
-                  href="mailto:support@fronted.com?subject=Onboarding%20link%20expired%20(410)"
+                  href="mailto:support@fronted.com?subject=Onboarding%20link%20expired"
                   className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors px-4 py-2 rounded-lg hover:bg-primary/5"
                 >
                   <Mail className="w-4 h-4" />
@@ -138,7 +138,7 @@ const OnboardingLinkGone: React.FC = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.65, duration: 0.4 }}
             >
-              Onboarding links are single-use for your security and data integrity.
+              For your security, onboarding links are disabled once they've been used or expired.
             </motion.p>
           </div>
         </motion.div>
