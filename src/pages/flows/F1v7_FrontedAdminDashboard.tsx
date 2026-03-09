@@ -1274,13 +1274,13 @@ const AdminContractingMultiCompany = () => {
                                   )}
                                     {employeeCount > 0 && (
                                       <span className="v7-stat-pill">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500/80" />
+                                        <span className={cn("h-1.5 w-1.5 rounded-full transition-colors duration-500", employeesAllResolved ? "bg-green-500" : "bg-orange-500 animate-pulse")} />
                                         {employeeCount} {employeeCount === 1 ? "employee" : "employees"}
                                       </span>
                                     )}
                                     {contractorCount > 0 && (
                                       <span className="v7-stat-pill">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500/80" />
+                                        <span className={cn("h-1.5 w-1.5 rounded-full transition-colors duration-500", contractorsAllResolved ? "bg-green-500" : "bg-orange-500 animate-pulse")} />
                                         {contractorCount} {contractorCount === 1 ? "contractor" : "contractors"}
                                       </span>
                                     )}
