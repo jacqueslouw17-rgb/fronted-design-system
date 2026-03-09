@@ -302,7 +302,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             {/* Financial ledger */}
             <AnimatePresence mode="wait">
               <motion.div
-                key={selectedClient}
+                key={animKey}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
