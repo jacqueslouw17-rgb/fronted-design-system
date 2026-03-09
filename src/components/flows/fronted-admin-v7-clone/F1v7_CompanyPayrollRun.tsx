@@ -886,7 +886,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
               </div>
               </div>
             </div>
-
           </CardContent>
         </Card>
         )}
