@@ -1052,8 +1052,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   }, []);
 
   return <div className={cn("pb-4", className)}>
-      {/* View mode toggle — minimal, centered */}
-      <div className="flex items-center justify-center mb-1.5">
+      {/* View mode toggle — minimal, right-aligned */}
+      <div className="flex items-center justify-end mb-1.5">
         <F1v7_ViewToggle value={viewMode} onChange={setViewMode} />
       </div>
 
