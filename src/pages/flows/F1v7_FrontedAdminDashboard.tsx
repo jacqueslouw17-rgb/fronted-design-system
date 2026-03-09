@@ -9,7 +9,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, X, FileCheck, ChevronDown, Check } from "lucide-react";
+import { ArrowLeft, X, FileCheck, ChevronDown, Check, Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
@@ -1227,9 +1227,20 @@ const AdminContractingMultiCompany = () => {
                                 </PopoverTrigger>
                                 <PopoverContent className="w-[260px] p-0 v7-glass-card border-primary/10" align="center" style={{ boxShadow: '0 16px 48px -12px hsl(172 50% 40% / 0.15)' }}>
                                   <Command>
-                                    <CommandInput placeholder="Search companies..." />
+                                    <CommandInput placeholder="Search clients..." />
                                     <CommandList>
-                                      <CommandEmpty>No company found.</CommandEmpty>
+                                      <CommandEmpty>
+                                        <div className="flex flex-col items-center gap-2 py-2">
+                                          <p className="text-xs text-muted-foreground">No client found</p>
+                                          <button
+                                            onClick={() => handleCompanyChange("add-new")}
+                                            className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                                          >
+                                            <Plus className="h-3.5 w-3.5" />
+                                            Add new client
+                                          </button>
+                                        </div>
+                                      </CommandEmpty>
                                       <CommandGroup>
                                         <CommandItem
                                           value="All clients"
@@ -1253,6 +1264,17 @@ const AdminContractingMultiCompany = () => {
                                             {company.name}
                                           </CommandItem>
                                         ))}
+                                      </CommandGroup>
+                                      <CommandSeparator />
+                                      <CommandGroup>
+                                        <CommandItem
+                                          value="add-new-client"
+                                          onSelect={() => handleCompanyChange("add-new")}
+                                          className="cursor-pointer text-primary"
+                                        >
+                                          <Plus className="mr-2 h-4 w-4" />
+                                          Add new client
+                                        </CommandItem>
                                       </CommandGroup>
                                     </CommandList>
                                   </Command>
