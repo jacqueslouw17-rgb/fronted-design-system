@@ -275,7 +275,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               <p className="text-xs text-primary/70 mb-1">Off-cycle payout total</p>
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={selectedClient}
+                  key={animKey}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
