@@ -205,11 +205,11 @@ const ThresholdSelector = ({
             className={cn(
               "flex flex-col items-center gap-0.5 rounded-lg p-2 text-center transition-all duration-200 border",
               value === key
-                ? "border-primary/30 bg-primary/[0.06]"
-                : "border-border/30 bg-background/30 hover:bg-background/50"
+                ? "border-foreground/15 bg-foreground/[0.04]"
+                : "border-border/20 bg-background/20 hover:bg-background/40"
             )}
           >
-            <span className={cn("text-[10px] font-semibold", value === key ? "text-primary" : "text-muted-foreground")}>{preset.label}</span>
+            <span className={cn("text-[10px] font-semibold", value === key ? "text-foreground" : "text-muted-foreground")}>{preset.label}</span>
             {key !== "custom" && <span className="text-[9px] text-muted-foreground">≤ €{preset.amount}</span>}
           </button>
         );
