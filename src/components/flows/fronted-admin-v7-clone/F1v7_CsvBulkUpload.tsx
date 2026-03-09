@@ -370,7 +370,6 @@ export const F1v7_CsvBulkUpload: React.FC<CsvBulkUploadProps> = ({ onImport, onC
       </motion.div>
     );
   }
-  }
 
   // ─── Preview Table ──────────────────────────────────────────────────
   return (
