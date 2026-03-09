@@ -12,7 +12,7 @@ import "@/styles/v7-glass-theme.css";
 import React, { useState, useEffect, useCallback } from "react";
 import { F1v7_ViewToggle, type ViewMode } from "./F1v7_ViewToggle";
 import { F1v7_ListView } from "./F1v7_ListView";
-import { F1v7_TableView } from "./F1v7_TableView";
+
 import { getCurrencyCode } from "@/utils/currencyUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
