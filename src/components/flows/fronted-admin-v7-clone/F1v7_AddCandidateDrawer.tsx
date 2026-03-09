@@ -5,7 +5,7 @@
  * ISOLATED: Changes here do NOT affect v4 or any other flow.
  */
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
