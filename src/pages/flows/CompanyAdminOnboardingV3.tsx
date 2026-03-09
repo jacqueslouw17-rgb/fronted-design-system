@@ -143,17 +143,17 @@ const CompanyAdminOnboardingV3 = () => {
         <FrostedHeader onLogoClick={() => navigate("/?tab=flows")} onCloseClick={() => navigate("/?tab=flows")} />
 
         <div
-          className="flex-shrink-0 flex flex-col min-h-screen p-4 sm:p-8 pb-16 sm:pb-32 space-y-4 sm:space-y-6 relative z-10 mx-auto onboarding-scroll-container"
+          className="flex-shrink-0 flex flex-col min-h-screen pt-20 sm:pt-24 px-4 sm:px-8 pb-16 sm:pb-32 space-y-4 sm:space-y-6 relative z-10 mx-auto onboarding-scroll-container"
           style={{ width: "100%", maxWidth: "800px" }}
         >
           {/* Header with audio visualizer */}
-          <div className="flex flex-col items-center space-y-4 sm:space-y-6 mb-4 sm:mb-8">
+          <div className="flex flex-col items-center space-y-3 sm:space-y-4 mb-2 sm:mb-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="flex justify-center"
-              style={{ maxHeight: '240px' }}
+              style={{ maxHeight: '160px' }}
             >
               <AudioWaveVisualizer isActive={isSpeaking} />
             </motion.div>
@@ -166,12 +166,12 @@ const CompanyAdminOnboardingV3 = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="text-center space-y-2 sm:space-y-3 max-w-2xl px-2 sm:px-0"
+                className="text-center space-y-1.5 sm:space-y-2 max-w-2xl px-2 sm:px-0"
               >
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: 'hsl(210 8% 15%)' }}>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                   {getStepTitle()}
                 </h1>
-                <p className="text-sm sm:text-base text-center text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   {getStepSubtitle()}
                 </p>
               </motion.div>
@@ -236,7 +236,7 @@ const CompanyAdminOnboardingV3 = () => {
             </motion.div>
           </div>
 
-          {/* Step Content */}
+          {/* Step Content — hide redundant heading from shared component */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeStep.id}
@@ -244,6 +244,7 @@ const CompanyAdminOnboardingV3 = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="[&>div>div:first-child]:hidden"
             >
               {renderStepContent()}
             </motion.div>
