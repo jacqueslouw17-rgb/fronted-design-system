@@ -22,6 +22,7 @@ export interface HistoricalWorker {
   currency: string;
   status: "paid" | "posted";
   providerRef: string;
+  companyName?: string;
 }
 
 interface F1v4_HistoricalTrackingViewProps {
