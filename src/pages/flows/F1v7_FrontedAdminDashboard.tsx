@@ -631,6 +631,7 @@ const AdminContractingMultiCompany = () => {
       defaultCurrency: companyData?.defaultCurrency,
       payrollCurrency: companyData?.payrollCurrency,
       payoutDay: companyData?.payoutDay,
+      policies: companyData?.policies,
     };
     
     setCompanies(prev => [...prev, newCompany]);
