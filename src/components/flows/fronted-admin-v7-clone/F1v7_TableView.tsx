@@ -211,7 +211,7 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({
               <div className="w-6 shrink-0 flex items-center justify-center">
                 {selectable && onSelectContractor ? (
                   <div className={cn(
-                    "transition-all duration-150",
+                    "flex items-center justify-center transition-opacity duration-150",
                     isSelected
                       ? "opacity-100"
                       : "opacity-0 group-hover/trow:opacity-100"
