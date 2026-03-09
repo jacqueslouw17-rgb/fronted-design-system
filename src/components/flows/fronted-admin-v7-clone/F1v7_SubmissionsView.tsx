@@ -134,6 +134,7 @@ export interface WorkerSubmission {
   currency?: string;
   flags?: WorkerFlag[];
   invoiceNumber?: string;
+  companyName?: string;
 }
 
 interface F1v4_SubmissionsViewProps {
