@@ -264,9 +264,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   };
 
   const renderBatchOverview = () => {
-    const selectedLabel = selectedClient === ALL_CLIENTS_KEY
-      ? `${clientNames.length} clients`
-      : selectedClient;
+    const animKey = isAllSelected ? "__all__" : [...selectedClients].sort().join(",");
 
     if (isCustomBatch) {
       return (
