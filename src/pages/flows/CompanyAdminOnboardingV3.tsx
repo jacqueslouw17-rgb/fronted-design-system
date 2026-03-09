@@ -3,7 +3,7 @@
  * 
  * Isolated clone with v7 Future glassmorphism stepper UI.
  * Steps:
- * 1. Account & Company Details
+ * 1. Company Details
  * 2. Policies & Guardrails
  * 
  * DO NOT modify any other flows or versions!
