@@ -176,7 +176,7 @@ export const F1v7_ListView: React.FC<ListViewProps> = ({
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ delay: idx * 0.02, duration: 0.2 }}
                       className={cn(
-                        "v7-list-row",
+                        "v7-list-row group",
                         contractor.workerStatus && contractor.workerStatus !== "active" && "opacity-60"
                       )}
                       onClick={() => onWorkerClick?.(contractor)}
@@ -189,7 +189,7 @@ export const F1v7_ListView: React.FC<ListViewProps> = ({
                             "shrink-0 flex items-center justify-center overflow-hidden transition-all duration-200 ease-out",
                             selectedIds.has(contractor.id)
                               ? "w-5 opacity-100"
-                              : "w-0 opacity-0 group-hover/row:w-5 group-hover/row:opacity-100"
+                              : "w-0 opacity-0 group-hover:w-5 group-hover:opacity-100"
                           )}>
                             <Checkbox
                               checked={selectedIds.has(contractor.id)}
