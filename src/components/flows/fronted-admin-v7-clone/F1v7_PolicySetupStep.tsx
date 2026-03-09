@@ -520,7 +520,7 @@ const F1v7_PolicySetupStep = ({ formData, onComplete, isProcessing, isEditMode }
         className="w-full bg-primary hover:bg-primary/90" 
         disabled={isProcessing || !allComplete}
       >
-        {isProcessing ? "Saving..." : "Continue"}
+        {isProcessing ? "Saving..." : isEditMode ? "Save changes" : "Continue"}
       </Button>
     </div>
   );
