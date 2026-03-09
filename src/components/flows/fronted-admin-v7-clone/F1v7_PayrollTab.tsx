@@ -1,7 +1,7 @@
 /**
- * F1v4_PayrollTab - Main payroll tab for Flow 1 v4 Fronted Admin Dashboard
+ * F1v4_PayrollTab - Main payroll tab for Flow 1 v7 Fronted Admin Dashboard
  * 
- * Bird's-eye view of all companies + drill-down to company payroll run
+ * Supports single-company and "All Clients" aggregate mode
  */
 
 import React, { useState } from "react";
@@ -92,12 +92,37 @@ const MOCK_COMPANY_PAYROLLS: CompanyPayrollData[] = [
 
 interface F1v4_PayrollTabProps {
   selectedCompanyId?: string;
+  isAllClients?: boolean;
 }
 
 export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
   selectedCompanyId,
+  isAllClients = false,
 }) => {
   const [companies] = useState<CompanyPayrollData[]>(MOCK_COMPANY_PAYROLLS);
+
+  if (isAllClients) {
+    // Aggregate company data across all companies
+    const aggregatedCompany: CompanyPayrollData = {
+      id: "all-clients",
+      name: "All Clients",
+      payPeriod: "January 2026",
+      countries: [...new Set(companies.flatMap(c => c.countries))],
+      employeeCount: companies.reduce((sum, c) => sum + c.employeeCount, 0),
+      contractorCount: companies.reduce((sum, c) => sum + c.contractorCount, 0),
+      currencyCount: [...new Set(companies.flatMap(c => c.countries))].length,
+      totalCost: companies.reduce((sum, c) => sum + c.totalCost, 0),
+      status: "needs-review",
+      blockingExceptions: companies.reduce((sum, c) => sum + c.blockingExceptions, 0),
+    };
+
+    return (
+      <F1v4_CompanyPayrollRun
+        company={aggregatedCompany}
+        isAllClients
+      />
+    );
+  }
 
   // Find the selected company, default to first company if not found
   const activeCompany = companies.find(c => c.id === selectedCompanyId) || companies[0];

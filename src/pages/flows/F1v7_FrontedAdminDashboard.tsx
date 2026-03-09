@@ -1293,7 +1293,7 @@ const AdminContractingMultiCompany = () => {
                       {/* Conditional Content */}
                       <div className="pt-2">
                         {activeMainTab === "payroll" ? (
-                          <F1v4_PayrollTab />
+                          <F1v4_PayrollTab isAllClients={isAllClientsMode} selectedCompanyId={selectedCompany} />
                         ) : (
                           <div className="space-y-2">
                             <div className="mt-1">
