@@ -449,25 +449,12 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                     </div>
                     {templates.map(tpl => (
                       <SelectItem key={tpl.id} value={tpl.id}>
-                        <div className="flex items-center gap-2 w-full">
+                        <div className="flex items-center gap-2">
                           <Bookmark className="h-3.5 w-3.5 text-primary fill-primary shrink-0" />
                           <span className="font-medium truncate">{tpl.name}</span>
                           <Badge variant="outline" className="text-[9px] px-1.5 py-0 shrink-0">
                             Template
                           </Badge>
-                          <button
-                            className="ml-auto text-muted-foreground hover:text-destructive transition-colors shrink-0 p-0.5 rounded"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              deleteWorkerTemplate(tpl.id);
-                              setTemplates(getWorkerTemplates());
-                              if (selectedAtsId === tpl.id) handleATSSelect("manual");
-                              toast.info("Template removed");
-                            }}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
                         </div>
                       </SelectItem>
                     ))}
@@ -493,6 +480,23 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 )}
               </SelectContent>
             </Select>
+            {/* Delete template link shown when a template is active */}
+            {selectedAtsId.startsWith("tpl-") && (
+              <button
+                className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-destructive transition-colors mt-1"
+                onClick={() => {
+                  const tplId = selectedAtsId;
+                  deleteWorkerTemplate(tplId);
+                  setTemplates(getWorkerTemplates());
+                  // Keep form data but switch source to manual
+                  setSelectedAtsId("manual");
+                  toast.info("Template removed");
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+                Remove this template
+              </button>
+            )}
           </div>
 
           {/* CSV Bulk Upload Mode */}
