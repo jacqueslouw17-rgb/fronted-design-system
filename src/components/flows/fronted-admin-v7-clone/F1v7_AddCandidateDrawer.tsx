@@ -496,30 +496,6 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
             />
           )}
 
-          {/* Template info banner */}
-          {isTemplateSelected && (
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/15 text-xs text-primary"
-            >
-              <Bookmark className="h-3.5 w-3.5 shrink-0" />
-              <span>
-                Contract details pre-filled from template — add personal info below
-              </span>
-              <button
-                className="ml-auto text-destructive/70 hover:text-destructive transition-colors"
-                onClick={() => {
-                  deleteWorkerTemplate(selectedAtsId);
-                  setTemplates(getWorkerTemplates());
-                  handleATSSelect("manual");
-                  toast.info("Template removed");
-                }}
-              >
-                <Trash2 className="h-3 w-3" />
-              </button>
-            </motion.div>
-          )}
 
           <AnimatePresence mode="wait">
             {showForm && selectedAtsId !== "csv-upload" && (
