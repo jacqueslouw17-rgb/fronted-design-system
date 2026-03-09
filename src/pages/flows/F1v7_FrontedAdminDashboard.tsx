@@ -1269,7 +1269,6 @@ const AdminContractingMultiCompany = () => {
                                               className="opacity-0 group-hover/company:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
                                               onClick={(e) => {
                                                 e.stopPropagation();
-                                                setCompanyDropdownOpen(false);
                                                 handleEditCompany(company.id);
                                               }}
                                             >
