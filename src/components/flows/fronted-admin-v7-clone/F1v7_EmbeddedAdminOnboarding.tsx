@@ -209,8 +209,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
     );
   }
 
-  // Edit mode: only show org_profile
-  const stepsToShow = isEditMode ? [FLOW_STEPS[0]] : FLOW_STEPS;
+  const stepsToShow = FLOW_STEPS;
   const activeStep = FLOW_STEPS[currentStep];
 
   const getStepTitle = () => {
