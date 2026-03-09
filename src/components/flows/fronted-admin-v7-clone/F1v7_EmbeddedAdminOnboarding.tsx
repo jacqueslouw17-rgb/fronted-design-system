@@ -31,6 +31,11 @@ const FLOW_STEPS = [
   { id: "policy_summary", title: "Summary", stepNumber: 3 },
 ];
 
+const EDIT_STEPS = [
+  { id: "org_profile", title: "Client details", stepNumber: 1 },
+  { id: "policy_setup", title: "Policies & guardrails", stepNumber: 2 },
+];
+
 interface EmbeddedAdminOnboardingProps {
   onComplete: (companyName: string, companyData?: Record<string, any>) => void;
   onCancel: () => void;
@@ -119,10 +124,14 @@ const F1v4_EmbeddedAdminOnboarding = ({
     completeStep(stepId);
     setCompletedSteps(prev => new Set(prev).add(stepId));
 
-    // In edit mode on final step, or create mode on final step — complete
-    if (isEditMode && stepId === "policy_summary") {
-      const orgData = stepData["org_profile"] || getStepData("org_profile") || initialData || {};
-      const policyData = data || stepData["policy_setup"] || {};
+    // In edit mode — save immediately from any step
+    if (isEditMode) {
+      const orgData = stepId === "org_profile" 
+        ? (data || {}) 
+        : (stepData["org_profile"] || getStepData("org_profile") || initialData || {});
+      const policyData = stepId === "policy_setup"
+        ? (data || {})
+        : (stepData["policy_setup"] || initialPolicyData || {});
       const companyName = orgData.companyName || companyNameProp || "Company";
       
       toast({
@@ -166,7 +175,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
   };
 
   const renderStepContent = () => {
-    const step = FLOW_STEPS[currentStep];
+    const step = steps[currentStep];
     if (!step) return null;
 
     const commonProps = {
@@ -191,7 +200,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
           />
         );
       case "policy_setup":
-        return <F1v7_PolicySetupStep {...commonProps} formData={stepData["policy_setup"] || {}} />;
+        return <F1v7_PolicySetupStep {...commonProps} formData={stepData["policy_setup"] || {}} isEditMode={isEditMode} />;
       case "policy_summary":
         return <F1v7_PolicySummary {...commonProps} formData={stepData["policy_setup"] || {}} isEditMode={isEditMode} />;
       default:
@@ -209,8 +218,8 @@ const F1v4_EmbeddedAdminOnboarding = ({
     );
   }
 
-  const stepsToShow = FLOW_STEPS;
-  const activeStep = FLOW_STEPS[currentStep];
+  const steps = isEditMode ? EDIT_STEPS : FLOW_STEPS;
+  const activeStep = steps[currentStep] || steps[0];
 
   const getStepTitle = () => {
     if (isEditMode) {
@@ -291,28 +300,28 @@ const F1v4_EmbeddedAdminOnboarding = ({
               transition={{ duration: 0.3, delay: 0.1 }}
               className="flex items-center gap-1.5"
             >
-              {FLOW_STEPS.map((step, idx) => (
+              {steps.map((step, idx) => (
                 <div key={step.id} className="flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => {
-                      if (completedSteps.has(step.id) || idx <= currentStep) {
+                      if (isEditMode || completedSteps.has(step.id) || idx <= currentStep) {
                         setCurrentStep(idx);
                       }
                     }}
-                    disabled={!completedSteps.has(step.id) && idx > currentStep}
+                    disabled={!isEditMode && !completedSteps.has(step.id) && idx > currentStep}
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 border",
                       idx === currentStep
                         ? "border-[hsl(172_28%_42%/0.15)] text-foreground"
-                        : completedSteps.has(step.id)
+                        : isEditMode || completedSteps.has(step.id)
                         ? "border-[hsl(172_28%_42%/0.08)] text-foreground/60 cursor-pointer"
                         : "border-transparent text-muted-foreground/35 cursor-not-allowed"
                     )}
                     style={
                       idx === currentStep
                         ? { background: 'hsl(172 28% 42% / 0.05)' }
-                        : completedSteps.has(step.id)
+                        : isEditMode || completedSteps.has(step.id)
                         ? { background: 'hsl(172 28% 42% / 0.03)' }
                         : undefined
                     }
@@ -332,7 +341,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
                     )}
                     <span className="hidden sm:inline">{step.title}</span>
                   </button>
-                  {idx < FLOW_STEPS.length - 1 && (
+                  {idx < steps.length - 1 && (
                     <div
                       className="w-5 h-px transition-colors duration-300"
                       style={{ background: completedSteps.has(step.id) ? 'hsl(172 28% 42% / 0.15)' : 'hsl(0 0% 0% / 0.04)' }}

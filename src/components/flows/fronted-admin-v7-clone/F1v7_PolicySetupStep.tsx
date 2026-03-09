@@ -74,6 +74,7 @@ interface PolicySetupStepProps {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
+  isEditMode?: boolean;
 }
 
 // Collapsible section component
@@ -250,7 +251,7 @@ const ThresholdSelector = ({
   </div>
 );
 
-const F1v7_PolicySetupStep = ({ formData, onComplete, isProcessing }: PolicySetupStepProps) => {
+const F1v7_PolicySetupStep = ({ formData, onComplete, isProcessing, isEditMode }: PolicySetupStepProps) => {
   const [policy, setPolicy] = useState<PolicyData>(() => ({
     ...DEFAULT_POLICY,
     ...formData,
@@ -519,7 +520,7 @@ const F1v7_PolicySetupStep = ({ formData, onComplete, isProcessing }: PolicySetu
         className="w-full bg-primary hover:bg-primary/90" 
         disabled={isProcessing || !allComplete}
       >
-        {isProcessing ? "Saving..." : "Continue"}
+        {isProcessing ? "Saving..." : isEditMode ? "Save changes" : "Continue"}
       </Button>
     </div>
   );
