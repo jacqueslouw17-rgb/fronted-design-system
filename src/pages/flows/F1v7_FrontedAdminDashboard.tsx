@@ -1118,6 +1118,7 @@ const AdminContractingMultiCompany = () => {
                         payrollCurrency: editingCompany?.payrollCurrency || [],
                         payoutDay: editingCompany?.payoutDay || "",
                       }}
+                      initialPolicyData={editingCompany?.policies}
                       hasSignedContract={hasSignedContract}
                       hasCandidates={hasCandidates}
                     />
