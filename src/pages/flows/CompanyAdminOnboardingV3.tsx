@@ -100,7 +100,7 @@ const CompanyAdminOnboardingV3 = () => {
 
   const getStepTitle = () => {
     switch (activeStep.id) {
-      case "account_details": return "Hi Joe! Let's complete your onboarding";
+      case "account_details": return "Hi Joe! Let's get you set up";
       case "policy_setup": return "Set the rules";
       default: return "Setup";
     }
