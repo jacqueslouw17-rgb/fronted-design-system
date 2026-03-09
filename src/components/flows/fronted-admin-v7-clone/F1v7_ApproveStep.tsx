@@ -63,7 +63,8 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   excludedWorkerCount = 0,
 }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(ALL_CLIENTS_KEY);
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
+  const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) return `$${(amount / 1000000).toFixed(2)}M`;
