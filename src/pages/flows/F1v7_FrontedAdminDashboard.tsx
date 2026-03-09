@@ -1291,12 +1291,12 @@ const AdminContractingMultiCompany = () => {
                       </div>
 
                       {/* Conditional Content */}
-                      <div className="pt-6">
+                      <div className="pt-2">
                         {activeMainTab === "payroll" ? (
                           <F1v4_PayrollTab />
                         ) : (
-                          <div className="space-y-4">
-                            <div className="mt-3">
+                          <div className="space-y-2">
+                            <div className="mt-1">
                               <F1v4_PipelineView 
                                 key={isAllClientsMode ? "all-clients" : selectedCompany}
                                 contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
