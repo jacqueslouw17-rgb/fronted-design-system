@@ -668,6 +668,22 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       ],
       additionalCount: 0,
       dataModel: null
+    },
+    'shared-onboarding-link-gone': {
+      path: "/onboarding-link-gone",
+      iconColor: "amber",
+      icon: ShieldAlert,
+      title: "Shared – Onboarding Link Gone (410)",
+      status: "now" as const,
+      deprecated: false,
+      description: "Full-screen error state shown when a company admin tries to re-use an onboarding link that has already been completed. The resource existed but is no longer valid.",
+      steps: "1 screen",
+      patterns: "1 pattern",
+      badges: [
+        { label: "Error State", path: "/empty-state" }
+      ],
+      additionalCount: 0,
+      dataModel: null
     }
   };
 
