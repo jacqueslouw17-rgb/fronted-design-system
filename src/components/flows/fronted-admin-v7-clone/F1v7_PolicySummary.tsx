@@ -101,7 +101,7 @@ const F1v7_PolicySummary = ({ formData, onComplete, isProcessing }: PolicySummar
         </div>
         <div className="space-y-0.5">
           {autoItems.map((item, i) => (
-            <SummaryRow key={i} icon={CheckCircle2} label={item} className="text-foreground" />
+            <SummaryRow key={i} icon={CheckCircle2} label={item} className="text-foreground/80" />
           ))}
         </div>
       </motion.div>
