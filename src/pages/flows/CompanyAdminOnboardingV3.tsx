@@ -29,7 +29,7 @@ import StepAccountDetails from "@/components/flows/onboarding/StepAccountDetails
 import F5v3_PolicySetupStep from "@/components/flows/flow5-v3/F5v3_PolicySetupStep";
 
 const FLOW_STEPS = [
-  { id: "account_details", title: "Account & company details", stepNumber: 1 },
+  { id: "account_details", title: "Company details", stepNumber: 1 },
   { id: "policy_setup", title: "Policies & guardrails", stepNumber: 2 },
 ];
 
