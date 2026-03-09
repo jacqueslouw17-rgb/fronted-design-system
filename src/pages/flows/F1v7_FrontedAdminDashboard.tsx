@@ -522,8 +522,15 @@ const AdminContractingMultiCompany = () => {
   const activeContractorsList = isAllClientsMode
     ? allClientsContractors
     : (companyContractors[selectedCompany] || []);
-  const employeeCount = activeContractorsList.filter(c => c.employmentType === "employee").length;
-  const contractorCount = activeContractorsList.filter(c => c.employmentType !== "employee").length;
+  const employeesList = activeContractorsList.filter(c => c.employmentType === "employee");
+  const contractorsList = activeContractorsList.filter(c => c.employmentType !== "employee");
+  const employeeCount = employeesList.length;
+  const contractorCount = contractorsList.length;
+
+  // Dot color: orange if any worker of that type has pending work, green if all resolved
+  const terminalStatuses = ["PAID", "CERTIFIED"];
+  const employeesAllResolved = employeesList.length > 0 && employeesList.every(c => terminalStatuses.includes(c.status));
+  const contractorsAllResolved = contractorsList.length > 0 && contractorsList.every(c => terminalStatuses.includes(c.status));
 
   // Persist companies to localStorage
   useEffect(() => {
@@ -1267,13 +1274,13 @@ const AdminContractingMultiCompany = () => {
                                   )}
                                     {employeeCount > 0 && (
                                       <span className="v7-stat-pill">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500/80" />
+                                        <span className={cn("h-1.5 w-1.5 rounded-full transition-colors duration-500", employeesAllResolved ? "bg-green-500" : "bg-orange-500 animate-pulse")} />
                                         {employeeCount} {employeeCount === 1 ? "employee" : "employees"}
                                       </span>
                                     )}
                                     {contractorCount > 0 && (
                                       <span className="v7-stat-pill">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500/80" />
+                                        <span className={cn("h-1.5 w-1.5 rounded-full transition-colors duration-500", contractorsAllResolved ? "bg-green-500" : "bg-orange-500 animate-pulse")} />
                                         {contractorCount} {contractorCount === 1 ? "contractor" : "contractors"}
                                       </span>
                                     )}
