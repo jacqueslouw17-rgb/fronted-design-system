@@ -34,10 +34,10 @@ const FLOW_STEPS = [
 interface EmbeddedAdminOnboardingProps {
   onComplete: (companyName: string, companyData?: Record<string, any>) => void;
   onCancel: () => void;
-  // Edit mode props
   isEditMode?: boolean;
   editModeTitle?: string;
   initialData?: Record<string, any>;
+  initialPolicyData?: Record<string, any>;
   hasSignedContract?: boolean;
   hasCandidates?: boolean;
   companyId?: string;
