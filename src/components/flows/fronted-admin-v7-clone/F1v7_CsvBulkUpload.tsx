@@ -283,19 +283,23 @@ export const F1v7_CsvBulkUpload: React.FC<CsvBulkUploadProps> = ({ onImport, onC
 
   // ─── Upload Zone ────────────────────────────────────────────────────
   if (!parsedWorkers || parsedWorkers.length === 0) {
+    const hasError = globalErrors.length > 0;
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-4"
       >
-        {/* Drop zone */}
+        {/* Drop zone — turns red on error */}
         <div
           className={cn(
             "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 cursor-pointer group",
-            dragOver
-              ? "border-primary bg-primary/5 scale-[1.01]"
-              : "border-border/60 hover:border-primary/40 hover:bg-muted/30"
+            hasError
+              ? "border-destructive/50 bg-destructive/[0.04] hover:border-destructive/70 hover:bg-destructive/[0.06]"
+              : dragOver
+                ? "border-primary bg-primary/5 scale-[1.01]"
+                : "border-border/60 hover:border-primary/40 hover:bg-muted/30"
           )}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
@@ -312,21 +316,38 @@ export const F1v7_CsvBulkUpload: React.FC<CsvBulkUploadProps> = ({ onImport, onC
           <div className="flex flex-col items-center gap-3">
             <div className={cn(
               "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
-              dragOver ? "bg-primary/15 text-primary" : "bg-muted/60 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+              hasError
+                ? "bg-destructive/10 text-destructive"
+                : dragOver
+                  ? "bg-primary/15 text-primary"
+                  : "bg-muted/60 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
             )}>
-              {dragOver ? (
+              {hasError ? (
+                <AlertCircle className="h-6 w-6" />
+              ) : dragOver ? (
                 <FileSpreadsheet className="h-6 w-6" />
               ) : (
                 <Upload className="h-6 w-6" />
               )}
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground">
-                {dragOver ? "Drop your file here" : "Drag & drop a CSV or Excel file"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                or <span className="text-primary underline underline-offset-2">browse files</span> · .csv, .xlsx — max 5MB
-              </p>
+              {hasError ? (
+                <>
+                  <p className="text-sm font-medium text-destructive">{globalErrors[0]}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Try another file or <span className="text-primary underline underline-offset-2">browse</span> to replace
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-foreground">
+                    {dragOver ? "Drop your file here" : "Drag & drop a CSV or Excel file"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    or <span className="text-primary underline underline-offset-2">browse files</span> · .csv, .xlsx — max 5MB
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -346,13 +367,6 @@ export const F1v7_CsvBulkUpload: React.FC<CsvBulkUploadProps> = ({ onImport, onC
             Template
           </Button>
         </div>
-
-        {/* Global errors */}
-        {globalErrors.length > 0 && (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 space-y-1">
-            <div className="flex items-center gap-2 text-destructive text-xs font-medium">
-              <AlertCircle className="h-3.5 w-3.5" />
-              CSV format error
             </div>
             {globalErrors.map((err, i) => (
               <p key={i} className="text-[11px] text-destructive/80 pl-5">{err}</p>
