@@ -163,22 +163,22 @@ const PillSelect = <T extends string>({
           type="button"
           onClick={() => onChange(opt.value)}
           className={cn(
-            "relative flex flex-col items-start gap-1 rounded-xl p-3 text-left transition-all duration-200 border",
+            "relative flex flex-col items-start gap-1.5 rounded-xl p-3 text-left transition-all duration-200 border",
             isSelected
-              ? "border-foreground/15 bg-foreground/[0.04] shadow-sm"
-              : "border-border/30 bg-background/30 hover:border-border/50 hover:bg-background/50"
+              ? "border-primary/20 bg-primary/[0.04] shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
+              : "border-border/20 bg-background/20 hover:border-primary/10 hover:bg-primary/[0.02]"
           )}
         >
           {isSelected && (
             <motion.div
               layoutId="pill-indicator"
-              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-foreground/40"
+              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-primary/50"
               transition={{ duration: 0.2 }}
             />
           )}
-          {Icon && <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-foreground/70" : "text-muted-foreground/50")} />}
-          <span className={cn("text-xs font-semibold", isSelected ? "text-foreground" : "text-muted-foreground")}>{opt.label}</span>
-          {opt.description && <span className={cn("text-[10px] leading-tight", isSelected ? "text-muted-foreground" : "text-muted-foreground/60")}>{opt.description}</span>}
+          {Icon && <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary/70" : "text-muted-foreground/40")} />}
+          <span className={cn("text-xs font-semibold", isSelected ? "text-foreground" : "text-muted-foreground/80")}>{opt.label}</span>
+          {opt.description && <span className={cn("text-[10px] leading-tight", isSelected ? "text-muted-foreground/80" : "text-muted-foreground/50")}>{opt.description}</span>}
         </button>
       );
     })}
