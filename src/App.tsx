@@ -67,6 +67,7 @@ import F6_ProfileSettings from "./pages/flows/F6_ProfileSettings";
 import V4_ContractFlow from "./pages/flows/V4_ContractFlow";
 import SecureLinkError from "./pages/flows/SecureLinkError";
 import ServerError from "./pages/flows/ServerError";
+import OnboardingLinkGone from "./pages/flows/OnboardingLinkGone";
 import CandidateProfileSettings from "./pages/CandidateProfileSettings";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -258,6 +259,7 @@ const App = () => (
         {/* Shared error pages */}
         <Route path="/secure-link-error" element={<SecureLinkError />} />
         <Route path="/server-error" element={<ServerError />} />
+        <Route path="/onboarding-link-gone" element={<OnboardingLinkGone />} />
         
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
