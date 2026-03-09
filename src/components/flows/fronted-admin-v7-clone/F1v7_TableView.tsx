@@ -172,11 +172,9 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({
       transition={{ duration: 0.3 }}
       className="v7-table-container relative"
     >
-      {/* Header */}
-      <div className="v7-table-header">
-        {/* Checkbox column header */}
-        <div className="w-6 shrink-0" />
-        {tableColumns.map(col => (
+       {/* Header */}
+       <div className="v7-table-header">
+         {tableColumns.map(col => (
           <button
             key={col.key}
             className={cn("v7-table-header-cell", col.className)}
@@ -207,14 +205,14 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({
               )}
               onClick={() => onWorkerClick?.(contractor)}
             >
-              {/* Checkbox */}
-              <div className="w-6 shrink-0 flex items-center justify-center">
+              {/* Worker — checkbox slides in on hover for selectable rows */}
+              <div className={cn("flex items-center gap-2", tableColumns[0].className)}>
                 {selectable && onSelectContractor ? (
                   <div className={cn(
-                    "flex items-center justify-center transition-opacity duration-150",
-                    isSelected || contractor.status === "drafting"
-                      ? "opacity-100"
-                      : "opacity-0 group-hover/trow:opacity-100"
+                    "shrink-0 flex items-center justify-center overflow-hidden transition-all duration-200 ease-out",
+                    isSelected
+                      ? "w-5 opacity-100"
+                      : "w-0 opacity-0 group-hover/trow:w-5 group-hover/trow:opacity-100"
                   )}>
                     <Checkbox
                       checked={isSelected}
@@ -226,10 +224,6 @@ export const F1v7_TableView: React.FC<TableViewProps> = ({
                     />
                   </div>
                 ) : null}
-              </div>
-
-              {/* Worker */}
-              <div className={cn("flex items-center gap-2", tableColumns[0].className)}>
                 <span className="text-sm leading-none">{contractor.countryFlag}</span>
                 <span className="text-[13px] font-medium text-foreground truncate">
                   {contractor.name}
