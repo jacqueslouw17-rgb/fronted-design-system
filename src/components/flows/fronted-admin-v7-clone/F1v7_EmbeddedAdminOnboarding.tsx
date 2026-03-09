@@ -193,7 +193,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
       case "policy_setup":
         return <F1v7_PolicySetupStep {...commonProps} formData={stepData["policy_setup"] || {}} />;
       case "policy_summary":
-        return <F1v7_PolicySummary {...commonProps} formData={stepData["policy_setup"] || {}} />;
+        return <F1v7_PolicySummary {...commonProps} formData={stepData["policy_setup"] || {}} isEditMode={isEditMode} />;
       default:
         return null;
     }
