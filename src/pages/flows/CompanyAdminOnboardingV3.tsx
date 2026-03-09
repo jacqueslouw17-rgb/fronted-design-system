@@ -19,7 +19,7 @@ import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { cn } from "@/lib/utils";
 import { CheckCircle2 } from "lucide-react";
-import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import F5v3_WaveVisualizer from "@/components/flows/flow5-v3/F5v3_WaveVisualizer";
 import { toast } from "sonner";
 
 import F5v3_AccountDetailsStep from "@/components/flows/flow5-v3/F5v3_AccountDetailsStep";
@@ -150,9 +150,8 @@ const CompanyAdminOnboardingV3 = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="flex justify-center"
-              style={{ maxHeight: '160px' }}
             >
-              <AudioWaveVisualizer isActive={isSpeaking} />
+              <F5v3_WaveVisualizer isActive={isSpeaking} />
             </motion.div>
 
             {/* Title + subtitle */}
