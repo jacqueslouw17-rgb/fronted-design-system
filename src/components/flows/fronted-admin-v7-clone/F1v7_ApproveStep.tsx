@@ -379,11 +379,13 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
           {/* Hero payout */}
           <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
             <p className="text-xs text-primary/70 mb-1">
-              {selectedClient !== ALL_CLIENTS_KEY ? `${selectedClient} payout` : "Total payout"}
+              {!isAllSelected
+                ? selectedClients.length === 1 ? `${selectedClients[0]} payout` : `${selectedClients.length} clients payout`
+                : "Total payout"}
             </p>
             <AnimatePresence mode="wait">
               <motion.div
-                key={selectedClient}
+                key={animKey}
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
@@ -392,7 +394,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 <p className="text-3xl font-semibold text-primary tracking-tight">{formatCurrency(displayData.totalCost)}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">
                   {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""}
-                  {selectedClient === ALL_CLIENTS_KEY && hasMultipleClients && ` · ${clientNames.length} clients`}
+                  {isAllSelected && hasMultipleClients && ` · ${clientNames.length} clients`}
                   {" · "}USD → EUR 1.0842
                 </p>
               </motion.div>
