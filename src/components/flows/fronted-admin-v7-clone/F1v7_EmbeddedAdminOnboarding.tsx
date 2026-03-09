@@ -119,10 +119,11 @@ const F1v4_EmbeddedAdminOnboarding = ({
     completeStep(stepId);
     setCompletedSteps(prev => new Set(prev).add(stepId));
 
-    // In edit mode, complete immediately (only org_profile step shown)
-    if (isEditMode) {
-      const orgProfileData = data || getStepData("org_profile");
-      const companyName = orgProfileData?.companyName || "Company";
+    // In edit mode on final step, or create mode on final step — complete
+    if (isEditMode && stepId === "policy_summary") {
+      const orgData = stepData["org_profile"] || getStepData("org_profile") || initialData || {};
+      const policyData = data || stepData["policy_setup"] || {};
+      const companyName = orgData.companyName || companyNameProp || "Company";
       
       toast({
         title: "Company Updated",
@@ -130,7 +131,7 @@ const F1v4_EmbeddedAdminOnboarding = ({
       });
 
       setTimeout(() => {
-        onComplete(companyName, orgProfileData);
+        onComplete(companyName, { ...orgData, policies: policyData });
       }, 500);
 
       setIsProcessing(false);
