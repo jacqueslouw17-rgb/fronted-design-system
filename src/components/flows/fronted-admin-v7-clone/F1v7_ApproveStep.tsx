@@ -83,11 +83,12 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
 
   const hasMultipleClients = clientNames.length > 1;
 
-  // Filter submissions by selected client
+  // Filter submissions by selected clients (empty = all)
+  const isAllSelected = selectedClients.length === 0;
   const filteredSubmissions = useMemo(() => {
-    if (selectedClient === ALL_CLIENTS_KEY) return submissions;
-    return submissions.filter(s => s.companyName === selectedClient);
-  }, [submissions, selectedClient]);
+    if (selectedClients.length === 0) return submissions;
+    return submissions.filter(s => selectedClients.includes(s.companyName || ""));
+  }, [submissions, selectedClients]);
 
   // Compute totals from filtered submissions
   const computeTotals = (workers: WorkerSubmission[]) => {
