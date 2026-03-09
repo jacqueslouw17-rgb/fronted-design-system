@@ -1106,27 +1106,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           />
         </motion.div>
       )}
-/** Small component to handle Save as Template with local state */
-const SaveAsTemplateButton: React.FC<{ contractor: Contractor }> = ({ contractor }) => {
-  const tplKey = `${contractor.role} · ${contractor.country}`;
-  const [isSaved, setIsSaved] = useState(() => getWorkerTemplates().some(t => t.name === tplKey));
-  return (
-    <Button variant="ghost" size="sm" className={cn("w-full text-xs h-6 gap-1", isSaved ? "text-primary" : "text-muted-foreground hover:text-primary")} onClick={e => {
-      e.stopPropagation();
-      if (!isSaved) {
-        const template = contractorToTemplate(contractor, tplKey);
-        saveWorkerTemplate(template);
-        setIsSaved(true);
-        toast.success(`Template "${tplKey}" saved`);
-      } else {
-        toast.info("Already saved as template");
-      }
-    }}>
-      <Bookmark className={cn("h-3 w-3", isSaved && "fill-primary")} />
-      {isSaved ? "Saved as Template" : "Save as Template"}
-    </Button>
-  );
-};
 
 
       {/* Board View (existing Kanban) */}
