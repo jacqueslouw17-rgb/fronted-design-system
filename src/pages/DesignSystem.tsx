@@ -316,6 +316,7 @@ const DesignSystem = () => {
     // 'flow-2.1-admin-payroll',     // Flow 7 Fronted Admin Payroll v1 (deprecated/hidden)
     'shared-secure-link-error',      // Shared – Secure Link Error (403)
     'shared-server-error',           // Shared – Server Error (500)
+    'shared-onboarding-link-gone',   // Shared – Onboarding Link Gone (410)
   ];
 
   const frontedFlows = flowOrder.filter(id => id.startsWith('flow-1-fronted-admin'));
