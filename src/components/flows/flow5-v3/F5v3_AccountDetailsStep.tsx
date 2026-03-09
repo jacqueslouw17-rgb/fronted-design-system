@@ -223,15 +223,19 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
               </p>
             </section>
             <div className="pt-4 pb-2">
-              <Button
+              <button
                 onClick={() => {
                   setTermsAccepted(true);
                   setTermsSheetOpen(false);
                 }}
-                className="w-full"
+                className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg active:scale-[0.98]"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(172 28% 38%), hsl(172 32% 48%))',
+                  boxShadow: '0 4px 14px -3px hsl(172 28% 42% / 0.35)',
+                }}
               >
                 I agree
-              </Button>
+              </button>
             </div>
           </div>
         </SheetContent>
