@@ -300,6 +300,88 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
   },
 ];
 
+// Additional company submissions for "All Clients" aggregate mode
+const GLOBEX_SUBMISSIONS: WorkerSubmission[] = [
+  {
+    id: "g-1", workerId: "g-1", workerName: "Sarah Park", workerType: "employee",
+    workerCountry: "USA", currency: "USD", status: "pending", basePay: 8500,
+    estimatedNet: 6800, totalImpact: 1200, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-G01", companyName: "Globex Inc",
+    lineItems: [
+      { label: "Base Salary", amount: 8500, type: "Earnings" },
+      { label: "Income Tax", amount: -1275, type: "Deduction", locked: true },
+      { label: "Benefits", amount: -425, type: "Deduction", locked: true },
+    ],
+    submissions: [
+      { type: "expenses", amount: 1200, description: "Client dinner", status: "pending",
+        attachments: [{ id: "att-g1", fileName: "dinner_receipt.pdf", fileType: "application/pdf", fileSize: "180 KB", url: "#", uploadedAt: "Jan 24, 2026", uploadedBy: "Sarah Park" }],
+        attachmentsCount: 1,
+      },
+    ],
+    pendingLeaves: [],
+  },
+  {
+    id: "g-2", workerId: "g-2", workerName: "James Wright", workerType: "contractor",
+    workerCountry: "UK", currency: "GBP", status: "ready", basePay: 5200,
+    estimatedNet: 5200, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-G02", companyName: "Globex Inc",
+    lineItems: [{ label: "Consulting Fee", amount: 5200, type: "Earnings" }],
+    submissions: [], pendingLeaves: [],
+  },
+];
+
+const INITECH_SUBMISSIONS: WorkerSubmission[] = [
+  {
+    id: "i-1", workerId: "i-1", workerName: "Bill Lumbergh", workerType: "employee",
+    workerCountry: "UK", currency: "GBP", status: "pending", basePay: 7200,
+    estimatedNet: 5760, totalImpact: 800, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-I01", companyName: "Initech Ltd",
+    lineItems: [
+      { label: "Base Salary", amount: 7200, type: "Earnings" },
+      { label: "Income Tax", amount: -1080, type: "Deduction", locked: true },
+      { label: "NI", amount: -360, type: "Deduction", locked: true },
+    ],
+    submissions: [
+      { type: "overtime", amount: 800, hours: 6, description: "Jan 18 · 09:00–15:00", status: "pending" },
+    ],
+    pendingLeaves: [],
+  },
+  {
+    id: "i-2", workerId: "i-2", workerName: "Peter Gibbons", workerType: "contractor",
+    workerCountry: "USA", currency: "USD", status: "ready", basePay: 6000,
+    estimatedNet: 6000, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-I02", companyName: "Initech Ltd",
+    lineItems: [{ label: "Development Fee", amount: 6000, type: "Earnings" }],
+    submissions: [], pendingLeaves: [],
+  },
+];
+
+const WAYSTAR_SUBMISSIONS: WorkerSubmission[] = [
+  {
+    id: "w-1", workerId: "w-1", workerName: "Kendall Roy", workerType: "employee",
+    workerCountry: "USA", currency: "USD", status: "pending", basePay: 15000,
+    estimatedNet: 12000, totalImpact: 3500, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-W01", companyName: "Waystar Royco",
+    lineItems: [
+      { label: "Base Salary", amount: 15000, type: "Earnings" },
+      { label: "Income Tax", amount: -2250, type: "Deduction", locked: true },
+      { label: "401k", amount: -750, type: "Deduction", locked: true },
+    ],
+    submissions: [
+      { type: "bonus", amount: 3500, description: "Q4 performance", status: "pending" },
+    ],
+    pendingLeaves: [],
+  },
+  {
+    id: "w-2", workerId: "w-2", workerName: "Shiv Roy", workerType: "contractor",
+    workerCountry: "UK", currency: "GBP", status: "ready", basePay: 9800,
+    estimatedNet: 9800, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-W02", companyName: "Waystar Royco",
+    lineItems: [{ label: "Advisory Fee", amount: 9800, type: "Earnings" }],
+    submissions: [], pendingLeaves: [],
+  },
+];
+
 // Deduplicate: enforce 1 invoice/payslip per worker per pay period
 // If backend data contains duplicates, keep the most advanced status (ready > pending)
 // Mark extras as hidden — only the primary is shown
@@ -328,6 +410,15 @@ const RUN_METRICS: Record<string, { grossPay: string; adjustments: string; fees:
   "jan-fortnight-1": { grossPay: "€53.9K", adjustments: "€2.6K", fees: "€1,622", totalCost: "€56.5K", employeeCount: 2, contractorCount: 3, currencyCount: 2 },
   "dec-monthly": { grossPay: "€109.7K", adjustments: "€6.3K", fees: "€3,256", totalCost: "€113.0K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
   "nov-monthly": { grossPay: "€106.8K", adjustments: "€5.0K", fees: "€3,133", totalCost: "€109.9K", employeeCount: 4, contractorCount: 4, currencyCount: 3 },
+};
+
+// Aggregated KPI metrics for "All Clients" mode
+const ALL_CLIENTS_METRICS: Record<string, { grossPay: string; adjustments: string; fees: string; totalCost: string; employeeCount: number; contractorCount: number; currencyCount: number; clientCount: number }> = {
+  "jan-monthly": { grossPay: "€168.4K", adjustments: "€13.1K", fees: "€5,052", totalCost: "€173.5K", employeeCount: 7, contractorCount: 8, currencyCount: 4, clientCount: 4 },
+  "jan-fortnight-2": { grossPay: "€57.8K", adjustments: "€2.9K", fees: "€1,752", totalCost: "€60.7K", employeeCount: 3, contractorCount: 2, currencyCount: 2, clientCount: 1 },
+  "jan-fortnight-1": { grossPay: "€53.9K", adjustments: "€2.6K", fees: "€1,622", totalCost: "€56.5K", employeeCount: 2, contractorCount: 3, currencyCount: 2, clientCount: 1 },
+  "dec-monthly": { grossPay: "€109.7K", adjustments: "€6.3K", fees: "€3,256", totalCost: "€113.0K", employeeCount: 4, contractorCount: 5, currencyCount: 3, clientCount: 1 },
+  "nov-monthly": { grossPay: "€106.8K", adjustments: "€5.0K", fees: "€3,133", totalCost: "€109.9K", employeeCount: 4, contractorCount: 4, currencyCount: 3, clientCount: 1 },
 };
 
 // Per-run worker submissions
