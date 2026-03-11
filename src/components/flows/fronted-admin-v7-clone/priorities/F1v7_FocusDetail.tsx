@@ -23,7 +23,7 @@ export const F1v7_FocusDetail: React.FC<Props> = ({ priority, direction }) => {
         className="space-y-2"
       >
         {/* ── Equal-height layout: Actions + Metrics ── */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-3" style={{ alignItems: "stretch" }}>
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-3" style={{ alignItems: "start" }}>
           {/* Left: Actions */}
           <div className="xl:col-span-7 flex flex-col">
             <ActionList actions={priority.actions} accent={priority.accentColor} />
