@@ -38,32 +38,43 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
 
   return (
     <div className="relative">
-      {/* Side nav arrows */}
-      <div className="absolute -right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-30">
-        <button
-          onClick={onPrev}
-          disabled={activeIndex === 0}
-          className="p-1.5 rounded-xl transition-all duration-300 disabled:opacity-0 hover:scale-110"
-          style={{
-            background: "hsl(0 0% 100% / 0.5)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid hsl(0 0% 100% / 0.3)",
-          }}
-        >
-          <ChevronUp className="h-3 w-3" style={{ color: "hsl(210 8% 35%)" }} />
-        </button>
-        <button
-          onClick={onNext}
-          disabled={activeIndex === items.length - 1}
-          className="p-1.5 rounded-xl transition-all duration-300 disabled:opacity-0 hover:scale-110"
-          style={{
-            background: "hsl(0 0% 100% / 0.5)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid hsl(0 0% 100% / 0.3)",
-          }}
-        >
-          <ChevronDown className="h-3 w-3" style={{ color: "hsl(210 8% 35%)" }} />
-        </button>
+      {/* Counter + nav arrows */}
+      <div className="absolute -right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 z-30">
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] font-bold tabular-nums" style={{ color: "hsl(210 8% 30%)" }}>
+            {String(activeIndex + 1).padStart(2, "0")}
+          </span>
+          <span className="text-[10px]" style={{ color: "hsl(210 8% 65%)" }}>/</span>
+          <span className="text-[10px] tabular-nums" style={{ color: "hsl(210 8% 65%)" }}>
+            {String(items.length).padStart(2, "0")}
+          </span>
+        </div>
+        <div className="flex flex-col gap-1">
+          <button
+            onClick={onPrev}
+            disabled={activeIndex === 0}
+            className="p-1.5 rounded-xl transition-all duration-300 disabled:opacity-0 hover:scale-110"
+            style={{
+              background: "hsl(0 0% 100% / 0.5)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid hsl(0 0% 100% / 0.3)",
+            }}
+          >
+            <ChevronUp className="h-3 w-3" style={{ color: "hsl(210 8% 35%)" }} />
+          </button>
+          <button
+            onClick={onNext}
+            disabled={activeIndex === items.length - 1}
+            className="p-1.5 rounded-xl transition-all duration-300 disabled:opacity-0 hover:scale-110"
+            style={{
+              background: "hsl(0 0% 100% / 0.5)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid hsl(0 0% 100% / 0.3)",
+            }}
+          >
+            <ChevronDown className="h-3 w-3" style={{ color: "hsl(210 8% 35%)" }} />
+          </button>
+        </div>
       </div>
 
       {/* Stack container — enough height for peek cards */}
