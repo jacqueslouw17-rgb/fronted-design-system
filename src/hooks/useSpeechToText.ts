@@ -6,7 +6,7 @@ export const useSpeechToText = () => {
   const [error, setError] = useState<string | null>(null);
   const [isDetectingVoice, setIsDetectingVoice] = useState(false);
   const recognitionRef = useRef<any>(null);
-  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);

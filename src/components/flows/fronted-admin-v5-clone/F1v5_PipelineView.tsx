@@ -240,7 +240,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   const notifiedCertifiedIds = React.useRef<Set<string>>(new Set());
   
   // Track timer IDs for cleanup
-  const transitionTimersRef = React.useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const transitionTimersRef = React.useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   // Auto-transition onboarding-pending to certified after 5 seconds
   useEffect(() => {

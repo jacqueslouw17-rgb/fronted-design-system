@@ -13,7 +13,7 @@ export const CA4_KurtVisualizer: React.FC = () => {
   
   // Show hint after hovering for 600ms
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
     if (isHovered) {
       timer = setTimeout(() => setShowHint(true), 600);
     } else {
