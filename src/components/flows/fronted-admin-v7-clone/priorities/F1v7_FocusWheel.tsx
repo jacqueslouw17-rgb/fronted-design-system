@@ -68,7 +68,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
       {/* 3D perspective container */}
       <div
         style={{
-          perspective: "600px",
+          perspective: "500px",
           perspectiveOrigin: "50% 50%",
         }}
       >
@@ -78,7 +78,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
           className="relative flex items-center justify-center overflow-visible"
           style={{
             transformStyle: "preserve-3d",
-            height: "220px",
+            height: "160px",
           }}
         >
           <AnimatePresence mode="popLayout" initial={false}>
@@ -90,13 +90,14 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
               const Icon = item.icon;
               const absSlot = Math.abs(slot);
 
-              // 3D depth
-              const yOffset = slot * 68;
-              const scale = isActive ? 1 : absSlot === 1 ? 0.86 : 0.72;
-              const opacity = isActive ? 1 : absSlot === 1 ? 0.5 : 0.18;
-              const rotateX = slot * -18;
-              const blur = isActive ? 0 : absSlot === 1 ? 1.5 : 5;
+              // 3D stacked depth — tight overlap
+              const yOffset = slot * 38;
+              const scale = isActive ? 1 : absSlot === 1 ? 0.88 : 0.76;
+              const opacity = isActive ? 1 : absSlot === 1 ? 0.45 : 0.15;
+              const rotateX = slot * -22;
+              const blur = isActive ? 0 : absSlot === 1 ? 2 : 6;
               const zIndex = 10 - absSlot;
+              const zOffset = isActive ? 80 : absSlot === 1 ? -20 : -80;
 
               return (
                 <motion.div
@@ -113,6 +114,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                     scale,
                     opacity,
                     rotateX,
+                    z: zOffset,
                     filter: `blur(${blur}px)`,
                   }}
                   exit={{
@@ -128,8 +130,9 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                   className="absolute left-0 right-0 cursor-pointer top-1/2"
                   style={{
                     zIndex,
+                    transformStyle: "preserve-3d",
                     transformOrigin: "center center",
-                    marginTop: "-42px",
+                    marginTop: "-36px",
                   }}
                   onClick={() => !isActive && onSelect(idx)}
                 >

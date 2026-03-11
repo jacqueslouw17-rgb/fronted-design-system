@@ -72,7 +72,7 @@ export const F1v7_PrioritiesTab: React.FC = () => {
       </div>
 
       {/* Status bar — compact */}
-      <div className="flex items-center justify-between px-1 mb-4">
+      <div className="flex items-center justify-between px-1 mb-2">
         <div className="flex items-center gap-2.5">
           <motion.div
             animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0.2, 0.8] }}
@@ -109,7 +109,7 @@ export const F1v7_PrioritiesTab: React.FC = () => {
       />
 
       {/* Progress dots */}
-      <div className="flex items-center justify-center gap-1.5 mt-1 mb-2">
+      <div className="flex items-center justify-center gap-1.5 mt-0 mb-1">
         {PRIORITY_STREAM.map((item, idx) => (
           <button
             key={item.id}

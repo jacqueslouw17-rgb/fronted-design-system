@@ -20,17 +20,17 @@ export const F1v7_FocusDetail: React.FC<Props> = ({ priority, direction }) => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: direction >= 0 ? -15 : 30 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="space-y-4"
+        className="space-y-2"
       >
-        {/* ── Compact layout: Metrics top, Actions below ── */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+        {/* ── Equal-height layout: Actions + Metrics ── */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 xl:items-stretch">
           {/* Left: Actions */}
-          <div className="xl:col-span-7">
+          <div className="xl:col-span-7 flex flex-col">
             <ActionList actions={priority.actions} accent={priority.accentColor} />
           </div>
 
-          {/* Right: Metrics only — no insight */}
-          <div className="xl:col-span-5">
+          {/* Right: Metrics */}
+          <div className="xl:col-span-5 flex flex-col">
             <MetricsGrid metrics={priority.metrics} accent={priority.accentColor} />
           </div>
         </div>
@@ -44,7 +44,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5 flex-1 flex flex-col">
       <div className="flex items-center gap-2 px-1">
         <span className="text-[10px] font-semibold tracking-[0.18em] uppercase" style={{ color: "hsl(210 8% 42%)" }}>
           Actions
@@ -58,7 +58,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
       </div>
 
       <div
-        className="overflow-hidden"
+        className="overflow-hidden flex-1"
         style={{
           background: "linear-gradient(180deg, hsl(0 0% 100% / 0.5), hsl(0 0% 100% / 0.25))",
           backdropFilter: "blur(50px) saturate(1.6)",
@@ -161,11 +161,11 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
 /* ─────────── Metrics Grid ─────────── */
 const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string }> = ({ metrics, accent }) => {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5 flex-1 flex flex-col">
       <span className="text-[10px] font-semibold tracking-[0.18em] uppercase block px-1" style={{ color: "hsl(210 8% 42%)" }}>
         Metrics
       </span>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 flex-1">
         {metrics.map((m, idx) => (
           <motion.div
             key={m.label}
