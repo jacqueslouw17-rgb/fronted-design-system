@@ -54,6 +54,8 @@ import F1v4_EmbeddedAdminOnboarding from "@/components/flows/fronted-admin-v7-cl
 import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v7-clone/F1v7_AddCandidateDrawer";
 import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v7-clone/F1v7_PayrollTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { F1v7_PrioritiesTab } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_PrioritiesTab";
+import { MoreHorizontal as MoreHorizontalIcon } from "lucide-react";
 
 // Company type with full details for edit functionality
 interface CompanyData {
@@ -548,12 +550,12 @@ const AdminContractingMultiCompany = () => {
   
   const hasNoCompanies = companies.length === 0;
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
-  const [activeMainTab, setActiveMainTab] = useState<"tracker" | "payroll">("tracker");
+  const [activeMainTab, setActiveMainTab] = useState<"priorities" | "tracker" | "payroll">("priorities");
   
   // Dot color: orange if any worker of that type has pending work, green if all resolved
   // When on payroll tab, workers in payroll are already active/onboarded, so show green
-  const employeesAllResolved = activeMainTab === "payroll" || (employeesList.length > 0 && employeesList.every(c => terminalStatuses.includes(c.status)));
-  const contractorsAllResolved = activeMainTab === "payroll" || (contractorsList.length > 0 && contractorsList.every(c => terminalStatuses.includes(c.status)));
+  const employeesAllResolved = activeMainTab === "payroll" || activeMainTab === "priorities" || (employeesList.length > 0 && employeesList.every(c => terminalStatuses.includes(c.status)));
+  const contractorsAllResolved = activeMainTab === "payroll" || activeMainTab === "priorities" || (contractorsList.length > 0 && contractorsList.every(c => terminalStatuses.includes(c.status)));
 
   // Check for new company from onboarding
   useEffect(() => {
@@ -1332,62 +1334,97 @@ const AdminContractingMultiCompany = () => {
                         </motion.div>
                       )}
 
-                      {/* Tracker | Payroll Tab Toggle */}
+                      {/* Priorities | Tracker | Payroll Navigation */}
                       <div className="flex items-center justify-center py-2">
-                        <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "tracker" | "payroll")}>
-                          <TabsList className="grid w-[280px] grid-cols-2 v7-glass-tabs">
-                            <TabsTrigger value="tracker" className="data-[state=active]:v7-glass-tab-active">Tracker</TabsTrigger>
-                            <TabsTrigger value="payroll" className="data-[state=active]:v7-glass-tab-active">Payroll</TabsTrigger>
+                        <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "priorities" | "tracker" | "payroll")}>
+                          <TabsList className="v7-glass-tabs inline-flex items-center gap-1 p-1">
+                            <TabsTrigger 
+                              value="priorities" 
+                              className={cn(
+                                "data-[state=active]:v7-glass-tab-active px-5 font-semibold",
+                                activeMainTab === "priorities" && "shadow-sm"
+                              )}
+                            >
+                              Priorities
+                            </TabsTrigger>
+                            <span className="h-4 w-px bg-border/30 mx-0.5" />
+                            <TabsTrigger 
+                              value="tracker" 
+                              className={cn(
+                                "data-[state=active]:v7-glass-tab-active text-muted-foreground/70 text-[13px]",
+                                activeMainTab !== "tracker" && "hover:text-muted-foreground"
+                              )}
+                            >
+                              Tracker
+                            </TabsTrigger>
+                            <TabsTrigger 
+                              value="payroll" 
+                              className={cn(
+                                "data-[state=active]:v7-glass-tab-active text-muted-foreground/70 text-[13px]",
+                                activeMainTab !== "payroll" && "hover:text-muted-foreground"
+                              )}
+                            >
+                              Payroll
+                            </TabsTrigger>
                           </TabsList>
                         </Tabs>
                       </div>
 
                       {/* Conditional Content */}
                       <div className="pt-2">
-                        {activeMainTab === "payroll" ? (
-                          <F1v4_PayrollTab isAllClients={isAllClientsMode} selectedCompanyId={selectedCompany} />
-                        ) : (
-                          <div className="space-y-2">
-                            <div className="mt-1">
-                              <F1v4_PipelineView 
-                                key={isAllClientsMode ? "all-clients" : selectedCompany}
-                                contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
-                                onAddCandidate={handleAddCandidate}
-                                onRemoveContractor={(contractorId) => {
-                                  if (isAllClientsMode) {
-                                    // Find which company owns this contractor
-                                    for (const [companyId, ctrs] of Object.entries(companyContractors)) {
-                                      if ((ctrs || []).some(c => c.id === contractorId)) {
+                        <AnimatePresence mode="wait">
+                          {activeMainTab === "priorities" ? (
+                            <motion.div key="priorities" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
+                              <F1v7_PrioritiesTab />
+                            </motion.div>
+                          ) : activeMainTab === "payroll" ? (
+                            <motion.div key="payroll" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
+                              <F1v4_PayrollTab isAllClients={isAllClientsMode} selectedCompanyId={selectedCompany} />
+                            </motion.div>
+                          ) : (
+                            <motion.div key="tracker" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
+                              <div className="space-y-2">
+                                <div className="mt-1">
+                                  <F1v4_PipelineView 
+                                    key={isAllClientsMode ? "all-clients" : selectedCompany}
+                                    contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
+                                    onAddCandidate={handleAddCandidate}
+                                    onRemoveContractor={(contractorId) => {
+                                      if (isAllClientsMode) {
+                                        for (const [companyId, ctrs] of Object.entries(companyContractors)) {
+                                          if ((ctrs || []).some(c => c.id === contractorId)) {
+                                            setCompanyContractors(prev => ({
+                                              ...prev,
+                                              [companyId]: (prev[companyId] || []).filter(c => c.id !== contractorId)
+                                            }));
+                                            break;
+                                          }
+                                        }
+                                      } else {
                                         setCompanyContractors(prev => ({
                                           ...prev,
-                                          [companyId]: (prev[companyId] || []).filter(c => c.id !== contractorId)
+                                          [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
                                         }));
-                                        break;
                                       }
-                                    }
-                                  } else {
-                                    setCompanyContractors(prev => ({
-                                      ...prev,
-                                      [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
-                                    }));
-                                  }
-                                  sonnerToast.success("Candidate removed");
-                                }}
-                                onDraftContract={(ids) => {
-                                  const params = new URLSearchParams({ 
-                                    ids: ids.join(','),
-                                    returnTo: 'f1v7',
-                                    company: effectiveCompanyForActions
-                                  }).toString();
-                                  navigate(`/flows/contract-creation?${params}`);
-                                }}
-                                onSignatureComplete={() => {
-                                  navigate(`${FLOW_BASE_PATH}?phase=data-collection&allSigned=true`);
-                                }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                                      sonnerToast.success("Candidate removed");
+                                    }}
+                                    onDraftContract={(ids) => {
+                                      const params = new URLSearchParams({ 
+                                        ids: ids.join(','),
+                                        returnTo: 'f1v7',
+                                        company: effectiveCompanyForActions
+                                      }).toString();
+                                      navigate(`/flows/contract-creation?${params}`);
+                                    }}
+                                    onSignatureComplete={() => {
+                                      navigate(`${FLOW_BASE_PATH}?phase=data-collection&allSigned=true`);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </div>
                   </motion.div>
