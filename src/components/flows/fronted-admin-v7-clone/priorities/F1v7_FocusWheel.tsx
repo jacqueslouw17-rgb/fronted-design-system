@@ -82,18 +82,17 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
             const Icon = item.icon;
             const absSlot = Math.abs(slot);
 
-            // Active card sits at y=20. Behind cards peek above/below.
-            // slot -1 peeks its bottom edge above → y = 6
-            // slot -2 peeks even higher → y = -2
-            // slot +1 peeks its top edge below → y = 104
-            // slot +2 peeks even lower → y = 112
+            // Symmetric stacking: active card centered, peek cards equidistant above/below
+            // Active card at y=35 (centered in 150px container with ~80px card height)
+            // Cards above: slot -1 at y=21, slot -2 at y=13
+            // Cards below: slot +1 at y=101, slot +2 at y=109
             let yPos: number;
             if (isActive) {
-              yPos = 20;
+              yPos = 35;
             } else if (slot < 0) {
-              yPos = absSlot === 1 ? 6 : -2;
+              yPos = absSlot === 1 ? 21 : 13;
             } else {
-              yPos = absSlot === 1 ? 104 : 112;
+              yPos = absSlot === 1 ? 101 : 109;
             }
 
             const widthShrink = isActive ? 0 : absSlot === 1 ? 16 : 32;
