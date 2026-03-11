@@ -1,5 +1,6 @@
 /**
- * Recent Activity / Operational Timeline — minimal, editorial feed
+ * Activity Timeline — fluid stream of recent events
+ * Each event is a ripple in the operational membrane.
  */
 import React from "react";
 import { motion } from "framer-motion";
@@ -25,50 +26,67 @@ const EVENTS: TimelineEvent[] = [
 
 export const F1v7_ActivityTimeline: React.FC = () => {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Section header */}
-      <div className="flex items-center gap-4">
-        <h3 className="text-[11px] font-semibold tracking-[0.15em] uppercase" style={{ color: "hsl(210 8% 45%)" }}>
+      <div className="flex items-center gap-3">
+        <h3 className="text-[11px] font-semibold tracking-[0.18em] uppercase" style={{ color: "hsl(210 8% 40%)" }}>
           Recent activity
         </h3>
-        <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, hsl(210 8% 85%) 0%, transparent 100%)' }} />
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, hsl(210 8% 80%), transparent)" }} />
       </div>
 
-      <div className="v7-glass-card rounded-2xl overflow-hidden divide-y" style={{ borderColor: "hsl(210 8% 92%)" }}>
-        {EVENTS.map((event, idx) => {
-          const Icon = event.icon;
-          return (
-            <motion.div
-              key={event.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3, delay: idx * 0.04 }}
-              className="flex items-center gap-3.5 px-4 py-3 cursor-pointer transition-colors duration-200 hover:bg-white/30"
-              style={{ borderColor: "hsl(210 8% 94% / 0.6)" }}
-            >
-              {/* Minimal accent dot instead of icon box */}
-              <div className="flex flex-col items-center gap-0.5 shrink-0">
-                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: event.accent }} />
-                {idx < EVENTS.length - 1 && (
-                  <div className="w-px h-3 opacity-0" />
-                )}
-              </div>
+      <div
+        className="relative overflow-hidden"
+        style={{
+          background: "linear-gradient(180deg, hsl(0 0% 100% / 0.45), hsl(0 0% 100% / 0.25))",
+          backdropFilter: "blur(40px) saturate(1.4)",
+          borderRadius: "22px",
+          border: "1px solid hsl(0 0% 100% / 0.5)",
+          boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.6)",
+        }}
+      >
+        {EVENTS.map((event, idx) => (
+          <motion.div
+            key={event.id}
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-3.5 px-5 py-3.5 cursor-pointer transition-all duration-300 relative"
+            style={{
+              borderBottom: idx < EVENTS.length - 1 ? "1px solid hsl(210 8% 92% / 0.4)" : "none",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "hsl(0 0% 100% / 0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            {/* Organic status dot with subtle glow */}
+            <div className="relative shrink-0">
+              <div
+                className="h-2 w-2 rounded-full"
+                style={{
+                  backgroundColor: event.accent,
+                  boxShadow: `0 0 6px ${event.accent}30`,
+                }}
+              />
+            </div>
 
-              <div className="flex-1 min-w-0">
-                <span className="text-[12.5px] font-medium block" style={{ color: "hsl(210 8% 15%)" }}>
-                  {event.label}
-                </span>
-                <span className="text-[11px] block mt-0.5" style={{ color: "hsl(210 8% 55%)" }}>
-                  {event.detail}
-                </span>
-              </div>
-
-              <span className="text-[10px] font-medium shrink-0" style={{ color: "hsl(210 8% 68%)" }}>
-                {event.time}
+            <div className="flex-1 min-w-0">
+              <span className="text-[12px] font-medium block" style={{ color: "hsl(210 8% 13%)" }}>
+                {event.label}
               </span>
-            </motion.div>
-          );
-        })}
+              <span className="text-[10.5px] block mt-0.5" style={{ color: "hsl(210 8% 50%)" }}>
+                {event.detail}
+              </span>
+            </div>
+
+            <span className="text-[10px] font-medium tabular-nums shrink-0" style={{ color: "hsl(210 8% 62%)" }}>
+              {event.time}
+            </span>
+          </motion.div>
+        ))}
       </div>
     </div>
   );

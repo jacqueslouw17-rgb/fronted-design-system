@@ -1,6 +1,6 @@
 /**
- * Priorities Tab — visionary action-first command center
- * Editorial layout with architectural precision
+ * Priorities Tab — fluid, organic action surface
+ * Not a dashboard. A living operational membrane.
  */
 import React from "react";
 import { motion } from "framer-motion";
@@ -16,29 +16,65 @@ export const F1v7_PrioritiesTab: React.FC = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="pb-16 relative"
+      transition={{ duration: 0.6 }}
+      className="pb-20 relative"
     >
-      {/* Subtle decorative grid lines — architectural feel */}
+      {/* Floating iridescent orbs — ambient depth */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        <div className="absolute top-[200px] left-0 right-0 h-px opacity-[0.04]" style={{ background: 'linear-gradient(90deg, transparent 0%, hsl(210 8% 15%) 20%, hsl(210 8% 15%) 80%, transparent 100%)' }} />
-        <div className="absolute top-[600px] left-0 right-0 h-px opacity-[0.04]" style={{ background: 'linear-gradient(90deg, transparent 0%, hsl(210 8% 15%) 30%, hsl(210 8% 15%) 70%, transparent 100%)' }} />
+        <motion.div
+          animate={{
+            x: [0, 30, -20, 0],
+            y: [0, -40, 20, 0],
+            scale: [1, 1.15, 0.95, 1],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-20 -right-32 w-[500px] h-[500px] rounded-full opacity-[0.04]"
+          style={{
+            background: "radial-gradient(circle, hsl(172 60% 50%), hsl(260 60% 70%), transparent 70%)",
+            filter: "blur(80px)",
+          }}
+        />
+        <motion.div
+          animate={{
+            x: [0, -25, 15, 0],
+            y: [0, 30, -25, 0],
+            scale: [1, 0.9, 1.1, 1],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[400px] -left-40 w-[400px] h-[400px] rounded-full opacity-[0.035]"
+          style={{
+            background: "radial-gradient(circle, hsl(38 90% 60%), hsl(340 60% 60%), transparent 70%)",
+            filter: "blur(80px)",
+          }}
+        />
+        <motion.div
+          animate={{
+            x: [0, 20, -30, 0],
+            y: [0, -20, 40, 0],
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[900px] right-10 w-[350px] h-[350px] rounded-full opacity-[0.03]"
+          style={{
+            background: "radial-gradient(circle, hsl(200 70% 60%), hsl(172 50% 50%), transparent 70%)",
+            filter: "blur(80px)",
+          }}
+        />
       </div>
 
-      <div className="relative space-y-10">
-        {/* A. Hero Priority Strip */}
+      <div className="relative space-y-8">
+        {/* A. Hero Priority Strip — the pulse */}
         <F1v7_PriorityHeroStrip />
 
-        {/* Two-column layout: actions left, insights right */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          {/* Left: action-oriented (wider) */}
-          <div className="xl:col-span-7 space-y-10">
+        {/* Fluid asymmetric layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          {/* Left: action stream */}
+          <div className="xl:col-span-7 space-y-6">
             <F1v7_ActionQueue />
             <F1v7_ClientHealth />
           </div>
 
-          {/* Right: insight / analytics oriented */}
-          <div className="xl:col-span-5 space-y-10">
+          {/* Right: intelligence layer */}
+          <div className="xl:col-span-5 space-y-6">
             <F1v7_AnalyticsLayer />
             <F1v7_AIInsights />
             <F1v7_ActivityTimeline />
