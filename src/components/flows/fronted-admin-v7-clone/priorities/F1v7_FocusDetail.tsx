@@ -152,24 +152,18 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
               </div>
             </div>
 
-            <motion.button
-              initial={{ opacity: 0, x: 8 }}
-              animate={{
-                opacity: hoveredId === action.id ? 1 : 0,
-                x: hoveredId === action.id ? 0 : 8,
-              }}
-              transition={{ duration: 0.25 }}
-              className="shrink-0 flex items-center gap-1.5 h-8 px-4 text-[11px] font-semibold"
+            <button
+              className="shrink-0 flex items-center gap-1.5 h-8 px-4 text-[11px] font-semibold transition-all duration-300 hover:scale-105"
               style={{
-                color: "hsl(0 0% 100%)",
-                background: `linear-gradient(135deg, ${accent}, ${accent}DD)`,
+                color: accent,
+                background: `${accent}08`,
                 borderRadius: "12px",
-                boxShadow: `0 4px 12px ${accent}30`,
+                border: `1px solid ${accent}15`,
               }}
             >
               {action.cta}
               <ArrowRight className="h-3 w-3" />
-            </motion.button>
+            </button>
           </motion.div>
         ))}
       </div>
