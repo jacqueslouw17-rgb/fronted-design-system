@@ -1372,50 +1372,59 @@ const AdminContractingMultiCompany = () => {
 
                       {/* Conditional Content */}
                       <div className="pt-2">
-                        {activeMainTab === "payroll" ? (
-                          <F1v4_PayrollTab isAllClients={isAllClientsMode} selectedCompanyId={selectedCompany} />
-                        ) : (
-                          <div className="space-y-2">
-                            <div className="mt-1">
-                              <F1v4_PipelineView 
-                                key={isAllClientsMode ? "all-clients" : selectedCompany}
-                                contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
-                                onAddCandidate={handleAddCandidate}
-                                onRemoveContractor={(contractorId) => {
-                                  if (isAllClientsMode) {
-                                    // Find which company owns this contractor
-                                    for (const [companyId, ctrs] of Object.entries(companyContractors)) {
-                                      if ((ctrs || []).some(c => c.id === contractorId)) {
+                        <AnimatePresence mode="wait">
+                          {activeMainTab === "priorities" ? (
+                            <motion.div key="priorities" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
+                              <F1v7_PrioritiesTab />
+                            </motion.div>
+                          ) : activeMainTab === "payroll" ? (
+                            <motion.div key="payroll" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
+                              <F1v4_PayrollTab isAllClients={isAllClientsMode} selectedCompanyId={selectedCompany} />
+                            </motion.div>
+                          ) : (
+                            <motion.div key="tracker" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
+                              <div className="space-y-2">
+                                <div className="mt-1">
+                                  <F1v4_PipelineView 
+                                    key={isAllClientsMode ? "all-clients" : selectedCompany}
+                                    contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
+                                    onAddCandidate={handleAddCandidate}
+                                    onRemoveContractor={(contractorId) => {
+                                      if (isAllClientsMode) {
+                                        for (const [companyId, ctrs] of Object.entries(companyContractors)) {
+                                          if ((ctrs || []).some(c => c.id === contractorId)) {
+                                            setCompanyContractors(prev => ({
+                                              ...prev,
+                                              [companyId]: (prev[companyId] || []).filter(c => c.id !== contractorId)
+                                            }));
+                                            break;
+                                          }
+                                        }
+                                      } else {
                                         setCompanyContractors(prev => ({
                                           ...prev,
-                                          [companyId]: (prev[companyId] || []).filter(c => c.id !== contractorId)
+                                          [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
                                         }));
-                                        break;
                                       }
-                                    }
-                                  } else {
-                                    setCompanyContractors(prev => ({
-                                      ...prev,
-                                      [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
-                                    }));
-                                  }
-                                  sonnerToast.success("Candidate removed");
-                                }}
-                                onDraftContract={(ids) => {
-                                  const params = new URLSearchParams({ 
-                                    ids: ids.join(','),
-                                    returnTo: 'f1v7',
-                                    company: effectiveCompanyForActions
-                                  }).toString();
-                                  navigate(`/flows/contract-creation?${params}`);
-                                }}
-                                onSignatureComplete={() => {
-                                  navigate(`${FLOW_BASE_PATH}?phase=data-collection&allSigned=true`);
-                                }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                                      sonnerToast.success("Candidate removed");
+                                    }}
+                                    onDraftContract={(ids) => {
+                                      const params = new URLSearchParams({ 
+                                        ids: ids.join(','),
+                                        returnTo: 'f1v7',
+                                        company: effectiveCompanyForActions
+                                      }).toString();
+                                      navigate(`/flows/contract-creation?${params}`);
+                                    }}
+                                    onSignatureComplete={() => {
+                                      navigate(`${FLOW_BASE_PATH}?phase=data-collection&allSigned=true`);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </div>
                   </motion.div>
