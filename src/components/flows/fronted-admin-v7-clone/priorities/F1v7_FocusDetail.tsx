@@ -161,11 +161,11 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
 /* ─────────── Metrics Grid ─────────── */
 const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string }> = ({ metrics, accent }) => {
   return (
-    <div className="space-y-1.5 flex-1 flex flex-col">
-      <span className="text-[10px] font-semibold tracking-[0.18em] uppercase block px-1" style={{ color: "hsl(210 8% 42%)" }}>
+    <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
+      <span className="text-[10px] font-semibold tracking-[0.18em] uppercase block px-1 mb-1.5" style={{ color: "hsl(210 8% 42%)" }}>
         Metrics
       </span>
-      <div className="grid grid-cols-2 gap-2 flex-1">
+      <div className="grid grid-cols-2 gap-2 flex-1" style={{ minHeight: 0 }}>
         {metrics.map((m, idx) => (
           <motion.div
             key={m.label}
