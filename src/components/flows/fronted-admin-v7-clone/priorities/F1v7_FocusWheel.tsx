@@ -75,10 +75,10 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
         <motion.div
           ref={containerRef}
           onPanEnd={handlePan}
-          className="relative flex flex-col items-center overflow-visible"
+          className="relative flex items-center justify-center overflow-visible"
           style={{
             transformStyle: "preserve-3d",
-            height: "280px",
+            height: "220px",
           }}
         >
           <AnimatePresence mode="popLayout" initial={false}>
