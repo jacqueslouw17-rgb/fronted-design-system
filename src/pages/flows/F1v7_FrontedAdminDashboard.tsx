@@ -1321,7 +1321,6 @@ const AdminContractingMultiCompany = () => {
                                     )}
                                     {contractorCount > 0 && (
                                       <span className="v7-stat-pill">
-                                        <span className={cn("h-1.5 w-1.5 rounded-full transition-colors duration-500", contractorsAllResolved ? "bg-green-500" : "bg-orange-500 animate-pulse")} />
                                         {contractorCount} {contractorCount === 1 ? "contractor" : "contractors"}
                                       </span>
                                     )}
