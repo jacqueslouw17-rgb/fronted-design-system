@@ -1,5 +1,5 @@
 /**
- * AI Operational Insights — intelligent system-generated observations
+ * AI Operational Insights — sophisticated, distinct Fronted intelligence layer
  */
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,64 +22,78 @@ const INSIGHTS: Insight[] = [
   { id: "i5", icon: TrendingUp, category: "pattern", text: "Globex Inc shows rising document re-upload rates this month — up 40%.", detail: "Most re-uploads are due to incorrect file formats. Consider adding validation guidance." },
 ];
 
-const categoryStyles: Record<string, string> = {
-  pattern: "border-primary/20",
-  risk: "border-amber-400/30",
-  optimization: "border-green-400/30",
-  anomaly: "border-red-400/20",
+const categoryAccent: Record<string, string> = {
+  pattern: "hsl(172 28% 42%)",
+  risk: "hsl(38 92% 50%)",
+  optimization: "hsl(152 60% 42%)",
+  anomaly: "hsl(0 72% 51%)",
 };
 
 export const F1v7_AIInsights: React.FC = () => {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-semibold tracking-wide uppercase" style={{ color: "hsl(210 8% 15%)" }}>
-          AI insights
-        </h3>
+    <div className="space-y-5">
+      {/* Section header */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5" style={{ color: "hsl(172 28% 42%)" }} />
+          <h3 className="text-[11px] font-semibold tracking-[0.15em] uppercase" style={{ color: "hsl(210 8% 45%)" }}>
+            Insights
+          </h3>
+        </div>
+        <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, hsl(210 8% 85%) 0%, transparent 100%)' }} />
+        <span
+          className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+          style={{ backgroundColor: "hsl(172 28% 42% / 0.08)", color: "hsl(172 28% 42%)" }}
+        >
+          AI
+        </span>
       </div>
+
       <div className="space-y-2">
         {INSIGHTS.map((insight, idx) => {
           const Icon = insight.icon;
           const isExpanded = expanded === insight.id;
+          const accent = categoryAccent[insight.category];
           return (
             <motion.div
               key={insight.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: idx * 0.06 }}
-              className={cn(
-                "v7-glass-card rounded-2xl border p-3.5 cursor-pointer transition-all hover:shadow-md",
-                categoryStyles[insight.category]
-              )}
+              transition={{ duration: 0.4, delay: idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
+              className="v7-glass-card rounded-2xl cursor-pointer transition-all duration-300 overflow-hidden"
+              style={{ borderColor: isExpanded ? `${accent}25` : undefined }}
               onClick={() => setExpanded(isExpanded ? null : insight.id)}
             >
-              <div className="flex items-start gap-2.5">
-                <Icon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium leading-snug" style={{ color: "hsl(210 8% 15%)" }}>
-                    {insight.text}
-                  </p>
-                  <AnimatePresence>
-                    {isExpanded && insight.detail && (
-                      <motion.p
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="text-[12px] text-muted-foreground mt-1.5 leading-relaxed"
-                      >
-                        {insight.detail}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
+              <div className="p-4">
+                <div className="flex items-start gap-3">
+                  {/* Accent line instead of icon background */}
+                  <div className="w-[3px] rounded-full self-stretch mt-0.5 shrink-0" style={{ backgroundColor: accent }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12.5px] font-medium leading-relaxed tracking-[-0.01em]" style={{ color: "hsl(210 8% 18%)" }}>
+                      {insight.text}
+                    </p>
+                    <AnimatePresence>
+                      {isExpanded && insight.detail && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                        >
+                          <p className="text-[11.5px] leading-relaxed mt-2 pt-2" style={{ color: "hsl(210 8% 50%)", borderTop: '1px solid hsl(210 8% 92%)' }}>
+                            {insight.detail}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <ChevronRight
+                    className={cn("h-3.5 w-3.5 shrink-0 mt-0.5 transition-transform duration-300", isExpanded && "rotate-90")}
+                    style={{ color: "hsl(210 8% 70%)" }}
+                  />
                 </div>
-                <ChevronRight className={cn(
-                  "h-3.5 w-3.5 text-muted-foreground/50 shrink-0 mt-0.5 transition-transform duration-200",
-                  isExpanded && "rotate-90"
-                )} />
               </div>
             </motion.div>
           );

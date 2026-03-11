@@ -1,12 +1,10 @@
 /**
- * "What Needs Attention" Action Queue — the heart of Priorities
+ * "What Needs Attention" Action Queue — refined editorial worklist
  */
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, AlertTriangle, FileQuestion, CalendarClock, ExternalLink, Shield, Ban, ChevronDown, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 type BucketKey = "approval" | "at-risk" | "missing" | "due-soon" | "waiting" | "compliance" | "payroll-blocker";
 
@@ -21,14 +19,14 @@ interface ActionItem {
   bucket: BucketKey;
 }
 
-const BUCKET_CONFIG: Record<BucketKey, { label: string; icon: React.ElementType; color: string }> = {
-  "approval": { label: "Needs approval", icon: Clock, color: "text-amber-600" },
-  "at-risk": { label: "At risk", icon: AlertTriangle, color: "text-red-500" },
-  "missing": { label: "Missing info", icon: FileQuestion, color: "text-orange-500" },
-  "due-soon": { label: "Due soon", icon: CalendarClock, color: "text-primary" },
-  "waiting": { label: "Waiting on external", icon: ExternalLink, color: "text-muted-foreground" },
-  "compliance": { label: "Compliance issue", icon: Shield, color: "text-red-600" },
-  "payroll-blocker": { label: "Payroll blocker", icon: Ban, color: "text-red-500" },
+const BUCKET_CONFIG: Record<BucketKey, { label: string; icon: React.ElementType; accent: string }> = {
+  "approval": { label: "Needs approval", icon: Clock, accent: "hsl(38 92% 50%)" },
+  "at-risk": { label: "At risk", icon: AlertTriangle, accent: "hsl(0 72% 51%)" },
+  "missing": { label: "Missing info", icon: FileQuestion, accent: "hsl(25 95% 53%)" },
+  "due-soon": { label: "Due soon", icon: CalendarClock, accent: "hsl(172 28% 42%)" },
+  "waiting": { label: "Waiting on external", icon: ExternalLink, accent: "hsl(210 8% 55%)" },
+  "compliance": { label: "Compliance issue", icon: Shield, accent: "hsl(0 65% 48%)" },
+  "payroll-blocker": { label: "Payroll blocker", icon: Ban, accent: "hsl(0 72% 45%)" },
 };
 
 const MOCK_ACTIONS: ActionItem[] = [
@@ -45,7 +43,6 @@ const MOCK_ACTIONS: ActionItem[] = [
 export const F1v7_ActionQueue: React.FC = () => {
   const [expandedBucket, setExpandedBucket] = useState<BucketKey | null>("approval");
 
-  // Group actions by bucket
   const grouped = MOCK_ACTIONS.reduce((acc, item) => {
     if (!acc[item.bucket]) acc[item.bucket] = [];
     acc[item.bucket].push(item);
@@ -55,11 +52,19 @@ export const F1v7_ActionQueue: React.FC = () => {
   const bucketOrder: BucketKey[] = ["approval", "payroll-blocker", "at-risk", "missing", "compliance", "waiting", "due-soon"];
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-semibold tracking-wide uppercase" style={{ color: "hsl(210 8% 15%)" }}>
-        What needs attention
-      </h3>
-      <div className="space-y-2">
+    <div className="space-y-5">
+      {/* Section header */}
+      <div className="flex items-center gap-4">
+        <h3 className="text-[11px] font-semibold tracking-[0.15em] uppercase" style={{ color: "hsl(210 8% 45%)" }}>
+          What needs attention
+        </h3>
+        <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, hsl(210 8% 85%) 0%, transparent 100%)' }} />
+        <span className="text-[11px] font-medium" style={{ color: "hsl(210 8% 55%)" }}>
+          {MOCK_ACTIONS.length} items
+        </span>
+      </div>
+
+      <div className="space-y-2.5">
         {bucketOrder.filter(b => grouped[b]).map((bucketKey) => {
           const config = BUCKET_CONFIG[bucketKey];
           const items = grouped[bucketKey];
@@ -67,19 +72,28 @@ export const F1v7_ActionQueue: React.FC = () => {
           const isExpanded = expandedBucket === bucketKey;
 
           return (
-            <div key={bucketKey} className="v7-glass-card rounded-2xl border border-border/30 overflow-hidden">
+            <div key={bucketKey} className="v7-glass-card rounded-2xl overflow-hidden" style={{ borderColor: isExpanded ? `${config.accent}15` : undefined }}>
               <button
                 onClick={() => setExpandedBucket(isExpanded ? null : bucketKey)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/20 transition-colors"
+                className="w-full flex items-center justify-between px-5 py-3.5 transition-colors"
+                style={{ background: isExpanded ? `linear-gradient(90deg, ${config.accent}06, transparent)` : undefined }}
               >
-                <div className="flex items-center gap-2.5">
-                  <Icon className={cn("h-4 w-4", config.color)} />
-                  <span className="text-sm font-semibold" style={{ color: "hsl(210 8% 15%)" }}>{config.label}</span>
-                  <Badge variant="secondary" className="text-[11px] px-1.5 py-0 h-5 bg-muted/60 font-bold">
+                <div className="flex items-center gap-3">
+                  <div className="p-1 rounded-md" style={{ backgroundColor: `${config.accent}08` }}>
+                    <Icon className="h-3.5 w-3.5" style={{ color: config.accent }} />
+                  </div>
+                  <span className="text-[13px] font-semibold" style={{ color: "hsl(210 8% 20%)" }}>{config.label}</span>
+                  <span
+                    className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: `${config.accent}10`, color: config.accent }}
+                  >
                     {items.length}
-                  </Badge>
+                  </span>
                 </div>
-                <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", isExpanded && "rotate-180")} />
+                <ChevronDown
+                  className={cn("h-4 w-4 transition-transform duration-300", isExpanded && "rotate-180")}
+                  style={{ color: "hsl(210 8% 65%)" }}
+                />
               </button>
               <AnimatePresence initial={false}>
                 {isExpanded && (
@@ -87,47 +101,56 @@ export const F1v7_ActionQueue: React.FC = () => {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <div className="px-2 pb-2 space-y-1">
+                    <div className="px-3 pb-3 space-y-1">
                       {items.map((item, idx) => (
                         <motion.div
                           key={item.id}
-                          initial={{ opacity: 0, x: -8 }}
+                          initial={{ opacity: 0, x: -6 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.04 }}
-                          className="group flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl hover:bg-white/30 transition-colors cursor-pointer"
+                          transition={{ delay: idx * 0.05, duration: 0.3 }}
+                          className="group flex items-center justify-between gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 hover:bg-white/40"
                         >
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-[13px] font-medium" style={{ color: "hsl(210 8% 15%)" }}>{item.title}</span>
+                            <div className="flex items-center gap-2.5 flex-wrap">
+                              <span className="text-[13px] font-medium tracking-[-0.01em]" style={{ color: "hsl(210 8% 15%)" }}>
+                                {item.title}
+                              </span>
                               {item.deadline && (
-                                <span className={cn(
-                                  "text-[10px] font-bold px-1.5 py-0.5 rounded-full",
-                                  item.deadline === "Overdue" ? "bg-red-500/12 text-red-600" :
-                                  item.deadline === "Due today" ? "bg-amber-500/12 text-amber-700" :
-                                  "bg-muted/60 text-muted-foreground"
-                                )}>
+                                <span
+                                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                  style={{
+                                    backgroundColor: item.deadline === "Overdue" ? "hsl(0 72% 51% / 0.08)" :
+                                      item.deadline === "Due today" ? "hsl(38 92% 50% / 0.08)" : "hsl(210 8% 90%)",
+                                    color: item.deadline === "Overdue" ? "hsl(0 65% 45%)" :
+                                      item.deadline === "Due today" ? "hsl(38 80% 40%)" : "hsl(210 8% 45%)",
+                                  }}
+                                >
                                   {item.deadline}
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[11px] text-muted-foreground">{item.client}</span>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className="text-[11px] font-medium" style={{ color: "hsl(210 8% 50%)" }}>{item.client}</span>
                               {item.affected && (
-                                <span className="text-[11px] text-muted-foreground">· {item.affected} {item.affected === 1 ? "worker" : "workers"}</span>
+                                <span className="text-[11px]" style={{ color: "hsl(210 8% 60%)" }}>
+                                  · {item.affected} {item.affected === 1 ? "worker" : "workers"}
+                                </span>
                               )}
-                              <span className="text-[11px] text-muted-foreground/70">· {item.reason}</span>
+                              <span className="text-[11px]" style={{ color: "hsl(210 8% 68%)" }}>· {item.reason}</span>
                             </div>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity h-7 px-3 text-xs font-semibold text-primary hover:bg-primary/10"
+                          <button
+                            className="opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1 h-7 px-3 text-[11px] font-semibold rounded-lg"
+                            style={{
+                              color: config.accent,
+                              backgroundColor: `${config.accent}08`,
+                            }}
                           >
                             {item.cta}
-                            <ArrowRight className="h-3 w-3 ml-1" />
-                          </Button>
+                            <ArrowRight className="h-3 w-3" />
+                          </button>
                         </motion.div>
                       ))}
                     </div>
