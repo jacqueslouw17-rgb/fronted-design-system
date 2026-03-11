@@ -108,8 +108,8 @@ export const F1v7_PrioritiesTab: React.FC = () => {
         onPrev={goPrev}
       />
 
-      {/* Progress dots — tight */}
-      <div className="flex items-center justify-center gap-1.5 mt-3 mb-4">
+      {/* Progress dots */}
+      <div className="flex items-center justify-center gap-1.5 mt-1 mb-2">
         {PRIORITY_STREAM.map((item, idx) => (
           <button
             key={item.id}
@@ -138,7 +138,7 @@ export const F1v7_PrioritiesTab: React.FC = () => {
         ))}
       </div>
 
-      {/* Detail — tight to wheel */}
+      {/* Detail — directly below */}
       <F1v7_FocusDetail
         priority={activePriority}
         direction={direction}
