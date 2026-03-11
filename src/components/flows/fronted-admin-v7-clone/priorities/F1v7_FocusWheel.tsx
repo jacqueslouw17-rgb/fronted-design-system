@@ -151,8 +151,8 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                       ? `1px solid ${item.accentColor}20`
                       : `1px solid hsl(0 0% 100% / ${absSlot === 1 ? 0.35 : 0.2})`,
                     boxShadow: isActive
-                      ? `0 12px 40px -10px hsl(0 0% 0% / 0.08), inset 0 1px 0 hsl(0 0% 100% / 0.6)`
-                      : `0 ${absSlot === 1 ? 4 : 2}px ${absSlot === 1 ? 12 : 6}px hsl(0 0% 0% / 0.03)`,
+                      ? `0 6px 20px -8px hsl(0 0% 0% / 0.04), inset 0 1px 0 hsl(0 0% 100% / 0.6)`
+                      : `0 ${absSlot === 1 ? 2 : 1}px ${absSlot === 1 ? 6 : 3}px hsl(0 0% 0% / 0.02)`,
                     padding: isActive ? "18px 24px" : undefined,
                   }}
                 >
