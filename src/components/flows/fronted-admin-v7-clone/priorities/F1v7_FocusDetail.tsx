@@ -20,17 +20,17 @@ export const F1v7_FocusDetail: React.FC<Props> = ({ priority, direction }) => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: direction >= 0 ? -15 : 30 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="space-y-4"
+        className="space-y-2"
       >
-        {/* ── Compact layout: Metrics top, Actions below ── */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+        {/* ── Equal-height layout: Actions + Metrics ── */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 xl:items-stretch">
           {/* Left: Actions */}
-          <div className="xl:col-span-7">
+          <div className="xl:col-span-7 flex flex-col">
             <ActionList actions={priority.actions} accent={priority.accentColor} />
           </div>
 
-          {/* Right: Metrics only — no insight */}
-          <div className="xl:col-span-5">
+          {/* Right: Metrics */}
+          <div className="xl:col-span-5 flex flex-col">
             <MetricsGrid metrics={priority.metrics} accent={priority.accentColor} />
           </div>
         </div>
