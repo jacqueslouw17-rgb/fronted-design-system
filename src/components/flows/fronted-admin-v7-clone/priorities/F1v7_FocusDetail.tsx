@@ -58,7 +58,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
       </div>
 
       <div
-        className="overflow-hidden"
+        className="overflow-hidden flex-1"
         style={{
           background: "linear-gradient(180deg, hsl(0 0% 100% / 0.5), hsl(0 0% 100% / 0.25))",
           backdropFilter: "blur(50px) saturate(1.6)",
