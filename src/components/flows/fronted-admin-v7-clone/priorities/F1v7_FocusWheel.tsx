@@ -125,10 +125,11 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                     duration: 0.6,
                     ease: [0.22, 1, 0.36, 1],
                   }}
-                  className="absolute left-0 right-0 cursor-pointer"
+                  className="absolute left-0 right-0 cursor-pointer top-1/2"
                   style={{
                     zIndex,
                     transformOrigin: "center center",
+                    marginTop: "-42px",
                   }}
                   onClick={() => !isActive && onSelect(idx)}
                 >
