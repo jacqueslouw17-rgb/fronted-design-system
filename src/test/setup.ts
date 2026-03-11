@@ -32,7 +32,7 @@ Element.prototype.scrollIntoView = vi.fn();
 HTMLElement.prototype.focus = vi.fn();
 
 // Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
+(globalThis as any).IntersectionObserver = class IntersectionObserver {
   constructor() {}
   disconnect() {}
   observe() {}
