@@ -1,7 +1,7 @@
 /**
- * Focus Wheel — stacked card carousel with visible glass depth
- * Active card on top. Cards behind peek their edges above & below.
- * Clicking the active card advances to the next priority.
+ * Focus Wheel — stacked card carousel with living glass depth
+ * Iridescent edges, ambient glow orbs, breathing severity indicators,
+ * morphing gradients, and floating background blobs.
  */
 import React, { useRef } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
@@ -16,6 +16,28 @@ interface Props {
   onNext: () => void;
   onPrev: () => void;
 }
+
+/* Severity → morphing gradient palette */
+const severityGradients: Record<string, { bg: string; glow: string; blob1: string; blob2: string }> = {
+  critical: {
+    bg: "linear-gradient(160deg, hsl(0 0% 100% / 0.88), hsl(0 72% 95% / 0.4), hsl(0 0% 100% / 0.65))",
+    glow: "hsl(0 72% 51% / 0.08)",
+    blob1: "hsl(0 72% 60% / 0.06)",
+    blob2: "hsl(340 70% 65% / 0.05)",
+  },
+  warning: {
+    bg: "linear-gradient(160deg, hsl(0 0% 100% / 0.88), hsl(38 92% 95% / 0.35), hsl(0 0% 100% / 0.65))",
+    glow: "hsl(38 92% 50% / 0.06)",
+    blob1: "hsl(38 92% 60% / 0.06)",
+    blob2: "hsl(25 90% 55% / 0.04)",
+  },
+  info: {
+    bg: "linear-gradient(160deg, hsl(0 0% 100% / 0.88), hsl(172 28% 90% / 0.3), hsl(0 0% 100% / 0.65))",
+    glow: "hsl(172 28% 42% / 0.05)",
+    blob1: "hsl(172 40% 55% / 0.05)",
+    blob2: "hsl(200 50% 60% / 0.04)",
+  },
+};
 
 export const F1v7_FocusWheel: React.FC<Props> = ({
   items,
@@ -79,7 +101,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Stack container — enough height for peek cards */}
+      {/* Stack container */}
       <motion.div
         ref={containerRef}
         onPanEnd={handlePan}
@@ -94,11 +116,8 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
             const isActive = slot === 0;
             const Icon = item.icon;
             const absSlot = Math.abs(slot);
+            const sev = severityGradients[item.severity] || severityGradients.info;
 
-            // Symmetric stacking: active card centered, peek cards equidistant above/below
-            // Active card at y=35 (centered in 150px container with ~80px card height)
-            // Cards above: slot -1 at y=21, slot -2 at y=13
-            // Cards below: slot +1 at y=101, slot +2 at y=109
             let yPos: number;
             if (isActive) {
               yPos = 35;
@@ -117,43 +136,20 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
               <motion.div
                 key={item.id}
                 layout
-                initial={{
-                  y: direction > 0 ? 120 : -60,
-                  opacity: 0,
-                }}
-                animate={{
-                  y: yPos,
-                  opacity,
-                }}
-                exit={{
-                  y: direction > 0 ? -60 : 120,
-                  opacity: 0,
-                }}
-                transition={{
-                  duration: 0.5,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute cursor-pointer"
-                style={{
-                  zIndex,
-                  left: widthShrink,
-                  right: widthShrink,
-                }}
-                onClick={() => {
-                  if (isActive) {
-                    // Clicking active card → go to next
-                    onNext();
-                  } else {
-                    onSelect(idx);
-                  }
-                }}
+                initial={{ y: direction > 0 ? 120 : -60, opacity: 0 }}
+                animate={{ y: yPos, opacity }}
+                exit={{ y: direction > 0 ? -60 : 120, opacity: 0 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute cursor-pointer group"
+                style={{ zIndex, left: widthShrink, right: widthShrink }}
+                onClick={() => (isActive ? onNext() : onSelect(idx))}
               >
                 <div
                   className="relative overflow-hidden transition-all duration-500"
                   style={{
                     height: cardHeight,
                     background: isActive
-                      ? "linear-gradient(160deg, hsl(0 0% 100% / 0.88), hsl(0 0% 100% / 0.65))"
+                      ? sev.bg
                       : `linear-gradient(160deg, hsl(0 0% 100% / ${absSlot === 1 ? 0.5 : 0.3}), hsl(0 0% 100% / ${absSlot === 1 ? 0.3 : 0.15}))`,
                     backdropFilter: isActive
                       ? "blur(60px) saturate(2)"
@@ -168,13 +164,98 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                     padding: isActive ? "18px 24px" : undefined,
                   }}
                 >
+                  {/* ═══ LIVING UI LAYERS — active card only ═══ */}
+                  {isActive && (
+                    <>
+                      {/* Floating blob 1 — drifts slowly top-right */}
+                      <motion.div
+                        className="absolute pointer-events-none rounded-full"
+                        style={{
+                          width: 120,
+                          height: 120,
+                          top: -30,
+                          right: -20,
+                          background: `radial-gradient(circle, ${sev.blob1}, transparent 70%)`,
+                          filter: "blur(30px)",
+                        }}
+                        animate={{
+                          x: [0, 15, -5, 0],
+                          y: [0, -8, 5, 0],
+                          scale: [1, 1.15, 0.95, 1],
+                        }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                      />
+
+                      {/* Floating blob 2 — drifts bottom-left */}
+                      <motion.div
+                        className="absolute pointer-events-none rounded-full"
+                        style={{
+                          width: 100,
+                          height: 100,
+                          bottom: -25,
+                          left: 40,
+                          background: `radial-gradient(circle, ${sev.blob2}, transparent 70%)`,
+                          filter: "blur(25px)",
+                        }}
+                        animate={{
+                          x: [0, -10, 8, 0],
+                          y: [0, 6, -4, 0],
+                          scale: [1, 0.9, 1.1, 1],
+                        }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                      />
+
+                      {/* Ambient glow orb — appears on hover */}
+                      <div
+                        className="absolute inset-0 pointer-events-none rounded-[20px] opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                        style={{
+                          background: `radial-gradient(ellipse at 60% 50%, ${sev.glow}, transparent 60%)`,
+                        }}
+                      />
+
+                      {/* Prismatic top edge — iridescent rainbow refraction */}
+                      <motion.div
+                        initial={{ opacity: 0, scaleX: 0 }}
+                        animate={{ opacity: 1, scaleX: 1 }}
+                        transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute top-0 left-0 right-0 h-[2px]"
+                        style={{
+                          background: `linear-gradient(90deg, transparent 2%, ${item.accentColor}40 15%, hsl(280 70% 70% / 0.35) 35%, hsl(190 80% 65% / 0.3) 50%, hsl(340 70% 65% / 0.25) 65%, ${item.accentColor}30 85%, transparent 98%)`,
+                          transformOrigin: "left center",
+                        }}
+                      />
+
+                      {/* Prismatic bottom edge — subtle mirror */}
+                      <motion.div
+                        initial={{ opacity: 0, scaleX: 0 }}
+                        animate={{ opacity: 0.5, scaleX: 1 }}
+                        transition={{ delay: 0.35, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute bottom-0 left-[5%] right-[5%] h-[1px]"
+                        style={{
+                          background: `linear-gradient(90deg, transparent, ${item.accentColor}20, hsl(260 60% 70% / 0.15), ${item.accentColor}15, transparent)`,
+                          transformOrigin: "right center",
+                        }}
+                      />
+
+                      {/* Left edge iridescent accent */}
+                      <motion.div
+                        initial={{ opacity: 0, scaleY: 0 }}
+                        animate={{ opacity: 0.6, scaleY: 1 }}
+                        transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute left-0 top-[10%] bottom-[10%] w-[1.5px]"
+                        style={{
+                          background: `linear-gradient(180deg, transparent, ${item.accentColor}30, hsl(260 60% 70% / 0.2), transparent)`,
+                          transformOrigin: "center top",
+                        }}
+                      />
+                    </>
+                  )}
+
                   {/* Glass reflection line on non-active cards */}
                   {!isActive && (
                     <div
                       className="absolute left-[8%] right-[8%]"
                       style={{
-                        top: slot < 0 ? undefined : "0px",
-                        bottom: slot < 0 ? undefined : undefined,
                         height: "1px",
                         ...(slot < 0 ? { bottom: "0px" } : { top: "0px" }),
                         background: `linear-gradient(90deg, transparent, hsl(0 0% 100% / ${absSlot === 1 ? 0.6 : 0.3}), transparent)`,
@@ -182,60 +263,55 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                     />
                   )}
 
-                  {/* Prismatic top edge — active card only */}
+                  {/* ═══ CONTENT — active card ═══ */}
                   {isActive && (
-                    <motion.div
-                      initial={{ opacity: 0, scaleX: 0 }}
-                      animate={{ opacity: 1, scaleX: 1 }}
-                      transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                      className="absolute top-0 left-0 right-0 h-[2px]"
-                      style={{
-                        background: `linear-gradient(90deg, transparent 3%, ${item.accentColor}50 20%, hsl(260 60% 70% / 0.3) 50%, ${item.accentColor}35 80%, transparent 97%)`,
-                        transformOrigin: "left center",
-                      }}
-                    />
-                  )}
-
-                  {/* Content — only rendered for active card */}
-                  {isActive && (
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="shrink-0 flex items-center justify-center"
-                        style={{
-                          width: 42,
-                          height: 42,
-                          borderRadius: "12px",
-                          background: `${item.accentColor}0C`,
-                          border: `1px solid ${item.accentColor}18`,
-                        }}
-                      >
-                        <Icon
+                    <div className="relative z-10 flex items-center gap-4">
+                      {/* Icon container with ambient glow */}
+                      <div className="shrink-0 relative">
+                        <motion.div
+                          className="absolute inset-0 rounded-[12px]"
                           style={{
-                            color: item.accentColor,
-                            width: 18,
-                            height: 18,
-                            opacity: 0.9,
+                            background: `radial-gradient(circle, ${item.accentColor}15, transparent 70%)`,
+                            filter: "blur(8px)",
                           }}
+                          animate={{
+                            scale: [1, 1.3, 1],
+                            opacity: [0.5, 0.8, 0.5],
+                          }}
+                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                         />
+                        <div
+                          className="relative flex items-center justify-center"
+                          style={{
+                            width: 42,
+                            height: 42,
+                            borderRadius: "12px",
+                            background: `linear-gradient(135deg, ${item.accentColor}0C, ${item.accentColor}08)`,
+                            border: `1px solid ${item.accentColor}18`,
+                          }}
+                        >
+                          <Icon
+                            style={{
+                              color: item.accentColor,
+                              width: 18,
+                              height: 18,
+                              opacity: 0.9,
+                            }}
+                          />
+                        </div>
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline gap-3">
                           <span
                             className="font-extralight leading-none tracking-[-0.04em] tabular-nums"
-                            style={{
-                              color: item.accentColor,
-                              fontSize: "32px",
-                            }}
+                            style={{ color: item.accentColor, fontSize: "32px" }}
                           >
                             {item.count}
                           </span>
                           <span
                             className="font-medium tracking-[-0.01em]"
-                            style={{
-                              color: "hsl(210 8% 12%)",
-                              fontSize: "14px",
-                            }}
+                            style={{ color: "hsl(210 8% 12%)", fontSize: "14px" }}
                           >
                             {item.label}
                           </span>
@@ -252,16 +328,32 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                         </motion.p>
                       </div>
 
+                      {/* Severity badge with breathing pulse */}
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.12, duration: 0.35 }}
-                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+                        className="shrink-0 relative flex items-center gap-1.5 px-3 py-1.5 rounded-full"
                         style={{
                           background: `${item.accentColor}0A`,
                           border: `1px solid ${item.accentColor}12`,
                         }}
                       >
+                        {/* Breathing glow behind badge */}
+                        <motion.div
+                          className="absolute inset-0 rounded-full"
+                          style={{ background: `${item.accentColor}06` }}
+                          animate={
+                            item.severity === "critical"
+                              ? { scale: [1, 1.15, 1], opacity: [0.3, 0.7, 0.3] }
+                              : { scale: [1, 1.05, 1], opacity: [0.2, 0.4, 0.2] }
+                          }
+                          transition={{
+                            duration: item.severity === "critical" ? 1.8 : 3,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        />
                         <motion.div
                           animate={
                             item.severity === "critical"
@@ -269,11 +361,11 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                               : {}
                           }
                           transition={{ duration: 2, repeat: Infinity }}
-                          className="h-1.5 w-1.5 rounded-full"
+                          className="relative h-1.5 w-1.5 rounded-full"
                           style={{ backgroundColor: item.accentColor }}
                         />
                         <span
-                          className="text-[9px] font-bold uppercase tracking-[0.12em]"
+                          className="relative text-[9px] font-bold uppercase tracking-[0.12em]"
                           style={{ color: item.accentColor }}
                         >
                           {item.severity}
