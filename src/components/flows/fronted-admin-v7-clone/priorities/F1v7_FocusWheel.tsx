@@ -1,6 +1,6 @@
 /**
- * Focus Wheel — card stack carousel
- * Active card in center, adjacent cards peek behind with subtle depth.
+ * Focus Wheel — stacked card carousel with glass depth
+ * Active card on top, adjacent cards peek behind like a physical card stack.
  */
 import React, { useRef } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
@@ -33,7 +33,12 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
     }
   };
 
+  // Render slots: behind cards above (-1, -2) and below (+1, +2) the active
   const slots = [-2, -1, 0, 1, 2];
+
+  // How many cards exist behind in each direction
+  const cardsBefore = activeIndex;
+  const cardsAfter = items.length - 1 - activeIndex;
 
   return (
     <div className="relative">
@@ -70,7 +75,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
         ref={containerRef}
         onPanEnd={handlePan}
         className="relative mx-auto"
-        style={{ height: "130px", maxWidth: "680px" }}
+        style={{ height: "140px", maxWidth: "680px" }}
       >
         <AnimatePresence mode="popLayout" initial={false}>
           {slots.map((slot) => {
@@ -81,11 +86,12 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
             const Icon = item.icon;
             const absSlot = Math.abs(slot);
 
-            // Card stack: active on top, others peek behind with narrower width + offset
-            const yOffset = slot * 8; // very tight vertical peek
-            const widthShrink = isActive ? 0 : absSlot === 1 ? 24 : 48; // px narrower on each side
-            const scale = 1; // no scaling, use width narrowing instead
-            const opacity = isActive ? 1 : absSlot === 1 ? 0.55 : 0.2;
+            // Stacked depth: cards behind peek with narrowing + vertical offset
+            const peekY = isActive ? 16 : slot < 0
+              ? (16 - absSlot * 10) // cards above peek upward
+              : (16 + absSlot * 10); // cards below peek downward
+            const widthShrink = isActive ? 0 : absSlot * 20;
+            const opacity = isActive ? 1 : absSlot === 1 ? 0.5 : 0.2;
             const zIndex = 10 - absSlot;
 
             return (
@@ -97,7 +103,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                   opacity: 0,
                 }}
                 animate={{
-                  y: yOffset,
+                  y: peekY,
                   opacity,
                 }}
                 exit={{
@@ -113,26 +119,28 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                   zIndex,
                   left: widthShrink,
                   right: widthShrink,
-                  top: isActive ? 12 : absSlot === 1 ? 4 : 0,
+                  top: 0,
                 }}
-                onClick={() => !isActive && onSelect(idx)}
+                onClick={() => onSelect(idx)}
               >
                 <div
                   className="relative overflow-hidden transition-all duration-500"
                   style={{
                     background: isActive
-                      ? "linear-gradient(160deg, hsl(0 0% 100% / 0.85), hsl(0 0% 100% / 0.6))"
-                      : "linear-gradient(160deg, hsl(0 0% 100% / 0.35), hsl(0 0% 100% / 0.15))",
-                    backdropFilter: isActive ? "blur(60px) saturate(2)" : "blur(20px) saturate(1.1)",
-                    borderRadius: isActive ? "20px" : "16px",
-                    border: `1px solid ${isActive ? item.accentColor + "20" : "hsl(0 0% 100% / 0.2)"}`,
+                      ? "linear-gradient(160deg, hsl(0 0% 100% / 0.88), hsl(0 0% 100% / 0.65))"
+                      : `linear-gradient(160deg, hsl(0 0% 100% / ${absSlot === 1 ? 0.4 : 0.25}), hsl(0 0% 100% / ${absSlot === 1 ? 0.2 : 0.1}))`,
+                    backdropFilter: isActive ? "blur(60px) saturate(2)" : `blur(${absSlot === 1 ? 30 : 15}px) saturate(1.2)`,
+                    borderRadius: isActive ? "20px" : `${18 - absSlot * 2}px`,
+                    border: isActive
+                      ? `1px solid ${item.accentColor}20`
+                      : `1px solid hsl(0 0% 100% / ${absSlot === 1 ? 0.3 : 0.15})`,
                     boxShadow: isActive
-                      ? `0 12px 40px -10px hsl(0 0% 0% / 0.08), 0 0 0 1px hsl(0 0% 100% / 0.5) inset`
-                      : `0 2px 12px -4px hsl(0 0% 0% / 0.04)`,
-                    padding: isActive ? "18px 24px" : "10px 20px",
+                      ? `0 12px 40px -10px hsl(0 0% 0% / 0.08), 0 0 0 1px hsl(0 0% 100% / 0.5) inset, 0 -4px 20px -4px hsl(0 0% 0% / 0.03)`
+                      : `0 ${absSlot === 1 ? 4 : 2}px ${absSlot === 1 ? 16 : 8}px -${absSlot === 1 ? 6 : 4}px hsl(0 0% 0% / 0.04)`,
+                    padding: isActive ? "18px 24px" : `${14 - absSlot * 2}px ${22 - absSlot * 2}px`,
                   }}
                 >
-                  {/* Prismatic top edge */}
+                  {/* Prismatic top edge — active card */}
                   {isActive && (
                     <motion.div
                       initial={{ opacity: 0, scaleX: 0 }}
@@ -146,13 +154,23 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                     />
                   )}
 
+                  {/* Glass reflection line on non-active cards */}
+                  {!isActive && (
+                    <div
+                      className="absolute top-0 left-[10%] right-[10%] h-[1px]"
+                      style={{
+                        background: `linear-gradient(90deg, transparent, hsl(0 0% 100% / ${absSlot === 1 ? 0.5 : 0.25}), transparent)`,
+                      }}
+                    />
+                  )}
+
                   {/* Content */}
                   <div className="flex items-center gap-4">
                     <div
                       className="shrink-0 flex items-center justify-center transition-all duration-500"
                       style={{
-                        width: isActive ? 42 : 28,
-                        height: isActive ? 42 : 28,
+                        width: isActive ? 42 : absSlot === 1 ? 30 : 24,
+                        height: isActive ? 42 : absSlot === 1 ? 30 : 24,
                         borderRadius: isActive ? "12px" : "8px",
                         background: `${item.accentColor}${isActive ? "0C" : "06"}`,
                         border: `1px solid ${item.accentColor}${isActive ? "18" : "0A"}`,
@@ -161,9 +179,9 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                       <Icon
                         style={{
                           color: item.accentColor,
-                          width: isActive ? 18 : 12,
-                          height: isActive ? 18 : 12,
-                          opacity: isActive ? 0.9 : 0.5,
+                          width: isActive ? 18 : absSlot === 1 ? 13 : 10,
+                          height: isActive ? 18 : absSlot === 1 ? 13 : 10,
+                          opacity: isActive ? 0.9 : 0.4,
                         }}
                       />
                     </div>
@@ -174,7 +192,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                           className="font-extralight leading-none tracking-[-0.04em] tabular-nums transition-all duration-500"
                           style={{
                             color: item.accentColor,
-                            fontSize: isActive ? "32px" : "18px",
+                            fontSize: isActive ? "32px" : absSlot === 1 ? "18px" : "14px",
                             opacity: isActive ? 1 : 0.6,
                           }}
                         >
@@ -183,8 +201,8 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                         <span
                           className="font-medium tracking-[-0.01em] transition-all duration-500"
                           style={{
-                            color: isActive ? "hsl(210 8% 12%)" : "hsl(210 8% 50%)",
-                            fontSize: isActive ? "14px" : "11px",
+                            color: isActive ? "hsl(210 8% 12%)" : "hsl(210 8% 55%)",
+                            fontSize: isActive ? "14px" : absSlot === 1 ? "11px" : "10px",
                           }}
                         >
                           {item.label}
