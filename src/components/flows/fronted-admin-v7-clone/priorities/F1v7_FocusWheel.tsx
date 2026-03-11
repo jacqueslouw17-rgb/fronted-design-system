@@ -114,6 +114,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                     scale,
                     opacity,
                     rotateX,
+                    z: zOffset,
                     filter: `blur(${blur}px)`,
                   }}
                   exit={{
