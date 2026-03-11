@@ -44,8 +44,8 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
-    <div className="space-y-1.5 flex-1 flex flex-col">
-      <div className="flex items-center gap-2 px-1">
+    <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
+      <div className="flex items-center gap-2 px-1 mb-1.5">
         <span className="text-[10px] font-semibold tracking-[0.18em] uppercase" style={{ color: "hsl(210 8% 42%)" }}>
           Actions
         </span>

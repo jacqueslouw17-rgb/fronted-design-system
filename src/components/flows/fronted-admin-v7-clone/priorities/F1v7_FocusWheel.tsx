@@ -1,6 +1,6 @@
 /**
- * Focus Wheel — deep 3D perspective carousel
- * Center = NOW. Adjacent cards visible with 3D depth.
+ * Focus Wheel — card stack carousel
+ * Active card in center, adjacent cards peek behind with subtle depth.
  */
 import React, { useRef } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
@@ -37,8 +37,8 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
 
   return (
     <div className="relative">
-      {/* Side nav */}
-      <div className="absolute -right-1 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-30">
+      {/* Side nav arrows */}
+      <div className="absolute -right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-30">
         <button
           onClick={onPrev}
           disabled={activeIndex === 0}
@@ -65,203 +65,181 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
         </button>
       </div>
 
-      {/* 3D perspective container */}
-      <div
-        style={{
-          perspective: "500px",
-          perspectiveOrigin: "50% 50%",
-        }}
+      {/* Stack container */}
+      <motion.div
+        ref={containerRef}
+        onPanEnd={handlePan}
+        className="relative mx-auto"
+        style={{ height: "130px", maxWidth: "680px" }}
       >
-        <motion.div
-          ref={containerRef}
-          onPanEnd={handlePan}
-          className="relative flex items-center justify-center overflow-visible"
-          style={{
-            transformStyle: "preserve-3d",
-            height: "160px",
-          }}
-        >
-          <AnimatePresence mode="popLayout" initial={false}>
-            {slots.map((slot) => {
-              const idx = activeIndex + slot;
-              if (idx < 0 || idx >= items.length) return null;
-              const item = items[idx];
-              const isActive = slot === 0;
-              const Icon = item.icon;
-              const absSlot = Math.abs(slot);
+        <AnimatePresence mode="popLayout" initial={false}>
+          {slots.map((slot) => {
+            const idx = activeIndex + slot;
+            if (idx < 0 || idx >= items.length) return null;
+            const item = items[idx];
+            const isActive = slot === 0;
+            const Icon = item.icon;
+            const absSlot = Math.abs(slot);
 
-              // 3D stacked depth — tight overlap
-              const yOffset = slot * 38;
-              const scale = isActive ? 1 : absSlot === 1 ? 0.88 : 0.76;
-              const opacity = isActive ? 1 : absSlot === 1 ? 0.45 : 0.15;
-              const rotateX = slot * -22;
-              const blur = isActive ? 0 : absSlot === 1 ? 2 : 6;
-              const zIndex = 10 - absSlot;
-              const zOffset = isActive ? 80 : absSlot === 1 ? -20 : -80;
+            // Card stack: active on top, others peek behind with narrower width + offset
+            const yOffset = slot * 8; // very tight vertical peek
+            const widthShrink = isActive ? 0 : absSlot === 1 ? 24 : 48; // px narrower on each side
+            const scale = 1; // no scaling, use width narrowing instead
+            const opacity = isActive ? 1 : absSlot === 1 ? 0.55 : 0.2;
+            const zIndex = 10 - absSlot;
 
-              return (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{
-                    y: direction > 0 ? 160 : -160,
-                    scale: 0.5,
-                    opacity: 0,
-                    rotateX: direction > 0 ? -30 : 30,
-                  }}
-                  animate={{
-                    y: yOffset,
-                    scale,
-                    opacity,
-                    rotateX,
-                    z: zOffset,
-                    filter: `blur(${blur}px)`,
-                  }}
-                  exit={{
-                    y: direction > 0 ? -160 : 160,
-                    scale: 0.5,
-                    opacity: 0,
-                    rotateX: direction > 0 ? 30 : -30,
-                  }}
-                  transition={{
-                    duration: 0.6,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                  className="absolute left-0 right-0 cursor-pointer top-1/2"
+            return (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{
+                  y: direction > 0 ? 80 : -80,
+                  opacity: 0,
+                }}
+                animate={{
+                  y: yOffset,
+                  opacity,
+                }}
+                exit={{
+                  y: direction > 0 ? -80 : 80,
+                  opacity: 0,
+                }}
+                transition={{
+                  duration: 0.5,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className="absolute cursor-pointer"
+                style={{
+                  zIndex,
+                  left: widthShrink,
+                  right: widthShrink,
+                  top: isActive ? 12 : absSlot === 1 ? 4 : 0,
+                }}
+                onClick={() => !isActive && onSelect(idx)}
+              >
+                <div
+                  className="relative overflow-hidden transition-all duration-500"
                   style={{
-                    zIndex,
-                    transformStyle: "preserve-3d",
-                    transformOrigin: "center center",
-                    marginTop: "-36px",
+                    background: isActive
+                      ? "linear-gradient(160deg, hsl(0 0% 100% / 0.85), hsl(0 0% 100% / 0.6))"
+                      : "linear-gradient(160deg, hsl(0 0% 100% / 0.35), hsl(0 0% 100% / 0.15))",
+                    backdropFilter: isActive ? "blur(60px) saturate(2)" : "blur(20px) saturate(1.1)",
+                    borderRadius: isActive ? "20px" : "16px",
+                    border: `1px solid ${isActive ? item.accentColor + "20" : "hsl(0 0% 100% / 0.2)"}`,
+                    boxShadow: isActive
+                      ? `0 12px 40px -10px hsl(0 0% 0% / 0.08), 0 0 0 1px hsl(0 0% 100% / 0.5) inset`
+                      : `0 2px 12px -4px hsl(0 0% 0% / 0.04)`,
+                    padding: isActive ? "18px 24px" : "10px 20px",
                   }}
-                  onClick={() => !isActive && onSelect(idx)}
                 >
-                  <div
-                    className={`mx-auto relative overflow-hidden transition-all duration-500 ${
-                      isActive ? "max-w-full" : absSlot === 1 ? "max-w-[92%]" : "max-w-[84%]"
-                    }`}
-                    style={{
-                      background: isActive
-                        ? `linear-gradient(160deg, hsl(0 0% 100% / 0.82), hsl(0 0% 100% / 0.55))`
-                        : `linear-gradient(160deg, hsl(0 0% 100% / 0.4), hsl(0 0% 100% / 0.18))`,
-                      backdropFilter: isActive ? "blur(60px) saturate(2)" : "blur(20px) saturate(1.1)",
-                      borderRadius: isActive ? "24px" : "18px",
-                      border: `1px solid ${isActive ? item.accentColor + "25" : "hsl(0 0% 100% / 0.25)"}`,
-                      boxShadow: isActive
-                        ? `0 20px 60px -15px hsl(0 0% 0% / 0.1), 0 0 0 1px hsl(0 0% 100% / 0.5) inset, 0 8px 32px ${item.accentColor}08`
-                        : `0 4px 20px -8px hsl(0 0% 0% / 0.06)`,
-                      padding: isActive ? "22px 26px" : "12px 20px",
-                    }}
-                  >
-                    {/* Prismatic top edge */}
-                    {isActive && (
-                      <motion.div
-                        initial={{ opacity: 0, scaleX: 0 }}
-                        animate={{ opacity: 1, scaleX: 1 }}
-                        transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute top-0 left-0 right-0 h-[2px]"
+                  {/* Prismatic top edge */}
+                  {isActive && (
+                    <motion.div
+                      initial={{ opacity: 0, scaleX: 0 }}
+                      animate={{ opacity: 1, scaleX: 1 }}
+                      transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                      className="absolute top-0 left-0 right-0 h-[2px]"
+                      style={{
+                        background: `linear-gradient(90deg, transparent 3%, ${item.accentColor}50 20%, hsl(260 60% 70% / 0.3) 50%, ${item.accentColor}35 80%, transparent 97%)`,
+                        transformOrigin: "left center",
+                      }}
+                    />
+                  )}
+
+                  {/* Content */}
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="shrink-0 flex items-center justify-center transition-all duration-500"
+                      style={{
+                        width: isActive ? 42 : 28,
+                        height: isActive ? 42 : 28,
+                        borderRadius: isActive ? "12px" : "8px",
+                        background: `${item.accentColor}${isActive ? "0C" : "06"}`,
+                        border: `1px solid ${item.accentColor}${isActive ? "18" : "0A"}`,
+                      }}
+                    >
+                      <Icon
                         style={{
-                          background: `linear-gradient(90deg, transparent 3%, ${item.accentColor}60 20%, hsl(260 60% 70% / 0.35) 50%, ${item.accentColor}40 80%, transparent 97%)`,
-                          transformOrigin: "left center",
+                          color: item.accentColor,
+                          width: isActive ? 18 : 12,
+                          height: isActive ? 18 : 12,
+                          opacity: isActive ? 0.9 : 0.5,
                         }}
                       />
-                    )}
+                    </div>
 
-                    {/* Content */}
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="shrink-0 flex items-center justify-center transition-all duration-500"
-                        style={{
-                          width: isActive ? 46 : 32,
-                          height: isActive ? 46 : 32,
-                          borderRadius: isActive ? "14px" : "10px",
-                          background: `${item.accentColor}${isActive ? "0C" : "06"}`,
-                          border: `1px solid ${item.accentColor}${isActive ? "18" : "0A"}`,
-                        }}
-                      >
-                        <Icon
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-3">
+                        <span
+                          className="font-extralight leading-none tracking-[-0.04em] tabular-nums transition-all duration-500"
                           style={{
                             color: item.accentColor,
-                            width: isActive ? 20 : 14,
-                            height: isActive ? 20 : 14,
-                            opacity: isActive ? 0.9 : 0.5,
+                            fontSize: isActive ? "32px" : "18px",
+                            opacity: isActive ? 1 : 0.6,
                           }}
-                        />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline gap-3">
-                          <span
-                            className="font-extralight leading-none tracking-[-0.04em] tabular-nums transition-all duration-500"
-                            style={{
-                              color: item.accentColor,
-                              fontSize: isActive ? "38px" : "22px",
-                              opacity: isActive ? 1 : 0.6,
-                            }}
-                          >
-                            {item.count}
-                          </span>
-                          <span
-                            className="font-medium tracking-[-0.01em] transition-all duration-500"
-                            style={{
-                              color: isActive ? "hsl(210 8% 12%)" : "hsl(210 8% 50%)",
-                              fontSize: isActive ? "14px" : "11px",
-                            }}
-                          >
-                            {item.label}
-                          </span>
-                        </div>
-
-                        {isActive && (
-                          <motion.p
-                            initial={{ opacity: 0, y: 4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.15, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                            className="text-[12px] leading-relaxed mt-1"
-                            style={{ color: "hsl(210 8% 42%)" }}
-                          >
-                            {item.tagline}
-                          </motion.p>
-                        )}
+                        >
+                          {item.count}
+                        </span>
+                        <span
+                          className="font-medium tracking-[-0.01em] transition-all duration-500"
+                          style={{
+                            color: isActive ? "hsl(210 8% 12%)" : "hsl(210 8% 50%)",
+                            fontSize: isActive ? "14px" : "11px",
+                          }}
+                        >
+                          {item.label}
+                        </span>
                       </div>
 
                       {isActive && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.12, duration: 0.35 }}
-                          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-                          style={{
-                            background: `${item.accentColor}0A`,
-                            border: `1px solid ${item.accentColor}12`,
-                          }}
+                        <motion.p
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.15, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                          className="text-[12px] leading-relaxed mt-0.5"
+                          style={{ color: "hsl(210 8% 42%)" }}
                         >
-                          <motion.div
-                            animate={
-                              item.severity === "critical"
-                                ? { scale: [1, 1.4, 1], opacity: [1, 0.4, 1] }
-                                : {}
-                            }
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="h-1.5 w-1.5 rounded-full"
-                            style={{ backgroundColor: item.accentColor }}
-                          />
-                          <span
-                            className="text-[9px] font-bold uppercase tracking-[0.12em]"
-                            style={{ color: item.accentColor }}
-                          >
-                            {item.severity}
-                          </span>
-                        </motion.div>
+                          {item.tagline}
+                        </motion.p>
                       )}
                     </div>
+
+                    {isActive && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.12, duration: 0.35 }}
+                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+                        style={{
+                          background: `${item.accentColor}0A`,
+                          border: `1px solid ${item.accentColor}12`,
+                        }}
+                      >
+                        <motion.div
+                          animate={
+                            item.severity === "critical"
+                              ? { scale: [1, 1.4, 1], opacity: [1, 0.4, 1] }
+                              : {}
+                          }
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="h-1.5 w-1.5 rounded-full"
+                          style={{ backgroundColor: item.accentColor }}
+                        />
+                        <span
+                          className="text-[9px] font-bold uppercase tracking-[0.12em]"
+                          style={{ color: item.accentColor }}
+                        >
+                          {item.severity}
+                        </span>
+                      </motion.div>
+                    )}
                   </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
-      </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 };
