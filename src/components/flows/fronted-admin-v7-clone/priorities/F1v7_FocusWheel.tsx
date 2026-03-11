@@ -114,7 +114,6 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
             if (idx < 0 || idx >= items.length) return null;
             const item = items[idx];
             const isActive = slot === 0;
-            const Icon = item.icon;
             const absSlot = Math.abs(slot);
             const sev = severityGradients[item.severity] || severityGradients.info;
 
