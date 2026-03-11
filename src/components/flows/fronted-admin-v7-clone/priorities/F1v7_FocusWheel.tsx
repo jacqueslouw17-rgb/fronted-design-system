@@ -90,13 +90,12 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
               const Icon = item.icon;
               const absSlot = Math.abs(slot);
 
-              // 3D depth — cards stack behind each other
-              const yOffset = slot * 72;
-              const zOffset = -(absSlot * 80); // push back into Z space
-              const scale = isActive ? 1 : absSlot === 1 ? 0.88 : 0.76;
-              const opacity = isActive ? 1 : absSlot === 1 ? 0.55 : 0.2;
-              const rotateX = slot * -15; // stronger tilt
-              const blur = isActive ? 0 : absSlot === 1 ? 2 : 6;
+              // 3D depth
+              const yOffset = slot * 68;
+              const scale = isActive ? 1 : absSlot === 1 ? 0.86 : 0.72;
+              const opacity = isActive ? 1 : absSlot === 1 ? 0.5 : 0.18;
+              const rotateX = slot * -18;
+              const blur = isActive ? 0 : absSlot === 1 ? 1.5 : 5;
               const zIndex = 10 - absSlot;
 
               return (
