@@ -109,7 +109,7 @@ export const F1v7_PrioritiesTab: React.FC = () => {
       />
 
       {/* Progress dots */}
-      <div className="flex items-center justify-center gap-1.5 mt-1 mb-2">
+      <div className="flex items-center justify-center gap-1.5 mt-0 mb-1">
         {PRIORITY_STREAM.map((item, idx) => (
           <button
             key={item.id}
