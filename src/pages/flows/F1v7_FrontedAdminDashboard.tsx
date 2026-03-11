@@ -1311,7 +1311,6 @@ const AdminContractingMultiCompany = () => {
                                 >
                                   {isAllClientsMode && (
                                     <span className="v7-stat-pill">
-                                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
                                       {companies.length} clients
                                     </span>
                                   )}
