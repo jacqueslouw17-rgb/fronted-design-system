@@ -71,33 +71,6 @@ export const F1v7_PrioritiesTab: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Status bar — compact */}
-      <div className="flex items-center justify-between px-1 mb-2">
-        <div className="flex items-center gap-2.5">
-          <motion.div
-            animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0.2, 0.8] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="h-1.5 w-1.5 rounded-full"
-            style={{ backgroundColor: activePriority.accentColor }}
-          />
-          <span
-            className="text-[10px] font-semibold tracking-[0.2em] uppercase"
-            style={{ color: "hsl(210 8% 45%)" }}
-          >
-            {PRIORITY_STREAM.length} priorities
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-bold tabular-nums" style={{ color: "hsl(210 8% 30%)" }}>
-            {String(activeIndex + 1).padStart(2, "0")}
-          </span>
-          <span className="text-[10px]" style={{ color: "hsl(210 8% 65%)" }}>/</span>
-          <span className="text-[10px] tabular-nums" style={{ color: "hsl(210 8% 65%)" }}>
-            {String(PRIORITY_STREAM.length).padStart(2, "0")}
-          </span>
-        </div>
-      </div>
-
       {/* The Wheel */}
       <F1v7_FocusWheel
         items={PRIORITY_STREAM}
