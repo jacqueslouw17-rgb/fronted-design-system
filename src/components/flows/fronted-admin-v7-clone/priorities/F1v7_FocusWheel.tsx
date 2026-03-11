@@ -129,7 +129,6 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                   style={{
                     zIndex,
                     transformOrigin: "center center",
-                    transform: `translateZ(${zOffset}px)`,
                   }}
                   onClick={() => !isActive && onSelect(idx)}
                 >
