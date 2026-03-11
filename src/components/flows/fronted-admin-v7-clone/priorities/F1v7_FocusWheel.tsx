@@ -1,6 +1,7 @@
 /**
- * Focus Wheel — stacked card carousel with glass depth
- * Active card on top, adjacent cards peek behind like a physical card stack.
+ * Focus Wheel — stacked card carousel with visible glass depth
+ * Active card on top. Cards behind peek their edges above & below.
+ * Clicking the active card advances to the next priority.
  */
 import React, { useRef } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
@@ -33,12 +34,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
     }
   };
 
-  // Render slots: behind cards above (-1, -2) and below (+1, +2) the active
   const slots = [-2, -1, 0, 1, 2];
-
-  // How many cards exist behind in each direction
-  const cardsBefore = activeIndex;
-  const cardsAfter = items.length - 1 - activeIndex;
 
   return (
     <div className="relative">
@@ -70,12 +66,12 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
         </button>
       </div>
 
-      {/* Stack container */}
+      {/* Stack container — enough height for peek cards */}
       <motion.div
         ref={containerRef}
         onPanEnd={handlePan}
         className="relative mx-auto"
-        style={{ height: "140px", maxWidth: "680px" }}
+        style={{ height: "150px", maxWidth: "680px" }}
       >
         <AnimatePresence mode="popLayout" initial={false}>
           {slots.map((slot) => {
@@ -86,28 +82,39 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
             const Icon = item.icon;
             const absSlot = Math.abs(slot);
 
-            // Stacked depth: cards behind peek with narrowing + vertical offset
-            const peekY = isActive ? 16 : slot < 0
-              ? (16 - absSlot * 10) // cards above peek upward
-              : (16 + absSlot * 10); // cards below peek downward
-            const widthShrink = isActive ? 0 : absSlot * 20;
-            const opacity = isActive ? 1 : absSlot === 1 ? 0.5 : 0.2;
+            // Active card sits at y=20. Behind cards peek above/below.
+            // slot -1 peeks its bottom edge above → y = 6
+            // slot -2 peeks even higher → y = -2
+            // slot +1 peeks its top edge below → y = 104
+            // slot +2 peeks even lower → y = 112
+            let yPos: number;
+            if (isActive) {
+              yPos = 20;
+            } else if (slot < 0) {
+              yPos = absSlot === 1 ? 6 : -2;
+            } else {
+              yPos = absSlot === 1 ? 104 : 112;
+            }
+
+            const widthShrink = isActive ? 0 : absSlot === 1 ? 16 : 32;
+            const opacity = isActive ? 1 : absSlot === 1 ? 0.65 : 0.3;
             const zIndex = 10 - absSlot;
+            const cardHeight = isActive ? "auto" : absSlot === 1 ? "40px" : "28px";
 
             return (
               <motion.div
                 key={item.id}
                 layout
                 initial={{
-                  y: direction > 0 ? 80 : -80,
+                  y: direction > 0 ? 120 : -60,
                   opacity: 0,
                 }}
                 animate={{
-                  y: peekY,
+                  y: yPos,
                   opacity,
                 }}
                 exit={{
-                  y: direction > 0 ? -80 : 80,
+                  y: direction > 0 ? -60 : 120,
                   opacity: 0,
                 }}
                 transition={{
@@ -119,28 +126,51 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                   zIndex,
                   left: widthShrink,
                   right: widthShrink,
-                  top: 0,
                 }}
-                onClick={() => onSelect(idx)}
+                onClick={() => {
+                  if (isActive) {
+                    // Clicking active card → go to next
+                    onNext();
+                  } else {
+                    onSelect(idx);
+                  }
+                }}
               >
                 <div
                   className="relative overflow-hidden transition-all duration-500"
                   style={{
+                    height: cardHeight,
                     background: isActive
                       ? "linear-gradient(160deg, hsl(0 0% 100% / 0.88), hsl(0 0% 100% / 0.65))"
-                      : `linear-gradient(160deg, hsl(0 0% 100% / ${absSlot === 1 ? 0.4 : 0.25}), hsl(0 0% 100% / ${absSlot === 1 ? 0.2 : 0.1}))`,
-                    backdropFilter: isActive ? "blur(60px) saturate(2)" : `blur(${absSlot === 1 ? 30 : 15}px) saturate(1.2)`,
-                    borderRadius: isActive ? "20px" : `${18 - absSlot * 2}px`,
+                      : `linear-gradient(160deg, hsl(0 0% 100% / ${absSlot === 1 ? 0.5 : 0.3}), hsl(0 0% 100% / ${absSlot === 1 ? 0.3 : 0.15}))`,
+                    backdropFilter: isActive
+                      ? "blur(60px) saturate(2)"
+                      : `blur(${absSlot === 1 ? 30 : 15}px) saturate(1.2)`,
+                    borderRadius: isActive ? "20px" : `${16 - absSlot * 2}px`,
                     border: isActive
                       ? `1px solid ${item.accentColor}20`
-                      : `1px solid hsl(0 0% 100% / ${absSlot === 1 ? 0.3 : 0.15})`,
+                      : `1px solid hsl(0 0% 100% / ${absSlot === 1 ? 0.35 : 0.2})`,
                     boxShadow: isActive
-                      ? `0 12px 40px -10px hsl(0 0% 0% / 0.08), 0 0 0 1px hsl(0 0% 100% / 0.5) inset, 0 -4px 20px -4px hsl(0 0% 0% / 0.03)`
-                      : `0 ${absSlot === 1 ? 4 : 2}px ${absSlot === 1 ? 16 : 8}px -${absSlot === 1 ? 6 : 4}px hsl(0 0% 0% / 0.04)`,
-                    padding: isActive ? "18px 24px" : `${14 - absSlot * 2}px ${22 - absSlot * 2}px`,
+                      ? `0 12px 40px -10px hsl(0 0% 0% / 0.08), inset 0 1px 0 hsl(0 0% 100% / 0.6)`
+                      : `0 ${absSlot === 1 ? 4 : 2}px ${absSlot === 1 ? 12 : 6}px hsl(0 0% 0% / 0.03)`,
+                    padding: isActive ? "18px 24px" : undefined,
                   }}
                 >
-                  {/* Prismatic top edge — active card */}
+                  {/* Glass reflection line on non-active cards */}
+                  {!isActive && (
+                    <div
+                      className="absolute left-[8%] right-[8%]"
+                      style={{
+                        top: slot < 0 ? undefined : "0px",
+                        bottom: slot < 0 ? undefined : undefined,
+                        height: "1px",
+                        ...(slot < 0 ? { bottom: "0px" } : { top: "0px" }),
+                        background: `linear-gradient(90deg, transparent, hsl(0 0% 100% / ${absSlot === 1 ? 0.6 : 0.3}), transparent)`,
+                      }}
+                    />
+                  )}
+
+                  {/* Prismatic top edge — active card only */}
                   {isActive && (
                     <motion.div
                       initial={{ opacity: 0, scaleX: 0 }}
@@ -154,62 +184,51 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                     />
                   )}
 
-                  {/* Glass reflection line on non-active cards */}
-                  {!isActive && (
-                    <div
-                      className="absolute top-0 left-[10%] right-[10%] h-[1px]"
-                      style={{
-                        background: `linear-gradient(90deg, transparent, hsl(0 0% 100% / ${absSlot === 1 ? 0.5 : 0.25}), transparent)`,
-                      }}
-                    />
-                  )}
-
-                  {/* Content */}
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="shrink-0 flex items-center justify-center transition-all duration-500"
-                      style={{
-                        width: isActive ? 42 : absSlot === 1 ? 30 : 24,
-                        height: isActive ? 42 : absSlot === 1 ? 30 : 24,
-                        borderRadius: isActive ? "12px" : "8px",
-                        background: `${item.accentColor}${isActive ? "0C" : "06"}`,
-                        border: `1px solid ${item.accentColor}${isActive ? "18" : "0A"}`,
-                      }}
-                    >
-                      <Icon
+                  {/* Content — only rendered for active card */}
+                  {isActive && (
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="shrink-0 flex items-center justify-center"
                         style={{
-                          color: item.accentColor,
-                          width: isActive ? 18 : absSlot === 1 ? 13 : 10,
-                          height: isActive ? 18 : absSlot === 1 ? 13 : 10,
-                          opacity: isActive ? 0.9 : 0.4,
+                          width: 42,
+                          height: 42,
+                          borderRadius: "12px",
+                          background: `${item.accentColor}0C`,
+                          border: `1px solid ${item.accentColor}18`,
                         }}
-                      />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-3">
-                        <span
-                          className="font-extralight leading-none tracking-[-0.04em] tabular-nums transition-all duration-500"
+                      >
+                        <Icon
                           style={{
                             color: item.accentColor,
-                            fontSize: isActive ? "32px" : absSlot === 1 ? "18px" : "14px",
-                            opacity: isActive ? 1 : 0.6,
+                            width: 18,
+                            height: 18,
+                            opacity: 0.9,
                           }}
-                        >
-                          {item.count}
-                        </span>
-                        <span
-                          className="font-medium tracking-[-0.01em] transition-all duration-500"
-                          style={{
-                            color: isActive ? "hsl(210 8% 12%)" : "hsl(210 8% 55%)",
-                            fontSize: isActive ? "14px" : absSlot === 1 ? "11px" : "10px",
-                          }}
-                        >
-                          {item.label}
-                        </span>
+                        />
                       </div>
 
-                      {isActive && (
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-3">
+                          <span
+                            className="font-extralight leading-none tracking-[-0.04em] tabular-nums"
+                            style={{
+                              color: item.accentColor,
+                              fontSize: "32px",
+                            }}
+                          >
+                            {item.count}
+                          </span>
+                          <span
+                            className="font-medium tracking-[-0.01em]"
+                            style={{
+                              color: "hsl(210 8% 12%)",
+                              fontSize: "14px",
+                            }}
+                          >
+                            {item.label}
+                          </span>
+                        </div>
+
                         <motion.p
                           initial={{ opacity: 0, y: 4 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -219,10 +238,8 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                         >
                           {item.tagline}
                         </motion.p>
-                      )}
-                    </div>
+                      </div>
 
-                    {isActive && (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -250,8 +267,8 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                           {item.severity}
                         </span>
                       </motion.div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             );
