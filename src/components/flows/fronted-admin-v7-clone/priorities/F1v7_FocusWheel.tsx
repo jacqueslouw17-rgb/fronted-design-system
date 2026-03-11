@@ -1,6 +1,6 @@
 /**
- * Focus Wheel — deep 3D perspective carousel with layered depth
- * Center card is NOW. Everything else falls away into deep space.
+ * Focus Wheel — deep 3D perspective carousel
+ * Center = NOW. Adjacent cards visible with 3D depth.
  */
 import React, { useRef } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
@@ -37,44 +37,48 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
 
   return (
     <div className="relative">
-      {/* Deep 3D perspective wrapper */}
-      <div style={{ perspective: "800px", perspectiveOrigin: "50% 45%" }}>
-        {/* Side nav arrows */}
-        <div className="absolute -right-1 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-30">
-          <button
-            onClick={onPrev}
-            disabled={activeIndex === 0}
-            className="p-1.5 rounded-xl transition-all duration-300 disabled:opacity-0 hover:scale-110"
-            style={{
-              background: "hsl(0 0% 100% / 0.5)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid hsl(0 0% 100% / 0.3)",
-            }}
-          >
-            <ChevronUp className="h-3 w-3" style={{ color: "hsl(210 8% 35%)" }} />
-          </button>
-          <button
-            onClick={onNext}
-            disabled={activeIndex === items.length - 1}
-            className="p-1.5 rounded-xl transition-all duration-300 disabled:opacity-0 hover:scale-110"
-            style={{
-              background: "hsl(0 0% 100% / 0.5)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid hsl(0 0% 100% / 0.3)",
-            }}
-          >
-            <ChevronDown className="h-3 w-3" style={{ color: "hsl(210 8% 35%)" }} />
-          </button>
-        </div>
+      {/* Side nav */}
+      <div className="absolute -right-1 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-30">
+        <button
+          onClick={onPrev}
+          disabled={activeIndex === 0}
+          className="p-1.5 rounded-xl transition-all duration-300 disabled:opacity-0 hover:scale-110"
+          style={{
+            background: "hsl(0 0% 100% / 0.5)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid hsl(0 0% 100% / 0.3)",
+          }}
+        >
+          <ChevronUp className="h-3 w-3" style={{ color: "hsl(210 8% 35%)" }} />
+        </button>
+        <button
+          onClick={onNext}
+          disabled={activeIndex === items.length - 1}
+          className="p-1.5 rounded-xl transition-all duration-300 disabled:opacity-0 hover:scale-110"
+          style={{
+            background: "hsl(0 0% 100% / 0.5)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid hsl(0 0% 100% / 0.3)",
+          }}
+        >
+          <ChevronDown className="h-3 w-3" style={{ color: "hsl(210 8% 35%)" }} />
+        </button>
+      </div>
 
-        {/* Wheel */}
+      {/* 3D perspective container */}
+      <div
+        style={{
+          perspective: "600px",
+          perspectiveOrigin: "50% 50%",
+        }}
+      >
         <motion.div
           ref={containerRef}
           onPanEnd={handlePan}
-          className="relative flex flex-col items-center"
+          className="relative flex items-center justify-center overflow-visible"
           style={{
             transformStyle: "preserve-3d",
-            minHeight: "240px",
+            height: "220px",
           }}
         >
           <AnimatePresence mode="popLayout" initial={false}>
@@ -86,13 +90,12 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
               const Icon = item.icon;
               const absSlot = Math.abs(slot);
 
-              // Deep 3D layering
-              const yOffset = slot * 58;
-              const zOffset = isActive ? 60 : absSlot === 1 ? -30 : -90;
-              const scale = isActive ? 1 : absSlot === 1 ? 0.78 : 0.6;
-              const opacity = isActive ? 1 : absSlot === 1 ? 0.35 : 0.1;
-              const rotateX = slot * -12;
-              const blur = isActive ? 0 : absSlot * 5;
+              // 3D depth
+              const yOffset = slot * 68;
+              const scale = isActive ? 1 : absSlot === 1 ? 0.86 : 0.72;
+              const opacity = isActive ? 1 : absSlot === 1 ? 0.5 : 0.18;
+              const rotateX = slot * -18;
+              const blur = isActive ? 0 : absSlot === 1 ? 1.5 : 5;
               const zIndex = 10 - absSlot;
 
               return (
@@ -100,57 +103,54 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                   key={item.id}
                   layout
                   initial={{
-                    y: direction > 0 ? 140 : -140,
+                    y: direction > 0 ? 160 : -160,
                     scale: 0.5,
                     opacity: 0,
-                    rotateX: direction > 0 ? -25 : 25,
-                    z: -120,
+                    rotateX: direction > 0 ? -30 : 30,
                   }}
                   animate={{
                     y: yOffset,
                     scale,
                     opacity,
                     rotateX,
-                    z: zOffset,
                     filter: `blur(${blur}px)`,
                   }}
                   exit={{
-                    y: direction > 0 ? -140 : 140,
+                    y: direction > 0 ? -160 : 160,
                     scale: 0.5,
                     opacity: 0,
-                    rotateX: direction > 0 ? 25 : -25,
-                    z: -120,
+                    rotateX: direction > 0 ? 30 : -30,
                   }}
                   transition={{
                     duration: 0.6,
                     ease: [0.22, 1, 0.36, 1],
                   }}
-                  className="absolute left-0 right-0 cursor-pointer"
+                  className="absolute left-0 right-0 cursor-pointer top-1/2"
                   style={{
                     zIndex,
                     transformOrigin: "center center",
-                    transformStyle: "preserve-3d",
+                    marginTop: "-42px",
                   }}
                   onClick={() => !isActive && onSelect(idx)}
                 >
                   <div
                     className={`mx-auto relative overflow-hidden transition-all duration-500 ${
-                      isActive ? "max-w-full" : absSlot === 1 ? "max-w-[88%]" : "max-w-[76%]"
+                      isActive ? "max-w-full" : absSlot === 1 ? "max-w-[92%]" : "max-w-[84%]"
                     }`}
                     style={{
                       background: isActive
-                        ? `linear-gradient(160deg, hsl(0 0% 100% / 0.78), hsl(0 0% 100% / 0.5))`
-                        : `linear-gradient(160deg, hsl(0 0% 100% / 0.28), hsl(0 0% 100% / 0.1))`,
+                        ? `linear-gradient(160deg, hsl(0 0% 100% / 0.82), hsl(0 0% 100% / 0.55))`
+                        : `linear-gradient(160deg, hsl(0 0% 100% / 0.4), hsl(0 0% 100% / 0.18))`,
                       backdropFilter: isActive ? "blur(60px) saturate(2)" : "blur(20px) saturate(1.1)",
-                      borderRadius: isActive ? "26px" : "18px",
-                      border: `1px solid ${isActive ? item.accentColor + "22" : "hsl(0 0% 100% / 0.2)"}`,
+                      borderRadius: isActive ? "24px" : "18px",
+                      border: `1px solid ${isActive ? item.accentColor + "25" : "hsl(0 0% 100% / 0.25)"}`,
                       boxShadow: isActive
-                        ? `0 24px 80px -20px hsl(0 0% 0% / 0.1), 0 0 0 1px hsl(0 0% 100% / 0.45) inset, 0 0 100px -30px ${item.accentColor}0A`
-                        : "none",
-                      padding: isActive ? "24px 28px" : "10px 20px",
+                        ? `0 20px 60px -15px hsl(0 0% 0% / 0.1), 0 0 0 1px hsl(0 0% 100% / 0.5) inset, 0 8px 32px ${item.accentColor}08`
+                        : `0 4px 20px -8px hsl(0 0% 0% / 0.06)`,
+                      padding: isActive ? "22px 26px" : "12px 20px",
                     }}
                   >
-                    {/* Prismatic top edge — active only */}
+                    {/* Prismatic top edge */}
                     {isActive && (
                       <motion.div
                         initial={{ opacity: 0, scaleX: 0 }}
@@ -164,28 +164,16 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                       />
                     )}
 
-                    {/* Depth shadow layer for active card */}
-                    {isActive && (
-                      <div
-                        className="absolute -bottom-1 left-[8%] right-[8%] h-[60%] rounded-b-[26px] -z-10"
-                        style={{
-                          background: `radial-gradient(ellipse at center bottom, ${item.accentColor}08, transparent 70%)`,
-                          filter: "blur(20px)",
-                        }}
-                      />
-                    )}
-
                     {/* Content */}
                     <div className="flex items-center gap-4">
-                      {/* Icon orb */}
                       <div
                         className="shrink-0 flex items-center justify-center transition-all duration-500"
                         style={{
-                          width: isActive ? 48 : 30,
-                          height: isActive ? 48 : 30,
-                          borderRadius: isActive ? "16px" : "10px",
-                          background: `${item.accentColor}${isActive ? "0C" : "05"}`,
-                          border: `1px solid ${item.accentColor}${isActive ? "18" : "08"}`,
+                          width: isActive ? 46 : 32,
+                          height: isActive ? 46 : 32,
+                          borderRadius: isActive ? "14px" : "10px",
+                          background: `${item.accentColor}${isActive ? "0C" : "06"}`,
+                          border: `1px solid ${item.accentColor}${isActive ? "18" : "0A"}`,
                         }}
                       >
                         <Icon
@@ -193,27 +181,27 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                             color: item.accentColor,
                             width: isActive ? 20 : 14,
                             height: isActive ? 20 : 14,
-                            opacity: isActive ? 0.9 : 0.4,
+                            opacity: isActive ? 0.9 : 0.5,
                           }}
                         />
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline gap-3">
-                          <motion.span
-                            className="font-extralight leading-none tracking-[-0.04em] tabular-nums"
+                          <span
+                            className="font-extralight leading-none tracking-[-0.04em] tabular-nums transition-all duration-500"
                             style={{
                               color: item.accentColor,
-                              fontSize: isActive ? "40px" : "20px",
-                              opacity: isActive ? 1 : 0.5,
+                              fontSize: isActive ? "38px" : "22px",
+                              opacity: isActive ? 1 : 0.6,
                             }}
                           >
                             {item.count}
-                          </motion.span>
+                          </span>
                           <span
-                            className="font-medium tracking-[-0.01em]"
+                            className="font-medium tracking-[-0.01em] transition-all duration-500"
                             style={{
-                              color: isActive ? "hsl(210 8% 12%)" : "hsl(210 8% 45%)",
+                              color: isActive ? "hsl(210 8% 12%)" : "hsl(210 8% 50%)",
                               fontSize: isActive ? "14px" : "11px",
                             }}
                           >
@@ -221,13 +209,12 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                           </span>
                         </div>
 
-                        {/* Tagline — active only */}
                         {isActive && (
                           <motion.p
                             initial={{ opacity: 0, y: 4 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.15, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                            className="text-[12px] leading-relaxed mt-1.5"
+                            className="text-[12px] leading-relaxed mt-1"
                             style={{ color: "hsl(210 8% 42%)" }}
                           >
                             {item.tagline}
@@ -235,7 +222,6 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                         )}
                       </div>
 
-                      {/* Severity badge — active only */}
                       {isActive && (
                         <motion.div
                           initial={{ opacity: 0, scale: 0.8 }}
