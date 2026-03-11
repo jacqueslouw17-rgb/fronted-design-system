@@ -1,66 +1,37 @@
 /**
- * Focus Detail — the contextual reveal below the active priority
- * Shows actions, metrics, and AI insight for the focused item only.
+ * Focus Detail — actions + metrics only, tight to the wheel
  */
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, TrendingUp, AlertTriangle, Lightbulb, CheckCircle2 } from "lucide-react";
-import type { PriorityItem, ActionDetail, MetricSnapshot, InsightItem } from "./F1v7_PriorityData";
+import { ArrowRight } from "lucide-react";
+import type { PriorityItem, ActionDetail, MetricSnapshot } from "./F1v7_PriorityData";
 
 interface Props {
   priority: PriorityItem;
   direction: number;
 }
 
-const insightIcon: Record<string, React.ElementType> = {
-  pattern: TrendingUp,
-  risk: AlertTriangle,
-  optimization: Lightbulb,
-};
-
 export const F1v7_FocusDetail: React.FC<Props> = ({ priority, direction }) => {
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={priority.id}
-        initial={{ opacity: 0, y: direction >= 0 ? 40 : -20 }}
+        initial={{ opacity: 0, y: direction >= 0 ? 30 : -15 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: direction >= 0 ? -20 : 40 }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="space-y-6"
+        exit={{ opacity: 0, y: direction >= 0 ? -15 : 30 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="space-y-4"
       >
-        {/* ── Section divider with label ── */}
-        <div className="flex items-center gap-4 px-1">
-          <div
-            className="h-px flex-1"
-            style={{
-              background: `linear-gradient(90deg, transparent, ${priority.accentColor}20, transparent)`,
-            }}
-          />
-          <span className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "hsl(210 8% 55%)" }}>
-            Context
-          </span>
-          <div
-            className="h-px flex-1"
-            style={{
-              background: `linear-gradient(90deg, transparent, ${priority.accentColor}20, transparent)`,
-            }}
-          />
-        </div>
-
-        {/* ── Layout: Actions left, Metrics + Insight right ── */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+        {/* ── Compact layout: Metrics top, Actions below ── */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
           {/* Left: Actions */}
           <div className="xl:col-span-7">
             <ActionList actions={priority.actions} accent={priority.accentColor} />
           </div>
 
-          {/* Right: Metrics + Insight */}
-          <div className="xl:col-span-5 space-y-5">
+          {/* Right: Metrics only — no insight */}
+          <div className="xl:col-span-5">
             <MetricsGrid metrics={priority.metrics} accent={priority.accentColor} />
-            {priority.insight && (
-              <InsightCard insight={priority.insight} accent={priority.accentColor} />
-            )}
           </div>
         </div>
       </motion.div>
@@ -73,8 +44,8 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 mb-1 px-1">
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 px-1">
         <span className="text-[10px] font-semibold tracking-[0.18em] uppercase" style={{ color: "hsl(210 8% 42%)" }}>
           Actions
         </span>
@@ -91,7 +62,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
         style={{
           background: "linear-gradient(180deg, hsl(0 0% 100% / 0.5), hsl(0 0% 100% / 0.25))",
           backdropFilter: "blur(50px) saturate(1.6)",
-          borderRadius: "24px",
+          borderRadius: "22px",
           border: "1px solid hsl(0 0% 100% / 0.45)",
           boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.6)",
         }}
@@ -101,8 +72,8 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
             key={action.id}
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="group relative flex items-center justify-between gap-4 px-6 py-4 cursor-pointer transition-all duration-300"
+            transition={{ delay: idx * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="group relative flex items-center justify-between gap-4 px-5 py-3.5 cursor-pointer transition-all duration-300"
             style={{
               borderBottom: idx < actions.length - 1 ? "1px solid hsl(210 8% 92% / 0.4)" : "none",
             }}
@@ -150,7 +121,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 mt-1">
+              <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="text-[11px] font-medium" style={{ color: "hsl(210 8% 40%)" }}>{action.client}</span>
                 {action.affected && (
                   <span className="text-[11px]" style={{ color: "hsl(210 8% 55%)" }}>
@@ -190,7 +161,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
 /* ─────────── Metrics Grid ─────────── */
 const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string }> = ({ metrics, accent }) => {
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <span className="text-[10px] font-semibold tracking-[0.18em] uppercase block px-1" style={{ color: "hsl(210 8% 42%)" }}>
         Metrics
       </span>
@@ -198,31 +169,31 @@ const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string }> = ({ 
         {metrics.map((m, idx) => (
           <motion.div
             key={m.label}
-            initial={{ opacity: 0, y: 10, scale: 0.96 }}
+            initial={{ opacity: 0, y: 8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.1 + idx * 0.07, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: 0.08 + idx * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="relative overflow-hidden"
             style={{
               background: "linear-gradient(155deg, hsl(0 0% 100% / 0.55), hsl(0 0% 100% / 0.3))",
               backdropFilter: "blur(40px) saturate(1.5)",
-              borderRadius: "18px",
+              borderRadius: "16px",
               border: "1px solid hsl(0 0% 100% / 0.45)",
               boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.6)",
-              padding: "16px",
+              padding: "14px",
             }}
           >
             <span className="text-[9px] font-semibold tracking-[0.14em] uppercase block" style={{ color: "hsl(210 8% 50%)" }}>
               {m.label}
             </span>
             <span
-              className="text-[28px] font-extralight leading-none tracking-[-0.03em] block mt-1.5"
+              className="text-[26px] font-extralight leading-none tracking-[-0.03em] block mt-1"
               style={{ color: "hsl(210 8% 10%)" }}
             >
               {m.value}
             </span>
             {m.trend && (
               <span
-                className="text-[10px] font-medium block mt-1.5"
+                className="text-[10px] font-medium block mt-1"
                 style={{
                   color: m.positive === true ? "hsl(152 50% 36%)" :
                     m.positive === false ? "hsl(0 60% 45%)" : "hsl(210 8% 50%)",
@@ -235,54 +206,5 @@ const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string }> = ({ 
         ))}
       </div>
     </div>
-  );
-};
-
-/* ─────────── Insight Card ─────────── */
-const InsightCard: React.FC<{ insight: InsightItem; accent: string }> = ({ insight, accent }) => {
-  const Icon = insightIcon[insight.category] || Sparkles;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.35, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="relative overflow-hidden"
-      style={{
-        background: "linear-gradient(155deg, hsl(0 0% 100% / 0.45), hsl(0 0% 100% / 0.2))",
-        backdropFilter: "blur(50px) saturate(1.6)",
-        borderRadius: "20px",
-        border: "1px solid hsl(0 0% 100% / 0.4)",
-        boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.5)",
-        padding: "18px",
-      }}
-    >
-      {/* Prismatic edge */}
-      <div
-        className="absolute top-0 left-0 right-0 h-[1.5px]"
-        style={{
-          background: `linear-gradient(90deg, transparent 5%, hsl(172 40% 50% / 0.25) 30%, hsl(260 50% 65% / 0.15) 60%, transparent 95%)`,
-        }}
-      />
-
-      <div className="flex items-start gap-3">
-        <div className="flex items-center gap-2 shrink-0 mt-0.5">
-          <motion.div
-            animate={{ rotate: [0, 12, -12, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Sparkles className="h-3.5 w-3.5" style={{ color: "hsl(172 28% 42%)" }} />
-          </motion.div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <span className="text-[9px] font-bold tracking-[0.15em] uppercase block mb-2" style={{ color: "hsl(172 28% 42%)" }}>
-            AI Insight · {insight.category}
-          </span>
-          <p className="text-[12px] font-medium leading-relaxed" style={{ color: "hsl(210 8% 18%)" }}>
-            {insight.text}
-          </p>
-        </div>
-      </div>
-    </motion.div>
   );
 };
