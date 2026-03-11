@@ -114,7 +114,6 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
             if (idx < 0 || idx >= items.length) return null;
             const item = items[idx];
             const isActive = slot === 0;
-            const Icon = item.icon;
             const absSlot = Math.abs(slot);
             const sev = severityGradients[item.severity] || severityGradients.info;
 
@@ -266,40 +265,6 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
                   {/* ═══ CONTENT — active card ═══ */}
                   {isActive && (
                     <div className="relative z-10 flex items-center gap-4">
-                      {/* Icon container with ambient glow */}
-                      <div className="shrink-0 relative">
-                        <motion.div
-                          className="absolute inset-0 rounded-[12px]"
-                          style={{
-                            background: `radial-gradient(circle, ${item.accentColor}15, transparent 70%)`,
-                            filter: "blur(8px)",
-                          }}
-                          animate={{
-                            scale: [1, 1.3, 1],
-                            opacity: [0.5, 0.8, 0.5],
-                          }}
-                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        />
-                        <div
-                          className="relative flex items-center justify-center"
-                          style={{
-                            width: 42,
-                            height: 42,
-                            borderRadius: "12px",
-                            background: `linear-gradient(135deg, ${item.accentColor}0C, ${item.accentColor}08)`,
-                            border: `1px solid ${item.accentColor}18`,
-                          }}
-                        >
-                          <Icon
-                            style={{
-                              color: item.accentColor,
-                              width: 18,
-                              height: 18,
-                              opacity: 0.9,
-                            }}
-                          />
-                        </div>
-                      </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline gap-3">
