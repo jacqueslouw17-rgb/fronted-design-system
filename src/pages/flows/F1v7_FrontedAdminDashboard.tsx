@@ -548,7 +548,7 @@ const AdminContractingMultiCompany = () => {
   
   const hasNoCompanies = companies.length === 0;
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
-  const [activeMainTab, setActiveMainTab] = useState<"tracker" | "payroll">("tracker");
+  const [activeMainTab, setActiveMainTab] = useState<"priorities" | "tracker" | "payroll">("priorities");
   
   // Dot color: orange if any worker of that type has pending work, green if all resolved
   // When on payroll tab, workers in payroll are already active/onboarded, so show green
