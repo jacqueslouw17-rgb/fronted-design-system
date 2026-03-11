@@ -68,7 +68,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
       {/* 3D perspective container */}
       <div
         style={{
-          perspective: "600px",
+          perspective: "500px",
           perspectiveOrigin: "50% 50%",
         }}
       >
@@ -78,7 +78,7 @@ export const F1v7_FocusWheel: React.FC<Props> = ({
           className="relative flex items-center justify-center overflow-visible"
           style={{
             transformStyle: "preserve-3d",
-            height: "220px",
+            height: "160px",
           }}
         >
           <AnimatePresence mode="popLayout" initial={false}>
