@@ -1,5 +1,6 @@
 /**
- * Focus Detail — actions + metrics only, tight to the wheel
+ * Focus Detail — actions + metrics with living glass UI
+ * Iridescent edges, ambient hover glows, floating blobs.
  */
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,14 +23,10 @@ export const F1v7_FocusDetail: React.FC<Props> = ({ priority, direction }) => {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="space-y-2"
       >
-        {/* ── Equal-height layout: Actions + Metrics ── */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-3" style={{ alignItems: "start" }}>
-          {/* Left: Actions */}
           <div className="xl:col-span-7 flex flex-col">
             <ActionList actions={priority.actions} accent={priority.accentColor} />
           </div>
-
-          {/* Right: Metrics */}
           <div className="xl:col-span-5 flex flex-col">
             <MetricsGrid metrics={priority.metrics} accent={priority.accentColor} />
           </div>
@@ -58,15 +55,38 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
       </div>
 
       <div
-        className="overflow-hidden flex-1"
+        className="overflow-hidden flex-1 relative group/list"
         style={{
           background: "linear-gradient(180deg, hsl(0 0% 100% / 0.5), hsl(0 0% 100% / 0.25))",
           backdropFilter: "blur(50px) saturate(1.6)",
           borderRadius: "22px",
           border: "1px solid hsl(0 0% 100% / 0.45)",
-          boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.6)",
+          boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.6), inset 0 -1px 0 hsl(0 0% 100% / 0.3)",
         }}
       >
+        {/* Iridescent top edge */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[1.5px] z-10"
+          style={{
+            background: `linear-gradient(90deg, transparent 3%, ${accent}25 20%, hsl(260 60% 70% / 0.2) 50%, ${accent}20 80%, transparent 97%)`,
+          }}
+        />
+
+        {/* Floating blob — drifts inside container */}
+        <motion.div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            width: 140,
+            height: 100,
+            top: -20,
+            right: -30,
+            background: `radial-gradient(circle, ${accent}04, transparent 70%)`,
+            filter: "blur(25px)",
+          }}
+          animate={{ x: [0, 20, -10, 0], y: [0, 10, -5, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+
         {actions.map((action, idx) => (
           <motion.div
             key={action.id}
@@ -79,7 +99,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
             }}
             onMouseEnter={(e) => {
               setHoveredId(action.id);
-              e.currentTarget.style.background = `hsl(0 0% 100% / 0.5)`;
+              e.currentTarget.style.background = `linear-gradient(90deg, ${accent}04, hsl(0 0% 100% / 0.5))`;
             }}
             onMouseLeave={(e) => {
               setHoveredId(null);
@@ -132,7 +152,6 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
               </div>
             </div>
 
-            {/* CTA */}
             <motion.button
               initial={{ opacity: 0, x: 8 }}
               animate={{
@@ -143,7 +162,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string }> = ({ act
               className="shrink-0 flex items-center gap-1.5 h-8 px-4 text-[11px] font-semibold"
               style={{
                 color: "hsl(0 0% 100%)",
-                backgroundColor: accent,
+                background: `linear-gradient(135deg, ${accent}, ${accent}DD)`,
                 borderRadius: "12px",
                 boxShadow: `0 4px 12px ${accent}30`,
               }}
@@ -172,28 +191,59 @@ const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string }> = ({ 
             initial={{ opacity: 0, y: 8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.08 + idx * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden"
+            className="relative overflow-hidden group/metric"
             style={{
               background: "linear-gradient(155deg, hsl(0 0% 100% / 0.55), hsl(0 0% 100% / 0.3))",
               backdropFilter: "blur(40px) saturate(1.5)",
               borderRadius: "16px",
               border: "1px solid hsl(0 0% 100% / 0.45)",
-              boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.6)",
+              boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.6), inset 0 -1px 0 hsl(0 0% 100% / 0.3)",
               padding: "14px",
             }}
           >
-            <span className="text-[9px] font-semibold tracking-[0.14em] uppercase block" style={{ color: "hsl(210 8% 50%)" }}>
+            {/* Iridescent top edge */}
+            <div
+              className="absolute top-0 left-0 right-0 h-[1px]"
+              style={{
+                background: `linear-gradient(90deg, transparent 5%, ${accent}15 30%, hsl(260 60% 70% / 0.12) 55%, ${accent}10 75%, transparent 95%)`,
+              }}
+            />
+
+            {/* Ambient glow on hover */}
+            <div
+              className="absolute inset-0 rounded-[16px] opacity-0 group-hover/metric:opacity-100 transition-opacity duration-700 pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse at 50% 30%, ${accent}06, transparent 60%)`,
+              }}
+            />
+
+            {/* Floating micro-blob */}
+            <motion.div
+              className="absolute pointer-events-none rounded-full"
+              style={{
+                width: 60,
+                height: 60,
+                bottom: -15,
+                right: -10,
+                background: `radial-gradient(circle, ${accent}04, transparent 70%)`,
+                filter: "blur(15px)",
+              }}
+              animate={{ x: [0, 8, -4, 0], y: [0, -5, 3, 0] }}
+              transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+            />
+
+            <span className="relative text-[9px] font-semibold tracking-[0.14em] uppercase block" style={{ color: "hsl(210 8% 50%)" }}>
               {m.label}
             </span>
             <span
-              className="text-[26px] font-extralight leading-none tracking-[-0.03em] block mt-1"
+              className="relative text-[26px] font-extralight leading-none tracking-[-0.03em] block mt-1"
               style={{ color: "hsl(210 8% 10%)" }}
             >
               {m.value}
             </span>
             {m.trend && (
               <span
-                className="text-[10px] font-medium block mt-1"
+                className="relative text-[10px] font-medium block mt-1"
                 style={{
                   color: m.positive === true ? "hsl(152 50% 36%)" :
                     m.positive === false ? "hsl(0 60% 45%)" : "hsl(210 8% 50%)",
