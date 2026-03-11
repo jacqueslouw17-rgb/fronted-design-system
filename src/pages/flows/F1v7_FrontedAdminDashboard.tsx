@@ -1334,12 +1334,38 @@ const AdminContractingMultiCompany = () => {
                         </motion.div>
                       )}
 
-                      {/* Tracker | Payroll Tab Toggle */}
+                      {/* Priorities | Tracker | Payroll Navigation */}
                       <div className="flex items-center justify-center py-2">
-                        <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "tracker" | "payroll")}>
-                          <TabsList className="grid w-[280px] grid-cols-2 v7-glass-tabs">
-                            <TabsTrigger value="tracker" className="data-[state=active]:v7-glass-tab-active">Tracker</TabsTrigger>
-                            <TabsTrigger value="payroll" className="data-[state=active]:v7-glass-tab-active">Payroll</TabsTrigger>
+                        <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "priorities" | "tracker" | "payroll")}>
+                          <TabsList className="v7-glass-tabs inline-flex items-center gap-1 p-1">
+                            <TabsTrigger 
+                              value="priorities" 
+                              className={cn(
+                                "data-[state=active]:v7-glass-tab-active px-5 font-semibold",
+                                activeMainTab === "priorities" && "shadow-sm"
+                              )}
+                            >
+                              Priorities
+                            </TabsTrigger>
+                            <span className="h-4 w-px bg-border/30 mx-0.5" />
+                            <TabsTrigger 
+                              value="tracker" 
+                              className={cn(
+                                "data-[state=active]:v7-glass-tab-active text-muted-foreground/70 text-[13px]",
+                                activeMainTab !== "tracker" && "hover:text-muted-foreground"
+                              )}
+                            >
+                              Tracker
+                            </TabsTrigger>
+                            <TabsTrigger 
+                              value="payroll" 
+                              className={cn(
+                                "data-[state=active]:v7-glass-tab-active text-muted-foreground/70 text-[13px]",
+                                activeMainTab !== "payroll" && "hover:text-muted-foreground"
+                              )}
+                            >
+                              Payroll
+                            </TabsTrigger>
                           </TabsList>
                         </Tabs>
                       </div>
