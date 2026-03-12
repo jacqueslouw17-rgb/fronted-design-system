@@ -94,6 +94,8 @@ interface F1v4_PayrollTabProps {
   selectedCompanyId?: string;
   isAllClients?: boolean;
   highlightedWorkerId?: string | null;
+  kurtAutoApproveWorkerId?: string | null;
+  onKurtApprovalComplete?: (workerId: string) => void;
 }
 
 export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
