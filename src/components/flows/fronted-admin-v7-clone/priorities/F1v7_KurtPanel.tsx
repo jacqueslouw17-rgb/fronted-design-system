@@ -219,7 +219,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
       >
         {/* Header */}
         <div
-          className="flex items-center justify-between px-5 py-4"
+          className="flex h-16 items-center justify-between px-5"
           style={{
             borderBottom: "1px solid hsl(0 0% 100% / 0.4)",
             background: "linear-gradient(180deg, hsl(172 15% 97% / 0.6), transparent)",
