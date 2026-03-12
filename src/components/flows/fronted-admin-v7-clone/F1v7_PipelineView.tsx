@@ -101,6 +101,8 @@ interface PipelineViewProps {
   onAddCandidate?: () => void;
   onRemoveContractor?: (contractor: Contractor) => void;
   initialViewMode?: ViewMode;
+  scrollToEnd?: boolean;
+  onScrollToEndComplete?: () => void;
 }
 const statusConfig = {
   "offer-accepted": {
