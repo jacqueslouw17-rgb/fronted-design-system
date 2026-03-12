@@ -574,6 +574,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   initialStep,
   isAllClients = false,
   highlightedWorkerId,
+  kurtAutoApproveWorkerId,
+  onKurtApprovalComplete,
 }) => {
 
   // Period view state - default to first "in-review" run
