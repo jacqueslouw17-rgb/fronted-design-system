@@ -223,15 +223,6 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
             >
               Kurt
             </span>
-            <span
-              className="text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-full"
-              style={{
-                backgroundColor: `hsl(172 28% 42% / 0.08)`,
-                color: accent,
-              }}
-            >
-              AI Assistant
-            </span>
           </div>
           <button
             onClick={onClose}
