@@ -584,169 +584,256 @@ const AdminContractingMultiCompany = () => {
 
   // Track completed priority approval for count updates
   const [completedPriorityActions, setCompletedPriorityActions] = useState<Set<string>>(new Set());
+  const [kurtActiveAction, setKurtActiveAction] = useState<string | null>(null);
+
+  const openKurtForAction = React.useCallback((actionId: string, tab: "priorities" | "tracker" | "payroll") => {
+    setIsKurtPanelOpen(true);
+    setKurtMessages([]);
+    setKurtLoading(true);
+    setKurtOrchestrationWorkers([]);
+    setKurtActiveAction(actionId);
+    setActiveMainTab(tab);
+  }, []);
 
   const handlePriorityActionClick = React.useCallback((action: ActionDetail) => {
     if (action.id === "a1") {
-      // Open Kurt panel + immediately switch to payroll tab
-      setIsKurtPanelOpen(true);
-      setKurtMessages([]);
-      setKurtLoading(true);
-      setKurtOrchestrationWorkers([]);
-      setActiveMainTab("payroll");
-
-      // Longer loading in Kurt — "analysing" feel
+      openKurtForAction("a1", "payroll");
       setTimeout(() => {
         setKurtLoading(false);
-        setKurtMessages([{
-          id: `kurt-${Date.now()}`,
-          role: "assistant",
-          content: `🔍 **Reviewing January payroll batch for Acme Corp...**\n\nI've analyzed the batch — here's what I found:\n\n---\n\n### ✅ Auto-Approvable (5 of 7 workers)\n\nThese workers have **standard adjustments** that match policy rules and can be approved immediately:\n\n- **Maria Santos** 🇵🇭 — ₱15,200 expenses + ₱6,500 bonus *(within policy)*\n- **Emma Wilson** 🇳🇴 — kr2,800 equipment *(receipts verified)*\n- **Alex Hansen** 🇳🇴 — kr4,500 overtime + kr750 parking *(within limits)*\n- Plus 4 workers with no pending items already ready\n\n### ⚠️ Needs Manual Review (2 items)\n\n- **Alex Hansen** — 2 days unpaid leave *(requires HR sign-off)*\n- **Marcus Chen** — Termination flag *(include/exclude decision needed)*\n\n---\n\n💡 **Recommendation:** I can auto-approve the compliant items now, opening each worker's panel and processing their adjustments one by one. This saves ~15 minutes of manual review.\n\n**Would you like me to proceed with auto-approval?**`,
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `🔍 **Reviewing January payroll batch for Acme Corp...**\n\nI've analyzed the batch — here's what I found:\n\n---\n\n### ✅ Auto-Approvable (5 of 7 workers)\n\n- **Maria Santos** 🇵🇭 — ₱15,200 expenses + ₱6,500 bonus *(within policy)*\n- **Emma Wilson** 🇳🇴 — kr2,800 equipment *(receipts verified)*\n- **Alex Hansen** 🇳🇴 — kr4,500 overtime + kr750 parking *(within limits)*\n- Plus 4 workers with no pending items already ready\n\n### ⚠️ Needs Manual Review (2 items)\n\n- **Alex Hansen** — 2 days unpaid leave *(requires HR sign-off)*\n- **Marcus Chen** — Termination flag *(include/exclude decision needed)*\n\n---\n\n💡 I can auto-approve the compliant items now. This saves ~15 minutes of manual review.\n\n**Would you like me to proceed?**`,
         }]);
       }, 4500);
+    } else if (action.id === "a2") {
+      openKurtForAction("a2", "tracker");
+      setTimeout(() => {
+        setKurtLoading(false);
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `📋 **Reviewing contract bundle for Globex Inc...**\n\n👤 **Sarah Park** — Senior Developer\n\n📄 **Bundle contents:**\n- Employment Agreement (updated compensation clause)\n- Non-Compete Addendum (12 months, EU scope)\n- IP Assignment Agreement (standard template)\n- Data Processing Agreement (GDPR-compliant)\n\n⏰ Current contract expires Friday.\n\n---\n\n🔍 Cross-reference against templates:\n- ✅ Employment Agreement — matches template\n- ✅ IP Assignment — standard, no deviations\n- ⚠️ Non-Compete — 12-month duration exceeds your 6-month default\n- ✅ DPA — GDPR-compliant\n\n💡 The non-compete duration should be reviewed. I can open the contract panel for you.\n\n**Would you like me to proceed?**`,
+        }]);
+      }, 3500);
+    } else if (action.id === "a7") {
+      openKurtForAction("a7", "tracker");
+      setTimeout(() => {
+        setKurtLoading(false);
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `📂 **Scanning onboarding documents for Acme Corp...**\n\n**4 workers** with documents pending verification:\n\n1. **Lena Müller** 🇩🇪 — ID scan + work permit uploaded\n2. **Carlos Gutierrez** 🇲🇽 — Passport + visa uploaded\n3. **Yuki Tanaka** 🇯🇵 — ID + bank details uploaded\n4. **Aisha Okafor** 🇳🇬 — All docs uploaded\n\n---\n\n💡 I can open each worker's profile, verify their documents, and move them into the verified column one by one.\n\n**Would you like me to proceed?**`,
+        }]);
+      }, 4000);
+    } else if (action.id === "a9") {
+      openKurtForAction("a9", "payroll");
+      setTimeout(() => {
+        setKurtLoading(false);
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `💰 **Reviewing pending expense adjustments for Globex Inc...**\n\n### ✅ Auto-Approvable (4 workers)\n\n- **Sarah Park** 🇺🇸 — $320 client dinner *(receipts verified)*\n- **Tom Bradley** 🇬🇧 — £450 conference travel *(pre-approved)*\n- **Nina Petrović** 🇷🇸 — €180 office supplies *(within budget)*\n- **Raj Patel** 🇮🇳 — ₹12,500 equipment *(PO attached)*\n\n### ⚠️ Needs Manual Review (2)\n\n- **James O'Brien** 🇮🇪 — €2,800 relocation *(exceeds limit)*\n- **Li Wei** 🇨🇳 — ¥8,500 software *(no receipt)*\n\n---\n\n💡 I can auto-approve the 4 compliant claims now.\n\n**Would you like me to proceed?**`,
+        }]);
+      }, 4000);
+    } else if (action.id === "a4") {
+      openKurtForAction("a4", "tracker");
+      setTimeout(() => {
+        setKurtLoading(false);
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `🛡️ **Checking compliance documents for Acme Corp...**\n\n### Missing Documents\n\n1. **Lena Müller** 🇩🇪 — Work permit expired 2 weeks ago\n2. **Pierre Dubois** 🇫🇷 — Residence card copy missing\n3. **Anna Kowalski** 🇩🇪 — New hire, work permit not uploaded\n\n### Risk Assessment\n- 🔴 **Lena** — High risk. Cannot legally work.\n- 🟡 **Pierre** — Medium risk. Likely has it.\n- 🟡 **Anna** — Medium risk. Start date in 2 weeks.\n\n---\n\n💡 I can draft personalized follow-up emails to each worker with appropriate urgency and deadlines.\n\n**Would you like me to proceed?**`,
+        }]);
+      }, 3800);
+    } else if (action.id === "a6") {
+      openKurtForAction("a6", "tracker");
+      setTimeout(() => {
+        setKurtLoading(false);
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `🔍 **Investigating visa expiration for Waystar Royco...**\n\n👤 **Kenji Watanabe** 🇯🇵 → Working in 🇩🇪 Germany\n\n- Type: EU Blue Card\n- Expiry: **February 8, 2026** (28 days)\n- Renewal status: ❌ Not started\n- Processing time: 4–6 weeks\n\n### ⚠️ This is urgent.\n\nThe application should have been filed already.\n\n1. Notify Kenji and his manager\n2. File renewal this week\n3. Request Fiktionsbescheinigung (interim authorization)\n4. Alert payroll about potential pause\n\n---\n\n💡 I can draft a notification to Kenji with renewal instructions and set a 5-day follow-up reminder.\n\n**Would you like me to proceed?**`,
+        }]);
+      }, 3500);
+    } else if (action.id === "a5") {
+      openKurtForAction("a5", "tracker");
+      setTimeout(() => {
+        setKurtLoading(false);
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `✍️ **Checking pending signatures for Globex Inc...**\n\n👤 **Tom Bradley** 🇬🇧 — Senior Consultant\n\n📄 Consulting Agreement (12-month renewal)\n- Sent: 4 days ago\n- Reminder sent: 2 days ago\n- No response yet\n\nTom is active on Slack (last seen today). Previous contracts signed within 24h — this delay is unusual.\n\n---\n\n💡 I can send a friendly nudge with a direct signing link. If no response in 24h, I'll escalate to his manager.\n\n**Would you like me to proceed?**`,
+        }]);
+      }, 3000);
+    } else if (action.id === "a10") {
+      openKurtForAction("a10", "tracker");
+      setTimeout(() => {
+        setKurtLoading(false);
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `📝 **Checking amendment for Acme Corp...**\n\n👤 **David Martinez** 🇵🇹 — Senior Engineer\n\nSalary adjustment: €4,200 → €4,800/month (+14.3%)\n- Sent 5 days ago — **overdue**\n- David was on PTO Dec 23–Jan 3\n\n### Impact\n- January payroll uses the **old rate** until signed\n- €600 retroactive adjustment will be needed\n\n---\n\n💡 I can send an escalation email with the signing link, cc'd to his manager.\n\n**Would you like me to proceed?**`,
+        }]);
+      }, 3200);
+    } else if (action.id === "a3") {
+      openKurtForAction("a3", "payroll");
+      setTimeout(() => {
+        setKurtLoading(false);
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `🚫 **Investigating tax ID mismatches for Waystar Royco...**\n\n**1. Kenji Watanabe** 🇯🇵 — ID format invalid (10 chars, needs 11)\n**2. Rachel Kim** 🇰🇷 — Name mismatch (Korean vs romanized)\n\n### Payroll Impact\n- €8,400 blocked from disbursement\n- If unresolved by Friday: payroll runs without them\n\n---\n\n💡 I can draft notifications requesting correct info and prepare Rachel's correction form.\n\n**Would you like me to proceed?**`,
+        }]);
+      }, 4200);
+    } else if (action.id === "a8") {
+      openKurtForAction("a8", "payroll");
+      setTimeout(() => {
+        setKurtLoading(false);
+        setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
+          content: `💱 **Analyzing FX exposure for Globex Inc...**\n\n### GBP/EUR Rate Lock\n- Locked: 1.2700 | Current: 1.2410 (−2.3%)\n- Expires: 2 days | Auto-renew: Off\n\n### Exposure\n- 3 GBP workers, £12,400/month combined\n- Locked: €15,748 vs Current: €15,388\n- **Save €360/month** by letting lock expire\n\nGBP has weakened 1.8% this month. Forecast: further 0.5–1% weakening.\n\n---\n\n💡 Let the lock expire and pay at spot rate. I can set up a rate alert if GBP moves above 1.26.\n\n**Would you like me to proceed?**`,
+        }]);
+      }, 3500);
     }
-  }, []);
+  }, [openKurtForAction]);
 
-  // Kurt action response handler — orchestrates sequential worker approval driven by completion callbacks
+  // Kurt orchestration engine
   const kurtApprovalQueueRef = React.useRef<Array<{ id: string; name: string; flag: string; detail: string; pendingCount: number }>>([]);
   const kurtApprovalIndexRef = React.useRef(0);
 
-  const workerNarrations = React.useMemo(() => [
-    [
-      "📂 Opening **Maria Santos** 🇵🇭 — checking 4 pending items...",
-      "🔎 Reviewing flight expense ₱15,200 — checking attachments and receipts...",
-      "✅ Flight booking, hotel confirmation, boarding pass all verified. Approving.",
-      "🔎 Reviewing meal expenses ₱3,800 — checking restaurant invoices...",
-      "✅ Receipts match. Within daily meal allowance. Approving.",
-      "🔎 Reviewing bonus ₱6,500 — cross-referencing with approved bonus schedule...",
-      "✅ Bonus matches approved Q4 schedule. Manager approval attached. Legitimate and compliant.",
-      "🔎 Reviewing taxi receipt ₱1,200 — verifying receipt...",
-      "✅ Receipt verified. Standard transport expense. Approving.",
-      "✨ **Maria Santos** — all 4 items approved. Closing panel.",
-    ],
-    [
-      "📂 Opening **Emma Wilson** 🇳🇴 — checking 2 pending items...",
-      "🔎 Reviewing equipment expense kr2,800 — verifying purchase order attachment...",
-      "✅ Purchase order matches. Equipment within approved procurement list. Approving.",
-      "🔎 Reviewing timesheet submission — cross-checking logged hours...",
-      "✅ Hours align with project tracker. All good. Approving timesheet.",
-      "✨ **Emma Wilson** — all items approved. Closing panel.",
-    ],
-    [
-      "📂 Opening **Alex Hansen** 🇳🇴 — checking 2 pending items...",
-      "🔎 Reviewing overtime kr4,500 — checking against overtime policy cap...",
-      "✅ Overtime within monthly cap. Manager pre-approved. Approving.",
-      "🔎 Reviewing parking expense kr750 — verifying receipt...",
-      "✅ Receipt attached and verified. Standard commute expense. Approving.",
-      "✨ **Alex Hansen** — all compliant items approved. Note: unpaid leave flagged for manual HR review.",
-    ],
-  ], []);
+  const getNarrations = React.useCallback((actionId: string): string[][] => {
+    if (actionId === "a1") return [
+      ["📂 Opening **Maria Santos** 🇵🇭 — checking 4 pending items...","🔎 Reviewing flight expense ₱15,200...","✅ Flight booking verified. Approving.","🔎 Reviewing meal expenses ₱3,800...","✅ Receipts match. Approving.","🔎 Reviewing bonus ₱6,500...","✅ Matches Q4 schedule. Approving.","🔎 Reviewing taxi receipt ₱1,200...","✅ Receipt verified. Approving.","✨ **Maria Santos** — all 4 items approved."],
+      ["📂 Opening **Emma Wilson** 🇳🇴 — checking 2 pending items...","🔎 Reviewing equipment kr2,800...","✅ Purchase order matches. Approving.","🔎 Reviewing timesheet...","✅ Hours align. Approving.","✨ **Emma Wilson** — all items approved."],
+      ["📂 Opening **Alex Hansen** 🇳🇴 — checking 2 pending items...","🔎 Reviewing overtime kr4,500...","✅ Within cap. Approving.","🔎 Reviewing parking kr750...","✅ Receipt verified. Approving.","✨ **Alex Hansen** — compliant items approved. Unpaid leave flagged for HR."],
+    ];
+    if (actionId === "a7") return [
+      ["📂 Opening **Lena Müller** 🇩🇪...","🔎 Verifying government ID...","✅ Personalausweis valid until 2029.","🔎 Checking work authorization...","✅ EU citizen — no permit required.","✨ **Lena Müller** — verified. Moving to done column."],
+      ["📂 Opening **Carlos Gutierrez** 🇲🇽...","🔎 Verifying passport...","✅ Passport valid until 2028.","🔎 Checking work visa...","✅ EU Blue Card valid until 2027.","🔎 Verifying bank details...","✅ IBAN verified.","✨ **Carlos Gutierrez** — verified. Moving to done column."],
+      ["📂 Opening **Yuki Tanaka** 🇯🇵...","🔎 Verifying ID...","✅ Passport valid until 2030.","🔎 Checking bank details...","✅ SWIFT code valid.","✨ **Yuki Tanaka** — verified. Moving to done column."],
+      ["📂 Opening **Aisha Okafor** 🇳🇬...","🔎 Verifying ID...","✅ Passport valid until 2029.","🔎 Checking work permit...","✅ DE permit valid until June 2026.","🔎 Verifying agreement...","✅ Signed. Terms match.","✨ **Aisha Okafor** — verified. Moving to done column."],
+    ];
+    if (actionId === "a9") return [
+      ["📂 Opening **Sarah Park** 🇺🇸...","🔎 Reviewing client dinner $320...","✅ Receipt attached. Approving.","✨ **Sarah Park** — expense approved."],
+      ["📂 Opening **Tom Bradley** 🇬🇧...","🔎 Reviewing conference travel £450...","✅ Pre-approved. Receipts match. Approving.","✨ **Tom Bradley** — expense approved."],
+      ["📂 Opening **Nina Petrović** 🇷🇸...","🔎 Reviewing office supplies €180...","✅ Within budget. Approving.","✨ **Nina Petrović** — expense approved."],
+      ["📂 Opening **Raj Patel** 🇮🇳...","🔎 Reviewing equipment ₹12,500...","✅ PO matches. Approving.","✨ **Raj Patel** — expense approved."],
+    ];
+    if (actionId === "a4") return [
+      ["📧 Drafting for **Lena Müller** 🇩🇪...","🔴 Urgent: work permit expired. Including renewal instructions.","✅ Email sent with 48-hour deadline."],
+      ["📧 Drafting for **Pierre Dubois** 🇫🇷...","🟡 Residence card needed. Including upload link.","✅ Email sent with 5-day deadline."],
+      ["📧 Drafting for **Anna Kowalski** 🇩🇪...","🟡 Work permit needed before start date.","✅ Email sent with pre-start deadline."],
+    ];
+    return [];
+  }, []);
 
-  const startNextKurtWorker = React.useCallback(() => {
-    const queue = kurtApprovalQueueRef.current;
-    const idx = kurtApprovalIndexRef.current;
-
-    if (idx >= queue.length) return; // All done — handled in completion callback
-
-    const worker = queue[idx];
-    const narrations = workerNarrations[idx] || [];
-
-    // Highlight and start processing
-    setKurtHighlightedWorker(worker.id);
-    setKurtAutoApproveWorkerId(worker.id);
-    setKurtOrchestrationWorkers(prev => prev.map(w =>
-      w.id === worker.id ? { ...w, status: "processing" } : w
-    ));
-
-    // Narration messages — stagger them
-    const NARRATION_GAP = 1200;
-    narrations.forEach((narration, narrationIndex) => {
-      setTimeout(() => {
-        handleKurtAddMessage({
-          id: `kurt-narr-${worker.id}-${narrationIndex}-${Date.now()}`,
-          role: "assistant",
-          content: narration,
-        });
-      }, 500 + narrationIndex * NARRATION_GAP);
-    });
-  }, [handleKurtAddMessage, workerNarrations]);
-
-  const handleKurtActionResponse = React.useCallback((action: "yes" | "no" | "other", message?: string) => {
-    if (action !== "yes") return;
-
-    const workersWithPending = [
+  const getActionWorkers = React.useCallback((actionId: string) => {
+    if (actionId === "a1") return { queue: [
       { id: "3", name: "Maria Santos", flag: "🇵🇭", detail: "₱15,200 expenses + ₱6,500 bonus", pendingCount: 4 },
       { id: "6", name: "Emma Wilson", flag: "🇳🇴", detail: "kr2,800 equipment + timesheet", pendingCount: 2 },
       { id: "4", name: "Alex Hansen", flag: "🇳🇴", detail: "kr4,500 overtime + kr750 parking", pendingCount: 2 },
-    ];
-
-    const readyWorkers = [
+    ], ready: [
       { id: "1", name: "Marcus Chen", flag: "🇸🇬", detail: "No pending items" },
       { id: "2", name: "Sofia Rodriguez", flag: "🇪🇸", detail: "No pending items" },
       { id: "5", name: "David Martinez", flag: "🇵🇹", detail: "No pending items" },
       { id: "7", name: "Jonas Schmidt", flag: "🇩🇪", detail: "No pending items" },
-    ];
+    ]};
+    if (actionId === "a7") return { queue: [
+      { id: "onb-1", name: "Lena Müller", flag: "🇩🇪", detail: "ID + work permit", pendingCount: 2 },
+      { id: "onb-2", name: "Carlos Gutierrez", flag: "🇲🇽", detail: "Passport + visa + bank", pendingCount: 3 },
+      { id: "onb-3", name: "Yuki Tanaka", flag: "🇯🇵", detail: "ID + bank details", pendingCount: 2 },
+      { id: "onb-4", name: "Aisha Okafor", flag: "🇳🇬", detail: "ID + permit + agreement", pendingCount: 3 },
+    ], ready: [] };
+    if (actionId === "a9") return { queue: [
+      { id: "exp-1", name: "Sarah Park", flag: "🇺🇸", detail: "$320 client dinner", pendingCount: 1 },
+      { id: "exp-2", name: "Tom Bradley", flag: "🇬🇧", detail: "£450 conference travel", pendingCount: 1 },
+      { id: "exp-3", name: "Nina Petrović", flag: "🇷🇸", detail: "€180 office supplies", pendingCount: 1 },
+      { id: "exp-4", name: "Raj Patel", flag: "🇮🇳", detail: "₹12,500 equipment", pendingCount: 1 },
+    ], ready: [] };
+    if (actionId === "a4") return { queue: [
+      { id: "comp-1", name: "Lena Müller", flag: "🇩🇪", detail: "Work permit expired", pendingCount: 1 },
+      { id: "comp-2", name: "Pierre Dubois", flag: "🇫🇷", detail: "Residence card missing", pendingCount: 1 },
+      { id: "comp-3", name: "Anna Kowalski", flag: "🇩🇪", detail: "Work permit not uploaded", pendingCount: 1 },
+    ], ready: [] };
+    return { queue: [], ready: [] };
+  }, []);
 
-    const allWorkers = [
-      ...workersWithPending.map(w => ({ ...w, status: "pending" as const })),
-      ...readyWorkers.map(w => ({ ...w, status: "done" as const })),
-    ];
+  const getCompletionMessage = React.useCallback((actionId: string): string => {
+    const msgs: Record<string, string> = {
+      a1: "🎉 **All compliant workers approved!**\n\n- ✅ **5 workers** auto-approved\n- ⚠️ **2 items** still need attention: Alex Hansen's unpaid leave + Marcus Chen's termination flag\n\n💡 Would you like me to walk you through the remaining items?",
+      a7: "🎉 **All onboarding documents verified!**\n\n- ✅ **4 workers** verified and moved to done\n- Lena Müller, Carlos Gutierrez, Yuki Tanaka, Aisha Okafor\n\n💡 Start dates can now be confirmed. Day 1 instructions will be sent automatically.",
+      a9: "🎉 **All compliant expenses approved!**\n\n- ✅ **4 claims** approved ($320 + £450 + €180 + ₹12,500)\n- ⚠️ **2 claims** need manual review: James O'Brien + Li Wei\n\n💡 Would you like me to walk you through the remaining items?",
+      a4: "✅ **All follow-up emails sent!**\n\n- 📧 Lena Müller — 48-hour deadline\n- 📧 Pierre Dubois — 5-day deadline\n- 📧 Anna Kowalski — pre-start deadline\n\n💡 Automatic reminders set. I'll notify you if anyone misses their deadline.",
+      a2: "✅ **Contract bundle opened.** The non-compete clause has been flagged. You can review and approve from the contract panel.",
+      a6: "✅ **Visa alert sent.** Notification sent to Kenji with renewal instructions. Follow-up reminder set for 5 days. Payroll team alerted.",
+      a5: "✅ **Nudge sent to Tom Bradley.** If no response in 24h, I'll escalate to his manager.",
+      a10: "✅ **Escalation sent to David Martinez.** Email cc'd to manager noting the €600 retroactive impact. I'll notify you when it's signed.",
+      a3: "✅ **Tax ID resolution initiated.** Emails sent to Kenji (24h) and Rachel (2–3 days). I'll track responses.",
+      a8: "✅ **FX lock set to expire.** GBP payouts will use spot rate, saving ~€360. Rate alert set for 1.2600.",
+    };
+    return msgs[actionId] || "✅ Action completed.";
+  }, []);
 
-    kurtApprovalQueueRef.current = workersWithPending;
-    kurtApprovalIndexRef.current = 0;
+  const startNextKurtWorker = React.useCallback(() => {
+    const queue = kurtApprovalQueueRef.current;
+    const idx = kurtApprovalIndexRef.current;
+    if (idx >= queue.length) return;
+    const worker = queue[idx];
+    const narrations = (getNarrations(kurtActiveAction || "")[idx]) || [];
 
-    setKurtLoading(true);
-    setKurtOrchestrationWorkers(allWorkers);
+    setKurtHighlightedWorker(worker.id);
+    setKurtAutoApproveWorkerId(worker.id);
+    setKurtOrchestrationWorkers(prev => prev.map(w => w.id === worker.id ? { ...w, status: "processing" } : w));
 
-    setTimeout(() => {
-      setKurtLoading(false);
-      handleKurtAddMessage({
-        id: `kurt-orch-${Date.now()}`,
-        role: "assistant",
-        content: "⚡ **Starting auto-approval sequence...**\n\nI'll open each worker's panel, review attachments, verify compliance, and approve each item individually. Watch the left panel.",
-      });
-
-      // Start first worker after a brief pause
+    const NARRATION_GAP = 1200;
+    narrations.forEach((narration: string, i: number) => {
       setTimeout(() => {
-        startNextKurtWorker();
-      }, 1500);
-    }, 1500);
-  }, [handleKurtAddMessage, startNextKurtWorker]);
-
-  // Called when SubmissionsView finishes auto-approving a worker — triggers next worker sequentially
-  const handleKurtApprovalComplete = React.useCallback((workerId: string) => {
-    setKurtOrchestrationWorkers(prev => {
-      const updated = prev.map(w =>
-        w.id === workerId ? { ...w, status: "done" as const } : w
-      );
-      return updated;
+        handleKurtAddMessage({ id: `kurt-narr-${worker.id}-${i}-${Date.now()}`, role: "assistant", content: narration });
+      }, 500 + i * NARRATION_GAP);
     });
 
-    // Advance to next worker in queue
+    // For non-payroll actions, auto-complete after narration finishes
+    const isPayrollAction = kurtActiveAction === "a1" || kurtActiveAction === "a9";
+    if (!isPayrollAction) {
+      setTimeout(() => { handleKurtApprovalComplete(worker.id); }, 500 + narrations.length * NARRATION_GAP + 800);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleKurtAddMessage, getNarrations, kurtActiveAction]);
+
+  const handleKurtActionResponse = React.useCallback((action: "yes" | "no" | "other", message?: string) => {
+    if (action !== "yes") return;
+    const activeAction = kurtActiveAction;
+    if (!activeAction) return;
+    const { queue, ready } = getActionWorkers(activeAction);
+
+    if (queue.length > 0) {
+      const allWorkers = [
+        ...queue.map(w => ({ ...w, status: "pending" as const })),
+        ...ready.map(w => ({ ...w, status: "done" as const })),
+      ];
+      kurtApprovalQueueRef.current = queue;
+      kurtApprovalIndexRef.current = 0;
+      setKurtLoading(true);
+      setKurtOrchestrationWorkers(allWorkers);
+
+      const labels: Record<string, string> = { a1: "Starting auto-approval sequence", a9: "Starting expense approval", a7: "Starting document verification", a4: "Drafting follow-up emails" };
+      setTimeout(() => {
+        setKurtLoading(false);
+        handleKurtAddMessage({ id: `kurt-orch-${Date.now()}`, role: "assistant",
+          content: `⚡ **${labels[activeAction] || "Processing"}...**\n\nI'll process each item one by one. Watch the progress below.`,
+        });
+        setTimeout(() => { startNextKurtWorker(); }, 1500);
+      }, 1500);
+    } else {
+      setKurtLoading(true);
+      setTimeout(() => {
+        setKurtLoading(false);
+        handleKurtAddMessage({ id: `kurt-complete-${Date.now()}`, role: "assistant", content: getCompletionMessage(activeAction) });
+        setCompletedPriorityActions(prev => new Set(prev).add(activeAction));
+      }, 2500);
+    }
+  }, [kurtActiveAction, handleKurtAddMessage, startNextKurtWorker, getActionWorkers, getCompletionMessage]);
+
+  const handleKurtApprovalComplete = React.useCallback((workerId: string) => {
+    setKurtOrchestrationWorkers(prev => prev.map(w => w.id === workerId ? { ...w, status: "done" as const } : w));
     kurtApprovalIndexRef.current += 1;
     const queue = kurtApprovalQueueRef.current;
     const nextIdx = kurtApprovalIndexRef.current;
 
     if (nextIdx < queue.length) {
-      // Brief pause before opening next worker
-      setTimeout(() => {
-        startNextKurtWorker();
-      }, 2000);
+      setTimeout(() => { startNextKurtWorker(); }, 2000);
     } else {
-      // All workers done
       setTimeout(() => {
         setKurtHighlightedWorker(null);
         setKurtAutoApproveWorkerId(null);
-        
-        handleKurtAddMessage({
-          id: `kurt-done-${Date.now()}`,
-          role: "assistant",
-          content: "🎉 **All compliant workers approved!**\n\n---\n\n### Summary\n- ✅ **5 workers** auto-approved (Maria Santos, Emma Wilson, Alex Hansen + 2 already ready)\n- ⚠️ **2 items** still need your attention:\n  - **Alex Hansen** — 2 days unpaid leave *(requires HR sign-off)*\n  - **Marcus Chen** — Termination flag *(include/exclude decision)*\n\n---\n\n💡 **Next up:** You should review the remaining 2 flagged items so you can proceed to **Approve & Lock** this batch.\n\nAlex Hansen's unpaid leave needs HR confirmation — the daily rate deduction is kr3,200/day. Marcus Chen has a termination effective Jan 15 — you'll need to decide whether to include or exclude his final payout.\n\n**Would you like me to walk you through the remaining items?**",
-        });
-
-        setCompletedPriorityActions(prev => new Set(prev).add("a1"));
+        handleKurtAddMessage({ id: `kurt-done-${Date.now()}`, role: "assistant", content: getCompletionMessage(kurtActiveAction || "a1") });
+        setCompletedPriorityActions(prev => new Set(prev).add(kurtActiveAction || "a1"));
       }, 1500);
     }
-  }, [handleKurtAddMessage, startNextKurtWorker]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleKurtAddMessage, startNextKurtWorker, kurtActiveAction, getCompletionMessage]);
 
   // Dot color: orange if any worker of that type has pending work, green if all resolved
   // When on payroll tab, workers in payroll are already active/onboarded, so show green
