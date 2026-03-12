@@ -13,6 +13,8 @@ export interface ActionDetail {
   deadline?: string;
   reason: string;
   cta: string;
+  /** Metric labels this action relates to — used for hover cross-highlighting */
+  relatedMetrics?: string[];
 }
 
 export interface MetricSnapshot {
