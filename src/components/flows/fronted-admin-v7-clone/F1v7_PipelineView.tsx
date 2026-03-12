@@ -9,7 +9,7 @@
  */
 import "@/styles/v7-glass-theme.css";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { F1v7_ViewToggle, type ViewMode } from "./F1v7_ViewToggle";
 import { F1v7_ListView } from "./F1v7_ListView";
 
