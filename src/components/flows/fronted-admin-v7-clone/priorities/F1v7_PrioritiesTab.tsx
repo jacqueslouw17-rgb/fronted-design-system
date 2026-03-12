@@ -7,8 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { F1v7_FocusWheel } from "./F1v7_FocusWheel";
 import { F1v7_FocusDetail } from "./F1v7_FocusDetail";
 import { PRIORITY_STREAM } from "./F1v7_PriorityData";
+import type { ActionDetail } from "./F1v7_PriorityData";
 
-export const F1v7_PrioritiesTab: React.FC = () => {
+interface Props {
+  onActionClick?: (action: ActionDetail) => void;
+}
+
+export const F1v7_PrioritiesTab: React.FC<Props> = ({ onActionClick }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const activePriority = PRIORITY_STREAM[activeIndex];
@@ -115,6 +120,7 @@ export const F1v7_PrioritiesTab: React.FC = () => {
       <F1v7_FocusDetail
         priority={activePriority}
         direction={direction}
+        onActionClick={onActionClick}
       />
     </motion.div>
   );

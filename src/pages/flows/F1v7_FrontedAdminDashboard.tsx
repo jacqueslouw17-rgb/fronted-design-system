@@ -55,6 +55,8 @@ import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v7-clo
 import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v7-clone/F1v7_PayrollTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { F1v7_PrioritiesTab } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_PrioritiesTab";
+import { F1v7_KurtPanel } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_KurtPanel";
+import type { ActionDetail } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_PriorityData";
 import { MoreHorizontal as MoreHorizontalIcon } from "lucide-react";
 
 // Company type with full details for edit functionality
@@ -552,6 +554,50 @@ const AdminContractingMultiCompany = () => {
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
   const [activeMainTab, setActiveMainTab] = useState<"priorities" | "tracker" | "payroll">("priorities");
   
+  // Kurt panel state
+  const [isKurtPanelOpen, setIsKurtPanelOpen] = useState(false);
+  const [kurtMessages, setKurtMessages] = useState<Array<{ id: string; role: "user" | "assistant"; content: string }>>([]);
+  const [kurtLoading, setKurtLoading] = useState(false);
+  const [kurtTransitioning, setKurtTransitioning] = useState(false);
+
+  const handleKurtAddMessage = React.useCallback((msg: { id: string; role: "user" | "assistant"; content: string }) => {
+    setKurtMessages(prev => {
+      const existing = prev.findIndex(m => m.id === msg.id);
+      if (existing >= 0) {
+        return prev.map(m => m.id === msg.id ? msg : m);
+      }
+      return [...prev, msg];
+    });
+  }, []);
+
+  const handlePriorityActionClick = React.useCallback((action: ActionDetail) => {
+    // Only handle "Approve December payroll batch" for the demo
+    if (action.id === "a1") {
+      // 1. Open Kurt panel
+      setIsKurtPanelOpen(true);
+      setKurtMessages([]);
+      setKurtLoading(true);
+      setKurtTransitioning(true);
+
+      // 2. After 1.5s, Kurt sends first message
+      setTimeout(() => {
+        setKurtLoading(false);
+        const msgId = `kurt-${Date.now()}`;
+        setKurtMessages([{
+          id: msgId,
+          role: "assistant",
+          content: `🔍 **Reviewing December payroll batch for Acme Corp...**\n\nI've analyzed the batch — here's what I found:\n\n---\n\n### ✅ Auto-Approvable (10 of 12 workers)\n\nThese workers have **standard adjustments** that match policy rules and can be approved immediately:\n\n- **David Martinez** — €245 travel expenses *(within €500 limit)*\n- **Sophie Laurent** — €500 Q4 performance bonus *(pre-approved by manager)*\n- **Maria Santos** — ₱3,500 overtime + ₱1,212 meals *(within policy)*\n- **Alex Hansen** — kr1,200 home office equipment *(receipts verified)*\n- **Jonas Schmidt** — €890 conference fee *(pre-approved)*\n- **Lisa Chen** — kr5,000 SEK Q4 bonus *(manager-approved)*\n- Plus 4 workers with no pending items\n\n### ⚠️ Needs Review (2 workers)\n\n- **Alex Hansen** — 0.5 days unpaid leave *(requires HR sign-off)*\n- **Sophie Laurent** — Bonus exceeds quarterly average by 18%\n\n---\n\n💡 **Recommendation:** I can auto-approve the 10 compliant workers now, saving you ~15 minutes of manual review. The 2 flagged items will remain in your queue.\n\n**Would you like me to proceed with auto-approval?**`,
+        }]);
+      }, 2500);
+
+      // 3. After 5s, transition to payroll tab
+      setTimeout(() => {
+        setActiveMainTab("payroll");
+        setKurtTransitioning(false);
+      }, 5000);
+    }
+  }, []);
+
   // Dot color: orange if any worker of that type has pending work, green if all resolved
   // When on payroll tab, workers in payroll are already active/onboarded, so show green
   const employeesAllResolved = activeMainTab === "payroll" || activeMainTab === "priorities" || (employeesList.length > 0 && employeesList.every(c => terminalStatuses.includes(c.status)));
@@ -1368,11 +1414,67 @@ const AdminContractingMultiCompany = () => {
                       </div>
 
                       {/* Conditional Content */}
-                      <div className="pt-2">
+                      <div className="pt-2 relative">
+                        {/* Transition overlay when Kurt is processing */}
+                        <AnimatePresence>
+                          {kurtTransitioning && (
+                            <motion.div
+                              key="kurt-transition-overlay"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.6 }}
+                              className="absolute inset-0 z-20 flex flex-col items-center justify-center py-16"
+                              style={{
+                                background: "linear-gradient(180deg, hsl(172 15% 97% / 0.9), hsl(200 12% 96% / 0.85))",
+                                backdropFilter: "blur(20px)",
+                                borderRadius: "22px",
+                              }}
+                            >
+                              <AudioWaveVisualizer isActive={true} />
+                              <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3, duration: 0.4 }}
+                                className="text-center space-y-2 mt-4"
+                              >
+                                <h3 className="text-lg font-semibold" style={{ color: "hsl(210 8% 15%)" }}>
+                                  Analyzing payroll batch
+                                </h3>
+                                <p className="text-sm" style={{ color: "hsl(210 8% 50%)" }}>
+                                  Kurt is reviewing 12 workers across Acme Corp...
+                                </p>
+                              </motion.div>
+                              {/* Skeleton bars */}
+                              <div className="mt-8 w-full max-w-md space-y-3 px-8">
+                                {[
+                                  { width: "90%", delay: 0.5 },
+                                  { width: "75%", delay: 0.7 },
+                                  { width: "85%", delay: 0.9 },
+                                  { width: "60%", delay: 1.1 },
+                                  { width: "70%", delay: 1.3 },
+                                ].map((line, i) => (
+                                  <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -12 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: line.delay, duration: 0.3 }}
+                                  >
+                                    <div
+                                      className="h-3 rounded-full skeleton-shimmer"
+                                      style={{ width: line.width }}
+                                    />
+                                  </motion.div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                        
                         <AnimatePresence mode="wait">
                           {activeMainTab === "priorities" ? (
                             <motion.div key="priorities" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
-                              <F1v7_PrioritiesTab />
+                              <F1v7_PrioritiesTab onActionClick={handlePriorityActionClick} />
                             </motion.div>
                           ) : activeMainTab === "payroll" ? (
                             <motion.div key="payroll" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
@@ -1555,6 +1657,15 @@ const AdminContractingMultiCompany = () => {
               </div>
             </div>
           </AgentLayout>
+          
+          {/* Kurt AI Panel — slides in from right */}
+          <F1v7_KurtPanel
+            isOpen={isKurtPanelOpen}
+            onClose={() => setIsKurtPanelOpen(false)}
+            messages={kurtMessages}
+            onAddMessage={handleKurtAddMessage}
+            isLoading={kurtLoading}
+          />
       </main>
       
       <F1v4_AddCandidateDrawer
