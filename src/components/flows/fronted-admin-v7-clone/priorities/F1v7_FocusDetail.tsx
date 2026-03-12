@@ -190,20 +190,35 @@ const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string; highlig
         Impact
       </span>
       <div className="grid grid-cols-2 gap-2 flex-1" style={{ minHeight: 0 }}>
-        {metrics.map((m, idx) => (
+        {metrics.map((m, idx) => {
+          const isActive = highlightedMetrics === null || highlightedMetrics.includes(m.label);
+          const isShaded = highlightedMetrics !== null && !highlightedMetrics.includes(m.label);
+          return (
           <motion.div
             key={m.label}
             initial={{ opacity: 0, y: 8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.08 + idx * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            animate={{
+              opacity: isShaded ? 0.35 : 1,
+              y: 0,
+              scale: isShaded ? 0.97 : (highlightedMetrics !== null && isActive ? 1.02 : 1),
+            }}
+            transition={{ delay: highlightedMetrics !== null ? 0 : 0.08 + idx * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="relative overflow-hidden group/metric"
             style={{
-              background: "linear-gradient(155deg, hsl(0 0% 100% / 0.55), hsl(0 0% 100% / 0.3))",
+              background: isActive && highlightedMetrics !== null
+                ? `linear-gradient(155deg, hsl(0 0% 100% / 0.65), hsl(0 0% 100% / 0.4))`
+                : "linear-gradient(155deg, hsl(0 0% 100% / 0.55), hsl(0 0% 100% / 0.3))",
               backdropFilter: "blur(40px) saturate(1.5)",
               borderRadius: "16px",
-              border: "1px solid hsl(0 0% 100% / 0.45)",
-              boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.6), inset 0 -1px 0 hsl(0 0% 100% / 0.3)",
+              border: isActive && highlightedMetrics !== null
+                ? `1px solid ${accent}30`
+                : "1px solid hsl(0 0% 100% / 0.45)",
+              boxShadow: isActive && highlightedMetrics !== null
+                ? `inset 0 1px 0 hsl(0 0% 100% / 0.6), inset 0 -1px 0 hsl(0 0% 100% / 0.3), 0 0 12px ${accent}10`
+                : "inset 0 1px 0 hsl(0 0% 100% / 0.6), inset 0 -1px 0 hsl(0 0% 100% / 0.3)",
               padding: "14px",
+              transition: "border 0.3s ease, box-shadow 0.3s ease, background 0.3s ease",
+              filter: isShaded ? "grayscale(0.4)" : "none",
             }}
           >
             {/* Iridescent top edge */}
