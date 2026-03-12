@@ -15,16 +15,23 @@ interface KurtMessage {
   content: string;
 }
 
+export interface OrchestrationWorker {
+  id: string;
+  name: string;
+  flag: string;
+  detail: string;
+  status: "pending" | "processing" | "done";
+}
+
 interface F1v7_KurtPanelProps {
   isOpen: boolean;
   onClose: () => void;
-  /** Pre-seeded messages to display (e.g. from action triggers) */
   messages: KurtMessage[];
   onAddMessage: (msg: KurtMessage) => void;
   isLoading?: boolean;
   isStreaming?: boolean;
-  /** Called when user clicks an action button (yes/no/other) */
   onActionResponse?: (action: "yes" | "no" | "other", message?: string) => void;
+  orchestrationWorkers?: OrchestrationWorker[];
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kurt-chat`;
