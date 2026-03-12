@@ -32,6 +32,7 @@ interface F1v7_KurtPanelProps {
   isStreaming?: boolean;
   onActionResponse?: (action: "yes" | "no" | "other", message?: string) => void;
   orchestrationWorkers?: OrchestrationWorker[];
+  activeActionId?: string | null;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kurt-chat`;
