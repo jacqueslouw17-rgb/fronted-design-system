@@ -52,10 +52,10 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(0, 72%, 51%)",
     tagline: "4 approvals are holding up payroll for 23 workers across 2 clients",
     actions: [
-      { id: "a1", title: "Approve December payroll batch", client: "Acme Corp", affected: 12, deadline: "Due today", reason: "Payroll cutoff in 6 hours", cta: "Approve", relatedMetrics: ["Workers affected", "Hours to cutoff"] },
-      { id: "a2", title: "Review contractor agreement amendment", client: "Globex Inc", affected: 1, deadline: "Due today", reason: "Contract expires Friday", cta: "Review", relatedMetrics: ["Avg approval time"] },
-      { id: "a7", title: "Approve onboarding documents", client: "Acme Corp", affected: 4, deadline: "Due tomorrow", reason: "Workers awaiting start date", cta: "Approve", relatedMetrics: ["Workers affected", "Auto-approved"] },
-      { id: "a9", title: "Sign off expenses report", client: "Globex Inc", affected: 6, deadline: "Due today", reason: "Month-end close", cta: "Approve", relatedMetrics: ["Hours to cutoff", "Auto-approved"] },
+      { id: "a1", title: "Approve January payroll batch", client: "Acme Corp", affected: 12, deadline: "Due today", reason: "Payroll cutoff in 6 hours", cta: "Approve", relatedMetrics: ["Workers affected", "Hours to cutoff"] },
+      { id: "a2", title: "Review contract bundle for worker", client: "Globex Inc", affected: 1, deadline: "Due today", reason: "Contract expires Friday", cta: "Review", relatedMetrics: ["Avg approval time"] },
+      { id: "a7", title: "Verify onboarding documents", client: "Acme Corp", affected: 4, deadline: "Due tomorrow", reason: "Workers awaiting start date", cta: "Verify", relatedMetrics: ["Workers affected", "Auto-approved"] },
+      { id: "a9", title: "Approve pending expense adjustments", client: "Globex Inc", affected: 6, deadline: "Due today", reason: "Month-end close", cta: "Approve", relatedMetrics: ["Hours to cutoff", "Auto-approved"] },
     ],
     metrics: [
       { label: "Workers affected", value: "23", trend: "Across 2 clients" },
