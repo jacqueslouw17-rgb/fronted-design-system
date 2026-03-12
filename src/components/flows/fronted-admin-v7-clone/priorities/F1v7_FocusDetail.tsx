@@ -40,7 +40,7 @@ export const F1v7_FocusDetail: React.FC<Props> = ({ priority, direction, onActio
 };
 
 /* ─────────── Action List ─────────── */
-const ActionList: React.FC<{ actions: ActionDetail[]; accent: string; onHighlightMetrics: (metrics: string[] | null) => void }> = ({ actions, accent, onHighlightMetrics }) => {
+const ActionList: React.FC<{ actions: ActionDetail[]; accent: string; onHighlightMetrics: (metrics: string[] | null) => void; onActionClick?: (action: ActionDetail) => void }> = ({ actions, accent, onHighlightMetrics, onActionClick }) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
