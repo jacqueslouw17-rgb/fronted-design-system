@@ -103,6 +103,7 @@ interface PipelineViewProps {
   initialViewMode?: ViewMode;
   scrollToEnd?: boolean;
   onScrollToEndComplete?: () => void;
+  kurtAutoOpenWorkerId?: string | null;
 }
 const statusConfig = {
   "offer-accepted": {
@@ -248,6 +249,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   initialViewMode = "board",
   scrollToEnd = false,
   onScrollToEndComplete,
+  kurtAutoOpenWorkerId = null,
 }) => {
   const columns = mode === "full-pipeline-with-payroll" ? COLUMNS_FULL_PIPELINE : mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
@@ -278,6 +280,28 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       }, 600);
     }
   }, [scrollToEnd, onScrollToEndComplete]);
+
+  // Kurt auto-open worker drawer
+  const prevKurtWorkerRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (kurtAutoOpenWorkerId && kurtAutoOpenWorkerId !== prevKurtWorkerRef.current) {
+      // Close any open drawer first
+      setConfigureDrawerOpen(false);
+      
+      // Small delay to let close animation finish, then open the new one
+      setTimeout(() => {
+        const worker = contractors.find(c => c.id === kurtAutoOpenWorkerId);
+        if (worker) {
+          setSelectedContractor(worker);
+          setConfigureDrawerOpen(true);
+        }
+      }, 400);
+    } else if (!kurtAutoOpenWorkerId && prevKurtWorkerRef.current) {
+      // Kurt cleared the highlight — close the drawer
+      setConfigureDrawerOpen(false);
+    }
+    prevKurtWorkerRef.current = kurtAutoOpenWorkerId;
+  }, [kurtAutoOpenWorkerId, contractors]);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const saved = sessionStorage.getItem("f1v7-view-mode");
     if (saved === "board" || saved === "list") return saved;

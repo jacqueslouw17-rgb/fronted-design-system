@@ -362,6 +362,42 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     dataReceived: true,
   },
   {
+    id: "onboard-2",
+    name: "Lena Müller",
+    country: "Germany",
+    countryFlag: "🇩🇪",
+    role: "Compliance Officer",
+    salary: "EUR 5,800/mo",
+    status: "trigger-onboarding",
+    employmentType: "employee",
+    email: "lena.muller@example.com",
+    dataReceived: true,
+  },
+  {
+    id: "onboard-3",
+    name: "Carlos Gutierrez",
+    country: "Mexico",
+    countryFlag: "🇲🇽",
+    role: "Solutions Engineer",
+    salary: "MXN 55,000/mo",
+    status: "trigger-onboarding",
+    employmentType: "contractor",
+    email: "carlos.gutierrez@example.com",
+    dataReceived: true,
+  },
+  {
+    id: "onboard-4",
+    name: "Aisha Okafor",
+    country: "Nigeria",
+    countryFlag: "🇳🇬",
+    role: "Project Manager",
+    salary: "USD 4,500/mo",
+    status: "trigger-onboarding",
+    employmentType: "employee",
+    email: "aisha.okafor@example.com",
+    dataReceived: true,
+  },
+  {
     id: "done-1",
     name: "Maria Santos",
     country: "Philippines",
@@ -618,7 +654,7 @@ const AdminContractingMultiCompany = () => {
       setTimeout(() => {
         setKurtLoading(false);
         setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
-          content: `📂 **Scanning onboarding documents for Acme Corp...**\n\n**4 workers** with documents pending verification:\n\n1. **Lena Müller** 🇩🇪 — ID scan + work permit uploaded\n2. **Carlos Gutierrez** 🇲🇽 — Passport + visa uploaded\n3. **Yuki Tanaka** 🇯🇵 — ID + bank details uploaded\n4. **Aisha Okafor** 🇳🇬 — All docs uploaded\n\n---\n\n💡 I can open each worker's profile, verify their documents, and move them into the verified column one by one.\n\n**Would you like me to proceed?**`,
+          content: `📂 **Scanning onboarding documents for Acme Corp...**\n\n**4 workers** with documents pending verification:\n\n1. **Lena Müller** 🇩🇪 — ID scan + work permit uploaded\n2. **Carlos Gutierrez** 🇲🇽 — Passport + visa uploaded\n3. **Priya Sharma** 🇮🇳 — ID + bank details uploaded\n4. **Aisha Okafor** 🇳🇬 — All docs uploaded\n\n---\n\n💡 I can scroll to each worker in the tracker, open their profile, verify their documents, and move them to verified — one by one.\n\n**Would you like me to proceed?**`,
         }]);
       }, 4000);
     } else if (action.id === "a9") {
@@ -691,9 +727,9 @@ const AdminContractingMultiCompany = () => {
       ["📂 Opening **Alex Hansen** 🇳🇴 — checking 2 pending items...","🔎 Reviewing overtime kr4,500...","✅ Within cap. Approving.","🔎 Reviewing parking kr750...","✅ Receipt verified. Approving.","✨ **Alex Hansen** — compliant items approved. Unpaid leave flagged for HR."],
     ];
     if (actionId === "a7") return [
-      ["📂 Opening **Lena Müller** 🇩🇪...","🔎 Verifying government ID...","✅ Personalausweis valid until 2029.","🔎 Checking work authorization...","✅ EU citizen — no permit required.","✨ **Lena Müller** — verified. Moving to done column."],
+      ["📂 Opening **Lena Müller** 🇩🇪 in the tracker...","🔎 Verifying government ID...","✅ Personalausweis valid until 2029.","🔎 Checking work authorization...","✅ EU citizen — no permit required.","✨ **Lena Müller** — verified. Moving to done column."],
       ["📂 Opening **Carlos Gutierrez** 🇲🇽...","🔎 Verifying passport...","✅ Passport valid until 2028.","🔎 Checking work visa...","✅ EU Blue Card valid until 2027.","🔎 Verifying bank details...","✅ IBAN verified.","✨ **Carlos Gutierrez** — verified. Moving to done column."],
-      ["📂 Opening **Yuki Tanaka** 🇯🇵...","🔎 Verifying ID...","✅ Passport valid until 2030.","🔎 Checking bank details...","✅ SWIFT code valid.","✨ **Yuki Tanaka** — verified. Moving to done column."],
+      ["📂 Opening **Priya Sharma** 🇮🇳...","🔎 Verifying ID...","✅ Passport valid until 2030.","🔎 Checking bank details...","✅ SWIFT code valid.","✨ **Priya Sharma** — verified. Moving to done column."],
       ["📂 Opening **Aisha Okafor** 🇳🇬...","🔎 Verifying ID...","✅ Passport valid until 2029.","🔎 Checking work permit...","✅ DE permit valid until June 2026.","🔎 Verifying agreement...","✅ Signed. Terms match.","✨ **Aisha Okafor** — verified. Moving to done column."],
     ];
     if (actionId === "a9") return [
@@ -741,10 +777,10 @@ const AdminContractingMultiCompany = () => {
       { id: "7", name: "Jonas Schmidt", flag: "🇩🇪", detail: "No pending items" },
     ]};
     if (actionId === "a7") return { queue: [
-      { id: "onb-1", name: "Lena Müller", flag: "🇩🇪", detail: "ID + work permit", pendingCount: 2 },
-      { id: "onb-2", name: "Carlos Gutierrez", flag: "🇲🇽", detail: "Passport + visa + bank", pendingCount: 3 },
-      { id: "onb-3", name: "Yuki Tanaka", flag: "🇯🇵", detail: "ID + bank details", pendingCount: 2 },
-      { id: "onb-4", name: "Aisha Okafor", flag: "🇳🇬", detail: "ID + permit + agreement", pendingCount: 3 },
+      { id: "onboard-2", name: "Lena Müller", flag: "🇩🇪", detail: "ID + work permit", pendingCount: 2 },
+      { id: "onboard-3", name: "Carlos Gutierrez", flag: "🇲🇽", detail: "Passport + visa + bank", pendingCount: 3 },
+      { id: "onboard-1", name: "Priya Sharma", flag: "🇮🇳", detail: "ID + bank details", pendingCount: 2 },
+      { id: "onboard-4", name: "Aisha Okafor", flag: "🇳🇬", detail: "ID + permit + agreement", pendingCount: 3 },
     ], ready: [] };
     if (actionId === "a9") return { queue: [
       { id: "exp-1", name: "Sarah Park", flag: "🇺🇸", detail: "$320 client dinner", pendingCount: 1 },
@@ -763,7 +799,7 @@ const AdminContractingMultiCompany = () => {
   const getCompletionMessage = React.useCallback((actionId: string): string => {
     const msgs: Record<string, string> = {
       a1: "🎉 **All compliant workers approved!**\n\n- ✅ **5 workers** auto-approved\n- ⚠️ **2 items** still need attention: Alex Hansen's unpaid leave + Marcus Chen's termination flag\n\n💡 Would you like me to walk you through the remaining items?",
-      a7: "🎉 **All onboarding documents verified!**\n\n- ✅ **4 workers** verified and moved to done\n- Lena Müller, Carlos Gutierrez, Yuki Tanaka, Aisha Okafor\n\n💡 Start dates can now be confirmed. Day 1 instructions will be sent automatically.",
+      a7: "🎉 **All onboarding documents verified!**\n\n- ✅ **4 workers** verified and moved to done\n- Lena Müller, Carlos Gutierrez, Priya Sharma, Aisha Okafor\n\n💡 Start dates can now be confirmed. Day 1 instructions will be sent automatically.",
       a9: "🎉 **All compliant expenses approved!**\n\n- ✅ **4 claims** approved ($320 + £450 + €180 + ₹12,500)\n- ⚠️ **2 claims** need manual review: James O'Brien + Li Wei\n\n💡 Would you like me to walk you through the remaining items?",
       a4: "✅ **All follow-up emails sent!**\n\n- 📧 Lena Müller — 48-hour deadline\n- 📧 Pierre Dubois — 5-day deadline\n- 📧 Anna Kowalski — pre-start deadline\n\n💡 Automatic reminders set. I'll notify you if anyone misses their deadline.",
       a2: "✅ **Contract bundle opened.** The non-compete clause has been flagged. You can review and approve from the contract panel.",
@@ -787,17 +823,17 @@ const AdminContractingMultiCompany = () => {
     setKurtAutoApproveWorkerId(worker.id);
     setKurtOrchestrationWorkers(prev => prev.map(w => w.id === worker.id ? { ...w, status: "processing" } : w));
 
-    const NARRATION_GAP = 1200;
+    const NARRATION_GAP = kurtActiveAction === "a7" ? 1500 : 1200;
     narrations.forEach((narration: string, i: number) => {
       setTimeout(() => {
         handleKurtAddMessage({ id: `kurt-narr-${worker.id}-${i}-${Date.now()}`, role: "assistant", content: narration });
-      }, 500 + i * NARRATION_GAP);
+      }, 800 + i * NARRATION_GAP);
     });
 
     // For non-payroll actions, auto-complete after narration finishes
     const isPayrollAction = kurtActiveAction === "a1" || kurtActiveAction === "a9";
     if (!isPayrollAction) {
-      setTimeout(() => { handleKurtApprovalComplete(worker.id); }, 500 + narrations.length * NARRATION_GAP + 800);
+      setTimeout(() => { handleKurtApprovalComplete(worker.id); }, 800 + narrations.length * NARRATION_GAP + 1000);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleKurtAddMessage, getNarrations, kurtActiveAction]);
@@ -871,7 +907,9 @@ const AdminContractingMultiCompany = () => {
     const nextIdx = kurtApprovalIndexRef.current;
 
     if (nextIdx < queue.length) {
-      setTimeout(() => { startNextKurtWorker(); }, 2000);
+      // Brief pause: clear highlighted worker so drawer closes, then open next
+      setKurtHighlightedWorker(null);
+      setTimeout(() => { startNextKurtWorker(); }, 2500);
     } else {
       setTimeout(() => {
         setKurtHighlightedWorker(null);
@@ -1722,6 +1760,7 @@ const AdminContractingMultiCompany = () => {
                                     onAddCandidate={handleAddCandidate}
                                     scrollToEnd={kurtScrollTrackerToEnd}
                                     onScrollToEndComplete={() => setKurtScrollTrackerToEnd(false)}
+                                    kurtAutoOpenWorkerId={activeMainTab === "tracker" ? kurtHighlightedWorker : null}
                                     onRemoveContractor={(contractorId) => {
                                       if (isAllClientsMode) {
                                         for (const [companyId, ctrs] of Object.entries(companyContractors)) {
