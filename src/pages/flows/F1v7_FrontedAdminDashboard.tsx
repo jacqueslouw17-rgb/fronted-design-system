@@ -561,6 +561,7 @@ const AdminContractingMultiCompany = () => {
   const [kurtHighlightedWorker, setKurtHighlightedWorker] = useState<string | null>(null);
   const [kurtAutoApproveWorkerId, setKurtAutoApproveWorkerId] = useState<string | null>(null);
   const [kurtOrchestrationWorkers, setKurtOrchestrationWorkers] = useState<Array<{ id: string; name: string; flag: string; detail: string; status: "pending" | "processing" | "done" }>>([]);
+  const [kurtScrollTrackerToEnd, setKurtScrollTrackerToEnd] = useState(false);
 
   // Toggle body class for drawer offset when Kurt is open
   React.useEffect(() => {
