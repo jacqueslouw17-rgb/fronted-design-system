@@ -705,7 +705,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                     style={{ backgroundColor: accent }}
                   />
                   <span className="text-[11px] font-medium" style={{ color: "hsl(210 8% 55%)" }}>
-                    Analyzing payroll data...
+                    {loadingText}
                   </span>
                 </motion.div>
 
