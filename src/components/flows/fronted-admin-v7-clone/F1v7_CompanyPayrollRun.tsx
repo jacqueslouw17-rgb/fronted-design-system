@@ -92,6 +92,7 @@ interface F1v4_CompanyPayrollRunProps {
   company: CompanyPayrollData;
   initialStep?: number; // 1=submissions, 2=exceptions, 3=approve, 4=track
   isAllClients?: boolean;
+  highlightedWorkerId?: string | null;
 }
 
 // Mock submissions data
