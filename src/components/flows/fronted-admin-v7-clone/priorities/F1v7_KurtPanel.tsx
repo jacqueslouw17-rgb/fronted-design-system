@@ -554,6 +554,75 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
               </motion.div>
             )}
 
+            {/* Follow-up action buttons after completion */}
+            {!loading && !streaming && messages.length > 0 &&
+              messages[messages.length - 1]?.role === "assistant" &&
+              messages[messages.length - 1]?.content?.includes("walk you through the remaining items") &&
+              followUpChoice === "none" && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="flex gap-2 mt-2"
+              >
+                {[
+                  { key: "yes" as const, label: "Yes, walk me through", icon: <Check className="h-3.5 w-3.5" /> },
+                  { key: "no" as const, label: "I'll handle it", icon: <XIcon className="h-3.5 w-3.5" /> },
+                ].map((btn, i) => (
+                  <motion.button
+                    key={btn.key}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6 + i * 0.08 }}
+                    onClick={() => {
+                      setFollowUpChoice(btn.key);
+                      if (btn.key === "yes") {
+                        onAddMessage({ id: `kurt-followup-${Date.now()}`, role: "user", content: "Yes, walk me through the remaining items." });
+                        // Kurt responds with detailed walkthrough
+                        setTimeout(() => {
+                          onAddMessage({
+                            id: `kurt-walkthrough-${Date.now()}`,
+                            role: "assistant",
+                            content: "👍 Let's go through them.\n\n---\n\n### 1. Alex Hansen 🇳🇴 — Unpaid Leave (2 days)\n\n**What it is:** Alex submitted 2 days of unpaid leave for Jan 8–9. The daily rate deduction is **kr3,200/day** (total kr6,400 deduction).\n\n**Why it's flagged:** Unpaid leave over 1 day requires HR sign-off per your company policy. I can't auto-approve this one.\n\n**What you need to do:** Open Alex's panel, review the leave request, and either approve (with HR confirmation) or reject it.\n\n---\n\n### 2. Marcus Chen 🇸🇬 — Termination Flag\n\n**What it is:** Marcus has a **termination effective Jan 15**. His final payout of SGD 11,000 is in this batch.\n\n**Why it's flagged:** You need to decide whether to **include** his final payout in this run or **exclude** him (defer to a separate off-cycle batch).\n\n**What you need to do:** Open Marcus's panel and click Include or Exclude.\n\n---\n\nOnce both are resolved, the **Continue → Approve & Lock** button will unlock and you can finalize the batch. Want me to open Alex Hansen's panel for you?",
+                          });
+                        }, 1200);
+                      } else {
+                        onAddMessage({ id: `kurt-followup-${Date.now()}`, role: "user", content: "I'll handle the remaining items manually." });
+                        setTimeout(() => {
+                          onAddMessage({
+                            id: `kurt-manual-${Date.now()}`,
+                            role: "assistant",
+                            content: "No problem! The 2 remaining items are highlighted in the submissions list on the left. Once you've reviewed Alex Hansen's unpaid leave and Marcus Chen's termination flag, the **Continue** button will unlock.\n\nI'm here if you need anything else. 👋",
+                          });
+                        }, 800);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-medium transition-all duration-300"
+                    style={{
+                      background: btn.key === "yes"
+                        ? "linear-gradient(135deg, hsl(172 28% 42% / 0.12), hsl(172 28% 42% / 0.06))"
+                        : "hsl(0 0% 100% / 0.5)",
+                      border: btn.key === "yes"
+                        ? "1px solid hsl(172 28% 42% / 0.25)"
+                        : "1px solid hsl(0 0% 100% / 0.6)",
+                      color: btn.key === "yes" ? accent : "hsl(210 8% 30%)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-1px)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px hsl(172 28% 42% / 0.12)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    {btn.icon}
+                    {btn.label}
+                  </motion.button>
+                ))}
+              </motion.div>
+            )}
+
             {loading && !messages.some((m) => m.role === "assistant" && streaming) && (
               <motion.div
                 initial={{ opacity: 0 }}
