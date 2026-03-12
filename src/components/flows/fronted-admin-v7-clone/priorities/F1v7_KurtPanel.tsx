@@ -190,7 +190,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
         else setPanelReady(false);
       }}
       className={cn(
-        "h-full flex-shrink-0 overflow-hidden relative z-[60]",
+        "sticky top-0 h-screen flex-shrink-0 overflow-hidden z-[60]",
         !isOpen && "pointer-events-none"
       )}
     >
