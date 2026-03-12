@@ -102,6 +102,8 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
   selectedCompanyId,
   isAllClients = false,
   highlightedWorkerId,
+  kurtAutoApproveWorkerId,
+  onKurtApprovalComplete,
 }) => {
   const [companies] = useState<CompanyPayrollData[]>(MOCK_COMPANY_PAYROLLS);
 
