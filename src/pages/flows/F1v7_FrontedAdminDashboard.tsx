@@ -711,32 +711,42 @@ const AdminContractingMultiCompany = () => {
       }, 1500);
     }, 1500);
   }, [handleKurtAddMessage, startNextKurtWorker]);
-  // Called when SubmissionsView finishes auto-approving a worker
+
+  // Called when SubmissionsView finishes auto-approving a worker — triggers next worker sequentially
   const handleKurtApprovalComplete = React.useCallback((workerId: string) => {
     setKurtOrchestrationWorkers(prev => {
       const updated = prev.map(w =>
         w.id === workerId ? { ...w, status: "done" as const } : w
       );
-      const allDone = updated.every(w => w.status === "done");
-      if (allDone) {
-        setTimeout(() => {
-          setKurtHighlightedWorker(null);
-          setKurtAutoApproveWorkerId(null);
-          
-          // No dead end — suggest next action
-          handleKurtAddMessage({
-            id: `kurt-done-${Date.now()}`,
-            role: "assistant",
-            content: "🎉 **All compliant workers approved!**\n\n---\n\n### Summary\n- ✅ **5 workers** auto-approved (Maria Santos, Emma Wilson, Alex Hansen + 2 already ready)\n- ⚠️ **2 items** still need your attention:\n  - **Alex Hansen** — 2 days unpaid leave *(requires HR sign-off)*\n  - **Marcus Chen** — Termination flag *(include/exclude decision)*\n\n---\n\n💡 **Next up:** You should review the remaining 2 flagged items so you can proceed to **Approve & Lock** this batch.\n\nAlex Hansen's unpaid leave needs HR confirmation — the daily rate deduction is kr3,200/day. Marcus Chen has a termination effective Jan 15 — you'll need to decide whether to include or exclude his final payout.\n\n**Would you like me to walk you through the remaining items?**",
-          });
-
-          // Mark this priority action as completed
-          setCompletedPriorityActions(prev => new Set(prev).add("a1"));
-        }, 1500);
-      }
       return updated;
     });
-  }, [handleKurtAddMessage]);
+
+    // Advance to next worker in queue
+    kurtApprovalIndexRef.current += 1;
+    const queue = kurtApprovalQueueRef.current;
+    const nextIdx = kurtApprovalIndexRef.current;
+
+    if (nextIdx < queue.length) {
+      // Brief pause before opening next worker
+      setTimeout(() => {
+        startNextKurtWorker();
+      }, 2000);
+    } else {
+      // All workers done
+      setTimeout(() => {
+        setKurtHighlightedWorker(null);
+        setKurtAutoApproveWorkerId(null);
+        
+        handleKurtAddMessage({
+          id: `kurt-done-${Date.now()}`,
+          role: "assistant",
+          content: "🎉 **All compliant workers approved!**\n\n---\n\n### Summary\n- ✅ **5 workers** auto-approved (Maria Santos, Emma Wilson, Alex Hansen + 2 already ready)\n- ⚠️ **2 items** still need your attention:\n  - **Alex Hansen** — 2 days unpaid leave *(requires HR sign-off)*\n  - **Marcus Chen** — Termination flag *(include/exclude decision)*\n\n---\n\n💡 **Next up:** You should review the remaining 2 flagged items so you can proceed to **Approve & Lock** this batch.\n\nAlex Hansen's unpaid leave needs HR confirmation — the daily rate deduction is kr3,200/day. Marcus Chen has a termination effective Jan 15 — you'll need to decide whether to include or exclude his final payout.\n\n**Would you like me to walk you through the remaining items?**",
+        });
+
+        setCompletedPriorityActions(prev => new Set(prev).add("a1"));
+      }, 1500);
+    }
+  }, [handleKurtAddMessage, startNextKurtWorker]);
 
   // Dot color: orange if any worker of that type has pending work, green if all resolved
   // When on payroll tab, workers in payroll are already active/onboarded, so show green
