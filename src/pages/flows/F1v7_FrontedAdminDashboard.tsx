@@ -1947,7 +1947,7 @@ const AdminContractingMultiCompany = () => {
 
       {/* Kurt Visualizer — ambient frequency orb, always accessible */}
       <AnimatePresence>
-        {!isKurtPanelOpen && !isAddingNewCompany && !isEditingCompany && contractFlow.phase === "idle" && (
+        {!isKurtPanelOpen && (
           <F1v7_KurtVisualizer
             isKurtOpen={isKurtPanelOpen}
             onOpen={() => setIsKurtPanelOpen(true)}
