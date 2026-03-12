@@ -36,17 +36,17 @@ export const F1v7_PrioritiesTab: React.FC<Props> = ({ onActionClick, completedAc
   const activePriority = adjustedPriorities[activeIndex];
 
   const goTo = useCallback((idx: number) => {
-    const clamped = Math.max(0, Math.min(PRIORITY_STREAM.length - 1, idx));
+    const clamped = Math.max(0, Math.min(adjustedPriorities.length - 1, idx));
     setDirection(clamped > activeIndex ? 1 : -1);
     setActiveIndex(clamped);
-  }, [activeIndex]);
+  }, [activeIndex, adjustedPriorities.length]);
 
   const goNext = useCallback(() => {
-    if (activeIndex < PRIORITY_STREAM.length - 1) {
+    if (activeIndex < adjustedPriorities.length - 1) {
       setDirection(1);
       setActiveIndex(prev => prev + 1);
     }
-  }, [activeIndex]);
+  }, [activeIndex, adjustedPriorities.length]);
 
   const goPrev = useCallback(() => {
     if (activeIndex > 0) {
