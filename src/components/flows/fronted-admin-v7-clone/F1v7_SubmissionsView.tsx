@@ -664,7 +664,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     setExpandedItemId(null);
   };
 
-  // Kurt auto-approval orchestration — opens drawer and approves all pending items
+  // Kurt auto-approval orchestration — opens drawer, shows loading, then approves items one by one
   useEffect(() => {
     if (!kurtAutoApproveWorkerId) return;
     const worker = submissions.find(s => s.id === kurtAutoApproveWorkerId);
@@ -678,33 +678,56 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     setDrawerOpen(true);
     setExpandedItemId(null);
 
-    // Auto-approve all pending items after drawer animation completes
-    const approveTimer = setTimeout(() => {
-      worker.submissions.forEach((adj, idx) => {
-        const key = `${worker.id}-${idx}`;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    // Collect all pending items
+    const pendingAdj = worker.submissions
+      .map((adj, idx) => ({ key: `${worker.id}-${idx}`, idx, adj }))
+      .filter(({ key, adj }) => {
         const current = adjustmentStates[key];
-        if ((current?.status || adj.status || 'pending') === 'pending' && typeof adj.amount === 'number') {
-          setAdjustmentStates(prev => ({ ...prev, [key]: { status: 'approved' } }));
-        }
+        return (current?.status || adj.status || 'pending') === 'pending' && typeof adj.amount === 'number';
       });
-      (worker.pendingLeaves || []).forEach(leave => {
+
+    const pendingLeaves = (worker.pendingLeaves || [])
+      .filter(leave => {
         const key = `${worker.id}-leave-${leave.id}`;
         const current = leaveStates[key];
-        if ((current?.status || leave.status || 'pending') === 'pending') {
-          setLeaveStates(prev => ({ ...prev, [key]: { status: 'approved' } }));
-        }
+        return (current?.status || leave.status || 'pending') === 'pending';
       });
-    }, 800);
 
-    // Close drawer and signal completion
-    const completeTimer = setTimeout(() => {
+    const totalItems = pendingAdj.length + pendingLeaves.length;
+    const ITEM_DELAY = 1500; // 1.5s per item — deliberate and visible
+    const INITIAL_DELAY = 1200; // time for drawer to animate open
+
+    // Approve adjustments one by one
+    pendingAdj.forEach(({ key }, itemIndex) => {
+      const t = setTimeout(() => {
+        setAdjustmentStates(prev => ({ ...prev, [key]: { status: 'approved' } }));
+      }, INITIAL_DELAY + itemIndex * ITEM_DELAY);
+      timers.push(t);
+    });
+
+    // Then approve leaves one by one
+    pendingLeaves.forEach((leave, itemIndex) => {
+      const key = `${worker.id}-leave-${leave.id}`;
+      const t = setTimeout(() => {
+        setLeaveStates(prev => ({ ...prev, [key]: { status: 'approved' } }));
+      }, INITIAL_DELAY + (pendingAdj.length + itemIndex) * ITEM_DELAY);
+      timers.push(t);
+    });
+
+    // Close drawer after all items processed + breathing room
+    const closeDelay = INITIAL_DELAY + totalItems * ITEM_DELAY + 1500;
+    const closeTimer = setTimeout(() => {
       setDrawerOpen(false);
-      onKurtApprovalComplete?.(kurtAutoApproveWorkerId);
-    }, 2200);
+      setTimeout(() => {
+        onKurtApprovalComplete?.(kurtAutoApproveWorkerId);
+      }, 500);
+    }, closeDelay);
+    timers.push(closeTimer);
 
     return () => {
-      clearTimeout(approveTimer);
-      clearTimeout(completeTimer);
+      timers.forEach(clearTimeout);
     };
   }, [kurtAutoApproveWorkerId]); // eslint-disable-line react-hooks/exhaustive-deps
 
