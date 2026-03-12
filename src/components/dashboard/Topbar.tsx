@@ -1,4 +1,4 @@
-import { ArrowLeft, PanelLeftOpen, Settings } from "lucide-react";
+import { ArrowLeft, PanelLeftOpen, Settings, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
