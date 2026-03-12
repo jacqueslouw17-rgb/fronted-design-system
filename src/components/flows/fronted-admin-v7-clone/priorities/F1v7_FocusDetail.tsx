@@ -110,6 +110,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string; onHighligh
               onHighlightMetrics(null);
               e.currentTarget.style.background = "transparent";
             }}
+            onClick={() => onActionClick?.(action)}
           >
             {/* Left accent line on hover */}
             <motion.div

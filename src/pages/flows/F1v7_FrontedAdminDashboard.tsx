@@ -1242,6 +1242,8 @@ const AdminContractingMultiCompany = () => {
           profileMenuLabel="Profile Settings"
           onBackClick={handleBackToFlows}
           forceFixed
+          isKurtPanelOpen={isKurtPanelOpen}
+          onKurtPanelClose={() => setIsKurtPanelOpen(false)}
         />
       )}
 
