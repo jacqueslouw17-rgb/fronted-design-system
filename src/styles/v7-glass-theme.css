@@ -449,13 +449,9 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 }
 
 /* ─── Worker drawer offset when Kurt panel is open ─── */
-body.kurt-panel-open [data-radix-popper-content-wrapper],
-body.kurt-panel-open [vaul-drawer],
-body.kurt-panel-open div[data-state="open"][role="dialog"] {
-  /* Keep drawer left of the 420px Kurt panel */
-}
-body.kurt-panel-open .v7-glass-bg [data-state="open"] > [data-radix-dialog-content] {
+body.kurt-panel-open [data-side="right"][role="dialog"] {
   right: 420px !important;
+  transition: right 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ─── Company chip styles for All clients pipeline cards ─── */
