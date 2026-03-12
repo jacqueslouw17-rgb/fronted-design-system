@@ -620,6 +620,14 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     })];
   }, [selectedPeriodId, isApproved, isAllPaid, customBatches]);
 
+  // Auto-enter workflow when Kurt is highlighting workers
+  useEffect(() => {
+    if (highlightedWorkerId && !hasEnteredWorkflow) {
+      setHasEnteredWorkflow(true);
+      setCurrentStep("submissions");
+    }
+  }, [highlightedWorkerId, hasEnteredWorkflow]);
+
   // Determine if viewing historical (paid) run — but NOT if it just got paid in this session
   const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
   const isViewingPrevious = selectedPeriodData?.status === "paid" && !isAllPaid;
