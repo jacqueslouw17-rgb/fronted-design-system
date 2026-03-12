@@ -439,6 +439,9 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
           </div>
         </div>
       </div>
-    </motion.div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
