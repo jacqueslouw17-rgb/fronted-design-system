@@ -777,10 +777,10 @@ const AdminContractingMultiCompany = () => {
       { id: "7", name: "Jonas Schmidt", flag: "🇩🇪", detail: "No pending items" },
     ]};
     if (actionId === "a7") return { queue: [
-      { id: "onb-1", name: "Lena Müller", flag: "🇩🇪", detail: "ID + work permit", pendingCount: 2 },
-      { id: "onb-2", name: "Carlos Gutierrez", flag: "🇲🇽", detail: "Passport + visa + bank", pendingCount: 3 },
-      { id: "onb-3", name: "Yuki Tanaka", flag: "🇯🇵", detail: "ID + bank details", pendingCount: 2 },
-      { id: "onb-4", name: "Aisha Okafor", flag: "🇳🇬", detail: "ID + permit + agreement", pendingCount: 3 },
+      { id: "onboard-2", name: "Lena Müller", flag: "🇩🇪", detail: "ID + work permit", pendingCount: 2 },
+      { id: "onboard-3", name: "Carlos Gutierrez", flag: "🇲🇽", detail: "Passport + visa + bank", pendingCount: 3 },
+      { id: "onboard-1", name: "Priya Sharma", flag: "🇮🇳", detail: "ID + bank details", pendingCount: 2 },
+      { id: "onboard-4", name: "Aisha Okafor", flag: "🇳🇬", detail: "ID + permit + agreement", pendingCount: 3 },
     ], ready: [] };
     if (actionId === "a9") return { queue: [
       { id: "exp-1", name: "Sarah Park", flag: "🇺🇸", detail: "$320 client dinner", pendingCount: 1 },
