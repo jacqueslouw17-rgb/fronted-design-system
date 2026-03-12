@@ -10,6 +10,7 @@ import type { PriorityItem, ActionDetail, MetricSnapshot } from "./F1v7_Priority
 interface Props {
   priority: PriorityItem;
   direction: number;
+  onActionClick?: (action: ActionDetail) => void;
 }
 
 export const F1v7_FocusDetail: React.FC<Props> = ({ priority, direction }) => {
