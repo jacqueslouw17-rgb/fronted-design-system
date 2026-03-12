@@ -1748,6 +1748,7 @@ const AdminContractingMultiCompany = () => {
             messages={kurtMessages}
             onAddMessage={handleKurtAddMessage}
             isLoading={kurtLoading}
+            onActionResponse={handleKurtActionResponse}
           />
       </main>
       
