@@ -95,7 +95,7 @@ export const F1v7_PrioritiesTab: React.FC<Props> = ({ onActionClick, completedAc
 
       {/* The Wheel */}
       <F1v7_FocusWheel
-        items={PRIORITY_STREAM}
+        items={adjustedPriorities}
         activeIndex={activeIndex}
         direction={direction}
         onSelect={goTo}
