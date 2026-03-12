@@ -141,6 +141,7 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
   return (
     <F1v4_CompanyPayrollRun
       company={activeCompany}
+      highlightedWorkerId={highlightedWorkerId}
     />
   );
 };
