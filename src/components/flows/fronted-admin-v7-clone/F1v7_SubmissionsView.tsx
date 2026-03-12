@@ -142,6 +142,7 @@ interface F1v4_SubmissionsViewProps {
   onContinue: (readyWorkerIds?: string[], adjustmentDecisions?: Record<string, {status: string}>, excludedWorkerIds?: string[]) => void;
   onClose?: () => void;
   isCustomBatch?: boolean;
+  highlightedWorkerId?: string | null;
 }
 
 const submissionTypeConfig: Record<SubmissionType, {icon: React.ElementType;label: string;color: string;}> = {
