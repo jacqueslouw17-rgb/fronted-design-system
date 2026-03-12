@@ -1418,7 +1418,7 @@ const AdminContractingMultiCompany = () => {
                         <AnimatePresence mode="wait">
                           {activeMainTab === "priorities" ? (
                             <motion.div key="priorities" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
-                              <F1v7_PrioritiesTab />
+                              <F1v7_PrioritiesTab onActionClick={handlePriorityActionClick} />
                             </motion.div>
                           ) : activeMainTab === "payroll" ? (
                             <motion.div key="payroll" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
