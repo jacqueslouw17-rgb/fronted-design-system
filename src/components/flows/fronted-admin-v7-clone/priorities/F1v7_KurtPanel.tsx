@@ -311,10 +311,10 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
               )
             )}
 
-            {/* Action buttons after auto-approval question */}
+            {/* Action buttons after Kurt asks for confirmation */}
             {!loading && !streaming && messages.length > 0 &&
               messages[messages.length - 1]?.role === "assistant" &&
-              messages[messages.length - 1]?.content?.includes("proceed with auto-approval") &&
+              messages[messages.length - 1]?.content?.includes("Would you like me to proceed") &&
               actionChoice === "none" && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -323,7 +323,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                 className="flex gap-2 mt-1"
               >
                 {[
-                  { key: "yes" as const, label: "Yes, approve", icon: <Check className="h-3.5 w-3.5" /> },
+                  { key: "yes" as const, label: "Yes, proceed", icon: <Check className="h-3.5 w-3.5" /> },
                   { key: "no" as const, label: "No", icon: <XIcon className="h-3.5 w-3.5" /> },
                   { key: "other" as const, label: "Other", icon: <MessageSquare className="h-3.5 w-3.5" /> },
                 ].map((btn, i) => (
@@ -335,7 +335,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                     onClick={() => {
                       setActionChoice(btn.key);
                       if (btn.key === "yes") {
-                        onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "Yes, proceed with auto-approval for the 10 compliant workers." });
+                        onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "Yes, go ahead." });
                         onActionResponse?.("yes");
                       } else if (btn.key === "no") {
                         onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "No, I'll review them manually." });
@@ -585,7 +585,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
             {/* Follow-up action buttons after completion */}
             {!loading && !streaming && messages.length > 0 &&
               messages[messages.length - 1]?.role === "assistant" &&
-              messages[messages.length - 1]?.content?.includes("walk you through the remaining items") &&
+              (messages[messages.length - 1]?.content?.includes("walk you through") || messages[messages.length - 1]?.content?.includes("Would you like me to guide")) &&
               followUpChoice === "none" && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
