@@ -183,7 +183,7 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string; onHighligh
 };
 
 /* ─────────── Metrics Grid ─────────── */
-const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string }> = ({ metrics, accent }) => {
+const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string; highlightedMetrics: string[] | null }> = ({ metrics, accent, highlightedMetrics }) => {
   return (
     <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
       <span className="text-[10px] font-semibold tracking-[0.18em] uppercase block px-1 mb-1.5" style={{ color: "hsl(210 8% 42%)" }}>
