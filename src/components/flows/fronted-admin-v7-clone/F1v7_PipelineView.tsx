@@ -262,6 +262,22 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     setContractors: updateContractorStore
   } = useContractorStore();
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
+  const boardScrollRef = useRef<HTMLDivElement>(null);
+
+  // Scroll board to end when requested (e.g., Kurt onboarding verification)
+  useEffect(() => {
+    if (scrollToEnd && boardScrollRef.current) {
+      setTimeout(() => {
+        if (boardScrollRef.current) {
+          boardScrollRef.current.scrollTo({
+            left: boardScrollRef.current.scrollWidth,
+            behavior: "smooth",
+          });
+        }
+        onScrollToEndComplete?.();
+      }, 600);
+    }
+  }, [scrollToEnd, onScrollToEndComplete]);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const saved = sessionStorage.getItem("f1v7-view-mode");
     if (saved === "board" || saved === "list") return saved;
