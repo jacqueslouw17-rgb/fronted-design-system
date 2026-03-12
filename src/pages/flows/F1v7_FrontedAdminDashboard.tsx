@@ -727,9 +727,9 @@ const AdminContractingMultiCompany = () => {
       ["📂 Opening **Alex Hansen** 🇳🇴 — checking 2 pending items...","🔎 Reviewing overtime kr4,500...","✅ Within cap. Approving.","🔎 Reviewing parking kr750...","✅ Receipt verified. Approving.","✨ **Alex Hansen** — compliant items approved. Unpaid leave flagged for HR."],
     ];
     if (actionId === "a7") return [
-      ["📂 Opening **Lena Müller** 🇩🇪...","🔎 Verifying government ID...","✅ Personalausweis valid until 2029.","🔎 Checking work authorization...","✅ EU citizen — no permit required.","✨ **Lena Müller** — verified. Moving to done column."],
+      ["📂 Opening **Lena Müller** 🇩🇪 in the tracker...","🔎 Verifying government ID...","✅ Personalausweis valid until 2029.","🔎 Checking work authorization...","✅ EU citizen — no permit required.","✨ **Lena Müller** — verified. Moving to done column."],
       ["📂 Opening **Carlos Gutierrez** 🇲🇽...","🔎 Verifying passport...","✅ Passport valid until 2028.","🔎 Checking work visa...","✅ EU Blue Card valid until 2027.","🔎 Verifying bank details...","✅ IBAN verified.","✨ **Carlos Gutierrez** — verified. Moving to done column."],
-      ["📂 Opening **Yuki Tanaka** 🇯🇵...","🔎 Verifying ID...","✅ Passport valid until 2030.","🔎 Checking bank details...","✅ SWIFT code valid.","✨ **Yuki Tanaka** — verified. Moving to done column."],
+      ["📂 Opening **Priya Sharma** 🇮🇳...","🔎 Verifying ID...","✅ Passport valid until 2030.","🔎 Checking bank details...","✅ SWIFT code valid.","✨ **Priya Sharma** — verified. Moving to done column."],
       ["📂 Opening **Aisha Okafor** 🇳🇬...","🔎 Verifying ID...","✅ Passport valid until 2029.","🔎 Checking work permit...","✅ DE permit valid until June 2026.","🔎 Verifying agreement...","✅ Signed. Terms match.","✨ **Aisha Okafor** — verified. Moving to done column."],
     ];
     if (actionId === "a9") return [
