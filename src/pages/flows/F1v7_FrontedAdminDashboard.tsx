@@ -583,30 +583,23 @@ const AdminContractingMultiCompany = () => {
   }, []);
 
   const handlePriorityActionClick = React.useCallback((action: ActionDetail) => {
-    // Only handle "Approve December payroll batch" for the demo
     if (action.id === "a1") {
-      // 1. Open Kurt panel
+      // Open Kurt panel + immediately switch to payroll tab
       setIsKurtPanelOpen(true);
       setKurtMessages([]);
       setKurtLoading(true);
-      setKurtTransitioning(true);
+      setKurtOrchestrationWorkers([]);
+      setActiveMainTab("payroll");
 
-      // 2. After 1.5s, Kurt sends first message
+      // After brief loading in Kurt, show analysis message
       setTimeout(() => {
         setKurtLoading(false);
-        const msgId = `kurt-${Date.now()}`;
         setKurtMessages([{
-          id: msgId,
+          id: `kurt-${Date.now()}`,
           role: "assistant",
-          content: `🔍 **Reviewing December payroll batch for Acme Corp...**\n\nI've analyzed the batch — here's what I found:\n\n---\n\n### ✅ Auto-Approvable (10 of 12 workers)\n\nThese workers have **standard adjustments** that match policy rules and can be approved immediately:\n\n- **David Martinez** — €245 travel expenses *(within €500 limit)*\n- **Sophie Laurent** — €500 Q4 performance bonus *(pre-approved by manager)*\n- **Maria Santos** — ₱3,500 overtime + ₱1,212 meals *(within policy)*\n- **Alex Hansen** — kr1,200 home office equipment *(receipts verified)*\n- **Jonas Schmidt** — €890 conference fee *(pre-approved)*\n- **Lisa Chen** — kr5,000 SEK Q4 bonus *(manager-approved)*\n- Plus 4 workers with no pending items\n\n### ⚠️ Needs Review (2 workers)\n\n- **Alex Hansen** — 0.5 days unpaid leave *(requires HR sign-off)*\n- **Sophie Laurent** — Bonus exceeds quarterly average by 18%\n\n---\n\n💡 **Recommendation:** I can auto-approve the 10 compliant workers now, saving you ~15 minutes of manual review. The 2 flagged items will remain in your queue.\n\n**Would you like me to proceed with auto-approval?**`,
+          content: `🔍 **Reviewing January payroll batch for Acme Corp...**\n\nI've analyzed the batch — here's what I found:\n\n---\n\n### ✅ Auto-Approvable (5 of 7 workers)\n\nThese workers have **standard adjustments** that match policy rules and can be approved immediately:\n\n- **Maria Santos** 🇵🇭 — ₱15,200 expenses + ₱6,500 bonus *(within policy)*\n- **Emma Wilson** 🇳🇴 — kr2,800 equipment *(receipts verified)*\n- **Alex Hansen** 🇳🇴 — kr4,500 overtime + kr750 parking *(within limits)*\n- Plus 4 workers with no pending items already ready\n\n### ⚠️ Needs Manual Review (2 items)\n\n- **Alex Hansen** — 2 days unpaid leave *(requires HR sign-off)*\n- **Marcus Chen** — Termination flag *(include/exclude decision needed)*\n\n---\n\n💡 **Recommendation:** I can auto-approve the compliant items now, opening each worker's panel and processing their adjustments. This saves ~15 minutes of manual review.\n\n**Would you like me to proceed with auto-approval?**`,
         }]);
       }, 2500);
-
-      // 3. After 5s, transition to payroll tab
-      setTimeout(() => {
-        setActiveMainTab("payroll");
-        setKurtTransitioning(false);
-      }, 5000);
     }
   }, []);
 
