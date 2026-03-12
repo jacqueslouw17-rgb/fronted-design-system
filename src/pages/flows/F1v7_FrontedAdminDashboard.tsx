@@ -907,7 +907,9 @@ const AdminContractingMultiCompany = () => {
     const nextIdx = kurtApprovalIndexRef.current;
 
     if (nextIdx < queue.length) {
-      setTimeout(() => { startNextKurtWorker(); }, 2000);
+      // Brief pause: clear highlighted worker so drawer closes, then open next
+      setKurtHighlightedWorker(null);
+      setTimeout(() => { startNextKurtWorker(); }, 2500);
     } else {
       setTimeout(() => {
         setKurtHighlightedWorker(null);
