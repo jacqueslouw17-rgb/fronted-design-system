@@ -1141,7 +1141,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
 
 
       {/* Board View (existing Kanban) */}
-      {viewMode === "board" && <div className="overflow-x-auto">
+      {viewMode === "board" && <div ref={boardScrollRef} className="overflow-x-auto">
       <div className="flex gap-4 min-w-max">
         {columns.map((status, colIndex) => {
         const config = statusConfig[status];
