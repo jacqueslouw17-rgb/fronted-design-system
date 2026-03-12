@@ -55,6 +55,8 @@ import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v7-clo
 import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v7-clone/F1v7_PayrollTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { F1v7_PrioritiesTab } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_PrioritiesTab";
+import { F1v7_KurtPanel } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_KurtPanel";
+import type { ActionDetail } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_PriorityData";
 import { MoreHorizontal as MoreHorizontalIcon } from "lucide-react";
 
 // Company type with full details for edit functionality
