@@ -1720,6 +1720,8 @@ const AdminContractingMultiCompany = () => {
                                     key={isAllClientsMode ? "all-clients" : selectedCompany}
                                     contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
                                     onAddCandidate={handleAddCandidate}
+                                    scrollToEnd={kurtScrollTrackerToEnd}
+                                    onScrollToEndComplete={() => setKurtScrollTrackerToEnd(false)}
                                     onRemoveContractor={(contractorId) => {
                                       if (isAllClientsMode) {
                                         for (const [companyId, ctrs] of Object.entries(companyContractors)) {
