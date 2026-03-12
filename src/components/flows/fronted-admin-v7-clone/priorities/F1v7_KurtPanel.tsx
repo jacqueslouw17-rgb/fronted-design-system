@@ -311,10 +311,10 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
               )
             )}
 
-            {/* Action buttons after auto-approval question */}
+            {/* Action buttons after Kurt asks for confirmation */}
             {!loading && !streaming && messages.length > 0 &&
               messages[messages.length - 1]?.role === "assistant" &&
-              messages[messages.length - 1]?.content?.includes("proceed with auto-approval") &&
+              messages[messages.length - 1]?.content?.includes("Would you like me to proceed") &&
               actionChoice === "none" && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
