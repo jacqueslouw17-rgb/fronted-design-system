@@ -1129,7 +1129,7 @@ const AdminContractingMultiCompany = () => {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 flex overflow-hidden relative pt-0">
+      <main className="flex-1 flex min-w-0 relative pt-0">
         {/* Dashboard Drawer */}
         <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
