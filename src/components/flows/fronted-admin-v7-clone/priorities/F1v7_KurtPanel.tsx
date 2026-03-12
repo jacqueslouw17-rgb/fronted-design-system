@@ -239,22 +239,6 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
               Kurt
             </span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-xl transition-all duration-300"
-            style={{
-              background: "hsl(0 0% 100% / 0.4)",
-              border: "1px solid hsl(0 0% 100% / 0.5)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "hsl(0 0% 100% / 0.7)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "hsl(0 0% 100% / 0.4)";
-            }}
-          >
-            <X className="h-3.5 w-3.5" style={{ color: "hsl(210 8% 40%)" }} />
-          </button>
         </div>
 
         {/* Messages */}
