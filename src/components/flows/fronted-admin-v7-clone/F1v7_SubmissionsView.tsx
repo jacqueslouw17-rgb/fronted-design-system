@@ -1233,11 +1233,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
 
                 <>
-                    <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30">
-                      <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
+                    <div className="px-5 pt-4 pb-3 border-b border-border/30">
+                      <span className="sr-only">Pay breakdown details</span>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{selectedSubmission.workerName}</SheetTitle>
+                          <h3 className="text-base font-semibold text-foreground leading-tight truncate">{selectedSubmission.workerName}</h3>
                           <span className="text-base shrink-0">{countryFlags[selectedSubmission.workerCountry] || ""}</span>
                           {(() => {
                             const endFlag = selectedSubmission.flags?.find((f) => f.type === "end_date");
@@ -1268,7 +1268,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           showPreviousAmount={approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments}
                         />
                       </div>
-                    </SheetHeader>
+                    </div>
 
 
 
