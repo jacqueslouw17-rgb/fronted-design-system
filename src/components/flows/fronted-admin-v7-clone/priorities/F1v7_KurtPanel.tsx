@@ -4,7 +4,7 @@
  */
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowUp, Square } from "lucide-react";
+import { X, ArrowUp, Square, Check, XIcon, MessageSquare } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
@@ -45,6 +45,9 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const [panelReady, setPanelReady] = useState(false);
+  const [actionChoice, setActionChoice] = useState<"none" | "yes" | "no" | "other">("none");
+  const [otherText, setOtherText] = useState("");
+  const otherInputRef = useRef<HTMLTextAreaElement>(null);
 
   const streaming = externalStreaming || internalStreaming;
   const loading = isLoading || internalLoading;
@@ -223,15 +226,6 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
             >
               Kurt
             </span>
-            <span
-              className="text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-full"
-              style={{
-                backgroundColor: `hsl(172 28% 42% / 0.08)`,
-                color: accent,
-              }}
-            >
-              AI Assistant
-            </span>
           </div>
           <button
             onClick={onClose}
@@ -321,7 +315,128 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
               )
             )}
 
-            {/* Loading skeleton */}
+            {/* Action buttons after auto-approval question */}
+            {!loading && !streaming && messages.length > 0 &&
+              messages[messages.length - 1]?.role === "assistant" &&
+              messages[messages.length - 1]?.content?.includes("proceed with auto-approval") &&
+              actionChoice === "none" && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="flex gap-2 mt-1"
+              >
+                {[
+                  { key: "yes" as const, label: "Yes, approve", icon: <Check className="h-3.5 w-3.5" /> },
+                  { key: "no" as const, label: "No", icon: <XIcon className="h-3.5 w-3.5" /> },
+                  { key: "other" as const, label: "Other", icon: <MessageSquare className="h-3.5 w-3.5" /> },
+                ].map((btn, i) => (
+                  <motion.button
+                    key={btn.key}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 + i * 0.08 }}
+                    onClick={() => {
+                      setActionChoice(btn.key);
+                      if (btn.key === "yes") {
+                        onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "Yes, proceed with auto-approval for the 10 compliant workers." });
+                      } else if (btn.key === "no") {
+                        onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "No, I'll review them manually." });
+                      } else {
+                        setTimeout(() => otherInputRef.current?.focus(), 100);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-medium transition-all duration-300"
+                    style={{
+                      background: btn.key === "yes"
+                        ? "linear-gradient(135deg, hsl(172 28% 42% / 0.12), hsl(172 28% 42% / 0.06))"
+                        : "hsl(0 0% 100% / 0.5)",
+                      border: btn.key === "yes"
+                        ? "1px solid hsl(172 28% 42% / 0.25)"
+                        : "1px solid hsl(0 0% 100% / 0.6)",
+                      color: btn.key === "yes" ? accent : "hsl(210 8% 30%)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-1px)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px hsl(172 28% 42% / 0.12)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    {btn.icon}
+                    {btn.label}
+                  </motion.button>
+                ))}
+              </motion.div>
+            )}
+
+            {/* "Other" text field */}
+            {actionChoice === "other" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-2"
+              >
+                <div
+                  className="rounded-2xl p-3 space-y-2.5"
+                  style={{
+                    background: "hsl(0 0% 100% / 0.5)",
+                    border: "1px solid hsl(172 28% 42% / 0.15)",
+                    backdropFilter: "blur(20px)",
+                  }}
+                >
+                  <textarea
+                    ref={otherInputRef}
+                    value={otherText}
+                    onChange={(e) => setOtherText(e.target.value)}
+                    placeholder="Tell Kurt what you'd like instead..."
+                    rows={2}
+                    className="w-full bg-transparent text-[13px] resize-none outline-none leading-relaxed"
+                    style={{ color: "hsl(210 8% 15%)", caretColor: accent }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey && otherText.trim()) {
+                        e.preventDefault();
+                        onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: otherText.trim() });
+                        setOtherText("");
+                        setActionChoice("none");
+                      }
+                    }}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => { setActionChoice("none"); setOtherText(""); }}
+                      className="text-[11px] px-2.5 py-1 rounded-lg transition-colors"
+                      style={{ color: "hsl(210 8% 50%)" }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (otherText.trim()) {
+                          onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: otherText.trim() });
+                          setOtherText("");
+                          setActionChoice("none");
+                        }
+                      }}
+                      disabled={!otherText.trim()}
+                      className="text-[11px] font-medium px-3 py-1 rounded-lg transition-all duration-300"
+                      style={{
+                        background: otherText.trim()
+                          ? "linear-gradient(135deg, hsl(172 28% 42%), hsl(172 28% 35%))"
+                          : "hsl(0 0% 90%)",
+                        color: otherText.trim() ? "white" : "hsl(210 8% 60%)",
+                      }}
+                    >
+                      Send
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {loading && !messages.some((m) => m.role === "assistant" && streaming) && (
               <motion.div
                 initial={{ opacity: 0 }}
