@@ -103,6 +103,7 @@ interface PipelineViewProps {
   initialViewMode?: ViewMode;
   scrollToEnd?: boolean;
   onScrollToEndComplete?: () => void;
+  kurtAutoOpenWorkerId?: string | null;
 }
 const statusConfig = {
   "offer-accepted": {
