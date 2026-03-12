@@ -45,6 +45,9 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const [panelReady, setPanelReady] = useState(false);
+  const [actionChoice, setActionChoice] = useState<"none" | "yes" | "no" | "other">("none");
+  const [otherText, setOtherText] = useState("");
+  const otherInputRef = useRef<HTMLTextAreaElement>(null);
 
   const streaming = externalStreaming || internalStreaming;
   const loading = isLoading || internalLoading;
