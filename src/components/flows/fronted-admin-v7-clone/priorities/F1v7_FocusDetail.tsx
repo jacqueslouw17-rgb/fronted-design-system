@@ -13,6 +13,8 @@ interface Props {
 }
 
 export const F1v7_FocusDetail: React.FC<Props> = ({ priority, direction }) => {
+  const [highlightedMetrics, setHighlightedMetrics] = useState<string[] | null>(null);
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -25,10 +27,10 @@ export const F1v7_FocusDetail: React.FC<Props> = ({ priority, direction }) => {
       >
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-3" style={{ alignItems: "start" }}>
           <div className="xl:col-span-7 flex flex-col">
-            <ActionList actions={priority.actions} accent={priority.accentColor} />
+            <ActionList actions={priority.actions} accent={priority.accentColor} onHighlightMetrics={setHighlightedMetrics} />
           </div>
           <div className="xl:col-span-5 flex flex-col">
-            <MetricsGrid metrics={priority.metrics} accent={priority.accentColor} />
+            <MetricsGrid metrics={priority.metrics} accent={priority.accentColor} highlightedMetrics={highlightedMetrics} />
           </div>
         </div>
       </motion.div>
