@@ -143,6 +143,8 @@ interface F1v4_SubmissionsViewProps {
   onClose?: () => void;
   isCustomBatch?: boolean;
   highlightedWorkerId?: string | null;
+  kurtAutoApproveWorkerId?: string | null;
+  onKurtApprovalComplete?: (workerId: string) => void;
 }
 
 const submissionTypeConfig: Record<SubmissionType, {icon: React.ElementType;label: string;color: string;}> = {
