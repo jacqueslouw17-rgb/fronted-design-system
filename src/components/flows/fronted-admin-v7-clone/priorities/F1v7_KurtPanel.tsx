@@ -57,6 +57,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
   const abortRef = useRef<AbortController | null>(null);
   const [panelReady, setPanelReady] = useState(false);
   const [actionChoice, setActionChoice] = useState<"none" | "yes" | "no" | "other">("none");
+  const [followUpChoice, setFollowUpChoice] = useState<"none" | "yes" | "no">("none");
   const [otherText, setOtherText] = useState("");
   const otherInputRef = useRef<HTMLTextAreaElement>(null);
 
