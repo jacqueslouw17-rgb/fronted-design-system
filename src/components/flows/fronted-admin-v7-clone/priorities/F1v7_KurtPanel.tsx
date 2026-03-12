@@ -4,7 +4,7 @@
  */
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowUp, Square } from "lucide-react";
+import { X, ArrowUp, Square, Check, XIcon, MessageSquare } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
