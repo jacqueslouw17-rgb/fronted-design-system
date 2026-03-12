@@ -101,10 +101,12 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string; onHighligh
             }}
             onMouseEnter={(e) => {
               setHoveredId(action.id);
+              onHighlightMetrics(action.relatedMetrics ?? null);
               e.currentTarget.style.background = `linear-gradient(90deg, ${accent}04, hsl(0 0% 100% / 0.5))`;
             }}
             onMouseLeave={(e) => {
               setHoveredId(null);
+              onHighlightMetrics(null);
               e.currentTarget.style.background = "transparent";
             }}
           >
