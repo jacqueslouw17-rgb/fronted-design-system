@@ -49,6 +49,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
   isStreaming: externalStreaming = false,
   onActionResponse,
   orchestrationWorkers = [],
+  activeActionId = null,
 }) => {
   const [input, setInput] = useState("");
   const [internalLoading, setInternalLoading] = useState(false);
