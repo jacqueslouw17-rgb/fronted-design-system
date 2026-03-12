@@ -133,7 +133,7 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(172, 28%, 42%)",
     tagline: "GBP/EUR volatility is above normal this cycle — rate lock expiring for Globex Inc",
     actions: [
-      { id: "a8", title: "FX rate lock expiring for GBP payouts", client: "Globex Inc", deadline: "2 days", reason: "Rate locked at 1.27, current 1.24", cta: "Review" },
+      { id: "a8", title: "FX rate lock expiring for GBP payouts", client: "Globex Inc", deadline: "2 days", reason: "Rate locked at 1.27, current 1.24", cta: "Review", relatedMetrics: ["Exposure", "Rate locked", "Lock expires"] },
     ],
     metrics: [
       { label: "Volatility", value: "+2.1%", trend: "Above normal", positive: false },
