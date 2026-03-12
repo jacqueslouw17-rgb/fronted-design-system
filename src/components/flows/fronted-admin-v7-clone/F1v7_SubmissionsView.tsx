@@ -1109,9 +1109,42 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         </CardContent>
       </Card>
 
-      {/* Drawer - matching CA3 exactly */}
-      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent side="right" className="w-[420px] sm:max-w-[420px] overflow-y-auto p-0" hideClose={isAddingAdjustment}>
+      {/* Drawer - custom motion.div to respect Kurt panel positioning */}
+      <AnimatePresence>
+        {drawerOpen && (
+          <>
+            {/* Backdrop overlay - covers everything except Kurt panel */}
+            <motion.div
+              key="f1v7-drawer-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black/80"
+              style={{ right: document.body.classList.contains('kurt-panel-open') ? '420px' : 0 }}
+              onClick={isAddingAdjustment ? undefined : () => setDrawerOpen(false)}
+            />
+
+            {/* Drawer panel - slides in from right, stops at Kurt panel edge */}
+            <motion.div
+              key="f1v7-worker-drawer"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+              className="fixed top-0 bottom-0 z-50 w-[420px] sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto p-0"
+              style={{ right: document.body.classList.contains('kurt-panel-open') ? '420px' : 0 }}
+            >
+              {/* Close button */}
+              {!isAddingAdjustment && (
+                <button
+                  onClick={() => setDrawerOpen(false)}
+                  className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </button>
+              )}
           {selectedSubmission && (() => {
             const earnings = selectedSubmission.lineItems?.filter((item) => item.type === 'Earnings') || [];
             const deductions = selectedSubmission.lineItems?.filter((item) => item.type === 'Deduction') || [];
