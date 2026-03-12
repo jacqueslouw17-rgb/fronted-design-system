@@ -654,7 +654,7 @@ const AdminContractingMultiCompany = () => {
       setTimeout(() => {
         setKurtLoading(false);
         setKurtMessages([{ id: `kurt-${Date.now()}`, role: "assistant",
-          content: `📂 **Scanning onboarding documents for Acme Corp...**\n\n**4 workers** with documents pending verification:\n\n1. **Lena Müller** 🇩🇪 — ID scan + work permit uploaded\n2. **Carlos Gutierrez** 🇲🇽 — Passport + visa uploaded\n3. **Yuki Tanaka** 🇯🇵 — ID + bank details uploaded\n4. **Aisha Okafor** 🇳🇬 — All docs uploaded\n\n---\n\n💡 I can open each worker's profile, verify their documents, and move them into the verified column one by one.\n\n**Would you like me to proceed?**`,
+          content: `📂 **Scanning onboarding documents for Acme Corp...**\n\n**4 workers** with documents pending verification:\n\n1. **Lena Müller** 🇩🇪 — ID scan + work permit uploaded\n2. **Carlos Gutierrez** 🇲🇽 — Passport + visa uploaded\n3. **Priya Sharma** 🇮🇳 — ID + bank details uploaded\n4. **Aisha Okafor** 🇳🇬 — All docs uploaded\n\n---\n\n💡 I can scroll to each worker in the tracker, open their profile, verify their documents, and move them to verified — one by one.\n\n**Would you like me to proceed?**`,
         }]);
       }, 4000);
     } else if (action.id === "a9") {
