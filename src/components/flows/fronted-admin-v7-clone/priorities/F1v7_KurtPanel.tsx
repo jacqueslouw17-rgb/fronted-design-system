@@ -209,7 +209,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
         !isOpen && "pointer-events-none"
       )}
     >
-      <div className="w-[420px] h-full flex flex-col"
+      <div className="w-[420px] h-full flex flex-col pt-16"
         style={{
           background: "linear-gradient(180deg, hsl(172 20% 98% / 0.92), hsl(200 15% 96% / 0.88))",
           backdropFilter: "blur(60px) saturate(1.8)",
