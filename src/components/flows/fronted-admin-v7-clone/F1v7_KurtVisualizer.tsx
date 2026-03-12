@@ -64,7 +64,7 @@ export const F1v7_KurtVisualizer: React.FC<F1v7_KurtVisualizerProps> = ({ onOpen
                 border: "1px solid hsl(172 28% 60% / 0.15)",
               }}
             >
-              Ask Kurt
+              Tap to chat
             </div>
           </motion.div>
         )}
