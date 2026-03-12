@@ -603,77 +603,75 @@ const AdminContractingMultiCompany = () => {
     }
   }, []);
 
-  // Kurt action response handler — orchestrates staggered worker approval
+  // Kurt action response handler — orchestrates staggered worker approval with drawer opening
   const handleKurtActionResponse = React.useCallback((action: "yes" | "no" | "other", message?: string) => {
     if (action !== "yes") return;
 
-    // Workers to auto-approve (matching the MOCK_SUBMISSIONS in CompanyPayrollRun)
-    const workersToApprove = [
-      { id: "3", name: "Maria Santos", country: "🇵🇭", detail: "₱15,000 expenses + bonus" },
-      { id: "6", name: "Emma Wilson", country: "🇳🇴", detail: "kr2,800 equipment + timesheet" },
-      { id: "1", name: "Marcus Chen", country: "🇸🇬", detail: "No pending items" },
-      { id: "2", name: "Sofia Rodriguez", country: "🇪🇸", detail: "No pending items" },
-      { id: "5", name: "David Martinez", country: "🇵🇹", detail: "No pending items" },
-      { id: "7", name: "Jonas Schmidt", country: "🇩🇪", detail: "No pending items" },
+    // Workers with pending items to auto-approve (will open drawer for each)
+    const workersWithPending = [
+      { id: "3", name: "Maria Santos", flag: "🇵🇭", detail: "₱15,200 expenses + ₱6,500 bonus" },
+      { id: "6", name: "Emma Wilson", flag: "🇳🇴", detail: "kr2,800 equipment + timesheet" },
+      { id: "4", name: "Alex Hansen", flag: "🇳🇴", detail: "kr4,500 overtime + kr750 parking" },
     ];
 
-    // Show Kurt loading briefly
-    setKurtLoading(true);
+    // Workers already ready (no pending items)
+    const readyWorkers = [
+      { id: "1", name: "Marcus Chen", flag: "🇸🇬", detail: "No pending items" },
+      { id: "2", name: "Sofia Rodriguez", flag: "🇪🇸", detail: "No pending items" },
+      { id: "5", name: "David Martinez", flag: "🇵🇹", detail: "No pending items" },
+      { id: "7", name: "Jonas Schmidt", flag: "🇩🇪", detail: "No pending items" },
+    ];
 
-    // After short delay, show the task list message
+    const allWorkers = [
+      ...workersWithPending.map(w => ({ ...w, status: "pending" as const })),
+      ...readyWorkers.map(w => ({ ...w, status: "done" as const })),
+    ];
+
+    setKurtLoading(true);
+    setKurtOrchestrationWorkers(allWorkers);
+
     setTimeout(() => {
       setKurtLoading(false);
-      const taskMsgId = `kurt-tasks-${Date.now()}`;
-
-      // Build initial task list (all pending)
-      const buildTaskList = (completedIds: string[]) => {
-        const lines = workersToApprove.map(w => {
-          const done = completedIds.includes(w.id);
-          return done
-            ? `✅ **${w.name}** ${w.country} — ${w.detail} — *Approved*`
-            : `⏳ **${w.name}** ${w.country} — ${w.detail}`;
-        });
-        const doneCount = completedIds.length;
-        const header = doneCount === workersToApprove.length
-          ? `### ✅ Auto-approval complete\n\nAll ${workersToApprove.length} workers processed successfully:\n`
-          : `### ⚙️ Processing auto-approval...\n\nApproving ${doneCount}/${workersToApprove.length} workers:\n`;
-        const footer = doneCount === workersToApprove.length
-          ? `\n---\n\n🎉 **Done!** All compliant adjustments have been approved. The 2 flagged items (Alex Hansen's unpaid leave, Sophie Laurent's bonus) remain in your review queue.\n\nYou can now proceed to the **Approve** step to finalize and submit this payroll batch.`
-          : "";
-        return header + "\n" + lines.join("\n") + footer;
-      };
-
-      // Set initial message
-      setKurtMessages(prev => [...prev, {
-        id: taskMsgId,
+      handleKurtAddMessage({
+        id: `kurt-orch-${Date.now()}`,
         role: "assistant",
-        content: buildTaskList([]),
-      }]);
-
-      // Stagger through each worker
-      const completedIds: string[] = [];
-      workersToApprove.forEach((worker, index) => {
-        setTimeout(() => {
-          // Highlight worker on left
-          setKurtHighlightedWorker(worker.id);
-          
-          // Mark as completed
-          completedIds.push(worker.id);
-          
-          // Update the task list message
-          setKurtMessages(prev => prev.map(m =>
-            m.id === taskMsgId ? { ...m, content: buildTaskList([...completedIds]) } : m
-          ));
-
-          // Clear highlight after a moment
-          if (index === workersToApprove.length - 1) {
-            setTimeout(() => setKurtHighlightedWorker(null), 1500);
-          }
-        }, (index + 1) * 1200);
+        content: "⚡ **Starting auto-approval sequence...**\n\nOpening each worker's panel and approving all compliant submissions.",
       });
 
+      // Stagger through workers with pending items — open drawer for each
+      workersWithPending.forEach((worker, index) => {
+        setTimeout(() => {
+          setKurtHighlightedWorker(worker.id);
+          setKurtAutoApproveWorkerId(worker.id);
+          setKurtOrchestrationWorkers(prev => prev.map(w =>
+            w.id === worker.id ? { ...w, status: "processing" } : w
+          ));
+        }, index * 3000);
+      });
     }, 800);
-  }, []);
+  }, [handleKurtAddMessage]);
+
+  // Called when SubmissionsView finishes auto-approving a worker
+  const handleKurtApprovalComplete = React.useCallback((workerId: string) => {
+    setKurtOrchestrationWorkers(prev => {
+      const updated = prev.map(w =>
+        w.id === workerId ? { ...w, status: "done" as const } : w
+      );
+      const allDone = updated.every(w => w.status === "done");
+      if (allDone) {
+        setTimeout(() => {
+          setKurtHighlightedWorker(null);
+          setKurtAutoApproveWorkerId(null);
+          handleKurtAddMessage({
+            id: `kurt-done-${Date.now()}`,
+            role: "assistant",
+            content: "🎉 **All done!** All compliant adjustments have been approved across 7 workers.\n\nThe flagged items (Alex Hansen's unpaid leave, Marcus Chen's termination status) remain in your review queue.\n\nYou can now proceed to **Approve & Lock** to finalize this payroll batch.",
+          });
+        }, 1000);
+      }
+      return updated;
+    });
+  }, [handleKurtAddMessage]);
 
   // Dot color: orange if any worker of that type has pending work, green if all resolved
   // When on payroll tab, workers in payroll are already active/onboarded, so show green
