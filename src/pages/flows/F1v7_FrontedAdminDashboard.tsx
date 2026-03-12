@@ -1758,6 +1758,7 @@ const AdminContractingMultiCompany = () => {
                                     onAddCandidate={handleAddCandidate}
                                     scrollToEnd={kurtScrollTrackerToEnd}
                                     onScrollToEndComplete={() => setKurtScrollTrackerToEnd(false)}
+                                    kurtAutoOpenWorkerId={activeMainTab === "tracker" ? kurtHighlightedWorker : null}
                                     onRemoveContractor={(contractorId) => {
                                       if (isAllClientsMode) {
                                         for (const [companyId, ctrs] of Object.entries(companyContractors)) {
