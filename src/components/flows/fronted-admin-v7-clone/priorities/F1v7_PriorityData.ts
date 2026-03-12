@@ -13,6 +13,8 @@ export interface ActionDetail {
   deadline?: string;
   reason: string;
   cta: string;
+  /** Metric labels this action relates to — used for hover cross-highlighting */
+  relatedMetrics?: string[];
 }
 
 export interface MetricSnapshot {
@@ -50,10 +52,10 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(0, 72%, 51%)",
     tagline: "4 approvals are holding up payroll for 23 workers across 2 clients",
     actions: [
-      { id: "a1", title: "Approve December payroll batch", client: "Acme Corp", affected: 12, deadline: "Due today", reason: "Payroll cutoff in 6 hours", cta: "Approve" },
-      { id: "a2", title: "Review contractor agreement amendment", client: "Globex Inc", affected: 1, deadline: "Due today", reason: "Contract expires Friday", cta: "Review" },
-      { id: "a7", title: "Approve onboarding documents", client: "Acme Corp", affected: 4, deadline: "Due tomorrow", reason: "Workers awaiting start date", cta: "Approve" },
-      { id: "a9", title: "Sign off expenses report", client: "Globex Inc", affected: 6, deadline: "Due today", reason: "Month-end close", cta: "Approve" },
+      { id: "a1", title: "Approve December payroll batch", client: "Acme Corp", affected: 12, deadline: "Due today", reason: "Payroll cutoff in 6 hours", cta: "Approve", relatedMetrics: ["Workers affected", "Hours to cutoff"] },
+      { id: "a2", title: "Review contractor agreement amendment", client: "Globex Inc", affected: 1, deadline: "Due today", reason: "Contract expires Friday", cta: "Review", relatedMetrics: ["Avg approval time"] },
+      { id: "a7", title: "Approve onboarding documents", client: "Acme Corp", affected: 4, deadline: "Due tomorrow", reason: "Workers awaiting start date", cta: "Approve", relatedMetrics: ["Workers affected", "Auto-approved"] },
+      { id: "a9", title: "Sign off expenses report", client: "Globex Inc", affected: 6, deadline: "Due today", reason: "Month-end close", cta: "Approve", relatedMetrics: ["Hours to cutoff", "Auto-approved"] },
     ],
     metrics: [
       { label: "Workers affected", value: "23", trend: "Across 2 clients" },
@@ -72,8 +74,8 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(38, 92%, 50%)",
     tagline: "3 workers are missing documents required to remain compliant in EU jurisdictions",
     actions: [
-      { id: "a4", title: "Collect missing work permits", client: "Acme Corp", affected: 3, reason: "Required for compliance in DE, FR", cta: "Follow up" },
-      { id: "a6", title: "Worker visa expiring next month", client: "Waystar Royco", affected: 1, deadline: "28 days", reason: "Renewal process not started", cta: "Investigate" },
+      { id: "a4", title: "Collect missing work permits", client: "Acme Corp", affected: 3, reason: "Required for compliance in DE, FR", cta: "Follow up", relatedMetrics: ["Compliance rate", "Documents pending", "Avg resolution"] },
+      { id: "a6", title: "Worker visa expiring next month", client: "Waystar Royco", affected: 1, deadline: "28 days", reason: "Renewal process not started", cta: "Investigate", relatedMetrics: ["Compliance rate", "Auto-reminders sent"] },
     ],
     metrics: [
       { label: "Compliance rate", value: "91%", trend: "−3% this month", positive: false },
@@ -92,8 +94,8 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(25, 95%, 53%)",
     tagline: "2 contracts have been waiting for signatures beyond the expected turnaround",
     actions: [
-      { id: "a5", title: "Contract signature pending from worker", client: "Globex Inc", affected: 1, deadline: "3 days overdue", reason: "Reminder sent 2 days ago", cta: "Nudge" },
-      { id: "a10", title: "Amendment signature required", client: "Acme Corp", affected: 1, deadline: "5 days overdue", reason: "Salary adjustment effective Jan 1", cta: "Escalate" },
+      { id: "a5", title: "Contract signature pending from worker", client: "Globex Inc", affected: 1, deadline: "3 days overdue", reason: "Reminder sent 2 days ago", cta: "Nudge", relatedMetrics: ["Avg sign time", "Overdue"] },
+      { id: "a10", title: "Amendment signature required", client: "Acme Corp", affected: 1, deadline: "5 days overdue", reason: "Salary adjustment effective Jan 1", cta: "Escalate", relatedMetrics: ["Overdue", "Completion rate"] },
     ],
     metrics: [
       { label: "Avg sign time", value: "3.2d", trend: "−0.8d improvement", positive: true },
@@ -112,7 +114,7 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(0, 65%, 48%)",
     tagline: "Tax ID mismatches are blocking payroll for 2 workers at Waystar Royco",
     actions: [
-      { id: "a3", title: "Resolve tax ID mismatch", client: "Waystar Royco", affected: 2, deadline: "Overdue", reason: "Blocking payroll processing", cta: "Resolve" },
+      { id: "a3", title: "Resolve tax ID mismatch", client: "Waystar Royco", affected: 2, deadline: "Overdue", reason: "Blocking payroll processing", cta: "Resolve", relatedMetrics: ["Workers blocked", "Payroll impact", "Resolution ETA"] },
     ],
     metrics: [
       { label: "Workers blocked", value: "2", trend: "Since 3 days ago" },
@@ -131,7 +133,7 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(172, 28%, 42%)",
     tagline: "GBP/EUR volatility is above normal this cycle — rate lock expiring for Globex Inc",
     actions: [
-      { id: "a8", title: "FX rate lock expiring for GBP payouts", client: "Globex Inc", deadline: "2 days", reason: "Rate locked at 1.27, current 1.24", cta: "Review" },
+      { id: "a8", title: "FX rate lock expiring for GBP payouts", client: "Globex Inc", deadline: "2 days", reason: "Rate locked at 1.27, current 1.24", cta: "Review", relatedMetrics: ["Exposure", "Rate locked", "Lock expires"] },
     ],
     metrics: [
       { label: "Volatility", value: "+2.1%", trend: "Above normal", positive: false },
