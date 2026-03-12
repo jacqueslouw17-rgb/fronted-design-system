@@ -7,29 +7,46 @@ import { motion, AnimatePresence } from "framer-motion";
 import { F1v7_FocusWheel } from "./F1v7_FocusWheel";
 import { F1v7_FocusDetail } from "./F1v7_FocusDetail";
 import { PRIORITY_STREAM } from "./F1v7_PriorityData";
-import type { ActionDetail } from "./F1v7_PriorityData";
+import type { ActionDetail, PriorityItem } from "./F1v7_PriorityData";
 
 interface Props {
   onActionClick?: (action: ActionDetail) => void;
+  completedActionIds?: Set<string>;
 }
 
-export const F1v7_PrioritiesTab: React.FC<Props> = ({ onActionClick }) => {
+export const F1v7_PrioritiesTab: React.FC<Props> = ({ onActionClick, completedActionIds = new Set() }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(0);
-  const activePriority = PRIORITY_STREAM[activeIndex];
+
+  // Derive adjusted priorities — reduce count for completed actions
+  const adjustedPriorities = React.useMemo(() => {
+    return PRIORITY_STREAM.map(priority => {
+      const completedInThis = priority.actions.filter(a => completedActionIds.has(a.id)).length;
+      if (completedInThis === 0) return priority;
+      return {
+        ...priority,
+        count: Math.max(0, priority.count - completedInThis),
+        tagline: priority.count - completedInThis > 0
+          ? priority.tagline.replace(/\d+/, String(priority.count - completedInThis))
+          : "All actions completed ✅",
+      };
+    });
+  }, [completedActionIds]);
+
+  const activePriority = adjustedPriorities[activeIndex];
 
   const goTo = useCallback((idx: number) => {
-    const clamped = Math.max(0, Math.min(PRIORITY_STREAM.length - 1, idx));
+    const clamped = Math.max(0, Math.min(adjustedPriorities.length - 1, idx));
     setDirection(clamped > activeIndex ? 1 : -1);
     setActiveIndex(clamped);
-  }, [activeIndex]);
+  }, [activeIndex, adjustedPriorities.length]);
 
   const goNext = useCallback(() => {
-    if (activeIndex < PRIORITY_STREAM.length - 1) {
+    if (activeIndex < adjustedPriorities.length - 1) {
       setDirection(1);
       setActiveIndex(prev => prev + 1);
     }
-  }, [activeIndex]);
+  }, [activeIndex, adjustedPriorities.length]);
 
   const goPrev = useCallback(() => {
     if (activeIndex > 0) {
@@ -78,7 +95,7 @@ export const F1v7_PrioritiesTab: React.FC<Props> = ({ onActionClick }) => {
 
       {/* The Wheel */}
       <F1v7_FocusWheel
-        items={PRIORITY_STREAM}
+        items={adjustedPriorities}
         activeIndex={activeIndex}
         direction={direction}
         onSelect={goTo}
@@ -88,7 +105,7 @@ export const F1v7_PrioritiesTab: React.FC<Props> = ({ onActionClick }) => {
 
       {/* Progress dots */}
       <div className="flex items-center justify-center gap-1.5 mt-2 mb-1">
-        {PRIORITY_STREAM.map((item, idx) => (
+        {adjustedPriorities.map((item, idx) => (
           <button
             key={item.id}
             onClick={() => goTo(idx)}

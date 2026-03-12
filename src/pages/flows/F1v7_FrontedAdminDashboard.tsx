@@ -582,6 +582,9 @@ const AdminContractingMultiCompany = () => {
     });
   }, []);
 
+  // Track completed priority approval for count updates
+  const [completedPriorityActions, setCompletedPriorityActions] = useState<Set<string>>(new Set());
+
   const handlePriorityActionClick = React.useCallback((action: ActionDetail) => {
     if (action.id === "a1") {
       // Open Kurt panel + immediately switch to payroll tab
@@ -591,15 +594,15 @@ const AdminContractingMultiCompany = () => {
       setKurtOrchestrationWorkers([]);
       setActiveMainTab("payroll");
 
-      // After brief loading in Kurt, show analysis message
+      // Longer loading in Kurt — "analysing" feel
       setTimeout(() => {
         setKurtLoading(false);
         setKurtMessages([{
           id: `kurt-${Date.now()}`,
           role: "assistant",
-          content: `🔍 **Reviewing January payroll batch for Acme Corp...**\n\nI've analyzed the batch — here's what I found:\n\n---\n\n### ✅ Auto-Approvable (5 of 7 workers)\n\nThese workers have **standard adjustments** that match policy rules and can be approved immediately:\n\n- **Maria Santos** 🇵🇭 — ₱15,200 expenses + ₱6,500 bonus *(within policy)*\n- **Emma Wilson** 🇳🇴 — kr2,800 equipment *(receipts verified)*\n- **Alex Hansen** 🇳🇴 — kr4,500 overtime + kr750 parking *(within limits)*\n- Plus 4 workers with no pending items already ready\n\n### ⚠️ Needs Manual Review (2 items)\n\n- **Alex Hansen** — 2 days unpaid leave *(requires HR sign-off)*\n- **Marcus Chen** — Termination flag *(include/exclude decision needed)*\n\n---\n\n💡 **Recommendation:** I can auto-approve the compliant items now, opening each worker's panel and processing their adjustments. This saves ~15 minutes of manual review.\n\n**Would you like me to proceed with auto-approval?**`,
+          content: `🔍 **Reviewing January payroll batch for Acme Corp...**\n\nI've analyzed the batch — here's what I found:\n\n---\n\n### ✅ Auto-Approvable (5 of 7 workers)\n\nThese workers have **standard adjustments** that match policy rules and can be approved immediately:\n\n- **Maria Santos** 🇵🇭 — ₱15,200 expenses + ₱6,500 bonus *(within policy)*\n- **Emma Wilson** 🇳🇴 — kr2,800 equipment *(receipts verified)*\n- **Alex Hansen** 🇳🇴 — kr4,500 overtime + kr750 parking *(within limits)*\n- Plus 4 workers with no pending items already ready\n\n### ⚠️ Needs Manual Review (2 items)\n\n- **Alex Hansen** — 2 days unpaid leave *(requires HR sign-off)*\n- **Marcus Chen** — Termination flag *(include/exclude decision needed)*\n\n---\n\n💡 **Recommendation:** I can auto-approve the compliant items now, opening each worker's panel and processing their adjustments one by one. This saves ~15 minutes of manual review.\n\n**Would you like me to proceed with auto-approval?**`,
         }]);
-      }, 2500);
+      }, 4500);
     }
   }, []);
 
@@ -609,9 +612,9 @@ const AdminContractingMultiCompany = () => {
 
     // Workers with pending items to auto-approve (will open drawer for each)
     const workersWithPending = [
-      { id: "3", name: "Maria Santos", flag: "🇵🇭", detail: "₱15,200 expenses + ₱6,500 bonus" },
-      { id: "6", name: "Emma Wilson", flag: "🇳🇴", detail: "kr2,800 equipment + timesheet" },
-      { id: "4", name: "Alex Hansen", flag: "🇳🇴", detail: "kr4,500 overtime + kr750 parking" },
+      { id: "3", name: "Maria Santos", flag: "🇵🇭", detail: "₱15,200 expenses + ₱6,500 bonus", pendingCount: 2 },
+      { id: "6", name: "Emma Wilson", flag: "🇳🇴", detail: "kr2,800 equipment + timesheet", pendingCount: 2 },
+      { id: "4", name: "Alex Hansen", flag: "🇳🇴", detail: "kr4,500 overtime + kr750 parking", pendingCount: 2 },
     ];
 
     // Workers already ready (no pending items)
@@ -630,25 +633,71 @@ const AdminContractingMultiCompany = () => {
     setKurtLoading(true);
     setKurtOrchestrationWorkers(allWorkers);
 
+    // Per-worker narration messages
+    const workerNarrations = [
+      [
+        "📂 Opening **Maria Santos** 🇵🇭 — checking 2 pending items...",
+        "🔎 Reviewing expense claim ₱15,200 — checking attachments and receipts...",
+        "✅ Receipts verified. Amount within policy threshold. Approving expense.",
+        "🔎 Reviewing bonus ₱6,500 — cross-referencing with approved bonus schedule...",
+        "✅ Bonus matches approved Q4 schedule. Legitimate and compliant. Approving.",
+        "✨ **Maria Santos** — all items approved. Closing panel.",
+      ],
+      [
+        "📂 Opening **Emma Wilson** 🇳🇴 — checking 2 pending items...",
+        "🔎 Reviewing equipment expense kr2,800 — verifying purchase order attachment...",
+        "✅ Purchase order matches. Equipment within approved procurement list. Approving.",
+        "🔎 Reviewing timesheet submission — cross-checking logged hours...",
+        "✅ Hours align with project tracker. All good. Approving timesheet.",
+        "✨ **Emma Wilson** — all items approved. Closing panel.",
+      ],
+      [
+        "📂 Opening **Alex Hansen** 🇳🇴 — checking 2 pending items...",
+        "🔎 Reviewing overtime kr4,500 — checking against overtime policy cap...",
+        "✅ Overtime within monthly cap. Manager pre-approved. Approving.",
+        "🔎 Reviewing parking expense kr750 — verifying receipt...",
+        "✅ Receipt attached and verified. Standard commute expense. Approving.",
+        "✨ **Alex Hansen** — all compliant items approved. Note: unpaid leave flagged for manual HR review.",
+      ],
+    ];
+
     setTimeout(() => {
       setKurtLoading(false);
       handleKurtAddMessage({
         id: `kurt-orch-${Date.now()}`,
         role: "assistant",
-        content: "⚡ **Starting auto-approval sequence...**\n\nOpening each worker's panel and approving all compliant submissions.",
+        content: "⚡ **Starting auto-approval sequence...**\n\nI'll open each worker's panel, review attachments, verify compliance, and approve each item individually. Watch the left panel.",
       });
 
-      // Stagger through workers with pending items — open drawer for each
-      workersWithPending.forEach((worker, index) => {
+      // Stagger through workers — much slower with narration
+      const WORKER_GAP = 8000; // 8s per worker to allow drawer + narration + approval
+      const NARRATION_GAP = 1200; // 1.2s between narration lines
+
+      workersWithPending.forEach((worker, workerIndex) => {
+        const workerStartDelay = 1500 + workerIndex * WORKER_GAP;
+
+        // Highlight and start processing
         setTimeout(() => {
           setKurtHighlightedWorker(worker.id);
           setKurtAutoApproveWorkerId(worker.id);
           setKurtOrchestrationWorkers(prev => prev.map(w =>
             w.id === worker.id ? { ...w, status: "processing" } : w
           ));
-        }, index * 3000);
+        }, workerStartDelay);
+
+        // Narration messages for this worker
+        const narrations = workerNarrations[workerIndex] || [];
+        narrations.forEach((narration, narrationIndex) => {
+          setTimeout(() => {
+            handleKurtAddMessage({
+              id: `kurt-narr-${worker.id}-${narrationIndex}-${Date.now()}`,
+              role: "assistant",
+              content: narration,
+            });
+          }, workerStartDelay + 500 + narrationIndex * NARRATION_GAP);
+        });
       });
-    }, 800);
+    }, 1500);
   }, [handleKurtAddMessage]);
 
   // Called when SubmissionsView finishes auto-approving a worker
@@ -662,12 +711,17 @@ const AdminContractingMultiCompany = () => {
         setTimeout(() => {
           setKurtHighlightedWorker(null);
           setKurtAutoApproveWorkerId(null);
+          
+          // No dead end — suggest next action
           handleKurtAddMessage({
             id: `kurt-done-${Date.now()}`,
             role: "assistant",
-            content: "🎉 **All done!** All compliant adjustments have been approved across 7 workers.\n\nThe flagged items (Alex Hansen's unpaid leave, Marcus Chen's termination status) remain in your review queue.\n\nYou can now proceed to **Approve & Lock** to finalize this payroll batch.",
+            content: "🎉 **All compliant workers approved!**\n\n---\n\n### Summary\n- ✅ **5 workers** auto-approved (Maria Santos, Emma Wilson, Alex Hansen + 2 already ready)\n- ⚠️ **2 items** still need your attention:\n  - **Alex Hansen** — 2 days unpaid leave *(requires HR sign-off)*\n  - **Marcus Chen** — Termination flag *(include/exclude decision)*\n\n---\n\n💡 **Next up:** You should review the remaining 2 flagged items so you can proceed to **Approve & Lock** this batch.\n\nAlex Hansen's unpaid leave needs HR confirmation — the daily rate deduction is kr3,200/day. Marcus Chen has a termination effective Jan 15 — you'll need to decide whether to include or exclude his final payout.\n\n**Would you like me to walk you through the remaining items?**",
           });
-        }, 1000);
+
+          // Mark this priority action as completed
+          setCompletedPriorityActions(prev => new Set(prev).add("a1"));
+        }, 1500);
       }
       return updated;
     });
@@ -1494,7 +1548,7 @@ const AdminContractingMultiCompany = () => {
                         <AnimatePresence mode="wait">
                           {activeMainTab === "priorities" ? (
                             <motion.div key="priorities" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
-                              <F1v7_PrioritiesTab onActionClick={handlePriorityActionClick} />
+                              <F1v7_PrioritiesTab onActionClick={handlePriorityActionClick} completedActionIds={completedPriorityActions} />
                             </motion.div>
                           ) : activeMainTab === "payroll" ? (
                             <motion.div key="payroll" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
