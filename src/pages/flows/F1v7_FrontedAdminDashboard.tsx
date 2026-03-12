@@ -833,7 +833,7 @@ const AdminContractingMultiCompany = () => {
     // For non-payroll actions, auto-complete after narration finishes
     const isPayrollAction = kurtActiveAction === "a1" || kurtActiveAction === "a9";
     if (!isPayrollAction) {
-      setTimeout(() => { handleKurtApprovalComplete(worker.id); }, 500 + narrations.length * NARRATION_GAP + 800);
+      setTimeout(() => { handleKurtApprovalComplete(worker.id); }, 800 + narrations.length * NARRATION_GAP + 1000);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleKurtAddMessage, getNarrations, kurtActiveAction]);
