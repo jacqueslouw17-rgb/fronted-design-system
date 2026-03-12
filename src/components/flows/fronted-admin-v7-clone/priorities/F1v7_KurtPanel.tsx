@@ -23,6 +23,8 @@ interface F1v7_KurtPanelProps {
   onAddMessage: (msg: KurtMessage) => void;
   isLoading?: boolean;
   isStreaming?: boolean;
+  /** Called when user clicks an action button (yes/no/other) */
+  onActionResponse?: (action: "yes" | "no" | "other", message?: string) => void;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kurt-chat`;
@@ -37,6 +39,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
   onAddMessage,
   isLoading = false,
   isStreaming: externalStreaming = false,
+  onActionResponse,
 }) => {
   const [input, setInput] = useState("");
   const [internalLoading, setInternalLoading] = useState(false);
@@ -340,8 +343,10 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                       setActionChoice(btn.key);
                       if (btn.key === "yes") {
                         onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "Yes, proceed with auto-approval for the 10 compliant workers." });
+                        onActionResponse?.("yes");
                       } else if (btn.key === "no") {
                         onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "No, I'll review them manually." });
+                        onActionResponse?.("no");
                       } else {
                         setTimeout(() => otherInputRef.current?.focus(), 100);
                       }

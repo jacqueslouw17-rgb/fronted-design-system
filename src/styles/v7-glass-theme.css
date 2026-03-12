@@ -442,6 +442,18 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 }
 
 
+/* ─── Kurt-highlighted worker row — pulsing teal glow ─── */
+.v7-glass-bg .v7-worker-row[style*="box-shadow: 0 0 0 2px"] {
+  z-index: 1;
+  position: relative;
+}
+
+/* ─── Worker drawer offset when Kurt panel is open ─── */
+body.kurt-panel-open [data-side="right"][role="dialog"] {
+  right: 420px !important;
+  transition: right 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* ─── Company chip styles for All clients pipeline cards ─── */
 .v7-glass-bg .v7-company-chip {
   display: inline-flex;

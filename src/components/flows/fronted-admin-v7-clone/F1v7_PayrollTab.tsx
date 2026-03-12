@@ -93,11 +93,13 @@ const MOCK_COMPANY_PAYROLLS: CompanyPayrollData[] = [
 interface F1v4_PayrollTabProps {
   selectedCompanyId?: string;
   isAllClients?: boolean;
+  highlightedWorkerId?: string | null;
 }
 
 export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
   selectedCompanyId,
   isAllClients = false,
+  highlightedWorkerId,
 }) => {
   const [companies] = useState<CompanyPayrollData[]>(MOCK_COMPANY_PAYROLLS);
 
@@ -120,6 +122,7 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
       <F1v4_CompanyPayrollRun
         company={aggregatedCompany}
         isAllClients
+        highlightedWorkerId={highlightedWorkerId}
       />
     );
   }
@@ -138,6 +141,7 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
   return (
     <F1v4_CompanyPayrollRun
       company={activeCompany}
+      highlightedWorkerId={highlightedWorkerId}
     />
   );
 };

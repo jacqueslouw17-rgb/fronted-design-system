@@ -92,6 +92,7 @@ interface F1v4_CompanyPayrollRunProps {
   company: CompanyPayrollData;
   initialStep?: number; // 1=submissions, 2=exceptions, 3=approve, 4=track
   isAllClients?: boolean;
+  highlightedWorkerId?: string | null;
 }
 
 // Mock submissions data
@@ -570,6 +571,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   company,
   initialStep,
   isAllClients = false,
+  highlightedWorkerId,
 }) => {
 
   // Period view state - default to first "in-review" run
@@ -617,6 +619,14 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
       return cb;
     })];
   }, [selectedPeriodId, isApproved, isAllPaid, customBatches]);
+
+  // Auto-enter workflow when Kurt is highlighting workers
+  useEffect(() => {
+    if (highlightedWorkerId && !hasEnteredWorkflow) {
+      setHasEnteredWorkflow(true);
+      setCurrentStep("submissions");
+    }
+  }, [highlightedWorkerId, hasEnteredWorkflow]);
 
   // Determine if viewing historical (paid) run — but NOT if it just got paid in this session
   const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
@@ -913,6 +923,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             onContinue={goToApprove}
             onClose={() => setHasEnteredWorkflow(false)}
             isCustomBatch={isCustomBatch}
+            highlightedWorkerId={highlightedWorkerId}
           />
         );
       case "approve":
