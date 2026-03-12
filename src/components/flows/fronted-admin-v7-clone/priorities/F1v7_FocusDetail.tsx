@@ -273,7 +273,8 @@ const MetricsGrid: React.FC<{ metrics: MetricSnapshot[]; accent: string; highlig
               </span>
             )}
           </motion.div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
