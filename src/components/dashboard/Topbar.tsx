@@ -59,6 +59,8 @@ interface TopbarProps {
   };
   centerCompanySwitcher?: boolean; // When true, renders company switcher centered in header
   forceFixed?: boolean; // When true, pins header with fixed positioning
+  isKurtPanelOpen?: boolean; // When true, replaces profile avatar with X close button
+  onKurtPanelClose?: () => void; // Callback to close Kurt panel
 }
 
 const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, onBackClick, companySwitcher, centerCompanySwitcher, forceFixed }: TopbarProps) => {
