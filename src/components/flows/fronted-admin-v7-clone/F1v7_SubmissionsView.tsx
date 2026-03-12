@@ -506,6 +506,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   onClose,
   isCustomBatch = false,
   highlightedWorkerId,
+  kurtAutoApproveWorkerId,
+  onKurtApprovalComplete,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
