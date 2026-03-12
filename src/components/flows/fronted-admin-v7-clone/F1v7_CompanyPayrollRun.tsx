@@ -90,9 +90,11 @@ const HISTORICAL_PAYROLLS: HistoricalPayroll[] = [
 
 interface F1v4_CompanyPayrollRunProps {
   company: CompanyPayrollData;
-  initialStep?: number; // 1=submissions, 2=exceptions, 3=approve, 4=track
+  initialStep?: number;
   isAllClients?: boolean;
   highlightedWorkerId?: string | null;
+  kurtAutoApproveWorkerId?: string | null;
+  onKurtApprovalComplete?: (workerId: string) => void;
 }
 
 // Mock submissions data
@@ -572,6 +574,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   initialStep,
   isAllClients = false,
   highlightedWorkerId,
+  kurtAutoApproveWorkerId,
+  onKurtApprovalComplete,
 }) => {
 
   // Period view state - default to first "in-review" run
@@ -924,6 +928,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             onClose={() => setHasEnteredWorkflow(false)}
             isCustomBatch={isCustomBatch}
             highlightedWorkerId={highlightedWorkerId}
+            kurtAutoApproveWorkerId={kurtAutoApproveWorkerId}
+            onKurtApprovalComplete={onKurtApprovalComplete}
           />
         );
       case "approve":

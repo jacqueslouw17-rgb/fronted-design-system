@@ -15,16 +15,23 @@ interface KurtMessage {
   content: string;
 }
 
+export interface OrchestrationWorker {
+  id: string;
+  name: string;
+  flag: string;
+  detail: string;
+  status: "pending" | "processing" | "done";
+}
+
 interface F1v7_KurtPanelProps {
   isOpen: boolean;
   onClose: () => void;
-  /** Pre-seeded messages to display (e.g. from action triggers) */
   messages: KurtMessage[];
   onAddMessage: (msg: KurtMessage) => void;
   isLoading?: boolean;
   isStreaming?: boolean;
-  /** Called when user clicks an action button (yes/no/other) */
   onActionResponse?: (action: "yes" | "no" | "other", message?: string) => void;
+  orchestrationWorkers?: OrchestrationWorker[];
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kurt-chat`;
@@ -40,6 +47,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
   isLoading = false,
   isStreaming: externalStreaming = false,
   onActionResponse,
+  orchestrationWorkers = [],
 }) => {
   const [input, setInput] = useState("");
   const [internalLoading, setInternalLoading] = useState(false);
@@ -439,6 +447,109 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                     </button>
                   </div>
                 </div>
+              </motion.div>
+            )}
+
+            {/* Orchestration worker cards */}
+            {orchestrationWorkers.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-2 mt-3"
+              >
+                {/* Divider with progress */}
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, hsl(172 28% 42% / 0.2), transparent)" }} />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: "hsl(172 28% 42% / 0.6)" }}>
+                    {orchestrationWorkers.filter(w => w.status === "done").length}/{orchestrationWorkers.length} Complete
+                  </span>
+                  <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, hsl(172 28% 42% / 0.2), transparent)" }} />
+                </div>
+
+                {/* Progress bar */}
+                <div className="h-1 rounded-full overflow-hidden mb-2" style={{ background: "hsl(0 0% 0% / 0.04)" }}>
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: "linear-gradient(90deg, hsl(172 28% 42%), hsl(172 40% 55%))" }}
+                    initial={{ width: "0%" }}
+                    animate={{ width: `${(orchestrationWorkers.filter(w => w.status === "done").length / orchestrationWorkers.length) * 100}%` }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </div>
+
+                {/* Worker cards */}
+                {orchestrationWorkers.map((worker, i) => (
+                  <motion.div
+                    key={worker.id}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.06, duration: 0.3 }}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-500"
+                    style={{
+                      background: worker.status === "processing"
+                        ? "linear-gradient(135deg, hsl(172 28% 42% / 0.08), hsl(172 20% 50% / 0.04))"
+                        : "hsl(0 0% 100% / 0.3)",
+                      border: worker.status === "processing"
+                        ? "1px solid hsl(172 28% 42% / 0.25)"
+                        : worker.status === "done"
+                        ? "1px solid hsl(172 28% 42% / 0.15)"
+                        : "1px solid hsl(0 0% 0% / 0.04)",
+                      boxShadow: worker.status === "processing"
+                        ? "0 0 12px hsl(172 28% 42% / 0.1)"
+                        : "none",
+                    }}
+                  >
+                    {/* Avatar */}
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 transition-all duration-500"
+                      style={{
+                        background: worker.status === "done"
+                          ? "linear-gradient(135deg, hsl(172 28% 42% / 0.15), hsl(172 28% 42% / 0.08))"
+                          : worker.status === "processing"
+                          ? "linear-gradient(135deg, hsl(172 28% 42% / 0.12), hsl(172 28% 42% / 0.06))"
+                          : "hsl(0 0% 0% / 0.04)",
+                        color: worker.status !== "pending" ? accent : "hsl(210 8% 40%)",
+                      }}
+                    >
+                      {worker.name.split(" ").map(n => n[0]).join("")}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[12px] font-semibold truncate" style={{ color: "hsl(210 8% 15%)" }}>
+                          {worker.name}
+                        </span>
+                        <span className="text-[12px]">{worker.flag}</span>
+                      </div>
+                      <span className="text-[10px] block truncate" style={{ color: "hsl(210 8% 50%)" }}>
+                        {worker.detail}
+                      </span>
+                    </div>
+
+                    {/* Status indicator */}
+                    <div className="shrink-0">
+                      {worker.status === "done" ? (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", damping: 15, stiffness: 400 }}
+                        >
+                          <Check className="h-4 w-4" style={{ color: accent }} />
+                        </motion.div>
+                      ) : worker.status === "processing" ? (
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                          className="w-4 h-4 rounded-full border-2 border-t-transparent"
+                          style={{ borderColor: `hsl(172 28% 42%) transparent hsl(172 28% 42%) hsl(172 28% 42%)` }}
+                        />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full" style={{ background: "hsl(0 0% 0% / 0.06)" }} />
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
               </motion.div>
             )}
 

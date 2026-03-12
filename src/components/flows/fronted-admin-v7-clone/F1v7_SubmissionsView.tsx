@@ -143,6 +143,8 @@ interface F1v4_SubmissionsViewProps {
   onClose?: () => void;
   isCustomBatch?: boolean;
   highlightedWorkerId?: string | null;
+  kurtAutoApproveWorkerId?: string | null;
+  onKurtApprovalComplete?: (workerId: string) => void;
 }
 
 const submissionTypeConfig: Record<SubmissionType, {icon: React.ElementType;label: string;color: string;}> = {
@@ -504,6 +506,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   onClose,
   isCustomBatch = false,
   highlightedWorkerId,
+  kurtAutoApproveWorkerId,
+  onKurtApprovalComplete,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
@@ -659,6 +663,50 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     setDrawerOpen(true);
     setExpandedItemId(null);
   };
+
+  // Kurt auto-approval orchestration — opens drawer and approves all pending items
+  useEffect(() => {
+    if (!kurtAutoApproveWorkerId) return;
+    const worker = submissions.find(s => s.id === kurtAutoApproveWorkerId);
+    if (!worker) {
+      onKurtApprovalComplete?.(kurtAutoApproveWorkerId);
+      return;
+    }
+
+    // Open the drawer for this worker
+    setSelectedSubmission(worker);
+    setDrawerOpen(true);
+    setExpandedItemId(null);
+
+    // Auto-approve all pending items after drawer animation completes
+    const approveTimer = setTimeout(() => {
+      worker.submissions.forEach((adj, idx) => {
+        const key = `${worker.id}-${idx}`;
+        const current = adjustmentStates[key];
+        if ((current?.status || adj.status || 'pending') === 'pending' && typeof adj.amount === 'number') {
+          setAdjustmentStates(prev => ({ ...prev, [key]: { status: 'approved' } }));
+        }
+      });
+      (worker.pendingLeaves || []).forEach(leave => {
+        const key = `${worker.id}-leave-${leave.id}`;
+        const current = leaveStates[key];
+        if ((current?.status || leave.status || 'pending') === 'pending') {
+          setLeaveStates(prev => ({ ...prev, [key]: { status: 'approved' } }));
+        }
+      });
+    }, 800);
+
+    // Close drawer and signal completion
+    const completeTimer = setTimeout(() => {
+      setDrawerOpen(false);
+      onKurtApprovalComplete?.(kurtAutoApproveWorkerId);
+    }, 2200);
+
+    return () => {
+      clearTimeout(approveTimer);
+      clearTimeout(completeTimer);
+    };
+  }, [kurtAutoApproveWorkerId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Bulk actions
   const handleBulkApprove = () => {

@@ -94,12 +94,16 @@ interface F1v4_PayrollTabProps {
   selectedCompanyId?: string;
   isAllClients?: boolean;
   highlightedWorkerId?: string | null;
+  kurtAutoApproveWorkerId?: string | null;
+  onKurtApprovalComplete?: (workerId: string) => void;
 }
 
 export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
   selectedCompanyId,
   isAllClients = false,
   highlightedWorkerId,
+  kurtAutoApproveWorkerId,
+  onKurtApprovalComplete,
 }) => {
   const [companies] = useState<CompanyPayrollData[]>(MOCK_COMPANY_PAYROLLS);
 
@@ -123,6 +127,8 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
         company={aggregatedCompany}
         isAllClients
         highlightedWorkerId={highlightedWorkerId}
+        kurtAutoApproveWorkerId={kurtAutoApproveWorkerId}
+        onKurtApprovalComplete={onKurtApprovalComplete}
       />
     );
   }
@@ -142,6 +148,8 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
     <F1v4_CompanyPayrollRun
       company={activeCompany}
       highlightedWorkerId={highlightedWorkerId}
+      kurtAutoApproveWorkerId={kurtAutoApproveWorkerId}
+      onKurtApprovalComplete={onKurtApprovalComplete}
     />
   );
 };
