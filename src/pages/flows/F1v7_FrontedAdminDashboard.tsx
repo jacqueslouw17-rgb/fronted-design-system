@@ -1601,6 +1601,15 @@ const AdminContractingMultiCompany = () => {
               </div>
             </div>
           </AgentLayout>
+          
+          {/* Kurt AI Panel — slides in from right */}
+          <F1v7_KurtPanel
+            isOpen={isKurtPanelOpen}
+            onClose={() => setIsKurtPanelOpen(false)}
+            messages={kurtMessages}
+            onAddMessage={handleKurtAddMessage}
+            isLoading={kurtLoading}
+          />
       </main>
       
       <F1v4_AddCandidateDrawer
