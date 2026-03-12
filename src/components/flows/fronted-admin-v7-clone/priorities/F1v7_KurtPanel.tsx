@@ -585,7 +585,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
             {/* Follow-up action buttons after completion */}
             {!loading && !streaming && messages.length > 0 &&
               messages[messages.length - 1]?.role === "assistant" &&
-              messages[messages.length - 1]?.content?.includes("walk you through the remaining items") &&
+              (messages[messages.length - 1]?.content?.includes("walk you through") || messages[messages.length - 1]?.content?.includes("Would you like me to guide")) &&
               followUpChoice === "none" && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
