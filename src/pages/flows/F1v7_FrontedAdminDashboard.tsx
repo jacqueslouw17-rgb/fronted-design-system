@@ -554,6 +554,50 @@ const AdminContractingMultiCompany = () => {
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
   const [activeMainTab, setActiveMainTab] = useState<"priorities" | "tracker" | "payroll">("priorities");
   
+  // Kurt panel state
+  const [isKurtPanelOpen, setIsKurtPanelOpen] = useState(false);
+  const [kurtMessages, setKurtMessages] = useState<Array<{ id: string; role: "user" | "assistant"; content: string }>>([]);
+  const [kurtLoading, setKurtLoading] = useState(false);
+  const [kurtTransitioning, setKurtTransitioning] = useState(false);
+
+  const handleKurtAddMessage = React.useCallback((msg: { id: string; role: "user" | "assistant"; content: string }) => {
+    setKurtMessages(prev => {
+      const existing = prev.findIndex(m => m.id === msg.id);
+      if (existing >= 0) {
+        return prev.map(m => m.id === msg.id ? msg : m);
+      }
+      return [...prev, msg];
+    });
+  }, []);
+
+  const handlePriorityActionClick = React.useCallback((action: ActionDetail) => {
+    // Only handle "Approve December payroll batch" for the demo
+    if (action.id === "a1") {
+      // 1. Open Kurt panel
+      setIsKurtPanelOpen(true);
+      setKurtMessages([]);
+      setKurtLoading(true);
+      setKurtTransitioning(true);
+
+      // 2. After 1.5s, Kurt sends first message
+      setTimeout(() => {
+        setKurtLoading(false);
+        const msgId = `kurt-${Date.now()}`;
+        setKurtMessages([{
+          id: msgId,
+          role: "assistant",
+          content: `🔍 **Reviewing December payroll batch for Acme Corp...**\n\nI've analyzed the batch — here's what I found:\n\n---\n\n### ✅ Auto-Approvable (10 of 12 workers)\n\nThese workers have **standard adjustments** that match policy rules and can be approved immediately:\n\n- **David Martinez** — €245 travel expenses *(within €500 limit)*\n- **Sophie Laurent** — €500 Q4 performance bonus *(pre-approved by manager)*\n- **Maria Santos** — ₱3,500 overtime + ₱1,212 meals *(within policy)*\n- **Alex Hansen** — kr1,200 home office equipment *(receipts verified)*\n- **Jonas Schmidt** — €890 conference fee *(pre-approved)*\n- **Lisa Chen** — kr5,000 SEK Q4 bonus *(manager-approved)*\n- Plus 4 workers with no pending items\n\n### ⚠️ Needs Review (2 workers)\n\n- **Alex Hansen** — 0.5 days unpaid leave *(requires HR sign-off)*\n- **Sophie Laurent** — Bonus exceeds quarterly average by 18%\n\n---\n\n💡 **Recommendation:** I can auto-approve the 10 compliant workers now, saving you ~15 minutes of manual review. The 2 flagged items will remain in your queue.\n\n**Would you like me to proceed with auto-approval?**`,
+        }]);
+      }, 2500);
+
+      // 3. After 5s, transition to payroll tab
+      setTimeout(() => {
+        setActiveMainTab("payroll");
+        setKurtTransitioning(false);
+      }, 5000);
+    }
+  }, []);
+
   // Dot color: orange if any worker of that type has pending work, green if all resolved
   // When on payroll tab, workers in payroll are already active/onboarded, so show green
   const employeesAllResolved = activeMainTab === "payroll" || activeMainTab === "priorities" || (employeesList.length > 0 && employeesList.every(c => terminalStatuses.includes(c.status)));
