@@ -335,7 +335,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                     onClick={() => {
                       setActionChoice(btn.key);
                       if (btn.key === "yes") {
-                        onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "Yes, proceed with auto-approval for the 10 compliant workers." });
+                        onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "Yes, go ahead." });
                         onActionResponse?.("yes");
                       } else if (btn.key === "no") {
                         onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "No, I'll review them manually." });
