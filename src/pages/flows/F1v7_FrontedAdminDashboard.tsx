@@ -799,7 +799,7 @@ const AdminContractingMultiCompany = () => {
   const getCompletionMessage = React.useCallback((actionId: string): string => {
     const msgs: Record<string, string> = {
       a1: "🎉 **All compliant workers approved!**\n\n- ✅ **5 workers** auto-approved\n- ⚠️ **2 items** still need attention: Alex Hansen's unpaid leave + Marcus Chen's termination flag\n\n💡 Would you like me to walk you through the remaining items?",
-      a7: "🎉 **All onboarding documents verified!**\n\n- ✅ **4 workers** verified and moved to done\n- Lena Müller, Carlos Gutierrez, Yuki Tanaka, Aisha Okafor\n\n💡 Start dates can now be confirmed. Day 1 instructions will be sent automatically.",
+      a7: "🎉 **All onboarding documents verified!**\n\n- ✅ **4 workers** verified and moved to done\n- Lena Müller, Carlos Gutierrez, Priya Sharma, Aisha Okafor\n\n💡 Start dates can now be confirmed. Day 1 instructions will be sent automatically.",
       a9: "🎉 **All compliant expenses approved!**\n\n- ✅ **4 claims** approved ($320 + £450 + €180 + ₹12,500)\n- ⚠️ **2 claims** need manual review: James O'Brien + Li Wei\n\n💡 Would you like me to walk you through the remaining items?",
       a4: "✅ **All follow-up emails sent!**\n\n- 📧 Lena Müller — 48-hour deadline\n- 📧 Pierre Dubois — 5-day deadline\n- 📧 Anna Kowalski — pre-start deadline\n\n💡 Automatic reminders set. I'll notify you if anyone misses their deadline.",
       a2: "✅ **Contract bundle opened.** The non-compete clause has been flagged. You can review and approve from the contract panel.",
