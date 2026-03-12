@@ -323,7 +323,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                 className="flex gap-2 mt-1"
               >
                 {[
-                  { key: "yes" as const, label: "Yes, approve", icon: <Check className="h-3.5 w-3.5" /> },
+                  { key: "yes" as const, label: "Yes, proceed", icon: <Check className="h-3.5 w-3.5" /> },
                   { key: "no" as const, label: "No", icon: <XIcon className="h-3.5 w-3.5" /> },
                   { key: "other" as const, label: "Other", icon: <MessageSquare className="h-3.5 w-3.5" /> },
                 ].map((btn, i) => (
