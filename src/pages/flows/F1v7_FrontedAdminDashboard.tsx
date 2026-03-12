@@ -823,11 +823,11 @@ const AdminContractingMultiCompany = () => {
     setKurtAutoApproveWorkerId(worker.id);
     setKurtOrchestrationWorkers(prev => prev.map(w => w.id === worker.id ? { ...w, status: "processing" } : w));
 
-    const NARRATION_GAP = 1200;
+    const NARRATION_GAP = kurtActiveAction === "a7" ? 1500 : 1200;
     narrations.forEach((narration: string, i: number) => {
       setTimeout(() => {
         handleKurtAddMessage({ id: `kurt-narr-${worker.id}-${i}-${Date.now()}`, role: "assistant", content: narration });
-      }, 500 + i * NARRATION_GAP);
+      }, 800 + i * NARRATION_GAP);
     });
 
     // For non-payroll actions, auto-complete after narration finishes
