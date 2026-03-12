@@ -442,6 +442,22 @@ body.v7-glass-active.v7-topbar-scrolled .v7-glass-bg header {
 }
 
 
+/* ─── Kurt-highlighted worker row — pulsing teal glow ─── */
+.v7-glass-bg .v7-worker-row[style*="box-shadow: 0 0 0 2px"] {
+  z-index: 1;
+  position: relative;
+}
+
+/* ─── Worker drawer offset when Kurt panel is open ─── */
+body.kurt-panel-open [data-radix-popper-content-wrapper],
+body.kurt-panel-open [vaul-drawer],
+body.kurt-panel-open div[data-state="open"][role="dialog"] {
+  /* Keep drawer left of the 420px Kurt panel */
+}
+body.kurt-panel-open .v7-glass-bg [data-state="open"] > [data-radix-dialog-content] {
+  right: 420px !important;
+}
+
 /* ─── Company chip styles for All clients pipeline cards ─── */
 .v7-glass-bg .v7-company-chip {
   display: inline-flex;
