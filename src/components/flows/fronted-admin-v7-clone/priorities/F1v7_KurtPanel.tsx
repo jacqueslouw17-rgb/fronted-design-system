@@ -452,7 +452,26 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
             )}
 
             {/* Orchestration worker cards */}
-            {orchestrationWorkers.length > 0 && (
+            {orchestrationWorkers.length > 0 && (() => {
+              const doneCount = orchestrationWorkers.filter(w => w.status === "done").length;
+              const allDone = doneCount === orchestrationWorkers.length;
+              const processingIdx = orchestrationWorkers.findIndex(w => w.status === "processing");
+              
+              // During processing: show completed count summary + current + next only
+              // When all done: show all with checkmarks
+              const visibleWorkers = allDone
+                ? orchestrationWorkers
+                : orchestrationWorkers.filter((w, i) => {
+                    if (w.status === "processing") return true;
+                    if (w.status === "pending" && processingIdx >= 0 && i === processingIdx + 1) return true; // next in queue
+                    if (w.status === "done" && allDone) return true;
+                    return false;
+                  });
+
+              // Count of workers done but hidden (collapsed)
+              const hiddenDoneCount = allDone ? 0 : orchestrationWorkers.filter(w => w.status === "done").length;
+
+              return (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -462,7 +481,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                 <div className="flex items-center gap-2 mb-2">
                   <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, hsl(172 28% 42% / 0.2), transparent)" }} />
                   <span className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: "hsl(172 28% 42% / 0.6)" }}>
-                    {orchestrationWorkers.filter(w => w.status === "done").length}/{orchestrationWorkers.length} Complete
+                    {doneCount}/{orchestrationWorkers.length} Complete
                   </span>
                   <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, hsl(172 28% 42% / 0.2), transparent)" }} />
                 </div>
@@ -473,86 +492,111 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                     className="h-full rounded-full"
                     style={{ background: "linear-gradient(90deg, hsl(172 28% 42%), hsl(172 40% 55%))" }}
                     initial={{ width: "0%" }}
-                    animate={{ width: `${(orchestrationWorkers.filter(w => w.status === "done").length / orchestrationWorkers.length) * 100}%` }}
+                    animate={{ width: `${(doneCount / orchestrationWorkers.length) * 100}%` }}
                     transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   />
                 </div>
 
-                {/* Worker cards */}
-                {orchestrationWorkers.map((worker, i) => (
+                {/* Collapsed done summary */}
+                {hiddenDoneCount > 0 && (
                   <motion.div
-                    key={worker.id}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.06, duration: 0.3 }}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-500"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
                     style={{
-                      background: worker.status === "processing"
-                        ? "linear-gradient(135deg, hsl(172 28% 42% / 0.08), hsl(172 20% 50% / 0.04))"
-                        : "hsl(0 0% 100% / 0.3)",
-                      border: worker.status === "processing"
-                        ? "1px solid hsl(172 28% 42% / 0.25)"
-                        : worker.status === "done"
-                        ? "1px solid hsl(172 28% 42% / 0.15)"
-                        : "1px solid hsl(0 0% 0% / 0.04)",
-                      boxShadow: worker.status === "processing"
-                        ? "0 0 12px hsl(172 28% 42% / 0.1)"
-                        : "none",
+                      background: "hsl(172 28% 42% / 0.04)",
+                      border: "1px solid hsl(172 28% 42% / 0.08)",
                     }}
                   >
-                    {/* Avatar */}
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 transition-all duration-500"
+                    <Check className="h-3 w-3 shrink-0" style={{ color: accent }} />
+                    <span className="text-[11px] font-medium" style={{ color: "hsl(172 28% 42% / 0.7)" }}>
+                      {hiddenDoneCount} worker{hiddenDoneCount > 1 ? "s" : ""} approved
+                    </span>
+                  </motion.div>
+                )}
+
+                {/* Visible worker cards */}
+                <AnimatePresence mode="popLayout">
+                  {visibleWorkers.map((worker) => (
+                    <motion.div
+                      key={worker.id}
+                      layout
+                      initial={{ opacity: 0, x: -8, height: 0 }}
+                      animate={{ opacity: 1, x: 0, height: "auto" }}
+                      exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-500"
                       style={{
-                        background: worker.status === "done"
-                          ? "linear-gradient(135deg, hsl(172 28% 42% / 0.15), hsl(172 28% 42% / 0.08))"
-                          : worker.status === "processing"
-                          ? "linear-gradient(135deg, hsl(172 28% 42% / 0.12), hsl(172 28% 42% / 0.06))"
-                          : "hsl(0 0% 0% / 0.04)",
-                        color: worker.status !== "pending" ? accent : "hsl(210 8% 40%)",
+                        background: worker.status === "processing"
+                          ? "linear-gradient(135deg, hsl(172 28% 42% / 0.08), hsl(172 20% 50% / 0.04))"
+                          : worker.status === "done" && allDone
+                          ? "hsl(172 28% 42% / 0.03)"
+                          : "hsl(0 0% 100% / 0.3)",
+                        border: worker.status === "processing"
+                          ? "1px solid hsl(172 28% 42% / 0.25)"
+                          : worker.status === "done"
+                          ? "1px solid hsl(172 28% 42% / 0.15)"
+                          : "1px solid hsl(0 0% 0% / 0.04)",
+                        boxShadow: worker.status === "processing"
+                          ? "0 0 12px hsl(172 28% 42% / 0.1)"
+                          : "none",
                       }}
                     >
-                      {worker.name.split(" ").map(n => n[0]).join("")}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[12px] font-semibold truncate" style={{ color: "hsl(210 8% 15%)" }}>
-                          {worker.name}
-                        </span>
-                        <span className="text-[12px]">{worker.flag}</span>
+                      {/* Avatar */}
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 transition-all duration-500"
+                        style={{
+                          background: worker.status === "done"
+                            ? "linear-gradient(135deg, hsl(172 28% 42% / 0.15), hsl(172 28% 42% / 0.08))"
+                            : worker.status === "processing"
+                            ? "linear-gradient(135deg, hsl(172 28% 42% / 0.12), hsl(172 28% 42% / 0.06))"
+                            : "hsl(0 0% 0% / 0.04)",
+                          color: worker.status !== "pending" ? accent : "hsl(210 8% 40%)",
+                        }}
+                      >
+                        {worker.name.split(" ").map(n => n[0]).join("")}
                       </div>
-                      <span className="text-[10px] block truncate" style={{ color: "hsl(210 8% 50%)" }}>
-                        {worker.detail}
-                      </span>
-                    </div>
 
-                    {/* Status indicator */}
-                    <div className="shrink-0">
-                      {worker.status === "done" ? (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", damping: 15, stiffness: 400 }}
-                        >
-                          <Check className="h-4 w-4" style={{ color: accent }} />
-                        </motion.div>
-                      ) : worker.status === "processing" ? (
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                          className="w-4 h-4 rounded-full border-2 border-t-transparent"
-                          style={{ borderColor: `hsl(172 28% 42%) transparent hsl(172 28% 42%) hsl(172 28% 42%)` }}
-                        />
-                      ) : (
-                        <div className="w-4 h-4 rounded-full" style={{ background: "hsl(0 0% 0% / 0.06)" }} />
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[12px] font-semibold truncate" style={{ color: "hsl(210 8% 15%)" }}>
+                            {worker.name}
+                          </span>
+                          <span className="text-[12px]">{worker.flag}</span>
+                        </div>
+                        <span className="text-[10px] block truncate" style={{ color: "hsl(210 8% 50%)" }}>
+                          {worker.detail}
+                        </span>
+                      </div>
+
+                      {/* Status indicator */}
+                      <div className="shrink-0">
+                        {worker.status === "done" ? (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", damping: 15, stiffness: 400 }}
+                          >
+                            <Check className="h-4 w-4" style={{ color: accent }} />
+                          </motion.div>
+                        ) : worker.status === "processing" ? (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                            className="w-4 h-4 rounded-full border-2 border-t-transparent"
+                            style={{ borderColor: `hsl(172 28% 42%) transparent hsl(172 28% 42%) hsl(172 28% 42%)` }}
+                          />
+                        ) : (
+                          <div className="w-4 h-4 rounded-full" style={{ background: "hsl(0 0% 0% / 0.06)" }} />
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </motion.div>
-            )}
+              );
+            })()}
 
             {/* Follow-up action buttons after completion */}
             {!loading && !streaming && messages.length > 0 &&
