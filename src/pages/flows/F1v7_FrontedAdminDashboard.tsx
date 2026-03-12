@@ -706,6 +706,25 @@ const AdminContractingMultiCompany = () => {
       ["📧 Drafting for **Pierre Dubois** 🇫🇷...","🟡 Residence card needed. Including upload link.","✅ Email sent with 5-day deadline."],
       ["📧 Drafting for **Anna Kowalski** 🇩🇪...","🟡 Work permit needed before start date.","✅ Email sent with pre-start deadline."],
     ];
+    // Single-shot actions — one narration sequence (no worker cards, just step-by-step narration)
+    if (actionId === "a2") return [
+      ["📂 Opening contract panel for **Sarah Park** — Globex Inc...","🔎 Loading employment agreement...","🔎 Cross-referencing non-compete clause against your 6-month default...","⚠️ **Flagged:** Non-compete is 12 months — exceeds your policy.","📌 Highlighting clause for your review.","✅ Contract panel ready. Non-compete clause flagged in yellow."],
+    ];
+    if (actionId === "a5") return [
+      ["📧 Composing nudge for **Tom Bradley** 🇬🇧...","🔗 Generating direct signing link...","📧 Adding friendly reminder + 24h deadline...","✅ Nudge sent via email.","⏰ Auto-escalation set for 24h if no response."],
+    ];
+    if (actionId === "a6") return [
+      ["📧 Composing notification for **Kenji Watanabe** 🇯🇵...","📋 Attaching renewal instructions for EU Blue Card...","📧 Including Fiktionsbescheinigung request form...","✅ Notification sent to Kenji.","📧 Alerting payroll team about potential pause...","✅ Payroll alert sent.","⏰ Follow-up reminder set for 5 days."],
+    ];
+    if (actionId === "a10") return [
+      ["📧 Composing escalation for **David Martinez** 🇵🇹...","📋 Including signing link + retroactive impact (€600)...","📧 CC'ing manager on escalation...","✅ Escalation email sent.","⏰ Tracking — will notify when signed."],
+    ];
+    if (actionId === "a3") return [
+      ["📧 Drafting for **Kenji Watanabe** 🇯🇵 — Tax ID format invalid...","📋 Requesting corrected 11-digit ID...","✅ Email sent with 24h deadline.","📧 Drafting for **Rachel Kim** 🇰🇷 — Name mismatch...","📋 Attaching correction form for romanized name...","✅ Email sent — estimated 2–3 days.","⏰ Tracking responses for both."],
+    ];
+    if (actionId === "a8") return [
+      ["💱 Setting rate lock to expire in 2 days...","📊 Configuring spot rate for next GBP payouts...","🔔 Setting rate alert at GBP/EUR 1.2600...","✅ FX lock will expire. Spot rate active from next cycle."],
+    ];
     return [];
   }, []);
 
