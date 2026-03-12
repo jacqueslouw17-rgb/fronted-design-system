@@ -23,6 +23,8 @@ interface F1v7_KurtPanelProps {
   onAddMessage: (msg: KurtMessage) => void;
   isLoading?: boolean;
   isStreaming?: boolean;
+  /** Called when user clicks an action button (yes/no/other) */
+  onActionResponse?: (action: "yes" | "no" | "other", message?: string) => void;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kurt-chat`;
