@@ -74,8 +74,8 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(38, 92%, 50%)",
     tagline: "3 workers are missing documents required to remain compliant in EU jurisdictions",
     actions: [
-      { id: "a4", title: "Collect missing work permits", client: "Acme Corp", affected: 3, reason: "Required for compliance in DE, FR", cta: "Follow up" },
-      { id: "a6", title: "Worker visa expiring next month", client: "Waystar Royco", affected: 1, deadline: "28 days", reason: "Renewal process not started", cta: "Investigate" },
+      { id: "a4", title: "Collect missing work permits", client: "Acme Corp", affected: 3, reason: "Required for compliance in DE, FR", cta: "Follow up", relatedMetrics: ["Compliance rate", "Documents pending", "Avg resolution"] },
+      { id: "a6", title: "Worker visa expiring next month", client: "Waystar Royco", affected: 1, deadline: "28 days", reason: "Renewal process not started", cta: "Investigate", relatedMetrics: ["Compliance rate", "Auto-reminders sent"] },
     ],
     metrics: [
       { label: "Compliance rate", value: "91%", trend: "−3% this month", positive: false },
