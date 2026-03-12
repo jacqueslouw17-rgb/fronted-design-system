@@ -9,7 +9,7 @@
  */
 import "@/styles/v7-glass-theme.css";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { F1v7_ViewToggle, type ViewMode } from "./F1v7_ViewToggle";
 import { F1v7_ListView } from "./F1v7_ListView";
 
@@ -101,6 +101,8 @@ interface PipelineViewProps {
   onAddCandidate?: () => void;
   onRemoveContractor?: (contractor: Contractor) => void;
   initialViewMode?: ViewMode;
+  scrollToEnd?: boolean;
+  onScrollToEndComplete?: () => void;
 }
 const statusConfig = {
   "offer-accepted": {
@@ -243,7 +245,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   mode = "certified",
   onAddCandidate,
   onRemoveContractor,
-  initialViewMode = "board"
+  initialViewMode = "board",
+  scrollToEnd = false,
+  onScrollToEndComplete,
 }) => {
   const columns = mode === "full-pipeline-with-payroll" ? COLUMNS_FULL_PIPELINE : mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
@@ -258,6 +262,22 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     setContractors: updateContractorStore
   } = useContractorStore();
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
+  const boardScrollRef = useRef<HTMLDivElement>(null);
+
+  // Scroll board to end when requested (e.g., Kurt onboarding verification)
+  useEffect(() => {
+    if (scrollToEnd && boardScrollRef.current) {
+      setTimeout(() => {
+        if (boardScrollRef.current) {
+          boardScrollRef.current.scrollTo({
+            left: boardScrollRef.current.scrollWidth,
+            behavior: "smooth",
+          });
+        }
+        onScrollToEndComplete?.();
+      }, 600);
+    }
+  }, [scrollToEnd, onScrollToEndComplete]);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const saved = sessionStorage.getItem("f1v7-view-mode");
     if (saved === "board" || saved === "list") return saved;
@@ -1137,7 +1157,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
 
 
       {/* Board View (existing Kanban) */}
-      {viewMode === "board" && <div className="overflow-x-auto">
+      {viewMode === "board" && <div ref={boardScrollRef} className="overflow-x-auto">
       <div className="flex gap-4 min-w-max">
         {columns.map((status, colIndex) => {
         const config = statusConfig[status];

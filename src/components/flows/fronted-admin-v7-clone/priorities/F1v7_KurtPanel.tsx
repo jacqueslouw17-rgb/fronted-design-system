@@ -32,6 +32,7 @@ interface F1v7_KurtPanelProps {
   isStreaming?: boolean;
   onActionResponse?: (action: "yes" | "no" | "other", message?: string) => void;
   orchestrationWorkers?: OrchestrationWorker[];
+  activeActionId?: string | null;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kurt-chat`;
@@ -48,6 +49,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
   isStreaming: externalStreaming = false,
   onActionResponse,
   orchestrationWorkers = [],
+  activeActionId = null,
 }) => {
   const [input, setInput] = useState("");
   const [internalLoading, setInternalLoading] = useState(false);
@@ -63,6 +65,39 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
 
   const streaming = externalStreaming || internalStreaming;
   const loading = isLoading || internalLoading;
+
+  // Reset action/follow-up state when a new action starts (messages reset)
+  const prevMsgCountRef = useRef(messages.length);
+  useEffect(() => {
+    if (messages.length <= 1 && prevMsgCountRef.current > 1) {
+      setActionChoice("none");
+      setFollowUpChoice("none");
+    }
+    prevMsgCountRef.current = messages.length;
+  }, [messages.length]);
+
+  // Also reset when activeActionId changes
+  useEffect(() => {
+    setActionChoice("none");
+    setFollowUpChoice("none");
+  }, [activeActionId]);
+
+  // Contextual loading text based on action type
+  const loadingText = React.useMemo(() => {
+    const labels: Record<string, string> = {
+      a1: "Analyzing payroll batch...",
+      a2: "Reviewing contract bundle...",
+      a3: "Investigating tax ID records...",
+      a4: "Scanning compliance documents...",
+      a5: "Checking signature status...",
+      a6: "Investigating visa details...",
+      a7: "Scanning onboarding documents...",
+      a8: "Analyzing FX exposure...",
+      a9: "Reviewing expense claims...",
+      a10: "Checking amendment status...",
+    };
+    return labels[activeActionId || ""] || "Analyzing...";
+  }, [activeActionId]);
 
   // Auto-scroll
   useEffect(() => {
@@ -670,7 +705,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                     style={{ backgroundColor: accent }}
                   />
                   <span className="text-[11px] font-medium" style={{ color: "hsl(210 8% 55%)" }}>
-                    Analyzing payroll data...
+                    {loadingText}
                   </span>
                 </motion.div>
 

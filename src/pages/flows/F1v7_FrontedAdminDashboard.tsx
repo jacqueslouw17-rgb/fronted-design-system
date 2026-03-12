@@ -561,6 +561,7 @@ const AdminContractingMultiCompany = () => {
   const [kurtHighlightedWorker, setKurtHighlightedWorker] = useState<string | null>(null);
   const [kurtAutoApproveWorkerId, setKurtAutoApproveWorkerId] = useState<string | null>(null);
   const [kurtOrchestrationWorkers, setKurtOrchestrationWorkers] = useState<Array<{ id: string; name: string; flag: string; detail: string; status: "pending" | "processing" | "done" }>>([]);
+  const [kurtScrollTrackerToEnd, setKurtScrollTrackerToEnd] = useState(false);
 
   // Toggle body class for drawer offset when Kurt is open
   React.useEffect(() => {
@@ -706,6 +707,25 @@ const AdminContractingMultiCompany = () => {
       ["📧 Drafting for **Pierre Dubois** 🇫🇷...","🟡 Residence card needed. Including upload link.","✅ Email sent with 5-day deadline."],
       ["📧 Drafting for **Anna Kowalski** 🇩🇪...","🟡 Work permit needed before start date.","✅ Email sent with pre-start deadline."],
     ];
+    // Single-shot actions — one narration sequence (no worker cards, just step-by-step narration)
+    if (actionId === "a2") return [
+      ["📂 Opening contract panel for **Sarah Park** — Globex Inc...","🔎 Loading employment agreement...","🔎 Cross-referencing non-compete clause against your 6-month default...","⚠️ **Flagged:** Non-compete is 12 months — exceeds your policy.","📌 Highlighting clause for your review.","✅ Contract panel ready. Non-compete clause flagged in yellow."],
+    ];
+    if (actionId === "a5") return [
+      ["📧 Composing nudge for **Tom Bradley** 🇬🇧...","🔗 Generating direct signing link...","📧 Adding friendly reminder + 24h deadline...","✅ Nudge sent via email.","⏰ Auto-escalation set for 24h if no response."],
+    ];
+    if (actionId === "a6") return [
+      ["📧 Composing notification for **Kenji Watanabe** 🇯🇵...","📋 Attaching renewal instructions for EU Blue Card...","📧 Including Fiktionsbescheinigung request form...","✅ Notification sent to Kenji.","📧 Alerting payroll team about potential pause...","✅ Payroll alert sent.","⏰ Follow-up reminder set for 5 days."],
+    ];
+    if (actionId === "a10") return [
+      ["📧 Composing escalation for **David Martinez** 🇵🇹...","📋 Including signing link + retroactive impact (€600)...","📧 CC'ing manager on escalation...","✅ Escalation email sent.","⏰ Tracking — will notify when signed."],
+    ];
+    if (actionId === "a3") return [
+      ["📧 Drafting for **Kenji Watanabe** 🇯🇵 — Tax ID format invalid...","📋 Requesting corrected 11-digit ID...","✅ Email sent with 24h deadline.","📧 Drafting for **Rachel Kim** 🇰🇷 — Name mismatch...","📋 Attaching correction form for romanized name...","✅ Email sent — estimated 2–3 days.","⏰ Tracking responses for both."],
+    ];
+    if (actionId === "a8") return [
+      ["💱 Setting rate lock to expire in 2 days...","📊 Configuring spot rate for next GBP payouts...","🔔 Setting rate alert at GBP/EUR 1.2600...","✅ FX lock will expire. Spot rate active from next cycle."],
+    ];
     return [];
   }, []);
 
@@ -797,6 +817,10 @@ const AdminContractingMultiCompany = () => {
       kurtApprovalIndexRef.current = 0;
       setKurtLoading(true);
       setKurtOrchestrationWorkers(allWorkers);
+      // Scroll tracker to end for document verification actions
+      if (activeAction === "a7") {
+        setKurtScrollTrackerToEnd(true);
+      }
 
       const labels: Record<string, string> = { a1: "Starting auto-approval sequence", a9: "Starting expense approval", a7: "Starting document verification", a4: "Drafting follow-up emails" };
       setTimeout(() => {
@@ -807,12 +831,36 @@ const AdminContractingMultiCompany = () => {
         setTimeout(() => { startNextKurtWorker(); }, 1500);
       }, 1500);
     } else {
-      setKurtLoading(true);
-      setTimeout(() => {
-        setKurtLoading(false);
-        handleKurtAddMessage({ id: `kurt-complete-${Date.now()}`, role: "assistant", content: getCompletionMessage(activeAction) });
-        setCompletedPriorityActions(prev => new Set(prev).add(activeAction));
-      }, 2500);
+      // Single-shot actions — show step-by-step narration without worker cards
+      const singleNarrations = getNarrations(activeAction);
+      if (singleNarrations.length > 0 && singleNarrations[0].length > 0) {
+        const steps = singleNarrations[0];
+        const STEP_GAP = 1200;
+        setKurtLoading(true);
+        setTimeout(() => {
+          setKurtLoading(false);
+          handleKurtAddMessage({ id: `kurt-orch-${Date.now()}`, role: "assistant",
+            content: `⚡ **On it.** Watch the progress below.`,
+          });
+          steps.forEach((step, i) => {
+            setTimeout(() => {
+              handleKurtAddMessage({ id: `kurt-step-${activeAction}-${i}-${Date.now()}`, role: "assistant", content: step });
+            }, 800 + i * STEP_GAP);
+          });
+          // Show completion message after all steps
+          setTimeout(() => {
+            handleKurtAddMessage({ id: `kurt-complete-${Date.now()}`, role: "assistant", content: getCompletionMessage(activeAction) });
+            setCompletedPriorityActions(prev => new Set(prev).add(activeAction));
+          }, 800 + steps.length * STEP_GAP + 800);
+        }, 1500);
+      } else {
+        setKurtLoading(true);
+        setTimeout(() => {
+          setKurtLoading(false);
+          handleKurtAddMessage({ id: `kurt-complete-${Date.now()}`, role: "assistant", content: getCompletionMessage(activeAction) });
+          setCompletedPriorityActions(prev => new Set(prev).add(activeAction));
+        }, 2500);
+      }
     }
   }, [kurtActiveAction, handleKurtAddMessage, startNextKurtWorker, getActionWorkers, getCompletionMessage]);
 
@@ -1672,6 +1720,8 @@ const AdminContractingMultiCompany = () => {
                                     key={isAllClientsMode ? "all-clients" : selectedCompany}
                                     contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
                                     onAddCandidate={handleAddCandidate}
+                                    scrollToEnd={kurtScrollTrackerToEnd}
+                                    onScrollToEndComplete={() => setKurtScrollTrackerToEnd(false)}
                                     onRemoveContractor={(contractorId) => {
                                       if (isAllClientsMode) {
                                         for (const [companyId, ctrs] of Object.entries(companyContractors)) {
@@ -1851,6 +1901,7 @@ const AdminContractingMultiCompany = () => {
             isLoading={kurtLoading}
             onActionResponse={handleKurtActionResponse}
             orchestrationWorkers={kurtOrchestrationWorkers}
+            activeActionId={kurtActiveAction}
           />
       </main>
       
