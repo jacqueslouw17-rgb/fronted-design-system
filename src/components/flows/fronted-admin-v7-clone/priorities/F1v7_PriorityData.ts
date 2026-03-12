@@ -114,7 +114,7 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(0, 65%, 48%)",
     tagline: "Tax ID mismatches are blocking payroll for 2 workers at Waystar Royco",
     actions: [
-      { id: "a3", title: "Resolve tax ID mismatch", client: "Waystar Royco", affected: 2, deadline: "Overdue", reason: "Blocking payroll processing", cta: "Resolve" },
+      { id: "a3", title: "Resolve tax ID mismatch", client: "Waystar Royco", affected: 2, deadline: "Overdue", reason: "Blocking payroll processing", cta: "Resolve", relatedMetrics: ["Workers blocked", "Payroll impact", "Resolution ETA"] },
     ],
     metrics: [
       { label: "Workers blocked", value: "2", trend: "Since 3 days ago" },
