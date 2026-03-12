@@ -1851,6 +1851,7 @@ const AdminContractingMultiCompany = () => {
             isLoading={kurtLoading}
             onActionResponse={handleKurtActionResponse}
             orchestrationWorkers={kurtOrchestrationWorkers}
+            activeActionId={kurtActiveAction}
           />
       </main>
       
