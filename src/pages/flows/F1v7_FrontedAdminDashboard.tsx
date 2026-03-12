@@ -826,12 +826,36 @@ const AdminContractingMultiCompany = () => {
         setTimeout(() => { startNextKurtWorker(); }, 1500);
       }, 1500);
     } else {
-      setKurtLoading(true);
-      setTimeout(() => {
-        setKurtLoading(false);
-        handleKurtAddMessage({ id: `kurt-complete-${Date.now()}`, role: "assistant", content: getCompletionMessage(activeAction) });
-        setCompletedPriorityActions(prev => new Set(prev).add(activeAction));
-      }, 2500);
+      // Single-shot actions — show step-by-step narration without worker cards
+      const singleNarrations = getNarrations(activeAction);
+      if (singleNarrations.length > 0 && singleNarrations[0].length > 0) {
+        const steps = singleNarrations[0];
+        const STEP_GAP = 1200;
+        setKurtLoading(true);
+        setTimeout(() => {
+          setKurtLoading(false);
+          handleKurtAddMessage({ id: `kurt-orch-${Date.now()}`, role: "assistant",
+            content: `⚡ **On it.** Watch the progress below.`,
+          });
+          steps.forEach((step, i) => {
+            setTimeout(() => {
+              handleKurtAddMessage({ id: `kurt-step-${activeAction}-${i}-${Date.now()}`, role: "assistant", content: step });
+            }, 800 + i * STEP_GAP);
+          });
+          // Show completion message after all steps
+          setTimeout(() => {
+            handleKurtAddMessage({ id: `kurt-complete-${Date.now()}`, role: "assistant", content: getCompletionMessage(activeAction) });
+            setCompletedPriorityActions(prev => new Set(prev).add(activeAction));
+          }, 800 + steps.length * STEP_GAP + 800);
+        }, 1500);
+      } else {
+        setKurtLoading(true);
+        setTimeout(() => {
+          setKurtLoading(false);
+          handleKurtAddMessage({ id: `kurt-complete-${Date.now()}`, role: "assistant", content: getCompletionMessage(activeAction) });
+          setCompletedPriorityActions(prev => new Set(prev).add(activeAction));
+        }, 2500);
+      }
     }
   }, [kurtActiveAction, handleKurtAddMessage, startNextKurtWorker, getActionWorkers, getCompletionMessage]);
 
