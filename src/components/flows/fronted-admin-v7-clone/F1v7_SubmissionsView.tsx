@@ -800,15 +800,23 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
       : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
+    const isKurtHighlighted = highlightedWorkerId === submission.id;
+
     return (
       <motion.div
         key={submission.id}
         layout
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ 
+          opacity: 1,
+          boxShadow: isKurtHighlighted ? "0 0 0 2px hsl(172 28% 42% / 0.5), 0 4px 20px hsl(172 28% 42% / 0.15)" : "none",
+          scale: isKurtHighlighted ? 1.01 : 1,
+        }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 transition-colors v7-worker-row",
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border transition-all v7-worker-row",
+          isKurtHighlighted ? "border-[hsl(172_28%_42%/0.4)] bg-[hsl(172_28%_42%/0.04)]" : "border-border/30",
           (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "cursor-pointer group"
         )}
         onClick={() => { if (!isSkipped) handleRowClick(submission); }}>
