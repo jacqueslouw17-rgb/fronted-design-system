@@ -343,8 +343,10 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
                       setActionChoice(btn.key);
                       if (btn.key === "yes") {
                         onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "Yes, proceed with auto-approval for the 10 compliant workers." });
+                        onActionResponse?.("yes");
                       } else if (btn.key === "no") {
                         onAddMessage({ id: `kurt-action-${Date.now()}`, role: "user", content: "No, I'll review them manually." });
+                        onActionResponse?.("no");
                       } else {
                         setTimeout(() => otherInputRef.current?.focus(), 100);
                       }
