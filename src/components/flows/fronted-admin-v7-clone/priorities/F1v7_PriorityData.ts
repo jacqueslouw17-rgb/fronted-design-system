@@ -94,8 +94,8 @@ export const PRIORITY_STREAM: PriorityItem[] = [
     accentColor: "hsl(25, 95%, 53%)",
     tagline: "2 contracts have been waiting for signatures beyond the expected turnaround",
     actions: [
-      { id: "a5", title: "Contract signature pending from worker", client: "Globex Inc", affected: 1, deadline: "3 days overdue", reason: "Reminder sent 2 days ago", cta: "Nudge" },
-      { id: "a10", title: "Amendment signature required", client: "Acme Corp", affected: 1, deadline: "5 days overdue", reason: "Salary adjustment effective Jan 1", cta: "Escalate" },
+      { id: "a5", title: "Contract signature pending from worker", client: "Globex Inc", affected: 1, deadline: "3 days overdue", reason: "Reminder sent 2 days ago", cta: "Nudge", relatedMetrics: ["Avg sign time", "Overdue"] },
+      { id: "a10", title: "Amendment signature required", client: "Acme Corp", affected: 1, deadline: "5 days overdue", reason: "Salary adjustment effective Jan 1", cta: "Escalate", relatedMetrics: ["Overdue", "Completion rate"] },
     ],
     metrics: [
       { label: "Avg sign time", value: "3.2d", trend: "−0.8d improvement", positive: true },
