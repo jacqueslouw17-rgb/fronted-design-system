@@ -1490,61 +1490,6 @@ const AdminContractingMultiCompany = () => {
 
                       {/* Conditional Content */}
                       <div className="pt-2 relative">
-                        {/* Transition overlay when Kurt is processing */}
-                        <AnimatePresence>
-                          {kurtTransitioning && (
-                            <motion.div
-                              key="kurt-transition-overlay"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.6 }}
-                              className="absolute inset-0 z-20 flex flex-col items-center justify-center py-16"
-                              style={{
-                                background: "linear-gradient(180deg, hsl(172 15% 97% / 0.9), hsl(200 12% 96% / 0.85))",
-                                backdropFilter: "blur(20px)",
-                                borderRadius: "22px",
-                              }}
-                            >
-                              <AudioWaveVisualizer isActive={true} />
-                              <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3, duration: 0.4 }}
-                                className="text-center space-y-2 mt-4"
-                              >
-                                <h3 className="text-lg font-semibold" style={{ color: "hsl(210 8% 15%)" }}>
-                                  Analyzing payroll batch
-                                </h3>
-                                <p className="text-sm" style={{ color: "hsl(210 8% 50%)" }}>
-                                  Kurt is reviewing 12 workers across Acme Corp...
-                                </p>
-                              </motion.div>
-                              {/* Skeleton bars */}
-                              <div className="mt-8 w-full max-w-md space-y-3 px-8">
-                                {[
-                                  { width: "90%", delay: 0.5 },
-                                  { width: "75%", delay: 0.7 },
-                                  { width: "85%", delay: 0.9 },
-                                  { width: "60%", delay: 1.1 },
-                                  { width: "70%", delay: 1.3 },
-                                ].map((line, i) => (
-                                  <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, x: -12 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: line.delay, duration: 0.3 }}
-                                  >
-                                    <div
-                                      className="h-3 rounded-full skeleton-shimmer"
-                                      style={{ width: line.width }}
-                                    />
-                                  </motion.div>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                         
                         <AnimatePresence mode="wait">
                           {activeMainTab === "priorities" ? (
