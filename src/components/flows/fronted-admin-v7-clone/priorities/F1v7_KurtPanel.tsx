@@ -209,7 +209,7 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
               boxShadow: "-8px 0 30px hsl(210 15% 10% / 0.08)",
             }}
           >
-      <div className="w-[420px] min-w-[420px] h-full flex flex-col">
+      <div className="h-full flex flex-col">
         {/* Header */}
         <div
           className="flex items-center justify-between px-5 py-4"
