@@ -1686,6 +1686,7 @@ const AdminContractingMultiCompany = () => {
             onAddMessage={handleKurtAddMessage}
             isLoading={kurtLoading}
             onActionResponse={handleKurtActionResponse}
+            orchestrationWorkers={kurtOrchestrationWorkers}
           />
       </main>
       

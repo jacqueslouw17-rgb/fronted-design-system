@@ -928,6 +928,8 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
             onClose={() => setHasEnteredWorkflow(false)}
             isCustomBatch={isCustomBatch}
             highlightedWorkerId={highlightedWorkerId}
+            kurtAutoApproveWorkerId={kurtAutoApproveWorkerId}
+            onKurtApprovalComplete={onKurtApprovalComplete}
           />
         );
       case "approve":
