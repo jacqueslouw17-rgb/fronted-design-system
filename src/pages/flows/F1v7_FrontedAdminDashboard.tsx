@@ -817,6 +817,10 @@ const AdminContractingMultiCompany = () => {
       kurtApprovalIndexRef.current = 0;
       setKurtLoading(true);
       setKurtOrchestrationWorkers(allWorkers);
+      // Scroll tracker to end for document verification actions
+      if (activeAction === "a7") {
+        setKurtScrollTrackerToEnd(true);
+      }
 
       const labels: Record<string, string> = { a1: "Starting auto-approval sequence", a9: "Starting expense approval", a7: "Starting document verification", a4: "Drafting follow-up emails" };
       setTimeout(() => {
