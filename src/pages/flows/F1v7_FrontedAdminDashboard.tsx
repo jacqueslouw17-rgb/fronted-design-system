@@ -1498,7 +1498,7 @@ const AdminContractingMultiCompany = () => {
                             </motion.div>
                           ) : activeMainTab === "payroll" ? (
                             <motion.div key="payroll" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
-                              <F1v4_PayrollTab isAllClients={isAllClientsMode} selectedCompanyId={selectedCompany} highlightedWorkerId={kurtHighlightedWorker} />
+                              <F1v4_PayrollTab isAllClients={isAllClientsMode} selectedCompanyId={selectedCompany} highlightedWorkerId={kurtHighlightedWorker} kurtAutoApproveWorkerId={kurtAutoApproveWorkerId} onKurtApprovalComplete={handleKurtApprovalComplete} />
                             </motion.div>
                           ) : (
                             <motion.div key="tracker" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
