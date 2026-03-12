@@ -127,6 +127,8 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
         company={aggregatedCompany}
         isAllClients
         highlightedWorkerId={highlightedWorkerId}
+        kurtAutoApproveWorkerId={kurtAutoApproveWorkerId}
+        onKurtApprovalComplete={onKurtApprovalComplete}
       />
     );
   }
