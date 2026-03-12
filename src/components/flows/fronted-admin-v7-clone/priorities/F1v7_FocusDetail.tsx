@@ -172,6 +172,10 @@ const ActionList: React.FC<{ actions: ActionDetail[]; accent: string; onHighligh
                 border: `1px solid ${accent}15`,
                 pointerEvents: hoveredId === action.id ? "auto" : "none",
               }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onActionClick?.(action);
+              }}
             >
               {action.cta}
               <ArrowRight className="h-3 w-3" />
