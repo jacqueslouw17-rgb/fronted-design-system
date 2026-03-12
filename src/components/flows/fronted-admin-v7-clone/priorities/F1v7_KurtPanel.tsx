@@ -181,26 +181,35 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
   const accent = "hsl(172 28% 42%)";
 
   return (
-    <motion.div
-      initial={false}
-      animate={{ width: isOpen ? 420 : 0, opacity: isOpen ? 1 : 0 }}
-      transition={{ type: "spring", damping: 30, stiffness: 300 }}
-      onAnimationComplete={() => {
-        if (isOpen) setPanelReady(true);
-        else setPanelReady(false);
-      }}
-      aria-hidden={!isOpen}
-      className={cn(
-        "h-full flex flex-col overflow-hidden relative z-[60]",
-        !isOpen && "pointer-events-none"
-      )}
-      style={{
-        background: "linear-gradient(180deg, hsl(172 20% 98% / 0.85), hsl(200 15% 96% / 0.75))",
-        backdropFilter: "blur(60px) saturate(1.8)",
-        borderLeft: "1px solid hsl(0 0% 100% / 0.5)",
-      }}
-    >
-      <div className="w-[420px] min-w-[420px] h-full flex flex-col">
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[55]"
+            style={{ background: "hsl(210 15% 10% / 0.15)", backdropFilter: "blur(2px)" }}
+          />
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            onAnimationComplete={() => setPanelReady(true)}
+            className={cn(
+              "fixed top-0 right-0 h-full w-[420px] flex flex-col overflow-hidden z-[60]",
+            )}
+            style={{
+              background: "linear-gradient(180deg, hsl(172 20% 98% / 0.92), hsl(200 15% 96% / 0.88))",
+              backdropFilter: "blur(60px) saturate(1.8)",
+              borderLeft: "1px solid hsl(0 0% 100% / 0.5)",
+              boxShadow: "-8px 0 30px hsl(210 15% 10% / 0.08)",
+            }}
+          >
+      <div className="h-full flex flex-col">
         {/* Header */}
         <div
           className="flex items-center justify-between px-5 py-4"
@@ -430,6 +439,9 @@ export const F1v7_KurtPanel: React.FC<F1v7_KurtPanelProps> = ({
           </div>
         </div>
       </div>
-    </motion.div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
