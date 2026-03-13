@@ -158,38 +158,6 @@ const PartyBlock: React.FC<{ title: string; party: InvoiceParty }> = ({ title, p
   </div>
 );
 
-/** Contractor identity block: shows company logo + contractor initials */
-const ContractorIdentity: React.FC<{
-  contractorName: string;
-  companyName?: string;
-  companyLogoUrl?: string;
-}> = ({ contractorName, companyName, companyLogoUrl }) => (
-  <div className="flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-muted/20">
-    {companyLogoUrl ? (
-      <img src={companyLogoUrl} alt={companyName} className="h-8 w-8 rounded object-contain" />
-    ) : companyName ? (
-      <Avatar className="h-8 w-8">
-        <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
-          {getInitials(companyName)}
-        </AvatarFallback>
-      </Avatar>
-    ) : null}
-    <div className="flex-1 min-w-0">
-      {companyName && (
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">Contracting for</p>
-      )}
-      {companyName && (
-        <p className="text-[11px] font-semibold text-foreground">{companyName}</p>
-      )}
-    </div>
-    <Avatar className="h-8 w-8">
-      <AvatarFallback className="text-[10px] font-bold bg-accent text-accent-foreground">
-        {getInitials(contractorName)}
-      </AvatarFallback>
-    </Avatar>
-  </div>
-);
-
 /** Single key-value row */
 const InfoRow: React.FC<{ label: string; value: string; bold?: boolean }> = ({ label, value, bold }) => (
   <div className="flex justify-between py-[3px]">
