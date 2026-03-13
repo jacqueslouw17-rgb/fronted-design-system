@@ -69,6 +69,7 @@ import SecureLinkError from "./pages/flows/SecureLinkError";
 import ServerError from "./pages/flows/ServerError";
 import OnboardingLinkGone from "./pages/flows/OnboardingLinkGone";
 import PayslipPreviewPage from "./pages/flows/PayslipPreviewPage";
+import InvoicePreviewPage from "./pages/flows/InvoicePreviewPage";
 import CandidateProfileSettings from "./pages/CandidateProfileSettings";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
 import StepCardPattern from "./pages/StepCardPattern";
