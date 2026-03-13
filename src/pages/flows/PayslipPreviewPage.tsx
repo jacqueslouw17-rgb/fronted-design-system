@@ -72,7 +72,7 @@ const samplePayslips: Record<string, PayslipData> = {
   },
   dk: {
     employer: { entityName: "Fronted Denmark ApS", registrationLabel: "CVR no.", registrationId: "46182596", address: "Lyskær 3, 2730 Herlev", country: "Denmark" },
-    employee: { name: "Mikkel Andersen", employeeNo: "FRN-0001", department: "Standard", jobTitle: "Software Engineer", startDate: "01 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "5328-****4212" },
+    employee: { name: "Mikkel Andersen", employeeNo: "FRN-0001", department: "Standard", jobTitle: "Software Engineer", startDate: "01 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "5328 – 0000404212", address: "Brudevænget 42, 3520 Farum" },
     period: { label: "January 2026", startDate: "01 Jan 2026", endDate: "31 Jan 2026", paymentDate: "30 Jan 2026" },
     currency: "DKK", currencySymbol: "kr ",
     earnings: [
