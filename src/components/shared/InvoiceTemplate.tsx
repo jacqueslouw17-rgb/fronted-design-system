@@ -178,18 +178,9 @@ export const InvoiceTemplate: React.FC<{ data: InvoiceData }> = ({ data }) => {
         invoiceNumber={data.invoiceNumber}
         invoiceDate={data.invoiceDate}
         dueDate={data.dueDate}
+        contractorName={data.invoiceType === "individual" ? data.from.name : undefined}
+        isIndividual={data.invoiceType === "individual"}
       />
-
-      <Separator className="bg-border/50" />
-
-      {/* ── Contractor identity (individual mode) ── */}
-      {data.invoiceType === "individual" && data.contractorCompany && (
-        <ContractorIdentity
-          contractorName={data.from.name}
-          companyName={data.contractorCompany.name}
-          companyLogoUrl={data.contractorCompany.logoUrl}
-        />
-      )}
 
       {/* ── From + Billed To — two columns ── */}
       <div className="grid grid-cols-2 gap-8">
