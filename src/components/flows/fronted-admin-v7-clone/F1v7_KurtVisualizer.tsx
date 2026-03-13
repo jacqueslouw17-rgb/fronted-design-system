@@ -43,7 +43,7 @@ export const F1v7_KurtVisualizer: React.FC<F1v7_KurtVisualizerProps> = ({ onOpen
       exit={{ opacity: 0, scale: 0.8, y: 20 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="fixed bottom-8 right-8 z-50 flex flex-col items-center"
-    >
+      style={{ position: "fixed", zIndex: 120, pointerEvents: "auto" }}
       {/* Hint label */}
       <AnimatePresence>
         {showHint && (
