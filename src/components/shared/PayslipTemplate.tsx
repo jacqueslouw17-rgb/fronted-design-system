@@ -13,9 +13,9 @@ import frontedLogo from "@/assets/fronted-logo.png";
 // ─── Types ───────────────────────────────────────────────────────────
 
 export interface PayslipEmployer {
-  entityName: string;       // e.g. "Fronted Denmark ApS", "Fronted Consultancy Netherlands BV"
-  registrationId: string;   // CVR, KvK, Company Reg No etc.
-  registrationLabel: string;// "CVR no.", "KvK", "Company Reg."
+  entityName: string;
+  registrationId: string;
+  registrationLabel: string;
   address: string;
   country: string;
 }
@@ -26,18 +26,19 @@ export interface PayslipEmployee {
   department: string;
   jobTitle: string;
   startDate: string;
-  contractType: string;     // "Permanent", "Fixed-term"
+  contractType: string;
   hoursPerWeek: number;
-  bankAccount: string;      // masked e.g. "****4521" or "NL70****7875"
-  taxCode?: string;         // UK-specific
-  nationalInsuranceNo?: string; // UK-specific (masked)
+  bankAccount: string;
+  taxCode?: string;
+  nationalInsuranceNo?: string;
+  address?: string;
 }
 
 export interface PayslipLineItem {
   label: string;
   amount: number;
-  rate?: string;            // e.g. "8%", "38%"
-  basis?: number;           // base amount it's calculated on
+  rate?: string;
+  basis?: number;
 }
 
 export interface PayslipYTD {
@@ -50,14 +51,14 @@ export interface PayslipHoliday {
   earned: number;
   taken: number;
   balance: number;
-  unit: string;             // "days" or currency code
+  unit: string;
 }
 
 export interface PayslipData {
   employer: PayslipEmployer;
   employee: PayslipEmployee;
   period: {
-    label: string;          // e.g. "January 2026", "2026-2-M"
+    label: string;
     startDate: string;
     endDate: string;
     paymentDate: string;
@@ -85,36 +86,49 @@ const fmt = (amount: number, symbol: string) =>
 
 // ─── Sub-components ──────────────────────────────────────────────────
 
-const Letterhead: React.FC<{ employer: PayslipEmployer; period: string }> = ({ employer, period }) => (
-  <div className="flex items-start justify-between">
-    <div className="flex items-center gap-3">
-      <img src={frontedLogo} alt="Fronted" className="h-6 w-auto" />
-      <div>
-        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Payslip</p>
-        <p className="text-xs text-muted-foreground">{period}</p>
-      </div>
+/** Top letterhead: logo left, entity right — mirrors real payslips */
+const Letterhead: React.FC<{ employer: PayslipEmployer; periodLabel: string }> = ({ employer, periodLabel }) => (
+  <div className="flex items-start justify-between pb-4">
+    <div className="space-y-1">
+      <img src={frontedLogo} alt="Fronted" className="h-6 w-auto mb-1" />
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
+        Salary Specification
+      </p>
+      <p className="text-xs text-muted-foreground">{periodLabel}</p>
     </div>
-    <div className="text-right">
-      <p className="text-xs font-medium text-foreground">{employer.entityName}</p>
-      <p className="text-[10px] text-muted-foreground">{employer.address}</p>
-      <p className="text-[10px] text-muted-foreground">
-        {employer.registrationLabel}: {employer.registrationId}
+    <div className="text-right space-y-0.5">
+      <p className="text-sm font-semibold text-foreground">{employer.entityName}</p>
+      <p className="text-[11px] text-muted-foreground">{employer.address}</p>
+      <p className="text-[11px] text-muted-foreground">
+        {employer.registrationLabel}: <span className="font-medium text-foreground">{employer.registrationId}</span>
       </p>
     </div>
   </div>
 );
 
-const InfoGrid: React.FC<{ items: { label: string; value: string }[] }> = ({ items }) => (
-  <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
-    {items.map((item, i) => (
-      <div key={i} className="flex justify-between text-xs">
-        <span className="text-muted-foreground">{item.label}</span>
-        <span className="font-medium text-foreground tabular-nums">{item.value}</span>
-      </div>
-    ))}
+/** Single key-value row */
+const InfoRow: React.FC<{ label: string; value: string; bold?: boolean }> = ({ label, value, bold }) => (
+  <div className="flex justify-between py-[3px]">
+    <span className="text-[11px] text-muted-foreground">{label}</span>
+    <span className={`text-[11px] tabular-nums ${bold ? "font-semibold text-foreground" : "font-medium text-foreground"}`}>{value}</span>
   </div>
 );
 
+/** Compact info block with a title and key-value rows */
+const InfoBlock: React.FC<{ title: string; items: { label: string; value: string; bold?: boolean }[] }> = ({ title, items }) => (
+  <div>
+    <h4 className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 pb-1 border-b border-border/40">
+      {title}
+    </h4>
+    <div className="space-y-0">
+      {items.map((item, i) => (
+        <InfoRow key={i} label={item.label} value={item.value} bold={item.bold} />
+      ))}
+    </div>
+  </div>
+);
+
+/** Line items table */
 const LineItemsTable: React.FC<{
   title: string;
   items: PayslipLineItem[];
@@ -122,56 +136,61 @@ const LineItemsTable: React.FC<{
   total: number;
   totalLabel: string;
   isDeduction?: boolean;
-}> = ({ title, items, currency, total, totalLabel, isDeduction }) => (
-  <div className="space-y-1.5">
-    <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{title}</h4>
-    <div className="rounded-lg border border-border/50 overflow-hidden">
-      {/* Header row */}
-      <div className="grid grid-cols-[1fr_auto_auto] gap-4 px-3 py-1.5 bg-muted/30 text-[10px] text-muted-foreground uppercase tracking-wide">
-        <span>Description</span>
-        {items.some(i => i.rate) && <span className="text-right w-12">Rate</span>}
-        <span className="text-right w-20">Amount</span>
-      </div>
-      {items.map((item, idx) => (
-        <div
-          key={idx}
-          className="grid grid-cols-[1fr_auto_auto] gap-4 px-3 py-2 border-t border-border/30 text-xs"
-        >
-          <span className="text-muted-foreground">{item.label}</span>
-          {items.some(i => i.rate) && (
-            <span className="text-right w-12 text-muted-foreground tabular-nums">{item.rate || ""}</span>
-          )}
-          <span className={`text-right w-20 font-medium tabular-nums ${isDeduction ? "text-destructive" : "text-foreground"}`}>
-            {isDeduction ? "-" : ""}{fmt(item.amount, currency)}
+}> = ({ title, items, currency, total, totalLabel, isDeduction }) => {
+  const hasRate = items.some(i => i.rate);
+  return (
+    <div className="space-y-1.5">
+      <h4 className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{title}</h4>
+      <div className="rounded-lg border border-border/50 overflow-hidden">
+        {/* Header */}
+        <div className={`grid ${hasRate ? "grid-cols-[1fr_60px_90px]" : "grid-cols-[1fr_90px]"} px-3 py-1.5 bg-muted/40 text-[9px] text-muted-foreground uppercase tracking-wider font-semibold`}>
+          <span>Description</span>
+          {hasRate && <span className="text-right">Rate</span>}
+          <span className="text-right">Amount</span>
+        </div>
+        {items.map((item, idx) => (
+          <div
+            key={idx}
+            className={`grid ${hasRate ? "grid-cols-[1fr_60px_90px]" : "grid-cols-[1fr_90px]"} px-3 py-2 border-t border-border/30`}
+          >
+            <span className="text-[11px] text-muted-foreground">{item.label}</span>
+            {hasRate && (
+              <span className="text-[11px] text-right text-muted-foreground tabular-nums">{item.rate || ""}</span>
+            )}
+            <span className={`text-[11px] text-right font-medium tabular-nums ${isDeduction ? "text-destructive" : "text-foreground"}`}>
+              {isDeduction ? "−" : ""}{fmt(item.amount, currency)}
+            </span>
+          </div>
+        ))}
+        {/* Total */}
+        <div className={`grid ${hasRate ? "grid-cols-[1fr_60px_90px]" : "grid-cols-[1fr_90px]"} px-3 py-2 border-t border-border/50 bg-muted/30`}>
+          <span className="text-[11px] font-semibold text-foreground">{totalLabel}</span>
+          {hasRate && <span />}
+          <span className={`text-[11px] text-right font-bold tabular-nums ${isDeduction ? "text-destructive" : "text-foreground"}`}>
+            {isDeduction ? "−" : ""}{fmt(total, currency)}
           </span>
         </div>
-      ))}
-      {/* Total row */}
-      <div className="grid grid-cols-[1fr_auto] gap-4 px-3 py-2 border-t border-border/50 bg-muted/20">
-        <span className="text-xs font-medium text-foreground">{totalLabel}</span>
-        <span className={`text-xs font-semibold tabular-nums text-right ${isDeduction ? "text-destructive" : "text-foreground"}`}>
-          {isDeduction ? "-" : ""}{fmt(total, currency)}
-        </span>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
+/** Gross / Deductions / Net summary */
 const SummaryBar: React.FC<{ gross: number; deductions: number; net: number; currency: string }> = ({
   gross, deductions, net, currency,
 }) => (
   <div className="grid grid-cols-3 gap-2">
     <div className="p-2.5 rounded-lg border border-border/50 bg-card/40 text-center">
-      <p className="text-[9px] text-muted-foreground uppercase mb-0.5">Gross Pay</p>
-      <p className="text-sm font-semibold tabular-nums">{fmt(gross, currency)}</p>
+      <p className="text-[9px] text-muted-foreground uppercase mb-0.5 font-medium">Gross Pay</p>
+      <p className="text-sm font-bold tabular-nums">{fmt(gross, currency)}</p>
     </div>
     <div className="p-2.5 rounded-lg border border-border/50 bg-card/40 text-center">
-      <p className="text-[9px] text-muted-foreground uppercase mb-0.5">Deductions</p>
-      <p className="text-sm font-semibold tabular-nums text-destructive">-{fmt(deductions, currency)}</p>
+      <p className="text-[9px] text-muted-foreground uppercase mb-0.5 font-medium">Deductions</p>
+      <p className="text-sm font-bold tabular-nums text-destructive">−{fmt(deductions, currency)}</p>
     </div>
     <div className="p-2.5 rounded-lg border border-primary/20 bg-primary/5 text-center">
-      <p className="text-[9px] text-primary/70 uppercase mb-0.5">Net Pay</p>
-      <p className="text-sm font-semibold text-primary tabular-nums">{fmt(net, currency)}</p>
+      <p className="text-[9px] text-primary/70 uppercase mb-0.5 font-medium">Net Pay</p>
+      <p className="text-sm font-bold text-primary tabular-nums">{fmt(net, currency)}</p>
     </div>
   </div>
 );
@@ -181,49 +200,45 @@ const SummaryBar: React.FC<{ gross: number; deductions: number; net: number; cur
 export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
   const sym = data.currencySymbol;
 
-  const employeeInfo = [
-    { label: "Employee", value: data.employee.name },
+  const employeeDetails = [
+    { label: "Name", value: data.employee.name, bold: true },
     { label: "Employee No.", value: data.employee.employeeNo },
-    { label: "Department", value: data.employee.department },
     { label: "Job Title", value: data.employee.jobTitle },
-    { label: "Start Date", value: data.employee.startDate },
-    { label: "Contract", value: data.employee.contractType },
-    { label: "Hours/Week", value: String(data.employee.hoursPerWeek) },
+    { label: "Department", value: data.employee.department },
+    { label: "Date of Employment", value: data.employee.startDate },
+    { label: "Contract Type", value: data.employee.contractType },
+    { label: "Hours / Week", value: String(data.employee.hoursPerWeek) },
     ...(data.employee.taxCode ? [{ label: "Tax Code", value: data.employee.taxCode }] : []),
+    ...(data.employee.nationalInsuranceNo ? [{ label: "NI Number", value: data.employee.nationalInsuranceNo }] : []),
   ];
 
-  const periodInfo = [
-    { label: "Pay Period", value: `${data.period.startDate} – ${data.period.endDate}` },
-    { label: "Payment Date", value: data.period.paymentDate },
+  const paymentDetails = [
+    { label: "Salary Period", value: `${data.period.startDate} – ${data.period.endDate}` },
+    { label: "Payment Date", value: data.period.paymentDate, bold: true },
     { label: "Bank Account", value: data.employee.bankAccount },
     { label: "Currency", value: data.currency },
+    ...(data.totalEmployerCosts ? [{ label: "Employer Costs", value: fmt(data.totalEmployerCosts, sym) }] : []),
   ];
 
   return (
-    <div className="space-y-4 text-foreground">
-      {/* Letterhead */}
-      <Letterhead employer={data.employer} period={data.period.label} />
+    <div className="space-y-5 text-foreground">
+      {/* ── Letterhead ── */}
+      <Letterhead employer={data.employer} periodLabel={data.period.label} />
 
-      <Separator className="bg-border/40" />
+      <Separator className="bg-border/50" />
 
-      {/* Employee & Period Details */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Employee Details</h4>
-          <InfoGrid items={employeeInfo} />
-        </div>
-        <div className="space-y-2">
-          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Payment Details</h4>
-          <InfoGrid items={periodInfo} />
-        </div>
+      {/* ── Employee + Payment info — two columns ── */}
+      <div className="grid grid-cols-2 gap-8">
+        <InfoBlock title="Employee Details" items={employeeDetails} />
+        <InfoBlock title="Payment Details" items={paymentDetails} />
       </div>
 
-      <Separator className="bg-border/40" />
+      <Separator className="bg-border/50" />
 
-      {/* Summary Bar */}
+      {/* ── Summary Bar ── */}
       <SummaryBar gross={data.grossPay} deductions={data.totalDeductions} net={data.netPay} currency={sym} />
 
-      {/* Earnings */}
+      {/* ── Earnings ── */}
       <LineItemsTable
         title="Earnings"
         items={data.earnings}
@@ -232,7 +247,7 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
         totalLabel="Total Gross Pay"
       />
 
-      {/* Deductions */}
+      {/* ── Deductions ── */}
       {data.deductions.length > 0 && (
         <LineItemsTable
           title="Deductions"
@@ -244,7 +259,7 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
         />
       )}
 
-      {/* Employer Costs (optional) */}
+      {/* ── Employer Costs ── */}
       {data.employerCosts && data.employerCosts.length > 0 && (
         <LineItemsTable
           title="Employer Costs"
@@ -255,53 +270,57 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
         />
       )}
 
-      {/* Year to Date */}
+      {/* ── Year to Date ── */}
       {data.ytd && data.ytd.length > 0 && (
         <div className="space-y-1.5">
-          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Year to Date</h4>
+          <h4 className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Year to Date</h4>
           <div className="rounded-lg border border-border/50 overflow-hidden">
+            <div className="grid grid-cols-[1fr_90px] px-3 py-1.5 bg-muted/40 text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
+              <span>Description</span>
+              <span className="text-right">Cumulative</span>
+            </div>
             {data.ytd.map((item, idx) => (
-              <div key={idx} className="flex justify-between px-3 py-2 border-t first:border-t-0 border-border/30 text-xs">
-                <span className="text-muted-foreground">{item.label}</span>
-                <span className="font-medium tabular-nums">{fmt(item.amount, sym)}</span>
+              <div key={idx} className="grid grid-cols-[1fr_90px] px-3 py-2 border-t border-border/30">
+                <span className="text-[11px] text-muted-foreground">{item.label}</span>
+                <span className="text-[11px] text-right font-medium tabular-nums">{fmt(item.amount, sym)}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Holiday / Leave Balances */}
+      {/* ── Holiday / Leave Balances ── */}
       {data.holidays && data.holidays.length > 0 && (
         <div className="space-y-1.5">
-          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Holiday & Leave Balances</h4>
+          <h4 className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Holiday & Leave Balances</h4>
           <div className="rounded-lg border border-border/50 overflow-hidden">
-            <div className="grid grid-cols-4 gap-2 px-3 py-1.5 bg-muted/30 text-[10px] text-muted-foreground uppercase tracking-wide">
+            <div className="grid grid-cols-4 gap-2 px-3 py-1.5 bg-muted/40 text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
               <span>Type</span>
               <span className="text-right">Earned</span>
               <span className="text-right">Taken</span>
               <span className="text-right">Balance</span>
             </div>
             {data.holidays.map((h, idx) => (
-              <div key={idx} className="grid grid-cols-4 gap-2 px-3 py-2 border-t border-border/30 text-xs">
-                <span className="text-muted-foreground">{h.label}</span>
-                <span className="text-right tabular-nums">{h.earned} {h.unit}</span>
-                <span className="text-right tabular-nums">{h.taken} {h.unit}</span>
-                <span className="text-right font-medium tabular-nums">{h.balance} {h.unit}</span>
+              <div key={idx} className="grid grid-cols-4 gap-2 px-3 py-2 border-t border-border/30">
+                <span className="text-[11px] text-muted-foreground">{h.label}</span>
+                <span className="text-[11px] text-right tabular-nums">{h.earned} {h.unit}</span>
+                <span className="text-[11px] text-right tabular-nums">{h.taken} {h.unit}</span>
+                <span className="text-[11px] text-right font-medium tabular-nums">{h.balance} {h.unit}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Net Pay highlight */}
-      <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
-        <span className="text-sm font-medium text-foreground">Net Pay</span>
-        <span className="text-lg font-bold text-primary tabular-nums">{fmt(data.netPay, sym)}</span>
+      {/* ── Net Pay highlight ── */}
+      <div className="flex items-center justify-between p-3.5 rounded-lg bg-primary/5 border border-primary/20">
+        <span className="text-sm font-semibold text-foreground">Net Pay</span>
+        <span className="text-xl font-bold text-primary tabular-nums">{fmt(data.netPay, sym)}</span>
       </div>
 
-      <Separator className="bg-border/40" />
+      <Separator className="bg-border/50" />
 
-      {/* Footer */}
+      {/* ── Footer ── */}
       <div className="flex items-center justify-between text-[10px] text-muted-foreground">
         <div className="space-y-0.5">
           <p>Ref: {data.referenceNo}</p>

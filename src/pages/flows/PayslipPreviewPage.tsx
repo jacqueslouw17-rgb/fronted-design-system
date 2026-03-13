@@ -17,7 +17,7 @@ import { toast } from "sonner";
 const samplePayslips: Record<string, PayslipData> = {
   uk: {
     employer: { entityName: "Fronted UK Ltd", registrationLabel: "Company Reg.", registrationId: "14523876", address: "71-75 Shelton Street, London WC2H 9JQ", country: "United Kingdom" },
-    employee: { name: "James Richardson", employeeNo: "FRN-0042", department: "Engineering", jobTitle: "Senior Developer", startDate: "12 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "****4521", taxCode: "0T", nationalInsuranceNo: "****" },
+    employee: { name: "James Richardson", employeeNo: "FRN-0042", department: "Engineering", jobTitle: "Senior Developer", startDate: "12 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "****4521", taxCode: "0T", nationalInsuranceNo: "QQ 12 34 56 C" },
     period: { label: "January 2026", startDate: "01 Jan 2026", endDate: "31 Jan 2026", paymentDate: "30 Jan 2026" },
     currency: "GBP", currencySymbol: "£",
     earnings: [
@@ -44,7 +44,7 @@ const samplePayslips: Record<string, PayslipData> = {
   },
   nl: {
     employer: { entityName: "Fronted Consultancy Netherlands BV", registrationLabel: "KvK", registrationId: "90481275", address: "Keizersgracht 482, 1096 HR Amsterdam", country: "Netherlands" },
-    employee: { name: "Anna de Vries", employeeNo: "FRN-0001", department: "Business Development", jobTitle: "Head of Business Dev", startDate: "01 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "NL70****7875" },
+    employee: { name: "Anna de Vries", employeeNo: "FRN-0001", department: "Business Development", jobTitle: "Head of Business Dev", startDate: "01 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "NL70****7875", address: "Keizersgracht 197, 1096 HR Amsterdam" },
     period: { label: "February 2026", startDate: "01 Feb 2026", endDate: "28 Feb 2026", paymentDate: "25 Feb 2026" },
     currency: "EUR", currencySymbol: "€",
     earnings: [
@@ -72,7 +72,7 @@ const samplePayslips: Record<string, PayslipData> = {
   },
   dk: {
     employer: { entityName: "Fronted Denmark ApS", registrationLabel: "CVR no.", registrationId: "46182596", address: "Lyskær 3, 2730 Herlev", country: "Denmark" },
-    employee: { name: "Mikkel Andersen", employeeNo: "FRN-0001", department: "Standard", jobTitle: "Software Engineer", startDate: "01 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "5328-****4212" },
+    employee: { name: "Mikkel Andersen", employeeNo: "FRN-0001", department: "Standard", jobTitle: "Software Engineer", startDate: "01 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "5328 – 0000404212", address: "Brudevænget 42, 3520 Farum" },
     period: { label: "January 2026", startDate: "01 Jan 2026", endDate: "31 Jan 2026", paymentDate: "30 Jan 2026" },
     currency: "DKK", currencySymbol: "kr ",
     earnings: [
