@@ -701,6 +701,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       ],
       additionalCount: 1,
       dataModel: null
+    },
+    'shared-invoice-template': {
+      path: "/flows/invoice-template",
+      iconColor: "cyan",
+      icon: FileText,
+      title: "Shared – Invoice Template",
+      status: "now" as const,
+      deprecated: false,
+      description: "Universal EOR invoice template supporting limited company and individual contractor modes. Fronted-branded with line items, payment details, and contractor identity display.",
+      steps: "1 screen",
+      patterns: "2 patterns",
+      badges: [
+        { label: "Company Invoice", path: "/flows/invoice-template" },
+        { label: "Contractor Invoice", path: "/flows/invoice-template" }
+      ],
+      additionalCount: 0,
+      dataModel: null
     }
   };
 

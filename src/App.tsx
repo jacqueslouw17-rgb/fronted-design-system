@@ -263,6 +263,7 @@ const App = () => (
         <Route path="/server-error" element={<ServerError />} />
         <Route path="/onboarding-link-gone" element={<OnboardingLinkGone />} />
         <Route path="/flows/payslip-template" element={<PayslipPreviewPage />} />
+        <Route path="/flows/invoice-template" element={<InvoicePreviewPage />} />
         
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
