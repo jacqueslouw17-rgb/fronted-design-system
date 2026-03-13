@@ -83,15 +83,39 @@ const getInitials = (name: string) =>
 // ─── Sub-components ──────────────────────────────────────────────────
 
 /** Top letterhead: logo left, invoice meta right */
-const Letterhead: React.FC<{ invoiceNumber: string; invoiceDate: string; dueDate: string }> = ({
-  invoiceNumber, invoiceDate, dueDate,
-}) => (
+const Letterhead: React.FC<{
+  invoiceNumber: string;
+  invoiceDate: string;
+  dueDate: string;
+  contractorName?: string;
+  isIndividual?: boolean;
+}> = ({ invoiceNumber, invoiceDate, dueDate, contractorName, isIndividual }) => (
   <div className="flex items-start justify-between pb-4">
-    <div className="space-y-1">
-      <img src={frontedLogo} alt="Fronted" className="h-6 w-auto mb-1" />
-      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
-        Invoice
-      </p>
+    <div className="flex items-center gap-2.5">
+      <img src={frontedLogo} alt="Fronted" className="h-6 w-auto" />
+      {isIndividual && contractorName && (
+        <>
+          <div className="h-5 w-px bg-border/60" />
+          <Avatar className="h-6 w-6">
+            <AvatarFallback className="text-[9px] font-bold bg-primary/10 text-primary">
+              {getInitials(contractorName)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-[11px] font-medium text-muted-foreground">{contractorName}</span>
+        </>
+      )}
+      {!isIndividual && (
+        <div className="ml-1">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
+            Invoice
+          </p>
+        </div>
+      )}
+      {isIndividual && (
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
+          · Invoice
+        </p>
+      )}
     </div>
     <div className="text-right space-y-1">
       <div className="flex items-center justify-end gap-6">
@@ -134,38 +158,6 @@ const PartyBlock: React.FC<{ title: string; party: InvoiceParty }> = ({ title, p
   </div>
 );
 
-/** Contractor identity block: shows company logo + contractor initials */
-const ContractorIdentity: React.FC<{
-  contractorName: string;
-  companyName?: string;
-  companyLogoUrl?: string;
-}> = ({ contractorName, companyName, companyLogoUrl }) => (
-  <div className="flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-muted/20">
-    {companyLogoUrl ? (
-      <img src={companyLogoUrl} alt={companyName} className="h-8 w-8 rounded object-contain" />
-    ) : companyName ? (
-      <Avatar className="h-8 w-8">
-        <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
-          {getInitials(companyName)}
-        </AvatarFallback>
-      </Avatar>
-    ) : null}
-    <div className="flex-1 min-w-0">
-      {companyName && (
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">Contracting for</p>
-      )}
-      {companyName && (
-        <p className="text-[11px] font-semibold text-foreground">{companyName}</p>
-      )}
-    </div>
-    <Avatar className="h-8 w-8">
-      <AvatarFallback className="text-[10px] font-bold bg-accent text-accent-foreground">
-        {getInitials(contractorName)}
-      </AvatarFallback>
-    </Avatar>
-  </div>
-);
-
 /** Single key-value row */
 const InfoRow: React.FC<{ label: string; value: string; bold?: boolean }> = ({ label, value, bold }) => (
   <div className="flex justify-between py-[3px]">
@@ -186,18 +178,9 @@ export const InvoiceTemplate: React.FC<{ data: InvoiceData }> = ({ data }) => {
         invoiceNumber={data.invoiceNumber}
         invoiceDate={data.invoiceDate}
         dueDate={data.dueDate}
+        contractorName={data.invoiceType === "individual" ? data.from.name : undefined}
+        isIndividual={data.invoiceType === "individual"}
       />
-
-      <Separator className="bg-border/50" />
-
-      {/* ── Contractor identity (individual mode) ── */}
-      {data.invoiceType === "individual" && data.contractorCompany && (
-        <ContractorIdentity
-          contractorName={data.from.name}
-          companyName={data.contractorCompany.name}
-          companyLogoUrl={data.contractorCompany.logoUrl}
-        />
-      )}
 
       {/* ── From + Billed To — two columns ── */}
       <div className="grid grid-cols-2 gap-8">
