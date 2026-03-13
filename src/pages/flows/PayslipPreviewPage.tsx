@@ -17,7 +17,7 @@ import { toast } from "sonner";
 const samplePayslips: Record<string, PayslipData> = {
   uk: {
     employer: { entityName: "Fronted UK Ltd", registrationLabel: "Company Reg.", registrationId: "14523876", address: "71-75 Shelton Street, London WC2H 9JQ", country: "United Kingdom" },
-    employee: { name: "James Richardson", employeeNo: "FRN-0042", department: "Engineering", jobTitle: "Senior Developer", startDate: "12 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "****4521", taxCode: "0T", nationalInsuranceNo: "****" },
+    employee: { name: "James Richardson", employeeNo: "FRN-0042", department: "Engineering", jobTitle: "Senior Developer", startDate: "12 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "****4521", taxCode: "0T", nationalInsuranceNo: "QQ 12 34 56 C" },
     period: { label: "January 2026", startDate: "01 Jan 2026", endDate: "31 Jan 2026", paymentDate: "30 Jan 2026" },
     currency: "GBP", currencySymbol: "£",
     earnings: [
