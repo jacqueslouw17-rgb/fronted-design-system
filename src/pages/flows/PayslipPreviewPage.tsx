@@ -44,7 +44,7 @@ const samplePayslips: Record<string, PayslipData> = {
   },
   nl: {
     employer: { entityName: "Fronted Consultancy Netherlands BV", registrationLabel: "KvK", registrationId: "90481275", address: "Keizersgracht 482, 1096 HR Amsterdam", country: "Netherlands" },
-    employee: { name: "Anna de Vries", employeeNo: "FRN-0001", department: "Business Development", jobTitle: "Head of Business Dev", startDate: "01 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "NL70****7875" },
+    employee: { name: "Anna de Vries", employeeNo: "FRN-0001", department: "Business Development", jobTitle: "Head of Business Dev", startDate: "01 Jan 2026", contractType: "Permanent", hoursPerWeek: 40, bankAccount: "NL70****7875", address: "Keizersgracht 197, 1096 HR Amsterdam" },
     period: { label: "February 2026", startDate: "01 Feb 2026", endDate: "28 Feb 2026", paymentDate: "25 Feb 2026" },
     currency: "EUR", currencySymbol: "€",
     earnings: [
