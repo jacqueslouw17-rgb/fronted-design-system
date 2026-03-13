@@ -83,15 +83,39 @@ const getInitials = (name: string) =>
 // ─── Sub-components ──────────────────────────────────────────────────
 
 /** Top letterhead: logo left, invoice meta right */
-const Letterhead: React.FC<{ invoiceNumber: string; invoiceDate: string; dueDate: string }> = ({
-  invoiceNumber, invoiceDate, dueDate,
-}) => (
+const Letterhead: React.FC<{
+  invoiceNumber: string;
+  invoiceDate: string;
+  dueDate: string;
+  contractorName?: string;
+  isIndividual?: boolean;
+}> = ({ invoiceNumber, invoiceDate, dueDate, contractorName, isIndividual }) => (
   <div className="flex items-start justify-between pb-4">
-    <div className="space-y-1">
-      <img src={frontedLogo} alt="Fronted" className="h-6 w-auto mb-1" />
-      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
-        Invoice
-      </p>
+    <div className="flex items-center gap-2.5">
+      <img src={frontedLogo} alt="Fronted" className="h-6 w-auto" />
+      {isIndividual && contractorName && (
+        <>
+          <div className="h-5 w-px bg-border/60" />
+          <Avatar className="h-6 w-6">
+            <AvatarFallback className="text-[9px] font-bold bg-primary/10 text-primary">
+              {getInitials(contractorName)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-[11px] font-medium text-muted-foreground">{contractorName}</span>
+        </>
+      )}
+      {!isIndividual && (
+        <div className="ml-1">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
+            Invoice
+          </p>
+        </div>
+      )}
+      {isIndividual && (
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
+          · Invoice
+        </p>
+      )}
     </div>
     <div className="text-right space-y-1">
       <div className="flex items-center justify-end gap-6">
