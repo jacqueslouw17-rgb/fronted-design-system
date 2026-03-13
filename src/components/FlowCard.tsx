@@ -684,6 +684,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       ],
       additionalCount: 0,
       dataModel: null
+    },
+    'shared-payslip-template': {
+      path: "/flows/payslip-template",
+      iconColor: "blue",
+      icon: FileText,
+      title: "Shared – Payslip Template",
+      status: "now" as const,
+      deprecated: false,
+      description: "Universal EOR payslip template with Fronted-branded letterhead, country-adaptive earnings/deductions, YTD, holiday balances, and employer costs. Based on UK, NL, and DK standards.",
+      steps: "1 screen",
+      patterns: "3 patterns",
+      badges: [
+        { label: "Payslip Layout", path: "/flows/payslip-template" },
+        { label: "Country-Adaptive", path: "/flows/payslip-template" }
+      ],
+      additionalCount: 1,
+      dataModel: null
     }
   };
 
