@@ -1,7 +1,8 @@
 /**
- * F1v4_PayslipPreviewModal - Premium payslip preview modal
+ * F1v7_PayslipPreviewModal - Payslip preview using universal PayslipTemplate
  * 
- * Shows worker payslip with summary totals, line items, and download option
+ * Wraps the shared PayslipTemplate in a dialog with download action.
+ * Generates country-appropriate mock data from WorkerData.
  */
 
 import React from "react";
@@ -13,61 +14,165 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
-import { Download, ChevronDown, Building2, User } from "lucide-react";
+import { Download } from "lucide-react";
 import { toast } from "sonner";
 import type { WorkerData } from "./F1v7_WorkerDetailDrawer";
+import { PayslipTemplate, type PayslipData } from "@/components/shared/PayslipTemplate";
 
-interface F1v4_PayslipPreviewModalProps {
+interface F1v7_PayslipPreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   worker: WorkerData | null;
 }
 
-const countryFlags: Record<string, string> = {
-  Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
-  Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", Italy: "🇮🇹"
+// ─── Country-specific entity mapping ─────────────────────────────────
+
+const countryEntities: Record<string, { entityName: string; registrationLabel: string; registrationId: string; address: string }> = {
+  "United Kingdom": { entityName: "Fronted UK Ltd", registrationLabel: "Company Reg.", registrationId: "14523876", address: "71-75 Shelton Street, London WC2H 9JQ" },
+  "Netherlands": { entityName: "Fronted Consultancy Netherlands BV", registrationLabel: "KvK", registrationId: "90481275", address: "Keizersgracht 482, 1096 HR Amsterdam" },
+  "Denmark": { entityName: "Fronted Denmark ApS", registrationLabel: "CVR no.", registrationId: "46182596", address: "Lyskær 3, 2730 Herlev" },
+  "Germany": { entityName: "Fronted Germany GmbH", registrationLabel: "HRB", registrationId: "241853", address: "Friedrichstraße 123, 10117 Berlin" },
+  "France": { entityName: "Fronted France SAS", registrationLabel: "SIRET", registrationId: "912 345 678 00012", address: "42 Rue de Rivoli, 75001 Paris" },
+  "Spain": { entityName: "Fronted Spain SL", registrationLabel: "CIF", registrationId: "B12345678", address: "Paseo de la Castellana 91, 28046 Madrid" },
+  "Portugal": { entityName: "Fronted Portugal Lda", registrationLabel: "NIF", registrationId: "516234789", address: "Av. da Liberdade 110, 1269-046 Lisboa" },
+  "Norway": { entityName: "Fronted Norway AS", registrationLabel: "Org.nr.", registrationId: "923 456 789", address: "Karl Johans gate 22, 0159 Oslo" },
+  "Singapore": { entityName: "Fronted Singapore Pte. Ltd.", registrationLabel: "UEN", registrationId: "202312345A", address: "1 Raffles Place, #20-01, 048616" },
+  "Philippines": { entityName: "Fronted Philippines Inc.", registrationLabel: "SEC Reg.", registrationId: "CS202312345", address: "BGC, Taguig City, Metro Manila" },
+  "Italy": { entityName: "Fronted Italy S.r.l.", registrationLabel: "P.IVA", registrationId: "IT12345678901", address: "Via Montenapoleone 8, 20121 Milano" },
 };
 
-export const F1v4_PayslipPreviewModal: React.FC<F1v4_PayslipPreviewModalProps> = ({
+const currencySymbols: Record<string, string> = {
+  GBP: "£", EUR: "€", DKK: "kr ", NOK: "kr ", SEK: "kr ",
+  PHP: "₱", USD: "$", SGD: "S$", MXN: "$", EGP: "E£",
+};
+
+const countryFlags: Record<string, string> = {
+  "United Kingdom": "🇬🇧", Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭",
+  Norway: "🇳🇴", Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷",
+  Italy: "🇮🇹", Netherlands: "🇳🇱", Denmark: "🇩🇰",
+};
+
+// ─── Build PayslipData from WorkerData ───────────────────────────────
+
+function buildPayslipData(worker: WorkerData): PayslipData {
+  const entity = countryEntities[worker.country] || {
+    entityName: `Fronted ${worker.country}`,
+    registrationLabel: "Reg. No.",
+    registrationId: "000000",
+    address: worker.country,
+  };
+
+  const sym = currencySymbols[worker.currency] || worker.currency + " ";
+  const grossPay = worker.grossPay || worker.netPay * 1.35;
+  const baseSalary = worker.baseSalary || grossPay * 0.88;
+
+  // Country-adaptive earnings
+  const earnings = [
+    { label: "Base Salary", amount: baseSalary },
+    { label: "Housing Allowance", amount: grossPay * 0.07 },
+    { label: "Transport Allowance", amount: grossPay * 0.03 },
+    { label: "Meal Allowance", amount: grossPay * 0.02 },
+  ];
+
+  // Country-adaptive deductions
+  const isEmployee = worker.type === "employee";
+  const deductions: { label: string; amount: number; rate?: string }[] = isEmployee ? [] : [];
+
+  if (isEmployee) {
+    // These vary by country but we show the universal structure
+    const taxRate = worker.country === "Denmark" ? 0.38 : worker.country === "Netherlands" ? 0.33 : 0.20;
+    const socialRate = worker.country === "Denmark" ? 0 : 0.05;
+    const pensionRate = worker.country === "Netherlands" ? 0.075 : worker.country === "Denmark" ? 0.04 : 0.03;
+
+    deductions.push(
+      { label: "Income Tax", amount: grossPay * taxRate, rate: `${(taxRate * 100).toFixed(0)}%` },
+    );
+    if (socialRate > 0) {
+      deductions.push(
+        { label: worker.country === "United Kingdom" ? "National Insurance" : "Social Security", amount: grossPay * socialRate, rate: `${(socialRate * 100).toFixed(0)}%` },
+      );
+    }
+    deductions.push(
+      { label: "Pension Contribution", amount: grossPay * pensionRate, rate: `${(pensionRate * 100).toFixed(1)}%` },
+    );
+    if (["Netherlands", "Germany", "France"].includes(worker.country)) {
+      deductions.push({ label: "Health Insurance", amount: grossPay * 0.02, rate: "2%" });
+    }
+  }
+
+  const totalEarnings = earnings.reduce((s, e) => s + e.amount, 0);
+  const totalDeductions = deductions.reduce((s, d) => s + d.amount, 0);
+  const netPay = totalEarnings - totalDeductions;
+
+  // Employer costs
+  const employerCosts = isEmployee ? [
+    { label: "Employer Social Security", amount: grossPay * 0.08 },
+    { label: "Employer Pension", amount: grossPay * 0.04 },
+    ...(worker.country === "United Kingdom" ? [{ label: "Employer NI", amount: grossPay * 0.138, rate: "13.8%" }] : []),
+  ] : undefined;
+
+  const totalEmployerCosts = employerCosts?.reduce((s, c) => s + c.amount, 0) || 0;
+
+  // YTD (single month = same as current)
+  const ytd = [
+    { label: "Taxable Gross Pay", amount: totalEarnings },
+    { label: "Total Tax Paid", amount: deductions.find(d => d.label === "Income Tax")?.amount || 0 },
+    { label: "Total Deductions", amount: totalDeductions },
+    { label: "Total Net Pay", amount: netPay },
+  ];
+
+  // Holiday balances (EU countries)
+  const holidays = isEmployee ? [
+    { label: "Annual Leave", earned: 2.08, taken: 0, balance: 2.08, unit: "days" },
+    { label: "Sick Leave", earned: 0, taken: 0, balance: 0, unit: "days" },
+  ] : undefined;
+
+  return {
+    employer: { ...entity, country: worker.country },
+    employee: {
+      name: worker.name,
+      employeeNo: `FRN-${worker.id.padStart(4, "0")}`,
+      department: "Engineering",
+      jobTitle: "Senior Specialist",
+      startDate: "01 Jan 2026",
+      contractType: isEmployee ? "Permanent" : "Contractor Agreement",
+      hoursPerWeek: 40,
+      bankAccount: "****4521",
+      ...(worker.country === "United Kingdom" ? { taxCode: "0T", nationalInsuranceNo: "****" } : {}),
+    },
+    period: {
+      label: "January 2026",
+      startDate: "01 Jan 2026",
+      endDate: "31 Jan 2026",
+      paymentDate: "30 Jan 2026",
+    },
+    currency: worker.currency,
+    currencySymbol: sym,
+    earnings,
+    deductions,
+    employerCosts,
+    ytd,
+    holidays,
+    grossPay: totalEarnings,
+    totalDeductions,
+    netPay,
+    totalEmployerCosts,
+    referenceNo: `PS-2026-01-${worker.id}`,
+    generatedDate: "20 Jan 2026",
+    confidential: true,
+  };
+}
+
+// ─── Modal Component ─────────────────────────────────────────────────
+
+export const F1v4_PayslipPreviewModal: React.FC<F1v7_PayslipPreviewModalProps> = ({
   open,
   onOpenChange,
   worker,
 }) => {
-  const [employerOpen, setEmployerOpen] = React.useState(false);
-  const [workerInfoOpen, setWorkerInfoOpen] = React.useState(false);
-
   if (!worker) return null;
 
-  const formatCurrency = (amount: number, currency: string) => {
-    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", SGD: "S$" };
-    return `${symbols[currency] || currency} ${amount.toLocaleString()}`;
-  };
-
-  // Mock payslip data
-  const grossPay = worker.grossPay || worker.netPay * 1.25;
-  const baseSalary = worker.baseSalary || worker.netPay * 1.2;
-  
-  const earnings = [
-    { label: "Base Salary", amount: baseSalary },
-    { label: "Housing Allowance", amount: grossPay * 0.1 },
-    { label: "Transport Allowance", amount: grossPay * 0.05 },
-  ];
-
-  const deductions = worker.type === "employee" ? [
-    { label: "Income Tax", amount: grossPay * 0.15 },
-    { label: "Social Security", amount: grossPay * 0.05 },
-    { label: "Health Insurance", amount: grossPay * 0.03 },
-  ] : [];
-
-  const totalEarnings = earnings.reduce((sum, e) => sum + e.amount, 0);
-  const totalDeductions = deductions.reduce((sum, d) => sum + d.amount, 0);
-  const netPay = totalEarnings - totalDeductions;
+  const payslipData = buildPayslipData(worker);
 
   const handleDownload = () => {
     toast.success("Payslip PDF downloaded");
@@ -76,7 +181,7 @@ export const F1v4_PayslipPreviewModal: React.FC<F1v4_PayslipPreviewModalProps> =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 overflow-hidden">
+      <DialogContent className="max-w-[580px] p-0 overflow-hidden">
         {/* Header */}
         <DialogHeader className="p-5 pb-4 border-b border-border/40 bg-muted/30">
           <div className="flex items-start justify-between">
@@ -85,10 +190,10 @@ export const F1v4_PayslipPreviewModal: React.FC<F1v4_PayslipPreviewModalProps> =
                 Payslip
               </Badge>
               <DialogTitle className="text-lg font-semibold text-foreground">
-                January 2026
+                {payslipData.period.label}
               </DialogTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Pay period: Jan 1 - Jan 31, 2026
+                {countryFlags[worker.country] || ""} {worker.name} · {worker.country}
               </p>
             </div>
             <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={handleDownload}>
@@ -98,129 +203,15 @@ export const F1v4_PayslipPreviewModal: React.FC<F1v4_PayslipPreviewModalProps> =
           </div>
         </DialogHeader>
 
-        <div className="p-5 space-y-5 max-h-[60vh] overflow-y-auto">
-          {/* Worker Info */}
-          <div className="flex items-center justify-between p-4 rounded-xl border border-border/40 bg-card/50">
-            <div>
-              <p className="text-sm font-medium text-foreground">{worker.name}</p>
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                <span>{countryFlags[worker.country] || ""}</span>
-                {worker.country}
-                <span className="text-muted-foreground/40">•</span>
-                {worker.type === "employee" ? "Employee" : "Contractor"}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-semibold text-foreground tabular-nums">
-                {formatCurrency(netPay, worker.currency)}
-              </p>
-              <p className="text-[10px] text-muted-foreground uppercase">Net Pay</p>
-            </div>
-          </div>
-
-          {/* Summary Totals */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="p-3 rounded-lg border border-border/40 bg-card/30 text-center">
-              <p className="text-[10px] text-muted-foreground mb-0.5">Gross</p>
-              <p className="text-sm font-semibold tabular-nums">{formatCurrency(totalEarnings, worker.currency)}</p>
-            </div>
-            <div className="p-3 rounded-lg border border-border/40 bg-card/30 text-center">
-              <p className="text-[10px] text-muted-foreground mb-0.5">Deductions</p>
-              <p className="text-sm font-semibold tabular-nums text-destructive">-{formatCurrency(totalDeductions, worker.currency)}</p>
-            </div>
-            <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 text-center">
-              <p className="text-[10px] text-primary/70 mb-0.5">Net Pay</p>
-              <p className="text-sm font-semibold text-primary tabular-nums">{formatCurrency(netPay, worker.currency)}</p>
-            </div>
-          </div>
-
-          {/* Line Items - Earnings */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Earnings
-            </h4>
-            <div className="rounded-xl border border-border/40 bg-card/50 divide-y divide-border/40">
-              {earnings.map((item, idx) => (
-                <div key={idx} className="flex justify-between px-4 py-2.5">
-                  <span className="text-sm text-muted-foreground">{item.label}</span>
-                  <span className="text-sm font-medium tabular-nums">{formatCurrency(item.amount, worker.currency)}</span>
-                </div>
-              ))}
-              <div className="flex justify-between px-4 py-2.5 bg-muted/20">
-                <span className="text-sm font-medium">Total Earnings</span>
-                <span className="text-sm font-semibold tabular-nums">{formatCurrency(totalEarnings, worker.currency)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Line Items - Deductions */}
-          {deductions.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Deductions
-              </h4>
-              <div className="rounded-xl border border-border/40 bg-card/50 divide-y divide-border/40">
-                {deductions.map((item, idx) => (
-                  <div key={idx} className="flex justify-between px-4 py-2.5">
-                    <span className="text-sm text-muted-foreground">{item.label}</span>
-                    <span className="text-sm font-medium tabular-nums text-destructive">-{formatCurrency(item.amount, worker.currency)}</span>
-                  </div>
-                ))}
-                <div className="flex justify-between px-4 py-2.5 bg-muted/20">
-                  <span className="text-sm font-medium">Total Deductions</span>
-                  <span className="text-sm font-semibold tabular-nums text-destructive">-{formatCurrency(totalDeductions, worker.currency)}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Collapsible Sections */}
-          <div className="space-y-2">
-            {/* Employer Info */}
-            <Collapsible open={employerOpen} onOpenChange={setEmployerOpen}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg border border-border/40 bg-card/30 hover:bg-muted/30 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Employer Information</span>
-                </div>
-                <ChevronDown className={cn(
-                  "h-4 w-4 text-muted-foreground transition-transform",
-                  employerOpen && "rotate-180"
-                )} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-3 py-2 text-xs text-muted-foreground space-y-1 mt-1">
-                <p><span className="font-medium text-foreground">Company:</span> Acme Global Inc.</p>
-                <p><span className="font-medium text-foreground">Address:</span> 123 Business Park, London, UK</p>
-                <p><span className="font-medium text-foreground">Tax ID:</span> GB123456789</p>
-              </CollapsibleContent>
-            </Collapsible>
-
-            {/* Worker Info */}
-            <Collapsible open={workerInfoOpen} onOpenChange={setWorkerInfoOpen}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg border border-border/40 bg-card/30 hover:bg-muted/30 transition-colors">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Worker Information</span>
-                </div>
-                <ChevronDown className={cn(
-                  "h-4 w-4 text-muted-foreground transition-transform",
-                  workerInfoOpen && "rotate-180"
-                )} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-3 py-2 text-xs text-muted-foreground space-y-1 mt-1">
-                <p><span className="font-medium text-foreground">Name:</span> {worker.name}</p>
-                <p><span className="font-medium text-foreground">ID:</span> EMP-{worker.id.padStart(4, "0")}</p>
-                <p><span className="font-medium text-foreground">Department:</span> Engineering</p>
-                <p><span className="font-medium text-foreground">Bank:</span> ****4521</p>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+        {/* Payslip Content */}
+        <div className="p-5 max-h-[65vh] overflow-y-auto">
+          <PayslipTemplate data={payslipData} />
         </div>
 
         {/* Footer */}
         <div className="p-4 border-t border-border/40 bg-muted/20 flex items-center justify-between">
           <p className="text-[10px] text-muted-foreground">
-            Generated on Jan 20, 2026 • Ref: PS-2026-01-{worker.id}
+            Ref: {payslipData.referenceNo} · Generated {payslipData.generatedDate}
           </p>
           <Button variant="ghost" size="sm" className="text-xs" onClick={() => onOpenChange(false)}>
             Close
