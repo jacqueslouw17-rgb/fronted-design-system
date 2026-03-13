@@ -69,6 +69,7 @@ import SecureLinkError from "./pages/flows/SecureLinkError";
 import ServerError from "./pages/flows/ServerError";
 import OnboardingLinkGone from "./pages/flows/OnboardingLinkGone";
 import PayslipPreviewPage from "./pages/flows/PayslipPreviewPage";
+import InvoicePreviewPage from "./pages/flows/InvoicePreviewPage";
 import CandidateProfileSettings from "./pages/CandidateProfileSettings";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -262,6 +263,7 @@ const App = () => (
         <Route path="/server-error" element={<ServerError />} />
         <Route path="/onboarding-link-gone" element={<OnboardingLinkGone />} />
         <Route path="/flows/payslip-template" element={<PayslipPreviewPage />} />
+        <Route path="/flows/invoice-template" element={<InvoicePreviewPage />} />
         
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

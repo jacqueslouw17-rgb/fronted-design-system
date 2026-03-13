@@ -318,6 +318,7 @@ const DesignSystem = () => {
     'shared-server-error',           // Shared – Server Error (500)
     'shared-onboarding-link-gone',   // Shared – Onboarding Link Gone (410)
     'shared-payslip-template',       // Shared – Payslip Template
+    'shared-invoice-template',       // Shared – Invoice Template
   ];
 
   const frontedFlows = flowOrder.filter(id => id.startsWith('flow-1-fronted-admin'));
