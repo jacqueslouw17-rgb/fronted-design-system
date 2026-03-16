@@ -12,7 +12,6 @@
  */
 
 import React, { useState, useMemo, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award,
@@ -1135,7 +1134,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
       {/* Drawer - custom motion.div to respect Kurt panel positioning */}
       <AnimatePresence>
-        {drawerOpen && createPortal(
+        {drawerOpen && (
           <>
             {/* Backdrop overlay - covers everything except Kurt panel */}
             <motion.div
@@ -1601,8 +1600,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             );
           })()}
             </motion.div>
-          </>,
-          document.body
+          </>
         )}
       </AnimatePresence>
     </>);
