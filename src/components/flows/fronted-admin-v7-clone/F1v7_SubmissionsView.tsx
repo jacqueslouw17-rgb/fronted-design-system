@@ -25,6 +25,8 @@ import { SubmissionTrail, type TrailSubmission } from "@/components/flows/shared
 import { GroupedExpenseRow, type GroupedExpenseItem } from "@/components/flows/shared/GroupedExpenseRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
