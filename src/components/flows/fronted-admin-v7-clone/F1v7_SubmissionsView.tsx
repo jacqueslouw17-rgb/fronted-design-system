@@ -536,6 +536,76 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   // Skip remaining: explicit signal that user is done reviewing for off-cycle batches
   const [skippedOthers, setSkippedOthers] = useState(false);
 
+  // Country filter
+  const [selectedCountries, setSelectedCountries] = useState<Set<string>>(new Set());
+  const [countryFilterOpen, setCountryFilterOpen] = useState(false);
+
+  const availableCountries = useMemo(() => {
+    const countries = new Map<string, number>();
+    submissions.forEach((s) => {
+      const count = countries.get(s.workerCountry) || 0;
+      countries.set(s.workerCountry, count + 1);
+    });
+    return Array.from(countries.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count, flag: countryFlags[name] || "" }));
+  }, [submissions]);
+
+  const toggleCountry = (country: string) => {
+    setSelectedCountries((prev) => {
+      const next = new Set(prev);
+      if (next.has(country)) next.delete(country);
+      else next.add(country);
+      return next;
+    });
+  };
+
+  // CSV export
+  const generateCSV = (workers: WorkerSubmission[]) => {
+    const headers = ["Name", "Country", "Type", "Client", "Base Pay", "Currency", "Adjustments Total", "Net/Invoice Total"];
+    const rows = workers.map((w) => {
+      const workerAdminAdj = adminAdjustments[w.id] || [];
+      const adminAdd = workerAdminAdj.filter((a) => a.direction !== 'deduct').reduce((s, a) => s + (a.amount || 0), 0);
+      const adminDed = workerAdminAdj.filter((a) => a.direction === 'deduct').reduce((s, a) => s + (a.amount || 0), 0);
+      const approvedAdj = w.submissions.reduce((sum, adj, idx) => {
+        const key = `${w.id}-${idx}`;
+        const state = adjustmentStates[key];
+        return (state?.status || adj.status || 'pending') === 'approved' ? sum + (adj.amount || 0) : sum;
+      }, 0);
+      const approvedLeave = (w.pendingLeaves || []).reduce((sum, leave) => {
+        const key = `${w.id}-leave-${leave.id}`;
+        const state = leaveStates[key];
+        if ((state?.status || leave.status || 'pending') === 'approved' && leave.dailyRate) return sum + leave.daysInThisPeriod * leave.dailyRate;
+        return sum;
+      }, 0);
+      const base = w.estimatedNet || w.basePay || 0;
+      const adjustmentsTotal = approvedAdj + adminAdd - approvedLeave - adminDed;
+      const net = base + adjustmentsTotal;
+      return [
+        w.workerName,
+        w.workerCountry,
+        w.workerType,
+        w.companyName || "—",
+        base.toFixed(2),
+        w.currency || "EUR",
+        adjustmentsTotal.toFixed(2),
+        net.toFixed(2),
+      ];
+    });
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const countryLabel = selectedCountries.size > 0
+      ? Array.from(selectedCountries).join("-")
+      : "all-countries";
+    a.download = `payroll-${countryLabel}-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${workers.length} worker${workers.length !== 1 ? "s" : ""} to CSV`);
+  };
+
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments((prev) => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));
     setIsAddingAdjustment(false);
