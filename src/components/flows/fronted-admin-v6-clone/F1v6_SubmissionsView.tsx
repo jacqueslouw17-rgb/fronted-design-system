@@ -40,7 +40,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_CollapsibleSection";
-import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "@/components/flows/company-admin-v3/CA3_AdminAddAdjustment";
+import { F1v6_AdminAddAdjustment, AdminAddedAdjustment } from "./F1v6_AdminAddAdjustment";
 import { CurrencyToggle, convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { F1v4_PayrollStepper } from "./F1v6_PayrollStepper";
 
@@ -1125,7 +1125,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             return (
               <>
                 {isAddingAdjustment ?
-                <CA3_AdminAddAdjustment
+                <F1v6_AdminAddAdjustment
                   workerType={selectedSubmission.workerType}
                   workerName={selectedSubmission.workerName}
                   currency={currency}
@@ -1283,7 +1283,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             </button>
                           </div>
                         </div>)}
-                    {!showPendingOnly && <BreakdownRow label="Total earnings" amount={cvt(totalEarnings + approvedAdjustmentTotal)} currency={dc} isPositive isTotal />}
+                    {!showPendingOnly && <BreakdownRow label="Total earnings" amount={cvt(totalEarnings + approvedAdjustmentTotal + adminAdditionsTotal)} currency={dc} isPositive isTotal />}
                     {payChangeFlag && !showPendingOnly && <p className="text-[10px] text-muted-foreground/60 text-right tabular-nums">
                         {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period{payChangeFlag.payChangeDelta != null && ` (${(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}${formatCurrency(cvt(Math.abs(payChangeFlag.payChangeDelta || 0)), dc)})`}
                       </p>}
@@ -1305,7 +1305,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             </button>
                           </div>
                         </div>)}
-                      <BreakdownRow label="Total deductions" amount={cvt(totalDeductions + adminDeductionsTotal)} currency={dc} isPositive={false} isTotal />
+                      <BreakdownRow label="Total deductions" amount={cvt(totalDeductions + approvedLeaveDeduction + adminDeductionsTotal)} currency={dc} isPositive={false} isTotal />
                     </CollapsibleSection>}
 
                   {/* OVERTIME Section */}
