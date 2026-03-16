@@ -1132,9 +1132,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         </CardContent>
       </Card>
 
-      {/* Drawer - portaled to body so it can overlay the fixed topbar */}
+      {/* Drawer - custom motion.div to respect Kurt panel positioning */}
       <AnimatePresence>
-        {drawerOpen && createPortal(
+        {drawerOpen && (
           <>
             {/* Backdrop overlay - covers everything except Kurt panel */}
             <motion.div
