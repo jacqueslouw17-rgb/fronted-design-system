@@ -17,7 +17,7 @@ import {
   Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award,
   ChevronRight, Check, X, Users, Briefcase, Lock, Calendar,
   ChevronLeft, Download, Plus, Undo2, XCircle, Eye, ArrowLeft,
-  AlertTriangle, TrendingUp, Paperclip } from
+  AlertTriangle, TrendingUp, Paperclip, Globe } from
 "lucide-react";
 import { AttachmentsList, AttachmentIndicator, type AttachmentItem } from "@/components/flows/shared/AttachmentsList";
 import { TagChips } from "@/components/flows/shared/TagInput";
