@@ -805,6 +805,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   // Track previous pending count to detect transitions (not initial opens)
   const prevPendingCountRef = React.useRef<number>(-1);
   
+  useEffect(() => {
+    document.body.classList.toggle("v7-payroll-drawer-open", drawerOpen);
+    return () => document.body.classList.remove("v7-payroll-drawer-open");
+  }, [drawerOpen]);
+
   // Auto-finalize when all items are actioned (skip flagged workers who need include/exclude choice)
   useEffect(() => {
     const prev = prevPendingCountRef.current;
