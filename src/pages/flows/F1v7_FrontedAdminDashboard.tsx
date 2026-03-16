@@ -1945,15 +1945,6 @@ const AdminContractingMultiCompany = () => {
           />
       </main>
 
-      {/* Kurt Visualizer — ambient frequency orb, always accessible */}
-      <AnimatePresence>
-        {!isKurtPanelOpen && (
-          <F1v7_KurtVisualizer
-            isKurtOpen={isKurtPanelOpen}
-            onOpen={() => setIsKurtPanelOpen(true)}
-          />
-        )}
-      </AnimatePresence>
       
       <F1v4_AddCandidateDrawer
         open={isAddCandidateDrawerOpen}
