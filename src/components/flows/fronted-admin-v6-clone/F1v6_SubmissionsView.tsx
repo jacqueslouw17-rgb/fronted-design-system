@@ -530,9 +530,11 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments((prev) => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));
     setIsAddingAdjustment(false);
-    toast.success(`${adjustment.type === 'expense' ? 'Expense' : adjustment.type === 'overtime' ? 'Overtime' : 'Unpaid leave'} added`);
-    const section = adjustment.type === 'expense' ? 'earnings' : adjustment.type === 'overtime' ? 'overtime' : 'leave';
-    setNewlyAddedSection(section);
+    setIsAddingAdjustment(false);
+    toast.success(`Adjustment added`);
+    const section = adjustment.direction === 'deduct' ? 'earnings' : 'earnings';
+    // Route to earnings or deductions based on direction - both force-open the relevant section
+    setNewlyAddedSection(adjustment.direction === 'deduct' ? null : 'earnings');
     setNewlyAddedId(adjustment.id);
     setTimeout(() => {setNewlyAddedId(null);setNewlyAddedSection(null);}, 2000);
   };
@@ -1081,11 +1083,10 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
             const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
             const workerAdminAdjustments = adminAdjustments[selectedSubmission.id] || [];
-            const adminExpenseTotal = workerAdminAdjustments.filter((a) => a.type === 'expense').reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminOvertimeTotal = workerAdminAdjustments.filter((a) => a.type === 'overtime').reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminUnpaidLeaveTotal = workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminAdditionsTotal = adminExpenseTotal + adminOvertimeTotal;
-            const adminDeductionsTotal = adminUnpaidLeaveTotal;
+            const adminAdditions = workerAdminAdjustments.filter((a) => a.direction !== 'deduct');
+            const adminDeductions = workerAdminAdjustments.filter((a) => a.direction === 'deduct');
+            const adminAdditionsTotal = adminAdditions.reduce((sum, a) => sum + (a.amount || 0), 0);
+            const adminDeductionsTotal = adminDeductions.reduce((sum, a) => sum + (a.amount || 0), 0);
             const baseNet = selectedSubmission.estimatedNet || selectedSubmission.basePay || 0;
             const adjustedNet = baseNet + approvedAdjustmentTotal + adminAdditionsTotal - approvedLeaveDeduction - adminDeductionsTotal;
             const hasLeaves = pendingLeaves.length > 0;
@@ -1270,9 +1271,9 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                               </>
                             );
                           })()}
-                    {!showPendingOnly && (workerAdminAdjustments).filter((a) => a.type === 'expense').map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
+                    {!showPendingOnly && adminAdditions.map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
                           <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || 'Expense'}</span>
+                            <span className="text-sm text-muted-foreground">{adj.description || adj.type}</span>
                             <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
                           </div>
                           <div className="flex items-center">
@@ -1290,13 +1291,25 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       })()}
 
                   {/* DEDUCTIONS Section */}
-                  {deductions.length > 0 && !showPendingOnly && <CollapsibleSection title="Deductions" defaultOpen={false} approvedCount={deductions.length}>
+                  {(!showPendingOnly && (deductions.length > 0 || adminDeductions.length > 0)) && <CollapsibleSection title="Deductions" defaultOpen={adminDeductions.length > 0} approvedCount={deductions.length + adminDeductions.length}>
                       {deductions.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={cvt(Math.abs(item.amount))} currency={dc} isLocked={item.locked} isPositive={false} />)}
-                      <BreakdownRow label="Total deductions" amount={cvt(totalDeductions)} currency={dc} isPositive={false} isTotal />
+                      {adminDeductions.map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-sm text-muted-foreground">{adj.description || adj.type}</span>
+                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
+                          </div>
+                          <div className="flex items-center">
+                            <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">−{formatCurrency(cvt(adj.amount || 0), dc)}</span>
+                            <button onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
+                              <X className="h-3.5 w-3.5 text-destructive" />
+                            </button>
+                          </div>
+                        </div>)}
+                      <BreakdownRow label="Total deductions" amount={cvt(totalDeductions + adminDeductionsTotal)} currency={dc} isPositive={false} isTotal />
                     </CollapsibleSection>}
 
                   {/* OVERTIME Section */}
-                  {(overtimeCounts.total > 0 || workerAdminAdjustments.some((a) => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0) && <CollapsibleSection title="Overtime" defaultOpen={overtimeCounts.pending > 0} forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : (overtimeCounts.pending > 0 || newlyAddedSection === 'overtime')} pendingCount={overtimeCounts.pending} approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'overtime').length}>
+                  {(overtimeCounts.total > 0) && (!showPendingOnly || overtimeCounts.pending > 0) && <CollapsibleSection title="Overtime" defaultOpen={overtimeCounts.pending > 0} forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : (overtimeCounts.pending > 0 || newlyAddedSection === 'overtime')} pendingCount={overtimeCounts.pending} approvedCount={overtimeCounts.approved}>
                       {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'overtime').filter(({ adj, originalIdx }) => {
                           const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
                           return shouldShowItem(status);
@@ -1311,22 +1324,10 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             toast.info('Rejected overtime');
                           }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />;
                         })}
-                    {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'overtime').map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || `${adj.hours}h overtime`}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">+{formatCurrency(cvt(adj.amount || 0), dc)}</span>
-                            <button onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
-                        </div>)}
                     </CollapsibleSection>}
 
                   {/* LEAVE Section */}
-                  {(hasLeaves || workerAdminAdjustments.some((a) => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0) && <CollapsibleSection title="Leave" defaultOpen={leaveCounts.pending > 0} forceOpen={showPendingOnly ? leaveCounts.pending > 0 : (leaveCounts.pending > 0 || newlyAddedSection === 'leave')} pendingCount={leaveCounts.pending} approvedCount={leaveCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').length}>
+                  {(hasLeaves) && (!showPendingOnly || leaveCounts.pending > 0) && <CollapsibleSection title="Leave" defaultOpen={leaveCounts.pending > 0} forceOpen={showPendingOnly ? leaveCounts.pending > 0 : (leaveCounts.pending > 0 || newlyAddedSection === 'leave')} pendingCount={leaveCounts.pending} approvedCount={leaveCounts.approved}>
                       {pendingLeaves.filter((leave) => {
                           const status = getLeaveStatus(selectedSubmission.id, leave.id, leave.status).status;
                           return shouldShowItem(status);
@@ -1341,18 +1342,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
                           }} onUndo={() => undoLeaveStatus(selectedSubmission.id, leave.id)} isFinalized={isWorkerFinalized(selectedSubmission.id)} />;
                         })}
-                    {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || `${adj.days}d unpaid leave`}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">−{formatCurrency(cvt(adj.amount || 0), dc)}</span>
-                            <button onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
-                        </div>)}
                     </CollapsibleSection>}
                     </>;
                   })()}
