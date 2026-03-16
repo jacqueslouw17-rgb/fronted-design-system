@@ -1219,7 +1219,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             return (
               <>
                 {isAddingAdjustment ? (
-                  <CA3_AdminAddAdjustment
+                  <F1v7_AdminAddAdjustment
                     workerType={selectedSubmission.workerType}
                     workerName={selectedSubmission.workerName}
                     currency={currency}
