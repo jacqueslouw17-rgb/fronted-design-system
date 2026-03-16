@@ -1417,7 +1417,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                     </div>
                                   </div>
                                 ))}
-                                {!showPendingOnly && <BreakdownRow label="Total earnings" amount={cvt(totalEarnings + approvedAdjustmentTotal)} currency={dc} isPositive isTotal />}
+                                {!showPendingOnly && <BreakdownRow label="Total earnings" amount={cvt(totalEarnings + approvedAdjustmentTotal + adminAdditionsTotal)} currency={dc} isPositive isTotal />}
                                 {payChangeFlag && !showPendingOnly && (
                                   <p className="text-[10px] text-muted-foreground/60 text-right tabular-nums">
                                     {(payChangeFlag.payChangePercent || 0) > 0 ? 'Up' : 'Down'} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period{payChangeFlag.payChangeDelta != null && ` (${(payChangeFlag.payChangeDelta || 0) >= 0 ? '+' : '−'}${formatCurrency(cvt(Math.abs(payChangeFlag.payChangeDelta || 0)), dc)})`}
