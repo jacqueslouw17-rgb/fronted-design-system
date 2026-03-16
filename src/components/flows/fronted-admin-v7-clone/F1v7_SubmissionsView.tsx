@@ -1155,7 +1155,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed top-0 bottom-0 z-50 w-[420px] sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto p-0"
+              className="fixed top-0 bottom-0 z-[70] w-[420px] sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto p-0"
               style={{ right: document.body.classList.contains('kurt-panel-open') ? '420px' : 0 }}
             >
               {/* Close button */}
