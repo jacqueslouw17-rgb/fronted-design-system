@@ -1134,7 +1134,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
       {/* Drawer - custom motion.div to respect Kurt panel positioning */}
       <AnimatePresence>
-        {drawerOpen && createPortal(
+        {drawerOpen && (
           <>
             {/* Backdrop overlay - covers everything except Kurt panel */}
             <motion.div
