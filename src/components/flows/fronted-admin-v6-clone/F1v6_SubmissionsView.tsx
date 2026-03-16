@@ -1305,7 +1305,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             </button>
                           </div>
                         </div>)}
-                      <BreakdownRow label="Total deductions" amount={cvt(totalDeductions + adminDeductionsTotal)} currency={dc} isPositive={false} isTotal />
+                      <BreakdownRow label="Total deductions" amount={cvt(totalDeductions + approvedLeaveDeduction + adminDeductionsTotal)} currency={dc} isPositive={false} isTotal />
                     </CollapsibleSection>}
 
                   {/* OVERTIME Section */}
