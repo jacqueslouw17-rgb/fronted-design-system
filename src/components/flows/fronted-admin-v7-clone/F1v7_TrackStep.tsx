@@ -227,6 +227,11 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
     : currentWorkers;
 
   useEffect(() => {
+    document.body.classList.toggle("v7-payroll-drawer-open", drawerOpen);
+    return () => document.body.classList.remove("v7-payroll-drawer-open");
+  }, [drawerOpen]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (periodDropdownRef.current && !periodDropdownRef.current.contains(event.target as Node)) {
         setIsPeriodDropdownOpen(false);
