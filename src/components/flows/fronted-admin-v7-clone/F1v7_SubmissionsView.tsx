@@ -17,7 +17,7 @@ import {
   Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award,
   ChevronRight, Check, X, Users, Briefcase, Lock, Calendar,
   ChevronLeft, Download, Plus, Undo2, XCircle, Eye, ArrowLeft,
-  AlertTriangle, TrendingUp, Paperclip } from
+  AlertTriangle, TrendingUp, Paperclip, Globe } from
 "lucide-react";
 import { AttachmentsList, AttachmentIndicator, type AttachmentItem } from "@/components/flows/shared/AttachmentsList";
 import { TagChips } from "@/components/flows/shared/TagInput";
@@ -25,6 +25,8 @@ import { SubmissionTrail, type TrailSubmission } from "@/components/flows/shared
 import { GroupedExpenseRow, type GroupedExpenseItem } from "@/components/flows/shared/GroupedExpenseRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -534,6 +536,76 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   // Skip remaining: explicit signal that user is done reviewing for off-cycle batches
   const [skippedOthers, setSkippedOthers] = useState(false);
 
+  // Country filter
+  const [selectedCountries, setSelectedCountries] = useState<Set<string>>(new Set());
+  const [countryFilterOpen, setCountryFilterOpen] = useState(false);
+
+  const availableCountries = useMemo(() => {
+    const countries = new Map<string, number>();
+    submissions.forEach((s) => {
+      const count = countries.get(s.workerCountry) || 0;
+      countries.set(s.workerCountry, count + 1);
+    });
+    return Array.from(countries.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count, flag: countryFlags[name] || "" }));
+  }, [submissions]);
+
+  const toggleCountry = (country: string) => {
+    setSelectedCountries((prev) => {
+      const next = new Set(prev);
+      if (next.has(country)) next.delete(country);
+      else next.add(country);
+      return next;
+    });
+  };
+
+  // CSV export
+  const generateCSV = (workers: WorkerSubmission[]) => {
+    const headers = ["Name", "Country", "Type", "Client", "Base Pay", "Currency", "Adjustments Total", "Net/Invoice Total"];
+    const rows = workers.map((w) => {
+      const workerAdminAdj = adminAdjustments[w.id] || [];
+      const adminAdd = workerAdminAdj.filter((a) => a.direction !== 'deduct').reduce((s, a) => s + (a.amount || 0), 0);
+      const adminDed = workerAdminAdj.filter((a) => a.direction === 'deduct').reduce((s, a) => s + (a.amount || 0), 0);
+      const approvedAdj = w.submissions.reduce((sum, adj, idx) => {
+        const key = `${w.id}-${idx}`;
+        const state = adjustmentStates[key];
+        return (state?.status || adj.status || 'pending') === 'approved' ? sum + (adj.amount || 0) : sum;
+      }, 0);
+      const approvedLeave = (w.pendingLeaves || []).reduce((sum, leave) => {
+        const key = `${w.id}-leave-${leave.id}`;
+        const state = leaveStates[key];
+        if ((state?.status || leave.status || 'pending') === 'approved' && leave.dailyRate) return sum + leave.daysInThisPeriod * leave.dailyRate;
+        return sum;
+      }, 0);
+      const base = w.estimatedNet || w.basePay || 0;
+      const adjustmentsTotal = approvedAdj + adminAdd - approvedLeave - adminDed;
+      const net = base + adjustmentsTotal;
+      return [
+        w.workerName,
+        w.workerCountry,
+        w.workerType,
+        w.companyName || "—",
+        base.toFixed(2),
+        w.currency || "EUR",
+        adjustmentsTotal.toFixed(2),
+        net.toFixed(2),
+      ];
+    });
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const countryLabel = selectedCountries.size > 0
+      ? Array.from(selectedCountries).join("-")
+      : "all-countries";
+    a.download = `payroll-${countryLabel}-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${workers.length} worker${workers.length !== 1 ? "s" : ""} to CSV`);
+  };
+
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments((prev) => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));
     setIsAddingAdjustment(false);
@@ -626,10 +698,16 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     : readyCount >= submissions.length && submissions.length > 0;
 
   const filteredSubmissions = useMemo(() => {
-    if (!searchQuery) return submissions;
-    const query = searchQuery.toLowerCase();
-    return submissions.filter((s) => s.workerName.toLowerCase().includes(query) || s.workerCountry.toLowerCase().includes(query));
-  }, [submissions, searchQuery]);
+    let result = submissions;
+    if (selectedCountries.size > 0) {
+      result = result.filter((s) => selectedCountries.has(s.workerCountry));
+    }
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((s) => s.workerName.toLowerCase().includes(query) || s.workerCountry.toLowerCase().includes(query));
+    }
+    return result;
+  }, [submissions, searchQuery, selectedCountries]);
 
   const getInitials = (name: string) => name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   const formatCurrency = (amount: number, currency: string = "USD") => {
@@ -1085,11 +1163,151 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">Pending ({dynamicPendingCount})</TabsTrigger>
                 <TabsTrigger value="ready" className="text-xs h-7 px-3 data-[state=active]:bg-background">Ready ({readyCount})</TabsTrigger>
               </TabsList>
-              <div className="relative w-44">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
+              <div className="flex items-center gap-2">
+                {/* Country filter */}
+                <Popover open={countryFilterOpen} onOpenChange={setCountryFilterOpen}>
+                  <PopoverTrigger asChild>
+                    <button className={cn(
+                      "flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs font-medium border transition-all",
+                      selectedCountries.size > 0
+                        ? "bg-primary/10 text-primary border-primary/20 hover:bg-primary/15"
+                        : "bg-background/50 text-muted-foreground border-border/30 hover:border-border hover:text-foreground"
+                    )}>
+                      <Globe className="h-3.5 w-3.5" />
+                      {selectedCountries.size > 0 ? (
+                        <>
+                          <span className="hidden sm:inline">{selectedCountries.size === 1 ? Array.from(selectedCountries)[0] : `${selectedCountries.size} countries`}</span>
+                          <span className="sm:hidden">{selectedCountries.size}</span>
+                        </>
+                      ) : (
+                        <span className="hidden sm:inline">Country</span>
+                      )}
+                      <ChevronRight className="h-3 w-3 rotate-90" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-[220px] p-0">
+                    <div className="p-2 border-b border-border/30">
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider px-1">Filter by country</p>
+                    </div>
+                    <div className="max-h-[240px] overflow-y-auto p-1.5 space-y-0.5">
+                      {availableCountries.map((c) => (
+                        <button
+                          key={c.name}
+                          onClick={() => toggleCountry(c.name)}
+                          className={cn(
+                            "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-md text-xs transition-colors",
+                            selectedCountries.has(c.name) ? "bg-primary/10 text-foreground" : "hover:bg-muted text-foreground"
+                          )}
+                        >
+                          <Checkbox
+                            checked={selectedCountries.has(c.name)}
+                            className="h-3.5 w-3.5 rounded-sm"
+                            onCheckedChange={() => toggleCountry(c.name)}
+                          />
+                          <span className="flex-1 text-left">{c.flag} {c.name}</span>
+                          <span className="text-muted-foreground tabular-nums">{c.count}</span>
+                        </button>
+                      ))}
+                    </div>
+                    {selectedCountries.size > 0 && (
+                      <div className="p-1.5 border-t border-border/30">
+                        <button
+                          onClick={() => setSelectedCountries(new Set())}
+                          className="w-full px-2 py-1.5 text-xs text-primary hover:bg-primary/5 rounded-md transition-colors text-center font-medium"
+                        >
+                          Clear filter
+                        </button>
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
+
+                {/* Export CSV */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs font-medium border border-border/30 bg-background/50 text-muted-foreground hover:border-border hover:text-foreground transition-all">
+                      <Download className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Export</span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-[260px] p-0">
+                    <div className="p-3 space-y-3">
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">Export to CSV</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">Download payroll data for your accountant</p>
+                      </div>
+                      <div className="rounded-md border border-border/40 bg-muted/30 p-2.5 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">Workers</span>
+                          <span className="text-[11px] font-semibold text-foreground tabular-nums">{filteredSubmissions.length}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">Countries</span>
+                          <span className="text-[11px] font-semibold text-foreground">
+                            {selectedCountries.size > 0
+                              ? Array.from(selectedCountries).map((c) => `${countryFlags[c] || ""} ${c}`).join(", ")
+                              : `All (${availableCountries.length})`}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">Type filter</span>
+                          <span className="text-[11px] font-semibold text-foreground capitalize">{activeTab === "all" ? "All types" : activeTab}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">Includes</span>
+                          <span className="text-[11px] text-muted-foreground">Base pay, adjustments, net</span>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        className="w-full h-8 text-xs gap-1.5"
+                        onClick={() => {
+                          // Apply tab filter on top of country/search filter
+                          let toExport = filteredSubmissions;
+                          if (activeTab === "employees") toExport = toExport.filter((s) => s.workerType === "employee");
+                          else if (activeTab === "contractors") toExport = toExport.filter((s) => s.workerType === "contractor");
+                          generateCSV(toExport);
+                        }}
+                        disabled={filteredSubmissions.length === 0}
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                        Export {filteredSubmissions.length} worker{filteredSubmissions.length !== 1 ? "s" : ""}
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Search */}
+                <div className="relative w-44">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-xs bg-background/50 border-border/30" />
+                </div>
               </div>
             </div>
+
+            {/* Active country filter chips */}
+            {selectedCountries.size > 0 && (
+              <div className="px-4 pt-3 pb-0 flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mr-1">Filtered:</span>
+                {Array.from(selectedCountries).map((country) => (
+                  <Badge
+                    key={country}
+                    variant="outline"
+                    className="text-[10px] h-5 gap-1 px-2 bg-primary/5 border-primary/20 text-primary cursor-pointer hover:bg-primary/10 transition-colors"
+                    onClick={() => toggleCountry(country)}
+                  >
+                    {countryFlags[country] || ""} {country}
+                    <X className="h-2.5 w-2.5" />
+                  </Badge>
+                ))}
+                <button
+                  onClick={() => setSelectedCountries(new Set())}
+                  className="text-[10px] text-muted-foreground hover:text-foreground transition-colors ml-1"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
 
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
               <TabsContent value="all" className="mt-0 space-y-1.5">
