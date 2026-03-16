@@ -1178,11 +1178,10 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
             const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
             const workerAdminAdjustments = adminAdjustments[selectedSubmission.id] || [];
-            const adminExpenseTotal = workerAdminAdjustments.filter((a) => a.type === 'expense').reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminOvertimeTotal = workerAdminAdjustments.filter((a) => a.type === 'overtime').reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminUnpaidLeaveTotal = workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminAdditionsTotal = adminExpenseTotal + adminOvertimeTotal;
-            const adminDeductionsTotal = adminUnpaidLeaveTotal;
+            const adminAdditions = workerAdminAdjustments.filter((a) => a.direction !== 'deduct');
+            const adminDeductions = workerAdminAdjustments.filter((a) => a.direction === 'deduct');
+            const adminAdditionsTotal = adminAdditions.reduce((sum, a) => sum + (a.amount || 0), 0);
+            const adminDeductionsTotal = adminDeductions.reduce((sum, a) => sum + (a.amount || 0), 0);
             const baseNet = selectedSubmission.estimatedNet || selectedSubmission.basePay || 0;
             const adjustedNet = baseNet + approvedAdjustmentTotal + adminAdditionsTotal - approvedLeaveDeduction - adminDeductionsTotal;
             const hasLeaves = pendingLeaves.length > 0;
