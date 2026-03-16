@@ -56,7 +56,7 @@ import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v7-clone/F1v7_
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { F1v7_PrioritiesTab } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_PrioritiesTab";
 import { F1v7_KurtPanel } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_KurtPanel";
-import { F1v7_KurtVisualizer } from "@/components/flows/fronted-admin-v7-clone/F1v7_KurtVisualizer";
+
 import type { ActionDetail } from "@/components/flows/fronted-admin-v7-clone/priorities/F1v7_PriorityData";
 import { MoreHorizontal as MoreHorizontalIcon } from "lucide-react";
 
@@ -1945,15 +1945,6 @@ const AdminContractingMultiCompany = () => {
           />
       </main>
 
-      {/* Kurt Visualizer — ambient frequency orb, always accessible */}
-      <AnimatePresence>
-        {!isKurtPanelOpen && (
-          <F1v7_KurtVisualizer
-            isKurtOpen={isKurtPanelOpen}
-            onOpen={() => setIsKurtPanelOpen(true)}
-          />
-        )}
-      </AnimatePresence>
       
       <F1v4_AddCandidateDrawer
         open={isAddCandidateDrawerOpen}

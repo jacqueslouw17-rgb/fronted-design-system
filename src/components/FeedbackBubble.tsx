@@ -18,9 +18,7 @@ export const FeedbackBubble = () => {
   // Flow 6 v4 (Agentic): bubble becomes Support + Feedback entry point
   const isFlow6V4 = location.pathname === "/flows/company-admin-dashboard-v4";
 
-  // Hide on Flow 1 v7 — Kurt Visualizer owns this position
-  const isFlow1V7 = location.pathname === "/flows/fronted-admin-dashboard-v7-clone";
-  if (isFlow1V7) return null;
+  // (No special hiding for Flow 1 v7)
 
   return (
     <>
