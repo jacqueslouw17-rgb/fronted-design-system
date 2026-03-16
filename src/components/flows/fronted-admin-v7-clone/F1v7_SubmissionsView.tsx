@@ -1185,28 +1185,53 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       <ChevronRight className="h-3 w-3 rotate-90" />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent align="end" className="w-[220px] p-0">
+                  <PopoverContent align="end" className="w-[220px] p-0 z-[200]">
                     <div className="p-2 border-b border-border/30">
                       <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider px-1">Filter by country</p>
                     </div>
                     <div className="max-h-[240px] overflow-y-auto p-1.5 space-y-0.5">
+                      {/* All countries option */}
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setSelectedCountries(new Set())}
+                        onKeyDown={(e) => e.key === "Enter" && setSelectedCountries(new Set())}
+                        className={cn(
+                          "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-md text-xs transition-colors cursor-pointer",
+                          selectedCountries.size === 0 ? "bg-primary/10 text-foreground font-medium" : "hover:bg-muted text-foreground"
+                        )}
+                      >
+                        <div className={cn(
+                          "h-3.5 w-3.5 rounded-sm border flex items-center justify-center shrink-0",
+                          selectedCountries.size === 0 ? "bg-primary border-primary text-primary-foreground" : "border-primary"
+                        )}>
+                          {selectedCountries.size === 0 && <Check className="h-3 w-3" />}
+                        </div>
+                        <span className="flex-1 text-left">🌍 All countries</span>
+                        <span className="text-muted-foreground tabular-nums">{submissions.length}</span>
+                      </div>
+                      <div className="h-px bg-border/30 my-1" />
                       {availableCountries.map((c) => (
-                        <button
+                        <div
+                          role="button"
+                          tabIndex={0}
                           key={c.name}
                           onClick={() => toggleCountry(c.name)}
+                          onKeyDown={(e) => e.key === "Enter" && toggleCountry(c.name)}
                           className={cn(
-                            "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-md text-xs transition-colors",
+                            "flex items-center gap-2.5 w-full px-2 py-1.5 rounded-md text-xs transition-colors cursor-pointer",
                             selectedCountries.has(c.name) ? "bg-primary/10 text-foreground" : "hover:bg-muted text-foreground"
                           )}
                         >
-                          <Checkbox
-                            checked={selectedCountries.has(c.name)}
-                            className="h-3.5 w-3.5 rounded-sm"
-                            onCheckedChange={() => toggleCountry(c.name)}
-                          />
+                          <div className={cn(
+                            "h-3.5 w-3.5 rounded-sm border flex items-center justify-center shrink-0",
+                            selectedCountries.has(c.name) ? "bg-primary border-primary text-primary-foreground" : "border-primary"
+                          )}>
+                            {selectedCountries.has(c.name) && <Check className="h-3 w-3" />}
+                          </div>
                           <span className="flex-1 text-left">{c.flag} {c.name}</span>
                           <span className="text-muted-foreground tabular-nums">{c.count}</span>
-                        </button>
+                        </div>
                       ))}
                     </div>
                     {selectedCountries.size > 0 && (
