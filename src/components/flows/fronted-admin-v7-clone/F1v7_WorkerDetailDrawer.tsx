@@ -323,7 +323,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
     return (
       <>
         <Sheet open={open} onOpenChange={onOpenChange}>
-          <SheetContent className="w-[440px] sm:max-w-[440px] p-0 flex flex-col overflow-hidden z-[70]">
+          <SheetContent overlayClassName="z-[65]" className="w-[440px] sm:max-w-[440px] p-0 flex flex-col overflow-hidden z-[70]">
             {/* Clean Header */}
             <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0 bg-background">
               <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
@@ -526,7 +526,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent className="w-[480px] sm:max-w-[480px] p-0 flex flex-col overflow-hidden z-[70]">
+        <SheetContent overlayClassName="z-[65]" className="w-[480px] sm:max-w-[480px] p-0 flex flex-col overflow-hidden z-[70]">
           {/* Header — matches payroll drawer pattern */}
           <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30 shrink-0 bg-background pt-12">
             <SheetDescription className="sr-only">Worker details</SheetDescription>
