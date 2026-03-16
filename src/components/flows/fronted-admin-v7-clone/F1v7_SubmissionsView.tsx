@@ -1144,7 +1144,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[60] bg-black/80"
+              className="fixed inset-0 z-[110] bg-black/80"
               style={{ right: document.body.classList.contains('kurt-panel-open') ? '420px' : 0 }}
               onClick={isAddingAdjustment ? undefined : () => setDrawerOpen(false)}
             />
