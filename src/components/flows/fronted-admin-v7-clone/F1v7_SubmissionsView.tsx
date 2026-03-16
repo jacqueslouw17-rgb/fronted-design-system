@@ -1285,6 +1285,30 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
               </div>
             </div>
 
+            {/* Active country filter chips */}
+            {selectedCountries.size > 0 && (
+              <div className="px-4 pt-3 pb-0 flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mr-1">Filtered:</span>
+                {Array.from(selectedCountries).map((country) => (
+                  <Badge
+                    key={country}
+                    variant="outline"
+                    className="text-[10px] h-5 gap-1 px-2 bg-primary/5 border-primary/20 text-primary cursor-pointer hover:bg-primary/10 transition-colors"
+                    onClick={() => toggleCountry(country)}
+                  >
+                    {countryFlags[country] || ""} {country}
+                    <X className="h-2.5 w-2.5" />
+                  </Badge>
+                ))}
+                <button
+                  onClick={() => setSelectedCountries(new Set())}
+                  className="text-[10px] text-muted-foreground hover:text-foreground transition-colors ml-1"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
               <TabsContent value="all" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">{filteredSubmissions.map((s) => renderSubmissionRow(s))}</AnimatePresence>
