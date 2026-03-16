@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ArrowLeft, CalendarOff, Clock, Receipt, X, Upload, FileText, Image, Gift, Coins } from "lucide-react";
+import { ArrowLeft, CalendarOff, Clock, Receipt, X, Upload, FileText, Image, Gift, Coins, Plus, Minus } from "lucide-react";
 import { validateFiles, FILE_UPLOAD_ACCEPT, FILE_UPLOAD_MAX_COUNT, FILE_UPLOAD_HELPER_RECEIPT } from "../shared/fileUploadValidation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import { TagInput } from "@/components/flows/shared/TagInput";
 
 // Types for admin-added adjustments
 export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission";
+export type AdjustmentDirection = "add" | "deduct";
 
 export interface AdminAddedAdjustment {
   id: string;
@@ -31,6 +32,7 @@ export interface AdminAddedAdjustment {
   description?: string;
   currency: string;
   addedAt: string;
+  direction: AdjustmentDirection;
 }
 
 interface CA3_AdminAddAdjustmentProps {
@@ -76,6 +78,47 @@ type RequestOption = {
   icon: React.ElementType;
 };
 
+/* ─── Direction Picker ─── */
+const DirectionPicker = ({
+  direction,
+  onChange,
+}: {
+  direction: AdjustmentDirection;
+  onChange: (d: AdjustmentDirection) => void;
+}) => (
+  <div className="space-y-1.5">
+    <Label className="text-xs">Adjustment direction</Label>
+    <div className="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        onClick={() => onChange("add")}
+        className={cn(
+          "flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left text-xs font-medium",
+          direction === "add"
+            ? "border-primary bg-primary/5 text-primary"
+            : "border-border/60 text-muted-foreground hover:border-primary/30"
+        )}
+      >
+        <Plus className="h-3.5 w-3.5" />
+        Add to payout
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("deduct")}
+        className={cn(
+          "flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left text-xs font-medium",
+          direction === "deduct"
+            ? "border-destructive bg-destructive/5 text-destructive"
+            : "border-border/60 text-muted-foreground hover:border-destructive/30"
+        )}
+      >
+        <Minus className="h-3.5 w-3.5" />
+        Deduct from payout
+      </button>
+    </div>
+  </div>
+);
+
 export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   workerType,
   workerName,
@@ -87,6 +130,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   onAddAdjustment,
 }) => {
   const [selectedType, setSelectedType] = useState<RequestType>(null);
+  const [direction, setDirection] = useState<AdjustmentDirection>("add");
 
   // Forms
   const [unpaidLeaveDays, setUnpaidLeaveDays] = useState("");
@@ -114,13 +158,13 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     const base: RequestOption[] = [
       {
         id: "expense",
-        label: "Expense Reimbursements",
+        label: "Expense Reimbursement",
         description: "Submit a reimbursement",
         icon: Receipt,
       },
       {
         id: "overtime",
-        label: workerType === "contractor" ? "Additional hours" : "Overtime",
+        label: workerType === "contractor" ? "Additional Hours" : "Overtime",
         description: workerType === "contractor" ? "Log extra time" : "Log extra hours",
         icon: Clock,
       },
@@ -129,14 +173,14 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     if (workerType === "employee") {
       base.push({
         id: "bonus",
-        label: "Bonus",
-        description: "Request a bonus payment",
+        label: "Bonus / Commission",
+        description: "Add a bonus or commission payment",
         icon: Gift,
       });
       base.push({
         id: "unpaid_leave",
-        label: "Unpaid Leave",
-        description: "Deduct pay for days not worked",
+        label: "Leave Adjustment",
+        description: "Adjust pay for leave days",
         icon: CalendarOff,
       });
     }
@@ -144,14 +188,25 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     if (workerType === "contractor") {
       base.push({
         id: "commission",
-        label: "Commission",
-        description: "Request additional pay",
+        label: "Bonus / Commission",
+        description: "Add a bonus or commission payment",
         icon: Coins,
       });
     }
 
     return base;
   }, [workerType]);
+
+  // Set default direction when type changes
+  const handleSelectType = (type: AdminAdjustmentType) => {
+    setSelectedType(type);
+    // Default direction per type
+    if (type === "unpaid_leave") {
+      setDirection("deduct");
+    } else {
+      setDirection("add");
+    }
+  };
 
   const formatMoney = (amt: number) =>
     `${currency} ${Math.abs(amt).toLocaleString(undefined, {
@@ -176,6 +231,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
 
   const resetForm = () => {
     setSelectedType(null);
+    setDirection("add");
     setUnpaidLeaveDays("");
     setUnpaidLeaveDescription("");
     setExpenseItems([{ id: crypto.randomUUID(), category: "", otherCategory: "", amount: "", receipt: [] }]);
@@ -256,6 +312,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         description: `${item.categoryLabel} expense`,
         currency,
         addedAt: new Date().toISOString(),
+        direction,
       });
     });
 
@@ -289,6 +346,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       description: workerType === "contractor" ? `${label} additional hours` : `${label} overtime`,
       currency,
       addedAt: new Date().toISOString(),
+      direction,
     });
 
     toast.success(`Added ${workerType === "contractor" ? "additional hours" : "overtime"} for ${workerName}`);
@@ -309,12 +367,13 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       type: "unpaid_leave",
       days: daysValue,
       amount: daysValue * dailyRate,
-      description: `${daysValue} day${daysValue !== 1 ? "s" : ""} unpaid leave${descPart}`,
+      description: `${daysValue} day${daysValue !== 1 ? "s" : ""} leave adjustment${descPart}`,
       currency,
       addedAt: new Date().toISOString(),
+      direction,
     });
 
-    toast.success(`Added unpaid leave for ${workerName}`);
+    toast.success(`Added leave adjustment for ${workerName}`);
     handleClose();
   };
 
@@ -329,7 +388,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       return !Number.isNaN(amt) && amt > 0;
     });
     if (validItems.length === 0) {
-      toast.error("Please enter a valid bonus amount");
+      toast.error("Please enter a valid amount");
       return;
     }
     const totalAmount = validItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
@@ -340,6 +399,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       description: `Bonus · ${formatMoney(totalAmount)}`,
       currency,
       addedAt: new Date().toISOString(),
+      direction,
     });
     toast.success(`Added bonus for ${workerName}`);
     handleClose();
@@ -356,7 +416,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       return !Number.isNaN(amt) && amt > 0;
     });
     if (validItems.length === 0) {
-      toast.error("Please enter a valid commission amount");
+      toast.error("Please enter a valid amount");
       return;
     }
     const totalAmount = validItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
@@ -367,6 +427,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       description: `Commission · ${formatMoney(totalAmount)}`,
       currency,
       addedAt: new Date().toISOString(),
+      direction,
     });
     toast.success(`Added commission for ${workerName}`);
     handleClose();
@@ -378,16 +439,18 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     selectedType === null
       ? `Add on behalf of ${workerName}`
       : selectedType === "expense"
-        ? "Expense request"
+        ? "Expense reimbursement"
         : selectedType === "overtime"
           ? workerType === "contractor"
             ? "Additional hours"
-            : "Overtime request"
+            : "Overtime"
           : selectedType === "bonus"
-            ? "Bonus request"
+            ? "Bonus / Commission"
             : selectedType === "commission"
-              ? "Commission request"
-              : "Unpaid leave";
+              ? "Bonus / Commission"
+              : "Leave adjustment";
+
+  const directionSign = direction === "add" ? "+" : "−";
 
   return (
     <div className="flex flex-col h-full">
@@ -410,7 +473,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
             {requestTypeOptions.map((option) => (
               <button
                 key={option.id}
-                onClick={() => setSelectedType(option.id)}
+                onClick={() => handleSelectType(option.id)}
                 className={cn(
                   "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
                   "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]",
@@ -431,6 +494,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         {/* Expense Form */}
         {selectedType === "expense" && (
           <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
             <div className="space-y-3">
               {expenseItems.map((item, index) => (
                 <div
@@ -574,7 +639,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
               <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Session total</span>
-                  <span className="text-sm font-semibold tabular-nums">{formatMoney(expenseSessionTotal)}</span>
+                  <span className="text-sm font-semibold tabular-nums">{directionSign}{formatMoney(expenseSessionTotal)}</span>
                 </div>
               </div>
             )}
@@ -588,6 +653,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         {/* Overtime / Additional hours — single entry with date + start/end time */}
         {selectedType === "overtime" && (
           <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
             <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
               {/* Date picker */}
               <div className="space-y-1.5">
@@ -654,7 +721,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Session total</span>
                   <span className="text-sm font-semibold tabular-nums">
-                    {calculatedOvertimeHours}h · +{formatMoney(calculatedOvertimeHours * hourlyRate)}
+                    {calculatedOvertimeHours}h · {directionSign}{formatMoney(calculatedOvertimeHours * hourlyRate)}
                   </span>
                 </div>
               </div>
@@ -666,9 +733,11 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
           </div>
         )}
 
-        {/* Unpaid leave (single-entry with date details) */}
+        {/* Leave Adjustment (single-entry with date details) */}
         {selectedType === "unpaid_leave" && (
           <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
             <div className="space-y-1.5">
               <Label className="text-xs">Days</Label>
               <Input
@@ -702,7 +771,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Session total</span>
                   <span className="text-sm font-semibold tabular-nums">
-                    −{formatMoney(parseFloat(unpaidLeaveDays) * dailyRate)}
+                    {directionSign}{formatMoney(parseFloat(unpaidLeaveDays) * dailyRate)}
                   </span>
                 </div>
               </div>
@@ -717,6 +786,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         {/* Bonus form (employee only) — matches v7 employee bonus */}
         {selectedType === "bonus" && (
           <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
             <div className="space-y-3">
               {bonusItems.map((item) => (
                 <div
@@ -803,6 +874,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         {/* Commission form (contractor only) — matches v7 contractor commission */}
         {selectedType === "commission" && (
           <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
             <div className="space-y-3">
               {commissionItems.map((item) => (
                 <div
