@@ -118,7 +118,7 @@ const DirectionPicker = ({
   </div>
 );
 
-export const F1v7_AdminAddAdjustment: React.FC<F1v7_AdminAddAdjustmentProps> = ({
+export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = ({
   workerType,
   workerName,
   currency,
