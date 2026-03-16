@@ -537,9 +537,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments((prev) => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));
     setIsAddingAdjustment(false);
-    toast.success(`${adjustment.type === 'expense' ? 'Expense' : adjustment.type === 'overtime' ? 'Overtime' : 'Unpaid leave'} added`);
-    const section = adjustment.type === 'expense' ? 'earnings' : adjustment.type === 'overtime' ? 'overtime' : 'leave';
-    setNewlyAddedSection(section);
+    toast.success(`Adjustment added`);
+    setNewlyAddedSection(adjustment.direction === 'deduct' ? null : 'earnings');
     setNewlyAddedId(adjustment.id);
     setTimeout(() => {setNewlyAddedId(null);setNewlyAddedSection(null);}, 2000);
   };
