@@ -698,10 +698,16 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     : readyCount >= submissions.length && submissions.length > 0;
 
   const filteredSubmissions = useMemo(() => {
-    if (!searchQuery) return submissions;
-    const query = searchQuery.toLowerCase();
-    return submissions.filter((s) => s.workerName.toLowerCase().includes(query) || s.workerCountry.toLowerCase().includes(query));
-  }, [submissions, searchQuery]);
+    let result = submissions;
+    if (selectedCountries.size > 0) {
+      result = result.filter((s) => selectedCountries.has(s.workerCountry));
+    }
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((s) => s.workerName.toLowerCase().includes(query) || s.workerCountry.toLowerCase().includes(query));
+    }
+    return result;
+  }, [submissions, searchQuery, selectedCountries]);
 
   const getInitials = (name: string) => name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   const formatCurrency = (amount: number, currency: string = "USD") => {
