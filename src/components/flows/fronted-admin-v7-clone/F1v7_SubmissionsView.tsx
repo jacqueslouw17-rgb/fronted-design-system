@@ -12,7 +12,6 @@
  */
 
 import React, { useState, useMemo, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award,
@@ -31,7 +30,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-// Sheet removed - using custom motion.div drawer for Kurt panel positioning
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -1138,42 +1137,14 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         </CardContent>
       </Card>
 
-      {/* Drawer - custom motion.div to respect Kurt panel positioning */}
-      <AnimatePresence>
-        {drawerOpen && createPortal(
-          <>
-            {/* Backdrop overlay - covers everything except Kurt panel */}
-            <motion.div
-              key="f1v7-drawer-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[110] bg-black/80"
-              style={{ right: document.body.classList.contains('kurt-panel-open') ? '420px' : 0 }}
-              onClick={isAddingAdjustment ? undefined : () => setDrawerOpen(false)}
-            />
-
-            {/* Drawer panel - slides in from right, stops at Kurt panel edge */}
-            <motion.div
-              key="f1v7-worker-drawer"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed top-0 bottom-0 z-[120] w-[420px] sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto p-0"
-              style={{ right: document.body.classList.contains('kurt-panel-open') ? '420px' : 0 }}
-            >
-              {/* Close button */}
-              {!isAddingAdjustment && (
-                <button
-                  onClick={() => setDrawerOpen(false)}
-                  className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </button>
-              )}
+      {/* Drawer - restored to stable Sheet rendering */}
+      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <SheetContent
+          side="right"
+          className="z-[120] w-[420px] sm:max-w-[420px] overflow-y-auto p-0"
+          overlayClassName="z-[110] bg-black/80"
+          hideClose={isAddingAdjustment}
+        >
           {selectedSubmission && (() => {
             const earnings = selectedSubmission.lineItems?.filter((item) => item.type === 'Earnings') || [];
             const deductions = selectedSubmission.lineItems?.filter((item) => item.type === 'Deduction') || [];
@@ -1221,22 +1192,22 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
             const earningAdjCounts = (() => {
               const filtered = allAdjustments.map((adj, idx) => ({ adj, idx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus');
-              let pending = 0,approved = 0;
+              let pending = 0, approved = 0;
               filtered.forEach(({ adj, idx }) => {
                 const status = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus).status;
-                if (status === 'pending') pending++;else
-                if (status === 'approved') approved++;
+                if (status === 'pending') pending++;
+                else if (status === 'approved') approved++;
               });
               return { pending, approved, total: filtered.length };
             })();
 
             const overtimeCounts = (() => {
               const filtered = allAdjustments.map((adj, idx) => ({ adj, idx })).filter(({ adj }) => adj.type === 'overtime');
-              let pending = 0,approved = 0;
+              let pending = 0, approved = 0;
               filtered.forEach(({ adj, idx }) => {
                 const status = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus).status;
-                if (status === 'pending') pending++;else
-                if (status === 'approved') approved++;
+                if (status === 'pending') pending++;
+                else if (status === 'approved') approved++;
               });
               return { pending, approved, total: filtered.length };
             })();
@@ -1244,29 +1215,29 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             const leaveCounts = {
               pending: pendingLeaveCount,
               approved: pendingLeaves.filter((l) => getLeaveStatus(selectedSubmission.id, l.id, l.status).status === 'approved').length,
-              total: pendingLeaves.length
+              total: pendingLeaves.length,
             };
 
             return (
               <>
-                {isAddingAdjustment ?
-                <CA3_AdminAddAdjustment
-                  workerType={selectedSubmission.workerType}
-                  workerName={selectedSubmission.workerName}
-                  currency={currency}
-                  dailyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 22 : 100}
-                  hourlyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 176 : 15}
-                  isOpen={isAddingAdjustment}
-                  onOpenChange={setIsAddingAdjustment}
-                  onAddAdjustment={(adjustment) => handleAdminAddAdjustment(selectedSubmission.id, adjustment)} /> :
-
-
-                <>
-                    <div className="px-5 pt-4 pb-3 border-b border-border/30">
-                      <span className="sr-only">Pay breakdown details</span>
+                {isAddingAdjustment ? (
+                  <CA3_AdminAddAdjustment
+                    workerType={selectedSubmission.workerType}
+                    workerName={selectedSubmission.workerName}
+                    currency={currency}
+                    dailyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 22 : 100}
+                    hourlyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 176 : 15}
+                    isOpen={isAddingAdjustment}
+                    onOpenChange={setIsAddingAdjustment}
+                    onAddAdjustment={(adjustment) => handleAdminAddAdjustment(selectedSubmission.id, adjustment)}
+                  />
+                ) : (
+                  <>
+                    <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30">
+                      <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-semibold text-foreground leading-tight truncate">{selectedSubmission.workerName}</h3>
+                          <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{selectedSubmission.workerName}</SheetTitle>
                           <span className="text-base shrink-0">{countryFlags[selectedSubmission.workerCountry] || ""}</span>
                           {(() => {
                             const endFlag = selectedSubmission.flags?.find((f) => f.type === "end_date");
@@ -1275,13 +1246,15 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                             return (
                               <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
                                 {label}
-                              </Badge>);
+                              </Badge>
+                            );
                           })()}
-                          {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) &&
+                          {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) && (
                             <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
-                              <Plus className="h-2.5 w-2.5" /><span>Add</span>
+                              <Plus className="h-2.5 w-2.5" />
+                              <span>Add</span>
                             </button>
-                          }
+                          )}
                         </div>
                         <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
                       </div>
@@ -1297,25 +1270,26 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           showPreviousAmount={approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments}
                         />
                       </div>
-                    </div>
+                    </SheetHeader>
 
-
-
-                    {/* Excluded state toggle */}
-                    {statusDecisions[selectedSubmission.id] === "exclude" &&
-                  <div className="px-5 py-2.5 border-b border-border/20">
+                    {statusDecisions[selectedSubmission.id] === "exclude" && (
+                      <div className="px-5 py-2.5 border-b border-border/20">
                         <div
-                      className="group/toggle inline-flex cursor-pointer relative"
-                      onClick={() => {
-                        setStatusDecisions((prev) => {
-                          const next = { ...prev };
-                          delete next[selectedSubmission.id];
-                          return next;
-                        });
-                        setFinalizedWorkers((prev) => {const next = new Set(prev);next.delete(selectedSubmission.id);return next;});
-                        toast.info(`${selectedSubmission.workerName} re-included in this run`);
-                      }}>
-
+                          className="group/toggle inline-flex cursor-pointer relative"
+                          onClick={() => {
+                            setStatusDecisions((prev) => {
+                              const next = { ...prev };
+                              delete next[selectedSubmission.id];
+                              return next;
+                            });
+                            setFinalizedWorkers((prev) => {
+                              const next = new Set(prev);
+                              next.delete(selectedSubmission.id);
+                              return next;
+                            });
+                            toast.info(`${selectedSubmission.workerName} re-included in this run`);
+                          }}
+                        >
                           <Badge variant="outline" className="gap-1.5 text-xs transition-opacity group-hover/toggle:opacity-0 border-muted-foreground/20 bg-muted/30 text-muted-foreground">
                             <X className="h-3 w-3" />
                             Excluded from this run
@@ -1325,292 +1299,386 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           </Badge>
                         </div>
                       </div>
-                    }
+                    )}
 
-                {/* Content with collapsible sections */}
-                <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
-                  {!isAddingAdjustment && <>
-                  {(() => {
-                    return <>
-                  {(() => {
-                        const payChangeFlag = selectedSubmission.flags?.find((f) => f.type === "pay_change");
-                        return !showPendingOnly || earningAdjCounts.pending > 0 ? <CollapsibleSection title="Earnings" defaultOpen={earningAdjCounts.pending > 0 || !!payChangeFlag} forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (earningAdjCounts.pending > 0 || newlyAddedSection === 'earnings' || !!payChangeFlag)} pendingCount={earningAdjCounts.pending} approvedCount={earnings.length + earningAdjCounts.approved}>
-                    {!showPendingOnly && earnings.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={cvt(item.amount)} currency={dc} isLocked={item.locked} isPositive />)}
-                    {(() => {
-                            const expenseBonusAdjs = allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus').filter(({ adj, originalIdx }) => {
-                              const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
-                              return shouldShowItem(status);
-                            });
-                            
-                            const taggedExpenses = expenseBonusAdjs.filter(({ adj }) => adj.type === 'expenses' && adj.tags && adj.tags.length > 0);
-                            const ungroupedItems = expenseBonusAdjs.filter(({ adj }) => adj.type === 'bonus' || !adj.tags || adj.tags.length === 0);
-                            
-                            const groups = new Map<string, typeof taggedExpenses>();
-                            taggedExpenses.forEach(item => {
-                              const key = item.adj.tags!.sort().join('|');
-                              const existing = groups.get(key) || [];
-                              existing.push(item);
-                              groups.set(key, existing);
-                            });
-                            
-                            return (
-                              <>
-                                {Array.from(groups.entries()).map(([key, groupItems]) => (
-                                  <GroupedExpenseRow
-                                    key={`group-${key}`}
-                                    groupLabel={groupItems[0].adj.tags!.join(' · ')}
-                                    items={groupItems.map(({ adj, originalIdx }) => {
-                                      const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
-                                      return {
-                                        itemId: `adj-${originalIdx}`,
-                                        label: adj.description || 'Expense',
-                                        amount: cvt(adj.amount || 0),
-                                        status: adjState.status,
-                                        rejectionReason: adjState.rejectionReason || adj.rejectionReason,
-                                        attachments: adj.attachments,
-                                        onApprove: () => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' }); toast.success(`Approved expense`); },
-                                        onReject: (reason: string) => { updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason }); toast.info(`Rejected expense`); },
-                                        onUndo: () => undoAdjustmentStatus(selectedSubmission.id, originalIdx),
-                                      };
-                                    })}
-                                    currency={dc}
-                                    expandedItemId={expandedItemId}
-                                    onToggleItemExpand={(id) => setExpandedItemId(id)}
-                                    isFinalized={isWorkerFinalized(selectedSubmission.id)}
-                                    forceCollapsed={!!expandedItemId && !groupItems.some(g => `adj-${g.originalIdx}` === expandedItemId)}
-                                  />
+                    <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
+                      {!isAddingAdjustment && (
+                        <>
+                          {(() => {
+                            const payChangeFlag = selectedSubmission.flags?.find((f) => f.type === "pay_change");
+                            return !showPendingOnly || earningAdjCounts.pending > 0 ? (
+                              <CollapsibleSection
+                                title="Earnings"
+                                defaultOpen={earningAdjCounts.pending > 0 || !!payChangeFlag}
+                                forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : earningAdjCounts.pending > 0 || newlyAddedSection === 'earnings' || !!payChangeFlag}
+                                pendingCount={earningAdjCounts.pending}
+                                approvedCount={earnings.length + earningAdjCounts.approved}
+                              >
+                                {!showPendingOnly && earnings.map((item, idx) => (
+                                  <BreakdownRow key={idx} label={item.label} amount={cvt(item.amount)} currency={dc} isLocked={item.locked} isPositive />
                                 ))}
-                                {ungroupedItems.map(({ adj, originalIdx }) => {
-                                  const config = submissionTypeConfig[adj.type as SubmissionType];
-                                  if (!config) return null;
-                                  const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
-                                  const itemId = `adj-${originalIdx}`;
-                                  return <AdjustmentRow key={itemId} label={adj.description || config.label} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
-                                    updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
-                                    toast.success(`Approved ${config.label.toLowerCase()}`);
-                                  }} onReject={(reason) => {
-                                    updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
-                                    toast.info(`Rejected ${config.label.toLowerCase()}`);
-                                  }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} tags={adj.tags} />;
-                                })}
-                              </>
-                            );
+                                {(() => {
+                                  const expenseBonusAdjs = allAdjustments
+                                    .map((adj, originalIdx) => ({ adj, originalIdx }))
+                                    .filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus')
+                                    .filter(({ adj, originalIdx }) => {
+                                      const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
+                                      return shouldShowItem(status);
+                                    });
+
+                                  const taggedExpenses = expenseBonusAdjs.filter(({ adj }) => adj.type === 'expenses' && adj.tags && adj.tags.length > 0);
+                                  const ungroupedItems = expenseBonusAdjs.filter(({ adj }) => adj.type === 'bonus' || !adj.tags || adj.tags.length === 0);
+
+                                  const groups = new Map<string, typeof taggedExpenses>();
+                                  taggedExpenses.forEach((item) => {
+                                    const key = item.adj.tags!.sort().join('|');
+                                    const existing = groups.get(key) || [];
+                                    existing.push(item);
+                                    groups.set(key, existing);
+                                  });
+
+                                  return (
+                                    <>
+                                      {Array.from(groups.entries()).map(([key, groupItems]) => (
+                                        <GroupedExpenseRow
+                                          key={`group-${key}`}
+                                          groupLabel={groupItems[0].adj.tags!.join(' · ')}
+                                          items={groupItems.map(({ adj, originalIdx }) => {
+                                            const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
+                                            return {
+                                              itemId: `adj-${originalIdx}`,
+                                              label: adj.description || 'Expense',
+                                              amount: cvt(adj.amount || 0),
+                                              status: adjState.status,
+                                              rejectionReason: adjState.rejectionReason || adj.rejectionReason,
+                                              attachments: adj.attachments,
+                                              onApprove: () => {
+                                                updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
+                                                toast.success('Approved expense');
+                                              },
+                                              onReject: (reason: string) => {
+                                                updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
+                                                toast.info('Rejected expense');
+                                              },
+                                              onUndo: () => undoAdjustmentStatus(selectedSubmission.id, originalIdx),
+                                            };
+                                          })}
+                                          currency={dc}
+                                          expandedItemId={expandedItemId}
+                                          onToggleItemExpand={(id) => setExpandedItemId(id)}
+                                          isFinalized={isWorkerFinalized(selectedSubmission.id)}
+                                          forceCollapsed={!!expandedItemId && !groupItems.some((g) => `adj-${g.originalIdx}` === expandedItemId)}
+                                        />
+                                      ))}
+                                      {ungroupedItems.map(({ adj, originalIdx }) => {
+                                        const config = submissionTypeConfig[adj.type as SubmissionType];
+                                        if (!config) return null;
+                                        const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
+                                        const itemId = `adj-${originalIdx}`;
+                                        return (
+                                          <AdjustmentRow
+                                            key={itemId}
+                                            label={adj.description || config.label}
+                                            amount={cvt(adj.amount || 0)}
+                                            currency={dc}
+                                            status={adjState.status}
+                                            rejectionReason={adjState.rejectionReason || adj.rejectionReason}
+                                            isExpanded={expandedItemId === itemId}
+                                            onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                                            onApprove={() => {
+                                              updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
+                                              toast.success(`Approved ${config.label.toLowerCase()}`);
+                                            }}
+                                            onReject={(reason) => {
+                                              updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
+                                              toast.info(`Rejected ${config.label.toLowerCase()}`);
+                                            }}
+                                            onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)}
+                                            isFinalized={isWorkerFinalized(selectedSubmission.id)}
+                                            attachments={adj.attachments}
+                                            previousSubmission={adj.previousSubmission}
+                                            workerName={selectedSubmission.workerName}
+                                            tags={adj.tags}
+                                          />
+                                        );
+                                      })}
+                                    </>
+                                  );
+                                })()}
+                                {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'expense').map((adj) => (
+                                  <div key={adj.id} className="flex items-center justify-between py-2 group">
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                      <span className="text-sm text-muted-foreground">{adj.description || 'Expense'}</span>
+                                      <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">+{formatCurrency(cvt(adj.amount || 0), dc)}</span>
+                                      <button onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
+                                        <X className="h-3.5 w-3.5 text-destructive" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                                {!showPendingOnly && <BreakdownRow label="Total earnings" amount={cvt(totalEarnings + approvedAdjustmentTotal)} currency={dc} isPositive isTotal />}
+                                {payChangeFlag && !showPendingOnly && (
+                                  <p className="text-[10px] text-muted-foreground/60 text-right tabular-nums">
+                                    {(payChangeFlag.payChangePercent || 0) > 0 ? 'Up' : 'Down'} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period{payChangeFlag.payChangeDelta != null && ` (${(payChangeFlag.payChangeDelta || 0) >= 0 ? '+' : '−'}${formatCurrency(cvt(Math.abs(payChangeFlag.payChangeDelta || 0)), dc)})`}
+                                  </p>
+                                )}
+                              </CollapsibleSection>
+                            ) : null;
                           })()}
-                    {!showPendingOnly && (workerAdminAdjustments).filter((a) => a.type === 'expense').map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || 'Expense'}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">+{formatCurrency(cvt(adj.amount || 0), dc)}</span>
-                            <button onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
-                        </div>)}
-                    {!showPendingOnly && <BreakdownRow label="Total earnings" amount={cvt(totalEarnings + approvedAdjustmentTotal)} currency={dc} isPositive isTotal />}
-                    {payChangeFlag && !showPendingOnly && <p className="text-[10px] text-muted-foreground/60 text-right tabular-nums">
-                        {(payChangeFlag.payChangePercent || 0) > 0 ? "Up" : "Down"} {Math.abs(payChangeFlag.payChangePercent || 0)}% vs last period{payChangeFlag.payChangeDelta != null && ` (${(payChangeFlag.payChangeDelta || 0) >= 0 ? "+" : "−"}${formatCurrency(cvt(Math.abs(payChangeFlag.payChangeDelta || 0)), dc)})`}
-                      </p>}
-                  </CollapsibleSection> : null;
-                      })()}
 
-                  {/* DEDUCTIONS Section */}
-                  {deductions.length > 0 && !showPendingOnly && <CollapsibleSection title="Deductions" defaultOpen={false} approvedCount={deductions.length}>
-                      {deductions.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={cvt(Math.abs(item.amount))} currency={dc} isLocked={item.locked} isPositive={false} />)}
-                      <BreakdownRow label="Total deductions" amount={cvt(totalDeductions)} currency={dc} isPositive={false} isTotal />
-                    </CollapsibleSection>}
+                          {deductions.length > 0 && !showPendingOnly && (
+                            <CollapsibleSection title="Deductions" defaultOpen={false} approvedCount={deductions.length}>
+                              {deductions.map((item, idx) => (
+                                <BreakdownRow key={idx} label={item.label} amount={cvt(Math.abs(item.amount))} currency={dc} isLocked={item.locked} isPositive={false} />
+                              ))}
+                              <BreakdownRow label="Total deductions" amount={cvt(totalDeductions)} currency={dc} isPositive={false} isTotal />
+                            </CollapsibleSection>
+                          )}
 
-                  {/* OVERTIME Section */}
-                  {(overtimeCounts.total > 0 || workerAdminAdjustments.some((a) => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0) && <CollapsibleSection title="Overtime" defaultOpen={overtimeCounts.pending > 0} forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : (overtimeCounts.pending > 0 || newlyAddedSection === 'overtime')} pendingCount={overtimeCounts.pending} approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'overtime').length}>
-                      {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'overtime').filter(({ adj, originalIdx }) => {
-                          const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
-                          return shouldShowItem(status);
-                        }).map(({ adj, originalIdx }) => {
-                          const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
-                          const itemId = `overtime-${originalIdx}`;
-                          return <AdjustmentRow key={itemId} label={`${adj.hours || 0}h logged`} description={adj.description} amount={cvt(adj.amount || 0)} currency={dc} status={adjState.status} rejectionReason={adjState.rejectionReason || adj.rejectionReason} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
-                            updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
-                            toast.success('Approved overtime');
-                          }} onReject={(reason) => {
-                            updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
-                            toast.info('Rejected overtime');
-                          }} onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)} isFinalized={isWorkerFinalized(selectedSubmission.id)} attachments={adj.attachments} previousSubmission={adj.previousSubmission} workerName={selectedSubmission.workerName} />;
-                        })}
-                    {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'overtime').map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || `${adj.hours}h overtime`}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">+{formatCurrency(cvt(adj.amount || 0), dc)}</span>
-                            <button onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
-                        </div>)}
-                    </CollapsibleSection>}
+                          {(overtimeCounts.total > 0 || workerAdminAdjustments.some((a) => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0) && (
+                            <CollapsibleSection
+                              title="Overtime"
+                              defaultOpen={overtimeCounts.pending > 0}
+                              forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : overtimeCounts.pending > 0 || newlyAddedSection === 'overtime'}
+                              pendingCount={overtimeCounts.pending}
+                              approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'overtime').length}
+                            >
+                              {allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx })).filter(({ adj }) => adj.type === 'overtime').filter(({ adj, originalIdx }) => {
+                                const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
+                                return shouldShowItem(status);
+                              }).map(({ adj, originalIdx }) => {
+                                const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
+                                const itemId = `overtime-${originalIdx}`;
+                                return (
+                                  <AdjustmentRow
+                                    key={itemId}
+                                    label={`${adj.hours || 0}h logged`}
+                                    description={adj.description}
+                                    amount={cvt(adj.amount || 0)}
+                                    currency={dc}
+                                    status={adjState.status}
+                                    rejectionReason={adjState.rejectionReason || adj.rejectionReason}
+                                    isExpanded={expandedItemId === itemId}
+                                    onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                                    onApprove={() => {
+                                      updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
+                                      toast.success('Approved overtime');
+                                    }}
+                                    onReject={(reason) => {
+                                      updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
+                                      toast.info('Rejected overtime');
+                                    }}
+                                    onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)}
+                                    isFinalized={isWorkerFinalized(selectedSubmission.id)}
+                                    attachments={adj.attachments}
+                                    previousSubmission={adj.previousSubmission}
+                                    workerName={selectedSubmission.workerName}
+                                  />
+                                );
+                              })}
+                              {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'overtime').map((adj) => (
+                                <div key={adj.id} className="flex items-center justify-between py-2 group">
+                                  <div className="flex flex-col min-w-0 flex-1">
+                                    <span className="text-sm text-muted-foreground">{adj.description || `${adj.hours}h overtime`}</span>
+                                    <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">+{formatCurrency(cvt(adj.amount || 0), dc)}</span>
+                                    <button onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
+                                      <X className="h-3.5 w-3.5 text-destructive" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </CollapsibleSection>
+                          )}
 
-                  {/* LEAVE Section */}
-                  {(hasLeaves || workerAdminAdjustments.some((a) => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0) && <CollapsibleSection title="Leave" defaultOpen={leaveCounts.pending > 0} forceOpen={showPendingOnly ? leaveCounts.pending > 0 : (leaveCounts.pending > 0 || newlyAddedSection === 'leave')} pendingCount={leaveCounts.pending} approvedCount={leaveCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').length}>
-                      {pendingLeaves.filter((leave) => {
-                          const status = getLeaveStatus(selectedSubmission.id, leave.id, leave.status).status;
-                          return shouldShowItem(status);
-                        }).map((leave) => {
-                          const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
-                          const itemId = `leave-${leave.id}`;
-                          return <LeaveRow key={itemId} leave={{ ...leave, dailyRate: leave.dailyRate ? cvt(leave.dailyRate) : undefined, status: leaveState.status, rejectionReason: leaveState.rejectionReason || leave.rejectionReason }} currency={dc} isExpanded={expandedItemId === itemId} onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)} onApprove={() => {
-                            updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
-                            toast.success(`Approved ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
-                          }} onReject={(reason) => {
-                            updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
-                            toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
-                          }} onUndo={() => undoLeaveStatus(selectedSubmission.id, leave.id)} isFinalized={isWorkerFinalized(selectedSubmission.id)} />;
-                        })}
-                    {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || `${adj.days}d unpaid leave`}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">−{formatCurrency(cvt(adj.amount || 0), dc)}</span>
-                            <button onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
-                        </div>)}
-                    </CollapsibleSection>}
-                    </>;
-                  })()}
-                  </>}
-                </div>
+                          {(hasLeaves || workerAdminAdjustments.some((a) => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0) && (
+                            <CollapsibleSection
+                              title="Leave"
+                              defaultOpen={leaveCounts.pending > 0}
+                              forceOpen={showPendingOnly ? leaveCounts.pending > 0 : leaveCounts.pending > 0 || newlyAddedSection === 'leave'}
+                              pendingCount={leaveCounts.pending}
+                              approvedCount={leaveCounts.approved + workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').length}
+                            >
+                              {pendingLeaves.filter((leave) => {
+                                const status = getLeaveStatus(selectedSubmission.id, leave.id, leave.status).status;
+                                return shouldShowItem(status);
+                              }).map((leave) => {
+                                const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                                const itemId = `leave-${leave.id}`;
+                                return (
+                                  <LeaveRow
+                                    key={itemId}
+                                    leave={{ ...leave, dailyRate: leave.dailyRate ? cvt(leave.dailyRate) : undefined, status: leaveState.status, rejectionReason: leaveState.rejectionReason || leave.rejectionReason }}
+                                    currency={dc}
+                                    isExpanded={expandedItemId === itemId}
+                                    onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                                    onApprove={() => {
+                                      updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
+                                      toast.success(`Approved ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                                    }}
+                                    onReject={(reason) => {
+                                      updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
+                                      toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                                    }}
+                                    onUndo={() => undoLeaveStatus(selectedSubmission.id, leave.id)}
+                                    isFinalized={isWorkerFinalized(selectedSubmission.id)}
+                                  />
+                                );
+                              })}
+                              {!showPendingOnly && workerAdminAdjustments.filter((a) => a.type === 'unpaid_leave').map((adj) => (
+                                <div key={adj.id} className="flex items-center justify-between py-2 group">
+                                  <div className="flex flex-col min-w-0 flex-1">
+                                    <span className="text-sm text-muted-foreground">{adj.description || `${adj.days}d unpaid leave`}</span>
+                                    <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">−{formatCurrency(cvt(adj.amount || 0), dc)}</span>
+                                    <button onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }} className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150">
+                                      <X className="h-3.5 w-3.5 text-destructive" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </CollapsibleSection>
+                          )}
+                        </>
+                      )}
+                    </div>
 
-                {/* Footer - bulk actions or Mark as Ready */}
-                {!isAddingAdjustment && !expandedItemId && (() => {
-                const isFinalized = isWorkerFinalized(selectedSubmission.id);
-                const isExcluded = statusDecisions[selectedSubmission.id] === "exclude";
-                if (isExcluded) return null;
+                    {!isAddingAdjustment && !expandedItemId && (() => {
+                      const isFinalized = isWorkerFinalized(selectedSubmission.id);
+                      const isExcluded = statusDecisions[selectedSubmission.id] === "exclude";
+                      if (isExcluded) return null;
 
-                // For flagged workers: show Include/Exclude when no pending items
-                const hasEndDateFlag = selectedSubmission.flags?.some(f => f.type === "end_date");
-                if (hasEndDateFlag && !isFinalized) {
-                  if (currentPendingCount > 0) {
-                    return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowBulkRejectDialog(true)}>
-                              Reject all ({currentPendingCount})
-                            </Button>
-                            <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => handleBulkApprove()}>
-                              Approve all ({currentPendingCount})
-                            </Button>
+                      const hasEndDateFlag = selectedSubmission.flags?.some((f) => f.type === "end_date");
+                      if (hasEndDateFlag && !isFinalized) {
+                        if (currentPendingCount > 0) {
+                          return (
+                            <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                              <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="sm" className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowBulkRejectDialog(true)}>
+                                  Reject all ({currentPendingCount})
+                                </Button>
+                                <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => handleBulkApprove()}>
+                                  Approve all ({currentPendingCount})
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        const endDateFlagFooter = selectedSubmission.flags?.find((f) => f.type === "end_date");
+                        return (
+                          <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-3">
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                              <span className="font-medium text-foreground">{endDateFlagFooter?.endReason}</span> effective <span className="font-medium text-foreground">{endDateFlagFooter?.endDate}</span>
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="sm" className="flex-1 h-9 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700" onClick={() => setShowExcludeDialog(true)}>
+                                Exclude this
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="flex-1 h-9 text-xs gap-2"
+                                onClick={() => {
+                                  setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
+                                  toast.success(`${selectedSubmission.workerName} included in this run`);
+                                  setDrawerOpen(false);
+                                }}
+                              >
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                Include
+                              </Button>
+                            </div>
                           </div>
-                        </div>;
-                  }
-                  // No pending items — show Include/Exclude
-                  const endDateFlagFooter = selectedSubmission.flags?.find(f => f.type === "end_date");
-                  return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-3">
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">
-                          <span className="font-medium text-foreground">{endDateFlagFooter?.endReason}</span> effective <span className="font-medium text-foreground">{endDateFlagFooter?.endDate}</span>
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1 h-9 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-                            onClick={() => setShowExcludeDialog(true)}>
-                            Exclude this
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="flex-1 h-9 text-xs gap-2"
+                        );
+                      }
+
+                      if (currentPendingCount > 0) {
+                        return (
+                          <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowBulkRejectDialog(true)}>
+                                Reject all ({currentPendingCount})
+                              </Button>
+                              <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => handleBulkApprove()}>
+                                Approve all ({currentPendingCount})
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-2">
+                          <div className="flex items-center justify-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                            <span className="text-sm font-medium text-accent-green-text">Ready for payroll</span>
+                          </div>
+                          <button
                             onClick={() => {
-                              setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id));
-                              toast.success(`${selectedSubmission.workerName} included in this run`);
-                              setDrawerOpen(false);
-                            }}>
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                            Include
-                          </Button>
+                              const newAdjStates = { ...adjustmentStates };
+                              selectedSubmission.submissions.forEach((adj, idx) => {
+                                const key = `${selectedSubmission.id}-${idx}`;
+                                if (newAdjStates[key]) newAdjStates[key] = { status: 'pending' };
+                              });
+                              setAdjustmentStates(newAdjStates);
+                              const newLeaveStates = { ...leaveStates };
+                              (selectedSubmission.pendingLeaves || []).forEach((leave) => {
+                                const key = `${selectedSubmission.id}-leave-${leave.id}`;
+                                if (newLeaveStates[key]) newLeaveStates[key] = { status: 'pending' };
+                              });
+                              setLeaveStates(newLeaveStates);
+                              setFinalizedWorkers((prev) => {
+                                const next = new Set(prev);
+                                next.delete(selectedSubmission.id);
+                                return next;
+                              });
+                              toast.info(`${selectedSubmission.workerName} moved back to review`);
+                            }}
+                            className="mx-auto flex items-center gap-1 px-3 py-1 rounded-full border border-border/50 hover:border-border hover:bg-muted text-muted-foreground hover:text-foreground text-xs transition-colors duration-200"
+                          >
+                            <Undo2 className="h-3 w-3" />
+                            Undo
+                          </button>
                         </div>
-                      </div>;
-                }
+                      );
+                    })()}
 
-                if (currentPendingCount > 0) {
-                  return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm" className="flex-1 h-9 text-xs text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowBulkRejectDialog(true)}>
-                            Reject all ({currentPendingCount})
-                          </Button>
-                          <Button size="sm" className="flex-1 h-9 text-xs" onClick={() => handleBulkApprove()}>
-                            Approve all ({currentPendingCount})
-                          </Button>
-                        </div>
-                      </div>;
-                }
+                    {selectedSubmission && (() => {
+                      const approvedCount = selectedSubmission.submissions.filter((adj, idx) => {
+                        const state = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
+                        return state.status === 'approved' && typeof adj.amount === 'number';
+                      }).length + (selectedSubmission.pendingLeaves || []).filter((leave) => {
+                        const state = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                        return state.status === 'approved';
+                      }).length + (adminAdjustments[selectedSubmission.id] || []).length;
+                      const rejectedCount = selectedSubmission.submissions.filter((adj, idx) => {
+                        const state = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
+                        return state.status === 'rejected' && typeof adj.amount === 'number';
+                      }).length + (selectedSubmission.pendingLeaves || []).filter((leave) => {
+                        const state = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                        return state.status === 'rejected';
+                      }).length;
+                      return <CA3_MarkAsReadyDialog open={showMarkAsReadyDialog} onOpenChange={setShowMarkAsReadyDialog} onConfirm={handleMarkAsReady} workerName={selectedSubmission.workerName} approvedCount={approvedCount} rejectedCount={rejectedCount} />;
+                    })()}
 
-                // Show finalized state with undo
-                return <div className="border-t border-border/30 bg-gradient-to-b from-transparent to-muted/20 px-5 py-4 space-y-2">
-                      <div className="flex items-center justify-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                        <span className="text-sm font-medium text-accent-green-text">Ready for payroll</span>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const newAdjStates = { ...adjustmentStates };
-                          selectedSubmission.submissions.forEach((adj, idx) => {
-                            const key = `${selectedSubmission.id}-${idx}`;
-                            if (newAdjStates[key]) newAdjStates[key] = { status: 'pending' };
-                          });
-                          setAdjustmentStates(newAdjStates);
-                          const newLeaveStates = { ...leaveStates };
-                          (selectedSubmission.pendingLeaves || []).forEach(leave => {
-                            const key = `${selectedSubmission.id}-leave-${leave.id}`;
-                            if (newLeaveStates[key]) newLeaveStates[key] = { status: 'pending' };
-                          });
-                          setLeaveStates(newLeaveStates);
-                          setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
-                          toast.info(`${selectedSubmission.workerName} moved back to review`);
-                        }}
-                        className="mx-auto flex items-center gap-1 px-3 py-1 rounded-full border border-border/50 hover:border-border hover:bg-muted text-muted-foreground hover:text-foreground text-xs transition-colors duration-200"
-                      >
-                        <Undo2 className="h-3 w-3" />
-                        Undo
-                      </button>
-                    </div>;
-              })()}
-
-                {/* Mark as Ready dialog */}
-                {selectedSubmission && (() => {
-              const approvedCount = selectedSubmission.submissions.filter((adj, idx) => {
-                const state = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
-                return state.status === 'approved' && typeof adj.amount === 'number';
-              }).length + (selectedSubmission.pendingLeaves || []).filter((leave) => {
-                const state = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
-                return state.status === 'approved';
-              }).length + (adminAdjustments[selectedSubmission.id] || []).length;
-              const rejectedCount = selectedSubmission.submissions.filter((adj, idx) => {
-                const state = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
-                return state.status === 'rejected' && typeof adj.amount === 'number';
-              }).length + (selectedSubmission.pendingLeaves || []).filter((leave) => {
-                const state = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
-                return state.status === 'rejected';
-              }).length;
-              return <CA3_MarkAsReadyDialog open={showMarkAsReadyDialog} onOpenChange={setShowMarkAsReadyDialog} onConfirm={handleMarkAsReady} workerName={selectedSubmission.workerName} approvedCount={approvedCount} rejectedCount={rejectedCount} />;
-            })()}
-
-                <CA3_BulkRejectDialog open={showBulkRejectDialog} onOpenChange={setShowBulkRejectDialog} onConfirm={handleBulkReject} pendingCount={currentPendingCount} />
-                {showExcludeDialog && <CA3_ExcludeWorkerDialog open={showExcludeDialog} onOpenChange={setShowExcludeDialog} onConfirm={() => { statusDecisions[selectedSubmission.id] = "exclude"; setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id)); setDrawerOpen(false); toast.info(`${selectedSubmission.workerName} excluded from this run`); }} workerName={selectedSubmission.workerName} />}
-
-              </>}
+                    <CA3_BulkRejectDialog open={showBulkRejectDialog} onOpenChange={setShowBulkRejectDialog} onConfirm={handleBulkReject} pendingCount={currentPendingCount} />
+                    {showExcludeDialog && <CA3_ExcludeWorkerDialog open={showExcludeDialog} onOpenChange={setShowExcludeDialog} onConfirm={() => { statusDecisions[selectedSubmission.id] = "exclude"; setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id)); setDrawerOpen(false); toast.info(`${selectedSubmission.workerName} excluded from this run`); }} workerName={selectedSubmission.workerName} />}
+                  </>
+                )}
               </>
             );
           })()}
-            </motion.div>
-          </>,
-          document.body
-        )}
-      </AnimatePresence>
-    </>);
+        </SheetContent>
+      </Sheet>
+    </>
+  );
 
 };
 
