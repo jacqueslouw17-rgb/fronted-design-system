@@ -35,7 +35,7 @@ export interface AdminAddedAdjustment {
   direction: AdjustmentDirection;
 }
 
-interface F1v7_AdminAddAdjustmentProps {
+interface F1v6_AdminAddAdjustmentProps {
   workerType: "employee" | "contractor";
   workerName: string;
   currency: string;
