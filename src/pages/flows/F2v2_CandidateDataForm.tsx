@@ -497,35 +497,113 @@ const F2v2_CandidateDataForm: React.FC = () => {
 
           <div
             className="flex-shrink-0 flex flex-col min-h-screen p-4 sm:p-8 pb-16 sm:pb-32 items-center justify-center relative z-10 mx-auto"
-            style={{ width: "100%", maxWidth: "800px" }}
+            style={{ width: "100%", maxWidth: "680px" }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="max-w-md w-full text-center space-y-6"
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full text-center space-y-8"
             >
+              {/* Animated success illustration */}
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                initial={{ scale: 0, rotate: -10 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.15, type: "spring", stiffness: 160, damping: 14 }}
                 className="flex justify-center"
               >
-                <div className="p-4 sm:p-6 rounded-full bg-primary/10 border-2 border-primary/30">
-                  <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 text-primary" />
+                <div className="relative">
+                  {/* Outer glow ring */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4, duration: 0.8 }}
+                    className="absolute -inset-4 rounded-full bg-gradient-to-br from-emerald-400/20 via-primary/10 to-teal-400/20 blur-xl"
+                  />
+                  {/* Decorative ring */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.6 }}
+                    className="absolute -inset-2 rounded-full border border-emerald-500/20"
+                  />
+                  {/* Main icon container */}
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                    <motion.svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="w-10 h-10 sm:w-12 sm:h-12"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 1 }}
+                      transition={{ delay: 0.4, duration: 0.5 }}
+                    >
+                      <motion.path
+                        d="M5 13l4 4L19 7"
+                        stroke="white"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ delay: 0.5, duration: 0.4, ease: "easeOut" }}
+                      />
+                    </motion.svg>
+                  </div>
+                  {/* Sparkle accents */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.7, duration: 0.3 }}
+                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.8, duration: 0.3 }}
+                    className="absolute -bottom-0.5 -left-2 w-2 h-2 rounded-full bg-primary/60"
+                  />
                 </div>
               </motion.div>
 
+              {/* Text content */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="space-y-3"
+                transition={{ delay: 0.35, duration: 0.5 }}
+                className="space-y-4"
               >
-                <h1 className="text-2xl sm:text-3xl font-bold">Submission Complete! 🎉</h1>
-                <p className="text-base sm:text-lg text-muted-foreground">
-                  Thanks, Saurav. Your details have been sent to the Fronted team. We'll now use them to prepare your contract, and you'll receive the next email when it's ready to review and continue.
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                  Submission Complete!
+                </h1>
+                <p className="text-[15px] sm:text-[17px] leading-relaxed text-muted-foreground max-w-xl mx-auto">
+                  Thanks, Saurav. Your details have been sent to the Fronted team.
+                  We'll now use them to prepare your contract, and you'll receive
+                  the next email when it's ready to review and continue.
                 </p>
+              </motion.div>
+
+              {/* Subtle divider */}
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.6, duration: 0.4 }}
+                className="h-px bg-gradient-to-r from-transparent via-border to-transparent mx-auto max-w-xs"
+              />
+
+              {/* Status pill */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7, duration: 0.4 }}
+                className="flex justify-center"
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/60 border border-border/60 text-sm text-muted-foreground">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
+                  Your submission is being processed
+                </div>
               </motion.div>
             </motion.div>
           </div>
