@@ -369,24 +369,24 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                 <p className="text-[11px] text-muted-foreground mb-3">Country defaults for {formData.country} — adjust as negotiated</p>
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
-                      <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} />
+                    <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`} error={fieldErrors.probationPeriod}>
+                      <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} hasError={!!fieldErrors.probationPeriod} />
                     </Field>
-                    <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`}>
-                      <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} />
-                    </Field>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`}>
-                      <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} />
-                    </Field>
-                    <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`}>
-                      <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} />
+                    <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`} error={fieldErrors.noticePeriod}>
+                      <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} hasError={!!fieldErrors.noticePeriod} />
                     </Field>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
-                      <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} />
+                    <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`} error={fieldErrors.annualLeave}>
+                      <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} hasError={!!fieldErrors.annualLeave} />
+                    </Field>
+                    <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`} error={fieldErrors.sickLeave}>
+                      <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} hasError={!!fieldErrors.sickLeave} />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`} error={fieldErrors.weeklyHours}>
+                      <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} hasError={!!fieldErrors.weeklyHours} />
                     </Field>
                   </div>
                 </div>
