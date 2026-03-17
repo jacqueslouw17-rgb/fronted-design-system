@@ -233,33 +233,18 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     return (
       <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
         <div className="p-5 space-y-5">
-          {/* Batch stats */}
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5" />
-              {company.employeeCount} employee{company.employeeCount !== 1 ? "s" : ""}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Briefcase className="h-3.5 w-3.5" />
-              {company.contractorCount} contractor{company.contractorCount !== 1 ? "s" : ""}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Globe className="h-3.5 w-3.5" />
-              {company.currencyCount} currenc{company.currencyCount !== 1 ? "ies" : "y"}
-            </span>
-          </div>
 
           {/* Per-currency payout cards */}
           <div>
             <p className="text-xs font-medium text-foreground mb-3">Payout summary by currency</p>
             <div className="grid gap-3">
               {(() => {
-                const ccyData: Record<string, { basePay: number; approvedAdj: number; approvedCount: number; rejectedAdj: number; rejectedCount: number; workerCount: number }> = {};
+                const ccyData: Record<string, { basePay: number; approvedAdj: number; approvedCount: number; rejectedAdj: number; rejectedCount: number; employeeCount: number; contractorCount: number }> = {};
                 submissions.forEach(w => {
                   const ccy = w.currency || "USD";
-                  if (!ccyData[ccy]) ccyData[ccy] = { basePay: 0, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, workerCount: 0 };
+                  if (!ccyData[ccy]) ccyData[ccy] = { basePay: 0, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, employeeCount: 0, contractorCount: 0 };
                   ccyData[ccy].basePay += w.basePay || 0;
-                  ccyData[ccy].workerCount += 1;
+                  if (w.workerType === "contractor") { ccyData[ccy].contractorCount += 1; } else { ccyData[ccy].employeeCount += 1; }
                   w.submissions.forEach(s => {
                     if (s.status === "approved") {
                       ccyData[ccy].approvedAdj += s.amount || 0;
@@ -271,7 +256,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                   });
                 });
                 if (Object.keys(ccyData).length === 0) {
-                  ccyData["USD"] = { basePay: displayData.totalCost, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, workerCount: company.employeeCount + company.contractorCount };
+                  ccyData["USD"] = { basePay: displayData.totalCost, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, employeeCount: company.employeeCount, contractorCount: company.contractorCount };
                 }
                 const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK ", SGD: "S$" };
                 const ccyFlags: Record<string, string> = { USD: "🇺🇸", EUR: "🇪🇺", GBP: "🇬🇧", NOK: "🇳🇴", PHP: "🇵🇭", MXN: "🇲🇽", EGP: "🇪🇬", SEK: "🇸🇪", DKK: "🇩🇰", SGD: "🇸🇬" };
@@ -287,7 +272,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                         <span className="text-base">{ccyFlags[ccy] || "🌍"}</span>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-foreground">{ccyNames[ccy] || ccy}</p>
-                          <p className="text-[10px] text-muted-foreground">{data.workerCount} worker{data.workerCount !== 1 ? "s" : ""}</p>
+                          <p className="text-[10px] text-muted-foreground">{[data.employeeCount > 0 ? `${data.employeeCount} employee${data.employeeCount !== 1 ? "s" : ""}` : "", data.contractorCount > 0 ? `${data.contractorCount} contractor${data.contractorCount !== 1 ? "s" : ""}` : ""].filter(Boolean).join(", ")}</p>
                         </div>
                         <span className="text-sm font-semibold text-foreground tabular-nums">{fmt(ccy, total)}</span>
                       </div>
