@@ -409,8 +409,6 @@ const F2v2_CandidateDataForm: React.FC = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const hasInitialized = useRef(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const hasInitialized = useRef(false);
 
   useEffect(() => {
     setAgentSpeaking(isSpeaking);
