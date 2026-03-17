@@ -33,6 +33,11 @@ interface F1v5_Step2Props {
   companyName?: string;
 }
 
+// Simulated registry of emails already associated with a company
+const REGISTERED_EMAILS: Record<string, string> = {
+  "joe@example.com": "Acme Corp",
+};
+
 // Eurozone countries per acceptance criteria
 const EUROZONE_COUNTRY_CODES = new Set([
   "AT", "BE", "BG", "HR", "CY", "EE", "FI", "FR", "DE", "GR",
@@ -122,6 +127,8 @@ const F1v5_Step2OrgProfile = ({
     if (!data.adminEmail) newErrors.adminEmail = "End-client email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.adminEmail)) {
       newErrors.adminEmail = "Invalid email format";
+    } else if (!isEditMode && REGISTERED_EMAILS[data.adminEmail.toLowerCase()]) {
+      newErrors.adminEmail = `This email is already registered with ${REGISTERED_EMAILS[data.adminEmail.toLowerCase()]}`;
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
     if (!data.defaultCurrency) newErrors.defaultCurrency = "Default currency is required";
@@ -170,6 +177,20 @@ const F1v5_Step2OrgProfile = ({
       }
       return updated;
     });
+    // Real-time duplicate email check
+    if (fieldName === "adminEmail") {
+      const emailLower = value.toLowerCase();
+      if (value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && !isEditMode && REGISTERED_EMAILS[emailLower]) {
+        setErrors(prev => ({ ...prev, adminEmail: `This email is already registered with ${REGISTERED_EMAILS[emailLower]}` }));
+      } else {
+        setErrors(prev => { const { adminEmail, ...rest } = prev; return rest; });
+      }
+    } else {
+      // Clear field error on change
+      if (errors[fieldName]) {
+        setErrors(prev => { const { [fieldName]: _, ...rest } = prev; return rest; });
+      }
+    }
   };
 
   const hasChanges = isEditMode ? (
@@ -185,6 +206,7 @@ const F1v5_Step2OrgProfile = ({
     data.adminEmail.trim().length > 0 &&
     data.hqCountry.trim().length > 0 &&
     data.defaultCurrency.trim().length > 0 &&
+    Object.keys(errors).length === 0 &&
     hasChanges &&
     (isEditMode || (
       creationCountries.length > 0 &&
@@ -236,7 +258,7 @@ const F1v5_Step2OrgProfile = ({
               value={data.adminEmail}
               onChange={e => handleFieldChange('adminEmail', e.target.value)}
               placeholder="admin@company.com"
-              className="text-sm"
+              className={cn("text-sm", errors.adminEmail && "border-destructive focus-visible:ring-destructive")}
               disabled={isEditMode}
               readOnly={isEditMode}
             />
