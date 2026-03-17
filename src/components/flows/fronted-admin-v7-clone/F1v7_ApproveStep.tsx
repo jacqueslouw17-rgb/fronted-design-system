@@ -490,10 +490,10 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   };
 
   const renderTimeline = () => (
-    <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden h-full flex flex-col">
-      <div className="p-5 flex flex-col flex-1">
+    <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
+      <div className="p-5">
         <h3 className="text-sm font-medium text-foreground mb-6">What happens next</h3>
-        <div className="relative pl-5 flex-1 flex flex-col justify-between">
+        <div className="relative pl-5 space-y-5">
           <div className="absolute left-[6px] top-1.5 bottom-1.5 w-px bg-border" />
           {timelineSteps.map((step) => (
             <div key={step.id} className="relative">
