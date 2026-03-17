@@ -239,12 +239,12 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             <p className="text-xs font-medium text-foreground mb-3">Payout summary by currency</p>
             <div className="grid gap-3">
               {(() => {
-                const ccyData: Record<string, { basePay: number; approvedAdj: number; approvedCount: number; rejectedAdj: number; rejectedCount: number; workerCount: number }> = {};
+                const ccyData: Record<string, { basePay: number; approvedAdj: number; approvedCount: number; rejectedAdj: number; rejectedCount: number; employeeCount: number; contractorCount: number }> = {};
                 submissions.forEach(w => {
                   const ccy = w.currency || "USD";
-                  if (!ccyData[ccy]) ccyData[ccy] = { basePay: 0, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, workerCount: 0 };
+                  if (!ccyData[ccy]) ccyData[ccy] = { basePay: 0, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, employeeCount: 0, contractorCount: 0 };
                   ccyData[ccy].basePay += w.basePay || 0;
-                  ccyData[ccy].workerCount += 1;
+                  if (w.workerType === "contractor") { ccyData[ccy].contractorCount += 1; } else { ccyData[ccy].employeeCount += 1; }
                   w.submissions.forEach(s => {
                     if (s.status === "approved") {
                       ccyData[ccy].approvedAdj += s.amount || 0;
