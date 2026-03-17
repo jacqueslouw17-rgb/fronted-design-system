@@ -11,7 +11,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, Building2, ArrowRight, Info } from "lucide-react";
+import { Shield, Building2, ArrowRight, Info, CheckCircle2 } from "lucide-react";
+import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { Input } from "@/components/ui/input";
