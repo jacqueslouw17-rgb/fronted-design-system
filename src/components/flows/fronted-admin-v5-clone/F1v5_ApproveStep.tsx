@@ -256,7 +256,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                   });
                 });
                 if (Object.keys(ccyData).length === 0) {
-                  ccyData["USD"] = { basePay: displayData.totalCost, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, workerCount: company.employeeCount + company.contractorCount };
+                  ccyData["USD"] = { basePay: displayData.totalCost, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, employeeCount: company.employeeCount, contractorCount: company.contractorCount };
                 }
                 const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK ", SGD: "S$" };
                 const ccyFlags: Record<string, string> = { USD: "🇺🇸", EUR: "🇪🇺", GBP: "🇬🇧", NOK: "🇳🇴", PHP: "🇵🇭", MXN: "🇲🇽", EGP: "🇪🇬", SEK: "🇸🇪", DKK: "🇩🇰", SGD: "🇸🇬" };
