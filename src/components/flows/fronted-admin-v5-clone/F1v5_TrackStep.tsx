@@ -326,7 +326,7 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
         </div>
 
         <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-          {worker.currency !== "EUR" ? formatCurrency(Math.round(convertToEUR(worker.netPay, worker.currency)), "EUR") : formatCurrency(worker.netPay, "EUR")}
+          {formatCurrency(worker.netPay, worker.currency)}
         </p>
 
         <div className={cn(
