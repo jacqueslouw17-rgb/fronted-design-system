@@ -518,17 +518,17 @@ const F2v2_CandidateDataForm: React.FC = () => {
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4, duration: 0.8 }}
-                    className="absolute -inset-4 rounded-full bg-gradient-to-br from-emerald-400/20 via-primary/10 to-teal-400/20 blur-xl"
+                    className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 blur-xl"
                   />
                   {/* Decorative ring */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5, duration: 0.6 }}
-                    className="absolute -inset-2 rounded-full border border-emerald-500/20"
+                    className="absolute -inset-2 rounded-full border border-primary/20"
                   />
                   {/* Main icon container */}
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/25">
                     <motion.svg
                       viewBox="0 0 24 24"
                       fill="none"
@@ -554,7 +554,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.7, duration: 0.3 }}
-                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"
+                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-accent shadow-sm shadow-accent/50"
                   />
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
@@ -599,8 +599,8 @@ const F2v2_CandidateDataForm: React.FC = () => {
               >
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/60 border border-border/60 text-sm text-muted-foreground">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
                   </span>
                   Your submission is being processed
                 </div>
