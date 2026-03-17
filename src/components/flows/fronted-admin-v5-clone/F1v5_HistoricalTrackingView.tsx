@@ -115,7 +115,7 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
 
                 {/* Amount */}
                 <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-                  {worker.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(worker.amount, worker.currency)), "EUR")}` : formatCurrency(worker.amount, "EUR")}
+                  {formatCurrency(worker.amount, worker.currency)}
                 </p>
 
                 {/* Status Pill */}

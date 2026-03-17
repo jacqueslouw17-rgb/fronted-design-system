@@ -1160,14 +1160,16 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
                         <p className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">{selectedSubmission.workerType === "employee" ? "Estimated net" : "Invoice total"}</p>
-                        <CurrencyToggle
-                          amount={adjustedNet}
-                          localCurrency={currency}
-                          showUSD={showUSD}
-                          onToggle={() => setShowUSD(!showUSD)}
-                          previousAmount={baseNet}
-                          showPreviousAmount={approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments}
-                        />
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
+                            {formatCurrency(adjustedNet, currency)}
+                          </p>
+                          {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments) && (
+                            <p className="text-[10px] text-muted-foreground/60 tabular-nums">
+                              was {formatCurrency(baseNet, currency)}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </SheetHeader>
 

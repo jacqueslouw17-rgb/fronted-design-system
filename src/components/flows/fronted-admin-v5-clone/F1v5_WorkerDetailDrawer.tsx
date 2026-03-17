@@ -190,7 +190,6 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
   const [newAdjLabel, setNewAdjLabel] = useState("");
   const [newAdjAmount, setNewAdjAmount] = useState("");
   const [newAdjReason, setNewAdjReason] = useState("");
-  const [showEUR, setShowEUR] = useState(true);
 
   if (!worker) return null;
 

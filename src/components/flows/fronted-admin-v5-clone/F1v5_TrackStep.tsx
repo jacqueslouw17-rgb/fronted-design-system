@@ -40,7 +40,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CompanyPayrollData } from "./F1v5_PayrollTab";
 import { toast } from "sonner";
-import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { F1v4_WorkerDetailDrawer, WorkerData } from "./F1v5_WorkerDetailDrawer";
 import { F1v4_PayslipPreviewModal } from "./F1v5_PayslipPreviewModal";
 import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v5_PayrollStepper";
