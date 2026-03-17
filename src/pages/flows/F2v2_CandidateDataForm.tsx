@@ -449,10 +449,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
     setCompletedSteps(prev => new Set(prev).add(stepId));
 
     if (isFinalStep) {
-      toast.success("Your details have been submitted successfully", {
-        description: `${PREFILLED.companyName} will be notified.`,
-      });
-      navigate("/");
+      setShowSuccess(true);
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#8B5CF6', '#EC4899', '#3B82F6']
+        });
+      }, 300);
       return;
     }
 
