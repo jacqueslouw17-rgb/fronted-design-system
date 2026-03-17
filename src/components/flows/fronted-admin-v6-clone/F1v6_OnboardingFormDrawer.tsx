@@ -401,12 +401,12 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               type="button"
               variant="outline"
               onClick={handleSaveDraft}
-              disabled={isSubmitting || isSavingDraft}
+              disabled={isSubmitting || isSavingDraft || hasValidationErrors}
               className="flex-1"
             >
               {isSavingDraft ? "Saving..." : "Save Changes"}
             </Button>
-            <Button type="button" onClick={handleSendForm} disabled={isSubmitting} className="flex-1">
+            <Button type="button" onClick={handleSendForm} disabled={isSubmitting || hasValidationErrors} className="flex-1">
               {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
             </Button>
           </div>
