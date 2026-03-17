@@ -11,7 +11,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, Building2, ArrowRight, Info } from "lucide-react";
+import { Shield, Building2, ArrowRight, Info, CheckCircle2 } from "lucide-react";
+import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import { Input } from "@/components/ui/input";
@@ -406,6 +407,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const hasInitialized = useRef(false);
 
   useEffect(() => {
@@ -447,10 +449,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
     setCompletedSteps(prev => new Set(prev).add(stepId));
 
     if (isFinalStep) {
-      toast.success("Your details have been submitted successfully", {
-        description: `${PREFILLED.companyName} will be notified.`,
-      });
-      navigate("/");
+      setShowSuccess(true);
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#8B5CF6', '#EC4899', '#3B82F6']
+        });
+      }, 300);
       return;
     }
 
@@ -477,6 +484,55 @@ const F2v2_CandidateDataForm: React.FC = () => {
   };
 
   const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === currentStep);
+
+  if (showSuccess) {
+    return (
+      <AgentLayout context="Data Collection">
+        <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
+          <FrostedHeader onLogoClick={() => navigate("/?tab=flows")} onCloseClick={() => navigate("/?tab=flows")} />
+
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+          </div>
+
+          <div
+            className="flex-shrink-0 flex flex-col min-h-screen p-4 sm:p-8 pb-16 sm:pb-32 items-center justify-center relative z-10 mx-auto"
+            style={{ width: "100%", maxWidth: "800px" }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="max-w-md w-full text-center space-y-6"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className="flex justify-center"
+              >
+                <div className="p-4 sm:p-6 rounded-full bg-primary/10 border-2 border-primary/30">
+                  <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 text-primary" />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-3"
+              >
+                <h1 className="text-2xl sm:text-3xl font-bold">Submission Complete! 🎉</h1>
+                <p className="text-base sm:text-lg text-muted-foreground">
+                  Thanks, Saurav. Your details have been sent to the Fronted team. We'll now use them to prepare your contract, and you'll receive the next email when it's ready to review and continue.
+                </p>
+              </motion.div>
+            </motion.div>
+          </div>
+        </main>
+      </AgentLayout>
+    );
+  }
 
   return (
     <AgentLayout context="Data Collection">
