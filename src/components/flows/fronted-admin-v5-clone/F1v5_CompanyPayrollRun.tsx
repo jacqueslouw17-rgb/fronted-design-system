@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { CompanyPayrollData } from "./F1v5_PayrollTab";
 import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v5_SubmissionsView";
 
-import { F1v4_ApproveStep } from "./F1v5_ApproveStep";
+// F1v4_ApproveStep no longer used — approve step removed
 import { F1v4_TrackStep } from "./F1v5_TrackStep";
 import { F1v4_ApproveConfirmationModal } from "./F1v5_ApproveConfirmationModal";
 import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v5_PeriodDropdown";
