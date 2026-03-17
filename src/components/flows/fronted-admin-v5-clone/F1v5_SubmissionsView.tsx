@@ -1051,8 +1051,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             const deductions = selectedSubmission.lineItems?.filter((item) => item.type === 'Deduction') || [];
             const allAdjustments = selectedSubmission.submissions;
             const currency = selectedSubmission.currency || 'EUR';
-            const dc = showUSD && currency !== "EUR" ? "EUR" : currency;
-            const cvt = (amt: number) => showUSD && currency !== "EUR" ? convertToEUR(amt, currency) : amt;
+            const dc = currency;
+            const cvt = (amt: number) => amt;
             const moneyAdjustments = allAdjustments.map((adj, idx) => ({ adj, originalIdx: idx })).filter(({ adj }) => typeof adj.amount === 'number');
             const pendingLeaves = selectedSubmission.pendingLeaves || [];
 
