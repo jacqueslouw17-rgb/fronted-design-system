@@ -774,7 +774,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                     onClick={() => setIsHeaderConfirmOpen(true)}
                     className="h-9 text-xs"
                   >
-                    Approve & Lock
+                    Approve
                   </Button>
                   <F1v4_ApproveConfirmationModal
                     open={isHeaderConfirmOpen}
