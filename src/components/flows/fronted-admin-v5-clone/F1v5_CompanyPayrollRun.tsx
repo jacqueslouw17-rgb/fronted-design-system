@@ -547,10 +547,13 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   
   // For approve step: filter to only ready workers and apply adjustment decisions
   const approveSubmissions = useMemo(() => {
-    if (!isCustomBatch || approveReadyWorkerIds.length === 0) return displaySubmissions;
-    return displaySubmissions
-      .filter(w => approveReadyWorkerIds.includes(w.id))
-      .map(w => ({
+    const base = isCustomBatch && approveReadyWorkerIds.length > 0
+      ? displaySubmissions.filter(w => approveReadyWorkerIds.includes(w.id))
+      : displaySubmissions;
+    
+    // Apply adjustment decisions (approve/reject) from exceptions step
+    if (Object.keys(approveAdjustmentDecisions).length > 0) {
+      return base.map(w => ({
         ...w,
         submissions: w.submissions.map((s, idx) => {
           const key = `${w.id}-${idx}`;
@@ -559,6 +562,16 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
           return s;
         }),
       }));
+    }
+    
+    // If no explicit decisions, treat all pending adjustments as approved for the approve summary
+    return base.map(w => ({
+      ...w,
+      submissions: w.submissions.map(s => ({
+        ...s,
+        status: s.status === "pending" ? "approved" as const : s.status,
+      })),
+    }));
   }, [displaySubmissions, approveReadyWorkerIds, approveAdjustmentDecisions, isCustomBatch]);
 
   const pendingWorkerCount = isCustomBatch ? displaySubmissions.length - approveReadyWorkerIds.length - approveExcludedWorkerIds.length : 0;
