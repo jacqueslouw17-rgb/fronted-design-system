@@ -206,6 +206,7 @@ const F1v5_Step2OrgProfile = ({
     data.adminEmail.trim().length > 0 &&
     data.hqCountry.trim().length > 0 &&
     data.defaultCurrency.trim().length > 0 &&
+    Object.keys(errors).length === 0 &&
     hasChanges &&
     (isEditMode || (
       creationCountries.length > 0 &&
