@@ -252,9 +252,9 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 if (Object.keys(currencyTotals).length === 0) {
                   currencyTotals["USD"] = { amount: displayData.totalCost, workerCount: company.employeeCount + company.contractorCount };
                 }
-                const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK " };
-                const ccyFlags: Record<string, string> = { USD: "🇺🇸", EUR: "🇪🇺", GBP: "🇬🇧", NOK: "🇳🇴", PHP: "🇵🇭", MXN: "🇲🇽", EGP: "🇪🇬", SEK: "🇸🇪", DKK: "🇩🇰" };
-                const ccyNames: Record<string, string> = { USD: "US Dollar", EUR: "Euro", GBP: "British Pound", NOK: "Norwegian Krone", PHP: "Philippine Peso", MXN: "Mexican Peso", EGP: "Egyptian Pound", SEK: "Swedish Krona", DKK: "Danish Krone" };
+                const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK ", SGD: "S$" };
+                const ccyFlags: Record<string, string> = { USD: "🇺🇸", EUR: "🇪🇺", GBP: "🇬🇧", NOK: "🇳🇴", PHP: "🇵🇭", MXN: "🇲🇽", EGP: "🇪🇬", SEK: "🇸🇪", DKK: "🇩🇰", SGD: "🇸🇬" };
+                const ccyNames: Record<string, string> = { USD: "US Dollar", EUR: "Euro", GBP: "British Pound", NOK: "Norwegian Krone", PHP: "Philippine Peso", MXN: "Mexican Peso", EGP: "Egyptian Pound", SEK: "Swedish Krona", DKK: "Danish Krone", SGD: "Singapore Dollar" };
                 const entries = Object.entries(currencyTotals);
                 return entries.map(([ccy, data]) => (
                   <div key={ccy} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-background/60 border border-border/30">
