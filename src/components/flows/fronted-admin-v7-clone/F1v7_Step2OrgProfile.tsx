@@ -177,6 +177,20 @@ const F1v5_Step2OrgProfile = ({
       }
       return updated;
     });
+    // Real-time duplicate email check
+    if (fieldName === "adminEmail") {
+      const emailLower = value.toLowerCase();
+      if (value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && !isEditMode && REGISTERED_EMAILS[emailLower]) {
+        setErrors(prev => ({ ...prev, adminEmail: `This email is already registered with ${REGISTERED_EMAILS[emailLower]}` }));
+      } else {
+        setErrors(prev => { const { adminEmail, ...rest } = prev; return rest; });
+      }
+    } else {
+      // Clear field error on change
+      if (errors[fieldName]) {
+        setErrors(prev => { const { [fieldName]: _, ...rest } = prev; return rest; });
+      }
+    }
   };
 
   const hasChanges = isEditMode ? (
