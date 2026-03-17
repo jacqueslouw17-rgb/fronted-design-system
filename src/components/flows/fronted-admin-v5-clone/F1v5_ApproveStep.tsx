@@ -241,13 +241,11 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                const currencyTotals: Record<string, number> = {};
                submissions.forEach(w => {
                  const ccy = w.currency || "USD";
-                 const base = w.baseSalary || 0;
-                 const adj = w.submissions
-                   .filter(s => s.status === "approved")
-                   .reduce((sum, s) => sum + (s.amount || 0), 0);
-                 const adminAdj = (w.adminAdjustments || [])
-                   .reduce((sum, a) => sum + (a.type === "addition" ? a.amount : -a.amount), 0);
-                 currencyTotals[ccy] = (currencyTotals[ccy] || 0) + base + adj + adminAdj;
+                  const base = w.basePay || 0;
+                  const adj = w.submissions
+                    .filter(s => s.status === "approved")
+                    .reduce((sum, s) => sum + (s.amount || 0), 0);
+                  currencyTotals[ccy] = (currencyTotals[ccy] || 0) + base + adj;
                });
                // Fallback if no submissions data
                if (Object.keys(currencyTotals).length === 0) {
