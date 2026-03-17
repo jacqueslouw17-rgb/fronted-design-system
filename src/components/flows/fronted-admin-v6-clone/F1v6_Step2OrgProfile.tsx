@@ -33,6 +33,11 @@ interface F1v5_Step2Props {
   companyName?: string;
 }
 
+// Simulated registry of emails already associated with a company
+const REGISTERED_EMAILS: Record<string, string> = {
+  "joe@example.com": "Acme Corp",
+};
+
 // Eurozone countries per acceptance criteria
 const EUROZONE_COUNTRY_CODES = new Set([
   "AT", "BE", "BG", "HR", "CY", "EE", "FI", "FR", "DE", "GR",
