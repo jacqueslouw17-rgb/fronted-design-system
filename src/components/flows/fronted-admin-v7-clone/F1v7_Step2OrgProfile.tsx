@@ -257,7 +257,7 @@ const F1v5_Step2OrgProfile = ({
               value={data.adminEmail}
               onChange={e => handleFieldChange('adminEmail', e.target.value)}
               placeholder="admin@company.com"
-              className="text-sm"
+              className={cn("text-sm", errors.adminEmail && "border-destructive focus-visible:ring-destructive")}
               disabled={isEditMode}
               readOnly={isEditMode}
             />
