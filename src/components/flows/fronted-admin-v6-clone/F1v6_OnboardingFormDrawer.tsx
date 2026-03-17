@@ -87,25 +87,30 @@ const Field: React.FC<{
   label: string;
   optional?: boolean;
   hint?: string;
+  error?: string;
   children: React.ReactNode;
-}> = ({ label, optional, hint, children }) => (
+}> = ({ label, optional, hint, error, children }) => (
   <div className="space-y-1.5">
     <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
       {label}
       {optional && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">Optional</Badge>}
     </Label>
     {children}
-    {hint && <p className="text-muted-foreground text-[11px]">{hint}</p>}
+    {error ? (
+      <p className="text-destructive text-[11px] font-medium">{error}</p>
+    ) : (
+      hint && <p className="text-muted-foreground text-[11px]">{hint}</p>
+    )}
   </div>
 );
 
 /* ── Number with unit badge ── */
 const NumberFieldWithUnit: React.FC<{
-  value: string; onChange: (v: string) => void; unit: string; min?: number; max?: number; step?: number;
-}> = ({ value, onChange, unit, min, max, step }) => (
+  value: string; onChange: (v: string) => void; unit: string; min?: number; max?: number; step?: number; hasError?: boolean;
+}> = ({ value, onChange, unit, min, max, step, hasError }) => (
   <div className="flex items-center gap-2">
     <Input type="number" value={value} onChange={e => onChange(e.target.value)} min={min} max={max} step={step}
-      className="flex-1 h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100" />
+      className={cn("flex-1 h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100", hasError && "border-destructive focus-visible:ring-destructive")} />
     <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">{unit}</span>
   </div>
 );
@@ -184,6 +189,36 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
     setFormData(prev => ({ ...prev, [key]: value }));
 
   const countryRule = COUNTRY_RULES[formData.country];
+
+  // ── Inline validation for country-default fields ──
+  const fieldErrors = (() => {
+    if (!countryRule) return {} as Record<string, string>;
+    const errors: Record<string, string> = {};
+    const probVal = Number(formData.probationPeriod);
+    const noticeVal = Number(formData.noticePeriod);
+    const annualVal = Number(formData.annualLeave);
+    const sickVal = Number(formData.sickLeave);
+    const hoursVal = Number(formData.weeklyHours);
+
+    if (formData.probationPeriod !== "" && probVal > countryRule.probation.max) {
+      errors.probationPeriod = `Must be ${countryRule.probation.max} or fewer days`;
+    }
+    if (formData.noticePeriod !== "" && noticeVal < countryRule.noticePeriod.min) {
+      errors.noticePeriod = `Must be ${countryRule.noticePeriod.min} or more days`;
+    }
+    if (formData.annualLeave !== "" && annualVal < countryRule.annualLeave.min) {
+      errors.annualLeave = `Must be ${countryRule.annualLeave.min} or more days`;
+    }
+    if (formData.sickLeave !== "" && sickVal < countryRule.sickLeave.min) {
+      errors.sickLeave = `Must be ${countryRule.sickLeave.min} or more days`;
+    }
+    if (formData.weeklyHours !== "" && hoursVal > countryRule.weeklyHours.max) {
+      errors.weeklyHours = `Must be ${countryRule.weeklyHours.max} or fewer hours`;
+    }
+    return errors;
+  })();
+
+  const hasValidationErrors = Object.keys(fieldErrors).length > 0;
 
   const handleSendForm = async () => {
     setIsSubmitting(true);
@@ -334,24 +369,24 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                 <p className="text-[11px] text-muted-foreground mb-3">Country defaults for {formData.country} — adjust as negotiated</p>
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
-                      <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} />
+                    <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`} error={fieldErrors.probationPeriod}>
+                      <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} hasError={!!fieldErrors.probationPeriod} />
                     </Field>
-                    <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`}>
-                      <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} />
-                    </Field>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`}>
-                      <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} />
-                    </Field>
-                    <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`}>
-                      <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} />
+                    <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`} error={fieldErrors.noticePeriod}>
+                      <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} hasError={!!fieldErrors.noticePeriod} />
                     </Field>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
-                      <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} />
+                    <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`} error={fieldErrors.annualLeave}>
+                      <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} hasError={!!fieldErrors.annualLeave} />
+                    </Field>
+                    <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`} error={fieldErrors.sickLeave}>
+                      <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} hasError={!!fieldErrors.sickLeave} />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`} error={fieldErrors.weeklyHours}>
+                      <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} hasError={!!fieldErrors.weeklyHours} />
                     </Field>
                   </div>
                 </div>
@@ -366,12 +401,12 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               type="button"
               variant="outline"
               onClick={handleSaveDraft}
-              disabled={isSubmitting || isSavingDraft}
+              disabled={isSubmitting || isSavingDraft || hasValidationErrors}
               className="flex-1"
             >
               {isSavingDraft ? "Saving..." : "Save Changes"}
             </Button>
-            <Button type="button" onClick={handleSendForm} disabled={isSubmitting} className="flex-1">
+            <Button type="button" onClick={handleSendForm} disabled={isSubmitting || hasValidationErrors} className="flex-1">
               {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
             </Button>
           </div>
