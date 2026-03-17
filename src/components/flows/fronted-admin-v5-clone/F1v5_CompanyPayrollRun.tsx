@@ -720,7 +720,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const getStepTitle = (): string => {
     switch (currentStep) {
       case "submissions": return "Submissions";
-      case "approve": return "Approve";
       case "track": return "Track & Reconcile";
       default: return "";
     }
