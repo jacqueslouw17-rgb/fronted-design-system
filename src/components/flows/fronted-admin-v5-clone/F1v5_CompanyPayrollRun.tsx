@@ -668,9 +668,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
       case "submissions":
         setHasEnteredWorkflow(false);
         break;
-      case "approve":
-        setCurrentStep("submissions");
-        break;
       case "track":
         // No back from track
         break;
