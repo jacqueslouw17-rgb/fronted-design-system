@@ -3,7 +3,7 @@
  * 
  * Matches CA3_PayrollSection exactly:
  * - Landing view: KPI card with "Continue to submissions" button
- * - Workflow: Submissions → Approve → Track with back arrow navigation
+ * - Workflow: Submissions → Track (Approve step removed, Approve button is in Submissions header)
  */
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
