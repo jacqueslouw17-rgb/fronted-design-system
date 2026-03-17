@@ -291,15 +291,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                             <span className="text-accent-green-text tabular-nums">+{fmt(ccy, data.approvedAdj)}</span>
                           </div>
                         )}
-                        {data.rejectedCount > 0 && (
-                          <div className="flex items-center justify-between text-[11px]">
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <XCircle className="h-2.5 w-2.5 text-muted-foreground/50" />
-                              Rejected ({data.rejectedCount})
-                            </span>
-                            <span className="text-muted-foreground/60 tabular-nums line-through">{fmt(ccy, data.rejectedAdj)}</span>
-                          </div>
-                        )}
                       </div>
                     </div>
                   );
