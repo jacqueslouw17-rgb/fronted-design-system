@@ -239,24 +239,21 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             <p className="text-xs font-medium text-foreground mb-3">Payout summary by currency</p>
             <div className="grid gap-3">
               {(() => {
-                const ccyData: Record<string, { basePay: number; approvedAdj: number; approvedCount: number; rejectedAdj: number; rejectedCount: number; employeeCount: number; contractorCount: number }> = {};
+                const ccyData: Record<string, { basePay: number; approvedAdj: number; approvedCount: number; employeeCount: number; contractorCount: number }> = {};
                 submissions.forEach(w => {
                   const ccy = w.currency || "USD";
-                  if (!ccyData[ccy]) ccyData[ccy] = { basePay: 0, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, employeeCount: 0, contractorCount: 0 };
+                  if (!ccyData[ccy]) ccyData[ccy] = { basePay: 0, approvedAdj: 0, approvedCount: 0, employeeCount: 0, contractorCount: 0 };
                   ccyData[ccy].basePay += w.basePay || 0;
                   if (w.workerType === "contractor") { ccyData[ccy].contractorCount += 1; } else { ccyData[ccy].employeeCount += 1; }
                   w.submissions.forEach(s => {
                     if (s.status === "approved") {
                       ccyData[ccy].approvedAdj += s.amount || 0;
                       ccyData[ccy].approvedCount += 1;
-                    } else if (s.status === "rejected") {
-                      ccyData[ccy].rejectedAdj += s.amount || 0;
-                      ccyData[ccy].rejectedCount += 1;
                     }
                   });
                 });
                 if (Object.keys(ccyData).length === 0) {
-                  ccyData["USD"] = { basePay: displayData.totalCost, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, employeeCount: company.employeeCount, contractorCount: company.contractorCount };
+                  ccyData["USD"] = { basePay: displayData.totalCost, approvedAdj: 0, approvedCount: 0, employeeCount: company.employeeCount, contractorCount: company.contractorCount };
                 }
                 const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK ", SGD: "S$" };
                 const ccyFlags: Record<string, string> = { USD: "🇺🇸", EUR: "🇪🇺", GBP: "🇬🇧", NOK: "🇳🇴", PHP: "🇵🇭", MXN: "🇲🇽", EGP: "🇪🇬", SEK: "🇸🇪", DKK: "🇩🇰", SGD: "🇸🇬" };
@@ -289,15 +286,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                               Approved ({data.approvedCount})
                             </span>
                             <span className="text-accent-green-text tabular-nums">+{fmt(ccy, data.approvedAdj)}</span>
-                          </div>
-                        )}
-                        {data.rejectedCount > 0 && (
-                          <div className="flex items-center justify-between text-[11px]">
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <XCircle className="h-2.5 w-2.5 text-muted-foreground/50" />
-                              Rejected ({data.rejectedCount})
-                            </span>
-                            <span className="text-muted-foreground/60 tabular-nums line-through">{fmt(ccy, data.rejectedAdj)}</span>
                           </div>
                         )}
                       </div>
@@ -338,10 +326,10 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
   };
 
   const renderTimeline = () => (
-    <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden h-full flex flex-col">
-      <div className="p-5 flex flex-col flex-1">
+    <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
+      <div className="p-5">
         <h3 className="text-sm font-medium text-foreground mb-6">What happens next</h3>
-        <div className="relative pl-5 flex-1 flex flex-col justify-between">
+        <div className="relative pl-5 space-y-5">
           <div className="absolute left-[6px] top-1.5 bottom-1.5 w-px bg-border" />
           {timelineSteps.map((step) => (
             <div key={step.id} className="relative">
