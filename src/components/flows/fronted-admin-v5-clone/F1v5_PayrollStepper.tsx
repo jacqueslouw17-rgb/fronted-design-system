@@ -1,7 +1,7 @@
 /**
  * F1v4_PayrollStepper - Minimal stepper matching CA3_PayrollStepper pattern
  * 
- * 4 steps: Submissions → Exceptions → Approve → Track
+ * 2 steps: Submissions → Track
  */
 
 import React from "react";
@@ -17,7 +17,6 @@ interface StepConfig {
 
 const steps: StepConfig[] = [
   { id: "submissions", label: "Submissions" },
-  { id: "approve", label: "Approve" },
   { id: "track", label: "Track" },
 ];
 
@@ -25,9 +24,9 @@ interface F1v4_PayrollStepperProps {
   currentStep: F1v4_PayrollStep;
   completedSteps: F1v4_PayrollStep[];
   onStepClick?: (step: F1v4_PayrollStep) => void;
-  pendingCount?: number; // For submissions pending count
-  exceptionsCount?: number; // For exceptions badge
-  isApproved?: boolean; // When true, steps before track are locked
+  pendingCount?: number;
+  exceptionsCount?: number;
+  isApproved?: boolean;
 }
 
 export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
@@ -38,7 +37,7 @@ export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
   exceptionsCount = 0,
   isApproved = false,
 }) => {
-  const stepOrder: F1v4_PayrollStep[] = ["submissions", "approve", "track"];
+  const stepOrder: F1v4_PayrollStep[] = ["submissions", "track"];
   const currentIndex = stepOrder.indexOf(currentStep);
 
   const getStepState = (step: F1v4_PayrollStep): "completed" | "active" | "upcoming" | "locked" => {
@@ -53,9 +52,6 @@ export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
       {steps.map((step, index) => {
         const state = getStepState(step.id);
         const isClickable = (state === "completed" || step.id === currentStep) && state !== "locked";
-        
-        // Show badge for exceptions only
-        const showExceptionsBadge = step.id === "exceptions" && exceptionsCount > 0 && state !== "completed" && state !== "locked";
 
         return (
           <React.Fragment key={step.id}>
@@ -71,7 +67,6 @@ export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
                 state === "locked" && "text-muted-foreground/70 cursor-not-allowed opacity-80"
               )}
             >
-              {/* Step indicator */}
               <div className={cn(
                 "flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-medium transition-all",
                 state === "completed" && "bg-accent-green-fill/15 text-accent-green-text",
@@ -87,17 +82,8 @@ export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
               </div>
               
               <span className={cn("md:inline", state === "active" ? "inline" : "hidden")}>{step.label}</span>
-              
-              
-              {/* Badge for exceptions */}
-              {showExceptionsBadge && (
-                <span className="flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-amber-500/80 text-white text-[9px] font-medium">
-                  {exceptionsCount}
-                </span>
-              )}
             </button>
             
-            {/* Connector */}
             {index < steps.length - 1 && (
               <div className={cn(
                 "w-4 h-px transition-colors",

@@ -501,6 +501,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   onContinue,
   onClose,
   isCustomBatch = false,
+  onApproveAndPayout,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
