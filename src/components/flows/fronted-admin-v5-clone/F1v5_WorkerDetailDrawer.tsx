@@ -312,10 +312,9 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
     const totalEarnings = earningsData.items.reduce((sum, item) => sum + item.amount, 0);
     const totalDeductions = earningsData.deductions.reduce((sum, item) => sum + item.amount, 0);
     const netTotal = isContractor ? totalEarnings : totalEarnings - totalDeductions;
-    const isNonEUR = worker.currency !== "EUR";
-    const dc = showEUR && isNonEUR ? "EUR" : worker.currency;
-    const cvt = (amt: number) => showEUR && isNonEUR ? convertToEUR(amt, worker.currency) : amt;
-    const approx = showEUR && isNonEUR ? "≈ " : "";
+    const dc = worker.currency;
+    const cvt = (amt: number) => amt;
+    const approx = "";
 
     const customBatchNet = worker.netPay;
 
