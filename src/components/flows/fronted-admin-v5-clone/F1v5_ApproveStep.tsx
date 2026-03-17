@@ -233,9 +233,25 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
     return (
       <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
         <div className="p-5 space-y-5">
-          {/* Hero payout */}
-          <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-            <p className="text-xs text-primary/70 mb-3">Payout summary by currency</p>
+          {/* Batch stats */}
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5" />
+              {company.employeeCount} employee{company.employeeCount !== 1 ? "s" : ""}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Briefcase className="h-3.5 w-3.5" />
+              {company.contractorCount} contractor{company.contractorCount !== 1 ? "s" : ""}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Globe className="h-3.5 w-3.5" />
+              {company.currencyCount} currenc{company.currencyCount !== 1 ? "ies" : "y"}
+            </span>
+          </div>
+
+          {/* Per-currency payout cards */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-3">Payout summary by currency</p>
             <div className="grid gap-3">
               {(() => {
                 const ccyData: Record<string, { basePay: number; approvedAdj: number; approvedCount: number; rejectedAdj: number; rejectedCount: number; workerCount: number }> = {};
@@ -265,7 +281,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 return Object.entries(ccyData).map(([ccy, data]) => {
                   const total = data.basePay + data.approvedAdj;
                   return (
-                    <div key={ccy} className="rounded-lg bg-background/60 border border-border/30 overflow-hidden">
+                    <div key={ccy} className="rounded-lg border border-border/30 bg-card/50 overflow-hidden">
                       {/* Currency header */}
                       <div className="flex items-center gap-3 px-3.5 py-3 border-b border-border/20">
                         <span className="text-base">{ccyFlags[ccy] || "🌍"}</span>
@@ -309,6 +325,28 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
               Use this summary to process payouts externally in each worker's payroll currency.
             </p>
           </div>
+
+          {/* Excluded / pending workers info */}
+          {(pendingWorkerCount > 0 || excludedWorkerCount > 0) && (
+            <div className="space-y-2">
+              {pendingWorkerCount > 0 && (
+                <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg bg-muted/40 border border-border/40">
+                  <Clock className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">{pendingWorkerCount} worker{pendingWorkerCount !== 1 ? "s" : ""}</span> skipped — submissions remain open for the next batch.
+                  </p>
+                </div>
+              )}
+              {excludedWorkerCount > 0 && (
+                <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg bg-muted/40 border border-border/40">
+                  <UserMinus className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">{excludedWorkerCount} worker{excludedWorkerCount !== 1 ? "s" : ""}</span> excluded from this batch.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
