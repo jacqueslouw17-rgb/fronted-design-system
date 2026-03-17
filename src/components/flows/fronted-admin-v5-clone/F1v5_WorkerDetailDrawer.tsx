@@ -1,5 +1,5 @@
 /**
- * F1v4_WorkerDetailDrawer - Worker detail drawer
+ * F1v4_WorkerDetailDrawer - Worker detail drawer (local currency)
  * 
  * In Track step: Clean invoice/payslip breakdown view with mark as paid / download actions
  * In Submissions step: Full payslip preview with overrides
