@@ -554,7 +554,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.7, duration: 0.3 }}
-                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"
+                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-accent shadow-sm shadow-accent/50"
                   />
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
