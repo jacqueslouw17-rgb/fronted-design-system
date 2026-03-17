@@ -235,39 +235,43 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
         <div className="p-5 space-y-5">
           {/* Hero payout */}
           <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-           <p className="text-xs text-primary/70 mb-1">Payout summary by currency</p>
-           <div className="space-y-1 mt-2">
-             {(() => {
-               const currencyTotals: Record<string, number> = {};
-               submissions.forEach(w => {
-                 const ccy = w.currency || "USD";
+            <p className="text-xs text-primary/70 mb-3">Payout summary by currency</p>
+            <div className="grid gap-2">
+              {(() => {
+                const currencyTotals: Record<string, { amount: number; workerCount: number }> = {};
+                submissions.forEach(w => {
+                  const ccy = w.currency || "USD";
                   const base = w.basePay || 0;
                   const adj = w.submissions
                     .filter(s => s.status === "approved")
                     .reduce((sum, s) => sum + (s.amount || 0), 0);
-                  currencyTotals[ccy] = (currencyTotals[ccy] || 0) + base + adj;
-               });
-               // Fallback if no submissions data
-               if (Object.keys(currencyTotals).length === 0) {
-                 currencyTotals["USD"] = displayData.totalCost;
-               }
-               const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK " };
-               return Object.entries(currencyTotals).map(([ccy, amount]) => (
-                 <div key={ccy} className="flex items-center justify-between">
-                   <span className="text-sm font-medium text-primary/80">{ccy}</span>
-                   <span className="text-lg font-semibold text-primary tabular-nums">
-                     {ccySymbols[ccy] || `${ccy} `}{Math.round(amount).toLocaleString()}
-                   </span>
-                 </div>
-               ));
-             })()}
-           </div>
-           <p className="text-[10px] text-muted-foreground mt-2">
-             {company.employeeCount + company.contractorCount} workers
-           </p>
-           <p className="text-[10px] text-muted-foreground/70 mt-1">
-             Use this summary to process payouts externally in each worker's payroll currency.
-           </p>
+                  if (!currencyTotals[ccy]) currencyTotals[ccy] = { amount: 0, workerCount: 0 };
+                  currencyTotals[ccy].amount += base + adj;
+                  currencyTotals[ccy].workerCount += 1;
+                });
+                if (Object.keys(currencyTotals).length === 0) {
+                  currencyTotals["USD"] = { amount: displayData.totalCost, workerCount: company.employeeCount + company.contractorCount };
+                }
+                const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK " };
+                const ccyFlags: Record<string, string> = { USD: "🇺🇸", EUR: "🇪🇺", GBP: "🇬🇧", NOK: "🇳🇴", PHP: "🇵🇭", MXN: "🇲🇽", EGP: "🇪🇬", SEK: "🇸🇪", DKK: "🇩🇰" };
+                const entries = Object.entries(currencyTotals);
+                return entries.map(([ccy, data]) => (
+                  <div key={ccy} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-background/60 border border-border/30">
+                    <span className="text-base">{ccyFlags[ccy] || "🌍"}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-foreground">{ccy}</p>
+                      <p className="text-[10px] text-muted-foreground">{data.workerCount} worker{data.workerCount !== 1 ? "s" : ""}</p>
+                    </div>
+                    <span className="text-sm font-semibold text-foreground tabular-nums">
+                      {ccySymbols[ccy] || `${ccy} `}{Math.round(data.amount).toLocaleString()}
+                    </span>
+                  </div>
+                ));
+              })()}
+            </div>
+            <p className="text-[10px] text-muted-foreground/70 mt-3">
+              Use this summary to process payouts externally in each worker's payroll currency.
+            </p>
           </div>
 
           {/* Financial ledger */}
