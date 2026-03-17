@@ -236,82 +236,78 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
           {/* Hero payout */}
           <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
             <p className="text-xs text-primary/70 mb-3">Payout summary by currency</p>
-            <div className="grid gap-2">
+            <div className="grid gap-3">
               {(() => {
-                const currencyTotals: Record<string, { amount: number; workerCount: number }> = {};
+                const ccyData: Record<string, { basePay: number; approvedAdj: number; approvedCount: number; rejectedAdj: number; rejectedCount: number; workerCount: number }> = {};
                 submissions.forEach(w => {
                   const ccy = w.currency || "USD";
-                  const base = w.basePay || 0;
-                  const adj = w.submissions
-                    .filter(s => s.status === "approved")
-                    .reduce((sum, s) => sum + (s.amount || 0), 0);
-                  if (!currencyTotals[ccy]) currencyTotals[ccy] = { amount: 0, workerCount: 0 };
-                  currencyTotals[ccy].amount += base + adj;
-                  currencyTotals[ccy].workerCount += 1;
+                  if (!ccyData[ccy]) ccyData[ccy] = { basePay: 0, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, workerCount: 0 };
+                  ccyData[ccy].basePay += w.basePay || 0;
+                  ccyData[ccy].workerCount += 1;
+                  w.submissions.forEach(s => {
+                    if (s.status === "approved") {
+                      ccyData[ccy].approvedAdj += s.amount || 0;
+                      ccyData[ccy].approvedCount += 1;
+                    } else if (s.status === "rejected") {
+                      ccyData[ccy].rejectedAdj += s.amount || 0;
+                      ccyData[ccy].rejectedCount += 1;
+                    }
+                  });
                 });
-                if (Object.keys(currencyTotals).length === 0) {
-                  currencyTotals["USD"] = { amount: displayData.totalCost, workerCount: company.employeeCount + company.contractorCount };
+                if (Object.keys(ccyData).length === 0) {
+                  ccyData["USD"] = { basePay: displayData.totalCost, approvedAdj: 0, approvedCount: 0, rejectedAdj: 0, rejectedCount: 0, workerCount: company.employeeCount + company.contractorCount };
                 }
                 const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK ", SGD: "S$" };
                 const ccyFlags: Record<string, string> = { USD: "🇺🇸", EUR: "🇪🇺", GBP: "🇬🇧", NOK: "🇳🇴", PHP: "🇵🇭", MXN: "🇲🇽", EGP: "🇪🇬", SEK: "🇸🇪", DKK: "🇩🇰", SGD: "🇸🇬" };
                 const ccyNames: Record<string, string> = { USD: "US Dollar", EUR: "Euro", GBP: "British Pound", NOK: "Norwegian Krone", PHP: "Philippine Peso", MXN: "Mexican Peso", EGP: "Egyptian Pound", SEK: "Swedish Krona", DKK: "Danish Krone", SGD: "Singapore Dollar" };
-                const entries = Object.entries(currencyTotals);
-                return entries.map(([ccy, data]) => (
-                  <div key={ccy} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-background/60 border border-border/30">
-                    <span className="text-base">{ccyFlags[ccy] || "🌍"}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-foreground">{ccyNames[ccy] || ccy}</p>
-                      <p className="text-[10px] text-muted-foreground">{data.workerCount} worker{data.workerCount !== 1 ? "s" : ""}</p>
+                const fmt = (ccy: string, amount: number) => `${ccySymbols[ccy] || `${ccy} `}${Math.round(amount).toLocaleString()}`;
+
+                return Object.entries(ccyData).map(([ccy, data]) => {
+                  const total = data.basePay + data.approvedAdj;
+                  return (
+                    <div key={ccy} className="rounded-lg bg-background/60 border border-border/30 overflow-hidden">
+                      {/* Currency header */}
+                      <div className="flex items-center gap-3 px-3.5 py-3 border-b border-border/20">
+                        <span className="text-base">{ccyFlags[ccy] || "🌍"}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-foreground">{ccyNames[ccy] || ccy}</p>
+                          <p className="text-[10px] text-muted-foreground">{data.workerCount} worker{data.workerCount !== 1 ? "s" : ""}</p>
+                        </div>
+                        <span className="text-sm font-semibold text-foreground tabular-nums">{fmt(ccy, total)}</span>
+                      </div>
+                      {/* Breakdown */}
+                      <div className="px-3.5 py-2.5 space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-muted-foreground">Base compensation</span>
+                          <span className="text-foreground tabular-nums">{fmt(ccy, data.basePay)}</span>
+                        </div>
+                        {data.approvedCount > 0 && (
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <CheckCircle2 className="h-2.5 w-2.5 text-accent-green-text" />
+                              Approved ({data.approvedCount})
+                            </span>
+                            <span className="text-accent-green-text tabular-nums">+{fmt(ccy, data.approvedAdj)}</span>
+                          </div>
+                        )}
+                        {data.rejectedCount > 0 && (
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <XCircle className="h-2.5 w-2.5 text-muted-foreground/50" />
+                              Rejected ({data.rejectedCount})
+                            </span>
+                            <span className="text-muted-foreground/60 tabular-nums line-through">{fmt(ccy, data.rejectedAdj)}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-sm font-semibold text-foreground tabular-nums">
-                      {ccySymbols[ccy] || `${ccy} `}{Math.round(data.amount).toLocaleString()}
-                    </span>
-                  </div>
-                ));
+                  );
+                });
               })()}
             </div>
             <p className="text-[10px] text-muted-foreground/70 mt-3">
               Use this summary to process payouts externally in each worker's payroll currency.
             </p>
-          </div>
-
-          {/* Financial ledger */}
-          <div className="rounded-lg border border-border/40 bg-card/50 p-4 space-y-2.5">
-            <div className="flex items-center justify-between text-xs">
-              <div>
-                <span className="text-muted-foreground">Total compensation before fees</span>
-                <p className="text-[10px] text-muted-foreground/60">Incl. statutory earnings & deductions</p>
-              </div>
-              <span className="text-foreground tabular-nums">$118,500</span>
-            </div>
-
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1.5 text-muted-foreground">
-                <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-                Approved adjustments ({displayData.approvedCount})
-              </span>
-              <span className="text-accent-green-text font-medium tabular-nums">+{formatCurrency(displayData.totalApprovedAmount)}</span>
-            </div>
-            
-            {displayData.rejectedCount > 0 && (
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5 text-muted-foreground">
-                  <XCircle className="h-3 w-3 text-muted-foreground/50" />
-                  Rejected ({displayData.rejectedCount})
-                </span>
-                <span className="text-muted-foreground/60 tabular-nums line-through">{formatCurrency(displayData.rejectedAmount)}</span>
-              </div>
-            )}
-            
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Fronted fees</span>
-              <span className="text-foreground tabular-nums">{formatCurrency(displayData.fees)}</span>
-            </div>
-            
-            <div className="flex items-center justify-between text-xs pt-2.5 border-t border-border/40">
-              <span className="text-foreground font-medium">Net payout</span>
-              <span className="text-primary font-semibold tabular-nums">{formatCurrency(displayData.netPayout)}</span>
-            </div>
           </div>
         </div>
       </div>
