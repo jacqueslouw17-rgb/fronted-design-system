@@ -654,15 +654,11 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   };
 
   const goToTrack = () => {
-    setCompletedSteps(prev => {
-      const steps: F1v4_PayrollStep[] = [...prev];
-      if (!steps.includes("submissions")) steps.push("submissions");
-      if (!steps.includes("approve")) steps.push("approve");
-      return steps;
-    });
+    setCompletedSteps(["submissions"]);
     setIsApproved(true);
     setCurrentStep("track");
-    toast.success("Payroll numbers approved and locked");
+    setIsApproveModalOpen(false);
+    toast.success("Payroll approved — track payments below");
   };
 
 
