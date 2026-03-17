@@ -40,7 +40,7 @@ export const F1v4_ApproveConfirmationModal: React.FC<F1v4_ApproveConfirmationMod
             Go back
           </Button>
           <Button onClick={onConfirm} className="flex-1">
-            Lock & approve
+            Approve & pay out
           </Button>
         </DialogFooter>
       </DialogContent>
