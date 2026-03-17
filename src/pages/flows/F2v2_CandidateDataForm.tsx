@@ -407,6 +407,9 @@ const F2v2_CandidateDataForm: React.FC = () => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const hasInitialized = useRef(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const hasInitialized = useRef(false);
 
   useEffect(() => {
