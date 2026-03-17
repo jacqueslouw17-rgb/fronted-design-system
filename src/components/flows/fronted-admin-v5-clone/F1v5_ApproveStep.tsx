@@ -272,7 +272,7 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                         <span className="text-base">{ccyFlags[ccy] || "🌍"}</span>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-foreground">{ccyNames[ccy] || ccy}</p>
-                          <p className="text-[10px] text-muted-foreground">{data.workerCount} worker{data.workerCount !== 1 ? "s" : ""}</p>
+                          <p className="text-[10px] text-muted-foreground">{[data.employeeCount > 0 ? `${data.employeeCount} employee${data.employeeCount !== 1 ? "s" : ""}` : "", data.contractorCount > 0 ? `${data.contractorCount} contractor${data.contractorCount !== 1 ? "s" : ""}` : ""].filter(Boolean).join(", ")}</p>
                         </div>
                         <span className="text-sm font-semibold text-foreground tabular-nums">{fmt(ccy, total)}</span>
                       </div>
