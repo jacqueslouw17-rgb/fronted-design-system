@@ -3,7 +3,7 @@
  * 
  * Matches CA3_PayrollSection exactly:
  * - Landing view: KPI card with "Continue to submissions" button
- * - Workflow: Submissions → Approve → Track with back arrow navigation
+ * - Workflow: Submissions → Track (Approve step removed, Approve button is in Submissions header)
  */
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { CompanyPayrollData } from "./F1v5_PayrollTab";
 import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v5_SubmissionsView";
 
-import { F1v4_ApproveStep } from "./F1v5_ApproveStep";
+// F1v4_ApproveStep no longer used — approve step removed
 import { F1v4_TrackStep } from "./F1v5_TrackStep";
 import { F1v4_ApproveConfirmationModal } from "./F1v5_ApproveConfirmationModal";
 import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v5_PeriodDropdown";
@@ -648,25 +648,17 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     setCurrentStep("submissions");
   };
 
-  // Navigation handlers
-  const goToApprove = (readyWorkerIds?: string[], adjustmentDecisions?: Record<string, {status: string}>, excludedWorkerIds?: string[]) => {
-    setCompletedSteps(prev => [...prev, "submissions"]);
-    setCurrentStep("approve");
-    if (readyWorkerIds) setApproveReadyWorkerIds(readyWorkerIds);
-    if (adjustmentDecisions) setApproveAdjustmentDecisions(adjustmentDecisions);
-    if (excludedWorkerIds) setApproveExcludedWorkerIds(excludedWorkerIds);
+  // Open the approve confirmation modal from submissions
+  const handleApproveFromSubmissions = () => {
+    setIsApproveModalOpen(true);
   };
 
   const goToTrack = () => {
-    setCompletedSteps(prev => {
-      const steps: F1v4_PayrollStep[] = [...prev];
-      if (!steps.includes("submissions")) steps.push("submissions");
-      if (!steps.includes("approve")) steps.push("approve");
-      return steps;
-    });
+    setCompletedSteps(["submissions"]);
     setIsApproved(true);
     setCurrentStep("track");
-    toast.success("Payroll numbers approved and locked");
+    setIsApproveModalOpen(false);
+    toast.success("Payroll approved — track payments below");
   };
 
 
@@ -675,9 +667,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     switch (currentStep) {
       case "submissions":
         setHasEnteredWorkflow(false);
-        break;
-      case "approve":
-        setCurrentStep("submissions");
         break;
       case "track":
         // No back from track
@@ -731,7 +720,6 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   const getStepTitle = (): string => {
     switch (currentStep) {
       case "submissions": return "Submissions";
-      case "approve": return "Approve";
       case "track": return "Track & Reconcile";
       default: return "";
     }
@@ -742,65 +730,25 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     switch (currentStep) {
       case "submissions":
         return (
-          <F1v4_SubmissionsView
-            submissions={displaySubmissions}
-            onContinue={goToApprove}
-            onClose={() => setHasEnteredWorkflow(false)}
-            isCustomBatch={isCustomBatch}
-          />
-        );
-      case "approve":
-        return (
-          <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-            <div className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <F1v4_PayrollStepper
-                    currentStep="approve"
-                    completedSteps={completedSteps as StepperStep[]}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline"
-                    size="sm" 
-                    onClick={() => setCurrentStep("submissions")}
-                    className="h-9 text-xs"
-                  >
-                    Back
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={() => setIsHeaderConfirmOpen(true)}
-                    className="h-9 text-xs"
-                  >
-                    Approve
-                  </Button>
-                  <F1v4_ApproveConfirmationModal
-                    open={isHeaderConfirmOpen}
-                    onOpenChange={setIsHeaderConfirmOpen}
-                    onConfirm={goToTrack}
-                    companyName={company.name}
-                    employeeCount={approveSubmissions.filter(s => s.workerType === "employee").length}
-                    contractorCount={approveSubmissions.filter(s => s.workerType === "contractor").length}
-                    totalAmount={`€${approveSubmissions.reduce((sum, s) => sum + (s.totalImpact || 0), 0).toLocaleString()}`}
-                    isCustomBatch={isCustomBatch}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="p-5">
-              <F1v4_ApproveStep
-                company={company}
-                onApprove={goToTrack}
-                hideHeader
-                isCustomBatch={isCustomBatch}
-                submissions={approveSubmissions}
-                pendingWorkerCount={pendingWorkerCount}
-                excludedWorkerCount={approveExcludedWorkerIds.length}
-              />
-            </div>
-          </Card>
+          <>
+            <F1v4_SubmissionsView
+              submissions={displaySubmissions}
+              onContinue={() => {}}
+              onClose={() => setHasEnteredWorkflow(false)}
+              isCustomBatch={isCustomBatch}
+              onApproveAndPayout={handleApproveFromSubmissions}
+            />
+            <F1v4_ApproveConfirmationModal
+              open={isApproveModalOpen}
+              onOpenChange={setIsApproveModalOpen}
+              onConfirm={goToTrack}
+              companyName={company.name}
+              employeeCount={displaySubmissions.filter(s => s.workerType === "employee").length}
+              contractorCount={displaySubmissions.filter(s => s.workerType === "contractor").length}
+              totalAmount={`€${displaySubmissions.reduce((sum, s) => sum + (s.totalImpact || 0), 0).toLocaleString()}`}
+              isCustomBatch={isCustomBatch}
+            />
+          </>
         );
       case "track":
         return (
