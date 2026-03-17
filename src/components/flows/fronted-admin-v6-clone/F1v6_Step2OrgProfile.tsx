@@ -127,6 +127,8 @@ const F1v5_Step2OrgProfile = ({
     if (!data.adminEmail) newErrors.adminEmail = "End-client email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.adminEmail)) {
       newErrors.adminEmail = "Invalid email format";
+    } else if (!isEditMode && REGISTERED_EMAILS[data.adminEmail.toLowerCase()]) {
+      newErrors.adminEmail = `This email is already registered with ${REGISTERED_EMAILS[data.adminEmail.toLowerCase()]}`;
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
     if (!data.defaultCurrency) newErrors.defaultCurrency = "Default currency is required";
