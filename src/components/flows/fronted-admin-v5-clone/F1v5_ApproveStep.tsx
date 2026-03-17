@@ -235,14 +235,41 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
         <div className="p-5 space-y-5">
           {/* Hero payout */}
           <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-            <p className="text-xs text-primary/70 mb-1">Total payout</p>
-            <p className="text-3xl font-semibold text-primary tracking-tight">{formatCurrency(displayData.totalCost)}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">
-              {company.employeeCount + company.contractorCount} workers · USD → EUR 1.0842
-            </p>
-            <p className="text-[10px] text-muted-foreground/70 mt-1">
-              Transfer this amount outside of Fronted to complete the pay run
-            </p>
+           <p className="text-xs text-primary/70 mb-1">Payout summary by currency</p>
+           <div className="space-y-1 mt-2">
+             {(() => {
+               const currencyTotals: Record<string, number> = {};
+               submissions.forEach(w => {
+                 const ccy = w.currency || "USD";
+                 const base = w.baseSalary || 0;
+                 const adj = w.submissions
+                   .filter(s => s.status === "approved")
+                   .reduce((sum, s) => sum + (s.amount || 0), 0);
+                 const adminAdj = (w.adminAdjustments || [])
+                   .reduce((sum, a) => sum + (a.type === "addition" ? a.amount : -a.amount), 0);
+                 currencyTotals[ccy] = (currencyTotals[ccy] || 0) + base + adj + adminAdj;
+               });
+               // Fallback if no submissions data
+               if (Object.keys(currencyTotals).length === 0) {
+                 currencyTotals["USD"] = displayData.totalCost;
+               }
+               const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK " };
+               return Object.entries(currencyTotals).map(([ccy, amount]) => (
+                 <div key={ccy} className="flex items-center justify-between">
+                   <span className="text-sm font-medium text-primary/80">{ccy}</span>
+                   <span className="text-lg font-semibold text-primary tabular-nums">
+                     {ccySymbols[ccy] || `${ccy} `}{Math.round(amount).toLocaleString()}
+                   </span>
+                 </div>
+               ));
+             })()}
+           </div>
+           <p className="text-[10px] text-muted-foreground mt-2">
+             {company.employeeCount + company.contractorCount} workers
+           </p>
+           <p className="text-[10px] text-muted-foreground/70 mt-1">
+             Use this summary to process payouts externally in each worker's payroll currency.
+           </p>
           </div>
 
           {/* Financial ledger */}
