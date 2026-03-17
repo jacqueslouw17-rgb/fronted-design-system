@@ -190,6 +190,36 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
   const countryRule = COUNTRY_RULES[formData.country];
 
+  // ── Inline validation for country-default fields ──
+  const fieldErrors = (() => {
+    if (!countryRule) return {} as Record<string, string>;
+    const errors: Record<string, string> = {};
+    const probVal = Number(formData.probationPeriod);
+    const noticeVal = Number(formData.noticePeriod);
+    const annualVal = Number(formData.annualLeave);
+    const sickVal = Number(formData.sickLeave);
+    const hoursVal = Number(formData.weeklyHours);
+
+    if (formData.probationPeriod !== "" && probVal > countryRule.probation.max) {
+      errors.probationPeriod = `Must be ${countryRule.probation.max} or fewer days`;
+    }
+    if (formData.noticePeriod !== "" && noticeVal < countryRule.noticePeriod.min) {
+      errors.noticePeriod = `Must be ${countryRule.noticePeriod.min} or more days`;
+    }
+    if (formData.annualLeave !== "" && annualVal < countryRule.annualLeave.min) {
+      errors.annualLeave = `Must be ${countryRule.annualLeave.min} or more days`;
+    }
+    if (formData.sickLeave !== "" && sickVal < countryRule.sickLeave.min) {
+      errors.sickLeave = `Must be ${countryRule.sickLeave.min} or more days`;
+    }
+    if (formData.weeklyHours !== "" && hoursVal > countryRule.weeklyHours.max) {
+      errors.weeklyHours = `Must be ${countryRule.weeklyHours.max} or fewer hours`;
+    }
+    return errors;
+  })();
+
+  const hasValidationErrors = Object.keys(fieldErrors).length > 0;
+
   const handleSendForm = async () => {
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
