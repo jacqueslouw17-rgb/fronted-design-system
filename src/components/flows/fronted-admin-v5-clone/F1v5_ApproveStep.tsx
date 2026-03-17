@@ -157,12 +157,12 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
               <p className="text-xs text-primary/70 mb-1">Off-cycle payout total</p>
               <p className="text-3xl font-semibold text-primary tracking-tight">{formatCurrency(displayData.totalCost)}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">
-                {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""} · {displayData.totalRequests} adjustment{displayData.totalRequests !== 1 ? "s" : ""} · USD → EUR 1.0842
-              </p>
-              <p className="text-[10px] text-muted-foreground/70 mt-1">
-                Transfer this amount outside of Fronted to complete the pay run
-              </p>
+            <p className="text-[10px] text-muted-foreground mt-1">
+               {displayData.workerCount} worker{displayData.workerCount !== 1 ? "s" : ""} · {displayData.totalRequests} adjustment{displayData.totalRequests !== 1 ? "s" : ""}
+             </p>
+             <p className="text-[10px] text-muted-foreground/70 mt-1">
+               Use this summary to process payouts externally in each worker's payroll currency.
+             </p>
             </div>
 
             {/* Financial ledger */}
