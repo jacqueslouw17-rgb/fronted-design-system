@@ -87,25 +87,30 @@ const Field: React.FC<{
   label: string;
   optional?: boolean;
   hint?: string;
+  error?: string;
   children: React.ReactNode;
-}> = ({ label, optional, hint, children }) => (
+}> = ({ label, optional, hint, error, children }) => (
   <div className="space-y-1.5">
     <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
       {label}
       {optional && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">Optional</Badge>}
     </Label>
     {children}
-    {hint && <p className="text-muted-foreground text-[11px]">{hint}</p>}
+    {error ? (
+      <p className="text-destructive text-[11px] font-medium">{error}</p>
+    ) : (
+      hint && <p className="text-muted-foreground text-[11px]">{hint}</p>
+    )}
   </div>
 );
 
 /* ── Number with unit badge ── */
 const NumberFieldWithUnit: React.FC<{
-  value: string; onChange: (v: string) => void; unit: string; min?: number; max?: number; step?: number;
-}> = ({ value, onChange, unit, min, max, step }) => (
+  value: string; onChange: (v: string) => void; unit: string; min?: number; max?: number; step?: number; hasError?: boolean;
+}> = ({ value, onChange, unit, min, max, step, hasError }) => (
   <div className="flex items-center gap-2">
     <Input type="number" value={value} onChange={e => onChange(e.target.value)} min={min} max={max} step={step}
-      className="flex-1 h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100" />
+      className={cn("flex-1 h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100", hasError && "border-destructive focus-visible:ring-destructive")} />
     <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">{unit}</span>
   </div>
 );
