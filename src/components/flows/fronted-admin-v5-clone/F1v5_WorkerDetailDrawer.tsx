@@ -43,7 +43,6 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import {
   ChevronLeft,
   ChevronRight,
@@ -66,7 +65,6 @@ import {
   XCircle,
   Bell,
   ShieldCheck,
-  ArrowLeftRight,
 } from "lucide-react";
 
 export interface WorkerData {

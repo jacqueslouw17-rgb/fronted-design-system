@@ -19,7 +19,6 @@ import {
   DollarSign,
   Receipt,
   CheckCheck,
-  ArrowLeftRight,
   Info,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

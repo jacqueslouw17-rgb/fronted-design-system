@@ -5,7 +5,6 @@
  */
 
 import React from "react";
-import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { CheckCircle2, Download, FileText, Users, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
