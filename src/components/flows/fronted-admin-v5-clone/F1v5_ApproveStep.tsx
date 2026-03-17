@@ -254,12 +254,13 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
                 }
                 const ccySymbols: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", NOK: "NOK ", PHP: "₱", MXN: "MX$", EGP: "EGP ", SEK: "SEK ", DKK: "DKK " };
                 const ccyFlags: Record<string, string> = { USD: "🇺🇸", EUR: "🇪🇺", GBP: "🇬🇧", NOK: "🇳🇴", PHP: "🇵🇭", MXN: "🇲🇽", EGP: "🇪🇬", SEK: "🇸🇪", DKK: "🇩🇰" };
+                const ccyNames: Record<string, string> = { USD: "US Dollar", EUR: "Euro", GBP: "British Pound", NOK: "Norwegian Krone", PHP: "Philippine Peso", MXN: "Mexican Peso", EGP: "Egyptian Pound", SEK: "Swedish Krona", DKK: "Danish Krone" };
                 const entries = Object.entries(currencyTotals);
                 return entries.map(([ccy, data]) => (
                   <div key={ccy} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-background/60 border border-border/30">
                     <span className="text-base">{ccyFlags[ccy] || "🌍"}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-foreground">{ccy}</p>
+                      <p className="text-xs font-medium text-foreground">{ccyNames[ccy] || ccy}</p>
                       <p className="text-[10px] text-muted-foreground">{data.workerCount} worker{data.workerCount !== 1 ? "s" : ""}</p>
                     </div>
                     <span className="text-sm font-semibold text-foreground tabular-nums">
