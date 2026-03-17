@@ -19,7 +19,6 @@ import {
   DollarSign,
   Receipt,
   CheckCheck,
-  ArrowLeftRight,
   Info,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -41,7 +40,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CompanyPayrollData } from "./F1v5_PayrollTab";
 import { toast } from "sonner";
-import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { F1v4_WorkerDetailDrawer, WorkerData } from "./F1v5_WorkerDetailDrawer";
 import { F1v4_PayslipPreviewModal } from "./F1v5_PayslipPreviewModal";
 import { F1v4_PayrollStepper, F1v4_PayrollStep } from "./F1v5_PayrollStepper";
@@ -454,8 +452,8 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                   </button>
                 </PopoverTrigger>
                 <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
-                  <p className="font-medium">Locked at USD → EUR 1.0842</p>
-                  <p className="text-muted-foreground text-[10px]">FX rate locked upon approval</p>
+                  <p className="font-medium">Local currency totals</p>
+                  <p className="text-muted-foreground text-[10px]">Shown in each worker’s payout currency</p>
                 </PopoverContent>
               </Popover>
             </div>
@@ -473,8 +471,8 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                   </button>
                 </PopoverTrigger>
                 <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
-                  <p className="font-medium">Locked at USD → EUR 1.0842</p>
-                  <p className="text-muted-foreground text-[10px]">FX rate locked upon approval</p>
+                  <p className="font-medium">Local currency totals</p>
+                  <p className="text-muted-foreground text-[10px]">Shown in each worker’s payout currency</p>
                 </PopoverContent>
               </Popover>
             </div>

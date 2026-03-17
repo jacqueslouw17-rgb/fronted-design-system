@@ -41,7 +41,6 @@ import { format } from "date-fns";
 import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "@/components/flows/company-admin-v3/CA3_AdminAddAdjustment";
-import { CurrencyToggle, convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { F1v4_PayrollStepper } from "./F1v5_PayrollStepper";
 
 // Country flag map for consistent display
@@ -517,7 +516,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [showExcludeDialog, setShowExcludeDialog] = useState(false);
   const [showReceiptView, setShowReceiptView] = useState(false);
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
-  const [showUSD, setShowUSD] = useState(true);
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   // Finalized workers - once finalized, their items are locked
@@ -842,7 +840,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
         <div className="flex items-center gap-3 flex-shrink-0">
           {submission.totalImpact ?
-          <p className="text-sm font-semibold text-foreground tabular-nums">{submission.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(submission.totalImpact, submission.currency)), "EUR")}` : formatCurrency(submission.totalImpact, "EUR")}</p> :
+          <p className="text-sm font-semibold text-foreground tabular-nums">{formatCurrency(submission.totalImpact, submission.currency || "EUR")}</p> :
 
           <p className="text-xs text-muted-foreground">—</p>
           }
@@ -1053,8 +1051,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
             const deductions = selectedSubmission.lineItems?.filter((item) => item.type === 'Deduction') || [];
             const allAdjustments = selectedSubmission.submissions;
             const currency = selectedSubmission.currency || 'EUR';
-            const dc = showUSD && currency !== "EUR" ? "EUR" : currency;
-            const cvt = (amt: number) => showUSD && currency !== "EUR" ? convertToEUR(amt, currency) : amt;
+            const dc = currency;
+            const cvt = (amt: number) => amt;
             const moneyAdjustments = allAdjustments.map((adj, idx) => ({ adj, originalIdx: idx })).filter(({ adj }) => typeof adj.amount === 'number');
             const pendingLeaves = selectedSubmission.pendingLeaves || [];
 
@@ -1162,14 +1160,16 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
 
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
                         <p className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">{selectedSubmission.workerType === "employee" ? "Estimated net" : "Invoice total"}</p>
-                        <CurrencyToggle
-                          amount={adjustedNet}
-                          localCurrency={currency}
-                          showUSD={showUSD}
-                          onToggle={() => setShowUSD(!showUSD)}
-                          previousAmount={baseNet}
-                          showPreviousAmount={approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments}
-                        />
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
+                            {formatCurrency(adjustedNet, currency)}
+                          </p>
+                          {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments) && (
+                            <p className="text-[10px] text-muted-foreground/60 tabular-nums">
+                              was {formatCurrency(baseNet, currency)}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </SheetHeader>
 
