@@ -26,12 +26,12 @@ export const F1v4_ApproveConfirmationModal: React.FC<F1v4_ApproveConfirmationMod
       <DialogContent className="max-w-sm">
         <DialogHeader className="text-center pb-2">
           <DialogTitle className="text-lg font-semibold">
-            {isCustomBatch ? "Lock this off-cycle batch?" : "Ready to lock and pay out?"}
+            {isCustomBatch ? "Ready to pay out?" : "Ready to pay out?"}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground mt-1">
             {isCustomBatch
-              ? "Once locked, no further edits can be made. You'll process the payment outside of Fronted."
-              : "Once locked, no further edits can be made. You'll process the payment outside of Fronted."}
+              ? "Once approved, no further edits can be made. You'll process the payment outside of Fronted."
+              : "Once approved, no further edits can be made. You'll process the payment outside of Fronted."}
           </DialogDescription>
         </DialogHeader>
 
