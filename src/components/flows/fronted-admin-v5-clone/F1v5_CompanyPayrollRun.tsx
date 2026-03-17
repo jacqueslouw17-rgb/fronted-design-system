@@ -648,13 +648,9 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
     setCurrentStep("submissions");
   };
 
-  // Navigation handlers
-  const goToApprove = (readyWorkerIds?: string[], adjustmentDecisions?: Record<string, {status: string}>, excludedWorkerIds?: string[]) => {
-    setCompletedSteps(prev => [...prev, "submissions"]);
-    setCurrentStep("approve");
-    if (readyWorkerIds) setApproveReadyWorkerIds(readyWorkerIds);
-    if (adjustmentDecisions) setApproveAdjustmentDecisions(adjustmentDecisions);
-    if (excludedWorkerIds) setApproveExcludedWorkerIds(excludedWorkerIds);
+  // Open the approve confirmation modal from submissions
+  const handleApproveFromSubmissions = () => {
+    setIsApproveModalOpen(true);
   };
 
   const goToTrack = () => {
