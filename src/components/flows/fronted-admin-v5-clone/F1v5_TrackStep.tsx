@@ -471,8 +471,8 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
                   </button>
                 </PopoverTrigger>
                 <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
-                  <p className="font-medium">Locked at USD → EUR 1.0842</p>
-                  <p className="text-muted-foreground text-[10px]">FX rate locked upon approval</p>
+                  <p className="font-medium">Local currency totals</p>
+                  <p className="text-muted-foreground text-[10px]">Shown in each worker’s payout currency</p>
                 </PopoverContent>
               </Popover>
             </div>
