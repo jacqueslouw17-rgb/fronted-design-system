@@ -518,17 +518,17 @@ const F2v2_CandidateDataForm: React.FC = () => {
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4, duration: 0.8 }}
-                    className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 blur-xl"
+                    className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/20 via-primary/15 to-primary-glow/20 blur-xl"
                   />
                   {/* Decorative ring */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5, duration: 0.6 }}
-                    className="absolute -inset-2 rounded-full border border-primary/20"
+                    className="absolute -inset-2 rounded-full border border-primary/15"
                   />
                   {/* Main icon container */}
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/25">
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center shadow-lg shadow-primary/25" style={{ background: 'linear-gradient(135deg, hsl(221 83% 53%), hsl(250 70% 58%))' }}>
                     <motion.svg
                       viewBox="0 0 24 24"
                       fill="none"
@@ -554,7 +554,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.7, duration: 0.3 }}
-                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-accent shadow-sm shadow-accent/50"
+                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary-glow shadow-sm shadow-primary/50"
                   />
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
