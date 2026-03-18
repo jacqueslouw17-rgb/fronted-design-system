@@ -1,7 +1,8 @@
 /**
- * Flow 5 v3 — Teal Wave Visualizer (Future Theme)
+ * Flow 5 v3 — Wave Visualizer (Future Theme)
  * 
- * Matches the v7 Future glassmorphism teal palette (hsl 172 28% 42%).
+ * Matches the v7 Future glassmorphism blue/indigo frequency animation
+ * from AudioWaveVisualizer but scoped to Flow 5 v3 only.
  * DO NOT modify AudioWaveVisualizer or any other flow's visualizer.
  */
 
@@ -10,116 +11,106 @@ import { useState } from "react";
 
 interface F5v3WaveVisualizerProps {
   isActive?: boolean;
+  isListening?: boolean;
+  isDetectingVoice?: boolean;
 }
 
-const F5v3_WaveVisualizer = ({ isActive = false }: F5v3WaveVisualizerProps) => {
+const F5v3_WaveVisualizer = ({ isActive = false, isListening = false, isDetectingVoice = false }: F5v3WaveVisualizerProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const waves = [
-    { delay: 0, restingHeight: 14, glowIntensity: 0.25 },
-    { delay: 0.25, restingHeight: 22, glowIntensity: 0.4 },
-    { delay: 0.5, restingHeight: 28, glowIntensity: 0.55 },
-    { delay: 0.75, restingHeight: 22, glowIntensity: 0.4 },
-    { delay: 1.0, restingHeight: 14, glowIntensity: 0.25 },
-  ];
+  const isFullyActive = (isActive && !isListening) || (isListening && isDetectingVoice);
+  const isIdleBreathing = !isFullyActive && !isListening;
 
-  // Teal palette matching v7 Future theme
-  const tealBase = "hsl(172 28% 42%)";
-  const tealLight = "hsl(172 32% 56%)";
-  const tealGlow = "hsl(172 38% 68%)";
-  const tealMuted = "hsl(172 22% 78%)";
+  const waves = [
+    { delay: 0, restingHeight: 16, glowIntensity: 0.3 },
+    { delay: 0.25, restingHeight: 24, glowIntensity: 0.5 },
+    { delay: 0.5, restingHeight: 32, glowIntensity: 0.7 },
+    { delay: 0.75, restingHeight: 24, glowIntensity: 0.5 },
+    { delay: 1.0, restingHeight: 16, glowIntensity: 0.3 },
+  ];
 
   return (
     <div
-      className="relative w-48 h-24 flex items-center justify-center gap-2 group transition-all duration-300"
+      className="relative w-64 h-32 flex items-center justify-center gap-2 group transition-all duration-300"
       style={{ contain: "layout" }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Breathing glow — teal */}
+      {/* Breathing glow — blue/indigo matching v7 */}
       <motion.div
         animate={{
-          opacity: isActive
-            ? [0.3, 0.5, 0.3]
-            : [0.35, 0.5, 0.65, 0.5, 0.35],
-          scale: isActive
+          opacity: isIdleBreathing
+            ? [0.5, 0.7, 0.85, 0.7, 0.5]
+            : isFullyActive
+            ? [0.3, 0.6, 0.3]
+            : [0.4, 0.5, 0.4],
+          scale: isIdleBreathing
+            ? isHovered ? [1.05, 1.15, 1.25, 1.15, 1.05] : [1, 1.1, 1.2, 1.1, 1]
+            : isFullyActive
             ? [1, 1.2, 1]
-            : isHovered
-            ? [1.05, 1.15, 1.25, 1.15, 1.05]
-            : [1, 1.08, 1.16, 1.08, 1],
+            : [1, 1.05, 1],
         }}
         transition={{
-          duration: isActive ? 1.2 : isHovered ? 2.5 : 5,
+          duration: isIdleBreathing ? (isHovered ? 2.5 : 5) : isFullyActive ? 1.2 : 2,
           repeat: Infinity,
           ease: "easeInOut",
         }}
         className="absolute inset-0 blur-3xl pointer-events-none"
         style={{
-          background: `radial-gradient(circle, ${tealBase} 0%, ${tealLight} 30%, ${tealGlow} 55%, ${tealMuted} 75%, transparent 100%)`,
-          opacity: 0.4,
+          background: isIdleBreathing
+            ? 'radial-gradient(circle, #3B82F6 0%, #818CF8 30%, #60A5FA 55%, #93C5FD 75%, transparent 100%)'
+            : 'radial-gradient(circle, hsl(var(--primary) / 0.5), transparent)',
         }}
       />
 
-      {/* Hover ripple — teal */}
-      {isHovered && !isActive && (
+      {/* Hover ripple — blue/indigo */}
+      {isHovered && isIdleBreathing && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{
-            opacity: [0, 0.3, 0],
-            scale: [0.8, 1.3, 1.5],
+            opacity: [0, 0.4, 0],
+            scale: [0.8, 1.4, 1.6],
           }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
           className="absolute inset-0 blur-2xl pointer-events-none"
           style={{
-            background: `radial-gradient(circle, ${tealBase} 0%, ${tealLight} 40%, ${tealGlow} 70%, transparent 100%)`,
+            background: 'radial-gradient(circle, #6366F1 0%, #60A5FA 40%, #93C5FD 70%, transparent 100%)',
           }}
         />
       )}
 
-      {/* Wave bars — teal gradient */}
+      {/* Wave bars — blue/indigo gradient */}
       {waves.map((wave, index) => (
         <motion.div
           key={index}
-          className="w-1 rounded-full motion-reduce:animate-none"
+          className="w-1 rounded-full transition-shadow duration-300 motion-reduce:animate-none"
           style={{
-            background: `linear-gradient(to bottom, ${tealBase}, ${tealLight}, ${tealGlow}, ${tealMuted})`,
-            boxShadow: isActive
-              ? `0 0 16px hsl(172 28% 42% / ${wave.glowIntensity})`
-              : `0 0 ${10 + (isHovered ? 6 : 0)}px hsl(172 28% 42% / ${wave.glowIntensity + (isHovered ? 0.1 : 0)}), 0 0 ${5 + (isHovered ? 3 : 0)}px hsl(172 32% 56% / ${wave.glowIntensity * 0.5})`,
+            background: 'linear-gradient(to bottom, #6366F1, #3B82F6, #60A5FA, #93C5FD)',
+            boxShadow: isIdleBreathing
+              ? `0 0 ${12 + (isHovered ? 8 : 0)}px rgba(99, 102, 241, ${wave.glowIntensity + (isHovered ? 0.15 : 0)}), 0 0 ${6 + (isHovered ? 4 : 0)}px rgba(59, 130, 246, ${wave.glowIntensity * 0.6})`
+              : isFullyActive
+              ? `0 0 20px hsl(var(--primary) / ${wave.glowIntensity})`
+              : 'none',
             willChange: "height, opacity",
           }}
           animate={{
-            height: isActive
-              ? [
-                  wave.restingHeight * 1.5,
-                  wave.restingHeight * 2.5,
-                  wave.restingHeight * 1.8,
-                  wave.restingHeight * 2.5,
-                  wave.restingHeight * 1.5,
-                ]
-              : isHovered
-              ? [
-                  wave.restingHeight * 0.85,
-                  wave.restingHeight * 1.1,
-                  wave.restingHeight * 1.25,
-                  wave.restingHeight * 1.1,
-                  wave.restingHeight * 0.85,
-                ]
-              : [
-                  wave.restingHeight * 0.8,
-                  wave.restingHeight * 0.95,
-                  wave.restingHeight * 1.1,
-                  wave.restingHeight * 0.95,
-                  wave.restingHeight * 0.8,
-                ],
-            opacity: isActive
-              ? [0.8, 1, 0.8]
-              : isHovered
-              ? [0.6, 0.8, 0.95, 0.8, 0.6]
-              : [0.5, 0.65, 0.8, 0.65, 0.5],
+            height: isIdleBreathing
+              ? isHovered
+                ? [wave.restingHeight * 0.85, wave.restingHeight * 1.1, wave.restingHeight * 1.25, wave.restingHeight * 1.1, wave.restingHeight * 0.85]
+                : [wave.restingHeight * 0.8, wave.restingHeight * 0.95, wave.restingHeight * 1.1, wave.restingHeight * 0.95, wave.restingHeight * 0.8]
+              : isFullyActive
+              ? [wave.restingHeight * 1.5, wave.restingHeight * 2.5, wave.restingHeight * 1.8, wave.restingHeight * 2.5, wave.restingHeight * 1.5]
+              : isListening
+              ? [8, 12, 8]
+              : [wave.restingHeight * 0.8, wave.restingHeight, wave.restingHeight * 0.8],
+            opacity: isIdleBreathing
+              ? isHovered
+                ? [0.7, 0.85, 1, 0.85, 0.7]
+                : [0.6, 0.75, 0.9, 0.75, 0.6]
+              : [0.8, 1, 0.8],
           }}
           transition={{
-            duration: isActive ? 1.2 : isHovered ? 2.5 : 5,
+            duration: isIdleBreathing ? (isHovered ? 2.5 : 5) : isFullyActive ? 1.2 : isListening ? 2 : 3,
             repeat: Infinity,
             ease: "easeInOut",
             delay: wave.delay,
