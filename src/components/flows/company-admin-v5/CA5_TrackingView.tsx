@@ -100,6 +100,12 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
   const { isOpen: isAgentOpen } = useCA4Agent();
   const chatWidth = isAgentOpen ? 420 : 0;
 
+  // Toggle body class for v7 drawer overlay (hides header behind drawer)
+  useEffect(() => {
+    document.body.classList.toggle("v7-payroll-drawer-open", drawerOpen);
+    return () => document.body.classList.remove("v7-payroll-drawer-open");
+  }, [drawerOpen]);
+
   const paidCount = workers.filter(w => w.status === "paid").length;
   const inProgressCount = workers.filter(w => w.status === "in-progress").length;
   const progressPercent = workers.length > 0 ? Math.round((paidCount / workers.length) * 100) : 0;
