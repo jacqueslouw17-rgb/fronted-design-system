@@ -50,6 +50,12 @@ const CompanyAdminOnboardingV3 = () => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
+  // Activate v7 glass portal overrides on body
+  useEffect(() => {
+    document.body.classList.add('v7-glass-active');
+    return () => document.body.classList.remove('v7-glass-active');
+  }, []);
+
   useEffect(() => {
     if (!hasInitialized.current) {
       resetAdminFlow();
