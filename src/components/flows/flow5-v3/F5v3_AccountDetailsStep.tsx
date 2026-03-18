@@ -222,11 +222,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
                   setTermsAccepted(true);
                   setTermsSheetOpen(false);
                 }}
-                className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg active:scale-[0.98]"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(172 28% 38%), hsl(172 32% 48%))',
-                  boxShadow: '0 4px 14px -3px hsl(172 28% 42% / 0.35)',
-                }}
+                className="w-full h-11 rounded-xl text-sm font-semibold text-primary-foreground transition-all duration-200 hover:shadow-lg active:scale-[0.98] bg-gradient-primary"
               >
                 I agree
               </button>
