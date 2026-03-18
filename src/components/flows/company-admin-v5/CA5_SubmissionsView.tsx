@@ -1687,45 +1687,24 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         </CardContent>
       </Card>
 
-      {/* Worker Pay Breakdown Drawer - Fixed, respects chat panel width */}
-      <AnimatePresence>
-        {drawerOpen && (
-          <>
-            {/* Backdrop overlay - covers everything except chat panel */}
-            <motion.div
-              key="ca4-drawer-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[110] bg-black/80"
-              style={{ right: chatWidth }}
-              onClick={isAddingAdjustment ? undefined : handleCloseDrawer}
-            />
-
-            {/* Drawer panel - slides in from right, stops at chat edge */}
-            <motion.div
-              key="ca4-worker-drawer"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed top-0 bottom-0 z-[120] w-[420px] sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto"
-              style={{ right: chatWidth }}
-            >
-              {/* Close button */}
-              {!isAddingAdjustment && (
-                <button
-                  onClick={handleCloseDrawer}
-                  className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </button>
-              )}
-              
-              
-              {/* Actual content */}
+      {/* Worker Pay Breakdown Drawer */}
+      <Sheet
+        open={drawerOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseDrawer();
+            return;
+          }
+          setDrawerOpen(true);
+        }}
+      >
+        <SheetContent
+          side="right"
+          className="z-[120] w-[420px] sm:max-w-[420px] overflow-y-auto p-0"
+          overlayClassName="z-[110] bg-black/80"
+          hideClose={isAddingAdjustment}
+          style={{ right: chatWidth }}
+        >
           {selectedSubmission && (() => {
             // Calculate breakdown data
             const earnings = selectedSubmission.lineItems?.filter(item => item.type === 'Earnings') || [];
