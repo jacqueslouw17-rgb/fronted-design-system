@@ -51,7 +51,7 @@ const LockedField = ({ label, value }: { label: string; value: string }) => (
       <Lock className="h-3 w-3" />
       {label}
     </Label>
-    <Input value={value} disabled className="bg-muted/30 text-muted-foreground/80 cursor-not-allowed border-border/20 text-sm" />
+    <Input value={value} disabled className="bg-white/40 text-muted-foreground/80 cursor-not-allowed border-primary/10 text-sm backdrop-blur-sm" />
   </div>
 );
 
