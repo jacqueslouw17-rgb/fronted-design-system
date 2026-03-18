@@ -107,14 +107,15 @@ const F2v3_CandidateDataForm: React.FC = () => {
           <FrostedHeader onLogoClick={() => navigate("/?tab=flows")} onCloseClick={() => navigate("/?tab=flows")} />
           <div
             className="v7-glass-bg flex-shrink-0 flex flex-col min-h-screen pt-20 sm:pt-24 px-4 sm:px-8 pb-16 sm:pb-32 items-center justify-center relative z-10 mx-auto"
-            style={{ width: "100%", maxWidth: "800px" }}
+            style={{ width: "100%", maxWidth: "680px" }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full text-center space-y-8"
+              className="w-full text-center space-y-10"
             >
+              {/* Animated icon with layered glow */}
               <motion.div
                 initial={{ scale: 0, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
@@ -122,15 +123,30 @@ const F2v3_CandidateDataForm: React.FC = () => {
                 className="flex justify-center"
               >
                 <div className="relative">
+                  {/* Outer soft glow */}
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4, duration: 0.8 }}
-                    className="absolute -inset-4 rounded-full blur-xl"
-                    style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.3), rgba(59,130,246,0.2), transparent)' }}
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={{ opacity: [0.4, 0.6, 0.4], scale: [1, 1.15, 1] }}
+                    transition={{ delay: 0.4, duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -inset-8 rounded-full"
+                    style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, rgba(59,130,246,0.12) 40%, transparent 70%)' }}
                   />
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #3B82F6, #6366F1)', boxShadow: '0 8px 32px rgba(99,102,241,0.3)' }}>
-                    <motion.svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 sm:w-12 sm:h-12">
+                  {/* Inner ring glow */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.6 }}
+                    className="absolute -inset-3 rounded-full border border-primary/10"
+                  />
+                  {/* Main circle */}
+                  <div
+                    className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center"
+                    style={{
+                      background: 'linear-gradient(145deg, #6366F1, #3B82F6, #818CF8)',
+                      boxShadow: '0 12px 40px rgba(99,102,241,0.35), 0 4px 16px rgba(59,130,246,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
+                    }}
+                  >
+                    <motion.svg viewBox="0 0 24 24" fill="none" className="w-11 h-11 sm:w-13 sm:h-13">
                       <motion.path
                         d="M5 13l4 4L19 7"
                         stroke="white"
@@ -146,8 +162,11 @@ const F2v3_CandidateDataForm: React.FC = () => {
                 </div>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }} className="space-y-4">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Submission Complete!</h1>
+              {/* Text */}
+              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }} className="space-y-4 px-4">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  Submission Complete!
+                </h1>
                 <p className="text-[15px] sm:text-[17px] leading-relaxed text-muted-foreground max-w-xl mx-auto">
                   Thanks, {PREFILLED.fullName.split(" ")[0]}. Your details have been sent to the Fronted team.
                   We'll now use them to prepare your contract, and you'll receive
@@ -155,10 +174,12 @@ const F2v3_CandidateDataForm: React.FC = () => {
                 </p>
               </motion.div>
 
-              <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.6, duration: 0.4 }} className="h-px bg-gradient-to-r from-transparent via-border to-transparent mx-auto max-w-xs" />
+              {/* Divider */}
+              <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.6, duration: 0.4 }} className="h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent mx-auto max-w-xs" />
 
+              {/* Status pill */}
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.4 }} className="flex justify-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm text-muted-foreground v7-glass-item">
+                <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm text-muted-foreground v7-glass-card">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />

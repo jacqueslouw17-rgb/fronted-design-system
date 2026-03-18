@@ -2,16 +2,19 @@
  * Flow 2 v3 — Step 1: Personal Profile (Future)
  * 
  * Glass-styled personal profile step for Flow 2 v3 only.
+ * Uses searchable combobox for nationality field.
  */
 
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Lock, Info } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { ArrowRight, Lock, Info, ChevronsUpDown, Check } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 const NATIONALITIES = [
   "American", "Australian", "Brazilian", "British", "Canadian", "Chinese", "Danish",
@@ -62,6 +65,7 @@ const F2v3_PersonalProfileStep: React.FC<F2v3PersonalProfileStepProps> = ({ form
     address: formData.address || "",
     idNumber: formData.idNumber || "",
   });
+  const [nationalityOpen, setNationalityOpen] = useState(false);
   const isValid = data.nationality && data.idNumber;
 
   const handleContinue = () => {
@@ -81,16 +85,50 @@ const F2v3_PersonalProfileStep: React.FC<F2v3PersonalProfileStepProps> = ({ form
         <LockedField label="Email" value={prefilled.email} />
 
         <div className="border-t border-primary/10 pt-4 space-y-4">
+          {/* Searchable Nationality */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-foreground/80">Nationality</Label>
-            <Select value={data.nationality} onValueChange={(v) => setData({ ...data, nationality: v })}>
-              <SelectTrigger className="bg-white/50 border-primary/10 backdrop-blur-sm">
-                <SelectValue placeholder="Select your nationality" />
-              </SelectTrigger>
-              <SelectContent>
-                {NATIONALITIES.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Popover open={nationalityOpen} onOpenChange={setNationalityOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  role="combobox"
+                  aria-expanded={nationalityOpen}
+                  className={cn(
+                    "flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition-colors",
+                    "bg-white/50 border-primary/10 backdrop-blur-sm",
+                    "hover:bg-white/60 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                    !data.nationality && "text-muted-foreground"
+                  )}
+                >
+                  {data.nationality || "Search nationality..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Type to search..." />
+                  <CommandList>
+                    <CommandEmpty>No nationality found.</CommandEmpty>
+                    <CommandGroup>
+                      {NATIONALITIES.map(n => (
+                        <CommandItem
+                          key={n}
+                          value={n}
+                          onSelect={() => {
+                            setData({ ...data, nationality: n });
+                            setNationalityOpen(false);
+                          }}
+                        >
+                          <Check className={cn("mr-2 h-4 w-4", data.nationality === n ? "opacity-100" : "opacity-0")} />
+                          {n}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="space-y-1.5">
