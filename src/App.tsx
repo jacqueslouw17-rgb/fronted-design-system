@@ -65,6 +65,7 @@ import F1v5_ProfileSettings from "./pages/flows/F1v5_ProfileSettings";
 import F1v6_ProfileSettings from "./pages/flows/F1v6_ProfileSettings";
 import F1v7_ProfileSettings from "./pages/flows/F1v7_ProfileSettings";
 import F6_ProfileSettings from "./pages/flows/F6_ProfileSettings";
+import F6v5_ProfileSettings from "./pages/flows/F6v5_ProfileSettings";
 import V4_ContractFlow from "./pages/flows/V4_ContractFlow";
 import SecureLinkError from "./pages/flows/SecureLinkError";
 import ServerError from "./pages/flows/ServerError";
@@ -204,6 +205,7 @@ const App = () => (
         <Route path="/flow-1-v6/profile-settings" element={<F1v6_ProfileSettings />} />
         <Route path="/flow-1-v7/profile-settings" element={<F1v7_ProfileSettings />} />
         <Route path="/flow-6/profile-settings" element={<F6_ProfileSettings />} />
+        <Route path="/flow-6-v5/profile-settings" element={<F6v5_ProfileSettings />} />
         <Route path="/flow-1-v4/payroll-details/:candidateId?" element={<V4_PayrollDetailsForm />} />
         <Route path="/candidate/profile-settings" element={<CandidateProfileSettings />} />
         <Route path="/admin/profile-settings" element={<AdminProfileSettings />} />
