@@ -201,28 +201,20 @@ const CompanyAdminOnboardingV3 = () => {
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 border",
                       idx === currentStep
-                        ? "border-[hsl(172_28%_42%/0.15)] text-foreground"
+                        ? "v7-glass-item border-primary/15 text-foreground"
                         : completedSteps.has(step.id)
-                        ? "border-[hsl(172_28%_42%/0.08)] text-foreground/60 cursor-pointer"
+                        ? "v7-glass-item border-primary/8 text-foreground/60 cursor-pointer"
                         : "border-transparent text-muted-foreground/35 cursor-not-allowed"
                     )}
-                    style={
-                      idx === currentStep
-                        ? { background: 'hsl(172 28% 42% / 0.05)' }
-                        : completedSteps.has(step.id)
-                        ? { background: 'hsl(172 28% 42% / 0.03)' }
-                        : undefined
-                    }
                   >
                     {completedSteps.has(step.id) ? (
-                      <CheckCircle2 className="h-3 w-3" style={{ color: 'hsl(172 28% 42% / 0.5)' }} />
+                      <CheckCircle2 className="h-3 w-3 text-primary/50" />
                     ) : (
                       <span
                         className={cn(
                           "h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-bold",
-                          idx === currentStep ? "" : "text-muted-foreground/25"
+                          idx === currentStep ? "bg-primary/10 text-primary/70" : "text-muted-foreground/25"
                         )}
-                        style={idx === currentStep ? { background: 'hsl(172 28% 42% / 0.08)', color: 'hsl(172 28% 42% / 0.7)' } : undefined}
                       >
                         {idx + 1}
                       </span>
@@ -231,8 +223,10 @@ const CompanyAdminOnboardingV3 = () => {
                   </button>
                   {idx < FLOW_STEPS.length - 1 && (
                     <div
-                      className="w-5 h-px transition-colors duration-300"
-                      style={{ background: completedSteps.has(step.id) ? 'hsl(172 28% 42% / 0.15)' : 'hsl(0 0% 0% / 0.04)' }}
+                      className={cn(
+                        "w-5 h-px transition-colors duration-300",
+                        completedSteps.has(step.id) ? "bg-primary/15" : "bg-foreground/[0.04]"
+                      )}
                     />
                   )}
                 </div>
