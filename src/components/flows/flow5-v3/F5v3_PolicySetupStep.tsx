@@ -133,11 +133,6 @@ const PillSelect = <T extends string>({
               : "border-foreground/[0.06] bg-white/20"
             isSelected && "shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
           )}
-          style={
-            isSelected
-              ? { border: '1px solid hsl(172 28% 42% / 0.18)', background: 'hsl(172 28% 42% / 0.04)' }
-              : { border: '1px solid hsl(0 0% 0% / 0.06)', background: 'hsl(0 0% 100% / 0.2)' }
-          }
         >
           {isSelected && (
             <motion.div
