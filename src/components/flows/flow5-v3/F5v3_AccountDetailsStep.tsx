@@ -162,11 +162,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
       <button
         onClick={handleContinue}
         disabled={!isValid || isProcessing}
-        className="w-full h-12 rounded-xl text-sm font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-        style={{
-          background: 'linear-gradient(135deg, hsl(172 28% 38%), hsl(172 32% 48%))',
-          boxShadow: isValid && !isProcessing ? '0 4px 14px -3px hsl(172 28% 42% / 0.35)' : 'none',
-        }}
+        className="w-full h-12 rounded-xl text-sm font-semibold text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 bg-gradient-primary"
       >
         {isProcessing ? "Processing..." : "Continue"}
         <ArrowRight className="h-4 w-4" />
