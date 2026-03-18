@@ -427,6 +427,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       description: `Commission · ${formatMoney(totalAmount)}`,
       currency,
       addedAt: new Date().toISOString(),
+      direction,
     });
     toast.success(`Added commission for ${workerName}`);
     handleClose();
