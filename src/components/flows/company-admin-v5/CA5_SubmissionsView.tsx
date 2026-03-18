@@ -172,13 +172,11 @@ const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: s
   ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
 };
 
-// Interactive adjustment row with 2-step review flow:
-// Step 1: Approve/Reject (reversible with Undo)
-// Step 2: Mark as Ready (finalization happens at worker level)
-const AdjustmentRow = ({ 
-  label, 
-  amount, 
-  currency, 
+// Interactive adjustment row with Flow 1 v7 visual treatment
+const AdjustmentRow = ({
+  label,
+  amount,
+  currency,
   status,
   rejectionReason,
   description,
@@ -189,7 +187,9 @@ const AdjustmentRow = ({
   onToggleExpand,
   isFinalized = false,
   isProcessing = false,
-}: { 
+  attachments,
+  tags,
+}: {
   label: string;
   amount: number;
   currency: string;
@@ -203,6 +203,8 @@ const AdjustmentRow = ({
   onToggleExpand?: () => void;
   isFinalized?: boolean;
   isProcessing?: boolean;
+  attachments?: SubmittedAdjustment["attachments"];
+  tags?: string[];
 }) => {
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = onToggleExpand ? isExpanded : localExpanded;
@@ -212,17 +214,15 @@ const AdjustmentRow = ({
   const [isHovered, setIsHovered] = useState(false);
 
   const formatAmount = (amt: number, curr: string) => {
-    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$" };
+    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", SGD: "S$" };
     return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  // Direct approve - no confirmation dialog (reversible)
   const handleApproveClick = () => {
     onApprove();
     toggleExpand();
   };
 
-  // Direct reject - no confirmation dialog (reversible)
   const handleRejectClick = () => {
     if (rejectReasonInput.trim()) {
       onReject(rejectReasonInput);
@@ -232,11 +232,8 @@ const AdjustmentRow = ({
     }
   };
 
-  const isPending = status === 'pending';
-  const isRejected = status === 'rejected';
-  const isApproved = status === 'approved';
+  const hasAttachments = !!attachments?.length;
 
-  // Processing state - show skeleton while agent is approving
   if (isProcessing) {
     return (
       <div className="flex items-center justify-between py-2 -mx-3 px-3 rounded bg-primary/5 animate-pulse">
@@ -245,29 +242,27 @@ const AdjustmentRow = ({
           <span className="text-sm text-muted-foreground">{label}</span>
           <span className="text-[10px] font-medium text-primary">Approving...</span>
         </div>
-        <span className="text-sm tabular-nums font-mono text-foreground">
-          +{formatAmount(amount, currency)}
-        </span>
+        <span className="text-sm tabular-nums font-mono text-foreground">+{formatAmount(amount, currency)}</span>
       </div>
     );
   }
 
-  // Approved state - show with Undo option (unless finalized)
-  if (isApproved) {
+  if (status === "approved") {
     return (
-      <div 
-        className={cn("flex items-center justify-between py-2 -mx-3 px-3 rounded group transition-colors", "hover:bg-muted")}
+      <div
+        className={cn("flex items-start justify-between py-2 -mx-3 px-3 rounded group transition-colors", "hover:bg-muted")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
-            <span className="text-sm font-semibold text-muted-foreground">{label}</span>
+            <span className="text-sm font-semibold text-muted-foreground truncate">{label}</span>
           </div>
           {description && <span className="text-[10px] text-muted-foreground/60 ml-5.5 block">{description}</span>}
+          {tags && tags.length > 0 && <div className="ml-5.5 mt-0.5"><TagChips tags={tags} max={2} /></div>}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0 ml-3">
           {onUndo && isHovered && (
             <button
               onClick={(e) => { e.stopPropagation(); onUndo(); }}
@@ -277,106 +272,68 @@ const AdjustmentRow = ({
               Undo
             </button>
           )}
-          <span className="text-sm tabular-nums font-mono text-foreground">
-            +{formatAmount(amount, currency)}
-          </span>
+          <span className="text-sm tabular-nums font-mono text-foreground">+{formatAmount(amount, currency)}</span>
         </div>
       </div>
     );
   }
 
-  // Rejected state - show with Undo option (unless finalized) and hover-reveal reason
-  if (isRejected) {
+  if (status === "rejected") {
     return (
-      <div 
-        className="mb-1.5"
+      <div
+        className={cn("-mx-3 px-3 rounded-md mb-0.5 group/rejected transition-colors", "hover:bg-muted/30")}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="rounded-md overflow-hidden border border-destructive/40 bg-destructive/5">
-          {/* Main row */}
-          <div className="flex items-center justify-between py-2.5 px-3">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2.5">
-                <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-                <span className="text-sm font-semibold text-muted-foreground line-through">{label}</span>
-                <Badge 
-                  variant="outline" 
-                  className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-destructive/10 text-destructive border-destructive/40"
-                >
-                  Rejected
-                </Badge>
-              </div>
-              {description && <span className="text-[10px] text-muted-foreground/40 ml-6 block">{description}</span>}
-            </div>
+        <div className="flex items-center justify-between py-2">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              {onUndo && isHovered && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onUndo(); }}
-                  className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors font-medium"
-                >
-                  <Undo2 className="h-3 w-3" />
-                  Undo
-                </button>
-              )}
-              <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
-                +{formatAmount(amount, currency)}
-              </span>
+              <span className="text-sm font-semibold text-muted-foreground/70 line-through truncate">{label}</span>
             </div>
+            {description && <span className="text-[10px] text-muted-foreground/40 block">{description}</span>}
           </div>
-          
-          {/* Hover-to-reveal rejection reason */}
-          <AnimatePresence>
-            {isHovered && rejectionReason && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="overflow-hidden"
+          <div className="flex items-center gap-2">
+            {onUndo && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onUndo(); }}
+                className={cn(
+                  "text-[10px] text-primary hover:text-primary/80 flex items-center gap-1 transition-all duration-150 font-medium",
+                  isHovered ? "opacity-100" : "opacity-0"
+                )}
               >
-                <div className="px-3 py-2 bg-destructive/10 border-t border-destructive/30">
-                  <p className="text-xs text-destructive/90">
-                    <span className="font-medium">Reason:</span> {rejectionReason}
-                  </p>
-                </div>
-              </motion.div>
+                <Undo2 className="h-2.5 w-2.5" />
+                Undo
+              </button>
             )}
-          </AnimatePresence>
+            <span className="text-sm tabular-nums font-mono text-muted-foreground/40 line-through">+{formatAmount(amount, currency)}</span>
+          </div>
         </div>
+        {rejectionReason && isHovered && (
+          <div className="-mt-1 pb-0.5">
+            <p className="text-[10px] text-destructive/60 leading-relaxed">
+              <span className="font-medium">Rejected:</span> {rejectionReason}
+            </p>
+          </div>
+        )}
       </div>
     );
   }
 
-  // Pending state - wrapped container for unified expanded state
   return (
-    <div 
-      className={cn(
-        "-mx-3 px-3 rounded transition-colors",
-        expanded 
-          ? "bg-muted border border-border/30" 
-          : "hover:bg-muted"
-      )}
-    >
-      {/* Header row */}
-      <div 
-        className="flex items-center justify-between py-2 cursor-pointer"
-        onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
-      >
+    <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-muted border border-border/30" : "hover:bg-muted")}>
+      <div className="flex items-start justify-between py-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleExpand(); }}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-foreground">{label}</span>
+            <span className="text-sm font-semibold text-foreground truncate">{label}</span>
             <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-orange-100/80 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400">pending</span>
+            {!expanded && hasAttachments && <AttachmentIndicator count={attachments!.length} />}
           </div>
           {description && <span className="text-[10px] text-muted-foreground/60 block">{description}</span>}
+          {tags && tags.length > 0 && <div className="mt-0.5"><TagChips tags={tags} max={2} /></div>}
         </div>
-        
-        <span className="text-sm tabular-nums font-mono text-foreground ml-3">
-          +{formatAmount(amount, currency)}
-        </span>
+        <span className="text-sm tabular-nums font-mono text-foreground ml-3 shrink-0">+{formatAmount(amount, currency)}</span>
       </div>
-      
-      {/* Expanded action panel - No confirmation dialogs, direct actions */}
+
       <AnimatePresence>
         {expanded && (
           <motion.div
