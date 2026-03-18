@@ -137,8 +137,7 @@ const PillSelect = <T extends string>({
           {isSelected && (
             <motion.div
               layoutId="f5v3-pill-indicator"
-              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full"
-              style={{ background: 'hsl(172 28% 42% / 0.45)' }}
+              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-primary/45"
               transition={{ duration: 0.2 }}
             />
           )}
