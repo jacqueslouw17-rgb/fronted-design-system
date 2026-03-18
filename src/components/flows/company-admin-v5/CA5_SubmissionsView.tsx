@@ -1803,25 +1803,14 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
             
             // Get admin-added adjustments for this worker
             const workerAdminAdjustments = adminAdjustments[selectedSubmission.id] || [];
-            
-            // Calculate admin-added adjustment totals
-            const adminExpenseTotal = workerAdminAdjustments
-              .filter(a => a.type === 'expense')
-              .reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminOvertimeTotal = workerAdminAdjustments
-              .filter(a => a.type === 'overtime')
-              .reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminUnpaidLeaveTotal = workerAdminAdjustments
-              .filter(a => a.type === 'unpaid_leave')
-              .reduce((sum, a) => sum + (a.amount || 0), 0);
-            
-            const adminAdditionsTotal = adminExpenseTotal + adminOvertimeTotal;
-            const adminDeductionsTotal = adminUnpaidLeaveTotal;
+            const adminAdditions = workerAdminAdjustments.filter((a) => a.direction !== 'deduct');
+            const adminDeductions = workerAdminAdjustments.filter((a) => a.direction === 'deduct');
+            const adminAdditionsTotal = adminAdditions.reduce((sum, a) => sum + (a.amount || 0), 0);
+            const adminDeductionsTotal = adminDeductions.reduce((sum, a) => sum + (a.amount || 0), 0);
             
             const baseNet = selectedSubmission.estimatedNet || selectedSubmission.basePay || 0;
             // Net pay updates only when items are approved (or admin-added).
             const adjustedNet = baseNet + approvedAdjustmentTotal + adminAdditionsTotal - approvedLeaveDeduction - adminDeductionsTotal;
-            const hasAdjustments = allAdjustments.length > 0;
             const hasLeaves = pendingLeaves.length > 0;
             const hasAdminAdjustments = workerAdminAdjustments.length > 0;
             
@@ -1895,7 +1884,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) && !selectedSubmission.flags?.some(f => f.type === "end_date") && (
                           <button
                             onClick={() => setIsAddingAdjustment(true)}
-                            className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/40 bg-background/60 backdrop-blur-sm rounded-full hover:bg-background/90 hover:border-border/60 hover:text-foreground transition-colors"
+                            className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
                           >
                             <Plus className="h-2.5 w-2.5" />
                             <span>Add</span>
@@ -2040,33 +2029,31 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         </>
                       );
                     })()}
-                    {/* Admin-added expenses */}
-                    {!showPendingOnly && workerAdminAdjustments
-                      .filter(a => a.type === 'expense')
-                      .map((adj) => (
-                        <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || 'Expense'}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">
-                              +{formatCurrency(cvt(adj.amount || 0), dc)}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
-                              className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150"
-                            >
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
+                    {/* Admin-added additions */}
+                    {!showPendingOnly && adminAdditions.map((adj) => (
+                      <div key={adj.id} className="flex items-center justify-between py-2 group">
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-sm text-muted-foreground">{adj.description || adj.type}</span>
+                          <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
                         </div>
-                      ))}
+                        <div className="flex items-center">
+                          <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">
+                            +{formatCurrency(cvt(adj.amount || 0), dc)}
+                          </span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
+                            className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150"
+                          >
+                            <X className="h-3.5 w-3.5 text-destructive" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                     {/* Total Earnings */}
                     {!showPendingOnly && (
                       <BreakdownRow
                         label="Total earnings"
-                        amount={cvt(totalEarnings + approvedAdjustmentTotal)}
+                        amount={cvt(totalEarnings + approvedAdjustmentTotal + adminAdditionsTotal)}
                         currency={dc}
                         isPositive
                         isTotal
@@ -2081,12 +2068,12 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   </CollapsibleSection>
                   ) : null;
                   })()}
-                  {/* DEDUCTIONS Section - Collapsed by default */}
-                  {deductions.length > 0 && !showPendingOnly && (
+                  {/* DEDUCTIONS Section */}
+                  {(!showPendingOnly && (deductions.length > 0 || adminDeductions.length > 0)) && (
                     <CollapsibleSection
                       title="Deductions"
-                      defaultOpen={false}
-                      approvedCount={deductions.length}
+                      defaultOpen={adminDeductions.length > 0}
+                      approvedCount={deductions.length + adminDeductions.length}
                     >
                       {deductions.map((item, idx) => (
                         <BreakdownRow
@@ -2098,9 +2085,28 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                           isPositive={false}
                         />
                       ))}
+                      {adminDeductions.map((adj) => (
+                        <div key={adj.id} className="flex items-center justify-between py-2 group">
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-sm text-muted-foreground">{adj.description || adj.type}</span>
+                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
+                          </div>
+                          <div className="flex items-center">
+                            <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">
+                              −{formatCurrency(cvt(adj.amount || 0), dc)}
+                            </span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
+                              className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150"
+                            >
+                              <X className="h-3.5 w-3.5 text-destructive" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                       <BreakdownRow
                         label="Total deductions"
-                        amount={cvt(totalDeductions)}
+                        amount={cvt(totalDeductions + approvedLeaveDeduction + adminDeductionsTotal)}
                         currency={dc}
                         isPositive={false}
                         isTotal
@@ -2109,13 +2115,13 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   )}
 
                   {/* OVERTIME Section - Collapsed by default, only force open when pending filter or newly added */}
-                  {((overtimeCounts.total > 0 || workerAdminAdjustments.some(a => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0)) && (
+                  {(overtimeCounts.total > 0) && (!showPendingOnly || overtimeCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Overtime"
                        defaultOpen={overtimeCounts.pending > 0}
                       forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : (overtimeCounts.pending > 0 || newlyAddedSection === 'overtime')}
                       pendingCount={overtimeCounts.pending}
-                      approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter(a => a.type === 'overtime').length}
+                      approvedCount={overtimeCounts.approved}
                     >
                       {allAdjustments
                         .map((adj, originalIdx) => ({ adj, originalIdx }))
@@ -2127,7 +2133,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         .map(({ adj, originalIdx }) => {
                           const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                           const itemId = `overtime-${originalIdx}`;
-                          // Check if agent is processing this specific overtime item
                           const isItemProcessing = processingItem && 
                             processingItem.workerId === selectedSubmission.workerId &&
                             processingItem.itemType === 'overtime' &&
@@ -2160,39 +2165,17 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             />
                           );
                         })}
-                    {/* Admin-added overtime */}
-                    {!showPendingOnly && workerAdminAdjustments
-                      .filter(a => a.type === 'overtime')
-                      .map((adj) => (
-                        <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || `${adj.hours}h overtime`}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">
-                              +{formatCurrency(cvt(adj.amount || 0), dc)}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
-                              className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150"
-                            >
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
                     </CollapsibleSection>
                   )}
 
                   {/* LEAVE Section - Collapsed by default, only force open when pending filter or newly added */}
-                  {((hasLeaves || workerAdminAdjustments.some(a => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0)) && (
+                  {(hasLeaves) && (!showPendingOnly || leaveCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Leave"
                        defaultOpen={leaveCounts.pending > 0}
                       forceOpen={showPendingOnly ? leaveCounts.pending > 0 : (leaveCounts.pending > 0 || newlyAddedSection === 'leave')}
                       pendingCount={leaveCounts.pending}
-                      approvedCount={leaveCounts.approved + workerAdminAdjustments.filter(a => a.type === 'unpaid_leave').length}
+                      approvedCount={leaveCounts.approved}
                     >
                       {pendingLeaves
                         .filter((leave) => {
@@ -2207,10 +2190,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                               key={itemId}
                               leave={{
                                 ...leave,
+                                dailyRate: leave.dailyRate ? cvt(leave.dailyRate) : undefined,
                                 status: leaveState.status,
                                 rejectionReason: leaveState.rejectionReason || leave.rejectionReason,
                               }}
-                              currency={currency}
+                              currency={dc}
                               isExpanded={expandedItemId === itemId}
                               onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
                               onApprove={() => {
@@ -2226,28 +2210,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             />
                           );
                         })}
-                    {/* Admin-added unpaid leave */}
-                    {!showPendingOnly && workerAdminAdjustments
-                      .filter(a => a.type === 'unpaid_leave')
-                      .map((adj) => (
-                        <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || `${adj.days}d unpaid leave`}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">
-                              −{formatCurrency(adj.amount || 0, currency)}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
-                              className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150"
-                            >
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
                     </CollapsibleSection>
                   )}
                   </>
