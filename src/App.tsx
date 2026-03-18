@@ -192,6 +192,7 @@ const App = () => (
         <Route path="/flows/company-admin-dashboard-v2" element={<CompanyAdminDashboardV2 />} />
         <Route path="/flows/company-admin-dashboard-v3" element={<CompanyAdminDashboardV3 />} />
         <Route path="/flows/company-admin-dashboard-v4" element={<CompanyAdminDashboardV4 />} />
+        <Route path="/flows/company-admin-dashboard-v5" element={<CompanyAdminDashboardV5 />} />
         <Route path="/flows/fronted-admin-dashboard-v4" element={<FrontedAdminDashboardV4 />} />
         <Route path="/flows/fronted-admin-dashboard-v4/contract-flow" element={<V4_ContractFlow />} />
         <Route path="/flows/fronted-admin-dashboard-v4-clone" element={<F1v4_FrontedAdminDashboard />} />

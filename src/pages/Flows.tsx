@@ -347,6 +347,16 @@ const Flows = () => {
       path: "/flows/company-admin-dashboard-v4",
       comingSoon: false,
       locked: false
+    },
+    {
+      id: "f6-company-admin-dashboard-v5",
+      title: "Flow 6 — Company Dashboard v5",
+      description: "Isolated clone of v4 for future experimentation. Independent components (CA5_ prefix) ensure changes do NOT affect v4 or any other versions.",
+      steps: 1,
+      patterns: ["data-cards", "genie-onboarding", "compliance-checklist"],
+      path: "/flows/company-admin-dashboard-v5",
+      comingSoon: false,
+      locked: false
     }
     // Flow 1 Fronted Admin Dashboard v3 hidden from view
   ];
