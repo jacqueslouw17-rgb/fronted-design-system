@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, ArrowLeftRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -99,6 +99,12 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
   // Get chat panel state to position drawer correctly (same as Submissions)
   const { isOpen: isAgentOpen } = useCA4Agent();
   const chatWidth = isAgentOpen ? 420 : 0;
+
+  // Toggle body class for v7 drawer overlay (hides header behind drawer)
+  useEffect(() => {
+    document.body.classList.toggle("v7-payroll-drawer-open", drawerOpen);
+    return () => document.body.classList.remove("v7-payroll-drawer-open");
+  }, [drawerOpen]);
 
   const paidCount = workers.filter(w => w.status === "paid").length;
   const inProgressCount = workers.filter(w => w.status === "in-progress").length;
@@ -310,7 +316,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                   key={worker.id}
                   className={cn(
                     "flex items-center gap-2.5 px-2.5 py-2 rounded-md border border-border/20",
-                    "bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors"
+                    "bg-muted/30 cursor-pointer transition-colors v7-worker-row"
                   )}
                   onClick={() => handleWorkerClick(worker)}
                 >
@@ -360,7 +366,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/80"
+              className="fixed inset-0 z-[110] bg-black/80"
               style={{ right: chatWidth }}
               onClick={handleCloseDrawer}
             />
@@ -372,7 +378,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed top-0 bottom-0 z-50 w-full sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto flex flex-col"
+              className="fixed top-0 bottom-0 z-[120] w-full sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto flex flex-col"
               style={{ right: chatWidth }}
             >
               {/* Close button */}

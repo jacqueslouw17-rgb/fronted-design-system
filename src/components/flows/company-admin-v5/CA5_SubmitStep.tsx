@@ -104,7 +104,7 @@ export const CA4_SubmitStep: React.FC<CA4_SubmitStepProps> = ({
     return (
       <div 
         key={worker.id}
-        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-card border border-border/30"
+        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20 v7-worker-row transition-colors"
       >
         <Avatar className="h-6 w-6 flex-shrink-0">
           <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">

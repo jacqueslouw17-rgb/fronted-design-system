@@ -835,6 +835,12 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [showCustomReason, setShowCustomReason] = useState(false);
+
+  // Toggle body class for v7 drawer overlay (hides header behind drawer)
+  useEffect(() => {
+    document.body.classList.toggle("v7-payroll-drawer-open", drawerOpen);
+    return () => document.body.classList.remove("v7-payroll-drawer-open");
+  }, [drawerOpen]);
   
   // Track which item is currently expanded (only one at a time)
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
@@ -1360,8 +1366,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 transition-colors",
-          (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "hover:bg-muted/30 cursor-pointer group"
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted/30 border border-border/20 transition-colors v7-worker-row",
+          (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "cursor-pointer group"
         )}
         onClick={() => { if (!isSkipped) handleRowClick(submission); }}
       >
@@ -1752,7 +1758,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/80"
+              className="fixed inset-0 z-[110] bg-black/80"
               style={{ right: chatWidth }}
               onClick={isAddingAdjustment ? undefined : handleCloseDrawer}
             />
@@ -1764,7 +1770,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed top-0 bottom-0 z-50 w-[420px] sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto"
+              className="fixed top-0 bottom-0 z-[120] w-[420px] sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto"
               style={{ right: chatWidth }}
             >
               {/* Close button */}
