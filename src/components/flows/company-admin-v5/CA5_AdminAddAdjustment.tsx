@@ -473,8 +473,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                 key={option.id}
                 onClick={() => handleSelectType(option.id)}
                 className={cn(
-                  "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
-                  "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]",
+                  "flex items-center gap-4 p-4 rounded-xl border transition-all text-left",
+                  "border-border/40 hover:border-border bg-card/30 hover:bg-card/60 backdrop-blur-sm",
                 )}
               >
                 <div className="p-2.5 rounded-lg bg-muted/50">
