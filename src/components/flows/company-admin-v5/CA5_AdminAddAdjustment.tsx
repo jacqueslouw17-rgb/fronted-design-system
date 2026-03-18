@@ -399,6 +399,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       description: `Bonus · ${formatMoney(totalAmount)}`,
       currency,
       addedAt: new Date().toISOString(),
+      direction,
     });
     toast.success(`Added bonus for ${workerName}`);
     handleClose();
