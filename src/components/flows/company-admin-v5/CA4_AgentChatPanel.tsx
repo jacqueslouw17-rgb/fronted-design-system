@@ -1,0 +1,1502 @@
+import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowUp, X, Square, Loader2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { cn } from '@/lib/utils';
+import { useCA4Agent, PendingActionType, TargetedItemInfo } from './CA4_AgentContext';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/kurt-chat`;
+
+// Worker name to ID mapping for navigation
+const WORKER_MAP: Record<string, { id: string; name: string }> = {
+  'david': { id: '1', name: 'David Martinez' },
+  'david martinez': { id: '1', name: 'David Martinez' },
+  'sophie': { id: '2', name: 'Sophie Laurent' },
+  'sophie laurent': { id: '2', name: 'Sophie Laurent' },
+  'maria': { id: '6', name: 'Maria Santos' },
+  'maria santos': { id: '6', name: 'Maria Santos' },
+  'alex': { id: '4', name: 'Alex Hansen' },
+  'alex hansen': { id: '4', name: 'Alex Hansen' },
+  'emma': { id: '5', name: 'Emma Wilson' },
+  'emma wilson': { id: '5', name: 'Emma Wilson' },
+  'jonas': { id: '7', name: 'Jonas Schmidt' },
+  'jonas schmidt': { id: '7', name: 'Jonas Schmidt' },
+  'priya': { id: '8', name: 'Priya Sharma' },
+  'priya sharma': { id: '8', name: 'Priya Sharma' },
+  'lisa': { id: '9', name: 'Lisa Chen' },
+  'lisa chen': { id: '9', name: 'Lisa Chen' },
+};
+
+// Worker data for intelligent suggestions
+const WORKERS_DATA = [
+  { id: '1', name: 'David Martinez', pendingItems: 2, status: 'pending' },
+  { id: '2', name: 'Sophie Laurent', pendingItems: 1, status: 'pending' },
+  { id: '4', name: 'Alex Hansen', pendingItems: 2, status: 'pending' },
+  { id: '5', name: 'Emma Wilson', pendingItems: 0, status: 'ready' },
+  { id: '6', name: 'Maria Santos', pendingItems: 2, status: 'pending' },
+  { id: '7', name: 'Jonas Schmidt', pendingItems: 2, status: 'pending' },
+  { id: '8', name: 'Priya Sharma', pendingItems: 0, status: 'ready' },
+  { id: '9', name: 'Lisa Chen', pendingItems: 1, status: 'pending' },
+];
+
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  suggestedAction?: SuggestedAction;
+}
+
+const makeChatId = () => {
+  try {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID();
+    }
+  } catch {
+    // ignore
+  }
+  return `chat-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+};
+
+const createChatMessage = (msg: Omit<ChatMessage, 'id'>): ChatMessage => ({
+  id: makeChatId(),
+  ...msg,
+});
+
+// Suggested next action for proactive flow
+interface SuggestedAction {
+  type: PendingActionType | 'view_worker';
+  label: string;
+  description?: string;
+  workerId?: string;
+  workerName?: string;
+}
+
+// Detect worker name and navigation intent from query
+function detectWorkerIntent(query: string): { workerId?: string; workerName?: string; wantsNavigation?: boolean } {
+  const lowerQuery = query.toLowerCase();
+  
+  // Informational queries should NOT trigger navigation even if they mention a worker name
+  const isInformationalQuery = lowerQuery.includes('compare') ||
+    lowerQuery.includes('difference') ||
+    lowerQuery.includes('how much') ||
+    lowerQuery.includes('what is') ||
+    lowerQuery.includes('what are') ||
+    lowerQuery.includes('what was') ||
+    lowerQuery.includes('tell me about') ||
+    lowerQuery.includes('summary') ||
+    lowerQuery.includes('total') ||
+    lowerQuery.includes('history') ||
+    lowerQuery.includes('trend') ||
+    lowerQuery.includes('change') ||
+    lowerQuery.includes('breakdown') ||
+    lowerQuery.includes('november') ||
+    lowerQuery.includes('december') ||
+    lowerQuery.includes('month') ||
+    lowerQuery.includes('last') ||
+    lowerQuery.includes('previous') ||
+    lowerQuery.includes('cost') ||
+    lowerQuery.includes('gross') ||
+    lowerQuery.includes('net') ||
+    lowerQuery.includes('pay') ||
+    lowerQuery.includes('salary') ||
+    lowerQuery.includes('earnings');
+
+  if (isInformationalQuery) {
+    return {}; // No navigation for data questions
+  }
+
+  // Check for navigation intent
+  const wantsNavigation = lowerQuery.includes('open') || 
+    lowerQuery.includes('show') || 
+    lowerQuery.includes('submission') || 
+    lowerQuery.includes('go to') ||
+    lowerQuery.includes('navigate');
+  
+  // Find worker name
+  for (const [key, value] of Object.entries(WORKER_MAP)) {
+    if (lowerQuery.includes(key)) {
+      return { workerId: value.id, workerName: value.name, wantsNavigation };
+    }
+  }
+  
+  return { wantsNavigation };
+}
+
+// Detect action intents (approve, reject, confirm, etc.)
+interface ActionIntent {
+  type: PendingActionType | 'confirm_yes' | 'confirm_no' | null;
+  workerId?: string;
+  workerName?: string;
+  // For targeted item approval
+  targetedItem?: TargetedItemInfo;
+}
+
+// If Kurt asks a direct Yes/No follow-up, infer which action the Yes should execute.
+// This keeps confirmations contextual even when the question is generated by the model.
+function inferYesNoActionFromAssistant(content: string): PendingActionType | null {
+  const lower = content.toLowerCase();
+
+  // Approve all
+  if (
+    /approve\s+all/i.test(content) ||
+    lower.includes('approve them all') ||
+    lower.includes('approve all pending') ||
+    lower.includes('approve all items')
+  ) {
+    return 'approve_all';
+  }
+
+  return null;
+}
+
+// Infer an actionable "approve_item" request from Kurt's own message when it contains
+// an "Action Required" section (so the user's Yes/No actually drives the UI).
+function inferActionRequiredApproveItem(content: string): {
+  workerId: string;
+  workerName: string;
+  targetedItem: TargetedItemInfo;
+} | null {
+  const lower = content.toLowerCase();
+
+  const asksToApprove = /would you like me to approve|do you want.*approve|approve this submission|approve this item|shall i approve/i.test(content);
+  if (!asksToApprove) return null;
+
+  const worker = Object.values(WORKER_MAP).find(w => lower.includes(w.name.toLowerCase()));
+  if (!worker) return null;
+
+  let itemType: TargetedItemInfo['itemType'] | undefined;
+  if (/(expense|expenses|reimbursement)/i.test(content)) itemType = 'expenses';
+  else if (/bonus/i.test(content)) itemType = 'bonus';
+  else if (/overtime/i.test(content)) itemType = 'overtime';
+  else if (/leave/i.test(content)) itemType = 'leave';
+  if (!itemType) return null;
+
+  // Extract currency amounts - but skip "k" abbreviated amounts (e.g., €4.2k means 4200, not 4.2)
+  // Match patterns like €245, $500, £100 but NOT €4.2k
+  const amounts: number[] = [];
+  const amountMatches = content.matchAll(/[€$£₱]\s?(\d+(?:[\.,]\d+)?)\s?(k|K)?/g);
+  for (const m of amountMatches) {
+    const baseNum = Number(String(m[1]).replace(',', '.'));
+    const hasK = m[2] !== undefined;
+    if (!Number.isFinite(baseNum)) continue;
+    // If it has "k" suffix, it's a large abbreviated amount (like base pay), skip it
+    if (hasK) continue;
+    // Skip very small amounts that are likely decimals from something else
+    if (baseNum < 10) continue;
+    amounts.push(baseNum);
+  }
+
+  // Pick the smallest reasonable amount (likely the line item, not the total)
+  const amount = amounts.length ? amounts.sort((a, b) => a - b)[0] : undefined;
+
+  return {
+    workerId: worker.id,
+    workerName: worker.name,
+    targetedItem: {
+      workerId: worker.id,
+      workerName: worker.name,
+      itemType,
+      amount, // May be undefined - that's OK, we'll match by type only
+    },
+  };
+}
+
+// Parse targeted item approval: "approve the expense of 245 for David"
+function parseTargetedItemApproval(query: string): { workerId: string; workerName: string; itemType: 'expenses' | 'bonus' | 'overtime'; amount?: number } | null {
+  const lowerQuery = query.toLowerCase();
+  
+  // Must contain "approve" but NOT "all"
+  if (!lowerQuery.includes('approve') || lowerQuery.includes('all')) return null;
+  
+  // Find worker name
+  let foundWorker: { id: string; name: string } | null = null;
+  for (const [key, value] of Object.entries(WORKER_MAP)) {
+    if (lowerQuery.includes(key)) {
+      foundWorker = value;
+      break;
+    }
+  }
+  if (!foundWorker) return null;
+  
+  // Find item type
+  let itemType: 'expenses' | 'bonus' | 'overtime' | null = null;
+  if (lowerQuery.includes('expense')) itemType = 'expenses';
+  else if (lowerQuery.includes('bonus')) itemType = 'bonus';
+  else if (lowerQuery.includes('overtime')) itemType = 'overtime';
+  
+  if (!itemType) return null;
+  
+  // Parse amount (optional) - look for numbers
+  const amountMatch = query.match(/(\d+(?:[.,]\d+)?)/);
+  const amount = amountMatch ? parseFloat(amountMatch[1].replace(',', '.')) : undefined;
+  
+  return {
+    workerId: foundWorker.id,
+    workerName: foundWorker.name,
+    itemType,
+    amount,
+  };
+}
+
+function detectActionIntent(query: string): ActionIntent {
+  const lowerQuery = query.toLowerCase().trim();
+  
+  // Confirmation responses
+  if (/^(yes|yeah|yep|sure|confirm|ok|okay|do it|go ahead|proceed|approve it|yes please)$/i.test(lowerQuery) ||
+      lowerQuery.includes('yes, approve') || 
+      lowerQuery.includes('yes approve') ||
+      lowerQuery.includes('yes, mark') ||
+      lowerQuery.includes('yes mark') ||
+      lowerQuery.includes('confirm') && (lowerQuery.includes('approve') || lowerQuery.includes('mark') || lowerQuery.includes('submit'))) {
+    return { type: 'confirm_yes' };
+  }
+  
+  if (/^(no|nope|cancel|stop|don't|nevermind|never mind)$/i.test(lowerQuery)) {
+    return { type: 'confirm_no' };
+  }
+  
+  // Check for targeted item approval FIRST (before approve_all)
+  const targetedItem = parseTargetedItemApproval(query);
+  if (targetedItem) {
+    return { 
+      type: 'approve_item', 
+      workerId: targetedItem.workerId, 
+      workerName: targetedItem.workerName,
+      targetedItem: {
+        workerId: targetedItem.workerId,
+        workerName: targetedItem.workerName,
+        itemType: targetedItem.itemType,
+        amount: targetedItem.amount,
+      },
+    };
+  }
+  
+  // Approve all intent
+  if ((lowerQuery.includes('approve') && lowerQuery.includes('all')) ||
+      lowerQuery.includes('approve everything') ||
+      lowerQuery.includes('approve all pending') ||
+      lowerQuery.includes('approve all items')) {
+    return { type: 'approve_all' };
+  }
+  
+  // Reject all intent  
+  if ((lowerQuery.includes('reject') && lowerQuery.includes('all')) ||
+      lowerQuery.includes('reject everything')) {
+    return { type: 'reject_all' };
+  }
+  
+  return { type: null };
+}
+
+// Generate the next suggested action based on current state
+function getNextSuggestedAction(completedAction: PendingActionType, workerId?: string): SuggestedAction | undefined {
+  switch (completedAction) {
+    case 'approve_all':
+      // After approving all, no automatic next step
+      return undefined;
+      
+    case 'reject_all':
+      // After rejecting, no automatic next step - worker needs to resubmit
+      return undefined;
+      
+    default:
+      return undefined;
+  }
+}
+
+const SUGGESTIONS = [
+  'Approve all pending items',
+  'Show David Martinez',
+  'Let Fronted always run payroll',
+];
+
+const SuggestionList: React.FC<{ onSelect: (s: string) => void }> = ({ onSelect }) => {
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  return (
+    <div className="pt-2">
+      <p className="text-[13px] text-muted-foreground/70">
+        Ask about payroll, workers, or submissions. Try:
+      </p>
+      <div className="mt-3 space-y-1.5">
+        {SUGGESTIONS.map((suggestion, i) => {
+          const isHovered = hovered === i;
+          const hasSiblingHover = hovered !== null && hovered !== i;
+
+          return (
+            <button
+              key={i}
+              onClick={() => onSelect(suggestion)}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              className={cn(
+                "block w-full text-left px-3.5 py-2.5 rounded-xl text-[12.5px] transition-all duration-300 ease-out border",
+                isHovered
+                  ? "bg-primary/[0.06] text-foreground border-primary/20 shadow-[0_0_12px_-4px_hsl(var(--primary)/0.15)] scale-[1.01]"
+                  : hasSiblingHover
+                    ? "bg-muted/20 text-muted-foreground/40 border-transparent scale-[0.99]"
+                    : "bg-muted/30 text-muted-foreground border-transparent"
+              )}
+            >
+              {suggestion}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+export const CA4_AgentChatPanel: React.FC = () => {
+  const {
+    isOpen,
+    setOpen,
+    addMessage,
+    isNavigating,
+    navigationMessage,
+    setNavigating,
+    setRequestedStep,
+    setOpenWorkerId,
+    setButtonLoading,
+    pendingAction,
+    setPendingAction,
+    cancelPendingAction,
+    setButtonLoadingState,
+    executeCallback,
+    setProcessingItem,
+    setWorkersMarkingReady,
+    setWorkersApproving,
+    closeDrawer,
+  } = useCA4Agent();
+
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [showRetrieving, setShowRetrieving] = useState(false);
+  const [minLoadingComplete, setMinLoadingComplete] = useState(false);
+  const [currentSuggestedAction, setCurrentSuggestedAction] = useState<SuggestedAction | undefined>();
+  const [confirmationAnchorId, setConfirmationAnchorId] = useState<string | undefined>();
+  const [panelReady, setPanelReady] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const streamingAssistantIdRef = useRef<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Keep refs synced to avoid stale-closure bugs (timeouts/streaming finalizers) that
+  // can prevent arming pendingAction/anchoring → missing Yes/No.
+  const messagesRef = useRef<ChatMessage[]>([]);
+  const pendingActionRef = useRef<typeof pendingAction>(pendingAction);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+  useEffect(() => {
+    pendingActionRef.current = pendingAction;
+  }, [pendingAction]);
+
+  const updateMessageContent = useCallback((messageId: string, content: string) => {
+    setMessages(prev => prev.map(m => (m.id === messageId ? { ...m, content } : m)));
+  }, []);
+
+  // Stable anchoring for inline confirmation buttons.
+  // If we explicitly anchored a confirmation to a specific assistant bubble, use it;
+  // otherwise fall back to the latest assistant message with content.
+  const lastAssistantId = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m?.role === 'assistant' && !!m.content) return m.id;
+    }
+    return undefined;
+  }, [messages]);
+
+  const confirmationTargetId = confirmationAnchorId ?? lastAssistantId;
+
+  const suggestionAlreadyRendered = useMemo(() => {
+    if (!currentSuggestedAction) return false;
+    return messages.slice(-3).some(m => m.suggestedAction?.label === currentSuggestedAction.label);
+  }, [messages, currentSuggestedAction]);
+
+  const canAnchorConfirmation = useMemo(() => {
+    if (!pendingAction?.awaitingConfirmation) return false;
+    if (!confirmationTargetId) return false;
+    return messages.some(m => m.id === confirmationTargetId && m.role === 'assistant' && !!m.content);
+  }, [pendingAction?.awaitingConfirmation, confirmationTargetId, messages]);
+
+  // Auto-scroll to bottom when new messages arrive or confirmation buttons appear
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, showRetrieving, currentSuggestedAction, pendingAction?.awaitingConfirmation]);
+
+  // Focus input when panel opens
+  useEffect(() => {
+    if (isOpen && textareaRef.current) {
+      setTimeout(() => textareaRef.current?.focus(), 300);
+    }
+  }, [isOpen]);
+
+  // Gate textarea measurement until the panel has finished opening.
+  // Measuring while the panel width is ~0 can inflate scrollHeight and make the input look stretched.
+  useEffect(() => {
+    if (!isOpen) {
+      setPanelReady(false);
+      return;
+    }
+    setPanelReady(false);
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
+  }, [isOpen]);
+
+  // Auto-resize textarea
+  const adjustTextareaHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+    }
+  }, []);
+
+  useEffect(() => {
+    // Avoid measuring while the panel is collapsed (width=0) because it can
+    // produce an exaggerated scrollHeight and make the input look stretched.
+    if (!panelReady) return;
+    adjustTextareaHeight();
+  }, [input, panelReady, adjustTextareaHeight]);
+
+  useEffect(() => {
+    if (!panelReady) return;
+    // One extra re-measure after render; wrapping can change after layout settles.
+    const t = window.setTimeout(() => adjustTextareaHeight(), 0);
+    return () => window.clearTimeout(t);
+  }, [panelReady, adjustTextareaHeight]);
+
+  // Hide skeleton when both streaming starts AND minimum loading time passed
+  useEffect(() => {
+    if (isStreaming && minLoadingComplete && showRetrieving) {
+      setShowRetrieving(false);
+    }
+  }, [isStreaming, minLoadingComplete, showRetrieving]);
+
+  const stopStreaming = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsStreaming(false);
+    setIsLoading(false);
+    setShowRetrieving(false);
+  };
+
+  // Execute a suggested action - triggers handleSubmit which records the message.
+  // NOTE: Don't memoize with empty deps; that can capture stale state and break confirmations.
+  const executeSuggestedAction = (action: SuggestedAction) => {
+    setCurrentSuggestedAction(undefined);
+
+    let userMessage = '';
+    if (action.label === 'Let Fronted always run payroll') {
+      userMessage = 'Let Fronted always run payroll';
+    } else if (action.type === 'approve_all') {
+      userMessage = 'Approve all pending items';
+    }
+
+    if (userMessage) handleSubmit(userMessage);
+  };
+
+  // Complete an action and show next suggestion (optionally trigger follow-up for item approval)
+  const completeAction = useCallback((actionType: PendingActionType, workerId?: string, workerName?: string) => {
+    // Get the next suggested action
+    let nextAction = getNextSuggestedAction(actionType, workerId);
+    
+    // Update button states
+    setButtonLoadingState(actionType, false);
+    setButtonLoading(false);
+    
+    // Build response message with context
+    let responseContent = '';
+    switch (actionType) {
+      case 'approve_all':
+        responseContent = '✓ **Done!** All pending adjustments and leaves have been approved.';
+        break;
+      case 'reject_all':
+        responseContent = '✓ **Done!** All pending items have been rejected. Workers will need to resubmit.';
+        break;
+      case 'approve_item':
+        responseContent = `✓ **Done!** The item has been approved for ${workerName || 'the worker'}.`;
+        break;
+    }
+    
+    // For non-approve_item actions, add the next suggested action to the message
+    if (actionType !== 'approve_item' && nextAction) {
+      responseContent += `\n\n**Next step:** ${nextAction.description || nextAction.label}`;
+    }
+    
+    setCurrentSuggestedAction(nextAction);
+    setPendingAction(undefined);
+    
+    setMessages(prev => [...prev, createChatMessage({ 
+      role: 'assistant', 
+      content: responseContent,
+      suggestedAction: nextAction,
+    })]);
+    
+    setIsLoading(false);
+    setShowRetrieving(false);
+  }, [setButtonLoading, setButtonLoadingState, setPendingAction]);
+
+  const handleConfirmNo = useCallback((userResponse: string = 'No') => {
+    if (!pendingAction) return;
+
+    setButtonLoadingState(pendingAction.type, false);
+    setButtonLoading(false);
+    cancelPendingAction();
+    setConfirmationAnchorId(undefined);
+
+    // Persist history: record the user's response + Kurt's response.
+    setMessages(prev => [
+      ...prev,
+      createChatMessage({ role: 'user', content: userResponse }),
+      createChatMessage({
+        role: 'assistant',
+        content: "No problem. Let me know what you'd like to do instead.",
+      }),
+    ]);
+  }, [pendingAction, setButtonLoadingState, setButtonLoading, cancelPendingAction]);
+
+  const handleConfirmYes = useCallback((userResponse: string = 'Yes') => {
+    if (!pendingAction) return;
+
+    const actionType = pendingAction.type;
+    const workerId = pendingAction.workerId;
+    const workerName = pendingAction.workerName;
+    const targetedItem = pendingAction.targetedItem;
+
+    // Persist history: record the user's response.
+    setMessages(prev => [...prev, createChatMessage({ role: 'user', content: userResponse })]);
+
+    // Prevent double submit - clear pending action state
+    setPendingAction(undefined);
+    setConfirmationAnchorId(undefined);
+
+    // SPECIAL FLOW: "Approve all" bulk sequence - run staggered row animations
+    if (actionType === 'approve_all' && !workerId) {
+      // Close any open worker drawer (uses registered callback to close local drawer state)
+      closeDrawer();
+      setOpenWorkerId(undefined);
+
+      // Keep chat open during the sequence
+      setOpen(true);
+
+      // Navigate to submissions
+      setTimeout(() => {
+        setRequestedStep('submissions');
+      }, 300);
+
+      const workersToApprove = WORKERS_DATA.filter(w => w.pendingItems > 0).map(w => w.id);
+
+      // Start staggered approving - set all workers as "approving" state
+      setTimeout(() => {
+        setWorkersApproving(new Set(workersToApprove));
+      }, 400);
+
+      // Execute approve for each worker with staggered delays
+      workersToApprove.forEach((wId, index) => {
+        setTimeout(() => {
+          executeCallback('approve_all', wId);
+          setWorkersApproving(prev => {
+            const next = new Set(prev);
+            next.delete(wId);
+            return next;
+          });
+        }, 600 + index * 400);
+      });
+
+      const totalTime = 600 + workersToApprove.length * 400 + 300;
+      setTimeout(() => {
+        const doneMsg = createChatMessage({
+          role: 'assistant',
+          content: `✅ **All ${workersToApprove.length} workers approved.**\n\nI'm moving you to **Payment Status** now. Here's what happens next:\n\n• Fronted processes payments within **2–3 business days**\n• Each worker will transition from ⏳ *In progress* → ✅ *Paid*\n• You can click any worker row to view their full payout breakdown\n\nEstimated completion: **Jan 28, 2026**`,
+          suggestedAction: { type: 'approve_all', label: 'Let Fronted always run payroll', description: 'Delegate future payroll runs to Fronted' },
+        });
+
+        setMessages(prev => [...prev, doneMsg]);
+        setCurrentSuggestedAction(undefined);
+        setIsLoading(false);
+        setShowRetrieving(false);
+
+        // Transition to Track step after a brief pause
+        setTimeout(() => {
+          setRequestedStep('track');
+        }, 2000);
+      }, totalTime);
+
+      return;
+    }
+
+    // Standard flow for other actions - show skeleton in chat
+    setShowRetrieving(true);
+    setIsLoading(true);
+
+    // Add a "processing" message
+    const skeletonMsg = createChatMessage({
+      role: 'assistant',
+      content: '', // Empty triggers skeleton
+    });
+    setMessages(prev => [...prev, skeletonMsg]);
+
+    // Keep chat open and navigate to submissions
+    setOpen(true);
+    
+    // Step 1: Navigate to submissions (300ms)
+    setTimeout(() => {
+      setRequestedStep('submissions');
+    }, 300);
+    
+    // Step 2: Open worker drawer (600ms)
+    setTimeout(() => {
+      if (workerId) setOpenWorkerId(workerId);
+    }, 600);
+
+    // Step 3: Show processing indicator on the targeted item (1000ms)
+    setTimeout(() => {
+      if (actionType === 'approve_item' && targetedItem) {
+        setProcessingItem(targetedItem);
+      }
+      setButtonLoadingState(actionType, true);
+      setButtonLoading(true);
+    }, 1000);
+
+    // Step 4: Execute the action (1500ms)
+    setTimeout(() => {
+      let ok = false;
+      if (actionType === 'approve_item' && targetedItem) {
+        ok = executeCallback('approve_item', workerId, targetedItem);
+        // Clear processing indicator after a short delay for visual feedback
+        setTimeout(() => setProcessingItem(undefined), 500);
+      } else {
+        ok = executeCallback(actionType, workerId);
+      }
+
+      // Hide skeleton
+      setShowRetrieving(false);
+      setIsLoading(false);
+      
+      // Remove ONLY the skeleton message we inserted for this flow.
+      setMessages(prev => prev.filter(m => m.id !== skeletonMsg.id));
+
+      if (!ok) {
+        setButtonLoadingState(actionType, false);
+        setButtonLoading(false);
+        setProcessingItem(undefined);
+        setMessages(prev => [...prev, createChatMessage({
+          role: 'assistant',
+          content: `I couldn't find a matching **pending** item to approve for **${workerName || 'that worker'}**. The item may already be approved or the details don't match.`,
+        })]);
+        return;
+      }
+
+      completeAction(actionType, workerId, workerName);
+    }, 6800);
+  }, [pendingAction, setPendingAction, setOpen, setRequestedStep, setOpenWorkerId, setButtonLoadingState, setButtonLoading, executeCallback, completeAction, setProcessingItem, setWorkersMarkingReady, closeDrawer]);
+
+  const handleSubmit = async (query: string) => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    // Detect action intents (approve/reject/confirm/etc.) up-front.
+    // Confirmations should never trigger the "Retrieving context" skeleton.
+    const actionIntent = detectActionIntent(trimmed);
+
+    if (
+      pendingAction?.awaitingConfirmation &&
+      (actionIntent.type === 'confirm_yes' || actionIntent.type === 'confirm_no')
+    ) {
+      setInput('');
+      addMessage({ role: 'user', content: query });
+
+      // Ensure no loading UI is shown for confirmations.
+      setShowRetrieving(false);
+      setIsStreaming(false);
+      setIsLoading(false);
+
+      if (actionIntent.type === 'confirm_yes') {
+        console.log('[AgentChat] User confirmed action:', pendingAction?.type);
+        handleConfirmYes(trimmed);
+      } else {
+        console.log('[AgentChat] User cancelled action');
+        handleConfirmNo(trimmed);
+      }
+      return;
+    }
+
+    if (isLoading) return;
+
+    const userMessage: ChatMessage = createChatMessage({ role: 'user', content: query });
+    // Use functional update to always append to current state (avoids stale closure)
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+    setShowRetrieving(true);
+    setMinLoadingComplete(false);
+    setCurrentSuggestedAction(undefined);
+    
+    // Minimum loading duration for smooth UX (6.5s)
+    setTimeout(() => setMinLoadingComplete(true), 6500);
+
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+
+    // Add to agent context
+    addMessage({ role: 'user', content: query });
+
+    // actionIntent already computed above
+    
+    // Handle new action intents (approve all, reject all, mark ready, submit, approve_item)
+    if (actionIntent.type && actionIntent.type !== 'confirm_yes' && actionIntent.type !== 'confirm_no') {
+      console.log('[AgentChat] Detected action intent:', actionIntent);
+      
+      const actionType = actionIntent.type as PendingActionType;
+      
+      // APPROVE_ALL: Execute immediately with staggered row animations
+      if (actionType === 'approve_all') {
+        // Close any open worker drawer (uses registered callback to close local drawer state)
+        closeDrawer();
+        setOpenWorkerId(undefined);
+        
+        setOpen(true);
+        
+        // Navigate to submissions
+        setTimeout(() => {
+          setRequestedStep('submissions');
+        }, 5300);
+        
+        // Get list of workers with pending items
+        const workersToApprove = WORKERS_DATA.filter(w => w.pendingItems > 0).map(w => w.id);
+        
+        // Start staggered approving - set all workers as "approving" state
+        setTimeout(() => {
+          setWorkersApproving(new Set(workersToApprove));
+        }, 5800);
+        
+        // Execute approve for each worker with staggered delays
+        workersToApprove.forEach((wId, index) => {
+          setTimeout(() => {
+            executeCallback('approve_all', wId);
+            // Remove from approving set after this worker is done
+            setWorkersApproving(prev => {
+              const next = new Set(prev);
+              next.delete(wId);
+              return next;
+            });
+          }, 6200 + index * 400); // Stagger: 6200ms base + 400ms per worker
+        });
+        
+        // After all done, add success message
+        const totalTime = 6200 + workersToApprove.length * 400 + 300;
+        setTimeout(() => {
+          const doneMsg = createChatMessage({
+            role: 'assistant',
+            content: `✅ **All ${workersToApprove.length} workers approved.**\n\nI'm moving you to **Payment Status** now. Here's what happens next:\n\n• Fronted processes payments within **2–3 business days**\n• Each worker will transition from ⏳ *In progress* → ✅ *Paid*\n• You can click any worker row to view their full payout breakdown\n\nEstimated completion: **Jan 28, 2026**`,
+            suggestedAction: { type: 'approve_all', label: 'Let Fronted always run payroll', description: 'Delegate future payroll runs to Fronted' },
+          });
+          setMessages(prev => [...prev, doneMsg]);
+          setCurrentSuggestedAction(undefined);
+          
+          setIsLoading(false);
+          setShowRetrieving(false);
+
+          // Transition to Track step after a brief pause
+          setTimeout(() => {
+            setRequestedStep('track');
+          }, 2000);
+        }, totalTime);
+        
+        return;
+      }
+      
+      // OTHER ACTIONS: Ask for confirmation
+      setOpen(true);
+      setButtonLoading(true);
+      
+      // Navigate to submissions if not already there
+      setTimeout(() => {
+        setRequestedStep('submissions');
+      }, 5300);
+      
+      // Open the target worker (or first worker for approve_all)
+      const targetWorkerId = actionIntent.workerId || '1';
+      setTimeout(() => {
+        setOpenWorkerId(targetWorkerId);
+      }, 5800);
+      
+      // Set the button loading state to show the button is "preparing"
+      setTimeout(() => {
+        setButtonLoadingState(actionType, true);
+      }, 6200);
+      
+      // Set up pending action and ask for confirmation
+      setTimeout(() => {
+        // Build action labels and descriptions including approve_item
+        const itemTypeLabel = actionIntent.targetedItem?.itemType === 'expenses' ? 'expense' 
+          : actionIntent.targetedItem?.itemType === 'bonus' ? 'bonus'
+          : actionIntent.targetedItem?.itemType === 'overtime' ? 'overtime' : 'item';
+        
+        const amountStr = actionIntent.targetedItem?.amount 
+          ? ` of €${actionIntent.targetedItem.amount}` 
+          : '';
+        
+        const actionLabels: Record<string, string> = {
+          'approve_all': 'approve all pending items',
+          'reject_all': 'reject all pending items',
+          'approve_item': `approve the ${itemTypeLabel}${amountStr} for ${actionIntent.workerName}`,
+        };
+        
+        const actionDescriptions: Record<string, string> = {
+          'approve_all': 'This will approve all pending adjustments and leaves across all workers.',
+          'reject_all': 'This will reject all pending items. Workers will need to resubmit.',
+          'approve_item': `I'll open ${actionIntent.workerName}'s drawer, find the ${itemTypeLabel}${amountStr}, and approve it.`,
+        };
+        
+        setButtonLoading(false);
+
+        // Show confirmation prompt as assistant message (and anchor Yes/No to this bubble)
+        const promptMsg = createChatMessage({
+          role: 'assistant',
+          content: `I can **${actionLabels[actionType] || 'do that'}** for you.\n\n${actionDescriptions[actionType] || ''}\n\n**Do you want to proceed?**`,
+        });
+        setMessages(prev => [...prev, promptMsg]);
+        setConfirmationAnchorId(promptMsg.id);
+
+        // Now arm the pending action (so the UI doesn't briefly attach buttons to an older bubble)
+        setPendingAction({
+          type: actionType,
+          workerId: actionIntent.workerId,
+          workerName: actionIntent.workerName,
+          awaitingConfirmation: true,
+          targetedItem: actionIntent.targetedItem,
+        });
+        
+        setIsLoading(false);
+        setShowRetrieving(false);
+      }, 6800);
+      
+      return;
+    }
+
+    // SPECIAL FLOW: "Let Fronted always run payroll" — skip straight to Track
+    const lowerQueryForFronted = query.toLowerCase();
+    if (
+      (lowerQueryForFronted.includes('fronted') && lowerQueryForFronted.includes('run')) ||
+      (lowerQueryForFronted.includes('fronted') && lowerQueryForFronted.includes('always')) ||
+      (lowerQueryForFronted.includes('autopilot') && lowerQueryForFronted.includes('payroll')) ||
+      (lowerQueryForFronted.includes('delegate') && lowerQueryForFronted.includes('payroll'))
+    ) {
+      setOpen(true);
+      setNavigating(true, 'Setting up Fronted-managed payroll…');
+
+      // Step 1: Show navigating state
+      setTimeout(() => {
+        setNavigating(true, 'Fronted is taking over — skipping to tracking…');
+      }, 2000);
+
+      // Step 2: Navigate directly to Track step
+      setTimeout(() => {
+        setRequestedStep('track');
+        setNavigating(false);
+      }, 5300);
+
+      // Step 3: Add confirmation message
+      setTimeout(() => {
+        setIsLoading(false);
+        setShowRetrieving(false);
+        setMessages(prev => [
+          ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
+          createChatMessage({
+            role: 'assistant',
+            content: `✓ **Fronted is now running payroll for you.**\n\nAll submissions have been auto-approved, reviewed, and submitted. You can sit back and track payment progress here.\n\nWorkers will be marked as **paid** once Fronted processes each payment.`,
+          }),
+        ]);
+      }, 6500);
+
+      return;
+    }
+
+    // Detect worker intent and trigger UI orchestration
+    const intent = detectWorkerIntent(query);
+    
+    // Calculate when we expect the AI response to arrive (roughly 2-3 seconds)
+    // We want the UI transitions to complete around the same time as the AI response
+    const TRANSITION_DURATION = 7500; // Total orchestration time in ms
+    
+    // If navigation is requested, orchestrate the UI transitions
+    if (intent.wantsNavigation || intent.workerId) {
+      console.log('[AgentChat] Detected intent:', intent);
+      
+      // CRITICAL: Ensure chat panel stays open throughout the entire transition
+      setOpen(true);
+      
+      // Start button loading animation after a brief delay
+      setTimeout(() => {
+        // Re-assert open state in case something tried to close it
+        setOpen(true);
+        setButtonLoading(true);
+        setNavigating(true, `Navigating to ${intent.workerName || 'submissions'}...`);
+      }, 5300);
+      
+      // After 6000ms, navigate to submissions step  
+      setTimeout(() => {
+        console.log('[AgentChat] Triggering navigation to submissions');
+        setRequestedStep('submissions');
+      }, 6000);
+      
+      // After 6800ms, open the worker panel if specified
+      if (intent.workerId) {
+        setTimeout(() => {
+          console.log('[AgentChat] Opening worker panel:', intent.workerId);
+          setOpenWorkerId(intent.workerId);
+        }, 6800);
+      }
+      
+      // After full duration, clear button loading
+      setTimeout(() => {
+        setButtonLoading(false);
+        setNavigating(false);
+      }, TRANSITION_DURATION);
+    }
+
+    abortControllerRef.current = new AbortController();
+    
+    try {
+      const outboundMessages = [...messagesRef.current, userMessage].map(m => ({ role: m.role, content: m.content }));
+
+      const resp = await fetch(CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ 
+          // Include current messages plus the new user message for the API call
+          messages: outboundMessages,
+        }),
+        signal: abortControllerRef.current.signal,
+      });
+
+      // Handle rate limit and other errors gracefully
+      if (!resp.ok) {
+        const errorData = await resp.json().catch(() => ({}));
+        
+        // Handle specific error types with friendly messages
+        if (resp.status === 429) {
+          setMessages(prev => [
+            ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
+            createChatMessage({ role: 'assistant', content: "I'm a bit busy right now. Please try again in a moment! 🙏" })
+          ]);
+          setIsLoading(false);
+          setShowRetrieving(false);
+          return;
+        }
+        
+        if (resp.status === 402) {
+          setMessages(prev => [
+            ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
+            createChatMessage({ role: 'assistant', content: "AI credits are temporarily exhausted. Please try again later." })
+          ]);
+          setIsLoading(false);
+          setShowRetrieving(false);
+          return;
+        }
+        
+        throw new Error(errorData.error || 'Failed to get response');
+      }
+      
+      if (!resp.body) {
+        throw new Error('No response body');
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = '';
+      let assistantContent = '';
+      let streamDone = false;
+      let firstTokenReceived = false;
+
+      // Add empty assistant message that we'll update
+      const streamingMsg = createChatMessage({ role: 'assistant', content: '' });
+      const streamingMsgId = streamingMsg.id;
+      streamingAssistantIdRef.current = streamingMsgId;
+      setMessages(prev => [...prev, streamingMsg]);
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              // Mark first token received - skeleton hides when min loading also complete
+              if (!firstTokenReceived) {
+                firstTokenReceived = true;
+                setIsStreaming(true);
+              }
+              
+              assistantContent += content;
+              // Update the streaming assistant message by ID (never rely on "last message",
+              // because other UI-driven messages can be appended during orchestrations).
+              if (streamingAssistantIdRef.current) {
+                updateMessageContent(streamingMsgId, assistantContent);
+              }
+            }
+          } catch {
+            // Incomplete JSON, put back and wait for more
+            textBuffer = line + '\n' + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // Final flush
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split('\n')) {
+          if (!raw) continue;
+          if (raw.endsWith('\r')) raw = raw.slice(0, -1);
+          if (raw.startsWith(':') || raw.trim() === '') continue;
+          if (!raw.startsWith('data: ')) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              if (streamingAssistantIdRef.current) {
+                updateMessageContent(streamingMsgId, assistantContent);
+              }
+            }
+          } catch { /* ignore */ }
+        }
+      }
+
+      // Add to agent context
+      if (assistantContent) {
+        addMessage({ role: 'assistant', content: assistantContent });
+
+        // Convert Kurt's "Action Required" text into a real UI-wired confirmation.
+        // This prevents the user from having to type "yes" and ensures the click
+        // actually executes the drawer action.
+        if (!pendingActionRef.current?.awaitingConfirmation) {
+          const inferred = inferActionRequiredApproveItem(assistantContent);
+          if (inferred) {
+            setCurrentSuggestedAction(undefined);
+            setOpen(true);
+            setRequestedStep('submissions');
+            setOpenWorkerId(inferred.workerId);
+            setPendingAction({
+              type: 'approve_item',
+              workerId: inferred.workerId,
+              workerName: inferred.workerName,
+              awaitingConfirmation: true,
+              targetedItem: inferred.targetedItem,
+            });
+            setConfirmationAnchorId(streamingMsgId);
+          }
+
+          // If Kurt asked a simple Yes/No follow-up (approve all / mark ready / submit),
+          // convert it into a real contextual confirmation.
+          if (!inferred) {
+            const inferredYesNo = inferYesNoActionFromAssistant(assistantContent);
+            if (inferredYesNo) {
+              setPendingAction({ type: inferredYesNo, awaitingConfirmation: true });
+              setConfirmationAnchorId(streamingMsgId);
+            }
+          }
+        }
+      }
+
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        // User cancelled - keep partial response
+        return;
+      }
+      console.error('Kurt chat error:', error);
+      
+      // Show friendly error message instead of technical details
+      const friendlyMessage = error.message?.includes('Rate limit') 
+        ? "I'm a bit busy right now. Please try again in a moment! 🙏"
+        : "Sorry, I had trouble processing that. Please try again.";
+        
+      setMessages(prev => [
+        ...prev.filter(m => !(m.role === 'assistant' && m.content === '')),
+        createChatMessage({ role: 'assistant', content: friendlyMessage })
+      ]);
+    } finally {
+      setIsLoading(false);
+      setIsStreaming(false);
+      setShowRetrieving(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(input);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={false}
+      animate={{ width: isOpen ? 420 : 0, opacity: isOpen ? 1 : 0 }}
+      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      onAnimationComplete={() => {
+        if (isOpen) setPanelReady(true);
+      }}
+      aria-hidden={!isOpen}
+      className={cn(
+        "h-full bg-background flex flex-col overflow-hidden border-l border-border/30 relative z-[60]",
+        !isOpen && "pointer-events-none"
+      )}
+    >
+      {/*
+        Keep inner panel at a fixed width so the textarea/buttons don't visually stretch
+        while the outer container animates its width.
+      */}
+      <div className="w-[420px] min-w-[420px] h-full flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
+            <span className="text-sm font-medium text-foreground">Kurt</span>
+            <button 
+              onClick={() => setOpen(false)} 
+              className="p-1.5 rounded-md hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Messages Area */}
+          <div 
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto"
+          >
+            <div className="px-4 py-4 space-y-4">
+              {messages.length === 0 && !showRetrieving ? (
+                <SuggestionList onSelect={handleSubmit} />
+              ) : (
+                messages.map((message) => {
+                  // Show confirmation buttons inline on the latest assistant bubble whenever a
+                  // confirmation is pending (covers both Kurt-generated "Would you like..." and
+                  // our own "Do you want to proceed?" prompts).
+                  const showConfirmation =
+                    !!pendingAction?.awaitingConfirmation &&
+                    message.role === 'assistant' &&
+                    !!message.content &&
+                    canAnchorConfirmation &&
+                    !!confirmationTargetId &&
+                    message.id === confirmationTargetId;
+                  
+                  return (
+                    <MessageBubble
+                      key={message.id}
+                      message={message}
+                      isStreaming={isStreaming && message.id === streamingAssistantIdRef.current && message.role === 'assistant'}
+                      isConfirmationMessage={showConfirmation}
+                      onConfirmYes={showConfirmation ? () => handleConfirmYes() : undefined}
+                      onConfirmNo={showConfirmation ? () => handleConfirmNo() : undefined}
+                      onSuggestedAction={executeSuggestedAction}
+                    />
+                  );
+                })
+              )}
+
+              {/* Fallback confirmation bar (never let Yes/No disappear) */}
+              {pendingAction?.awaitingConfirmation && !canAnchorConfirmation && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="pt-2"
+                  >
+                    <div className="rounded-xl border border-border/30 bg-card/40 backdrop-blur-sm p-3 flex items-center justify-between gap-3">
+                      <p className="text-[12px] text-muted-foreground leading-relaxed">
+                        Confirm action?
+                      </p>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Button size="sm" onClick={() => handleConfirmYes()} className="h-7 px-3 text-[11px]">
+                          Yes
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleConfirmNo()} className="h-7 px-3 text-[11px]">
+                          No
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+              )}
+
+              {/* Enhanced skeleton loading with cool staggered animation */}
+              {showRetrieving && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-5"
+                >
+                  {/* Status indicator */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1, duration: 0.3 }}
+                    className="flex items-center gap-2.5"
+                  >
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.5, 1, 0.5] 
+                      }}
+                      transition={{ 
+                        duration: 1.5, 
+                        repeat: Infinity, 
+                        ease: "easeInOut" 
+                      }}
+                      className="w-2 h-2 rounded-full bg-primary"
+                    />
+                    <span className="text-xs text-muted-foreground/70 font-medium">Retrieving context...</span>
+                  </motion.div>
+
+                  {/* Content skeleton blocks with staggered fade-in */}
+                  <div className="space-y-3">
+                    {[
+                      { width: '92%', delay: 0.15 },
+                      { width: '78%', delay: 0.25 },
+                      { width: '85%', delay: 0.35 },
+                      { width: '65%', delay: 0.45 },
+                    ].map((line, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: line.delay, duration: 0.3, ease: "easeOut" }}
+                      >
+                        <Skeleton 
+                          className="h-3 rounded-full" 
+                          style={{ 
+                            width: line.width,
+                            animationDelay: `${i * 150}ms`,
+                          }} 
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Simulated action buttons skeleton */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.3 }}
+                    className="flex items-center gap-2 pt-1"
+                  >
+                    <Skeleton className="h-7 w-24 rounded-lg" />
+                    <Skeleton className="h-7 w-20 rounded-lg" style={{ animationDelay: '100ms' }} />
+                  </motion.div>
+                </motion.div>
+              )}
+
+              {/* Suggested next action button (fallback in case a message didn't carry suggestedAction) */}
+              {currentSuggestedAction &&
+                !pendingAction?.awaitingConfirmation &&
+                !isLoading &&
+                !suggestionAlreadyRendered && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="pt-2"
+                  >
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => executeSuggestedAction(currentSuggestedAction)}
+                      className="text-[11px] h-8 gap-1.5 hover:bg-primary/10 hover:text-primary"
+                    >
+                      {currentSuggestedAction.label}
+                    </Button>
+                  </motion.div>
+                )}
+
+              {/* Navigation status */}
+              {isNavigating && (
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-xs text-muted-foreground/60 flex items-center gap-1.5"
+                >
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  {navigationMessage || 'Navigating...'}
+                </motion.p>
+              )}
+            </div>
+          </div>
+
+          {/* Input Area - Lovable style */}
+          <div className="p-4 border-t border-border/20">
+            <div className={cn(
+              "relative flex items-end gap-3 rounded-2xl border bg-muted/30 px-4 py-3 transition-all",
+              input.trim() ? "border-border/60" : "border-border/30",
+              "focus-within:border-border/80 focus-within:bg-muted/40"
+            )}>
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask anything..."
+                rows={1}
+                className="flex-1 bg-transparent text-sm resize-none outline-none min-h-[24px] max-h-[200px] leading-relaxed placeholder:text-muted-foreground/50"
+                disabled={isLoading && !isStreaming}
+              />
+              
+              {isStreaming ? (
+                <button
+                  onClick={stopStreaming}
+                  className="shrink-0 p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+                  title="Stop generating"
+                >
+                  <Square className="h-4 w-4 fill-current" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleSubmit(input)}
+                  disabled={!input.trim() || isLoading}
+                  className={cn(
+                    "shrink-0 p-2 rounded-xl transition-all",
+                    input.trim() 
+                      ? "bg-foreground text-background hover:bg-foreground/90" 
+                      : "bg-muted text-muted-foreground/40"
+                  )}
+                >
+                  <ArrowUp className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Message component with markdown support - enhanced styling for worker details
+const MessageBubble: React.FC<{
+  message: ChatMessage;
+  isStreaming?: boolean;
+  isConfirmationMessage?: boolean;
+  onConfirmYes?: () => void;
+  onConfirmNo?: () => void;
+  onSuggestedAction?: (action: SuggestedAction) => void;
+}> = ({ message, isStreaming, isConfirmationMessage, onConfirmYes, onConfirmNo, onSuggestedAction }) => {
+  const isUser = message.role === 'user';
+
+  if (isUser) {
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[88%] px-3 py-2 rounded-2xl bg-muted-foreground/10 text-foreground text-[13px] leading-relaxed">
+          {message.content}
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render empty assistant messages (skeleton will show instead)
+  if (!message.content) return null;
+
+  // Assistant message with markdown - enhanced styling for worker details
+  return (
+    <div className="flex justify-start">
+      <motion.div
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className={cn(
+          "max-w-[92%] rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm px-3 py-2.5",
+          "text-[13px] text-foreground/90 leading-relaxed",
+          // Paragraphs
+          "[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
+          // Headers
+          "[&_h1]:text-sm [&_h1]:font-semibold [&_h1]:mt-4 [&_h1]:mb-2 [&_h1]:text-foreground",
+          "[&_h2]:text-sm [&_h2]:font-semibold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-foreground",
+          "[&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1.5 [&_h3]:text-foreground",
+          // Lists
+          "[&_ul]:my-2 [&_ul]:pl-4 [&_ul]:list-disc [&_ul]:space-y-1",
+          "[&_ol]:my-2 [&_ol]:pl-4 [&_ol]:list-decimal [&_ol]:space-y-1",
+          "[&_li]:my-0 [&_li]:leading-relaxed",
+          // Emphasis
+          "[&_strong]:font-semibold [&_strong]:text-foreground",
+          // Code
+          "[&_code]:bg-muted/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono",
+          "[&_pre]:bg-muted/40 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:my-3 [&_pre]:overflow-x-auto",
+          // Horizontal rules
+          "[&_hr]:my-3 [&_hr]:border-border/40",
+          // Blockquotes
+          "[&_blockquote]:border-l-2 [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:my-2 [&_blockquote]:text-muted-foreground",
+        )}
+      >
+        <ReactMarkdown>{message.content || ''}</ReactMarkdown>
+
+        {isStreaming && (
+          <span className="inline-block w-1.5 h-3.5 bg-foreground/50 animate-pulse ml-0.5 rounded-sm" />
+        )}
+
+        {/* Inline suggested next action (keeps buttons contextual to the message) */}
+        {!isConfirmationMessage && message.suggestedAction && onSuggestedAction && (
+          <div className="mt-3">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onSuggestedAction(message.suggestedAction!)}
+              className="h-8 px-3 text-[11px] justify-start hover:bg-primary/10 hover:text-primary"
+            >
+              {message.suggestedAction.label}
+            </Button>
+          </div>
+        )}
+
+        {/* Inline confirmation buttons - contextual to the question */}
+        {isConfirmationMessage && onConfirmYes && onConfirmNo && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.2 }}
+            className="flex items-center gap-2 mt-3"
+          >
+            <Button size="sm" onClick={onConfirmYes} className="h-7 px-3 text-[11px]">
+              Yes
+            </Button>
+            <Button size="sm" variant="outline" onClick={onConfirmNo} className="h-7 px-3 text-[11px]">
+              No
+            </Button>
+          </motion.div>
+        )}
+      </motion.div>
+    </div>
+  );
+};
