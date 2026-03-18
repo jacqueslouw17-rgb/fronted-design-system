@@ -2014,7 +2014,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             return (
                               <AdjustmentRow
                                 key={itemId}
-                                label={config.label}
+                                label={adj.description || config.label}
                                 amount={cvt(adj.amount || 0)}
                                 currency={dc}
                                 status={adjState.status}
@@ -2032,6 +2032,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                                 onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)}
                                 isFinalized={isWorkerFinalized(selectedSubmission.id)}
                                 isProcessing={!!isItemProcessing}
+                                attachments={adj.attachments}
+                                tags={adj.tags}
                               />
                             );
                           })}
@@ -2153,6 +2155,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                               onUndo={() => undoAdjustmentStatus(selectedSubmission.id, originalIdx)}
                               isFinalized={isWorkerFinalized(selectedSubmission.id)}
                               isProcessing={!!isItemProcessing}
+                              attachments={adj.attachments}
+                              tags={adj.tags}
                             />
                           );
                         })}
