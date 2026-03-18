@@ -123,7 +123,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
           Need to update your details? Contact your Fronted admin.
         </p>
 
-        <div className="border-t border-border/20 pt-4">
+        <div className="border-t border-primary/10 pt-4">
           <StandardInput
             id="f5v3-password"
             label="Password"
