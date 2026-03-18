@@ -110,8 +110,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
             {baseTemplates.map((template: string, idx: number) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground/80"
-                style={{ background: 'hsl(0 0% 0% / 0.02)', border: '1px solid hsl(0 0% 0% / 0.04)' }}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground/80 v7-glass-item"
               >
                 <FileText className="h-3.5 w-3.5 shrink-0" />
                 {template}
