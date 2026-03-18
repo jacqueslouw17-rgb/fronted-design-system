@@ -128,7 +128,7 @@ export interface WorkerFlag {
 // Status change decision for Flag 1
 export type StatusDecision = "include" | "exclude";
 
-import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
+import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA5_PayrollStepper";
 
 interface CA4_SubmissionsViewProps {
   submissions: WorkerSubmission[];

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { ReviewCheck } from "./CA4_ReviewCheckCard";
+import { ReviewCheck } from "./CA5_ReviewCheckCard";
 
 interface CA4_FixCheckDrawerProps {
   open: boolean;

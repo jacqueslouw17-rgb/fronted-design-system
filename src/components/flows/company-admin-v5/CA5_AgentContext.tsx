@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
-import { AgentState, AgentMessage, AgentAction, UIHighlight } from './CA4_AgentTypes';
+import { AgentState, AgentMessage, AgentAction, UIHighlight } from './CA5_AgentTypes';
 
 // Pending action types for agent-driven confirmations
 export type PendingActionType = 

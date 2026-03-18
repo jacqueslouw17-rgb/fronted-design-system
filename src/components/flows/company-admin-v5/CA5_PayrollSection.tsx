@@ -9,13 +9,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
-import { CA4_SubmissionsView, WorkerSubmission, PendingLeaveItem } from "./CA4_SubmissionsView";
-import { CA4_SubmitConfirmationModal } from "./CA4_SubmitConfirmationModal";
-import { CA4_TrackingView, TrackingWorker } from "./CA4_TrackingView";
-import { CA4_SubmitStep } from "./CA4_SubmitStep";
-import { CA4_PeriodDropdown, PayrollPeriod } from "./CA4_PeriodDropdown";
-import { useCA4Agent } from "./CA4_AgentContext";
+import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA5_PayrollStepper";
+import { CA4_SubmissionsView, WorkerSubmission, PendingLeaveItem } from "./CA5_SubmissionsView";
+import { CA4_SubmitConfirmationModal } from "./CA5_SubmitConfirmationModal";
+import { CA4_TrackingView, TrackingWorker } from "./CA5_TrackingView";
+import { CA4_SubmitStep } from "./CA5_SubmitStep";
+import { CA4_PeriodDropdown, PayrollPeriod } from "./CA5_PeriodDropdown";
+import { useCA4Agent } from "./CA5_AgentContext";
 
 const mockSubmissions: WorkerSubmission[] = [
   {

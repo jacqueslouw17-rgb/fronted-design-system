@@ -14,7 +14,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CA4_SupportPanel } from "./CA4_SupportPanel";
+import { CA4_SupportPanel } from "./CA5_SupportPanel";
 
 export const CA4_SupportBubble: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -9,8 +9,8 @@ import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
-import { useCA4Agent } from "./CA4_AgentContext";
+import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA5_PayrollStepper";
+import { useCA4Agent } from "./CA5_AgentContext";
 
 export type WorkerPaymentStatus = "paid" | "in-progress";
 

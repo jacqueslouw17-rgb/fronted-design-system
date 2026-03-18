@@ -1,4 +1,4 @@
-import { AgentMessage, AgentAction, UIHighlight } from './CA4_AgentTypes';
+import { AgentMessage, AgentAction, UIHighlight } from './CA5_AgentTypes';
 
 interface AgentCallbacks {
   addMessage: (message: Omit<AgentMessage, 'id' | 'timestamp'>) => void;

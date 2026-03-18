@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA4_PayrollStepper";
+import { CA4_PayrollStepper, CA4_PayrollStep } from "./CA5_PayrollStepper";
 
 export type WorkerPaymentStatus = "paid" | "in-progress";
 

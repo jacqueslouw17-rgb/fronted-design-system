@@ -4,7 +4,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCA4Agent } from './CA4_AgentContext';
+import { useCA4Agent } from './CA5_AgentContext';
 
 export const CA4_KurtVisualizer: React.FC = () => {
   const { isOpen, toggleOpen } = useCA4Agent();
