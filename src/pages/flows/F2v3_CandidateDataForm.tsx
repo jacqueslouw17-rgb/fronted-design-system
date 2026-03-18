@@ -129,7 +129,7 @@ const F2v3_CandidateDataForm: React.FC = () => {
                     animate={{ opacity: [0.4, 0.6, 0.4], scale: [1, 1.15, 1] }}
                     transition={{ delay: 0.4, duration: 4, repeat: Infinity, ease: "easeInOut" }}
                     className="absolute -inset-8 rounded-full"
-                    style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, rgba(59,130,246,0.12) 40%, transparent 70%)' }}
+                    style={{ background: 'radial-gradient(circle, rgba(61,122,115,0.25) 0%, rgba(77,137,130,0.15) 40%, transparent 70%)' }}
                   />
                   {/* Inner ring glow */}
                   <motion.div
