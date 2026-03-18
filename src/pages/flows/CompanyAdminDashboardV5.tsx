@@ -91,7 +91,7 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
           userName={`${userData.firstName} ${userData.lastName}`} 
           isDrawerOpen={isDrawerOpen} 
           onDrawerToggle={toggleDrawer}
-          profileSettingsUrl="/flow-6/profile-settings?returnUrl=/flows/company-admin-dashboard-v5"
+          profileSettingsUrl="/flow-6-v5/profile-settings?returnUrl=/flows/company-admin-dashboard-v5"
           forceFixed
         />
 
