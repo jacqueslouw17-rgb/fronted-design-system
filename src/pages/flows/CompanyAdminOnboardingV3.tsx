@@ -144,7 +144,7 @@ const CompanyAdminOnboardingV3 = () => {
 
   return (
     <AgentLayout context="Company Admin Onboarding v3 — Future">
-      <main className="flex min-h-screen text-foreground relative v7-future-bg">
+      <main className="flex min-h-screen text-foreground relative v7-glass-bg">
         <FrostedHeader onLogoClick={() => navigate("/?tab=flows")} onCloseClick={() => navigate("/?tab=flows")} />
 
         <div
