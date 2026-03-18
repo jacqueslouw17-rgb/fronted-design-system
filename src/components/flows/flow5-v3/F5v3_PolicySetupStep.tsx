@@ -141,7 +141,7 @@ const PillSelect = <T extends string>({
               transition={{ duration: 0.2 }}
             />
           )}
-          {Icon && <Icon className="h-3.5 w-3.5" style={{ color: isSelected ? 'hsl(172 28% 42% / 0.6)' : 'hsl(0 0% 0% / 0.25)' }} />}
+          {Icon && <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary/60" : "text-foreground/25")} />}
           <span className={cn("text-xs font-semibold", isSelected ? "text-foreground" : "text-muted-foreground/80")}>{opt.label}</span>
           {opt.description && <span className={cn("text-[10px] leading-tight", isSelected ? "text-muted-foreground/80" : "text-muted-foreground/50")}>{opt.description}</span>}
         </button>
