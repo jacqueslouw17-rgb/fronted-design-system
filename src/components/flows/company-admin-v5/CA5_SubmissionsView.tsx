@@ -835,6 +835,12 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [showCustomReason, setShowCustomReason] = useState(false);
+
+  // Toggle body class for v7 drawer overlay (hides header behind drawer)
+  useEffect(() => {
+    document.body.classList.toggle("v7-payroll-drawer-open", drawerOpen);
+    return () => document.body.classList.remove("v7-payroll-drawer-open");
+  }, [drawerOpen]);
   
   // Track which item is currently expanded (only one at a time)
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
