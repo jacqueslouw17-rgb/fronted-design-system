@@ -94,7 +94,7 @@ const F2v3_CandidateDataForm: React.FC = () => {
       // Final step — show success
       setShowSuccess(true);
       setTimeout(() => {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#3B82F6', '#6366F1', '#818CF8'] });
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#3D7A73', '#4D8982', '#6BA8A0'] });
       }, 300);
     }
     setIsProcessing(false);
@@ -129,7 +129,7 @@ const F2v3_CandidateDataForm: React.FC = () => {
                     animate={{ opacity: [0.4, 0.6, 0.4], scale: [1, 1.15, 1] }}
                     transition={{ delay: 0.4, duration: 4, repeat: Infinity, ease: "easeInOut" }}
                     className="absolute -inset-8 rounded-full"
-                    style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, rgba(59,130,246,0.12) 40%, transparent 70%)' }}
+                    style={{ background: 'radial-gradient(circle, rgba(61,122,115,0.25) 0%, rgba(77,137,130,0.15) 40%, transparent 70%)' }}
                   />
                   {/* Inner ring glow */}
                   <motion.div
@@ -142,8 +142,8 @@ const F2v3_CandidateDataForm: React.FC = () => {
                   <div
                     className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center"
                     style={{
-                      background: 'linear-gradient(145deg, #6366F1, #3B82F6, #818CF8)',
-                      boxShadow: '0 12px 40px rgba(99,102,241,0.35), 0 4px 16px rgba(59,130,246,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
+                      background: 'linear-gradient(145deg, #3D7A73, #4D8982, #6BA8A0)',
+                      boxShadow: '0 12px 40px rgba(61,122,115,0.35), 0 4px 16px rgba(77,137,130,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
                     }}
                   >
                     <motion.svg viewBox="0 0 24 24" fill="none" className="w-11 h-11 sm:w-13 sm:h-13">
