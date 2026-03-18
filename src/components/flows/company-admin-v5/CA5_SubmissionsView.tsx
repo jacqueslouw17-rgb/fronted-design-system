@@ -2169,13 +2169,13 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   )}
 
                   {/* LEAVE Section - Collapsed by default, only force open when pending filter or newly added */}
-                  {((hasLeaves || workerAdminAdjustments.some(a => a.type === 'unpaid_leave')) && (!showPendingOnly || leaveCounts.pending > 0)) && (
+                  {(hasLeaves) && (!showPendingOnly || leaveCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Leave"
                        defaultOpen={leaveCounts.pending > 0}
                       forceOpen={showPendingOnly ? leaveCounts.pending > 0 : (leaveCounts.pending > 0 || newlyAddedSection === 'leave')}
                       pendingCount={leaveCounts.pending}
-                      approvedCount={leaveCounts.approved + workerAdminAdjustments.filter(a => a.type === 'unpaid_leave').length}
+                      approvedCount={leaveCounts.approved}
                     >
                       {pendingLeaves
                         .filter((leave) => {
@@ -2190,10 +2190,11 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                               key={itemId}
                               leave={{
                                 ...leave,
+                                dailyRate: leave.dailyRate ? cvt(leave.dailyRate) : undefined,
                                 status: leaveState.status,
                                 rejectionReason: leaveState.rejectionReason || leave.rejectionReason,
                               }}
-                              currency={currency}
+                              currency={dc}
                               isExpanded={expandedItemId === itemId}
                               onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
                               onApprove={() => {
@@ -2209,28 +2210,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             />
                           );
                         })}
-                    {/* Admin-added unpaid leave */}
-                    {!showPendingOnly && workerAdminAdjustments
-                      .filter(a => a.type === 'unpaid_leave')
-                      .map((adj) => (
-                        <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || `${adj.days}d unpaid leave`}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-muted-foreground text-right transition-all group-hover:mr-1">
-                              −{formatCurrency(adj.amount || 0, currency)}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
-                              className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150"
-                            >
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
                     </CollapsibleSection>
                   )}
                   </>
