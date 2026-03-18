@@ -121,6 +121,7 @@ import PayrollBatch from "./pages/PayrollBatch";
 import PayrollBatchCurrent from "./pages/PayrollBatchCurrent";
 import CandidateDataCollection from "./pages/CandidateDataCollection";
 import CandidateDataCollectionV2 from "./pages/CandidateDataCollectionV2";
+import CandidateDataCollectionV3 from "./pages/CandidateDataCollectionV3";
 import V4_PayrollDetailsForm from "./pages/flows/V4_PayrollDetailsForm";
 
 // Flow 2 v2 single-page form (no multi-step needed)
@@ -261,6 +262,9 @@ const App = () => (
         <Route path="/flows/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
         {/* Redirect old multi-step routes to single-page form */}
         <Route path="/candidate-data-collection-v2/*" element={<CandidateDataCollectionV2 />} />
+        <Route path="/candidate-data-collection-v3" element={<CandidateDataCollectionV3 />} />
+        <Route path="/flows/candidate-data-collection-v3" element={<CandidateDataCollectionV3 />} />
+        <Route path="/candidate-data-collection-v3/*" element={<CandidateDataCollectionV3 />} />
         
         {/* Shared error pages */}
         <Route path="/secure-link-error" element={<SecureLinkError />} />
