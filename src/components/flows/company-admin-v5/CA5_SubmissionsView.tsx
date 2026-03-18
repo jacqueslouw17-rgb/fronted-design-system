@@ -2115,13 +2115,13 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   )}
 
                   {/* OVERTIME Section - Collapsed by default, only force open when pending filter or newly added */}
-                  {((overtimeCounts.total > 0 || workerAdminAdjustments.some(a => a.type === 'overtime')) && (!showPendingOnly || overtimeCounts.pending > 0)) && (
+                  {(overtimeCounts.total > 0) && (!showPendingOnly || overtimeCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Overtime"
                        defaultOpen={overtimeCounts.pending > 0}
                       forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : (overtimeCounts.pending > 0 || newlyAddedSection === 'overtime')}
                       pendingCount={overtimeCounts.pending}
-                      approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter(a => a.type === 'overtime').length}
+                      approvedCount={overtimeCounts.approved}
                     >
                       {allAdjustments
                         .map((adj, originalIdx) => ({ adj, originalIdx }))
@@ -2133,7 +2133,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         .map(({ adj, originalIdx }) => {
                           const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                           const itemId = `overtime-${originalIdx}`;
-                          // Check if agent is processing this specific overtime item
                           const isItemProcessing = processingItem && 
                             processingItem.workerId === selectedSubmission.workerId &&
                             processingItem.itemType === 'overtime' &&
@@ -2166,28 +2165,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             />
                           );
                         })}
-                    {/* Admin-added overtime */}
-                    {!showPendingOnly && workerAdminAdjustments
-                      .filter(a => a.type === 'overtime')
-                      .map((adj) => (
-                        <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || `${adj.hours}h overtime`}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">
-                              +{formatCurrency(cvt(adj.amount || 0), dc)}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
-                              className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150"
-                            >
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
                     </CollapsibleSection>
                   )}
 
