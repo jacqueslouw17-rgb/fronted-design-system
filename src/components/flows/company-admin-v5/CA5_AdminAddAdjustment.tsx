@@ -189,7 +189,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       base.push({
         id: "commission",
         label: "Commission",
-        description: "Request additional pay",
+        description: "Add a commission payment",
         icon: Coins,
       });
     }
