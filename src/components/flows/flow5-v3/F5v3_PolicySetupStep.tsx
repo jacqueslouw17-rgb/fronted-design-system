@@ -213,7 +213,7 @@ const F5v3_PolicySetupStep = ({ formData, onComplete, isProcessing }: PolicySetu
 
   return (
     <div className="space-y-5 w-full sm:max-w-xl sm:mx-auto px-1 sm:px-0">
-      <div className="space-y-2.5">
+      <div className="v7-glass-card rounded-2xl p-5 sm:p-6 space-y-2.5">
         <PolicySection
           icon={Calendar}
           title="Payroll cycle"
