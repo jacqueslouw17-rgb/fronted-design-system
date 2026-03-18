@@ -871,6 +871,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         {/* Commission form (contractor only) — matches v7 contractor commission */}
         {selectedType === "commission" && (
           <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
             <div className="space-y-3">
               {commissionItems.map((item) => (
                 <div
