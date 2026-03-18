@@ -25,11 +25,11 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "./CA4_ConfirmationDialogs";
-import { CollapsibleSection } from "./CA4_CollapsibleSection";
-import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA4_AdminAddAdjustment";
+import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "./CA5_ConfirmationDialogs";
+import { CollapsibleSection } from "./CA5_CollapsibleSection";
+import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA5_AdminAddAdjustment";
 import { CurrencyToggle, convertToEUR } from "@/components/flows/shared/CurrencyToggle";
-import { useCA4Agent } from "./CA4_AgentContext";
+import { useCA4Agent } from "./CA5_AgentContext";
 
 // Country flag map for consistent display
 const countryFlags: Record<string, string> = {
