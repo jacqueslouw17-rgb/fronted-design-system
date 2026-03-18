@@ -525,7 +525,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                         <SelectTrigger className="h-9">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="z-[200]">
                           {expenseCategories.map((cat) => (
                             <SelectItem key={cat} value={cat}>
                               {cat}
