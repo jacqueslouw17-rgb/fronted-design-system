@@ -310,7 +310,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                   key={worker.id}
                   className={cn(
                     "flex items-center gap-2.5 px-2.5 py-2 rounded-md border border-border/20",
-                    "bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors"
+                    "bg-muted/30 cursor-pointer transition-colors v7-worker-row"
                   )}
                   onClick={() => handleWorkerClick(worker)}
                 >
