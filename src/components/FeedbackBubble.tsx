@@ -15,8 +15,8 @@ export const FeedbackBubble = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
 
-  // Flow 6 v4 (Agentic): bubble becomes Support + Feedback entry point
-  const isFlow6V4 = location.pathname === "/flows/company-admin-dashboard-v4";
+  // Flow 6 v4/v5 (Agentic): bubble becomes Support + Feedback entry point
+  const isFlow6V4 = location.pathname === "/flows/company-admin-dashboard-v4" || location.pathname === "/flows/company-admin-dashboard-v5";
 
   // (No special hiding for Flow 1 v7)
 
