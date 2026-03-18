@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { convertToEUR } from "@/components/flows/shared/CurrencyToggle";
 import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, ArrowLeftRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
