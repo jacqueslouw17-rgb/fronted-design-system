@@ -734,6 +734,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         {/* Unpaid leave (single-entry with date details) */}
         {selectedType === "unpaid_leave" && (
           <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
             <div className="space-y-1.5">
               <Label className="text-xs">Days</Label>
               <Input
