@@ -55,12 +55,12 @@ export const CA4_TopSummary: React.FC<CA4_TopSummaryProps> = ({
   const statusInfo = statusConfig[status];
 
   return (
-    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-      <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-3 px-3 sm:py-4 sm:px-5">
+    <div className="v7-glass-card rounded-2xl overflow-hidden">
+      <div className="border-b border-white/10 py-3 px-3 sm:py-4 sm:px-5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5">
             <h2 className="text-base font-medium text-foreground">{payPeriod}</h2>
-            <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", statusInfo.className)}>
+            <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-medium v7-glass-badge", statusInfo.className)}>
               {statusInfo.label}
             </Badge>
           </div>
@@ -82,31 +82,31 @@ export const CA4_TopSummary: React.FC<CA4_TopSummaryProps> = ({
             </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="p-3 sm:p-5">
-        {/* KPI Cards - individual cards like worker rows */}
+      </div>
+      <div className="p-3 sm:p-5">
+        {/* KPI Cards - individual cards with glass treatment */}
         <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0 sm:overflow-visible pb-1">
           <div className="flex sm:grid sm:grid-cols-4 gap-2 sm:gap-3 w-max sm:w-auto">
-          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-xl v7-glass-item">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Gross Pay</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">≈ {formatCurrency(grossPay)}</p>
           </div>
-          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-xl v7-glass-item">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Net Pay</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(netPay)}</p>
           </div>
-          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-xl v7-glass-item">
             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1">Fronted Fees</p>
             <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(frontedFees)}</p>
           </div>
-          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+          <div className="w-28 sm:w-auto p-2.5 sm:p-4 rounded-xl v7-glass-item border-primary/20">
             <p className="text-[10px] sm:text-[11px] text-primary/70 mb-1">Total Cost</p>
             <p className="text-sm sm:text-lg font-semibold text-primary">{formatCurrency(totalCost)}</p>
           </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
