@@ -158,13 +158,13 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     const base: RequestOption[] = [
       {
         id: "expense",
-        label: "Expense Reimbursements",
+        label: "Expense Reimbursement",
         description: "Submit a reimbursement",
         icon: Receipt,
       },
       {
         id: "overtime",
-        label: workerType === "contractor" ? "Additional hours" : "Overtime",
+        label: workerType === "contractor" ? "Additional Hours" : "Overtime",
         description: workerType === "contractor" ? "Log extra time" : "Log extra hours",
         icon: Clock,
       },
@@ -174,13 +174,13 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       base.push({
         id: "bonus",
         label: "Bonus",
-        description: "Request a bonus payment",
+        description: "Add a bonus payment",
         icon: Gift,
       });
       base.push({
         id: "unpaid_leave",
-        label: "Unpaid Leave",
-        description: "Deduct pay for days not worked",
+        label: "Leave Adjustment",
+        description: "Adjust pay for leave days",
         icon: CalendarOff,
       });
     }
