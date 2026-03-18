@@ -472,10 +472,10 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                             onClick={() => setShowEUR(!showEUR)}
                             className={cn(
                               "flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all duration-150",
-                              "border border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+                              "border border-border/50 bg-background/70 text-muted-foreground backdrop-blur-sm hover:border-border/70 hover:bg-background hover:text-foreground",
                               showEUR
-                                ? "bg-primary/5 text-primary border-primary/30"
-                                : "text-muted-foreground bg-muted/30"
+                                ? "border-border/70 bg-background text-foreground shadow-sm"
+                                : "bg-background/60 text-muted-foreground"
                             )}
                           >
                             <ArrowLeftRight className="h-2.5 w-2.5" />
