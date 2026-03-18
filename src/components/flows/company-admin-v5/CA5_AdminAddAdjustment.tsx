@@ -784,6 +784,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         {/* Bonus form (employee only) — matches v7 employee bonus */}
         {selectedType === "bonus" && (
           <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
             <div className="space-y-3">
               {bonusItems.map((item) => (
                 <div
