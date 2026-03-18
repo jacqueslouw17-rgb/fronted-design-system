@@ -121,6 +121,7 @@ import PayrollBatch from "./pages/PayrollBatch";
 import PayrollBatchCurrent from "./pages/PayrollBatchCurrent";
 import CandidateDataCollection from "./pages/CandidateDataCollection";
 import CandidateDataCollectionV2 from "./pages/CandidateDataCollectionV2";
+import CandidateDataCollectionV3 from "./pages/CandidateDataCollectionV3";
 import V4_PayrollDetailsForm from "./pages/flows/V4_PayrollDetailsForm";
 
 // Flow 2 v2 single-page form (no multi-step needed)
