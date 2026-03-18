@@ -1206,54 +1206,41 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
 
   const renderSubmissionRow = (submission: WorkerSubmission) => {
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
-    
-    // Check if this worker is currently being marked as ready by the agent
+
     const isBeingMarkedReady = workersMarkingReady.has(submission.workerId);
-    
-    // Check if this worker is currently having items approved by the agent
     const isBeingApproved = workersApproving.has(submission.workerId);
-    // Count pending adjustments for this worker (considering local state overrides)
+
     const pendingAdjustmentCount = submission.submissions.filter((adj, idx) => {
       const key = `${submission.id}-${idx}`;
       const localState = adjustmentStates[key];
       const effectiveStatus = localState?.status || adj.status || 'pending';
       return effectiveStatus === 'pending' && typeof adj.amount === 'number';
     }).length;
-    
-    // Count rejected adjustments for this worker
+
     const rejectedAdjustmentCount = submission.submissions.filter((adj, idx) => {
       const key = `${submission.id}-${idx}`;
       const localState = adjustmentStates[key];
       const effectiveStatus = localState?.status || adj.status || 'pending';
       return effectiveStatus === 'rejected' && typeof adj.amount === 'number';
     }).length;
-    
-    // Count pending leaves for this worker
+
     const pendingLeaveCount = (submission.pendingLeaves || []).filter((leave) => {
       const leaveState = getLeaveStatus(submission.id, leave.id, leave.status);
       return leaveState.status === 'pending';
     }).length;
-    
-    // Count rejected leaves for this worker
+
     const rejectedLeaveCount = (submission.pendingLeaves || []).filter((leave) => {
       const leaveState = getLeaveStatus(submission.id, leave.id, leave.status);
       return leaveState.status === 'rejected';
     }).length;
-    
-    // Total pending items (adjustments + leaves)
+
     const workerPendingCount = pendingAdjustmentCount + pendingLeaveCount;
-    
-    // Total rejected items - worker needs to resubmit
     const workerRejectedCount = rejectedAdjustmentCount + rejectedLeaveCount;
-    
-    // Check if worker is finalized
     const isFinalized = isWorkerFinalized(submission.id);
 
     const isExcluded = statusDecisions[submission.id] === "exclude";
-    // Worker is "skipped" if skippedOthers is active and they still have pending items
     const isSkipped = skippedOthers && workerPendingCount > 0 && !isFinalized && !isExcluded;
-    
-    // Derive effective worker status
+
     let effectiveWorkerStatus: SubmissionStatus;
     if (isExcluded) {
       effectiveWorkerStatus = "ready";
@@ -1264,6 +1251,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
     } else {
       effectiveWorkerStatus = "ready";
     }
+
     const status = isExcluded
       ? { label: "Excluded", color: "text-muted-foreground", icon: X }
       : isSkipped
@@ -1271,7 +1259,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
       : statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
-    // Show loading skeleton when being marked as ready
     if (isBeingMarkedReady) {
       return (
         <motion.div
@@ -1294,7 +1281,6 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
       );
     }
 
-    // Show loading skeleton when items are being approved
     if (isBeingApproved) {
       return (
         <motion.div
@@ -1325,22 +1311,21 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted/30 border border-border/20 transition-colors v7-worker-row",
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border transition-all v7-worker-row",
+          "border-border/30",
           (isExcluded || isSkipped) ? "opacity-40 cursor-default" : "cursor-pointer group"
         )}
         onClick={() => { if (!isSkipped) handleRowClick(submission); }}
       >
-        {/* Avatar */}
         <Avatar className="h-7 w-7 flex-shrink-0">
           <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
             {getInitials(submission.workerName)}
           </AvatarFallback>
         </Avatar>
 
-        {/* Worker Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground truncate">
+            <span className={cn("text-sm font-medium text-foreground truncate", isExcluded && "line-through")}>
               {submission.workerName}
             </span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
@@ -1349,17 +1334,15 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
             <span className="text-[11px] text-muted-foreground leading-tight">
               {countryFlags[submission.workerCountry] || ""} {submission.workerCountry}
             </span>
-            {workerRejectedCount > 0 && workerPendingCount === 0 && statusDecisions[submission.id] !== "exclude" && (
-              <span className="text-[10px] text-destructive/80">
-                · 1 day to resubmit
-              </span>
+            {workerRejectedCount > 0 && workerPendingCount === 0 && !isExcluded && (
+              <span className="text-[10px] text-destructive/80">· 1 day to resubmit</span>
             )}
             {!isFinalized && submission.flags?.map((flag, fi) => (
               <Badge key={fi} variant="outline" className={cn(
                 "text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium",
                 flag.type === "end_date"
                   ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
-                  : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+                  : "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20"
               )}>
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
                 {flag.type === "end_date"
@@ -1370,18 +1353,17 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
           </div>
         </div>
 
-        {/* Right side: Amount + Status */}
         <div className="flex items-center gap-3 flex-shrink-0">
-          {/* Impact Amount */}
           {submission.totalImpact ? (
             <p className="text-sm font-semibold text-foreground tabular-nums">
-              {submission.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(submission.totalImpact, submission.currency)), "EUR")}` : formatCurrency(submission.totalImpact, "EUR")}
+              {submission.currency !== "EUR"
+                ? `≈ ${formatCurrency(Math.round(convertToEUR(submission.totalImpact, submission.currency)), "EUR")}`
+                : formatCurrency(submission.totalImpact, "EUR")}
             </p>
           ) : (
             <p className="text-xs text-muted-foreground">—</p>
           )}
 
-          {/* Status with pending count, reviewed indicator, or ready */}
           <div className={cn("flex items-center gap-1.5 text-xs", status.color)}>
             {workerPendingCount > 0 ? (
               <>
