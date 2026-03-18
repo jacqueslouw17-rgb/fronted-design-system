@@ -127,24 +127,20 @@ const PillSelect = <T extends string>({
           type="button"
           onClick={() => onChange(opt.value)}
           className={cn(
-            "relative flex flex-col items-start gap-1.5 rounded-xl p-3 text-left transition-all duration-200",
-            isSelected && "shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
-          )}
-          style={
+            "relative flex flex-col items-start gap-1.5 rounded-xl p-3 text-left transition-all duration-200 border",
             isSelected
-              ? { border: '1px solid hsl(172 28% 42% / 0.18)', background: 'hsl(172 28% 42% / 0.04)' }
-              : { border: '1px solid hsl(0 0% 0% / 0.06)', background: 'hsl(0 0% 100% / 0.2)' }
-          }
+              ? "v7-glass-item border-primary/[0.18] shadow-sm"
+              : "border-foreground/[0.06] bg-white/20"
+          )}
         >
           {isSelected && (
             <motion.div
               layoutId="f5v3-pill-indicator"
-              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full"
-              style={{ background: 'hsl(172 28% 42% / 0.45)' }}
+              className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-primary/45"
               transition={{ duration: 0.2 }}
             />
           )}
-          {Icon && <Icon className="h-3.5 w-3.5" style={{ color: isSelected ? 'hsl(172 28% 42% / 0.6)' : 'hsl(0 0% 0% / 0.25)' }} />}
+          {Icon && <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary/60" : "text-foreground/25")} />}
           <span className={cn("text-xs font-semibold", isSelected ? "text-foreground" : "text-muted-foreground/80")}>{opt.label}</span>
           {opt.description && <span className={cn("text-[10px] leading-tight", isSelected ? "text-muted-foreground/80" : "text-muted-foreground/50")}>{opt.description}</span>}
         </button>
@@ -173,14 +169,11 @@ const ThresholdSelector = ({
             type="button"
             onClick={() => onChange(key)}
             className={cn(
-              "flex flex-col items-center gap-0.5 rounded-lg p-2.5 text-center transition-all duration-200",
-              value === key && "shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
-            )}
-            style={
+              "flex flex-col items-center gap-0.5 rounded-lg p-2.5 text-center transition-all duration-200 border",
               value === key
-                ? { border: '1px solid hsl(172 28% 42% / 0.18)', background: 'hsl(172 28% 42% / 0.04)' }
-                : { border: '1px solid hsl(0 0% 0% / 0.05)', background: 'hsl(0 0% 100% / 0.15)' }
-            }
+                ? "v7-glass-item border-primary/[0.18] shadow-sm"
+                : "border-foreground/[0.05] bg-white/15"
+            )}
           >
             <span className={cn("text-[10px] font-semibold", value === key ? "text-foreground" : "text-muted-foreground/70")}>{preset.label}</span>
             {key !== "custom" && <span className="text-[9px] text-muted-foreground">≤ €{preset.amount}</span>}
@@ -220,7 +213,7 @@ const F5v3_PolicySetupStep = ({ formData, onComplete, isProcessing }: PolicySetu
 
   return (
     <div className="space-y-5 w-full sm:max-w-xl sm:mx-auto px-1 sm:px-0">
-      <div className="space-y-2.5">
+      <div className="v7-glass-card rounded-2xl p-5 sm:p-6 space-y-2.5">
         <PolicySection
           icon={Calendar}
           title="Payroll cycle"
@@ -393,11 +386,7 @@ const F5v3_PolicySetupStep = ({ formData, onComplete, isProcessing }: PolicySetu
       <button 
         onClick={handleContinue} 
         disabled={isProcessing || !allComplete}
-        className="w-full h-12 rounded-xl text-sm font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-        style={{
-          background: 'linear-gradient(135deg, hsl(172 28% 38%), hsl(172 32% 48%))',
-          boxShadow: allComplete && !isProcessing ? '0 4px 14px -3px hsl(172 28% 42% / 0.35)' : 'none',
-        }}
+        className="w-full h-12 rounded-xl text-sm font-semibold text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 bg-gradient-primary"
       >
         {isProcessing ? "Saving..." : "Complete setup"}
       </button>

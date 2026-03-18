@@ -51,7 +51,7 @@ const LockedField = ({ label, value }: { label: string; value: string }) => (
       <Lock className="h-3 w-3" />
       {label}
     </Label>
-    <Input value={value} disabled className="bg-muted/30 text-muted-foreground/80 cursor-not-allowed border-border/20 text-sm" />
+    <Input value={value} disabled className="bg-white/40 text-muted-foreground/80 cursor-not-allowed border-primary/10 text-sm backdrop-blur-sm" />
   </div>
 );
 
@@ -93,7 +93,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
       transition={{ duration: 0.4, delay: 0.15 }}
       className="space-y-5 w-full sm:max-w-xl sm:mx-auto px-1 sm:px-0"
     >
-      <div className="space-y-4">
+      <div className="v7-glass-card rounded-2xl p-5 sm:p-6 space-y-4">
         <LockedField label="Full Name" value={fullName} />
         <LockedField label="Email" value={email} />
         <LockedField label="Company Name" value={companyName} />
@@ -110,8 +110,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
             {baseTemplates.map((template: string, idx: number) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground/80"
-                style={{ background: 'hsl(0 0% 0% / 0.02)', border: '1px solid hsl(0 0% 0% / 0.04)' }}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground/80 v7-glass-item"
               >
                 <FileText className="h-3.5 w-3.5 shrink-0" />
                 {template}
@@ -124,7 +123,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
           Need to update your details? Contact your Fronted admin.
         </p>
 
-        <div className="border-t border-border/20 pt-4">
+        <div className="border-t border-primary/10 pt-4">
           <StandardInput
             id="f5v3-password"
             label="Password"
@@ -163,11 +162,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
       <button
         onClick={handleContinue}
         disabled={!isValid || isProcessing}
-        className="w-full h-12 rounded-xl text-sm font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-        style={{
-          background: 'linear-gradient(135deg, hsl(172 28% 38%), hsl(172 32% 48%))',
-          boxShadow: isValid && !isProcessing ? '0 4px 14px -3px hsl(172 28% 42% / 0.35)' : 'none',
-        }}
+        className="w-full h-12 rounded-xl text-sm font-semibold text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 bg-gradient-primary"
       >
         {isProcessing ? "Processing..." : "Continue"}
         <ArrowRight className="h-4 w-4" />
@@ -227,11 +222,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
                   setTermsAccepted(true);
                   setTermsSheetOpen(false);
                 }}
-                className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg active:scale-[0.98]"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(172 28% 38%), hsl(172 32% 48%))',
-                  boxShadow: '0 4px 14px -3px hsl(172 28% 42% / 0.35)',
-                }}
+                className="w-full h-11 rounded-xl text-sm font-semibold text-primary-foreground transition-all duration-200 hover:shadow-lg active:scale-[0.98] bg-gradient-primary"
               >
                 I agree
               </button>
