@@ -78,6 +78,47 @@ type RequestOption = {
   icon: React.ElementType;
 };
 
+/* ─── Direction Picker ─── */
+const DirectionPicker = ({
+  direction,
+  onChange,
+}: {
+  direction: AdjustmentDirection;
+  onChange: (d: AdjustmentDirection) => void;
+}) => (
+  <div className="space-y-1.5">
+    <Label className="text-xs">Adjustment direction</Label>
+    <div className="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        onClick={() => onChange("add")}
+        className={cn(
+          "flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left text-xs font-medium",
+          direction === "add"
+            ? "border-primary bg-primary/5 text-primary"
+            : "border-border/60 text-muted-foreground hover:border-primary/30"
+        )}
+      >
+        <Plus className="h-3.5 w-3.5" />
+        Add to payout
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("deduct")}
+        className={cn(
+          "flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left text-xs font-medium",
+          direction === "deduct"
+            ? "border-destructive bg-destructive/5 text-destructive"
+            : "border-border/60 text-muted-foreground hover:border-destructive/30"
+        )}
+      >
+        <Minus className="h-3.5 w-3.5" />
+        Deduct from payout
+      </button>
+    </div>
+  </div>
+);
+
 export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   workerType,
   workerName,
@@ -89,6 +130,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   onAddAdjustment,
 }) => {
   const [selectedType, setSelectedType] = useState<RequestType>(null);
+  const [direction, setDirection] = useState<AdjustmentDirection>("add");
 
   // Forms
   const [unpaidLeaveDays, setUnpaidLeaveDays] = useState("");
