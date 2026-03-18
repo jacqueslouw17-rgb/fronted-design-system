@@ -127,7 +127,10 @@ const PillSelect = <T extends string>({
           type="button"
           onClick={() => onChange(opt.value)}
           className={cn(
-            "relative flex flex-col items-start gap-1.5 rounded-xl p-3 text-left transition-all duration-200",
+            "relative flex flex-col items-start gap-1.5 rounded-xl p-3 text-left transition-all duration-200 border",
+            isSelected
+              ? "v7-glass-item border-primary/18 shadow-[0_1px_3px_0_hsl(var(--primary)/0.06)]"
+              : "border-foreground/[0.06] bg-white/20"
             isSelected && "shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
           )}
           style={
