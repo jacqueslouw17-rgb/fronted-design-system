@@ -169,14 +169,11 @@ const ThresholdSelector = ({
             type="button"
             onClick={() => onChange(key)}
             className={cn(
-              "flex flex-col items-center gap-0.5 rounded-lg p-2.5 text-center transition-all duration-200",
-              value === key && "shadow-[0_1px_3px_0_hsl(172_28%_42%/0.06)]"
-            )}
-            style={
+              "flex flex-col items-center gap-0.5 rounded-lg p-2.5 text-center transition-all duration-200 border",
               value === key
-                ? { border: '1px solid hsl(172 28% 42% / 0.18)', background: 'hsl(172 28% 42% / 0.04)' }
-                : { border: '1px solid hsl(0 0% 0% / 0.05)', background: 'hsl(0 0% 100% / 0.15)' }
-            }
+                ? "v7-glass-item border-primary/[0.18] shadow-sm"
+                : "border-foreground/[0.05] bg-white/15"
+            )}
           >
             <span className={cn("text-[10px] font-semibold", value === key ? "text-foreground" : "text-muted-foreground/70")}>{preset.label}</span>
             {key !== "custom" && <span className="text-[9px] text-muted-foreground">≤ €{preset.amount}</span>}
