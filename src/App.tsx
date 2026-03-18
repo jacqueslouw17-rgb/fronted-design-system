@@ -55,6 +55,7 @@ import CompanyAdminDashboard from "./pages/flows/CompanyAdminDashboard";
 import CompanyAdminDashboardV2 from "./pages/flows/CompanyAdminDashboardV2";
 import CompanyAdminDashboardV3 from "./pages/flows/CompanyAdminDashboardV3";
 import CompanyAdminDashboardV4 from "./pages/flows/CompanyAdminDashboardV4";
+import CompanyAdminDashboardV5 from "./pages/flows/CompanyAdminDashboardV5";
 import FrontedAdminDashboardV4 from "./pages/flows/FrontedAdminDashboardV4";
 import F1v4_FrontedAdminDashboard from "./pages/flows/F1v4_FrontedAdminDashboard";
 import F1v5_FrontedAdminDashboard from "./pages/flows/F1v5_FrontedAdminDashboard";
