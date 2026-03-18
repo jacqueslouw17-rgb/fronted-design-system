@@ -262,6 +262,9 @@ const App = () => (
         <Route path="/flows/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
         {/* Redirect old multi-step routes to single-page form */}
         <Route path="/candidate-data-collection-v2/*" element={<CandidateDataCollectionV2 />} />
+        <Route path="/candidate-data-collection-v3" element={<CandidateDataCollectionV3 />} />
+        <Route path="/flows/candidate-data-collection-v3" element={<CandidateDataCollectionV3 />} />
+        <Route path="/candidate-data-collection-v3/*" element={<CandidateDataCollectionV3 />} />
         
         {/* Shared error pages */}
         <Route path="/secure-link-error" element={<SecureLinkError />} />
