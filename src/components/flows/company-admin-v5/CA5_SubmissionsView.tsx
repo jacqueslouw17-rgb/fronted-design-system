@@ -1889,7 +1889,7 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                             <Plus className="h-2.5 w-2.5" />
                             <span>Add</span>
                           </button>
-                        )
+                        )}
                       </div>
                       <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
                     </div>
