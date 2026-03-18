@@ -471,7 +471,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
             {requestTypeOptions.map((option) => (
               <button
                 key={option.id}
-                onClick={() => setSelectedType(option.id)}
+                onClick={() => handleSelectType(option.id)}
                 className={cn(
                   "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
                   "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]",
