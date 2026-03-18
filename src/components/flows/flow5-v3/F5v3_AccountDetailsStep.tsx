@@ -93,7 +93,7 @@ const F5v3_AccountDetailsStep: React.FC<F5v3AccountDetailsStepProps> = ({ formDa
       transition={{ duration: 0.4, delay: 0.15 }}
       className="space-y-5 w-full sm:max-w-xl sm:mx-auto px-1 sm:px-0"
     >
-      <div className="space-y-4">
+      <div className="v7-glass-card rounded-2xl p-5 sm:p-6 space-y-4">
         <LockedField label="Full Name" value={fullName} />
         <LockedField label="Email" value={email} />
         <LockedField label="Company Name" value={companyName} />
