@@ -10,8 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-// Sheet not used - inline drawer pattern for v4 agent flow
-import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -1688,45 +1687,24 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
         </CardContent>
       </Card>
 
-      {/* Worker Pay Breakdown Drawer - Fixed, respects chat panel width */}
-      <AnimatePresence>
-        {drawerOpen && (
-          <>
-            {/* Backdrop overlay - covers everything except chat panel */}
-            <motion.div
-              key="ca4-drawer-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[110] bg-black/80"
-              style={{ right: chatWidth }}
-              onClick={isAddingAdjustment ? undefined : handleCloseDrawer}
-            />
-
-            {/* Drawer panel - slides in from right, stops at chat edge */}
-            <motion.div
-              key="ca4-worker-drawer"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed top-0 bottom-0 z-[120] w-[420px] sm:max-w-[420px] bg-background border-l shadow-2xl overflow-y-auto"
-              style={{ right: chatWidth }}
-            >
-              {/* Close button */}
-              {!isAddingAdjustment && (
-                <button
-                  onClick={handleCloseDrawer}
-                  className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </button>
-              )}
-              
-              
-              {/* Actual content */}
+      {/* Worker Pay Breakdown Drawer */}
+      <Sheet
+        open={drawerOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseDrawer();
+            return;
+          }
+          setDrawerOpen(true);
+        }}
+      >
+        <SheetContent
+          side="right"
+          className="z-[120] w-[420px] sm:max-w-[420px] overflow-y-auto p-0"
+          overlayClassName="z-[110] bg-black/80"
+          hideClose={isAddingAdjustment}
+          style={{ right: chatWidth }}
+        >
           {selectedSubmission && (() => {
             // Calculate breakdown data
             const earnings = selectedSubmission.lineItems?.filter(item => item.type === 'Earnings') || [];
@@ -1843,57 +1821,45 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                     onAddAdjustment={(adjustment) => handleAdminAddAdjustment(selectedSubmission.id, adjustment)}
                   />
                 ) : (
-                <>
-                {/* Clean minimal header */}
-                <div className="px-5 pt-4 pb-3 border-b border-border/30">
-                  <span className="sr-only">Pay breakdown details</span>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-base font-semibold text-foreground leading-tight truncate">{selectedSubmission.workerName}</h2>
-                        <span className="text-base shrink-0">{countryFlags[selectedSubmission.workerCountry] || ""}</span>
-                        {(() => {
-                          const endFlag = selectedSubmission.flags?.find(f => f.type === "end_date");
-                          if (!endFlag) return null;
-                          const label = endFlag.endReason === "Termination" ? "Terminated" : endFlag.endReason === "Resignation" ? "Resigned" : "Contract ended";
-                          return (
-                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
-                              {label}
-                            </Badge>
-                          );
-                        })()}
-                        {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) && !selectedSubmission.flags?.some(f => f.type === "end_date") && (
-                          <button
-                            onClick={() => setIsAddingAdjustment(true)}
-                            className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
-                          >
-                            <Plus className="h-2.5 w-2.5" />
-                            <span>Add</span>
-                          </button>
-                        )}
+                  <>
+                    <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30">
+                      <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{selectedSubmission.workerName}</SheetTitle>
+                          <span className="text-base shrink-0">{countryFlags[selectedSubmission.workerCountry] || ""}</span>
+                          {(() => {
+                            const endFlag = selectedSubmission.flags?.find((f) => f.type === "end_date");
+                            if (!endFlag) return null;
+                            const label = endFlag.endReason === "Termination" ? "Terminated" : endFlag.endReason === "Resignation" ? "Resigned" : "Contract ended";
+                            return (
+                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 pointer-events-none font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
+                                {label}
+                              </Badge>
+                            );
+                          })()}
+                          {!showPendingOnly && !isWorkerFinalized(selectedSubmission.id) && (
+                            <button onClick={() => setIsAddingAdjustment(true)} className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground border border-border/50 rounded-full hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors">
+                              <Plus className="h-2.5 w-2.5" />
+                              <span>Add</span>
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
                       </div>
-                      <p className="text-[11px] text-muted-foreground/60 mt-0.5">{selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"} · {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}</p>
-                    </div>
-                  </div>
-                  
-                  {/* Net pay hero */}
-                  {!isAddingAdjustment && (
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
-                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">
-                        {selectedSubmission.workerType === "employee" ? "Estimated net" : "Invoice total"}
-                      </p>
-                      <CurrencyToggle
-                        amount={adjustedNet}
-                        localCurrency={currency}
-                        showUSD={showUSD}
-                        onToggle={() => setShowUSD(!showUSD)}
-                        previousAmount={baseNet}
-                        showPreviousAmount={approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments}
-                      />
-                    </div>
-                  )}
-                </div>
+
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
+                        <p className="text-[11px] uppercase tracking-wider text-muted-foreground/50 font-medium">{selectedSubmission.workerType === "employee" ? "Estimated net" : "Invoice total"}</p>
+                        <CurrencyToggle
+                          amount={adjustedNet}
+                          localCurrency={currency}
+                          showUSD={showUSD}
+                          onToggle={() => setShowUSD(!showUSD)}
+                          previousAmount={baseNet}
+                          showPreviousAmount={approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments}
+                        />
+                      </div>
+                    </SheetHeader>
 
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-4 space-y-0.5" onClick={() => setExpandedItemId(null)}>
@@ -2589,10 +2555,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
               </>
             );
           })()}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+        </SheetContent>
+      </Sheet>
     </>
   );
 };
