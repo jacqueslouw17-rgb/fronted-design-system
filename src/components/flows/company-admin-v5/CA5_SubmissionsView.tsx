@@ -2555,10 +2555,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
               </>
             );
           })()}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+        </SheetContent>
+      </Sheet>
     </>
   );
 };
