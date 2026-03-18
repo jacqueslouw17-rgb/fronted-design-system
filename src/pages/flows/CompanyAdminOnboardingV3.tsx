@@ -144,11 +144,11 @@ const CompanyAdminOnboardingV3 = () => {
 
   return (
     <AgentLayout context="Company Admin Onboarding v3 — Future">
-      <main className="flex min-h-screen text-foreground relative v7-glass-bg">
+      <main className="flex min-h-screen text-foreground relative">
         <FrostedHeader onLogoClick={() => navigate("/?tab=flows")} onCloseClick={() => navigate("/?tab=flows")} />
 
         <div
-          className="flex-shrink-0 flex flex-col min-h-screen pt-20 sm:pt-24 px-4 sm:px-8 pb-16 sm:pb-32 space-y-4 sm:space-y-6 relative z-10 mx-auto onboarding-scroll-container"
+          className="v7-glass-bg flex-shrink-0 flex flex-col min-h-screen pt-20 sm:pt-24 px-4 sm:px-8 pb-16 sm:pb-32 space-y-4 sm:space-y-6 relative z-10 mx-auto onboarding-scroll-container"
           style={{ width: "100%", maxWidth: "800px" }}
         >
           {/* Header with audio visualizer */}
