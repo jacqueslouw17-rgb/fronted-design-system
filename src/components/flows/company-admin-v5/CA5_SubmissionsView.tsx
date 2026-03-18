@@ -1803,25 +1803,14 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
             
             // Get admin-added adjustments for this worker
             const workerAdminAdjustments = adminAdjustments[selectedSubmission.id] || [];
-            
-            // Calculate admin-added adjustment totals
-            const adminExpenseTotal = workerAdminAdjustments
-              .filter(a => a.type === 'expense')
-              .reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminOvertimeTotal = workerAdminAdjustments
-              .filter(a => a.type === 'overtime')
-              .reduce((sum, a) => sum + (a.amount || 0), 0);
-            const adminUnpaidLeaveTotal = workerAdminAdjustments
-              .filter(a => a.type === 'unpaid_leave')
-              .reduce((sum, a) => sum + (a.amount || 0), 0);
-            
-            const adminAdditionsTotal = adminExpenseTotal + adminOvertimeTotal;
-            const adminDeductionsTotal = adminUnpaidLeaveTotal;
+            const adminAdditions = workerAdminAdjustments.filter((a) => a.direction !== 'deduct');
+            const adminDeductions = workerAdminAdjustments.filter((a) => a.direction === 'deduct');
+            const adminAdditionsTotal = adminAdditions.reduce((sum, a) => sum + (a.amount || 0), 0);
+            const adminDeductionsTotal = adminDeductions.reduce((sum, a) => sum + (a.amount || 0), 0);
             
             const baseNet = selectedSubmission.estimatedNet || selectedSubmission.basePay || 0;
             // Net pay updates only when items are approved (or admin-added).
             const adjustedNet = baseNet + approvedAdjustmentTotal + adminAdditionsTotal - approvedLeaveDeduction - adminDeductionsTotal;
-            const hasAdjustments = allAdjustments.length > 0;
             const hasLeaves = pendingLeaves.length > 0;
             const hasAdminAdjustments = workerAdminAdjustments.length > 0;
             
