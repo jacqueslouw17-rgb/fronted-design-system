@@ -21,6 +21,7 @@ import { TagInput } from "@/components/flows/shared/TagInput";
 
 // Types for admin-added adjustments
 export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission";
+export type AdjustmentDirection = "add" | "deduct";
 
 export interface AdminAddedAdjustment {
   id: string;
@@ -31,6 +32,7 @@ export interface AdminAddedAdjustment {
   description?: string;
   currency: string;
   addedAt: string;
+  direction: AdjustmentDirection;
 }
 
 interface CA3_AdminAddAdjustmentProps {
