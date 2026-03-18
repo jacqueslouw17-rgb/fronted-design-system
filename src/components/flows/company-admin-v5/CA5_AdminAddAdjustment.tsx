@@ -439,16 +439,16 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     selectedType === null
       ? `Add on behalf of ${workerName}`
       : selectedType === "expense"
-        ? "Expense request"
+        ? "Expense reimbursement"
         : selectedType === "overtime"
           ? workerType === "contractor"
             ? "Additional hours"
-            : "Overtime request"
+            : "Overtime"
           : selectedType === "bonus"
-            ? "Bonus request"
+            ? "Bonus"
             : selectedType === "commission"
-              ? "Commission request"
-              : "Unpaid leave";
+              ? "Commission"
+              : "Leave adjustment";
 
   return (
     <div className="flex flex-col h-full">
