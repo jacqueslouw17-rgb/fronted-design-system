@@ -21,6 +21,8 @@ import { cn } from "@/lib/utils";
 import { CheckCircle2 } from "lucide-react";
 import F5v3_WaveVisualizer from "@/components/flows/flow5-v3/F5v3_WaveVisualizer";
 import { toast } from "sonner";
+import "@/styles/v7-glass-theme.css";
+import "@/styles/v7-glass-portals.css";
 
 import F5v3_AccountDetailsStep from "@/components/flows/flow5-v3/F5v3_AccountDetailsStep";
 import F5v3_PolicySetupStep from "@/components/flows/flow5-v3/F5v3_PolicySetupStep";
