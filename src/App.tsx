@@ -65,6 +65,7 @@ import F1v5_ProfileSettings from "./pages/flows/F1v5_ProfileSettings";
 import F1v6_ProfileSettings from "./pages/flows/F1v6_ProfileSettings";
 import F1v7_ProfileSettings from "./pages/flows/F1v7_ProfileSettings";
 import F6_ProfileSettings from "./pages/flows/F6_ProfileSettings";
+import F6v5_ProfileSettings from "./pages/flows/F6v5_ProfileSettings";
 import V4_ContractFlow from "./pages/flows/V4_ContractFlow";
 import SecureLinkError from "./pages/flows/SecureLinkError";
 import ServerError from "./pages/flows/ServerError";
