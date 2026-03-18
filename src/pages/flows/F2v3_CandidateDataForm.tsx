@@ -94,7 +94,7 @@ const F2v3_CandidateDataForm: React.FC = () => {
       // Final step — show success
       setShowSuccess(true);
       setTimeout(() => {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#3B82F6', '#6366F1', '#818CF8'] });
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#3D7A73', '#4D8982', '#6BA8A0'] });
       }, 300);
     }
     setIsProcessing(false);
