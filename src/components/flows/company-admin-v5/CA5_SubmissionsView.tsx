@@ -2029,33 +2029,31 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                         </>
                       );
                     })()}
-                    {/* Admin-added expenses */}
-                    {!showPendingOnly && workerAdminAdjustments
-                      .filter(a => a.type === 'expense')
-                      .map((adj) => (
-                        <div key={adj.id} className="flex items-center justify-between py-2 group">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || 'Expense'}</span>
-                            <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">
-                              +{formatCurrency(cvt(adj.amount || 0), dc)}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
-                              className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150"
-                            >
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </button>
-                          </div>
+                    {/* Admin-added additions */}
+                    {!showPendingOnly && adminAdditions.map((adj) => (
+                      <div key={adj.id} className="flex items-center justify-between py-2 group">
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-sm text-muted-foreground">{adj.description || adj.type}</span>
+                          <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
                         </div>
-                      ))}
+                        <div className="flex items-center">
+                          <span className="text-sm tabular-nums font-mono text-foreground text-right transition-all group-hover:mr-1">
+                            +{formatCurrency(cvt(adj.amount || 0), dc)}
+                          </span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRemoveAdminAdjustment(selectedSubmission.id, adj.id); }}
+                            className="w-0 overflow-hidden opacity-0 group-hover:w-5 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all duration-150"
+                          >
+                            <X className="h-3.5 w-3.5 text-destructive" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                     {/* Total Earnings */}
                     {!showPendingOnly && (
                       <BreakdownRow
                         label="Total earnings"
-                        amount={cvt(totalEarnings + approvedAdjustmentTotal)}
+                        amount={cvt(totalEarnings + approvedAdjustmentTotal + adminAdditionsTotal)}
                         currency={dc}
                         isPositive
                         isTotal
