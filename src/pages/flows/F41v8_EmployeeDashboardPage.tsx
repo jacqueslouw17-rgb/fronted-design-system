@@ -173,28 +173,21 @@ const F41v8_EmployeeDashboardPage = () => {
   return (
     <RoleLensProvider initialRole="contractor">
       <TooltipProvider>
-        <div className="flex flex-col min-h-screen bg-background">
+        <div className="flex flex-col min-h-screen v7-glass-bg">
+          {/* Floating orb */}
+          <div className="v7-orb-center" />
+
           <Topbar 
             userName={candidateProfile.name} 
             profileSettingsUrl="/flows/employee-profile-settings-v8?returnUrl=/candidate-dashboard-employee-v8" 
-            dashboardUrl="/candidate-dashboard-employee-v8" 
+            dashboardUrl="/candidate-dashboard-employee-v8"
+            forceFixed
           />
 
           <div className="flex-1">
-            <AgentLayout context="Employee Dashboard v8">
-              <main className="flex-1 min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
-                {/* Static background */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-                  <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10" style={{
-                    background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))'
-                  }} />
-                  <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8" style={{
-                    background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))'
-                  }} />
-                </div>
-
-                <div className="max-w-5xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 relative z-10">
+            <AgentLayout context="Employee Dashboard v9 Future">
+              <main className="flex-1 min-h-screen text-foreground relative overflow-hidden">
+                <div className="max-w-5xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 relative z-10 pt-16 sm:pt-20">
                   {/* Agent Header */}
                   <AgentHeader 
                     title={`Welcome back, ${candidateProfile.firstName}!`} 
@@ -214,7 +207,6 @@ const F41v8_EmployeeDashboardPage = () => {
                     </div>
 
                     <TabsContent value="payroll" className="mt-0 space-y-6">
-                      {/* Hero Card with Last/Next Payout */}
                       <F41v8_PayoutHeroCard 
                         onViewDetails={handleViewDetails}
                         currency={candidateProfile.currency}
