@@ -317,6 +317,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         { id: "nda" as DocumentType, label: "Non-Disclosure Agreement", icon: Handshake, shortLabel: "NDA" },
         { id: "data-privacy" as DocumentType, label: `Data Privacy (${candidate.countryCode})`, icon: ScrollText, shortLabel: "Privacy" },
         { id: "home-office" as DocumentType, label: "Home Office Policy", icon: Home, shortLabel: "Home Office" },
+        ...(COUNTRY_INSURANCE_CONTRACT[candidate.country] ? [{ id: "health-insurance-addendum" as DocumentType, label: "Health Insurance Addendum", icon: HeartPulse, shortLabel: "Insurance" }] : []),
       ];
     }
     return [
