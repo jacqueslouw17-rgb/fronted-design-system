@@ -44,7 +44,21 @@ import { useGlobalContractAuditLog } from "@/hooks/useContractAuditLog";
 import { ContractRichTextEditor } from "@/components/contract-flow/ContractRichTextEditor";
 import { cn } from "@/lib/utils";
 
-type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance" | "ip-addendum" | "restrictive-covenants" | "equipment-addendum" | "health-safety" | "home-office" | "personnel-handbook";
+type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance" | "ip-addendum" | "restrictive-covenants" | "equipment-addendum" | "health-safety" | "home-office" | "personnel-handbook" | "health-insurance-addendum";
+
+// ─── Insurance data for contract flow (Kota API shape) ───
+interface KotaContributionLine { id: string; category: "gross_premium" | "tax" | "tax_relief"; member_type: string; amount: number; }
+interface KotaInsuranceData { provider: string; plan: string; currency: string; employer_contributions: KotaContributionLine[]; employee_contributions: KotaContributionLine[]; }
+const COUNTRY_INSURANCE_CONTRACT: Record<string, KotaInsuranceData> = {
+  Norway: { provider: "Allianz", plan: "Allianz Care Europe", currency: "NOK", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 3150 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 315 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 735 }] },
+  Sweden: { provider: "Allianz", plan: "Allianz Care Europe", currency: "SEK", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 2850 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 285 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 665 }] },
+  Denmark: { provider: "Allianz", plan: "Allianz Care Europe", currency: "DKK", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 2600 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 260 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 640 }] },
+  Spain: { provider: "Allianz", plan: "Allianz Care Europe", currency: "EUR", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 210 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 21 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 49 }] },
+  Singapore: { provider: "AIA", plan: "AIA HealthShield Gold", currency: "SGD", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 338 }, { id: "er2", category: "tax_relief", member_type: "policyholder", amount: -45 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 112 }] },
+  Philippines: { provider: "AXA Philippines", plan: "AXA Health Max", currency: "PHP", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 9375 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 3125 }] },
+  India: { provider: "HDFC Ergo", plan: "HDFC Optima Secure", currency: "INR", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 6375 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 2125 }] },
+  Ireland: { provider: "Laya Healthcare", plan: "Laya Simply Health", currency: "EUR", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 195 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 65 }] },
+};
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
