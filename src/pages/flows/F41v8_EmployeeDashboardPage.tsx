@@ -1,11 +1,13 @@
 /**
- * Flow 4.1 — Employee Dashboard v6
+ * Flow 4.1 — Employee Dashboard v9 (Future)
  * 
- * Clean payout dashboard with hero tiles and payslips list.
- * INDEPENDENT from v5 - changes here do not affect other flows.
+ * Glassmorphism-themed payout dashboard with v7 Future aesthetic.
+ * INDEPENDENT from v7 - changes here do not affect other flows.
  */
 
 import { useState, useEffect } from "react";
+import "@/styles/v7-glass-theme.css";
+import "@/styles/v7-glass-portals.css";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
