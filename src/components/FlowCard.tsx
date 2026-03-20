@@ -573,7 +573,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/candidate-dashboard-employee-v8",
       iconColor: "blue",
       icon: UserCheck,
-      title: "Flow 4.1 Employee Dashboard v8",
+      title: "Flow 4.1 Employee Dashboard v9",
       status: "future" as const,
       deprecated: false,
       description: "Isolated clone of v7: Employee-specific dashboard for future experimentation. Independent components (F41v8_ prefix) ensure changes do NOT affect v7.",
