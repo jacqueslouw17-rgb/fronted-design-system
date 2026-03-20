@@ -157,6 +157,16 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { label: "Income Tax", amount: -28000, type: "Deduction", locked: true },
       { label: "Social Security", amount: -14000, type: "Deduction", locked: true },
     ],
+    healthInsurance: {
+      provider: "PhilHealth Plus",
+      policyId: "pol_ph_003",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 1250, tax: 0 },
+        employee: { premium: 1250, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 2500,
+    },
     submissions: [
       { type: "expenses", amount: 5200, description: "Travel", status: "pending",
         tags: ["NY trip"],
