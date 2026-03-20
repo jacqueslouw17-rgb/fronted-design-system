@@ -298,13 +298,15 @@ const DesignSystem = () => {
     // 'flow-4.1-employee-dashboard-v4',// Flow 4.1 Employee Dashboard v2
     // 'flow-4.1-employee-dashboard-v5',// Flow 4.1 Employee Dashboard v3
     // 'flow-4.1-employee-dashboard-v6',// Flow 4.1 Employee Dashboard v4
-    'flow-4.1-employee-dashboard-v7',// Flow 4.1 Employee Dashboard v5
+    'flow-4.1-employee-dashboard-v7',// Flow 4.1 Employee Dashboard v7 (Now)
+    'flow-4.1-employee-dashboard-v7-next',// Flow 4.1 Employee Dashboard v7 (Next placeholder)
+    'flow-4.1-employee-dashboard-v8',// Flow 4.1 Employee Dashboard v8 (Future)
     // HIDDEN: Flow 4.2 Contractor Dashboard v3-v6
     // 'flow-4.2-contractor-dashboard-v3',// Flow 4.2 Contractor Dashboard v1
     // 'flow-4.2-contractor-dashboard-v4',// Flow 4.2 Contractor Dashboard v2
     // 'flow-4.2-contractor-dashboard-v5',// Flow 4.2 Contractor Dashboard v3
     // 'flow-4.2-contractor-dashboard-v6',// Flow 4.2 Contractor Dashboard v4
-    'flow-4.2-contractor-dashboard-v7',// Flow 4.2 Contractor Dashboard v5
+    'flow-4.2-contractor-dashboard-v7',// Flow 4.2 Contractor Dashboard v7 (Now)
     // 'flow-1-admin-onboarding',    // Flow 5 Company Admin Onboarding v1 (deprecated/hidden)
     'flow-5-company-admin-onboarding',// Flow 5 Company Admin Onboarding v1
     'flow-5-company-admin-onboarding-v2',// Flow 5 Company Admin Onboarding v2
