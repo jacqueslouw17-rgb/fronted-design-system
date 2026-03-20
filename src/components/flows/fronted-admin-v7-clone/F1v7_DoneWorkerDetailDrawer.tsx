@@ -66,6 +66,103 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+// ─── Insurance data from Kota.io (mirrors OnboardingFormDrawer) ───
+interface KotaContributionLine {
+  id: string;
+  category: "gross_premium" | "tax" | "tax_relief";
+  member_type: "policyholder" | "partner_dependant" | "child_dependant";
+  amount: number;
+  note?: string;
+}
+
+interface KotaInsuranceData {
+  provider: string;
+  plan: string;
+  currency: string;
+  employer_contributions: KotaContributionLine[];
+  employee_contributions: KotaContributionLine[];
+}
+
+const COUNTRY_INSURANCE_DONE: Record<string, KotaInsuranceData> = {
+  Norway: {
+    provider: "Allianz", plan: "Allianz Care Europe", currency: "NOK",
+    employer_contributions: [
+      { id: "ct_no_er_01", category: "gross_premium", member_type: "policyholder", amount: 3150 },
+      { id: "ct_no_er_02", category: "tax", member_type: "policyholder", amount: 315 },
+    ],
+    employee_contributions: [
+      { id: "ct_no_ee_01", category: "gross_premium", member_type: "policyholder", amount: 735 },
+    ],
+  },
+  Sweden: {
+    provider: "Allianz", plan: "Allianz Care Europe", currency: "SEK",
+    employer_contributions: [
+      { id: "ct_se_er_01", category: "gross_premium", member_type: "policyholder", amount: 2850 },
+      { id: "ct_se_er_02", category: "tax", member_type: "policyholder", amount: 285 },
+    ],
+    employee_contributions: [
+      { id: "ct_se_ee_01", category: "gross_premium", member_type: "policyholder", amount: 665 },
+    ],
+  },
+  Denmark: {
+    provider: "Allianz", plan: "Allianz Care Europe", currency: "DKK",
+    employer_contributions: [
+      { id: "ct_dk_er_01", category: "gross_premium", member_type: "policyholder", amount: 2600 },
+      { id: "ct_dk_er_02", category: "tax", member_type: "policyholder", amount: 260 },
+    ],
+    employee_contributions: [
+      { id: "ct_dk_ee_01", category: "gross_premium", member_type: "policyholder", amount: 640 },
+    ],
+  },
+  Spain: {
+    provider: "Allianz", plan: "Allianz Care Europe", currency: "EUR",
+    employer_contributions: [
+      { id: "ct_es_er_01", category: "gross_premium", member_type: "policyholder", amount: 210 },
+      { id: "ct_es_er_02", category: "tax", member_type: "policyholder", amount: 21 },
+    ],
+    employee_contributions: [
+      { id: "ct_es_ee_01", category: "gross_premium", member_type: "policyholder", amount: 49 },
+    ],
+  },
+  Singapore: {
+    provider: "AIA", plan: "AIA HealthShield Gold", currency: "SGD",
+    employer_contributions: [
+      { id: "ct_sg_er_01", category: "gross_premium", member_type: "policyholder", amount: 338 },
+      { id: "ct_sg_er_02", category: "tax_relief", member_type: "policyholder", amount: -45 },
+    ],
+    employee_contributions: [
+      { id: "ct_sg_ee_01", category: "gross_premium", member_type: "policyholder", amount: 112 },
+    ],
+  },
+  Philippines: {
+    provider: "AXA Philippines", plan: "AXA Health Max", currency: "PHP",
+    employer_contributions: [
+      { id: "ct_ph_er_01", category: "gross_premium", member_type: "policyholder", amount: 9375 },
+    ],
+    employee_contributions: [
+      { id: "ct_ph_ee_01", category: "gross_premium", member_type: "policyholder", amount: 3125 },
+    ],
+  },
+  India: {
+    provider: "HDFC Ergo", plan: "HDFC Optima Secure", currency: "INR",
+    employer_contributions: [
+      { id: "ct_in_er_01", category: "gross_premium", member_type: "policyholder", amount: 6375 },
+    ],
+    employee_contributions: [
+      { id: "ct_in_ee_01", category: "gross_premium", member_type: "policyholder", amount: 2125 },
+    ],
+  },
+  Ireland: {
+    provider: "Laya Healthcare", plan: "Laya Simply Health", currency: "EUR",
+    employer_contributions: [
+      { id: "ct_ie_er_01", category: "gross_premium", member_type: "policyholder", amount: 195 },
+    ],
+    employee_contributions: [
+      { id: "ct_ie_ee_01", category: "gross_premium", member_type: "policyholder", amount: 65 },
+    ],
+  },
+};
+
 export type WorkerLifecycleStatus = "active" | "contract-ended" | "resigned" | "terminated";
 
 export interface DoneWorkerData {
@@ -661,6 +758,59 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     value={worker.salary} 
                   />
                 </div>
+
+                {/* Insurance & Benefits (Kota) */}
+                {(() => {
+                  const ins = COUNTRY_INSURANCE_DONE[worker.country];
+                  if (!ins) return null;
+                  const erTotal = ins.employer_contributions.reduce((s, c) => s + c.amount, 0);
+                  const eeTotal = ins.employee_contributions.reduce((s, c) => s + c.amount, 0);
+                  const total = erTotal + eeTotal;
+                  const erPct = total > 0 ? Math.round((erTotal / total) * 100) : 0;
+                  const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax relief" };
+                  return (
+                    <div className="border-t border-border/40 pt-3 mt-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="h-3.5 w-3.5 text-primary/70" />
+                        <p className="text-[11px] text-muted-foreground">Health Insurance</p>
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal ml-auto gap-1">
+                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                          Kota
+                        </Badge>
+                      </div>
+                      <DetailRow label="Provider" value={ins.provider} />
+                      <DetailRow label="Plan" value={ins.plan} />
+
+                      {/* Contribution breakdown */}
+                      <div className="mt-2 rounded-lg border border-border/40 bg-muted/20 overflow-hidden">
+                        <div className="h-1.5 flex">
+                          <div className="bg-primary/60 transition-all" style={{ width: `${erPct}%` }} />
+                          <div className="bg-muted-foreground/25 flex-1" />
+                        </div>
+                        <div className="px-2.5 py-2 space-y-0.5">
+                          {ins.employer_contributions.map((c) => (
+                            <div key={c.id} className="flex items-center justify-between py-0.5 text-xs">
+                              <span className="text-muted-foreground/60 w-4 shrink-0">ER</span>
+                              <span className="text-muted-foreground flex-1 truncate ml-1">{CAT_LABEL[c.category] || c.category}</span>
+                              <span className="tabular-nums font-medium text-foreground">{ins.currency} {c.amount.toLocaleString()}</span>
+                            </div>
+                          ))}
+                          {ins.employee_contributions.map((c) => (
+                            <div key={c.id} className="flex items-center justify-between py-0.5 text-xs">
+                              <span className="text-muted-foreground/60 w-4 shrink-0">EE</span>
+                              <span className="text-muted-foreground flex-1 truncate ml-1">{CAT_LABEL[c.category] || c.category}</span>
+                              <span className="tabular-nums font-medium text-foreground">{ins.currency} {c.amount.toLocaleString()}</span>
+                            </div>
+                          ))}
+                          <div className="flex items-center justify-between pt-1.5 mt-1 border-t border-border/30 text-xs">
+                            <span className="text-muted-foreground font-medium">Total</span>
+                            <span className="tabular-nums font-semibold text-foreground">{ins.currency} {total.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Terms sub-section */}
                 <div className="border-t border-border/40 pt-3 mt-2">
