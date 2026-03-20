@@ -470,7 +470,7 @@ const DesignSystem = () => {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-3 ml-0.5">Dashboard</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 gap-4 max-w-md">
                     {workerDashboard.map((flowId) => (
                       <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
                     ))}
