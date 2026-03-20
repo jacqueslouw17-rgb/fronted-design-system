@@ -533,28 +533,28 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <SectionCard title="Insurance Details" badge={<Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">Kota</Badge>}>
               <p className="text-[11px] text-muted-foreground -mt-1 mb-2">Health insurance contributions sourced from the insurer — read-only</p>
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
+              <div className="space-y-0.5">
+                <div className="flex items-center justify-between py-1 text-xs">
                   <span className="text-muted-foreground">Provider</span>
                   <span className="font-medium text-foreground">{ins.provider}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between py-1 text-xs">
                   <span className="text-muted-foreground">Plan</span>
                   <span className="font-medium text-foreground">{ins.plan}</span>
                 </div>
                 {ins.employer_contributions.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between text-xs">
+                  <div key={c.id} className="flex items-center justify-between py-1 text-xs">
                     <span className="text-muted-foreground">ER {CAT_LABEL[c.category] || c.category}</span>
                     <span className="font-medium text-foreground tabular-nums">{fmt(c.amount)}</span>
                   </div>
                 ))}
                 {ins.employee_contributions.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between text-xs">
+                  <div key={c.id} className="flex items-center justify-between py-1 text-xs">
                     <span className="text-muted-foreground">EE {CAT_LABEL[c.category] || c.category}</span>
                     <span className="font-medium text-foreground tabular-nums">{fmt(c.amount)}</span>
                   </div>
                 ))}
-                <div className="border-t border-border/40 pt-1.5 mt-1 flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between py-1 text-xs border-t border-border/40 mt-1 pt-1.5">
                   <span className="text-muted-foreground font-medium">Total monthly</span>
                   <span className="font-semibold text-foreground tabular-nums">{fmt(erTotal + eeTotal)}</span>
                 </div>
