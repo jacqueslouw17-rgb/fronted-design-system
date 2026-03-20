@@ -48,6 +48,7 @@ const PROFILE_SECTIONS = [
   { id: "tax_details", title: "Pre-employment Requirements" },
   { id: "bank_details", title: "Bank Details" },
   { id: "work_setup", title: "Work Setup" },
+  { id: "insurance", title: "Health Insurance" },
 ];
 
 const MOCK_CONTRACT_DOCUMENTS = [
