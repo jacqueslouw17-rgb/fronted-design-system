@@ -208,6 +208,16 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Health Insurance", amount: -465, locked: true },
       { type: "Deduction", label: "Pension Insurance", amount: -465, locked: true },
     ],
+    healthInsurance: {
+      provider: "Techniker Krankenkasse",
+      policyId: "pol_de_007",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 465, tax: 0 },
+        employee: { premium: 465, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 930,
+    },
     submissions: [
       { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee", status: "pending",
         attachments: [
