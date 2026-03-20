@@ -298,13 +298,15 @@ const DesignSystem = () => {
     // 'flow-4.1-employee-dashboard-v4',// Flow 4.1 Employee Dashboard v2
     // 'flow-4.1-employee-dashboard-v5',// Flow 4.1 Employee Dashboard v3
     // 'flow-4.1-employee-dashboard-v6',// Flow 4.1 Employee Dashboard v4
-    'flow-4.1-employee-dashboard-v7',// Flow 4.1 Employee Dashboard v5
+    'flow-4.1-employee-dashboard-v7',// Flow 4.1 Employee Dashboard v7 (Now)
+    'flow-4.1-employee-dashboard-v7-next',// Flow 4.1 Employee Dashboard v7 (Next placeholder)
+    'flow-4.1-employee-dashboard-v8',// Flow 4.1 Employee Dashboard v8 (Future)
     // HIDDEN: Flow 4.2 Contractor Dashboard v3-v6
     // 'flow-4.2-contractor-dashboard-v3',// Flow 4.2 Contractor Dashboard v1
     // 'flow-4.2-contractor-dashboard-v4',// Flow 4.2 Contractor Dashboard v2
     // 'flow-4.2-contractor-dashboard-v5',// Flow 4.2 Contractor Dashboard v3
     // 'flow-4.2-contractor-dashboard-v6',// Flow 4.2 Contractor Dashboard v4
-    'flow-4.2-contractor-dashboard-v7',// Flow 4.2 Contractor Dashboard v5
+    'flow-4.2-contractor-dashboard-v7',// Flow 4.2 Contractor Dashboard v7 (Now)
     // 'flow-1-admin-onboarding',    // Flow 5 Company Admin Onboarding v1 (deprecated/hidden)
     'flow-5-company-admin-onboarding',// Flow 5 Company Admin Onboarding v1
     'flow-5-company-admin-onboarding-v2',// Flow 5 Company Admin Onboarding v2
@@ -336,8 +338,8 @@ const DesignSystem = () => {
     id.startsWith('flow-3-candidate-onboarding')
   );
   const workerDashboard = flowOrder.filter(id =>
-    id.startsWith('flow-4.1-employee') ||
-    id.startsWith('flow-4.2-contractor')
+    (id.startsWith('flow-4.1-employee') || id.startsWith('flow-4.2-contractor')) &&
+    !id.includes('-next')
   );
   
   const sharedFlows = flowOrder.filter(id => id.startsWith('shared-'));
@@ -470,10 +472,28 @@ const DesignSystem = () => {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-3 ml-0.5">Dashboard</p>
-                  <div className="grid grid-cols-1 gap-4 max-w-md">
-                    {workerDashboard.map((flowId) => (
-                      <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                    ))}
+                  <div className="space-y-2">
+                    {/* Employee row: Now | Next (placeholder) | Future */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <FlowCard key="flow-4.1-employee-dashboard-v7" flowId="flow-4.1-employee-dashboard-v7" onPatternClick={handlePatternClickWrapper} />
+                      <Card className="border-2 border-dashed border-muted-foreground/20 bg-muted/5 flex flex-col items-center justify-center opacity-50 cursor-default">
+                        <CardHeader className="text-center pb-2">
+                          <div className="flex items-center gap-1.5 justify-center">
+                            <CardTitle className="text-lg text-muted-foreground/50">Flow 4.1 Employee Dashboard</CardTitle>
+                            <Badge variant="outline" className="text-[10px] font-medium text-muted-foreground/40 border-muted-foreground/20">v8</Badge>
+                            <Badge className="text-[10px] font-medium bg-amber-100/50 text-amber-700/50 border border-amber-200/50">Next</Badge>
+                          </div>
+                          <CardDescription className="text-muted-foreground/30">Coming soon</CardDescription>
+                        </CardHeader>
+                      </Card>
+                      <FlowCard key="flow-4.1-employee-dashboard-v8" flowId="flow-4.1-employee-dashboard-v8" onPatternClick={handlePatternClickWrapper} />
+                    </div>
+                    {/* Contractor row */}
+                    <div className="grid grid-cols-3 gap-4">
+                      {workerDashboard.filter(id => id.startsWith('flow-4.2')).map((flowId) => (
+                        <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
