@@ -318,6 +318,16 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { label: "Income Tax", amount: -1160, type: "Deduction", locked: true },
       { label: "Social Security", amount: -290, type: "Deduction", locked: true },
     ],
+    healthInsurance: {
+      provider: "Techniker Krankenkasse",
+      policyId: "pol_de_007",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 450, tax: 0 },
+        employee: { premium: 450, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 900,
+    },
     submissions: [],
     pendingLeaves: [],
   },

@@ -58,6 +58,16 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Income Tax", amount: -870, locked: true },
       { type: "Deduction", label: "Social Security", amount: -580, locked: true },
     ],
+    healthInsurance: {
+      provider: "AXA France",
+      policyId: "pol_fr_002",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 320, tax: 48 },
+        employee: { premium: 160, tax: 24, taxRelief: 40 },
+      },
+      totalMonthly: 552,
+    },
     submissions: [
       { type: "bonus", amount: 500, currency: "EUR", description: "Bonus", status: "pending" },
     ],
