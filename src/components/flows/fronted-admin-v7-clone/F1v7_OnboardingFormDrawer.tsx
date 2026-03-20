@@ -5,7 +5,7 @@
  * Sections: Personal Profile + Working Engagement (matching Done column categories).
  */
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,26 +43,112 @@ const COUNTRY_RULES: Record<string, CountryRule> = {
   Romania:     { flag: "🇷🇴", currency: "RON", probation: { default: 90, max: 90 }, noticePeriod: { default: 20, min: 20 }, annualLeave: { default: 20, min: 20 }, sickLeave: { default: 183, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
 };
 
-// ─── Insurance providers by country (mock Kota.io integration) ───
-interface InsuranceProvider {
+// ─── Insurance data from Kota.io contribution reports API ───
+interface KotaContributionLine {
+  id: string;
+  category: "gross_premium" | "tax" | "tax_relief";
+  member_type: "policyholder" | "partner_dependant" | "child_dependant";
+  amount: number;
+  note?: string;
+}
+
+interface KotaInsuranceData {
   provider: string;
   plan: string;
   region: string;
-  monthlyTotal: number; // total monthly premium from Kota API (health_insurance)
   currency: string;
-  kotaSource: string; // Kota API field reference
+  status: "open" | "finalized";
+  employer_contributions: KotaContributionLine[];
+  employee_contributions: KotaContributionLine[];
 }
 
-const COUNTRY_INSURANCE: Record<string, InsuranceProvider> = {
-  Norway:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 4200, currency: "NOK", kotaSource: "health_insurance" },
-  Sweden:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 3800, currency: "SEK", kotaSource: "health_insurance" },
-  Denmark:   { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 3500, currency: "DKK", kotaSource: "health_insurance" },
-  Spain:     { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 280, currency: "EUR", kotaSource: "health_insurance" },
-  Romania:   { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 250, currency: "RON", kotaSource: "health_insurance" },
-  Kosovo:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 220, currency: "EUR", kotaSource: "health_insurance" },
-  Singapore: { provider: "AIA", plan: "AIA HealthShield Gold", region: "Asia Pacific", monthlyTotal: 450, currency: "SGD", kotaSource: "health_insurance" },
-  Philippines: { provider: "AXA Philippines", plan: "AXA Health Max", region: "Asia Pacific", monthlyTotal: 12500, currency: "PHP", kotaSource: "health_insurance" },
-  India:     { provider: "HDFC Ergo", plan: "HDFC Optima Secure", region: "Asia Pacific", monthlyTotal: 8500, currency: "INR", kotaSource: "health_insurance" },
+const COUNTRY_INSURANCE: Record<string, KotaInsuranceData> = {
+  Norway: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "NOK", status: "open",
+    employer_contributions: [
+      { id: "ct_no_er_01", category: "gross_premium", member_type: "policyholder", amount: 3150 },
+      { id: "ct_no_er_02", category: "tax", member_type: "policyholder", amount: 315 },
+    ],
+    employee_contributions: [
+      { id: "ct_no_ee_01", category: "gross_premium", member_type: "policyholder", amount: 735 },
+    ],
+  },
+  Sweden: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "SEK", status: "open",
+    employer_contributions: [
+      { id: "ct_se_er_01", category: "gross_premium", member_type: "policyholder", amount: 2850 },
+      { id: "ct_se_er_02", category: "tax", member_type: "policyholder", amount: 285 },
+    ],
+    employee_contributions: [
+      { id: "ct_se_ee_01", category: "gross_premium", member_type: "policyholder", amount: 665 },
+    ],
+  },
+  Denmark: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "DKK", status: "finalized",
+    employer_contributions: [
+      { id: "ct_dk_er_01", category: "gross_premium", member_type: "policyholder", amount: 2600 },
+      { id: "ct_dk_er_02", category: "tax", member_type: "policyholder", amount: 260 },
+    ],
+    employee_contributions: [
+      { id: "ct_dk_ee_01", category: "gross_premium", member_type: "policyholder", amount: 640 },
+    ],
+  },
+  Spain: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "EUR", status: "open",
+    employer_contributions: [
+      { id: "ct_es_er_01", category: "gross_premium", member_type: "policyholder", amount: 210 },
+      { id: "ct_es_er_02", category: "tax", member_type: "policyholder", amount: 21 },
+    ],
+    employee_contributions: [
+      { id: "ct_es_ee_01", category: "gross_premium", member_type: "policyholder", amount: 49 },
+    ],
+  },
+  Romania: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "RON", status: "open",
+    employer_contributions: [
+      { id: "ct_ro_er_01", category: "gross_premium", member_type: "policyholder", amount: 187 },
+    ],
+    employee_contributions: [
+      { id: "ct_ro_ee_01", category: "gross_premium", member_type: "policyholder", amount: 63 },
+    ],
+  },
+  Kosovo: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "EUR", status: "open",
+    employer_contributions: [
+      { id: "ct_xk_er_01", category: "gross_premium", member_type: "policyholder", amount: 165 },
+    ],
+    employee_contributions: [
+      { id: "ct_xk_ee_01", category: "gross_premium", member_type: "policyholder", amount: 55 },
+    ],
+  },
+  Singapore: {
+    provider: "AIA", plan: "AIA HealthShield Gold", region: "Asia Pacific", currency: "SGD", status: "finalized",
+    employer_contributions: [
+      { id: "ct_sg_er_01", category: "gross_premium", member_type: "policyholder", amount: 338 },
+      { id: "ct_sg_er_02", category: "tax_relief", member_type: "policyholder", amount: -45, note: "MediSave offset" },
+    ],
+    employee_contributions: [
+      { id: "ct_sg_ee_01", category: "gross_premium", member_type: "policyholder", amount: 112 },
+    ],
+  },
+  Philippines: {
+    provider: "AXA Philippines", plan: "AXA Health Max", region: "Asia Pacific", currency: "PHP", status: "open",
+    employer_contributions: [
+      { id: "ct_ph_er_01", category: "gross_premium", member_type: "policyholder", amount: 9375 },
+    ],
+    employee_contributions: [
+      { id: "ct_ph_ee_01", category: "gross_premium", member_type: "policyholder", amount: 3125 },
+    ],
+  },
+  India: {
+    provider: "HDFC Ergo", plan: "HDFC Optima Secure", region: "Asia Pacific", currency: "INR", status: "open",
+    employer_contributions: [
+      { id: "ct_in_er_01", category: "gross_premium", member_type: "policyholder", amount: 6375 },
+    ],
+    employee_contributions: [
+      { id: "ct_in_ee_01", category: "gross_premium", member_type: "policyholder", amount: 2125 },
+    ],
+  },
 };
 
 interface OnboardingFormDrawerProps {
@@ -155,7 +241,6 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const [employeeContribPct, setEmployeeContribPct] = useState(50);
   const [insuranceOptIn, setInsuranceOptIn] = useState(true);
 
   const activeCountryRule = COUNTRY_RULES[candidate.country];
@@ -422,22 +507,35 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               const ins = COUNTRY_INSURANCE[formData.country];
               if (!ins) return null;
 
-              const employerAmount = Math.round(ins.monthlyTotal * (1 - employeeContribPct / 100));
-              const employeeAmount = ins.monthlyTotal - employerAmount;
+              const employerTotal = ins.employer_contributions.reduce((sum, c) => sum + c.amount, 0);
+              const employeeTotal = ins.employee_contributions.reduce((sum, c) => sum + c.amount, 0);
+              const grandTotal = employerTotal + employeeTotal;
+
+              const CATEGORY_LABELS: Record<string, string> = {
+                gross_premium: "Premium",
+                tax: "Tax",
+                tax_relief: "Tax relief",
+              };
 
               return (
                 <div className="border-t border-border/40 pt-3 mt-1">
                   <div className="flex items-center gap-2 mb-3">
                     <Shield className="h-3.5 w-3.5 text-primary/70" />
-                    <p className="text-[11px] text-muted-foreground">Insurance & Benefits — {formData.country}</p>
+                    <p className="text-[11px] text-muted-foreground">Health Insurance — {formData.country}</p>
                     <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal ml-auto gap-1">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      via Kota
+                      Kota
+                    </Badge>
+                    <Badge variant="outline" className={cn(
+                      "text-[9px] px-1.5 py-0 h-4 font-normal",
+                      ins.status === "finalized" ? "border-primary/30 text-primary" : "border-muted-foreground/30 text-muted-foreground"
+                    )}>
+                      {ins.status === "finalized" ? "Finalized" : "Open"}
                     </Badge>
                   </div>
 
-                  {/* Provider card */}
                   <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-3">
+                    {/* Provider header */}
                     <div className="flex items-start justify-between">
                       <div className="space-y-0.5">
                         <p className="text-xs font-semibold text-foreground">{ins.provider}</p>
@@ -446,9 +544,9 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                       </div>
                       <div className="text-right space-y-0.5">
                         <p className="text-xs font-semibold text-foreground tabular-nums">
-                          {ins.currency} {ins.monthlyTotal.toLocaleString()}
+                          {ins.currency} {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">per month total</p>
+                        <p className="text-[10px] text-muted-foreground">total / month</p>
                       </div>
                     </div>
 
@@ -473,53 +571,88 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                     </div>
 
                     {insuranceOptIn && (
-                      <>
-                        {/* Contribution split */}
-                        <div className="space-y-2 pt-1">
-                          <div className="flex items-center justify-between">
-                            <p className="text-[11px] font-medium text-muted-foreground">Contribution split</p>
-                            <div className="flex items-center gap-1">
-                              <Info className="h-3 w-3 text-muted-foreground/50" />
-                              <p className="text-[10px] text-muted-foreground/60">Employee chooses their %</p>
-                            </div>
+                      <div className="space-y-2.5 pt-1">
+                        {/* Contribution totals */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="rounded-md border border-border/40 bg-card/60 p-2.5 space-y-1">
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Employer</p>
+                            <p className="text-sm font-semibold text-foreground tabular-nums">
+                              {ins.currency} {employerTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground tabular-nums">
+                              {ins.employer_contributions.length} line{ins.employer_contributions.length !== 1 ? "s" : ""}
+                            </p>
                           </div>
-
-                          {/* Slider */}
-                          <div className="space-y-1.5">
-                            <input
-                              type="range"
-                              min={0}
-                              max={100}
-                              step={5}
-                              value={employeeContribPct}
-                              onChange={(e) => setEmployeeContribPct(Number(e.target.value))}
-                              className="w-full h-1.5 bg-muted rounded-full appearance-none cursor-pointer accent-primary [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:shadow-sm"
-                            />
-                            <div className="flex justify-between text-[10px] text-muted-foreground/60 tabular-nums">
-                              <span>0% employee</span>
-                              <span>100% employee</span>
-                            </div>
-                          </div>
-
-                          {/* Breakdown bars */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="rounded-md border border-border/40 bg-card/60 p-2.5 space-y-1">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Employer pays</p>
-                              <p className="text-sm font-semibold text-foreground tabular-nums">
-                                {ins.currency} {employerAmount.toLocaleString()}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground tabular-nums">{100 - employeeContribPct}% of total</p>
-                            </div>
-                            <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5 space-y-1">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Employee pays</p>
-                              <p className="text-sm font-semibold text-foreground tabular-nums">
-                                {ins.currency} {employeeAmount.toLocaleString()}
-                              </p>
-                              <p className="text-[10px] text-primary/70 tabular-nums">{employeeContribPct}% of total</p>
-                            </div>
+                          <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5 space-y-1">
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Employee</p>
+                            <p className="text-sm font-semibold text-foreground tabular-nums">
+                              {ins.currency} {employeeTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground tabular-nums">
+                              {ins.employee_contributions.length} line{ins.employee_contributions.length !== 1 ? "s" : ""}
+                            </p>
                           </div>
                         </div>
-                      </>
+
+                        {/* Stacked bar */}
+                        <div className="space-y-1">
+                          <div className="flex h-2 rounded-full overflow-hidden bg-muted/50">
+                            <div className="bg-muted-foreground/25 transition-all" style={{ width: `${grandTotal > 0 ? (employerTotal / grandTotal) * 100 : 50}%` }} />
+                            <div className="bg-primary/40 transition-all" style={{ width: `${grandTotal > 0 ? (employeeTotal / grandTotal) * 100 : 50}%` }} />
+                          </div>
+                          <div className="flex justify-between text-[10px] text-muted-foreground/60 tabular-nums">
+                            <span>Employer {grandTotal > 0 ? Math.round((employerTotal / grandTotal) * 100) : 50}%</span>
+                            <span>Employee {grandTotal > 0 ? Math.round((employeeTotal / grandTotal) * 100) : 50}%</span>
+                          </div>
+                        </div>
+
+                        {/* Line-item breakdown */}
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <Info className="h-3 w-3 text-muted-foreground/50" />
+                            <p className="text-[10px] text-muted-foreground/60">Contribution breakdown from Kota report</p>
+                          </div>
+                          <div className="rounded-md border border-border/30 overflow-hidden text-[11px]">
+                            {/* Employer lines */}
+                            {ins.employer_contributions.map((c) => (
+                              <div key={c.id} className="flex items-center justify-between px-2.5 py-1.5 border-b border-border/20 last:border-0">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="text-muted-foreground/50 w-[18px] shrink-0">ER</span>
+                                  <span className="text-muted-foreground truncate">{CATEGORY_LABELS[c.category] || c.category}</span>
+                                  {c.member_type !== "policyholder" && (
+                                    <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3.5 font-normal">
+                                      {c.member_type.replace("_", " ")}
+                                    </Badge>
+                                  )}
+                                  {c.note && (
+                                    <span className="text-[10px] text-muted-foreground/40 italic truncate">{c.note}</span>
+                                  )}
+                                </div>
+                                <span className={cn("tabular-nums font-medium shrink-0 ml-2", c.amount < 0 ? "text-destructive" : "text-foreground")}>
+                                  {c.amount < 0 ? "−" : ""}{ins.currency} {Math.abs(c.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </span>
+                              </div>
+                            ))}
+                            {/* Employee lines */}
+                            {ins.employee_contributions.map((c) => (
+                              <div key={c.id} className="flex items-center justify-between px-2.5 py-1.5 border-b border-border/20 last:border-0 bg-primary/[0.02]">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="text-primary/50 w-[18px] shrink-0">EE</span>
+                                  <span className="text-muted-foreground truncate">{CATEGORY_LABELS[c.category] || c.category}</span>
+                                  {c.member_type !== "policyholder" && (
+                                    <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3.5 font-normal">
+                                      {c.member_type.replace("_", " ")}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <span className="tabular-nums font-medium text-foreground shrink-0 ml-2">
+                                  {ins.currency} {c.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
