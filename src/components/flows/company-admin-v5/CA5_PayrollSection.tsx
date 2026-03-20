@@ -133,6 +133,16 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Pension", amount: -4550, locked: true },
       { type: "Deduction", label: "National Insurance", amount: -2600, locked: true },
     ],
+    healthInsurance: {
+      provider: "Allianz",
+      policyId: "pol_no_004",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 2800, tax: 420 },
+        employee: { premium: 1400, tax: 210, taxRelief: 350 },
+      },
+      totalMonthly: 4830,
+    },
     submissions: [
       { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending",
         attachments: [
