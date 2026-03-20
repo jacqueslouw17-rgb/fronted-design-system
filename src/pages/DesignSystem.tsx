@@ -338,8 +338,8 @@ const DesignSystem = () => {
     id.startsWith('flow-3-candidate-onboarding')
   );
   const workerDashboard = flowOrder.filter(id =>
-    id.startsWith('flow-4.1-employee') ||
-    id.startsWith('flow-4.2-contractor')
+    (id.startsWith('flow-4.1-employee') || id.startsWith('flow-4.2-contractor')) &&
+    !id.includes('-next')
   );
   
   const sharedFlows = flowOrder.filter(id => id.startsWith('shared-'));
