@@ -23,6 +23,7 @@ import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/W
 import WorkerStep5WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import ProfileDocumentsSection from "@/components/flows/shared/ProfileDocumentsSection";
+import { F41v8_InsuranceSection } from "@/components/flows/employee-dashboard-v8";
 
 type Section = "overview" | "profile-details" | "documents" | "change-password";
 
