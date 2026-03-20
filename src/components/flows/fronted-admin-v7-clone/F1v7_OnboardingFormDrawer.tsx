@@ -155,6 +155,8 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [employeeContribPct, setEmployeeContribPct] = useState(50);
+  const [insuranceOptIn, setInsuranceOptIn] = useState(true);
 
   const activeCountryRule = COUNTRY_RULES[candidate.country];
 
