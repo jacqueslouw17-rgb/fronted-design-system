@@ -126,9 +126,6 @@ import CandidateDataCollectionV2 from "./pages/CandidateDataCollectionV2";
 import CandidateDataCollectionV3 from "./pages/CandidateDataCollectionV3";
 import V4_PayrollDetailsForm from "./pages/flows/V4_PayrollDetailsForm";
 
-// Flow 2 v2 single-page form (no multi-step needed)
-
-
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -253,33 +250,22 @@ const App = () => (
         <Route path="/agent-predictive-hint-bar" element={<AgentPredictiveHintBarPattern />} />
         <Route path="/agent-multi-step-recall" element={<AgentMultiStepRecallThreadPattern />} />
         <Route path="/compliance-sync-drawer" element={<ComplianceSyncDrawerPattern />} />
-        <Route path="/patterns/cost-tax-visualizer" element={<CostTaxVisualizerPattern />} />
-        <Route path="/patterns/contextual-inline-actions" element={<ContextualInlineActionsPattern />} />
-        <Route path="/patterns/onboarding-flow" element={<OnboardingFlowPattern />} />
-        <Route path="/payroll-demo" element={<PayrollUseCaseDemo />} />
-        <Route path="/payroll/batch" element={<PayrollBatch />} />
+        <Route path="/cost-tax-visualizer" element={<CostTaxVisualizerPattern />} />
+        <Route path="/contextual-inline-actions" element={<ContextualInlineActionsPattern />} />
+        <Route path="/onboarding-flow-pattern" element={<OnboardingFlowPattern />} />
+        <Route path="/payroll-use-case" element={<PayrollUseCaseDemo />} />
         <Route path="/payroll-batch" element={<PayrollBatch />} />
-        <Route path="/payroll/batch/current" element={<PayrollBatchCurrent />} />
+        <Route path="/payroll-batch-current" element={<PayrollBatchCurrent />} />
         <Route path="/candidate-data-collection" element={<CandidateDataCollection />} />
-        <Route path="/flows/candidate-data-collection" element={<CandidateDataCollection />} />
         <Route path="/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
-        <Route path="/flows/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
-        {/* Redirect old multi-step routes to single-page form */}
-        <Route path="/candidate-data-collection-v2/*" element={<CandidateDataCollectionV2 />} />
         <Route path="/candidate-data-collection-v3" element={<CandidateDataCollectionV3 />} />
-        <Route path="/flows/candidate-data-collection-v3" element={<CandidateDataCollectionV3 />} />
-        <Route path="/candidate-data-collection-v3/*" element={<CandidateDataCollectionV3 />} />
-        
-        {/* Shared error pages */}
-        <Route path="/secure-link-error" element={<SecureLinkError />} />
-        <Route path="/server-error" element={<ServerError />} />
-        <Route path="/onboarding-link-gone" element={<OnboardingLinkGone />} />
-        <Route path="/flows/payslip-template" element={<PayslipPreviewPage />} />
-        <Route path="/flows/invoice-template" element={<InvoicePreviewPage />} />
-        
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Route path="/flows/secure-link-error" element={<SecureLinkError />} />
+        <Route path="/flows/server-error" element={<ServerError />} />
+        <Route path="/flows/onboarding-link-gone" element={<OnboardingLinkGone />} />
+        <Route path="/flows/payslip-preview" element={<PayslipPreviewPage />} />
+        <Route path="/flows/invoice-preview" element={<InvoicePreviewPage />} />
+        <Route path="*" element={<NotFound />} />
+          </Routes>
         </RoleLensProvider>
       </BrowserRouter>
     </TooltipProvider>
