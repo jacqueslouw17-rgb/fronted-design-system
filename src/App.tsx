@@ -187,6 +187,7 @@ const App = () => (
         <Route path="/flows/employee-profile-settings-v6" element={<F41v6_ProfileSettings />} />
         <Route path="/flows/contractor-profile-settings-v6" element={<F42v6_ProfileSettings />} />
         <Route path="/flows/employee-profile-settings-v7" element={<F41v7_ProfileSettings />} />
+        <Route path="/flows/employee-profile-settings-v8" element={<F41v8_ProfileSettings />} />
         <Route path="/flows/contractor-profile-settings-v7" element={<F42v7_ProfileSettings />} />
         <Route path="/flows/employee-payroll" element={<EmployeePayroll />} />
         <Route path="/flows/contractor-payroll" element={<ContractorPayroll />} />
