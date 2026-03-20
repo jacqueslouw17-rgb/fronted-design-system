@@ -43,26 +43,112 @@ const COUNTRY_RULES: Record<string, CountryRule> = {
   Romania:     { flag: "🇷🇴", currency: "RON", probation: { default: 90, max: 90 }, noticePeriod: { default: 20, min: 20 }, annualLeave: { default: 20, min: 20 }, sickLeave: { default: 183, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
 };
 
-// ─── Insurance providers by country (mock Kota.io integration) ───
-interface InsuranceProvider {
+// ─── Insurance data from Kota.io contribution reports API ───
+interface KotaContributionLine {
+  id: string;
+  category: "gross_premium" | "tax" | "tax_relief";
+  member_type: "policyholder" | "partner_dependant" | "child_dependant";
+  amount: number;
+  note?: string;
+}
+
+interface KotaInsuranceData {
   provider: string;
   plan: string;
   region: string;
-  monthlyTotal: number; // total monthly premium from Kota API (health_insurance)
   currency: string;
-  kotaSource: string; // Kota API field reference
+  status: "open" | "finalized";
+  employer_contributions: KotaContributionLine[];
+  employee_contributions: KotaContributionLine[];
 }
 
-const COUNTRY_INSURANCE: Record<string, InsuranceProvider> = {
-  Norway:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 4200, currency: "NOK", kotaSource: "health_insurance" },
-  Sweden:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 3800, currency: "SEK", kotaSource: "health_insurance" },
-  Denmark:   { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 3500, currency: "DKK", kotaSource: "health_insurance" },
-  Spain:     { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 280, currency: "EUR", kotaSource: "health_insurance" },
-  Romania:   { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 250, currency: "RON", kotaSource: "health_insurance" },
-  Kosovo:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 220, currency: "EUR", kotaSource: "health_insurance" },
-  Singapore: { provider: "AIA", plan: "AIA HealthShield Gold", region: "Asia Pacific", monthlyTotal: 450, currency: "SGD", kotaSource: "health_insurance" },
-  Philippines: { provider: "AXA Philippines", plan: "AXA Health Max", region: "Asia Pacific", monthlyTotal: 12500, currency: "PHP", kotaSource: "health_insurance" },
-  India:     { provider: "HDFC Ergo", plan: "HDFC Optima Secure", region: "Asia Pacific", monthlyTotal: 8500, currency: "INR", kotaSource: "health_insurance" },
+const COUNTRY_INSURANCE: Record<string, KotaInsuranceData> = {
+  Norway: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "NOK", status: "open",
+    employer_contributions: [
+      { id: "ct_no_er_01", category: "gross_premium", member_type: "policyholder", amount: 3150 },
+      { id: "ct_no_er_02", category: "tax", member_type: "policyholder", amount: 315 },
+    ],
+    employee_contributions: [
+      { id: "ct_no_ee_01", category: "gross_premium", member_type: "policyholder", amount: 735 },
+    ],
+  },
+  Sweden: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "SEK", status: "open",
+    employer_contributions: [
+      { id: "ct_se_er_01", category: "gross_premium", member_type: "policyholder", amount: 2850 },
+      { id: "ct_se_er_02", category: "tax", member_type: "policyholder", amount: 285 },
+    ],
+    employee_contributions: [
+      { id: "ct_se_ee_01", category: "gross_premium", member_type: "policyholder", amount: 665 },
+    ],
+  },
+  Denmark: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "DKK", status: "finalized",
+    employer_contributions: [
+      { id: "ct_dk_er_01", category: "gross_premium", member_type: "policyholder", amount: 2600 },
+      { id: "ct_dk_er_02", category: "tax", member_type: "policyholder", amount: 260 },
+    ],
+    employee_contributions: [
+      { id: "ct_dk_ee_01", category: "gross_premium", member_type: "policyholder", amount: 640 },
+    ],
+  },
+  Spain: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "EUR", status: "open",
+    employer_contributions: [
+      { id: "ct_es_er_01", category: "gross_premium", member_type: "policyholder", amount: 210 },
+      { id: "ct_es_er_02", category: "tax", member_type: "policyholder", amount: 21 },
+    ],
+    employee_contributions: [
+      { id: "ct_es_ee_01", category: "gross_premium", member_type: "policyholder", amount: 49 },
+    ],
+  },
+  Romania: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "RON", status: "open",
+    employer_contributions: [
+      { id: "ct_ro_er_01", category: "gross_premium", member_type: "policyholder", amount: 187 },
+    ],
+    employee_contributions: [
+      { id: "ct_ro_ee_01", category: "gross_premium", member_type: "policyholder", amount: 63 },
+    ],
+  },
+  Kosovo: {
+    provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", currency: "EUR", status: "open",
+    employer_contributions: [
+      { id: "ct_xk_er_01", category: "gross_premium", member_type: "policyholder", amount: 165 },
+    ],
+    employee_contributions: [
+      { id: "ct_xk_ee_01", category: "gross_premium", member_type: "policyholder", amount: 55 },
+    ],
+  },
+  Singapore: {
+    provider: "AIA", plan: "AIA HealthShield Gold", region: "Asia Pacific", currency: "SGD", status: "finalized",
+    employer_contributions: [
+      { id: "ct_sg_er_01", category: "gross_premium", member_type: "policyholder", amount: 338 },
+      { id: "ct_sg_er_02", category: "tax_relief", member_type: "policyholder", amount: -45, note: "MediSave offset" },
+    ],
+    employee_contributions: [
+      { id: "ct_sg_ee_01", category: "gross_premium", member_type: "policyholder", amount: 112 },
+    ],
+  },
+  Philippines: {
+    provider: "AXA Philippines", plan: "AXA Health Max", region: "Asia Pacific", currency: "PHP", status: "open",
+    employer_contributions: [
+      { id: "ct_ph_er_01", category: "gross_premium", member_type: "policyholder", amount: 9375 },
+    ],
+    employee_contributions: [
+      { id: "ct_ph_ee_01", category: "gross_premium", member_type: "policyholder", amount: 3125 },
+    ],
+  },
+  India: {
+    provider: "HDFC Ergo", plan: "HDFC Optima Secure", region: "Asia Pacific", currency: "INR", status: "open",
+    employer_contributions: [
+      { id: "ct_in_er_01", category: "gross_premium", member_type: "policyholder", amount: 6375 },
+    ],
+    employee_contributions: [
+      { id: "ct_in_ee_01", category: "gross_premium", member_type: "policyholder", amount: 2125 },
+    ],
+  },
 };
 
 interface OnboardingFormDrawerProps {
