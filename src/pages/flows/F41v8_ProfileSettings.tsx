@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { Shield, Lock } from "lucide-react";
 import "@/styles/v7-glass-theme.css";
 import "@/styles/v7-glass-portals.css";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -22,6 +23,7 @@ import WorkerStep4BankDetails_v2 from "@/components/flows/worker-onboarding-v2/W
 import WorkerStep5WorkSetup_v2 from "@/components/flows/worker-onboarding-v2/WorkerStep5WorkSetup_v2";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import ProfileDocumentsSection from "@/components/flows/shared/ProfileDocumentsSection";
+import { F41v8_InsuranceSection } from "@/components/flows/employee-dashboard-v8";
 
 type Section = "overview" | "profile-details" | "documents" | "change-password";
 
@@ -48,6 +50,7 @@ const PROFILE_SECTIONS = [
   { id: "tax_details", title: "Pre-employment Requirements" },
   { id: "bank_details", title: "Bank Details" },
   { id: "work_setup", title: "Work Setup" },
+  { id: "insurance", title: "Health Insurance" },
 ];
 
 const MOCK_CONTRACT_DOCUMENTS = [
@@ -165,6 +168,8 @@ const F41v8_ProfileSettings = () => {
         return <WorkerStep4BankDetails_v2 {...commonProps} allFieldsLocked hideHeader hideButtons showContactNotice />;
       case "work_setup":
         return <WorkerStep5WorkSetup_v2 {...commonProps} allFieldsLocked hideHeader hideButtons showContactNotice />;
+      case "insurance":
+        return <F41v8_InsuranceSection />;
       default:
         return null;
     }
