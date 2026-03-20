@@ -79,6 +79,40 @@ const getWorkerEarnings = (worker: TrackingWorker) => {
   };
 };
 
+// Mock Kota insurance data for select employees
+interface KotaHealthInsurance {
+  provider: string;
+  policyId: string;
+  status: "open" | "finalized";
+  contributions: {
+    employer: { premium: number; tax: number };
+    employee: { premium: number; tax: number; taxRelief: number };
+  };
+  totalMonthly: number;
+}
+
+const getWorkerInsurance = (worker: TrackingWorker): KotaHealthInsurance | null => {
+  if (worker.type === "contractor") return null;
+  const insuranceMap: Record<string, KotaHealthInsurance> = {
+    France: {
+      provider: "AXA France", policyId: "pol_fr_002", status: "finalized",
+      contributions: { employer: { premium: 320, tax: 48 }, employee: { premium: 160, tax: 24, taxRelief: 40 } },
+      totalMonthly: 552,
+    },
+    Norway: {
+      provider: "Allianz", policyId: "pol_no_004", status: "finalized",
+      contributions: { employer: { premium: 2800, tax: 420 }, employee: { premium: 1400, tax: 210, taxRelief: 350 } },
+      totalMonthly: 4830,
+    },
+    Philippines: {
+      provider: "PhilHealth Plus", policyId: "pol_ph_003", status: "finalized",
+      contributions: { employer: { premium: 1250, tax: 0 }, employee: { premium: 1250, tax: 0, taxRelief: 0 } },
+      totalMonthly: 2500,
+    },
+  };
+  return insuranceMap[worker.country] || null;
+};
+
 export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
   workers,
   onExportCSV,
