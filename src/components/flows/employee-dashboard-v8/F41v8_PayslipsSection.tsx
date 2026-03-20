@@ -72,7 +72,7 @@ export const F41v8_PayslipsSection = ({
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <button
                     onClick={(e) => { e.stopPropagation(); onViewDetails?.(payslip.id); }}
-                    className="hidden sm:flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-primary/[0.06]"
+                    className="hidden sm:flex items-center gap-0.5 text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors px-1.5 py-0.5 rounded"
                   >
                     Details
                     <ChevronRight className="h-3 w-3" />
