@@ -188,6 +188,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
     if (!selectedWorker) return null;
     const isContractor = selectedWorker.type === "contractor";
     const earningsData = getWorkerEarnings(selectedWorker);
+    const insurance = getWorkerInsurance(selectedWorker);
     const totalEarnings = earningsData.items.reduce((sum, item) => sum + item.amount, 0);
     const totalDeductions = earningsData.deductions.reduce((sum, item) => sum + item.amount, 0);
     const netTotal = isContractor ? totalEarnings : totalEarnings - totalDeductions;
