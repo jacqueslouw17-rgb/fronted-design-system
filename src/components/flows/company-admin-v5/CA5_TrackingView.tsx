@@ -267,6 +267,52 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
               </div>
             )}
 
+            {/* BENEFITS - Kota insurance contributions */}
+            {!isContractor && insurance && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Benefits</p>
+                  <span className="text-[9px] font-medium text-muted-foreground/60 bg-muted/60 px-1.5 py-0.5 rounded">Kota</span>
+                </div>
+                <div className="space-y-0.5">
+                  <div className="flex items-center justify-between py-1.5">
+                    <span className="text-xs text-muted-foreground">Provider</span>
+                    <span className="text-xs font-medium text-foreground">{insurance.provider}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-xs text-muted-foreground">ER Premium</span>
+                    <span className="text-xs font-medium text-foreground tabular-nums">{formatCurrency(Math.round(cvt(insurance.contributions.employer.premium)), dc)}</span>
+                  </div>
+                  {insurance.contributions.employer.tax > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-xs text-muted-foreground">ER Tax</span>
+                      <span className="text-xs font-medium text-foreground tabular-nums">{formatCurrency(Math.round(cvt(insurance.contributions.employer.tax)), dc)}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-xs text-muted-foreground">EE Premium</span>
+                    <span className="text-xs font-medium text-muted-foreground tabular-nums">−{formatCurrency(Math.round(cvt(insurance.contributions.employee.premium)), dc)}</span>
+                  </div>
+                  {insurance.contributions.employee.tax > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-xs text-muted-foreground">EE Tax</span>
+                      <span className="text-xs font-medium text-muted-foreground tabular-nums">−{formatCurrency(Math.round(cvt(insurance.contributions.employee.tax)), dc)}</span>
+                    </div>
+                  )}
+                  {insurance.contributions.employee.taxRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-xs text-muted-foreground">EE Tax Relief</span>
+                      <span className="text-xs font-medium text-accent-green-text tabular-nums">+{formatCurrency(Math.round(cvt(insurance.contributions.employee.taxRelief)), dc)}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-1.5 border-t border-border/40 mt-1 pt-2">
+                    <span className="text-xs text-muted-foreground font-medium">Total monthly</span>
+                    <span className="text-xs font-semibold text-foreground tabular-nums">{formatCurrency(Math.round(cvt(insurance.totalMonthly)), dc)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="border-t border-border/40" />
 
             <div className="flex items-start justify-between">
