@@ -20,3 +20,4 @@ export { F41v8_AdjustmentsSection } from './F41v8_AdjustmentsSection';
 export { F41v8_PayoutHeroCard } from './F41v8_PayoutHeroCard';
 export { F41v8_PayslipsSection } from './F41v8_PayslipsSection';
 export { F41v8_PayoutBreakdownDrawer } from './F41v8_PayoutBreakdownDrawer';
+export { F41v8_InsuranceSection } from './F41v8_InsuranceSection';
