@@ -431,7 +431,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                     <Shield className="h-3.5 w-3.5 text-primary/70" />
                     <p className="text-[11px] text-muted-foreground">Insurance & Benefits — {formData.country}</p>
                     <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal ml-auto gap-1">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                       via Kota
                     </Badge>
                   </div>
