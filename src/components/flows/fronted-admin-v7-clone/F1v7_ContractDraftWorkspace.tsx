@@ -232,6 +232,31 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType): S
         { heading: "4. Worker acknowledgment", text: `4.1 By signing below, ${hl(candidate.name)} confirms:\n\n(a) Receipt of the Personnel Handbook\n(b) Understanding of the policies and procedures contained therein\n(c) Agreement to comply with all Company policies as a condition of employment` },
         { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
       ];
+    case "health-insurance-addendum": {
+      const ins = COUNTRY_INSURANCE_CONTRACT[candidate.country];
+      const providerName = ins?.provider || "the designated insurer";
+      const planName = ins?.plan || "Group Health Insurance";
+      const erLines = ins?.employer_contributions || [];
+      const eeLines = ins?.employee_contributions || [];
+      const erTotal = erLines.reduce((s, c) => s + c.amount, 0);
+      const eeTotal = eeLines.reduce((s, c) => s + c.amount, 0);
+      const cur = ins?.currency || "EUR";
+      const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax Relief" };
+      const contributionLines = [
+        ...erLines.map(c => `- Employer ${CAT_LABEL[c.category] || c.category}: ${hl(`${cur} ${c.amount.toLocaleString()}`)}`),
+        ...eeLines.map(c => `- Employee ${CAT_LABEL[c.category] || c.category}: ${hl(`${cur} ${c.amount.toLocaleString()}`)}`),
+      ].join("\n");
+      return [
+        { heading: "Health Insurance Addendum", text: "" },
+        { heading: "", text: `This Health Insurance Addendum ("Addendum") supplements the Agreement between Fronted Sweden AB (NewCo 8634 Sweden AB), reg. no. 559548-9914 ("Company") and ${hl(candidate.name)} ("Worker") and sets out the terms of the group health insurance benefit provided through ${hl(providerName)}.` },
+        { heading: "1. Insurance provider and plan", text: `1.1 The Company has arranged group health insurance coverage for the Worker through ${hl(providerName)} under the ${hl(planName)} plan.\n\n1.2 Coverage is subject to the insurer's terms, conditions, and underwriting requirements. The Company does not guarantee coverage for pre-existing conditions or specific treatments.\n\n1.3 The insurance arrangement is administered via Kota, acting as the benefits platform for policy management and enrolment.` },
+        { heading: "2. Contribution schedule", text: `2.1 Monthly contributions are split between the Employer and the Employee as follows:\n\n${contributionLines}\n\n2.2 Total monthly cost: ${hl(`${cur} ${(erTotal + eeTotal).toLocaleString()}`)}\n\n2.3 Employee contributions will be deducted from gross salary each pay period. The Employer's share is paid directly to the insurer.\n\n2.4 Contribution amounts are determined by the insurer and may be adjusted at policy renewal. The Company will notify the Worker of any changes with at least 30 days' notice.` },
+        { heading: "3. Coverage and eligibility", text: `3.1 Coverage begins on the Worker's start date as specified in the Employment Agreement, subject to any waiting period imposed by the insurer.\n\n3.2 The Worker may be eligible to add dependants (partner, children) to the policy at additional cost, subject to the insurer's terms.\n\n3.3 Coverage terminates upon the end of the employment relationship, subject to any statutory continuation rights in ${hl(candidate.country)}.` },
+        { heading: "4. Worker obligations", text: `4.1 The Worker agrees to:\n\n(a) Provide accurate health and personal information as required by the insurer\n(b) Notify the Company of any changes in dependant status\n(c) Comply with the insurer's claims procedures\n(d) Not misrepresent or withhold information material to the insurance coverage` },
+        { heading: "5. Amendments and termination", text: "5.1 The Company reserves the right to change the insurance provider, plan, or contribution structure with reasonable notice, provided equivalent or better coverage is maintained.\n\n5.2 This Addendum may be terminated by either party in accordance with the termination provisions of the main Agreement." },
+        { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
+      ];
+    }
   }
 };
 
