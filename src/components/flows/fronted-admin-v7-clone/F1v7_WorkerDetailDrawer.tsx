@@ -285,6 +285,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
   const isContractor = worker.type === "contractor";
   const documentLabel = isContractor ? "invoice" : "payslip";
   const earningsData = getWorkerEarnings(worker);
+  const insurance = getWorkerInsurance(worker);
 
   const handleResetOverrides = () => {
     setStartDateOverride("");
