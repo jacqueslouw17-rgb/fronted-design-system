@@ -129,6 +129,12 @@ const F41v8_EmployeeDashboardPage = () => {
     country: "Philippines"
   };
 
+  // Activate v7 glass portal overrides on body
+  useEffect(() => {
+    document.body.classList.add('v7-glass-active');
+    return () => document.body.classList.remove('v7-glass-active');
+  }, []);
+
   useEffect(() => {
     setTimeout(() => {
       confetti({
