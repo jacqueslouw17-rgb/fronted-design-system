@@ -156,6 +156,50 @@ const getWorkerEarnings = (worker: WorkerData) => {
   };
 };
 
+// Mock Kota insurance data for select employees
+interface KotaHealthInsurance {
+  provider: string;
+  policyId: string;
+  status: "open" | "finalized";
+  contributions: {
+    employer: { premium: number; tax: number };
+    employee: { premium: number; tax: number; taxRelief: number };
+  };
+  totalMonthly: number;
+}
+
+const getWorkerInsurance = (worker: WorkerData): KotaHealthInsurance | null => {
+  if (worker.type === "contractor") return null;
+  const insuranceMap: Record<string, KotaHealthInsurance> = {
+    Philippines: {
+      provider: "PhilHealth Plus", policyId: "pol_ph_003", status: "finalized",
+      contributions: { employer: { premium: 1250, tax: 0 }, employee: { premium: 1250, tax: 0, taxRelief: 0 } },
+      totalMonthly: 2500,
+    },
+    Norway: {
+      provider: "Allianz", policyId: "pol_no_004", status: "finalized",
+      contributions: { employer: { premium: 2800, tax: 420 }, employee: { premium: 1400, tax: 210, taxRelief: 350 } },
+      totalMonthly: 4830,
+    },
+    Germany: {
+      provider: "Techniker Krankenkasse", policyId: "pol_de_007", status: "finalized",
+      contributions: { employer: { premium: 450, tax: 0 }, employee: { premium: 450, tax: 0, taxRelief: 0 } },
+      totalMonthly: 900,
+    },
+    Singapore: {
+      provider: "Great Eastern", policyId: "pol_sg_001", status: "finalized",
+      contributions: { employer: { premium: 380, tax: 0 }, employee: { premium: 190, tax: 0, taxRelief: 0 } },
+      totalMonthly: 570,
+    },
+    France: {
+      provider: "AXA France", policyId: "pol_fr_002", status: "finalized",
+      contributions: { employer: { premium: 320, tax: 48 }, employee: { premium: 160, tax: 24, taxRelief: 40 } },
+      totalMonthly: 552,
+    },
+  };
+  return insuranceMap[worker.country] || null;
+};
+
 export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = ({
   open,
   onOpenChange,
@@ -241,6 +285,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
   const isContractor = worker.type === "contractor";
   const documentLabel = isContractor ? "invoice" : "payslip";
   const earningsData = getWorkerEarnings(worker);
+  const insurance = getWorkerInsurance(worker);
 
   const handleResetOverrides = () => {
     setStartDateOverride("");
@@ -449,6 +494,52 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                           <p className="text-sm font-semibold text-muted-foreground tabular-nums">
                             {approx}-{formatCurrency(Math.round(cvt(totalDeductions)), dc)}
                           </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* BENEFITS - Kota insurance contributions */}
+                    {!isContractor && insurance && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Benefits</p>
+                          <span className="text-[9px] font-medium text-muted-foreground/60 bg-muted/60 px-1.5 py-0.5 rounded">Kota</span>
+                        </div>
+                        <div className="space-y-0.5">
+                          <div className="flex items-center justify-between py-1.5">
+                            <span className="text-xs text-muted-foreground">Provider</span>
+                            <span className="text-xs font-medium text-foreground">{insurance.provider}</span>
+                          </div>
+                          <div className="flex items-center justify-between py-1">
+                            <span className="text-xs text-muted-foreground">ER Premium</span>
+                            <span className="text-xs font-medium text-foreground tabular-nums">{formatCurrency(Math.round(cvt(insurance.contributions.employer.premium)), dc)}</span>
+                          </div>
+                          {insurance.contributions.employer.tax > 0 && (
+                            <div className="flex items-center justify-between py-1">
+                              <span className="text-xs text-muted-foreground">ER Tax</span>
+                              <span className="text-xs font-medium text-foreground tabular-nums">{formatCurrency(Math.round(cvt(insurance.contributions.employer.tax)), dc)}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between py-1">
+                            <span className="text-xs text-muted-foreground">EE Premium</span>
+                            <span className="text-xs font-medium text-muted-foreground tabular-nums">−{formatCurrency(Math.round(cvt(insurance.contributions.employee.premium)), dc)}</span>
+                          </div>
+                          {insurance.contributions.employee.tax > 0 && (
+                            <div className="flex items-center justify-between py-1">
+                              <span className="text-xs text-muted-foreground">EE Tax</span>
+                              <span className="text-xs font-medium text-muted-foreground tabular-nums">−{formatCurrency(Math.round(cvt(insurance.contributions.employee.tax)), dc)}</span>
+                            </div>
+                          )}
+                          {insurance.contributions.employee.taxRelief > 0 && (
+                            <div className="flex items-center justify-between py-1">
+                              <span className="text-xs text-muted-foreground">EE Tax Relief</span>
+                              <span className="text-xs font-medium text-accent-green-text tabular-nums">+{formatCurrency(Math.round(cvt(insurance.contributions.employee.taxRelief)), dc)}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between py-1.5 border-t border-border/40 mt-1 pt-2">
+                            <span className="text-xs text-muted-foreground font-medium">Total monthly</span>
+                            <span className="text-xs font-semibold text-foreground tabular-nums">{formatCurrency(Math.round(cvt(insurance.totalMonthly)), dc)}</span>
+                          </div>
                         </div>
                       </div>
                     )}

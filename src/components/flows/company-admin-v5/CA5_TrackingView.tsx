@@ -79,6 +79,40 @@ const getWorkerEarnings = (worker: TrackingWorker) => {
   };
 };
 
+// Mock Kota insurance data for select employees
+interface KotaHealthInsurance {
+  provider: string;
+  policyId: string;
+  status: "open" | "finalized";
+  contributions: {
+    employer: { premium: number; tax: number };
+    employee: { premium: number; tax: number; taxRelief: number };
+  };
+  totalMonthly: number;
+}
+
+const getWorkerInsurance = (worker: TrackingWorker): KotaHealthInsurance | null => {
+  if (worker.type === "contractor") return null;
+  const insuranceMap: Record<string, KotaHealthInsurance> = {
+    France: {
+      provider: "AXA France", policyId: "pol_fr_002", status: "finalized",
+      contributions: { employer: { premium: 320, tax: 48 }, employee: { premium: 160, tax: 24, taxRelief: 40 } },
+      totalMonthly: 552,
+    },
+    Norway: {
+      provider: "Allianz", policyId: "pol_no_004", status: "finalized",
+      contributions: { employer: { premium: 2800, tax: 420 }, employee: { premium: 1400, tax: 210, taxRelief: 350 } },
+      totalMonthly: 4830,
+    },
+    Philippines: {
+      provider: "PhilHealth Plus", policyId: "pol_ph_003", status: "finalized",
+      contributions: { employer: { premium: 1250, tax: 0 }, employee: { premium: 1250, tax: 0, taxRelief: 0 } },
+      totalMonthly: 2500,
+    },
+  };
+  return insuranceMap[worker.country] || null;
+};
+
 export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
   workers,
   onExportCSV,
@@ -154,6 +188,7 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
     if (!selectedWorker) return null;
     const isContractor = selectedWorker.type === "contractor";
     const earningsData = getWorkerEarnings(selectedWorker);
+    const insurance = getWorkerInsurance(selectedWorker);
     const totalEarnings = earningsData.items.reduce((sum, item) => sum + item.amount, 0);
     const totalDeductions = earningsData.deductions.reduce((sum, item) => sum + item.amount, 0);
     const netTotal = isContractor ? totalEarnings : totalEarnings - totalDeductions;
@@ -228,6 +263,52 @@ export const CA4_TrackingView: React.FC<CA4_TrackingViewProps> = ({
                   <p className="text-sm font-semibold text-muted-foreground tabular-nums">
                     {approx}-{formatCurrency(Math.round(cvt(totalDeductions)), dc)}
                   </p>
+                </div>
+              </div>
+            )}
+
+            {/* BENEFITS - Kota insurance contributions */}
+            {!isContractor && insurance && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Benefits</p>
+                  <span className="text-[9px] font-medium text-muted-foreground/60 bg-muted/60 px-1.5 py-0.5 rounded">Kota</span>
+                </div>
+                <div className="space-y-0.5">
+                  <div className="flex items-center justify-between py-1.5">
+                    <span className="text-xs text-muted-foreground">Provider</span>
+                    <span className="text-xs font-medium text-foreground">{insurance.provider}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-xs text-muted-foreground">ER Premium</span>
+                    <span className="text-xs font-medium text-foreground tabular-nums">{formatCurrency(Math.round(cvt(insurance.contributions.employer.premium)), dc)}</span>
+                  </div>
+                  {insurance.contributions.employer.tax > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-xs text-muted-foreground">ER Tax</span>
+                      <span className="text-xs font-medium text-foreground tabular-nums">{formatCurrency(Math.round(cvt(insurance.contributions.employer.tax)), dc)}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-xs text-muted-foreground">EE Premium</span>
+                    <span className="text-xs font-medium text-muted-foreground tabular-nums">−{formatCurrency(Math.round(cvt(insurance.contributions.employee.premium)), dc)}</span>
+                  </div>
+                  {insurance.contributions.employee.tax > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-xs text-muted-foreground">EE Tax</span>
+                      <span className="text-xs font-medium text-muted-foreground tabular-nums">−{formatCurrency(Math.round(cvt(insurance.contributions.employee.tax)), dc)}</span>
+                    </div>
+                  )}
+                  {insurance.contributions.employee.taxRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-xs text-muted-foreground">EE Tax Relief</span>
+                      <span className="text-xs font-medium text-accent-green-text tabular-nums">+{formatCurrency(Math.round(cvt(insurance.contributions.employee.taxRelief)), dc)}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-1.5 border-t border-border/40 mt-1 pt-2">
+                    <span className="text-xs text-muted-foreground font-medium">Total monthly</span>
+                    <span className="text-xs font-semibold text-foreground tabular-nums">{formatCurrency(Math.round(cvt(insurance.totalMonthly)), dc)}</span>
+                  </div>
                 </div>
               </div>
             )}

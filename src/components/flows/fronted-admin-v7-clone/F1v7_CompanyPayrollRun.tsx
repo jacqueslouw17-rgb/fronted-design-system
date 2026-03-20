@@ -157,6 +157,16 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { label: "Income Tax", amount: -28000, type: "Deduction", locked: true },
       { label: "Social Security", amount: -14000, type: "Deduction", locked: true },
     ],
+    healthInsurance: {
+      provider: "PhilHealth Plus",
+      policyId: "pol_ph_003",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 1250, tax: 0 },
+        employee: { premium: 1250, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 2500,
+    },
     submissions: [
       { type: "expenses", amount: 5200, description: "Travel", status: "pending",
         tags: ["NY trip"],
@@ -220,6 +230,16 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { label: "Income Tax", amount: -9750, type: "Deduction", locked: true },
       { label: "Pension", amount: -3250, type: "Deduction", locked: true },
     ],
+    healthInsurance: {
+      provider: "Allianz",
+      policyId: "pol_no_004",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 2800, tax: 420 },
+        employee: { premium: 1400, tax: 210, taxRelief: 350 },
+      },
+      totalMonthly: 4830,
+    },
     submissions: [
       { type: "overtime", amount: 4500, hours: 12, description: "Jan 11 · 09:00–21:00", status: "pending" },
       { type: "expenses", amount: 750, description: "Parking", status: "pending",
@@ -298,6 +318,16 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       { label: "Income Tax", amount: -1160, type: "Deduction", locked: true },
       { label: "Social Security", amount: -290, type: "Deduction", locked: true },
     ],
+    healthInsurance: {
+      provider: "Techniker Krankenkasse",
+      policyId: "pol_de_007",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 450, tax: 0 },
+        employee: { premium: 450, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 900,
+    },
     submissions: [],
     pendingLeaves: [],
   },

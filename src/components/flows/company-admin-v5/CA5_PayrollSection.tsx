@@ -58,6 +58,16 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Income Tax", amount: -870, locked: true },
       { type: "Deduction", label: "Social Security", amount: -580, locked: true },
     ],
+    healthInsurance: {
+      provider: "AXA France",
+      policyId: "pol_fr_002",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 320, tax: 48 },
+        employee: { premium: 160, tax: 24, taxRelief: 40 },
+      },
+      totalMonthly: 552,
+    },
     submissions: [
       { type: "bonus", amount: 500, currency: "EUR", description: "Bonus", status: "pending" },
     ],
@@ -82,6 +92,16 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "PhilHealth Employee", amount: -1250, locked: true },
       { type: "Deduction", label: "Pag-IBIG Employee", amount: -1000, locked: true },
     ],
+    healthInsurance: {
+      provider: "PhilHealth Plus",
+      policyId: "pol_ph_003",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 1250, tax: 0 },
+        employee: { premium: 1250, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 2500,
+    },
     submissions: [
       { type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
       { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending", tags: ["Client dinner"],
@@ -123,6 +143,16 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Pension", amount: -4550, locked: true },
       { type: "Deduction", label: "National Insurance", amount: -2600, locked: true },
     ],
+    healthInsurance: {
+      provider: "Allianz",
+      policyId: "pol_no_004",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 2800, tax: 420 },
+        employee: { premium: 1400, tax: 210, taxRelief: 350 },
+      },
+      totalMonthly: 4830,
+    },
     submissions: [
       { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending",
         attachments: [
@@ -188,6 +218,16 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Health Insurance", amount: -465, locked: true },
       { type: "Deduction", label: "Pension Insurance", amount: -465, locked: true },
     ],
+    healthInsurance: {
+      provider: "Techniker Krankenkasse",
+      policyId: "pol_de_007",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 465, tax: 0 },
+        employee: { premium: 465, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 930,
+    },
     submissions: [
       { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee", status: "pending",
         attachments: [

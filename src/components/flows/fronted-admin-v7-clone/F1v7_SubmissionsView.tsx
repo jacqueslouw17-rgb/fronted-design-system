@@ -119,6 +119,18 @@ export interface WorkerFlag {
 // Status change decision for Flag 1
 export type StatusDecision = "include" | "exclude";
 
+// Kota health insurance contribution breakdown (mirrors Kota API response)
+export interface KotaHealthInsurance {
+  provider: string;
+  policyId: string;
+  status: "open" | "finalized";
+  contributions: {
+    employer: { premium: number; tax: number };
+    employee: { premium: number; tax: number; taxRelief: number };
+  };
+  totalMonthly: number;
+}
+
 export interface WorkerSubmission {
   id: string;
   workerId: string;
@@ -137,6 +149,7 @@ export interface WorkerSubmission {
   flags?: WorkerFlag[];
   invoiceNumber?: string;
   companyName?: string;
+  healthInsurance?: KotaHealthInsurance;
 }
 
 interface F1v4_SubmissionsViewProps {
@@ -1691,6 +1704,48 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                                 </div>
                               ))}
                               <BreakdownRow label="Total deductions" amount={cvt(totalDeductions + approvedLeaveDeduction + adminDeductionsTotal)} currency={dc} isPositive={false} isTotal />
+                            </CollapsibleSection>
+                          )}
+
+                          {/* BENEFITS Section - Kota insurance contributions */}
+                          {!showPendingOnly && selectedSubmission.healthInsurance && (
+                            <CollapsibleSection title="Benefits · Kota" defaultOpen={false} approvedCount={1}>
+                              <div className="space-y-0.5 py-1">
+                                <div className="flex items-center justify-between py-1.5">
+                                  <span className="text-xs text-muted-foreground">Provider</span>
+                                  <span className="text-xs font-medium text-foreground">{selectedSubmission.healthInsurance.provider}</span>
+                                </div>
+                                <div className="flex items-center justify-between py-1">
+                                  <span className="text-xs text-muted-foreground">ER Premium</span>
+                                  <span className="text-xs font-medium text-foreground tabular-nums">{formatCurrency(cvt(selectedSubmission.healthInsurance.contributions.employer.premium), dc)}</span>
+                                </div>
+                                {selectedSubmission.healthInsurance.contributions.employer.tax > 0 && (
+                                  <div className="flex items-center justify-between py-1">
+                                    <span className="text-xs text-muted-foreground">ER Tax</span>
+                                    <span className="text-xs font-medium text-foreground tabular-nums">{formatCurrency(cvt(selectedSubmission.healthInsurance.contributions.employer.tax), dc)}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center justify-between py-1">
+                                  <span className="text-xs text-muted-foreground">EE Premium</span>
+                                  <span className="text-xs font-medium text-muted-foreground tabular-nums">−{formatCurrency(cvt(selectedSubmission.healthInsurance.contributions.employee.premium), dc)}</span>
+                                </div>
+                                {selectedSubmission.healthInsurance.contributions.employee.tax > 0 && (
+                                  <div className="flex items-center justify-between py-1">
+                                    <span className="text-xs text-muted-foreground">EE Tax</span>
+                                    <span className="text-xs font-medium text-muted-foreground tabular-nums">−{formatCurrency(cvt(selectedSubmission.healthInsurance.contributions.employee.tax), dc)}</span>
+                                  </div>
+                                )}
+                                {selectedSubmission.healthInsurance.contributions.employee.taxRelief > 0 && (
+                                  <div className="flex items-center justify-between py-1">
+                                    <span className="text-xs text-muted-foreground">EE Tax Relief</span>
+                                    <span className="text-xs font-medium text-accent-green-text tabular-nums">+{formatCurrency(cvt(selectedSubmission.healthInsurance.contributions.employee.taxRelief), dc)}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center justify-between py-1.5 border-t border-border/40 mt-1 pt-2">
+                                  <span className="text-xs text-muted-foreground font-medium">Total monthly</span>
+                                  <span className="text-xs font-semibold text-foreground tabular-nums">{formatCurrency(cvt(selectedSubmission.healthInsurance.totalMonthly), dc)}</span>
+                                </div>
+                              </div>
                             </CollapsibleSection>
                           )}
 
