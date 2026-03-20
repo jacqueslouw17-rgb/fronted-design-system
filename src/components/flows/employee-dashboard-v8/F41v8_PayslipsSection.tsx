@@ -65,7 +65,7 @@ export const F41v8_PayslipsSection = ({
                 </p>
                 <Badge 
                   variant="outline" 
-                  className="hidden sm:inline-flex bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-xs px-2 py-0.5 flex-shrink-0"
+                  className="hidden sm:inline-flex bg-[hsl(172,40%,95%)] text-[hsl(172,40%,30%)] border-[hsl(172,40%,80%)] dark:bg-[hsl(172,40%,15%)] dark:text-[hsl(172,50%,60%)] dark:border-[hsl(172,40%,25%)] text-xs px-2 py-0.5 flex-shrink-0"
                 >
                   Paid
                 </Badge>
