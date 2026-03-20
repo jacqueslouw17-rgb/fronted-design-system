@@ -43,6 +43,28 @@ const COUNTRY_RULES: Record<string, CountryRule> = {
   Romania:     { flag: "🇷🇴", currency: "RON", probation: { default: 90, max: 90 }, noticePeriod: { default: 20, min: 20 }, annualLeave: { default: 20, min: 20 }, sickLeave: { default: 183, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
 };
 
+// ─── Insurance providers by country (mock Kota.io integration) ───
+interface InsuranceProvider {
+  provider: string;
+  plan: string;
+  region: string;
+  monthlyTotal: number; // total monthly premium from Kota API (health_insurance)
+  currency: string;
+  kotaSource: string; // Kota API field reference
+}
+
+const COUNTRY_INSURANCE: Record<string, InsuranceProvider> = {
+  Norway:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 4200, currency: "NOK", kotaSource: "health_insurance" },
+  Sweden:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 3800, currency: "SEK", kotaSource: "health_insurance" },
+  Denmark:   { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 3500, currency: "DKK", kotaSource: "health_insurance" },
+  Spain:     { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 280, currency: "EUR", kotaSource: "health_insurance" },
+  Romania:   { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 250, currency: "RON", kotaSource: "health_insurance" },
+  Kosovo:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 220, currency: "EUR", kotaSource: "health_insurance" },
+  Singapore: { provider: "AIA", plan: "AIA HealthShield Gold", region: "Asia Pacific", monthlyTotal: 450, currency: "SGD", kotaSource: "health_insurance" },
+  Philippines: { provider: "AXA Philippines", plan: "AXA Health Max", region: "Asia Pacific", monthlyTotal: 12500, currency: "PHP", kotaSource: "health_insurance" },
+  India:     { provider: "HDFC Ergo", plan: "HDFC Optima Secure", region: "Asia Pacific", monthlyTotal: 8500, currency: "INR", kotaSource: "health_insurance" },
+};
+
 interface OnboardingFormDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
