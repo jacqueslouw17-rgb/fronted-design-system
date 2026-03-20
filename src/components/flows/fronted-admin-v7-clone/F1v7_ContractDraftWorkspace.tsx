@@ -648,6 +648,26 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   <ReviewRow icon={Calendar} label="PTO" value={candidate.pto} />
                 </div>
               </div>
+              {/* Insurance Details */}
+              {(() => {
+                const ins = COUNTRY_INSURANCE_CONTRACT[candidate.country];
+                if (!ins) return null;
+                const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax relief" };
+                const fmt = (amt: number) => `${ins.currency} ${amt.toLocaleString()}`;
+                const total = ins.employer_contributions.reduce((s, c) => s + c.amount, 0) + ins.employee_contributions.reduce((s, c) => s + c.amount, 0);
+                return (
+                  <div className="px-4 py-3 border-t border-white/20">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Insurance Details</p>
+                    <div className="space-y-1.5">
+                      <ReviewRow icon={HeartPulse} label="Provider" value={ins.provider} />
+                      <ReviewRow icon={Shield} label="Plan" value={ins.plan} />
+                      {ins.employer_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`ER ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
+                      {ins.employee_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`EE ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
+                      <ReviewRow icon={Banknote} label="Total" value={fmt(total)} />
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </CollapsibleContent>
         </Collapsible>
