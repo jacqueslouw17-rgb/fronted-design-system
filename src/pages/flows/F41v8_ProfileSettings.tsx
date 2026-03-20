@@ -167,6 +167,8 @@ const F41v8_ProfileSettings = () => {
         return <WorkerStep4BankDetails_v2 {...commonProps} allFieldsLocked hideHeader hideButtons showContactNotice />;
       case "work_setup":
         return <WorkerStep5WorkSetup_v2 {...commonProps} allFieldsLocked hideHeader hideButtons showContactNotice />;
+      case "insurance":
+        return <F41v8_InsuranceSection />;
       default:
         return null;
     }
