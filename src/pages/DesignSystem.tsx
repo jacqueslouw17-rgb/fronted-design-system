@@ -472,10 +472,28 @@ const DesignSystem = () => {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-3 ml-0.5">Dashboard</p>
-                  <div className="grid grid-cols-1 gap-4 max-w-md">
-                    {workerDashboard.map((flowId) => (
-                      <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                    ))}
+                  <div className="space-y-2">
+                    {/* Employee row: Now | Next (placeholder) | Future */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <FlowCard key="flow-4.1-employee-dashboard-v7" flowId="flow-4.1-employee-dashboard-v7" onPatternClick={handlePatternClickWrapper} />
+                      <Card className="border-2 border-dashed border-muted-foreground/20 bg-muted/5 flex flex-col items-center justify-center opacity-50 cursor-default">
+                        <CardHeader className="text-center pb-2">
+                          <div className="flex items-center gap-1.5 justify-center">
+                            <CardTitle className="text-lg text-muted-foreground/50">Flow 4.1 Employee Dashboard</CardTitle>
+                            <Badge variant="outline" className="text-[10px] font-medium text-muted-foreground/40 border-muted-foreground/20">v8</Badge>
+                            <Badge className="text-[10px] font-medium bg-amber-100/50 text-amber-700/50 border border-amber-200/50">Next</Badge>
+                          </div>
+                          <CardDescription className="text-muted-foreground/30">Coming soon</CardDescription>
+                        </CardHeader>
+                      </Card>
+                      <FlowCard key="flow-4.1-employee-dashboard-v8" flowId="flow-4.1-employee-dashboard-v8" onPatternClick={handlePatternClickWrapper} />
+                    </div>
+                    {/* Contractor row */}
+                    <div className="grid grid-cols-3 gap-4">
+                      {workerDashboard.filter(id => id.startsWith('flow-4.2')).map((flowId) => (
+                        <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
