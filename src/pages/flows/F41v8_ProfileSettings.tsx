@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from "react";
-import "@/styles/v7-glass-theme.css";
+import { Shield, Lock } from "lucide-react";
 import "@/styles/v7-glass-portals.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
