@@ -92,6 +92,16 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "PhilHealth Employee", amount: -1250, locked: true },
       { type: "Deduction", label: "Pag-IBIG Employee", amount: -1000, locked: true },
     ],
+    healthInsurance: {
+      provider: "PhilHealth Plus",
+      policyId: "pol_ph_003",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 1250, tax: 0 },
+        employee: { premium: 1250, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 2500,
+    },
     submissions: [
       { type: "overtime", hours: 8, description: "Jan 15 · 09:00–17:00", amount: 3500, status: "pending" },
       { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending", tags: ["Client dinner"],
