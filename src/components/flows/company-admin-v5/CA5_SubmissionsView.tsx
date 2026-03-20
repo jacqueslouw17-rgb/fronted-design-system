@@ -93,6 +93,18 @@ export interface PendingLeaveItem {
   dailyRate?: number;
 }
 
+// Kota health insurance contribution breakdown (mirrors Kota API response)
+export interface KotaHealthInsurance {
+  provider: string;
+  policyId: string;
+  status: "open" | "finalized";
+  contributions: {
+    employer: { premium: number; tax: number };
+    employee: { premium: number; tax: number; taxRelief: number };
+  };
+  totalMonthly: number;
+}
+
 export interface WorkerSubmission {
   id: string;
   workerId: string;
@@ -115,6 +127,7 @@ export interface WorkerSubmission {
   flagReason?: string;
   flags?: WorkerFlag[];
   invoiceNumber?: string;
+  healthInsurance?: KotaHealthInsurance;
 }
 
 // Flag types for "Heads up" indicators

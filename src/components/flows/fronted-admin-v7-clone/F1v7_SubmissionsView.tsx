@@ -119,6 +119,18 @@ export interface WorkerFlag {
 // Status change decision for Flag 1
 export type StatusDecision = "include" | "exclude";
 
+// Kota health insurance contribution breakdown (mirrors Kota API response)
+export interface KotaHealthInsurance {
+  provider: string;
+  policyId: string;
+  status: "open" | "finalized";
+  contributions: {
+    employer: { premium: number; tax: number };
+    employee: { premium: number; tax: number; taxRelief: number };
+  };
+  totalMonthly: number;
+}
+
 export interface WorkerSubmission {
   id: string;
   workerId: string;
@@ -137,6 +149,7 @@ export interface WorkerSubmission {
   flags?: WorkerFlag[];
   invoiceNumber?: string;
   companyName?: string;
+  healthInsurance?: KotaHealthInsurance;
 }
 
 interface F1v4_SubmissionsViewProps {
