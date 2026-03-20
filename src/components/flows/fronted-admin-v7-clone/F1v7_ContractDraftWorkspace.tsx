@@ -326,6 +326,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
       { id: "data-privacy" as DocumentType, label: `Data Privacy (${candidate.countryCode})`, icon: ScrollText, shortLabel: "Privacy" },
       { id: "ip-addendum" as DocumentType, label: "IP Assignment & Carve-outs", icon: Cpu, shortLabel: "IP" },
       { id: "restrictive-covenants" as DocumentType, label: "Restrictive Covenants", icon: Scale, shortLabel: "Covenants" },
+      ...(COUNTRY_INSURANCE_CONTRACT[candidate.country] ? [{ id: "health-insurance-addendum" as DocumentType, label: "Health Insurance Addendum", icon: HeartPulse, shortLabel: "Insurance" }] : []),
     ];
   }, [employmentType, candidate.countryCode]);
 
