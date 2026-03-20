@@ -328,7 +328,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
       { id: "restrictive-covenants" as DocumentType, label: "Restrictive Covenants", icon: Scale, shortLabel: "Covenants" },
       ...(COUNTRY_INSURANCE_CONTRACT[candidate.country] ? [{ id: "health-insurance-addendum" as DocumentType, label: "Health Insurance Addendum", icon: HeartPulse, shortLabel: "Insurance" }] : []),
     ];
-  }, [employmentType, candidate.countryCode]);
+  }, [employmentType, candidate.countryCode, candidate.country]);
 
   // Active document & page state
   const [activeDocument, setActiveDocument] = useState<DocumentType>(() => {
