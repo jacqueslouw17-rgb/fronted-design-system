@@ -5,7 +5,7 @@
  * Sections: Personal Profile + Working Engagement (matching Done column categories).
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CheckCircle2, Bot, ChevronDown } from "lucide-react";
+import { CheckCircle2, Bot, ChevronDown, Shield, Info } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 import { toast } from "sonner";
@@ -41,6 +41,28 @@ const COUNTRY_RULES: Record<string, CountryRule> = {
   Singapore:   { flag: "🇸🇬", currency: "SGD", probation: { default: 90, max: 180 }, noticePeriod: { default: 30, min: 7 }, annualLeave: { default: 7, min: 7 }, sickLeave: { default: 14, min: 14 }, weeklyHours: { default: 44, max: 44 }, payFrequency: { default: "monthly", locked: true } },
   Spain:       { flag: "🇪🇸", currency: "EUR", probation: { default: 60, max: 180 }, noticePeriod: { default: 15, min: 15 }, annualLeave: { default: 22, min: 22 }, sickLeave: { default: 365, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
   Romania:     { flag: "🇷🇴", currency: "RON", probation: { default: 90, max: 90 }, noticePeriod: { default: 20, min: 20 }, annualLeave: { default: 20, min: 20 }, sickLeave: { default: 183, min: 0 }, weeklyHours: { default: 40, max: 40 }, payFrequency: { default: "monthly", locked: true } },
+};
+
+// ─── Insurance providers by country (mock Kota.io integration) ───
+interface InsuranceProvider {
+  provider: string;
+  plan: string;
+  region: string;
+  monthlyTotal: number; // total monthly premium from Kota API (health_insurance)
+  currency: string;
+  kotaSource: string; // Kota API field reference
+}
+
+const COUNTRY_INSURANCE: Record<string, InsuranceProvider> = {
+  Norway:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 4200, currency: "NOK", kotaSource: "health_insurance" },
+  Sweden:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 3800, currency: "SEK", kotaSource: "health_insurance" },
+  Denmark:   { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 3500, currency: "DKK", kotaSource: "health_insurance" },
+  Spain:     { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 280, currency: "EUR", kotaSource: "health_insurance" },
+  Romania:   { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 250, currency: "RON", kotaSource: "health_insurance" },
+  Kosovo:    { provider: "Allianz", plan: "Allianz Care Europe", region: "Europe", monthlyTotal: 220, currency: "EUR", kotaSource: "health_insurance" },
+  Singapore: { provider: "AIA", plan: "AIA HealthShield Gold", region: "Asia Pacific", monthlyTotal: 450, currency: "SGD", kotaSource: "health_insurance" },
+  Philippines: { provider: "AXA Philippines", plan: "AXA Health Max", region: "Asia Pacific", monthlyTotal: 12500, currency: "PHP", kotaSource: "health_insurance" },
+  India:     { provider: "HDFC Ergo", plan: "HDFC Optima Secure", region: "Asia Pacific", monthlyTotal: 8500, currency: "INR", kotaSource: "health_insurance" },
 };
 
 interface OnboardingFormDrawerProps {
@@ -133,6 +155,8 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [employeeContribPct, setEmployeeContribPct] = useState(50);
+  const [insuranceOptIn, setInsuranceOptIn] = useState(true);
 
   const activeCountryRule = COUNTRY_RULES[candidate.country];
 
@@ -392,6 +416,115 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                 </div>
               </div>
             )}
+
+            {/* ── Insurance & Benefits (via Kota.io) ── */}
+            {countryRule && (() => {
+              const ins = COUNTRY_INSURANCE[formData.country];
+              if (!ins) return null;
+
+              const employerAmount = Math.round(ins.monthlyTotal * (1 - employeeContribPct / 100));
+              const employeeAmount = ins.monthlyTotal - employerAmount;
+
+              return (
+                <div className="border-t border-border/40 pt-3 mt-1">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Shield className="h-3.5 w-3.5 text-primary/70" />
+                    <p className="text-[11px] text-muted-foreground">Insurance & Benefits — {formData.country}</p>
+                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal ml-auto gap-1">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      via Kota
+                    </Badge>
+                  </div>
+
+                  {/* Provider card */}
+                  <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-semibold text-foreground">{ins.provider}</p>
+                        <p className="text-[11px] text-muted-foreground">{ins.plan}</p>
+                        <p className="text-[10px] text-muted-foreground/60">{ins.region} coverage</p>
+                      </div>
+                      <div className="text-right space-y-0.5">
+                        <p className="text-xs font-semibold text-foreground tabular-nums">
+                          {ins.currency} {ins.monthlyTotal.toLocaleString()}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">per month total</p>
+                      </div>
+                    </div>
+
+                    {/* Opt-in toggle */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setInsuranceOptIn(!insuranceOptIn)}
+                        className={cn(
+                          "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200",
+                          insuranceOptIn ? "bg-primary" : "bg-muted-foreground/30"
+                        )}
+                      >
+                        <span className={cn(
+                          "pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm transform transition-transform duration-200",
+                          insuranceOptIn ? "translate-x-4" : "translate-x-0"
+                        )} />
+                      </button>
+                      <span className="text-[11px] text-muted-foreground">
+                        {insuranceOptIn ? "Offer insurance to this worker" : "Insurance not offered"}
+                      </span>
+                    </div>
+
+                    {insuranceOptIn && (
+                      <>
+                        {/* Contribution split */}
+                        <div className="space-y-2 pt-1">
+                          <div className="flex items-center justify-between">
+                            <p className="text-[11px] font-medium text-muted-foreground">Contribution split</p>
+                            <div className="flex items-center gap-1">
+                              <Info className="h-3 w-3 text-muted-foreground/50" />
+                              <p className="text-[10px] text-muted-foreground/60">Employee chooses their %</p>
+                            </div>
+                          </div>
+
+                          {/* Slider */}
+                          <div className="space-y-1.5">
+                            <input
+                              type="range"
+                              min={0}
+                              max={100}
+                              step={5}
+                              value={employeeContribPct}
+                              onChange={(e) => setEmployeeContribPct(Number(e.target.value))}
+                              className="w-full h-1.5 bg-muted rounded-full appearance-none cursor-pointer accent-primary [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:shadow-sm"
+                            />
+                            <div className="flex justify-between text-[10px] text-muted-foreground/60 tabular-nums">
+                              <span>0% employee</span>
+                              <span>100% employee</span>
+                            </div>
+                          </div>
+
+                          {/* Breakdown bars */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="rounded-md border border-border/40 bg-card/60 p-2.5 space-y-1">
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Employer pays</p>
+                              <p className="text-sm font-semibold text-foreground tabular-nums">
+                                {ins.currency} {employerAmount.toLocaleString()}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground tabular-nums">{100 - employeeContribPct}% of total</p>
+                            </div>
+                            <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5 space-y-1">
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Employee pays</p>
+                              <p className="text-sm font-semibold text-foreground tabular-nums">
+                                {ins.currency} {employeeAmount.toLocaleString()}
+                              </p>
+                              <p className="text-[10px] text-primary/70 tabular-nums">{employeeContribPct}% of total</p>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </SectionCard>
 
 
