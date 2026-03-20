@@ -28,6 +28,31 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { WorkingCountryCombobox } from "@/components/shared/SearchableCountrySelect";
 
+// ─── Insurance data (mirrored from Done drawer, Kota API shape) ───
+interface KotaContributionLine {
+  id: string;
+  category: "gross_premium" | "tax" | "tax_relief";
+  member_type: string;
+  amount: number;
+}
+interface KotaInsuranceData {
+  provider: string;
+  plan: string;
+  currency: string;
+  employer_contributions: KotaContributionLine[];
+  employee_contributions: KotaContributionLine[];
+}
+const COUNTRY_INSURANCE_CONTRACT: Record<string, KotaInsuranceData> = {
+  Norway: { provider: "Allianz", plan: "Allianz Care Europe", currency: "NOK", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 3150 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 315 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 735 }] },
+  Sweden: { provider: "Allianz", plan: "Allianz Care Europe", currency: "SEK", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 2850 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 285 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 665 }] },
+  Denmark: { provider: "Allianz", plan: "Allianz Care Europe", currency: "DKK", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 2600 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 260 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 640 }] },
+  Spain: { provider: "Allianz", plan: "Allianz Care Europe", currency: "EUR", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 210 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 21 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 49 }] },
+  Singapore: { provider: "AIA", plan: "AIA HealthShield Gold", currency: "SGD", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 338 }, { id: "er2", category: "tax_relief", member_type: "policyholder", amount: -45 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 112 }] },
+  Philippines: { provider: "AXA Philippines", plan: "AXA Health Max", currency: "PHP", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 9375 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 3125 }] },
+  India: { provider: "HDFC Ergo", plan: "HDFC Optima Secure", currency: "INR", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 6375 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 2125 }] },
+  Ireland: { provider: "Laya Healthcare", plan: "Laya Simply Health", currency: "EUR", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 195 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 65 }] },
+};
+
 // ─── Nationalities (with flags) ───
 const NATIONALITIES = [
   { label: "🇦🇫 Afghan", value: "Afghan" }, { label: "🇺🇸 American", value: "American" },
@@ -495,6 +520,49 @@ export const F1v5_ContractCreationScreen: React.FC<Props> = ({
           )}
         </SectionCard>
       </motion.div>
+
+      {/* ── Section 3: Insurance Details (read-only, from Kota) ── */}
+      {(() => {
+        const ins = COUNTRY_INSURANCE_CONTRACT[formData.country];
+        if (!ins) return null;
+        const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax relief" };
+        const fmt = (amt: number) => `${ins.currency} ${amt.toLocaleString()}`;
+        const erTotal = ins.employer_contributions.reduce((s, c) => s + c.amount, 0);
+        const eeTotal = ins.employee_contributions.reduce((s, c) => s + c.amount, 0);
+        return (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+            <SectionCard title="Insurance Details" badge={<Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">Kota</Badge>}>
+              <p className="text-[11px] text-muted-foreground -mt-1 mb-2">Health insurance contributions sourced from the insurer — read-only</p>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Provider</span>
+                  <span className="font-medium text-foreground">{ins.provider}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Plan</span>
+                  <span className="font-medium text-foreground">{ins.plan}</span>
+                </div>
+                {ins.employer_contributions.map((c) => (
+                  <div key={c.id} className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">ER {CAT_LABEL[c.category] || c.category}</span>
+                    <span className="font-medium text-foreground tabular-nums">{fmt(c.amount)}</span>
+                  </div>
+                ))}
+                {ins.employee_contributions.map((c) => (
+                  <div key={c.id} className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">EE {CAT_LABEL[c.category] || c.category}</span>
+                    <span className="font-medium text-foreground tabular-nums">{fmt(c.amount)}</span>
+                  </div>
+                ))}
+                <div className="border-t border-border/40 pt-1.5 mt-1 flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground font-medium">Total monthly</span>
+                  <span className="font-semibold text-foreground tabular-nums">{fmt(erTotal + eeTotal)}</span>
+                </div>
+              </div>
+            </SectionCard>
+          </motion.div>
+        );
+      })()}
 
       {/* ── Actions ── */}
       <motion.div

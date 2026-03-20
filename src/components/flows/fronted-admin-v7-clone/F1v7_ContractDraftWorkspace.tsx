@@ -44,7 +44,21 @@ import { useGlobalContractAuditLog } from "@/hooks/useContractAuditLog";
 import { ContractRichTextEditor } from "@/components/contract-flow/ContractRichTextEditor";
 import { cn } from "@/lib/utils";
 
-type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance" | "ip-addendum" | "restrictive-covenants" | "equipment-addendum" | "health-safety" | "home-office" | "personnel-handbook";
+type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance" | "ip-addendum" | "restrictive-covenants" | "equipment-addendum" | "health-safety" | "home-office" | "personnel-handbook" | "health-insurance-addendum";
+
+// ─── Insurance data for contract flow (Kota API shape) ───
+interface KotaContributionLine { id: string; category: "gross_premium" | "tax" | "tax_relief"; member_type: string; amount: number; }
+interface KotaInsuranceData { provider: string; plan: string; currency: string; employer_contributions: KotaContributionLine[]; employee_contributions: KotaContributionLine[]; }
+const COUNTRY_INSURANCE_CONTRACT: Record<string, KotaInsuranceData> = {
+  Norway: { provider: "Allianz", plan: "Allianz Care Europe", currency: "NOK", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 3150 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 315 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 735 }] },
+  Sweden: { provider: "Allianz", plan: "Allianz Care Europe", currency: "SEK", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 2850 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 285 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 665 }] },
+  Denmark: { provider: "Allianz", plan: "Allianz Care Europe", currency: "DKK", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 2600 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 260 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 640 }] },
+  Spain: { provider: "Allianz", plan: "Allianz Care Europe", currency: "EUR", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 210 }, { id: "er2", category: "tax", member_type: "policyholder", amount: 21 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 49 }] },
+  Singapore: { provider: "AIA", plan: "AIA HealthShield Gold", currency: "SGD", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 338 }, { id: "er2", category: "tax_relief", member_type: "policyholder", amount: -45 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 112 }] },
+  Philippines: { provider: "AXA Philippines", plan: "AXA Health Max", currency: "PHP", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 9375 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 3125 }] },
+  India: { provider: "HDFC Ergo", plan: "HDFC Optima Secure", currency: "INR", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 6375 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 2125 }] },
+  Ireland: { provider: "Laya Healthcare", plan: "Laya Simply Health", currency: "EUR", employer_contributions: [{ id: "er1", category: "gross_premium", member_type: "policyholder", amount: 195 }], employee_contributions: [{ id: "ee1", category: "gross_premium", member_type: "policyholder", amount: 65 }] },
+};
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -218,6 +232,31 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType): S
         { heading: "4. Worker acknowledgment", text: `4.1 By signing below, ${hl(candidate.name)} confirms:\n\n(a) Receipt of the Personnel Handbook\n(b) Understanding of the policies and procedures contained therein\n(c) Agreement to comply with all Company policies as a condition of employment` },
         { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
       ];
+    case "health-insurance-addendum": {
+      const ins = COUNTRY_INSURANCE_CONTRACT[candidate.country];
+      const providerName = ins?.provider || "the designated insurer";
+      const planName = ins?.plan || "Group Health Insurance";
+      const erLines = ins?.employer_contributions || [];
+      const eeLines = ins?.employee_contributions || [];
+      const erTotal = erLines.reduce((s, c) => s + c.amount, 0);
+      const eeTotal = eeLines.reduce((s, c) => s + c.amount, 0);
+      const cur = ins?.currency || "EUR";
+      const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax Relief" };
+      const contributionLines = [
+        ...erLines.map(c => `- Employer ${CAT_LABEL[c.category] || c.category}: ${hl(`${cur} ${c.amount.toLocaleString()}`)}`),
+        ...eeLines.map(c => `- Employee ${CAT_LABEL[c.category] || c.category}: ${hl(`${cur} ${c.amount.toLocaleString()}`)}`),
+      ].join("\n");
+      return [
+        { heading: "Health Insurance Addendum", text: "" },
+        { heading: "", text: `This Health Insurance Addendum ("Addendum") supplements the Agreement between Fronted Sweden AB (NewCo 8634 Sweden AB), reg. no. 559548-9914 ("Company") and ${hl(candidate.name)} ("Worker") and sets out the terms of the group health insurance benefit provided through ${hl(providerName)}.` },
+        { heading: "1. Insurance provider and plan", text: `1.1 The Company has arranged group health insurance coverage for the Worker through ${hl(providerName)} under the ${hl(planName)} plan.\n\n1.2 Coverage is subject to the insurer's terms, conditions, and underwriting requirements. The Company does not guarantee coverage for pre-existing conditions or specific treatments.\n\n1.3 The insurance arrangement is administered via Kota, acting as the benefits platform for policy management and enrolment.` },
+        { heading: "2. Contribution schedule", text: `2.1 Monthly contributions are split between the Employer and the Employee as follows:\n\n${contributionLines}\n\n2.2 Total monthly cost: ${hl(`${cur} ${(erTotal + eeTotal).toLocaleString()}`)}\n\n2.3 Employee contributions will be deducted from gross salary each pay period. The Employer's share is paid directly to the insurer.\n\n2.4 Contribution amounts are determined by the insurer and may be adjusted at policy renewal. The Company will notify the Worker of any changes with at least 30 days' notice.` },
+        { heading: "3. Coverage and eligibility", text: `3.1 Coverage begins on the Worker's start date as specified in the Employment Agreement, subject to any waiting period imposed by the insurer.\n\n3.2 The Worker may be eligible to add dependants (partner, children) to the policy at additional cost, subject to the insurer's terms.\n\n3.3 Coverage terminates upon the end of the employment relationship, subject to any statutory continuation rights in ${hl(candidate.country)}.` },
+        { heading: "4. Worker obligations", text: `4.1 The Worker agrees to:\n\n(a) Provide accurate health and personal information as required by the insurer\n(b) Notify the Company of any changes in dependant status\n(c) Comply with the insurer's claims procedures\n(d) Not misrepresent or withhold information material to the insurance coverage` },
+        { heading: "5. Amendments and termination", text: "5.1 The Company reserves the right to change the insurance provider, plan, or contribution structure with reasonable notice, provided equivalent or better coverage is maintained.\n\n5.2 This Addendum may be terminated by either party in accordance with the termination provisions of the main Agreement." },
+        { heading: "Signatures", text: `THE PARTIES HERETO AGREE TO THE FOREGOING.\n\n___________________          ___________________\nMa Angelo Bartolome          ${hl(candidate.name)}\nCOO, Fronted AS              Worker` }
+      ];
+    }
   }
 };
 
@@ -278,6 +317,7 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
         { id: "nda" as DocumentType, label: "Non-Disclosure Agreement", icon: Handshake, shortLabel: "NDA" },
         { id: "data-privacy" as DocumentType, label: `Data Privacy (${candidate.countryCode})`, icon: ScrollText, shortLabel: "Privacy" },
         { id: "home-office" as DocumentType, label: "Home Office Policy", icon: Home, shortLabel: "Home Office" },
+        ...(COUNTRY_INSURANCE_CONTRACT[candidate.country] ? [{ id: "health-insurance-addendum" as DocumentType, label: "Health Insurance Addendum", icon: HeartPulse, shortLabel: "Insurance" }] : []),
       ];
     }
     return [
@@ -286,8 +326,9 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
       { id: "data-privacy" as DocumentType, label: `Data Privacy (${candidate.countryCode})`, icon: ScrollText, shortLabel: "Privacy" },
       { id: "ip-addendum" as DocumentType, label: "IP Assignment & Carve-outs", icon: Cpu, shortLabel: "IP" },
       { id: "restrictive-covenants" as DocumentType, label: "Restrictive Covenants", icon: Scale, shortLabel: "Covenants" },
+      ...(COUNTRY_INSURANCE_CONTRACT[candidate.country] ? [{ id: "health-insurance-addendum" as DocumentType, label: "Health Insurance Addendum", icon: HeartPulse, shortLabel: "Insurance" }] : []),
     ];
-  }, [employmentType, candidate.countryCode]);
+  }, [employmentType, candidate.countryCode, candidate.country]);
 
   // Active document & page state
   const [activeDocument, setActiveDocument] = useState<DocumentType>(() => {
@@ -607,6 +648,26 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   <ReviewRow icon={Calendar} label="PTO" value={candidate.pto} />
                 </div>
               </div>
+              {/* Insurance Details */}
+              {(() => {
+                const ins = COUNTRY_INSURANCE_CONTRACT[candidate.country];
+                if (!ins) return null;
+                const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax relief" };
+                const fmt = (amt: number) => `${ins.currency} ${amt.toLocaleString()}`;
+                const total = ins.employer_contributions.reduce((s, c) => s + c.amount, 0) + ins.employee_contributions.reduce((s, c) => s + c.amount, 0);
+                return (
+                  <div className="px-4 py-3 border-t border-white/20">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Insurance Details</p>
+                    <div className="space-y-1.5">
+                      <ReviewRow icon={HeartPulse} label="Provider" value={ins.provider} />
+                      <ReviewRow icon={Shield} label="Plan" value={ins.plan} />
+                      {ins.employer_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`ER ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
+                      {ins.employee_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`EE ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
+                      <ReviewRow icon={Banknote} label="Total" value={fmt(total)} />
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </CollapsibleContent>
         </Collapsible>
@@ -680,6 +741,32 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   </div>
                 </CollapsibleContent>
               </Collapsible>
+
+              {/* Insurance Details */}
+              {(() => {
+                const ins = COUNTRY_INSURANCE_CONTRACT[candidate.country];
+                if (!ins) return null;
+                const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax relief" };
+                const fmt = (amt: number) => `${ins.currency} ${amt.toLocaleString()}`;
+                const total = ins.employer_contributions.reduce((s, c) => s + c.amount, 0) + ins.employee_contributions.reduce((s, c) => s + c.amount, 0);
+                return (
+                  <Collapsible defaultOpen={false}>
+                    <CollapsibleTrigger className="w-full px-5 py-3 border-t border-white/20 flex items-center justify-between cursor-pointer hover:bg-white/20 transition-colors group">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Insurance Details</p>
+                      <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="px-5 py-3 space-y-1.5">
+                        <ReviewRow icon={HeartPulse} label="Provider" value={ins.provider} />
+                        <ReviewRow icon={Shield} label="Plan" value={ins.plan} />
+                        {ins.employer_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`ER ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
+                        {ins.employee_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`EE ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
+                        <ReviewRow icon={Banknote} label="Total" value={fmt(total)} />
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              })()}
             </div>
           </Card>
           <div ref={auditLogSlotRef} className="flex-1 min-h-0 overflow-hidden">
