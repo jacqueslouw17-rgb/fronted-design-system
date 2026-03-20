@@ -46,6 +46,7 @@ import F42v4_ProfileSettings from "./pages/flows/F42v4_ProfileSettings";
 import F41v6_ProfileSettings from "./pages/flows/F41v6_ProfileSettings";
 import F42v6_ProfileSettings from "./pages/flows/F42v6_ProfileSettings";
 import F41v7_ProfileSettings from "./pages/flows/F41v7_ProfileSettings";
+import F41v8_ProfileSettings from "./pages/flows/F41v8_ProfileSettings";
 import F42v7_ProfileSettings from "./pages/flows/F42v7_ProfileSettings";
 import EmployeePayroll from "./pages/flows/EmployeePayroll";
 import ContractorPayroll from "./pages/flows/ContractorPayroll";
