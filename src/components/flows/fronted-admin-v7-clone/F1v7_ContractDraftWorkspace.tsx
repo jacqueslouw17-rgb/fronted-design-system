@@ -741,6 +741,32 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                   </div>
                 </CollapsibleContent>
               </Collapsible>
+
+              {/* Insurance Details */}
+              {(() => {
+                const ins = COUNTRY_INSURANCE_CONTRACT[candidate.country];
+                if (!ins) return null;
+                const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax relief" };
+                const fmt = (amt: number) => `${ins.currency} ${amt.toLocaleString()}`;
+                const total = ins.employer_contributions.reduce((s, c) => s + c.amount, 0) + ins.employee_contributions.reduce((s, c) => s + c.amount, 0);
+                return (
+                  <Collapsible defaultOpen={false}>
+                    <CollapsibleTrigger className="w-full px-5 py-3 border-t border-white/20 flex items-center justify-between cursor-pointer hover:bg-white/20 transition-colors group">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Insurance Details</p>
+                      <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="px-5 py-3 space-y-1.5">
+                        <ReviewRow icon={HeartPulse} label="Provider" value={ins.provider} />
+                        <ReviewRow icon={Shield} label="Plan" value={ins.plan} />
+                        {ins.employer_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`ER ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
+                        {ins.employee_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`EE ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
+                        <ReviewRow icon={Banknote} label="Total" value={fmt(total)} />
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              })()}
             </div>
           </Card>
           <div ref={auditLogSlotRef} className="flex-1 min-h-0 overflow-hidden">
