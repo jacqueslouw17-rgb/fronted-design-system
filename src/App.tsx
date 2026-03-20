@@ -46,6 +46,7 @@ import F42v4_ProfileSettings from "./pages/flows/F42v4_ProfileSettings";
 import F41v6_ProfileSettings from "./pages/flows/F41v6_ProfileSettings";
 import F42v6_ProfileSettings from "./pages/flows/F42v6_ProfileSettings";
 import F41v7_ProfileSettings from "./pages/flows/F41v7_ProfileSettings";
+import F41v8_ProfileSettings from "./pages/flows/F41v8_ProfileSettings";
 import F42v7_ProfileSettings from "./pages/flows/F42v7_ProfileSettings";
 import EmployeePayroll from "./pages/flows/EmployeePayroll";
 import ContractorPayroll from "./pages/flows/ContractorPayroll";
@@ -186,6 +187,7 @@ const App = () => (
         <Route path="/flows/employee-profile-settings-v6" element={<F41v6_ProfileSettings />} />
         <Route path="/flows/contractor-profile-settings-v6" element={<F42v6_ProfileSettings />} />
         <Route path="/flows/employee-profile-settings-v7" element={<F41v7_ProfileSettings />} />
+        <Route path="/flows/employee-profile-settings-v8" element={<F41v8_ProfileSettings />} />
         <Route path="/flows/contractor-profile-settings-v7" element={<F42v7_ProfileSettings />} />
         <Route path="/flows/employee-payroll" element={<EmployeePayroll />} />
         <Route path="/flows/contractor-payroll" element={<ContractorPayroll />} />
