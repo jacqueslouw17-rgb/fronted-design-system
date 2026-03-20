@@ -759,6 +759,18 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                   />
                 </div>
 
+                {/* Terms sub-section */}
+                <div className="border-t border-border/40 pt-3 mt-2">
+                  <p className="text-[11px] text-muted-foreground mb-2">Contract terms</p>
+                  <div className="space-y-0.5">
+                    <DetailRow label="Probation period" value="180 days" />
+                    <DetailRow label="Notice period" value="30 days" />
+                    <DetailRow label="Annual leave" value={isPhilippines ? "5 days" : "25 days"} />
+                    <DetailRow label="Sick leave" value={isPhilippines ? "5 days" : "365 days"} />
+                    <DetailRow label="Weekly hours" value={isPhilippines ? "48 hrs" : "37.5 hrs"} />
+                  </div>
+                </div>
+
                 {/* Insurance & Benefits (Kota) */}
                 {(() => {
                   const ins = COUNTRY_INSURANCE_DONE[worker.country];
@@ -785,18 +797,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     </div>
                   );
                 })()}
-
-                {/* Terms sub-section */}
-                <div className="border-t border-border/40 pt-3 mt-2">
-                  <p className="text-[11px] text-muted-foreground mb-2">Contract terms</p>
-                  <div className="space-y-0.5">
-                    <DetailRow label="Probation period" value="180 days" />
-                    <DetailRow label="Notice period" value="30 days" />
-                    <DetailRow label="Annual leave" value={isPhilippines ? "5 days" : "25 days"} />
-                    <DetailRow label="Sick leave" value={isPhilippines ? "5 days" : "365 days"} />
-                    <DetailRow label="Weekly hours" value={isPhilippines ? "48 hrs" : "37.5 hrs"} />
-                  </div>
-                </div>
               </SectionCard>
 
               {/* 3) Payroll Parameters */}
