@@ -658,12 +658,12 @@ export const F1v5_ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> 
                 return (
                   <div className="px-4 py-3 border-t border-white/20">
                     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Insurance Details</p>
-                    <div className="space-y-1.5">
-                      <ReviewRow icon={HeartPulse} label="Provider" value={ins.provider} />
-                      <ReviewRow icon={Shield} label="Plan" value={ins.plan} />
-                      {ins.employer_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`ER ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
-                      {ins.employee_contributions.map(c => <ReviewRow key={c.id} icon={Banknote} label={`EE ${CAT_LABEL[c.category]}`} value={fmt(c.amount)} />)}
-                      <ReviewRow icon={Banknote} label="Total" value={fmt(total)} />
+                    <div className="space-y-0.5">
+                      <div className="flex items-center justify-between py-1 text-xs"><span className="text-muted-foreground">Provider</span><span className="font-medium text-foreground">{ins.provider}</span></div>
+                      <div className="flex items-center justify-between py-1 text-xs"><span className="text-muted-foreground">Plan</span><span className="font-medium text-foreground">{ins.plan}</span></div>
+                      {ins.employer_contributions.map(c => <div key={c.id} className="flex items-center justify-between py-1 text-xs"><span className="text-muted-foreground">ER {CAT_LABEL[c.category]}</span><span className="font-medium text-foreground tabular-nums">{fmt(c.amount)}</span></div>)}
+                      {ins.employee_contributions.map(c => <div key={c.id} className="flex items-center justify-between py-1 text-xs"><span className="text-muted-foreground">EE {CAT_LABEL[c.category]}</span><span className="font-medium text-foreground tabular-nums">{fmt(c.amount)}</span></div>)}
+                      <div className="flex items-center justify-between py-1 text-xs border-t border-border/40 mt-1 pt-1.5"><span className="text-muted-foreground font-medium">Total monthly</span><span className="font-semibold text-foreground tabular-nums">{fmt(total)}</span></div>
                     </div>
                   </div>
                 );
