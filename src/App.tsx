@@ -263,7 +263,9 @@ const App = () => (
         <Route path="/flows/server-error" element={<ServerError />} />
         <Route path="/flows/onboarding-link-gone" element={<OnboardingLinkGone />} />
         <Route path="/flows/payslip-preview" element={<PayslipPreviewPage />} />
+        <Route path="/flows/payslip-template" element={<PayslipPreviewPage />} />
         <Route path="/flows/invoice-preview" element={<InvoicePreviewPage />} />
+        <Route path="/flows/invoice-template" element={<InvoicePreviewPage />} />
         <Route path="*" element={<NotFound />} />
           </Routes>
         </RoleLensProvider>
