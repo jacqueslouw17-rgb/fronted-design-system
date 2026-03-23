@@ -257,8 +257,11 @@ const App = () => (
         <Route path="/payroll-batch" element={<PayrollBatch />} />
         <Route path="/payroll-batch-current" element={<PayrollBatchCurrent />} />
         <Route path="/candidate-data-collection" element={<CandidateDataCollection />} />
+        <Route path="/flows/candidate-data-collection" element={<CandidateDataCollection />} />
         <Route path="/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
+        <Route path="/flows/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
         <Route path="/candidate-data-collection-v3" element={<CandidateDataCollectionV3 />} />
+        <Route path="/flows/candidate-data-collection-v3" element={<CandidateDataCollectionV3 />} />
         <Route path="/secure-link-error" element={<SecureLinkError />} />
         <Route path="/flows/secure-link-error" element={<SecureLinkError />} />
         <Route path="/server-error" element={<ServerError />} />
