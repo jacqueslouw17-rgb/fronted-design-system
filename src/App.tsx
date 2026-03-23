@@ -259,12 +259,19 @@ const App = () => (
         <Route path="/candidate-data-collection" element={<CandidateDataCollection />} />
         <Route path="/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
         <Route path="/candidate-data-collection-v3" element={<CandidateDataCollectionV3 />} />
+        <Route path="/secure-link-error" element={<SecureLinkError />} />
         <Route path="/flows/secure-link-error" element={<SecureLinkError />} />
+        <Route path="/server-error" element={<ServerError />} />
         <Route path="/flows/server-error" element={<ServerError />} />
+        <Route path="/onboarding-link-gone" element={<OnboardingLinkGone />} />
         <Route path="/flows/onboarding-link-gone" element={<OnboardingLinkGone />} />
+        <Route path="/payslip-preview" element={<PayslipPreviewPage />} />
         <Route path="/flows/payslip-preview" element={<PayslipPreviewPage />} />
+        <Route path="/payslip-template" element={<PayslipPreviewPage />} />
         <Route path="/flows/payslip-template" element={<PayslipPreviewPage />} />
+        <Route path="/invoice-preview" element={<InvoicePreviewPage />} />
         <Route path="/flows/invoice-preview" element={<InvoicePreviewPage />} />
+        <Route path="/invoice-template" element={<InvoicePreviewPage />} />
         <Route path="/flows/invoice-template" element={<InvoicePreviewPage />} />
         <Route path="*" element={<NotFound />} />
           </Routes>
