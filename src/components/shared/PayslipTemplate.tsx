@@ -259,16 +259,6 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
         />
       )}
 
-      {/* ── Employer Costs ── */}
-      {data.employerCosts && data.employerCosts.length > 0 && (
-        <LineItemsTable
-          title="Employer Costs"
-          items={data.employerCosts}
-          currency={sym}
-          total={data.totalEmployerCosts || 0}
-          totalLabel="Total Employer Costs"
-        />
-      )}
 
       {/* ── Year to Date ── */}
       {data.ytd && data.ytd.length > 0 && (
