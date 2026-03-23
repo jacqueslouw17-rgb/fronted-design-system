@@ -217,7 +217,7 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
     { label: "Payment Date", value: data.period.paymentDate, bold: true },
     { label: "Bank Account", value: data.employee.bankAccount },
     { label: "Currency", value: data.currency },
-    ...(data.totalEmployerCosts ? [{ label: "Employer Costs", value: fmt(data.totalEmployerCosts, sym) }] : []),
+    
   ];
 
   return (
@@ -259,16 +259,6 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
         />
       )}
 
-      {/* ── Employer Costs ── */}
-      {data.employerCosts && data.employerCosts.length > 0 && (
-        <LineItemsTable
-          title="Employer Costs"
-          items={data.employerCosts}
-          currency={sym}
-          total={data.totalEmployerCosts || 0}
-          totalLabel="Total Employer Costs"
-        />
-      )}
 
       {/* ── Year to Date ── */}
       {data.ytd && data.ytd.length > 0 && (
