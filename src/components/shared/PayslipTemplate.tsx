@@ -217,7 +217,7 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
     { label: "Payment Date", value: data.period.paymentDate, bold: true },
     { label: "Bank Account", value: data.employee.bankAccount },
     { label: "Currency", value: data.currency },
-    ...(data.totalEmployerCosts ? [{ label: "Employer Costs", value: fmt(data.totalEmployerCosts, sym) }] : []),
+    
   ];
 
   return (
