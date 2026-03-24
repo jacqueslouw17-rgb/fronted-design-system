@@ -22,6 +22,7 @@ import {
   F41v8_AdjustmentsSection,
   F41v8_AdjustmentModal
 } from "@/components/flows/employee-dashboard-v8";
+import { F41v9_SmartExpensePanel } from "@/components/flows/employee-dashboard-v8/F41v9_SmartExpensePanel";
 
 interface PayslipData {
   id: string;
@@ -109,6 +110,7 @@ const F41v8_EmployeeDashboardPage = () => {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [selectedPayslip, setSelectedPayslip] = useState<PayslipData>(payslipsData[0]);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
+  const [smartExpenseOpen, setSmartExpenseOpen] = useState(false);
   const [adjustmentPrefill, setAdjustmentPrefill] = useState<{
     type?: string;
     category?: string;
@@ -166,6 +168,11 @@ const F41v8_EmployeeDashboardPage = () => {
     endTime?: string,
     days?: number
   ) => {
+    // v9: Expense reimbursements use the smart upload panel
+    if (type === 'expense') {
+      setSmartExpenseOpen(true);
+      return;
+    }
     setAdjustmentPrefill({ type, category, amount, rejectedId, hours, date, startTime, endTime, days });
     setAdjustmentModalOpen(true);
   };
@@ -241,7 +248,7 @@ const F41v8_EmployeeDashboardPage = () => {
             netPay={selectedPayslip.netPay}
           />
 
-          {/* Adjustment Modal */}
+          {/* Adjustment Modal (non-expense types) */}
           <F41v8_AdjustmentModal
             open={adjustmentModalOpen}
             onOpenChange={setAdjustmentModalOpen}
@@ -255,6 +262,18 @@ const F41v8_EmployeeDashboardPage = () => {
             initialDate={adjustmentPrefill.date}
             initialStartTime={adjustmentPrefill.startTime}
             initialEndTime={adjustmentPrefill.endTime}
+            onExpenseSelected={() => {
+              setAdjustmentModalOpen(false);
+              setTimeout(() => setSmartExpenseOpen(true), 150);
+            }}
+          />
+
+          {/* v9 Smart Expense Panel */}
+          <F41v9_SmartExpensePanel
+            open={smartExpenseOpen}
+            onOpenChange={setSmartExpenseOpen}
+            localCurrency="NOK"
+            onBack={() => setAdjustmentModalOpen(true)}
           />
         </div>
       </TooltipProvider>

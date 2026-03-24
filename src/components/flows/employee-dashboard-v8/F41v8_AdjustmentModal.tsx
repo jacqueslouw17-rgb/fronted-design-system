@@ -44,12 +44,14 @@ interface F41v8_AdjustmentModalProps {
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
   initialHours?: number;
-  initialDays?: number; // For unpaid leave
+  initialDays?: number;
   initialDate?: string;
   initialStartTime?: string;
   initialEndTime?: string;
   rejectedId?: string;
   onBack?: () => void;
+  /** v9 override: intercept expense tile click to open smart panel instead */
+  onExpenseSelected?: () => void;
 }
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
@@ -108,7 +110,7 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v8_AdjustmentModalProps) => {
+export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack, onExpenseSelected }: F41v8_AdjustmentModalProps) => {
   const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v8_DashboardStore();
 
   const rejectedAdjustment = rejectedId
@@ -655,7 +657,14 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
               {requestTypeOptions.map((option) => (
                 <button
                   key={option.id}
-                  onClick={() => !option.disabled && setSelectedType(option.id)}
+                  onClick={() => {
+                    if (option.disabled) return;
+                    if (option.id === 'expense' && onExpenseSelected) {
+                      onExpenseSelected();
+                      return;
+                    }
+                    setSelectedType(option.id);
+                  }}
                   disabled={option.disabled}
                   className={cn(
                     "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
