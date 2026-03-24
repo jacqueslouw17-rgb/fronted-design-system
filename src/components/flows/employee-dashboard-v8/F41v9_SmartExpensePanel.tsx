@@ -266,22 +266,27 @@ export const F41v9_SmartExpensePanel = ({ open, onOpenChange, localCurrency, onB
             onDragLeave={handleDragLeave}
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              "relative flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed cursor-pointer transition-all duration-150",
+              "relative flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed cursor-pointer transition-all duration-200",
               hasReceipts ? "py-3 px-4" : "py-8 px-4",
               isDragOver
-                ? "border-primary/60 bg-primary/[0.06]"
-                : "border-border/40 hover:border-border/70 hover:bg-muted/40"
+                ? "border-[hsl(172,40%,45%)] bg-[hsl(172,40%,45%)]/[0.08]"
+                : "border-border/60 hover:border-[hsl(172,40%,45%)]/60 hover:bg-[hsl(172,40%,45%)]/[0.05]"
             )}
           >
             <Upload className={cn(
-              "text-muted-foreground/40",
-              hasReceipts ? "h-3.5 w-3.5" : "h-5 w-5"
+              isDragOver ? "text-[hsl(172,40%,45%)]" : "text-muted-foreground/60",
+              hasReceipts ? "h-3.5 w-3.5" : "h-5 w-5",
+              "transition-colors"
             )} />
-            <p className={cn("text-muted-foreground/60", hasReceipts ? "text-[11px]" : "text-xs")}>
+            <p className={cn(
+              isDragOver ? "text-[hsl(172,40%,45%)]" : "text-muted-foreground",
+              hasReceipts ? "text-[11px]" : "text-xs",
+              "transition-colors"
+            )}>
               {hasReceipts ? 'Upload more receipts' : 'Drop receipts or click to browse'}
             </p>
             {!hasReceipts && (
-              <p className="text-[10px] text-muted-foreground/40">JPG, PNG, PDF · max 5 MB each</p>
+              <p className="text-[10px] text-muted-foreground/50">JPG, PNG, PDF · max 5 MB each</p>
             )}
             <input ref={fileInputRef} type="file" accept={FILE_UPLOAD_ACCEPT} multiple className="hidden" onChange={handleFileInput} />
           </div>
