@@ -163,6 +163,8 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
   const [otherAmount, setOtherAmount] = useState("");
   const [otherTaxTiming, setOtherTaxTiming] = useState<TaxTiming>("before_tax");
   const [otherIsTaxable, setOtherIsTaxable] = useState(true);
+  const [otherTaxabilityMode, setOtherTaxabilityMode] = useState<TaxabilityMode>("taxable");
+  const [otherExemptAmount, setOtherExemptAmount] = useState("");
   const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
 
   const requestTypeOptions: RequestOption[] = useMemo(() => {
