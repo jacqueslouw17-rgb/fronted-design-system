@@ -1,9 +1,8 @@
 /**
- * PayslipTemplate - Universal EOR payslip template
+ * PayslipTemplate - Universal EOR payslip template (v1 scope)
  * 
- * Based on UK, NL, and DK payslip standards. Fronted-branded letterhead
- * with country-adaptive sections: employer entity, employee details,
- * earnings, deductions, year-to-date, holiday/leave, and payment info.
+ * Simplified for v1: No employee number, department, YTD, holiday/leave,
+ * tax codes, NI numbers, or employer costs. Just earnings, deductions, net pay.
  */
 
 import React from "react";
@@ -14,23 +13,17 @@ import frontedLogo from "@/assets/fronted-logo.png";
 
 export interface PayslipEmployer {
   entityName: string;
-  registrationId: string;
-  registrationLabel: string;
+  registrationId?: string;
+  registrationLabel?: string;
   address: string;
   country: string;
 }
 
 export interface PayslipEmployee {
   name: string;
-  employeeNo: string;
-  department: string;
   jobTitle: string;
   startDate: string;
-  contractType: string;
-  hoursPerWeek: number;
   bankAccount: string;
-  taxCode?: string;
-  nationalInsuranceNo?: string;
   address?: string;
 }
 
@@ -39,19 +32,6 @@ export interface PayslipLineItem {
   amount: number;
   rate?: string;
   basis?: number;
-}
-
-export interface PayslipYTD {
-  label: string;
-  amount: number;
-}
-
-export interface PayslipHoliday {
-  label: string;
-  earned: number;
-  taken: number;
-  balance: number;
-  unit: string;
 }
 
 export interface PayslipData {
@@ -67,13 +47,9 @@ export interface PayslipData {
   currencySymbol: string;
   earnings: PayslipLineItem[];
   deductions: PayslipLineItem[];
-  employerCosts?: PayslipLineItem[];
-  ytd?: PayslipYTD[];
-  holidays?: PayslipHoliday[];
   grossPay: number;
   totalDeductions: number;
   netPay: number;
-  totalEmployerCosts?: number;
   referenceNo: string;
   generatedDate: string;
   confidential?: boolean;
@@ -86,7 +62,7 @@ const fmt = (amount: number, symbol: string) =>
 
 // ─── Sub-components ──────────────────────────────────────────────────
 
-/** Top letterhead: logo left, entity right — mirrors real payslips */
+/** Top letterhead: logo left, entity right */
 const Letterhead: React.FC<{ employer: PayslipEmployer; periodLabel: string }> = ({ employer, periodLabel }) => (
   <div className="flex items-start justify-between pb-4">
     <div className="space-y-1">
@@ -99,9 +75,11 @@ const Letterhead: React.FC<{ employer: PayslipEmployer; periodLabel: string }> =
     <div className="text-right space-y-0.5">
       <p className="text-sm font-semibold text-foreground">{employer.entityName}</p>
       <p className="text-[11px] text-muted-foreground">{employer.address}</p>
-      <p className="text-[11px] text-muted-foreground">
-        {employer.registrationLabel}: <span className="font-medium text-foreground">{employer.registrationId}</span>
-      </p>
+      {employer.registrationLabel && employer.registrationId && (
+        <p className="text-[11px] text-muted-foreground">
+          {employer.registrationLabel}: <span className="font-medium text-foreground">{employer.registrationId}</span>
+        </p>
+      )}
     </div>
   </div>
 );
@@ -202,14 +180,8 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
 
   const employeeDetails = [
     { label: "Name", value: data.employee.name, bold: true },
-    { label: "Employee No.", value: data.employee.employeeNo },
     { label: "Job Title", value: data.employee.jobTitle },
-    { label: "Department", value: data.employee.department },
-    { label: "Date of Employment", value: data.employee.startDate },
-    { label: "Contract Type", value: data.employee.contractType },
-    { label: "Hours / Week", value: String(data.employee.hoursPerWeek) },
-    ...(data.employee.taxCode ? [{ label: "Tax Code", value: data.employee.taxCode }] : []),
-    ...(data.employee.nationalInsuranceNo ? [{ label: "NI Number", value: data.employee.nationalInsuranceNo }] : []),
+    { label: "Start Date", value: data.employee.startDate },
   ];
 
   const paymentDetails = [
@@ -217,7 +189,6 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
     { label: "Payment Date", value: data.period.paymentDate, bold: true },
     { label: "Bank Account", value: data.employee.bankAccount },
     { label: "Currency", value: data.currency },
-    
   ];
 
   return (
@@ -257,49 +228,6 @@ export const PayslipTemplate: React.FC<{ data: PayslipData }> = ({ data }) => {
           totalLabel="Total Deductions"
           isDeduction
         />
-      )}
-
-
-      {/* ── Year to Date ── */}
-      {data.ytd && data.ytd.length > 0 && (
-        <div className="space-y-1.5">
-          <h4 className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Year to Date</h4>
-          <div className="rounded-lg border border-border/50 overflow-hidden">
-            <div className="grid grid-cols-[1fr_90px] px-3 py-1.5 bg-muted/40 text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
-              <span>Description</span>
-              <span className="text-right">Cumulative</span>
-            </div>
-            {data.ytd.map((item, idx) => (
-              <div key={idx} className="grid grid-cols-[1fr_90px] px-3 py-2 border-t border-border/30">
-                <span className="text-[11px] text-muted-foreground">{item.label}</span>
-                <span className="text-[11px] text-right font-medium tabular-nums">{fmt(item.amount, sym)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Holiday / Leave Balances ── */}
-      {data.holidays && data.holidays.length > 0 && (
-        <div className="space-y-1.5">
-          <h4 className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Holiday & Leave Balances</h4>
-          <div className="rounded-lg border border-border/50 overflow-hidden">
-            <div className="grid grid-cols-4 gap-2 px-3 py-1.5 bg-muted/40 text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
-              <span>Type</span>
-              <span className="text-right">Earned</span>
-              <span className="text-right">Taken</span>
-              <span className="text-right">Balance</span>
-            </div>
-            {data.holidays.map((h, idx) => (
-              <div key={idx} className="grid grid-cols-4 gap-2 px-3 py-2 border-t border-border/30">
-                <span className="text-[11px] text-muted-foreground">{h.label}</span>
-                <span className="text-[11px] text-right tabular-nums">{h.earned} {h.unit}</span>
-                <span className="text-[11px] text-right tabular-nums">{h.taken} {h.unit}</span>
-                <span className="text-[11px] text-right font-medium tabular-nums">{h.balance} {h.unit}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       )}
 
       {/* ── Net Pay highlight ── */}
