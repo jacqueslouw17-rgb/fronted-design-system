@@ -470,13 +470,31 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       return;
     }
 
-    // PH rule: after-tax deductions that are taxable make no sense — guard it
-    if (otherTaxTiming === "after_tax" && otherIsTaxable) {
-      toast.error("After-tax adjustments cannot be taxable. Toggle off 'Taxable' or switch to 'Before tax'.");
+    // PH rule: after-tax items cannot be taxable or partially taxable
+    if (otherTaxTiming === "after_tax" && otherTaxabilityMode !== "non_taxable") {
+      toast.error("After-tax adjustments must be non-taxable. Change taxability or switch to 'Before tax'.");
       return;
     }
 
-    const taxLabel = otherIsTaxable ? "Taxable" : "Non-taxable";
+    // Partially taxable: validate exempt amount
+    let exemptAmt: number | undefined;
+    if (otherTaxabilityMode === "partially_taxable") {
+      exemptAmt = parseFloat(otherExemptAmount);
+      if (Number.isNaN(exemptAmt) || exemptAmt <= 0) {
+        toast.error("Please enter a valid tax-exempt threshold");
+        return;
+      }
+      if (exemptAmt >= amt) {
+        toast.error("Exempt threshold must be less than total amount. Use 'Non-taxable' instead.");
+        return;
+      }
+    }
+
+    const taxLabel = otherTaxabilityMode === "taxable" 
+      ? "Taxable" 
+      : otherTaxabilityMode === "non_taxable" 
+        ? "Non-taxable" 
+        : `Partially taxable (₱${exemptAmt!.toLocaleString()} exempt)`;
     const timingLabel = otherTaxTiming === "before_tax" ? "Before tax" : "After tax";
 
     onAddAdjustment({
@@ -488,7 +506,9 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       addedAt: new Date().toISOString(),
       direction,
       taxTiming: otherTaxTiming,
-      isTaxable: otherIsTaxable,
+      isTaxable: otherTaxabilityMode !== "non_taxable",
+      taxabilityMode: otherTaxabilityMode,
+      exemptAmount: exemptAmt,
     });
 
     toast.success(`Added adjustment for ${workerName}`);
