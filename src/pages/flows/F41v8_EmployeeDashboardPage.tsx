@@ -264,7 +264,7 @@ const F41v8_EmployeeDashboardPage = () => {
             initialEndTime={adjustmentPrefill.endTime}
             onExpenseSelected={() => {
               setAdjustmentModalOpen(false);
-              setTimeout(() => setSmartExpenseOpen(true), 150);
+              setSmartExpenseOpen(true);
             }}
           />
 
