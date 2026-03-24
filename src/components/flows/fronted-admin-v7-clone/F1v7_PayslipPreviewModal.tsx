@@ -131,14 +131,9 @@ function buildPayslipData(worker: WorkerData): PayslipData {
     employer: { ...entity, country: worker.country },
     employee: {
       name: worker.name,
-      employeeNo: `FRN-${worker.id.padStart(4, "0")}`,
-      department: "Engineering",
       jobTitle: "Senior Specialist",
       startDate: "01 Jan 2026",
-      contractType: isEmployee ? "Permanent" : "Contractor Agreement",
-      hoursPerWeek: 40,
       bankAccount: "****4521",
-      ...(worker.country === "United Kingdom" ? { taxCode: "0T", nationalInsuranceNo: "****" } : {}),
     },
     period: {
       label: "January 2026",
