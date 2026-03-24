@@ -443,6 +443,51 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     handleClose();
   };
 
+  const submitOther = () => {
+    const desc = otherDescription.trim();
+    if (!desc) {
+      toast.error("Please enter a description");
+      return;
+    }
+    if (desc.length < 3) {
+      toast.error("Description must be at least 3 characters");
+      return;
+    }
+    const amt = parseFloat(otherAmount);
+    if (Number.isNaN(amt) || amt <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    if (amt > 1_000_000) {
+      toast.error("Amount exceeds maximum limit (₱1,000,000)");
+      return;
+    }
+
+    // PH rule: after-tax deductions that are taxable make no sense — guard it
+    if (otherTaxTiming === "after_tax" && otherIsTaxable) {
+      toast.error("After-tax adjustments cannot be taxable. Toggle off 'Taxable' or switch to 'Before tax'.");
+      return;
+    }
+
+    const taxLabel = otherIsTaxable ? "Taxable" : "Non-taxable";
+    const timingLabel = otherTaxTiming === "before_tax" ? "Before tax" : "After tax";
+
+    onAddAdjustment({
+      id: `admin-${Date.now()}`,
+      type: "other",
+      amount: amt,
+      description: `${desc} · ${timingLabel} · ${taxLabel}`,
+      currency,
+      addedAt: new Date().toISOString(),
+      direction,
+      taxTiming: otherTaxTiming,
+      isTaxable: otherIsTaxable,
+    });
+
+    toast.success(`Added adjustment for ${workerName}`);
+    handleClose();
+  };
+
   if (!isOpen) return null;
 
   const headerTitle =
