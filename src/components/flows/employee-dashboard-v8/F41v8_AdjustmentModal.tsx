@@ -44,12 +44,14 @@ interface F41v8_AdjustmentModalProps {
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
   initialHours?: number;
-  initialDays?: number; // For unpaid leave
+  initialDays?: number;
   initialDate?: string;
   initialStartTime?: string;
   initialEndTime?: string;
   rejectedId?: string;
   onBack?: () => void;
+  /** v9 override: intercept expense tile click to open smart panel instead */
+  onExpenseSelected?: () => void;
 }
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
