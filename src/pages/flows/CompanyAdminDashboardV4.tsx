@@ -64,14 +64,6 @@ const CompanyAdminDashboardV4Content: React.FC = () => {
         }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       >
-        {/* Topbar */}
-        <Topbar 
-          userName={`${userData.firstName} ${userData.lastName}`} 
-          isDrawerOpen={isDrawerOpen} 
-          onDrawerToggle={toggleDrawer}
-          profileSettingsUrl="/flow-6/profile-settings?returnUrl=/flows/company-admin-dashboard-v4"
-        />
-
         {/* Main Content Area */}
         <main className="flex-1 flex overflow-hidden">
           {/* Dashboard Drawer */}
@@ -97,6 +89,14 @@ const CompanyAdminDashboardV4Content: React.FC = () => {
             </div>
             
             <div className="relative z-10">
+              {/* Topbar - scrolls with content, not fixed */}
+              <Topbar 
+                userName={`${userData.firstName} ${userData.lastName}`} 
+                isDrawerOpen={isDrawerOpen} 
+                onDrawerToggle={toggleDrawer}
+                profileSettingsUrl="/flow-6/profile-settings?returnUrl=/flows/company-admin-dashboard-v4"
+              />
+
               <motion.div 
                 key="payroll-pipeline-agent"
                 initial={{ opacity: 0 }}
