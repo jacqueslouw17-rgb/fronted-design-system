@@ -262,6 +262,10 @@ const F41v8_EmployeeDashboardPage = () => {
             initialDate={adjustmentPrefill.date}
             initialStartTime={adjustmentPrefill.startTime}
             initialEndTime={adjustmentPrefill.endTime}
+            onExpenseSelected={() => {
+              setAdjustmentModalOpen(false);
+              setTimeout(() => setSmartExpenseOpen(true), 150);
+            }}
           />
 
           {/* v9 Smart Expense Panel */}
@@ -269,6 +273,7 @@ const F41v8_EmployeeDashboardPage = () => {
             open={smartExpenseOpen}
             onOpenChange={setSmartExpenseOpen}
             localCurrency="NOK"
+            onBack={() => setAdjustmentModalOpen(true)}
           />
         </div>
       </TooltipProvider>
