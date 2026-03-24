@@ -22,7 +22,6 @@ import {
   F41v8_AdjustmentsSection,
   F41v8_AdjustmentModal
 } from "@/components/flows/employee-dashboard-v8";
-import { F41v9_SmartExpensePanel } from "@/components/flows/employee-dashboard-v8/F41v9_SmartExpensePanel";
 
 interface PayslipData {
   id: string;
