@@ -38,6 +38,7 @@ import F42v5_ContractorDashboardPage from "./pages/flows/F42v5_ContractorDashboa
 import F41v6_EmployeeDashboardPage from "./pages/flows/F41v6_EmployeeDashboardPage";
 import F42v6_ContractorDashboardPage from "./pages/flows/F42v6_ContractorDashboardPage";
 import F41v7_EmployeeDashboardPage from "./pages/flows/F41v7_EmployeeDashboardPage";
+import F41v7n_EmployeeDashboardPage from "./pages/flows/F41v7n_EmployeeDashboardPage";
 import F41v8_EmployeeDashboardPage from "./pages/flows/F41v8_EmployeeDashboardPage";
 import F42v7_ContractorDashboardPage from "./pages/flows/F42v7_ContractorDashboardPage";
 import CandidateProfileSettingsV2 from "./pages/CandidateProfileSettingsV2";
@@ -176,6 +177,7 @@ const App = () => (
         <Route path="/candidate-dashboard-employee-v6" element={<F41v6_EmployeeDashboardPage />} />
         <Route path="/candidate-dashboard-contractor-v6" element={<F42v6_ContractorDashboardPage />} />
         <Route path="/candidate-dashboard-employee-v7" element={<F41v7_EmployeeDashboardPage />} />
+        <Route path="/candidate-dashboard-employee-v7-next" element={<F41v7n_EmployeeDashboardPage />} />
         <Route path="/candidate-dashboard-employee-v8" element={<F41v8_EmployeeDashboardPage />} />
         <Route path="/candidate-dashboard-contractor-v7" element={<F42v7_ContractorDashboardPage />} />
         <Route path="/candidate/profile-settings-v2" element={<CandidateProfileSettingsV2 />} />

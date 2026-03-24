@@ -569,6 +569,24 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 1,
       dataModel: null
     },
+    'flow-4.1-employee-dashboard-v7-next': {
+      path: "/candidate-dashboard-employee-v7-next",
+      iconColor: "amber",
+      icon: UserCheck,
+      title: "Flow 4.1 Employee Dashboard v8",
+      status: "next" as const,
+      deprecated: false,
+      description: "Isolated clone of v7: Employee-specific dashboard for next iteration. Independent components (F41v7n_ prefix) ensure changes do NOT affect v7.",
+      steps: "1 view",
+      patterns: "4 patterns",
+      badges: [
+        { label: "T-5 Confirmation", path: "/data-summary" },
+        { label: "Pay Breakdown", path: "/data-summary" },
+        { label: "Leave Management", path: "/data-summary" }
+      ],
+      additionalCount: 1,
+      dataModel: null
+    },
     'flow-4.1-employee-dashboard-v8': {
       path: "/candidate-dashboard-employee-v8",
       iconColor: "blue",
