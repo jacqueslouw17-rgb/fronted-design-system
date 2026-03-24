@@ -168,6 +168,11 @@ const F41v8_EmployeeDashboardPage = () => {
     endTime?: string,
     days?: number
   ) => {
+    // v9: Expense reimbursements use the smart upload panel
+    if (type === 'expense') {
+      setSmartExpenseOpen(true);
+      return;
+    }
     setAdjustmentPrefill({ type, category, amount, rejectedId, hours, date, startTime, endTime, days });
     setAdjustmentModalOpen(true);
   };
