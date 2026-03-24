@@ -263,6 +263,8 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     setOtherAmount("");
     setOtherTaxTiming("before_tax");
     setOtherIsTaxable(true);
+    setOtherTaxabilityMode("taxable");
+    setOtherExemptAmount("");
     setOtherAttachment([]);
   };
 
