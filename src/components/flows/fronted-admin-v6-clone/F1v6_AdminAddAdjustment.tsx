@@ -503,7 +503,9 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
             ? "Bonus"
             : selectedType === "commission"
               ? "Commission"
-              : "Leave adjustment";
+              : selectedType === "other"
+                ? "Other adjustment"
+                : "Leave adjustment";
 
   const directionSign = direction === "add" ? "+" : "−";
 
