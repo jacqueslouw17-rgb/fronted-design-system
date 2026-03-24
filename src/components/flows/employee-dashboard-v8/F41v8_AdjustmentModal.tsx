@@ -110,7 +110,7 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v8_AdjustmentModalProps) => {
+export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack, onExpenseSelected }: F41v8_AdjustmentModalProps) => {
   const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v8_DashboardStore();
 
   const rejectedAdjustment = rejectedId
