@@ -1256,9 +1256,31 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Tax treatment</span>
                   <span className="text-xs text-muted-foreground">
-                    {otherTaxTiming === "before_tax" ? "Before tax" : "After tax"} · {otherIsTaxable ? "Taxable" : "Non-taxable"}
+                    {otherTaxTiming === "before_tax" ? "Before tax" : "After tax"} · {
+                      otherTaxabilityMode === "taxable" ? "Taxable" 
+                      : otherTaxabilityMode === "non_taxable" ? "Non-taxable" 
+                      : "Partially taxable"
+                    }
                   </span>
                 </div>
+                {otherTaxabilityMode === "partially_taxable" && parseFloat(otherExemptAmount) > 0 && (
+                  <>
+                    <div className="border-t border-border/30 pt-1.5 mt-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">Tax-exempt portion</span>
+                        <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium tabular-nums">
+                          {formatMoney(Math.min(parseFloat(otherExemptAmount), parseFloat(otherAmount)))}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground">Taxable excess</span>
+                        <span className="text-[11px] text-foreground font-medium tabular-nums">
+                          {formatMoney(Math.max(0, parseFloat(otherAmount) - parseFloat(otherExemptAmount)))}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
