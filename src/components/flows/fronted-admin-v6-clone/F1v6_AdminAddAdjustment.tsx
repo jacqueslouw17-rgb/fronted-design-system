@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ArrowLeft, CalendarOff, Clock, Receipt, X, Upload, FileText, Image, Gift, Coins, Plus, Minus } from "lucide-react";
+import { ArrowLeft, CalendarOff, Clock, Receipt, X, Upload, FileText, Image, Gift, Coins, Plus, Minus, MoreHorizontal, AlertTriangle, Info } from "lucide-react";
 import { validateFiles, FILE_UPLOAD_ACCEPT, FILE_UPLOAD_MAX_COUNT, FILE_UPLOAD_HELPER_RECEIPT } from "../shared/fileUploadValidation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -20,7 +22,8 @@ import { F41v7_TimeInput } from "@/components/flows/employee-dashboard-v7/F41v7_
 import { TagInput } from "@/components/flows/shared/TagInput";
 
 // Types for admin-added adjustments
-export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission";
+export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission" | "other";
+export type TaxTiming = "before_tax" | "after_tax";
 export type AdjustmentDirection = "add" | "deduct";
 
 export interface AdminAddedAdjustment {
@@ -33,6 +36,8 @@ export interface AdminAddedAdjustment {
   currency: string;
   addedAt: string;
   direction: AdjustmentDirection;
+  taxTiming?: TaxTiming;
+  isTaxable?: boolean;
 }
 
 interface F1v6_AdminAddAdjustmentProps {
@@ -150,6 +155,13 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     { id: crypto.randomUUID(), amount: "", attachment: [] },
   ]);
 
+  // Other adjustment state
+  const [otherDescription, setOtherDescription] = useState("");
+  const [otherAmount, setOtherAmount] = useState("");
+  const [otherTaxTiming, setOtherTaxTiming] = useState<TaxTiming>("before_tax");
+  const [otherIsTaxable, setOtherIsTaxable] = useState(true);
+  const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
+
   const requestTypeOptions: RequestOption[] = useMemo(() => {
     const base: RequestOption[] = [
       {
@@ -189,6 +201,14 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         icon: Coins,
       });
     }
+
+    // "Other" is always available for both worker types — placed last
+    base.push({
+      id: "other",
+      label: "Other",
+      description: "Custom earning or deduction",
+      icon: MoreHorizontal,
+    });
 
     return base;
   }, [workerType]);
@@ -234,6 +254,11 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     setOvertimeEndTime("");
     setBonusItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
     setCommissionItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
+    setOtherDescription("");
+    setOtherAmount("");
+    setOtherTaxTiming("before_tax");
+    setOtherIsTaxable(true);
+    setOtherAttachment([]);
   };
 
   const handleClose = () => {
@@ -418,6 +443,51 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     handleClose();
   };
 
+  const submitOther = () => {
+    const desc = otherDescription.trim();
+    if (!desc) {
+      toast.error("Please enter a description");
+      return;
+    }
+    if (desc.length < 3) {
+      toast.error("Description must be at least 3 characters");
+      return;
+    }
+    const amt = parseFloat(otherAmount);
+    if (Number.isNaN(amt) || amt <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    if (amt > 1_000_000) {
+      toast.error("Amount exceeds maximum limit (₱1,000,000)");
+      return;
+    }
+
+    // PH rule: after-tax deductions that are taxable make no sense — guard it
+    if (otherTaxTiming === "after_tax" && otherIsTaxable) {
+      toast.error("After-tax adjustments cannot be taxable. Toggle off 'Taxable' or switch to 'Before tax'.");
+      return;
+    }
+
+    const taxLabel = otherIsTaxable ? "Taxable" : "Non-taxable";
+    const timingLabel = otherTaxTiming === "before_tax" ? "Before tax" : "After tax";
+
+    onAddAdjustment({
+      id: `admin-${Date.now()}`,
+      type: "other",
+      amount: amt,
+      description: `${desc} · ${timingLabel} · ${taxLabel}`,
+      currency,
+      addedAt: new Date().toISOString(),
+      direction,
+      taxTiming: otherTaxTiming,
+      isTaxable: otherIsTaxable,
+    });
+
+    toast.success(`Added adjustment for ${workerName}`);
+    handleClose();
+  };
+
   if (!isOpen) return null;
 
   const headerTitle =
@@ -433,7 +503,9 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
             ? "Bonus"
             : selectedType === "commission"
               ? "Commission"
-              : "Leave adjustment";
+              : selectedType === "other"
+                ? "Other adjustment"
+                : "Leave adjustment";
 
   const directionSign = direction === "add" ? "+" : "−";
 
@@ -934,6 +1006,197 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
             </div>
 
             <Button onClick={submitCommission} className="w-full">
+              Add adjustment
+            </Button>
+          </div>
+        )}
+
+        {/* Other adjustment form */}
+        {selectedType === "other" && (
+          <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
+            {/* Before/After Tax */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Apply before or after tax?</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtherTaxTiming("before_tax");
+                  }}
+                  className={cn(
+                    "p-3 rounded-lg border-2 transition-all text-left text-xs font-medium",
+                    otherTaxTiming === "before_tax"
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-border/60 text-muted-foreground hover:border-primary/30"
+                  )}
+                >
+                  Before tax
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtherTaxTiming("after_tax");
+                    // After-tax items cannot be taxable — auto-correct
+                    setOtherIsTaxable(false);
+                  }}
+                  className={cn(
+                    "p-3 rounded-lg border-2 transition-all text-left text-xs font-medium",
+                    otherTaxTiming === "after_tax"
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-border/60 text-muted-foreground hover:border-primary/30"
+                  )}
+                >
+                  After tax
+                </button>
+              </div>
+            </div>
+
+            {/* Taxable toggle — only relevant for before-tax items */}
+            <div className={cn(
+              "flex items-center justify-between p-3 rounded-lg border transition-all",
+              otherTaxTiming === "after_tax"
+                ? "border-border/30 bg-muted/20 opacity-50 pointer-events-none"
+                : "border-border/60 bg-card/50"
+            )}>
+              <div className="space-y-0.5">
+                <Label className="text-xs font-medium">Taxable?</Label>
+                <p className="text-[11px] text-muted-foreground leading-tight">
+                  {otherTaxTiming === "after_tax"
+                    ? "After-tax items are always non-taxable"
+                    : otherIsTaxable
+                      ? "Subject to withholding tax (BIR)"
+                      : "Exempt — e.g. de minimis, non-taxable allowance"
+                  }
+                </p>
+              </div>
+              <Switch
+                checked={otherIsTaxable}
+                onCheckedChange={setOtherIsTaxable}
+                disabled={otherTaxTiming === "after_tax"}
+              />
+            </div>
+
+            {/* PH context hint */}
+            {otherTaxTiming === "before_tax" && !otherIsTaxable && (
+              <div className="flex gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
+                <Info className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+                  Non-taxable items before tax must comply with BIR de minimis limits. Ensure this doesn't exceed the tax-exempt threshold.
+                </p>
+              </div>
+            )}
+
+            {/* Description */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Description</Label>
+              <Textarea
+                placeholder="e.g. Clothing allowance, Loan repayment, Salary advance recovery..."
+                value={otherDescription}
+                onChange={(e) => setOtherDescription(e.target.value)}
+                className="min-h-[72px] text-sm resize-none"
+                maxLength={200}
+              />
+              <p className="text-[11px] text-muted-foreground text-right">{otherDescription.length}/200</p>
+            </div>
+
+            {/* Amount */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Amount ({currency})</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00"
+                value={otherAmount}
+                onChange={(e) => setOtherAmount(e.target.value)}
+                className="h-9"
+              />
+            </div>
+
+            {/* Attachment (optional) */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Attachment (optional)</Label>
+              {otherAttachment.length > 0 && (
+                <div className="space-y-1.5">
+                  {otherAttachment.map((file, fileIdx) => (
+                    <div key={fileIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                      {file.type.startsWith('image/') ? (
+                        <Image className="h-4 w-4 text-primary shrink-0" />
+                      ) : (
+                        <FileText className="h-4 w-4 text-primary shrink-0" />
+                      )}
+                      <span className="text-xs flex-1 truncate">{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setOtherAttachment(prev => prev.filter((_, i) => i !== fileIdx))}
+                        className="p-0.5 hover:bg-muted rounded shrink-0"
+                      >
+                        <X className="h-3 w-3 text-muted-foreground" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {otherAttachment.length < FILE_UPLOAD_MAX_COUNT && (
+                <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                  <Upload className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">
+                    {otherAttachment.length === 0 ? 'Upload documents' : 'Add more'}
+                  </span>
+                  <input
+                    type="file"
+                    accept={FILE_UPLOAD_ACCEPT}
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length > 0) {
+                        const { valid, error } = validateFiles(files, otherAttachment.length);
+                        if (error) {
+                          toast.error(error);
+                        } else if (valid.length > 0) {
+                          setOtherAttachment(prev => [...prev, ...valid]);
+                        }
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              )}
+              <p className="text-[11px] text-muted-foreground/70">{FILE_UPLOAD_HELPER_RECEIPT}</p>
+            </div>
+
+            {/* Summary */}
+            {parseFloat(otherAmount) > 0 && (
+              <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Amount</span>
+                  <span className="text-sm font-semibold tabular-nums">
+                    {directionSign}{formatMoney(parseFloat(otherAmount))}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Tax treatment</span>
+                  <span className="text-xs text-muted-foreground">
+                    {otherTaxTiming === "before_tax" ? "Before tax" : "After tax"} · {otherIsTaxable ? "Taxable" : "Non-taxable"}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Large amount warning */}
+            {parseFloat(otherAmount) > 100_000 && (
+              <div className="flex gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
+                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+                  This is a large adjustment (over ₱100,000). Please double-check the amount and ensure proper documentation.
+                </p>
+              </div>
+            )}
+
+            <Button onClick={submitOther} className="w-full">
               Add adjustment
             </Button>
           </div>
