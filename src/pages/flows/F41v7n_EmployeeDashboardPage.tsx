@@ -20,6 +20,7 @@ import {
   F41v7n_AdjustmentsSection,
   F41v7n_AdjustmentModal
 } from "@/components/flows/employee-dashboard-v7-next";
+import { F41v7n_SupportBubble } from "@/components/flows/employee-dashboard-v7-next/F41v7n_SupportBubble";
 
 interface PayslipData {
   id: string;
