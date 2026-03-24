@@ -18,8 +18,10 @@ export const FeedbackBubble = () => {
   // Flow 6 v4/v5 (Agentic): bubble becomes Support + Feedback entry point
   const isFlow6V4 = location.pathname === "/flows/company-admin-dashboard-v4" || location.pathname === "/flows/company-admin-dashboard-v5";
 
-  // (No special hiding for Flow 1 v7)
+  // Flow 4.1 v8 Next / v9 Future have their own support bubbles
+  const isF41WithOwnBubble = location.pathname === "/candidate-dashboard-employee-v7-next" || location.pathname === "/candidate-dashboard-employee-v8";
 
+  if (isF41WithOwnBubble) return null;
   return (
     <>
       {!isModalOpen && (
