@@ -109,7 +109,6 @@ const F41v8_EmployeeDashboardPage = () => {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [selectedPayslip, setSelectedPayslip] = useState<PayslipData>(payslipsData[0]);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
-  const [smartExpenseOpen, setSmartExpenseOpen] = useState(false);
   const [adjustmentPrefill, setAdjustmentPrefill] = useState<{
     type?: string;
     category?: string;
