@@ -31,7 +31,7 @@ type PanelView = "selection" | "support-form" | "support-submitted" | "feedback-
 
 const WORKER_SUPPORT_CATEGORIES = [
   { id: "pay", label: "My Pay & Payslips" },
-  { id: "expenses", label: "Expenses & Reimbursements" },
+  { id: "expenses", label: "Expenses" },
   { id: "timeoff", label: "Time Off & Leave" },
   { id: "tax", label: "Tax & Deductions" },
   { id: "profile", label: "Profile & Documents" },
