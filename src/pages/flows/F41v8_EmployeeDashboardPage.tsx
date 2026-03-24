@@ -241,7 +241,7 @@ const F41v8_EmployeeDashboardPage = () => {
             netPay={selectedPayslip.netPay}
           />
 
-          {/* Adjustment Modal (non-expense types) */}
+          {/* Adjustment Modal */}
           <F41v8_AdjustmentModal
             open={adjustmentModalOpen}
             onOpenChange={setAdjustmentModalOpen}
@@ -255,18 +255,7 @@ const F41v8_EmployeeDashboardPage = () => {
             initialDate={adjustmentPrefill.date}
             initialStartTime={adjustmentPrefill.startTime}
             initialEndTime={adjustmentPrefill.endTime}
-            onExpenseSelected={() => {
-              setAdjustmentModalOpen(false);
-              setSmartExpenseOpen(true);
-            }}
-          />
-
-          {/* v9 Smart Expense Panel */}
-          <F41v9_SmartExpensePanel
-            open={smartExpenseOpen}
-            onOpenChange={setSmartExpenseOpen}
-            localCurrency="NOK"
-            onBack={() => setAdjustmentModalOpen(true)}
+            localExpenseCurrency="NOK"
           />
         </div>
       </TooltipProvider>
