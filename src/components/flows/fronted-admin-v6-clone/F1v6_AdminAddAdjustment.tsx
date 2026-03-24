@@ -36,6 +36,8 @@ export interface AdminAddedAdjustment {
   currency: string;
   addedAt: string;
   direction: AdjustmentDirection;
+  taxTiming?: TaxTiming;
+  isTaxable?: boolean;
 }
 
 interface F1v6_AdminAddAdjustmentProps {
