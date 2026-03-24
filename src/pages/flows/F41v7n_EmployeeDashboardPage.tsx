@@ -257,6 +257,9 @@ const F41v7n_EmployeeDashboardPage = () => {
             initialStartTime={adjustmentPrefill.startTime}
             initialEndTime={adjustmentPrefill.endTime}
           />
+
+          {/* Support Bubble */}
+          <F41v7n_SupportBubble />
         </div>
       </TooltipProvider>
     </RoleLensProvider>

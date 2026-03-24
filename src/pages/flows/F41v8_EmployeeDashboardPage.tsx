@@ -258,6 +258,9 @@ const F41v8_EmployeeDashboardPage = () => {
             initialEndTime={adjustmentPrefill.endTime}
             localExpenseCurrency="NOK"
           />
+
+          {/* Support Bubble */}
+          <F41v8_SupportBubble />
         </div>
       </TooltipProvider>
     </RoleLensProvider>
