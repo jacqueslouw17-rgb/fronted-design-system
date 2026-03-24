@@ -917,8 +917,8 @@ const AdminContractingMultiCompany = () => {
 
           {/* Contract Flow Main Area with Agent Layout */}
           <AgentLayout context="Contract Flow">
-            <div className="flex-1 overflow-auto relative min-h-full">
-              <div className="relative z-10">
+            <div className="flex-1 overflow-auto relative min-h-full bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+              <div className="relative z-10 min-h-full">
               {isAddingNewCompany ? (
                 <F1v4_EmbeddedAdminOnboarding
                   onComplete={handleNewCompanyComplete}
