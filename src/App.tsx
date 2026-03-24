@@ -177,6 +177,7 @@ const App = () => (
         <Route path="/candidate-dashboard-employee-v6" element={<F41v6_EmployeeDashboardPage />} />
         <Route path="/candidate-dashboard-contractor-v6" element={<F42v6_ContractorDashboardPage />} />
         <Route path="/candidate-dashboard-employee-v7" element={<F41v7_EmployeeDashboardPage />} />
+        <Route path="/candidate-dashboard-employee-v7-next" element={<F41v7n_EmployeeDashboardPage />} />
         <Route path="/candidate-dashboard-employee-v8" element={<F41v8_EmployeeDashboardPage />} />
         <Route path="/candidate-dashboard-contractor-v7" element={<F42v7_ContractorDashboardPage />} />
         <Route path="/candidate/profile-settings-v2" element={<CandidateProfileSettingsV2 />} />
