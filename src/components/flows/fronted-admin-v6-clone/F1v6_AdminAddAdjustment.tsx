@@ -1067,6 +1067,8 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
                     setOtherTaxTiming("after_tax");
                     // After-tax items cannot be taxable — auto-correct
                     setOtherIsTaxable(false);
+                    setOtherTaxabilityMode("non_taxable");
+                    setOtherExemptAmount("");
                   }}
                   className={cn(
                     "p-3 rounded-lg border-2 transition-all text-left text-xs font-medium",
