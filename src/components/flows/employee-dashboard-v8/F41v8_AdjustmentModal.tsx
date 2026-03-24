@@ -33,6 +33,7 @@ import { TagInput } from '@/components/flows/shared/TagInput';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { F41v8_TimeInput } from './F41v8_TimeInput';
+import { F41v9_SmartExpenseContent } from './F41v9_SmartExpenseContent';
 
 export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | 'unpaid-leave' | null;
 
@@ -50,8 +51,7 @@ interface F41v8_AdjustmentModalProps {
   initialEndTime?: string;
   rejectedId?: string;
   onBack?: () => void;
-  /** v9 override: intercept expense tile click to open smart panel instead */
-  onExpenseSelected?: () => void;
+  localExpenseCurrency?: string;
 }
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
@@ -110,7 +110,7 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack, onExpenseSelected }: F41v8_AdjustmentModalProps) => {
+export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack, localExpenseCurrency = 'NOK' }: F41v8_AdjustmentModalProps) => {
   const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v8_DashboardStore();
 
   const rejectedAdjustment = rejectedId
@@ -659,10 +659,6 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                   key={option.id}
                   onClick={() => {
                     if (option.disabled) return;
-                    if (option.id === 'expense' && onExpenseSelected) {
-                      onExpenseSelected();
-                      return;
-                    }
                     setSelectedType(option.id);
                   }}
                   disabled={option.disabled}
@@ -687,206 +683,10 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
           {/* Expense Form */}
           {selectedType === 'expense' && (
-            <div className="space-y-5">
-              {/* Expense Line Items */}
-              <div className="space-y-3">
-                {expenseItems.map((item, index) => (
-                  <div 
-                    key={item.id} 
-                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
-                  >
-                    {/* Remove button - only show if more than 1 item */}
-                    {expenseItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeExpenseItem(item.id)}
-                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
-                      >
-                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                      </button>
-                    )}
-
-                    {/* Item number badge */}
-                    {expenseItems.length > 1 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                          Expense {index + 1}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Category & Amount row */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Category</Label>
-                        <Select 
-                          value={item.category} 
-                          onValueChange={(val) => {
-                            updateExpenseItem(item.id, 'category', val);
-                            if (val !== 'Other') {
-                              updateExpenseItem(item.id, 'otherCategory', '');
-                            }
-                          }}
-                        >
-                          <SelectTrigger className={cn(
-                            "h-9",
-                            errors[`expense_${index}_category`] && 'border-destructive'
-                          )}>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {expenseCategories.map((cat) => (
-                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Amount ({currency})</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          placeholder="0.00"
-                          value={item.amount}
-                          onChange={(e) => updateExpenseItem(item.id, 'amount', e.target.value)}
-                          className={cn(
-                            "h-9",
-                            errors[`expense_${index}_amount`] && 'border-destructive'
-                          )}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Other category specification */}
-                    {item.category === 'Other' && (
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Specify category</Label>
-                        <Input
-                          type="text"
-                          placeholder="e.g., Office supplies"
-                          value={item.otherCategory}
-                          onChange={(e) => updateExpenseItem(item.id, 'otherCategory', e.target.value)}
-                          className={cn(
-                            "h-9",
-                            errors[`expense_${index}_otherCategory`] && 'border-destructive'
-                          )}
-                        />
-                        {errors[`expense_${index}_otherCategory`] && (
-                          <p className="text-xs text-destructive">{errors[`expense_${index}_otherCategory`]}</p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Attachments - multi upload */}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Attachments</Label>
-                      {/* Uploaded files list */}
-                      {item.receipt.length > 0 && (
-                        <div className="space-y-1.5">
-                          {item.receipt.map((file, fileIdx) => (
-                            <div key={fileIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
-                              {file.type.startsWith('image/') ? (
-                                <Image className="h-4 w-4 text-primary shrink-0" />
-                              ) : (
-                                <FileText className="h-4 w-4 text-primary shrink-0" />
-                              )}
-                              <span className="text-xs flex-1 truncate">{file.name}</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const updated = item.receipt.filter((_, i) => i !== fileIdx);
-                                  updateExpenseItem(item.id, 'receipt', updated);
-                                }}
-                                className="p-0.5 hover:bg-muted rounded shrink-0"
-                              >
-                                <X className="h-3 w-3 text-muted-foreground" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {/* Upload trigger — hidden when at max */}
-                      {item.receipt.length < FILE_UPLOAD_MAX_COUNT && (
-                        <label className={cn(
-                          "flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed cursor-pointer transition-colors",
-                          errors[`expense_${index}_receipt`] 
-                            ? "border-destructive bg-destructive/5" 
-                            : "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]"
-                        )}>
-                          <Upload className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">
-                            {item.receipt.length === 0 ? 'Upload documents' : 'Add more'}
-                          </span>
-                          <input
-                            type="file"
-                            accept={FILE_UPLOAD_ACCEPT}
-                            multiple
-                            className="hidden"
-                            onChange={(e) => {
-                              const files = Array.from(e.target.files || []);
-                              if (files.length > 0) {
-                                const { valid, error } = validateFiles(files, item.receipt.length);
-                                if (error) {
-                                  setErrors(prev => ({ ...prev, [`expense_${index}_receipt`]: error }));
-                                } else if (valid.length > 0) {
-                                  updateExpenseItem(item.id, 'receipt', [...item.receipt, ...valid]);
-                                  setErrors(prev => {
-                                    const { [`expense_${index}_receipt`]: _, ...rest } = prev;
-                                    return rest;
-                                  });
-                                }
-                              }
-                              e.target.value = '';
-                            }}
-                          />
-                        </label>
-                      )}
-                      {errors[`expense_${index}_receipt`] ? (
-                        <p className="text-[11px] text-destructive">{errors[`expense_${index}_receipt`]}</p>
-                      ) : (
-                        <p className="text-[11px] text-muted-foreground/70">{FILE_UPLOAD_HELPER_RECEIPT}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add another expense button */}
-              <button
-                type="button"
-                onClick={addExpenseItem}
-                className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
-              >
-                <span className="text-lg leading-none">+</span>
-                Add another expense
-              </button>
-
-              {/* Tag */}
-              <TagInput
-                tags={expenseTags}
-                onChange={(tags) => { setExpenseTags(tags); clearError('expense_tag'); }}
-                maxTags={1}
-                required={expenseItems.length > 1}
-                error={errors['expense_tag']}
-              />
-
-              {expenseItems.length > 0 && (
-                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Session total</span>
-                    <span className="text-sm font-semibold tabular-nums">
-                      {currency} {expenseItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <Button onClick={handleSubmitExpenses} className="w-full">
-                Request adjustment
-              </Button>
-            </div>
+            <F41v9_SmartExpenseContent
+              localCurrency={localExpenseCurrency}
+              onSubmitted={handleClose}
+            />
           )}
 
           {/* Overtime Form */}
