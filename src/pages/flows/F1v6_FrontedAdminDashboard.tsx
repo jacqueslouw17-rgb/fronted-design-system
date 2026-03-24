@@ -824,7 +824,7 @@ const AdminContractingMultiCompany = () => {
 
   return (
     <RoleLensProvider initialRole="admin">
-      <div className="min-h-screen flex flex-col w-full bg-background">
+      <div className="min-h-screen flex flex-col w-full bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
       {/* Topbar - shown on pipeline view (idle + offer-accepted + data-collection) */}
       {!isAddingNewCompany && !isEditingCompany && (
         contractFlow.phase === "idle" ||
