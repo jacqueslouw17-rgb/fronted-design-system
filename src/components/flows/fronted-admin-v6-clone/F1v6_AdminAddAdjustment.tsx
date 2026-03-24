@@ -24,6 +24,7 @@ import { TagInput } from "@/components/flows/shared/TagInput";
 // Types for admin-added adjustments
 export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission" | "other";
 export type TaxTiming = "before_tax" | "after_tax";
+export type TaxabilityMode = "taxable" | "non_taxable" | "partially_taxable";
 export type AdjustmentDirection = "add" | "deduct";
 
 export interface AdminAddedAdjustment {
