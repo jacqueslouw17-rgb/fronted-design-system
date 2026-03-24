@@ -155,6 +155,13 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     { id: crypto.randomUUID(), amount: "", attachment: [] },
   ]);
 
+  // Other adjustment state
+  const [otherDescription, setOtherDescription] = useState("");
+  const [otherAmount, setOtherAmount] = useState("");
+  const [otherTaxTiming, setOtherTaxTiming] = useState<TaxTiming>("before_tax");
+  const [otherIsTaxable, setOtherIsTaxable] = useState(true);
+  const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
+
   const requestTypeOptions: RequestOption[] = useMemo(() => {
     const base: RequestOption[] = [
       {
