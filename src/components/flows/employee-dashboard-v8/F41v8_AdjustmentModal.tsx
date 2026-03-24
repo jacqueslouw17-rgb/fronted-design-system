@@ -657,7 +657,14 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
               {requestTypeOptions.map((option) => (
                 <button
                   key={option.id}
-                  onClick={() => !option.disabled && setSelectedType(option.id)}
+                  onClick={() => {
+                    if (option.disabled) return;
+                    if (option.id === 'expense' && onExpenseSelected) {
+                      onExpenseSelected();
+                      return;
+                    }
+                    setSelectedType(option.id);
+                  }}
                   disabled={option.disabled}
                   className={cn(
                     "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
