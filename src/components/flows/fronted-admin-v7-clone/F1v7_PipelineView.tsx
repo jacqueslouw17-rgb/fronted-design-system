@@ -963,10 +963,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
     }, 800);
   };
+  const [workerToDelete, setWorkerToDelete] = useState<Contractor | null>(null);
+
   const handleRemoveFromOfferAccepted = (contractor: Contractor) => {
-    setContractors(prev => prev.filter(c => !(c.id === contractor.id && (contractor.companyId ? c.companyId === contractor.companyId : true))));
-    onRemoveContractor?.(contractor);
+    setWorkerToDelete(contractor);
   };
+
+  const confirmRemoveWorker = useCallback(() => {
+    if (!workerToDelete) return;
+    setContractors(prev => prev.filter(c => !(c.id === workerToDelete.id && (workerToDelete.companyId ? c.companyId === workerToDelete.companyId : true))));
+    onRemoveContractor?.(workerToDelete);
+    setWorkerToDelete(null);
+  }, [workerToDelete, onRemoveContractor]);
   const handleBulkSendForms = () => {
     const selectedInOfferAccepted = contractors.filter(c => selectedIds.has(c.id) && c.status === "offer-accepted");
     const updated = contractors.map(c => selectedIds.has(c.id) && c.status === "offer-accepted" ? {
