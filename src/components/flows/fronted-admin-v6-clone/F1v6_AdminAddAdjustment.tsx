@@ -1080,37 +1080,86 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
               </div>
             </div>
 
-            {/* Taxable toggle — only relevant for before-tax items */}
+            {/* Taxability — 3-way selector for PH compliance */}
             <div className={cn(
-              "flex items-center justify-between p-3 rounded-lg border transition-all",
+              "space-y-3 p-3 rounded-lg border transition-all",
               otherTaxTiming === "after_tax"
                 ? "border-border/30 bg-muted/20 opacity-50 pointer-events-none"
                 : "border-border/60 bg-card/50"
             )}>
-              <div className="space-y-0.5">
-                <Label className="text-xs font-medium">Taxable?</Label>
-                <p className="text-[11px] text-muted-foreground leading-tight">
-                  {otherTaxTiming === "after_tax"
-                    ? "After-tax items are always non-taxable"
-                    : otherIsTaxable
-                      ? "Subject to withholding tax (BIR)"
-                      : "Exempt — e.g. de minimis, non-taxable allowance"
-                  }
-                </p>
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Tax treatment</Label>
+                {otherTaxTiming === "after_tax" && (
+                  <p className="text-[11px] text-muted-foreground">After-tax items are always non-taxable</p>
+                )}
               </div>
-              <Switch
-                checked={otherIsTaxable}
-                onCheckedChange={setOtherIsTaxable}
-                disabled={otherTaxTiming === "after_tax"}
-              />
+
+              {otherTaxTiming !== "after_tax" && (
+                <div className="grid grid-cols-3 gap-1.5">
+                  {([
+                    { id: "taxable" as TaxabilityMode, label: "Taxable", desc: "Subject to BIR withholding" },
+                    { id: "non_taxable" as TaxabilityMode, label: "Non-taxable", desc: "Fully exempt" },
+                    { id: "partially_taxable" as TaxabilityMode, label: "Partial", desc: "Has exempt threshold" },
+                  ]).map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        setOtherTaxabilityMode(opt.id);
+                        setOtherIsTaxable(opt.id !== "non_taxable");
+                        if (opt.id !== "partially_taxable") setOtherExemptAmount("");
+                      }}
+                      className={cn(
+                        "p-2 rounded-lg border-2 transition-all text-center",
+                        otherTaxabilityMode === opt.id
+                          ? "border-primary bg-primary/5"
+                          : "border-border/60 hover:border-primary/30"
+                      )}
+                    >
+                      <p className={cn(
+                        "text-xs font-medium",
+                        otherTaxabilityMode === opt.id ? "text-primary" : "text-muted-foreground"
+                      )}>{opt.label}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Partially taxable: exempt threshold input */}
+              {otherTaxTiming !== "after_tax" && otherTaxabilityMode === "partially_taxable" && (
+                <div className="space-y-1.5 pt-1">
+                  <Label className="text-xs">Tax-exempt threshold ({currency})</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    placeholder="e.g. 8000 (clothing allowance limit)"
+                    value={otherExemptAmount}
+                    onChange={(e) => setOtherExemptAmount(e.target.value)}
+                    className="h-9"
+                  />
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Amount up to this threshold is tax-free. Only the excess is subject to withholding tax per BIR rules.
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* PH context hint */}
-            {otherTaxTiming === "before_tax" && !otherIsTaxable && (
+            {/* PH context hints based on taxability */}
+            {otherTaxTiming === "before_tax" && otherTaxabilityMode === "non_taxable" && (
               <div className="flex gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
                 <Info className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-                  Non-taxable items before tax must comply with BIR de minimis limits. Ensure this doesn't exceed the tax-exempt threshold.
+                  Fully non-taxable benefits must fall within BIR de minimis limits (RR 29-2025). E.g. clothing allowance ≤ ₱8,000/yr, rice subsidy ≤ ₱2,500/mo, medical ≤ ₱12,000/yr. Exceeding thresholds triggers withholding tax on the excess.
+                </p>
+              </div>
+            )}
+
+            {otherTaxTiming === "before_tax" && otherTaxabilityMode === "partially_taxable" && (
+              <div className="flex gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200/60 dark:border-blue-500/20">
+                <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                  Per BIR RR 29-2025, only the portion exceeding the de minimis threshold is taxable. Common thresholds: Clothing ₱8,000/yr · Rice ₱2,500/mo · Medical ₱12,000/yr · Achievement awards ₱12,000/yr · Christmas gifts ₱6,000/yr.
                 </p>
               </div>
             )}
