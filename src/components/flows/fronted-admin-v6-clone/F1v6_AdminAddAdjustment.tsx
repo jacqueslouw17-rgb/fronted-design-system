@@ -39,6 +39,8 @@ export interface AdminAddedAdjustment {
   direction: AdjustmentDirection;
   taxTiming?: TaxTiming;
   isTaxable?: boolean;
+  taxabilityMode?: TaxabilityMode;
+  exemptAmount?: number;
 }
 
 interface F1v6_AdminAddAdjustmentProps {
