@@ -895,7 +895,7 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   // Historical view for previous periods
   if (isViewingPrevious) {
     return (
-      <div className="mx-auto px-4 sm:px-8 pt-3 pb-4">
+      <div className="mx-auto min-h-full px-4 sm:px-8 pt-3 pb-10">
         <div className="mb-5">
           {renderSummaryCard()}
         </div>
