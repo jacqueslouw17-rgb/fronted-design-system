@@ -27,7 +27,7 @@ import { TagInput } from '@/components/flows/shared/TagInput';
 import { toast } from 'sonner';
 import { useF41v8_DashboardStore } from '@/stores/F41v8_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, ArrowLeft, Pencil } from 'lucide-react';
+import { Upload, X, Pencil, ArrowLeft } from 'lucide-react';
 import { validateFiles, FILE_UPLOAD_ACCEPT } from '../shared/fileUploadValidation';
 import { formatCurrencyAmount } from '../shared/CurrencyToggle';
 
@@ -69,28 +69,33 @@ interface F41v9_SmartExpensePanelProps {
   onBack?: () => void;
 }
 
+// Counter to alternate currencies for demo
+let uploadCounter = 0;
+
 function simulateReceiptParse(file: File): Omit<ParsedReceipt, 'id' | 'file' | 'isParsing' | 'isEditing'> {
   const name = file.name.toLowerCase();
+  // Name-based hints
   if (name.includes('zar') || name.includes('south_africa') || name.includes('cape'))
     return { currency: 'ZAR', amount: Math.round(150 + Math.random() * 2500), category: 'Meals', merchant: 'Woolworths Food' };
   if (name.includes('bwp') || name.includes('botswana') || name.includes('gaborone'))
     return { currency: 'BWP', amount: Math.round(200 + Math.random() * 1800), category: 'Accommodation', merchant: 'Cresta Lodge' };
   if (name.includes('nok') || name.includes('norway') || name.includes('oslo'))
     return { currency: 'NOK', amount: Math.round(100 + Math.random() * 3000), category: 'Transport', merchant: 'SAS Airlines' };
-  if (name.includes('eur') || name.includes('euro'))
-    return { currency: 'EUR', amount: Math.round(20 + Math.random() * 500), category: 'Meals', merchant: 'Restaurant' };
 
-  const currencies = ['ZAR', 'NOK', 'BWP'];
-  const categories = ['Meals', 'Transport', 'Accommodation', 'Equipment'];
-  const merchants = ['Uber', 'Hotel Garden Court', 'Nando\'s', 'Pick n Pay', 'Ruter AS', 'Engen Fuel'];
-  const cur = currencies[Math.floor(Math.random() * currencies.length)];
-  const ranges: Record<string, [number, number]> = { ZAR: [80, 3500], NOK: [50, 2500], BWP: [30, 2000] };
-  const [min, max] = ranges[cur] || [50, 1000];
+  // Rotate currencies so consecutive uploads get different currencies
+  const pool = [
+    { currency: 'ZAR', merchants: ['Woolworths', 'Pick n Pay', 'Engen Fuel', 'Nando\'s'], categories: ['Meals', 'Transport', 'Equipment'], range: [120, 3200] as [number, number] },
+    { currency: 'BWP', merchants: ['Cresta Lodge', 'Choppies', 'FNB Botswana', 'Shell Gaborone'], categories: ['Accommodation', 'Meals', 'Transport'], range: [180, 2400] as [number, number] },
+    { currency: 'NOK', merchants: ['Ruter AS', 'Kiwi Dagligvare', 'Circle K', 'SAS'], categories: ['Transport', 'Meals', 'Travel'], range: [85, 2800] as [number, number] },
+  ];
+  const pick = pool[uploadCounter % pool.length];
+  uploadCounter++;
+  const [min, max] = pick.range;
   return {
-    currency: cur,
+    currency: pick.currency,
     amount: Math.round(min + Math.random() * (max - min)),
-    category: categories[Math.floor(Math.random() * categories.length)],
-    merchant: merchants[Math.floor(Math.random() * merchants.length)],
+    category: pick.categories[Math.floor(Math.random() * pick.categories.length)],
+    merchant: pick.merchants[Math.floor(Math.random() * pick.merchants.length)],
   };
 }
 
@@ -261,29 +266,29 @@ export const F41v9_SmartExpensePanel = ({ open, onOpenChange, localCurrency, onB
             onDragLeave={handleDragLeave}
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              "relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed cursor-pointer transition-all",
-              hasReceipts ? "py-3 px-4" : "py-7 px-4",
+              "relative flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed cursor-pointer transition-all duration-150",
+              hasReceipts ? "py-3 px-4" : "py-8 px-4",
               isDragOver
-                ? "border-primary/60 bg-primary/[0.04]"
-                : "border-border/50 hover:border-border"
+                ? "border-primary/60 bg-primary/[0.06]"
+                : "border-border/40 hover:border-border/70 hover:bg-muted/40"
             )}
           >
             <Upload className={cn(
-              "text-muted-foreground/60",
-              hasReceipts ? "h-4 w-4" : "h-5 w-5"
+              "text-muted-foreground/40",
+              hasReceipts ? "h-3.5 w-3.5" : "h-5 w-5"
             )} />
-            <p className={cn("text-muted-foreground", hasReceipts ? "text-[11px]" : "text-xs")}>
-              {hasReceipts ? 'Upload more' : 'Drop receipts or click to browse'}
+            <p className={cn("text-muted-foreground/60", hasReceipts ? "text-[11px]" : "text-xs")}>
+              {hasReceipts ? 'Upload more receipts' : 'Drop receipts or click to browse'}
             </p>
             {!hasReceipts && (
-              <p className="text-[10px] text-muted-foreground/50">JPG, PNG, PDF · max 5MB each</p>
+              <p className="text-[10px] text-muted-foreground/40">JPG, PNG, PDF · max 5 MB each</p>
             )}
             <input ref={fileInputRef} type="file" accept={FILE_UPLOAD_ACCEPT} multiple className="hidden" onChange={handleFileInput} />
           </div>
 
           {/* ── Scanning state ── */}
           {isParsing && (
-            <p className="text-[11px] text-muted-foreground animate-pulse px-1">
+            <p className="text-[11px] text-muted-foreground/60 animate-pulse px-1">
               Reading receipts…
             </p>
           )}
@@ -291,10 +296,10 @@ export const F41v9_SmartExpensePanel = ({ open, onOpenChange, localCurrency, onB
           {/* ── Receipt list ── */}
           {parsedReceipts.length > 0 && (
             <div className="space-y-3">
-              {/* Currency view toggle — only show when multi-currency */}
+              {/* Currency view toggle */}
               {isMultiCurrency && (
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground/70 mr-1 uppercase tracking-wider">Show</span>
+                  <span className="text-[10px] text-muted-foreground/50 mr-1 uppercase tracking-wider">View</span>
                   {(['original', 'local', 'eur'] as const).map((mode) => (
                     <button
                       key={mode}
@@ -303,7 +308,7 @@ export const F41v9_SmartExpensePanel = ({ open, onOpenChange, localCurrency, onB
                         "px-2 py-0.5 rounded text-[10px] font-medium transition-colors",
                         displayCurrency === mode
                           ? "bg-foreground text-background"
-                          : "text-muted-foreground hover:text-foreground"
+                          : "text-muted-foreground/60 hover:text-foreground"
                       )}
                     >
                       {mode === 'original' ? 'Original' : mode === 'local' ? localCurrency : 'EUR'}
@@ -312,41 +317,69 @@ export const F41v9_SmartExpensePanel = ({ open, onOpenChange, localCurrency, onB
                 </div>
               )}
 
-              {/* Items — grouped by currency when in original mode and multi-currency */}
+              {/* Items — grouped by currency in original mode */}
               {isMultiCurrency && displayCurrency === 'original' ? (
-                // Grouped by currency
                 currencyEntries.map(([currency, items]) => (
-                  <div key={currency} className="space-y-px">
-                    <div className="flex items-center gap-1.5 py-1.5 px-0.5">
-                      <span className="text-xs">{getFlag(currency)}</span>
-                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{currency}</span>
-                      <div className="flex-1 h-px bg-border/30" />
+                  <div key={currency}>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="text-[11px]">{getFlag(currency)}</span>
+                      <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-wider">{currency}</span>
+                      <div className="flex-1 h-px bg-border/20" />
+                    </div>
+                    <div className="space-y-0">
+                      {items.map(receipt => (
+                        <ReceiptRow
+                          key={receipt.id}
+                          receipt={receipt}
+                          displayCurrency={displayCurrency}
+                          localCurrency={localCurrency}
+                          formatDisplay={formatDisplay}
+                          onRemove={removeReceipt}
+                          onToggleEdit={toggleEdit}
+                          onUpdate={updateReceipt}
+                        />
+                      ))}
+                    </div>
+                    {/* Per-currency subtotal */}
+                    <div className="flex items-center justify-end pr-0.5 mt-0.5">
                       <span className="text-[11px] font-medium tabular-nums text-muted-foreground">
                         {formatCurrencyAmount(currencyTotals[currency], currency)}
                       </span>
                     </div>
-                    {items.map(receipt => renderReceiptRow(receipt))}
                   </div>
                 ))
               ) : (
-                // Flat list (single currency or converted view)
-                parsedReceipts.map(receipt => renderReceiptRow(receipt))
+                <div className="space-y-0">
+                  {parsedReceipts.map(receipt => (
+                    <ReceiptRow
+                      key={receipt.id}
+                      receipt={receipt}
+                      displayCurrency={displayCurrency}
+                      localCurrency={localCurrency}
+                      formatDisplay={formatDisplay}
+                      onRemove={removeReceipt}
+                      onToggleEdit={toggleEdit}
+                      onUpdate={updateReceipt}
+                    />
+                  ))}
+                </div>
               )}
 
-              {/* ── Totals ── */}
-              <div className="border-t border-border/40 pt-3 space-y-1.5">
-                {/* Per-currency subtotals when viewing in converted mode */}
+              {/* ── Total ── */}
+              <div className="border-t border-border/30 pt-2.5">
                 {isMultiCurrency && displayCurrency !== 'original' && (
-                  currencyEntries.map(([cur]) => (
-                    <div key={cur} className="flex items-center justify-between px-0.5">
-                      <span className="text-[11px] text-muted-foreground">{getFlag(cur)} {cur}</span>
-                      <span className="text-[11px] tabular-nums text-muted-foreground">
-                        {formatDisplay(currencyTotals[cur], cur)}
-                      </span>
-                    </div>
-                  ))
+                  <div className="space-y-0.5 mb-1.5">
+                    {currencyEntries.map(([cur]) => (
+                      <div key={cur} className="flex items-center justify-between">
+                        <span className="text-[11px] text-muted-foreground/50">{getFlag(cur)} {cur}</span>
+                        <span className="text-[11px] tabular-nums text-muted-foreground/60">
+                          {formatDisplay(currencyTotals[cur], cur)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 )}
-                <div className="flex items-center justify-between px-0.5">
+                <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-foreground">Total</span>
                   <span className="text-sm font-semibold tabular-nums text-foreground">
                     {displayCurrency !== 'original' && grandTotal !== null
@@ -377,111 +410,125 @@ export const F41v9_SmartExpensePanel = ({ open, onOpenChange, localCurrency, onB
 
           {/* Empty hint */}
           {!hasReceipts && (
-            <p className="text-[11px] text-muted-foreground/60 leading-relaxed px-0.5">
-              Upload one or more receipts in any currency. Amounts, categories, and currencies are detected automatically — you can always correct them.
+            <p className="text-[11px] text-muted-foreground/50 leading-relaxed px-0.5">
+              Upload one or more receipts in any currency. Amounts, categories, and currencies are detected automatically.
             </p>
           )}
         </div>
       </SheetContent>
     </Sheet>
   );
+};
 
-  function renderReceiptRow(receipt: ParsedReceipt) {
-    return (
-      <div key={receipt.id} className="group">
-        <div className="flex items-center gap-2 py-1.5 px-0.5">
-          {/* Merchant + category */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-medium text-foreground truncate">{receipt.merchant}</span>
-              <span className="text-[10px] text-muted-foreground/50">·</span>
-              <span className="text-[10px] text-muted-foreground truncate">{receipt.category}</span>
-            </div>
-            <p className="text-[10px] text-muted-foreground/40 truncate">{receipt.file.name}</p>
+/* ── Receipt Row (extracted for clarity) ── */
+
+interface ReceiptRowProps {
+  receipt: ParsedReceipt;
+  displayCurrency: 'original' | 'local' | 'eur';
+  localCurrency: string;
+  formatDisplay: (amount: number, currency: string) => string;
+  onRemove: (id: string) => void;
+  onToggleEdit: (id: string) => void;
+  onUpdate: (id: string, field: keyof ParsedReceipt, value: string | number) => void;
+}
+
+function ReceiptRow({ receipt, displayCurrency, localCurrency, formatDisplay, onRemove, onToggleEdit, onUpdate }: ReceiptRowProps) {
+  const target = displayCurrency === 'local' ? localCurrency : 'EUR';
+
+  return (
+    <div className="group">
+      <div className="flex items-center gap-2 py-1.5 rounded-md transition-colors hover:bg-muted/30 px-1 -mx-1">
+        {/* Left: merchant + filename */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-foreground truncate">{receipt.merchant}</span>
+            <span className="text-[10px] text-muted-foreground/40">·</span>
+            <span className="text-[10px] text-muted-foreground/50 truncate">{receipt.category}</span>
           </div>
+          <p className="text-[10px] text-muted-foreground/30 truncate">{receipt.file.name}</p>
+        </div>
 
-          {/* Amount — right aligned */}
-          <div className="text-right shrink-0 min-w-[80px]">
-            <p className="text-xs font-medium tabular-nums text-foreground">
-              {formatDisplay(receipt.amount, receipt.currency)}
+        {/* Actions — only on hover */}
+        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleEdit(receipt.id); }}
+            className="p-1 rounded hover:bg-muted/60 transition-colors"
+          >
+            <Pencil className="h-2.5 w-2.5 text-muted-foreground/50" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onRemove(receipt.id); }}
+            className="p-1 rounded hover:bg-destructive/10 transition-colors"
+          >
+            <X className="h-2.5 w-2.5 text-muted-foreground/50 hover:text-destructive" />
+          </button>
+        </div>
+
+        {/* Amount — right aligned, fixed width */}
+        <div className="text-right shrink-0 w-[100px]">
+          <p className="text-xs font-medium tabular-nums text-foreground text-right">
+            {formatDisplay(receipt.amount, receipt.currency)}
+          </p>
+          {displayCurrency !== 'original' && receipt.currency !== target && (
+            <p className="text-[10px] text-muted-foreground/30 tabular-nums text-right">
+              {formatCurrencyAmount(receipt.amount, receipt.currency)}
             </p>
-            {displayCurrency !== 'original' && receipt.currency !== (displayCurrency === 'local' ? localCurrency : 'EUR') && (
-              <p className="text-[10px] text-muted-foreground/40 tabular-nums">
-                {formatCurrencyAmount(receipt.amount, receipt.currency)}
-              </p>
-            )}
-          </div>
+          )}
+        </div>
+      </div>
 
-          {/* Hover actions */}
-          <div className="flex items-center shrink-0 w-10 justify-end">
+      {/* Inline edit */}
+      {receipt.isEditing && (
+        <div className="ml-0.5 mb-2 p-2.5 rounded-lg bg-muted/20 border border-border/20 space-y-2">
+          <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground/60">Currency</Label>
+              <Select value={receipt.currency} onValueChange={v => onUpdate(receipt.id, 'currency', v)}>
+                <SelectTrigger className="h-7 text-[11px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {receiptCurrencies.map(c => (
+                    <SelectItem key={c.code} value={c.code}>{c.flag} {c.code}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground/60">Amount</Label>
+              <Input
+                type="number" step="0.01" min="0.01"
+                value={receipt.amount || ''}
+                onChange={e => onUpdate(receipt.id, 'amount', parseFloat(e.target.value) || 0)}
+                className="h-7 text-[11px]"
+              />
+            </div>
+            <div className="space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground/60">Category</Label>
+              <Select value={receipt.category} onValueChange={v => onUpdate(receipt.id, 'category', v)}>
+                <SelectTrigger className="h-7 text-[11px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {expenseCategories.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex items-end gap-2">
+            <div className="flex-1 space-y-0.5">
+              <Label className="text-[10px] text-muted-foreground/60">Merchant</Label>
+              <Input
+                value={receipt.merchant}
+                onChange={e => onUpdate(receipt.id, 'merchant', e.target.value)}
+                className="h-7 text-[11px]"
+              />
+            </div>
             <button
-              onClick={() => toggleEdit(receipt.id)}
-              className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted/60"
+              onClick={() => onToggleEdit(receipt.id)}
+              className="text-[10px] text-primary font-medium hover:underline pb-1.5 shrink-0"
             >
-              <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
-            </button>
-            <button
-              onClick={() => removeReceipt(receipt.id)}
-              className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10"
-            >
-              <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+              Done
             </button>
           </div>
         </div>
-
-        {/* Inline edit */}
-        {receipt.isEditing && (
-          <div className="ml-0.5 mb-2 p-2.5 rounded-lg bg-muted/30 border border-border/30 space-y-2">
-            <div className="grid grid-cols-3 gap-2">
-              <div className="space-y-0.5">
-                <Label className="text-[10px] text-muted-foreground/70">Currency</Label>
-                <Select value={receipt.currency} onValueChange={v => updateReceipt(receipt.id, 'currency', v)}>
-                  <SelectTrigger className="h-7 text-[11px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {receiptCurrencies.map(c => (
-                      <SelectItem key={c.code} value={c.code}>{c.flag} {c.code}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-0.5">
-                <Label className="text-[10px] text-muted-foreground/70">Amount</Label>
-                <Input
-                  type="number" step="0.01" min="0.01"
-                  value={receipt.amount || ''}
-                  onChange={e => updateReceipt(receipt.id, 'amount', parseFloat(e.target.value) || 0)}
-                  className="h-7 text-[11px]"
-                />
-              </div>
-              <div className="space-y-0.5">
-                <Label className="text-[10px] text-muted-foreground/70">Category</Label>
-                <Select value={receipt.category} onValueChange={v => updateReceipt(receipt.id, 'category', v)}>
-                  <SelectTrigger className="h-7 text-[11px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {expenseCategories.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex items-end gap-2">
-              <div className="flex-1 space-y-0.5">
-                <Label className="text-[10px] text-muted-foreground/70">Merchant</Label>
-                <Input
-                  value={receipt.merchant}
-                  onChange={e => updateReceipt(receipt.id, 'merchant', e.target.value)}
-                  className="h-7 text-[11px]"
-                />
-              </div>
-              <button
-                onClick={() => toggleEdit(receipt.id)}
-                className="text-[10px] text-primary font-medium hover:underline pb-1.5 shrink-0"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-};
+      )}
+    </div>
+  );
+}
