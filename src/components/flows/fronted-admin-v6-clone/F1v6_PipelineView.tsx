@@ -1669,7 +1669,33 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         }}
       />
 
-
+      {/* Delete Worker Confirmation */}
+      <AlertDialog open={!!workerToDelete} onOpenChange={(open) => { if (!open) setWorkerToDelete(null); }}>
+        <AlertDialogContent className="bg-card border-border" onOverlayClick={() => setWorkerToDelete(null)}>
+          <button
+            onClick={() => setWorkerToDelete(null)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </button>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove worker?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              Are you sure you want to remove <span className="font-medium text-foreground">{workerToDeleteName}</span> from the pipeline? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="h-9" onClick={() => setWorkerToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRemoveWorker}
+              className="h-9 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remove worker
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>;
 };
