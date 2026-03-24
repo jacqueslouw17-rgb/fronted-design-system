@@ -254,6 +254,11 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     setOvertimeEndTime("");
     setBonusItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
     setCommissionItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
+    setOtherDescription("");
+    setOtherAmount("");
+    setOtherTaxTiming("before_tax");
+    setOtherIsTaxable(true);
+    setOtherAttachment([]);
   };
 
   const handleClose = () => {
