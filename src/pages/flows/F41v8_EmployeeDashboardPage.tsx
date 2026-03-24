@@ -22,6 +22,7 @@ import {
   F41v8_AdjustmentsSection,
   F41v8_AdjustmentModal
 } from "@/components/flows/employee-dashboard-v8";
+import { F41v8_SupportBubble } from "@/components/flows/employee-dashboard-v8/F41v8_SupportBubble";
 
 interface PayslipData {
   id: string;
@@ -257,6 +258,9 @@ const F41v8_EmployeeDashboardPage = () => {
             initialEndTime={adjustmentPrefill.endTime}
             localExpenseCurrency="NOK"
           />
+
+          {/* Support Bubble */}
+          <F41v8_SupportBubble />
         </div>
       </TooltipProvider>
     </RoleLensProvider>
