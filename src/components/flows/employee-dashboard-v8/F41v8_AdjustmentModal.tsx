@@ -51,8 +51,7 @@ interface F41v8_AdjustmentModalProps {
   initialEndTime?: string;
   rejectedId?: string;
   onBack?: () => void;
-  /** v9 override: intercept expense tile click to open smart panel instead */
-  onExpenseSelected?: () => void;
+  localExpenseCurrency?: string;
 }
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
