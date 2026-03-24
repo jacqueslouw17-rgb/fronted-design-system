@@ -1169,14 +1169,13 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
             {/* Description */}
             <div className="space-y-1.5">
               <Label className="text-xs">Description</Label>
-              <Textarea
-                placeholder="e.g. Clothing allowance, Loan repayment, Salary advance recovery..."
+              <Input
+                placeholder="e.g SSS loan amortization"
                 value={otherDescription}
                 onChange={(e) => setOtherDescription(e.target.value)}
-                className="min-h-[72px] text-sm resize-none"
+                className="h-9"
                 maxLength={200}
               />
-              <p className="text-[11px] text-muted-foreground text-right">{otherDescription.length}/200</p>
             </div>
 
             {/* Amount */}
