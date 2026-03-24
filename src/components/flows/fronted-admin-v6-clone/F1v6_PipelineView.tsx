@@ -8,7 +8,7 @@
  * Source: src/components/contract-flow/PipelineView.tsx
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { getCurrencyCode } from "@/utils/currencyUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +17,17 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown, X } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -845,10 +855,19 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
     }, 800);
   };
+  const [workerToDelete, setWorkerToDelete] = useState<string | null>(null);
+  const workerToDeleteName = workerToDelete ? contractors.find(c => c.id === workerToDelete)?.name : "";
+
   const handleRemoveFromOfferAccepted = (contractorId: string) => {
-    setContractors(prev => prev.filter(c => c.id !== contractorId));
-    onRemoveContractor?.(contractorId);
+    setWorkerToDelete(contractorId);
   };
+
+  const confirmRemoveWorker = useCallback(() => {
+    if (!workerToDelete) return;
+    setContractors(prev => prev.filter(c => c.id !== workerToDelete));
+    onRemoveContractor?.(workerToDelete);
+    setWorkerToDelete(null);
+  }, [workerToDelete, onRemoveContractor]);
   const handleBulkSendForms = () => {
     const selectedInOfferAccepted = contractors.filter(c => selectedIds.has(c.id) && c.status === "offer-accepted");
     const updated = contractors.map(c => selectedIds.has(c.id) && c.status === "offer-accepted" ? {
@@ -1650,7 +1669,33 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         }}
       />
 
-
+      {/* Delete Worker Confirmation */}
+      <AlertDialog open={!!workerToDelete} onOpenChange={(open) => { if (!open) setWorkerToDelete(null); }}>
+        <AlertDialogContent className="bg-card border-border" onOverlayClick={() => setWorkerToDelete(null)}>
+          <button
+            onClick={() => setWorkerToDelete(null)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </button>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove worker?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              Are you sure you want to remove <span className="font-medium text-foreground">{workerToDeleteName}</span> from the pipeline? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="h-9" onClick={() => setWorkerToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRemoveWorker}
+              className="h-9 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remove worker
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>;
 };
