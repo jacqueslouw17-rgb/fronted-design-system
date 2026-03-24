@@ -33,6 +33,7 @@ import { TagInput } from '@/components/flows/shared/TagInput';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { F41v8_TimeInput } from './F41v8_TimeInput';
+import { F41v9_SmartExpenseContent } from './F41v9_SmartExpenseContent';
 
 export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | 'unpaid-leave' | null;
 
