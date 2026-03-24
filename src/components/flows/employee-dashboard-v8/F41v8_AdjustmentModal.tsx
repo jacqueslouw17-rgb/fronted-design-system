@@ -659,10 +659,6 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                   key={option.id}
                   onClick={() => {
                     if (option.disabled) return;
-                    if (option.id === 'expense' && onExpenseSelected) {
-                      onExpenseSelected();
-                      return;
-                    }
                     setSelectedType(option.id);
                   }}
                   disabled={option.disabled}
