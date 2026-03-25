@@ -19,6 +19,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
+import { CA4_ExportSection } from "@/components/flows/company-admin-v4/CA4_ExportSection";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 
 type Section = "overview" | "profile-details" | "change-password";
