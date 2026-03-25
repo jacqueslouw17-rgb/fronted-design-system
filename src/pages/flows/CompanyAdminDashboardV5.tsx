@@ -60,95 +60,69 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
     return () => document.body.classList.remove('v7-glass-active');
   }, []);
 
-  // Scroll-based topbar frosted glass — listen on the actual scroll container
+  // Scroll-based topbar frosted glass — uses window scroll like F1v7
   useEffect(() => {
-    const scrollContainer = document.querySelector('.ca5-scroll-container');
-    if (!scrollContainer) return;
     const onScroll = () => {
-      const scrolled = scrollContainer.scrollTop > 16;
-      document.body.classList.toggle("v7-topbar-scrolled", scrolled);
+      document.body.classList.toggle("v7-topbar-scrolled", window.scrollY > 16);
     };
-    scrollContainer.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      scrollContainer.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scroll", onScroll);
       document.body.classList.remove("v7-topbar-scrolled");
     };
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden v7-glass-bg">
+    <div className="min-h-screen flex flex-col w-full v7-glass-bg">
       {/* Floating orb */}
       <div className="v7-orb-center" />
 
-      {/* Left: Full product (header + content) - responds to chat */}
-      <motion.div
-        className="flex flex-col h-full min-w-0 overflow-hidden"
-        animate={{ 
-          flex: isAgentOpen ? '1 1 0%' : '1 1 100%',
-        }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      >
-        {/* Topbar — transparent at rest, frosted on scroll via v7 CSS */}
-        <Topbar 
-          userName={`${userData.firstName} ${userData.lastName}`} 
-          isDrawerOpen={isDrawerOpen} 
-          onDrawerToggle={toggleDrawer}
-          profileSettingsUrl="/flow-6-v5/profile-settings?returnUrl=/flows/company-admin-dashboard-v5"
-          forceFixed
-        />
+      {/* Topbar — transparent at rest, frosted on scroll via v7 CSS */}
+      <Topbar 
+        userName={`${userData.firstName} ${userData.lastName}`} 
+        isDrawerOpen={isDrawerOpen} 
+        onDrawerToggle={toggleDrawer}
+        profileSettingsUrl="/flow-6-v5/profile-settings?returnUrl=/flows/company-admin-dashboard-v5"
+        forceFixed
+      />
 
-        {/* Main Content Area */}
-        <main className="flex-1 flex overflow-hidden">
-          {/* Dashboard Drawer */}
-          <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
-
-          {/* Main Area — transparent bg, glass theme handles background */}
-          <div className="flex-1 overflow-auto relative min-h-full ca5-scroll-container">
-            <div className="relative">
-              <motion.div 
-                key="payroll-pipeline-agent"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex-1 overflow-y-auto"
-              >
-                <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 pt-16 sm:pt-20">
-                  {/* Agent Header - Centered with frequency visualizer */}
-                  <div className="flex flex-col items-center text-center space-y-4 pt-4 pb-6">
-                    {/* Kurt Frequency Visualizer - Interactive entry point */}
-                    <CA5_KurtVisualizer />
-                    
-                    {/* Title & Subtitle */}
-                    <div className="space-y-2 pt-2">
-                      <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                        Company Admin · Payroll
-                      </h1>
-                      <p className="text-sm sm:text-base text-muted-foreground">
-                        Ask about payroll, taxes, FX, or worker costs.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Tab Content */}
-                  <div>
-                    {activeTab === "leaves" && (
-                      <CA5_LeavesTab />
-                    )}
-
-                    {activeTab === "payroll" && (
-                      <CA5_PayrollSection 
-                        payPeriod={payrollCycleData.current.label} 
-                      />
-                    )}
-                  </div>
+      {/* Main Content Area */}
+      <main className="flex-1">
+        <div className="relative">
+          <motion.div 
+            key="payroll-pipeline-agent"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex-1"
+          >
+            <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 pt-16 sm:pt-20">
+              {/* Agent Header - Centered with frequency visualizer */}
+              <div className="flex flex-col items-center text-center space-y-4 pt-4 pb-6">
+                <CA5_KurtVisualizer />
+                <div className="space-y-2 pt-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                    Company Admin · Payroll
+                  </h1>
+                  <p className="text-sm sm:text-base text-muted-foreground">
+                    Ask about payroll, taxes, FX, or worker costs.
+                  </p>
                 </div>
-              </motion.div>
-            </div>
-          </div>
-        </main>
-      </motion.div>
+              </div>
 
-      {/* Right: Agent Chat Panel - completely outside product area */}
+              {/* Tab Content */}
+              <div>
+                {activeTab === "leaves" && <CA5_LeavesTab />}
+                {activeTab === "payroll" && (
+                  <CA5_PayrollSection payPeriod={payrollCycleData.current.label} />
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </main>
+
+      {/* Right: Agent Chat Panel */}
       <CA5_AgentChatPanel />
     </div>
   );
