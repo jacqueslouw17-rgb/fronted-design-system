@@ -218,6 +218,21 @@ const F1v5_ProfileSettings = () => {
                     />
                   </motion.div>
                 )}
+
+                {currentSection === "export" && (
+                  <motion.div
+                    key="export"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.2 }}
+                    className="pb-20 sm:pb-8"
+                  >
+                    <F1v5_ExportSection
+                      onBack={() => setCurrentSection("overview")}
+                    />
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
           </div>
