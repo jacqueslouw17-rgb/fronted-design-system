@@ -7,7 +7,7 @@
  * @refresh reset
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Topbar from "@/components/dashboard/Topbar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
@@ -60,50 +60,35 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
     return () => document.body.classList.remove('v7-glass-active');
   }, []);
 
-  // Scroll-based topbar frosted glass
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // Scroll-based topbar frosted glass — uses window scroll like F1v7
   useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
     const onScroll = () => {
-      document.body.classList.toggle("v7-topbar-scrolled", el.scrollTop > 16);
+      document.body.classList.toggle("v7-topbar-scrolled", window.scrollY > 16);
     };
-    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scroll", onScroll);
       document.body.classList.remove("v7-topbar-scrolled");
     };
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden v7-glass-bg">
+    <div className="min-h-screen flex flex-col w-full v7-glass-bg">
       {/* Floating orb */}
       <div className="v7-orb-center" />
 
-      {/* Left: Full product (header + content) - responds to chat */}
-      <motion.div
-        className="flex flex-col h-full min-w-0 overflow-hidden"
-        animate={{ 
-          flex: isAgentOpen ? '1 1 0%' : '1 1 100%',
-        }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      >
-        {/* Topbar — transparent at rest, frosted on scroll via v7 CSS */}
-        <Topbar 
-          userName={`${userData.firstName} ${userData.lastName}`} 
-          isDrawerOpen={isDrawerOpen} 
-          onDrawerToggle={toggleDrawer}
-          profileSettingsUrl="/flow-6-v5/profile-settings?returnUrl=/flows/company-admin-dashboard-v5"
-          forceFixed
-        />
+      {/* Topbar — transparent at rest, frosted on scroll via v7 CSS */}
+      <Topbar 
+        userName={`${userData.firstName} ${userData.lastName}`} 
+        isDrawerOpen={isDrawerOpen} 
+        onDrawerToggle={toggleDrawer}
+        profileSettingsUrl="/flow-6-v5/profile-settings?returnUrl=/flows/company-admin-dashboard-v5"
+        forceFixed
+      />
 
-        {/* Main Content Area */}
-        <main className="flex-1 flex overflow-hidden">
-          {/* Dashboard Drawer */}
-          <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
-
-          {/* Main Area — transparent bg, glass theme handles background */}
-          <div ref={scrollContainerRef} className="flex-1 overflow-auto relative min-h-full">
+      {/* Main Content Area */}
+      <main className="flex-1">
+        <div className="relative">
             <div className="relative">
               <motion.div 
                 key="payroll-pipeline-agent"
