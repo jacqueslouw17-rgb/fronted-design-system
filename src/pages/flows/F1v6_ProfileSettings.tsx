@@ -21,8 +21,9 @@ import frontedLogo from "@/assets/fronted-logo.png";
 import { F1v5_CompanyAdministratorsDetail } from "@/components/flows/fronted-admin-v5-clone/F1v5_CompanyAdministratorsDetail";
 import { F1v5_TeamMembersSection } from "@/components/flows/fronted-admin-v5-clone/F1v5_TeamMembersSection";
 import { F1v5_RolesPermissionsSection } from "@/components/flows/fronted-admin-v5-clone/F1v5_RolesPermissionsSection";
+import { F1v5_ExportSection } from "@/components/flows/fronted-admin-v5-clone/F1v5_ExportSection";
 
-type Section = "overview" | "company-administrators" | "team-members" | "roles-permissions" | "change-password";
+type Section = "overview" | "company-administrators" | "team-members" | "roles-permissions" | "change-password" | "export";
 
 const OVERVIEW_CARDS = [
   {
