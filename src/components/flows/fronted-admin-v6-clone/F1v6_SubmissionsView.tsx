@@ -1487,6 +1487,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 <CA3_BulkRejectDialog open={showBulkRejectDialog} onOpenChange={setShowBulkRejectDialog} onConfirm={handleBulkReject} pendingCount={currentPendingCount} />
                 {showExcludeDialog && <CA3_ExcludeWorkerDialog open={showExcludeDialog} onOpenChange={setShowExcludeDialog} onConfirm={() => { statusDecisions[selectedSubmission.id] = "exclude"; setFinalizedWorkers((prev) => new Set(prev).add(selectedSubmission.id)); setDrawerOpen(false); toast.info(`${selectedSubmission.workerName} excluded from this run`); }} workerName={selectedSubmission.workerName} />}
 
+                {undoConfirmation && <UndoConfirmationDialog open={undoConfirmation.open} onOpenChange={(open) => { if (!open) setUndoConfirmation(null); }} onConfirm={undoConfirmation.onConfirm} scope={undoConfirmation.scope} itemLabel={undoConfirmation.label} workerName={undoConfirmation.workerName} />}
+
               </>}
               </>
             );
