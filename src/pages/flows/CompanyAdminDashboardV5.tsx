@@ -60,15 +60,17 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
     return () => document.body.classList.remove('v7-glass-active');
   }, []);
 
-  // Scroll-based topbar frosted glass
+  // Scroll-based topbar frosted glass — listen on the actual scroll container
   useEffect(() => {
+    const scrollContainer = document.querySelector('.ca5-scroll-container');
+    if (!scrollContainer) return;
     const onScroll = () => {
-      const scrolled = window.scrollY > 16;
+      const scrolled = scrollContainer.scrollTop > 16;
       document.body.classList.toggle("v7-topbar-scrolled", scrolled);
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
+    scrollContainer.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      scrollContainer.removeEventListener("scroll", onScroll);
       document.body.classList.remove("v7-topbar-scrolled");
     };
   }, []);
@@ -101,7 +103,7 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
           <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
           {/* Main Area — transparent bg, glass theme handles background */}
-          <div className="flex-1 overflow-auto relative min-h-full">
+          <div className="flex-1 overflow-auto relative min-h-full ca5-scroll-container">
             <div className="relative">
               <motion.div 
                 key="payroll-pipeline-agent"
