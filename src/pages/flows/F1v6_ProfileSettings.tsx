@@ -45,6 +45,11 @@ const OVERVIEW_CARDS = [
     id: "change-password" as Section,
     title: "Change Password",
     description: "Update your login password"
+  },
+  {
+    id: "export" as Section,
+    title: "Export for Accountant",
+    description: "Send country-specific payroll exports to your accountants"
   }
 ];
 
@@ -54,6 +59,7 @@ const SECTION_HEADERS: Record<Section, { title: string; subtitle: string }> = {
   "team-members": { title: "Team Members", subtitle: "Invite and manage team members with role assignments." },
   "roles-permissions": { title: "Roles & Permissions", subtitle: "Create and configure roles with module-level permissions." },
   "change-password": { title: "Change Password", subtitle: "Update your login password." },
+  "export": { title: "Export for Accountant", subtitle: "Generate country-specific payroll exports to send to your accountants or payroll experts." },
 };
 
 const F1v5_ProfileSettings = () => {
