@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "./CA5_ConfirmationDialogs";
+import { UndoConfirmationDialog } from "@/components/flows/shared/UndoConfirmationDialog";
 import { CollapsibleSection } from "./CA5_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA5_AdminAddAdjustment";
 import { CurrencyToggle, convertToEUR } from "@/components/flows/shared/CurrencyToggle";
@@ -830,6 +831,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // Finalized workers - once finalized, their items are locked
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
   // Status change decisions (Flag 1) - keyed by worker submission id
+  // Undo confirmation dialog state
+  const [undoConfirmation, setUndoConfirmation] = useState<{ open: boolean; scope: 'single' | 'all'; label?: string; workerName?: string; onConfirm: () => void } | null>(null);
   const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
   // Skip remaining: explicit signal that user is done reviewing for off-cycle batches
   const [skippedOthers, setSkippedOthers] = useState(false);
@@ -1183,24 +1186,34 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   }, [selectedWorkerPendingCount, selectedSubmission]);
 
   const undoAdjustmentStatus = (submissionId: string, adjIndex: number) => {
-    const key = `${submissionId}-${adjIndex}`;
-    setAdjustmentStates(prev => ({
-      ...prev,
-      [key]: { status: 'pending' }
-    }));
-    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
-    toast.info('Action undone');
+    const submission = submissions.find(s => s.id === submissionId);
+    const adj = submission?.submissions[adjIndex];
+    const label = adj?.description || adj?.type || 'this adjustment';
+    setUndoConfirmation({
+      open: true, scope: 'single', label,
+      onConfirm: () => {
+        const key = `${submissionId}-${adjIndex}`;
+        setAdjustmentStates(prev => ({ ...prev, [key]: { status: 'pending' } }));
+        setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
+        toast.info('Action undone');
+      },
+    });
   };
 
-  // Undo leave status (revert to pending)
+  // Undo leave status (revert to pending) - with confirmation dialog
   const undoLeaveStatus = (submissionId: string, leaveId: string) => {
-    const key = `${submissionId}-leave-${leaveId}`;
-    setLeaveStates(prev => ({
-      ...prev,
-      [key]: { status: 'pending' }
-    }));
-    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
-    toast.info('Action undone');
+    const submission = submissions.find(s => s.id === submissionId);
+    const leave = submission?.pendingLeaves?.find(l => l.id === leaveId);
+    const label = leave?.leaveType || 'this leave';
+    setUndoConfirmation({
+      open: true, scope: 'single', label,
+      onConfirm: () => {
+        const key = `${submissionId}-leave-${leaveId}`;
+        setLeaveStates(prev => ({ ...prev, [key]: { status: 'pending' } }));
+        setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
+        toast.info('Action undone');
+      },
+    });
   };
 
   // Mark worker as ready (finalize all reviews)
@@ -2391,20 +2404,25 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                       </div>
                       <button
                         onClick={() => {
-                          const newAdjStates = { ...adjustmentStates };
-                          selectedSubmission.submissions.forEach((adj, idx) => {
-                            const key = `${selectedSubmission.id}-${idx}`;
-                            if (newAdjStates[key]) newAdjStates[key] = { status: 'pending' };
+                          setUndoConfirmation({
+                            open: true, scope: 'all', workerName: selectedSubmission.workerName,
+                            onConfirm: () => {
+                              const newAdjStates = { ...adjustmentStates };
+                              selectedSubmission.submissions.forEach((adj, idx) => {
+                                const key = `${selectedSubmission.id}-${idx}`;
+                                if (newAdjStates[key]) newAdjStates[key] = { status: 'pending' };
+                              });
+                              setAdjustmentStates(newAdjStates);
+                              const newLeaveStates = { ...leaveStates };
+                              (selectedSubmission.pendingLeaves || []).forEach(leave => {
+                                const key = `${selectedSubmission.id}-leave-${leave.id}`;
+                                if (newLeaveStates[key]) newLeaveStates[key] = { status: 'pending' };
+                              });
+                              setLeaveStates(newLeaveStates);
+                              setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
+                              toast.info(`${selectedSubmission.workerName} moved back to review`);
+                            },
                           });
-                          setAdjustmentStates(newAdjStates);
-                          const newLeaveStates = { ...leaveStates };
-                          (selectedSubmission.pendingLeaves || []).forEach(leave => {
-                            const key = `${selectedSubmission.id}-leave-${leave.id}`;
-                            if (newLeaveStates[key]) newLeaveStates[key] = { status: 'pending' };
-                          });
-                          setLeaveStates(newLeaveStates);
-                          setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
-                          toast.info(`${selectedSubmission.workerName} moved back to review`);
                         }}
                         className="mx-auto flex items-center gap-1 px-3 py-1 rounded-full border border-border/50 hover:border-border hover:bg-muted text-muted-foreground hover:text-foreground text-xs transition-colors duration-200"
                       >
@@ -2474,6 +2492,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   );
                 })()}
                 
+                {undoConfirmation && <UndoConfirmationDialog open={undoConfirmation.open} onOpenChange={(open) => { if (!open) setUndoConfirmation(null); }} onConfirm={undoConfirmation.onConfirm} scope={undoConfirmation.scope} itemLabel={undoConfirmation.label} workerName={undoConfirmation.workerName} />}
+
                 {/* Receipt Overlay View */}
                 <AnimatePresence>
                   {showReceiptView && (
