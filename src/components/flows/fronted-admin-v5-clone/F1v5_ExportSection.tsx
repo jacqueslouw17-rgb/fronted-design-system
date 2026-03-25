@@ -106,7 +106,7 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
                   <span className="text-base">{country.flag}</span>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-foreground">{country.name}</p>
-                    <p className="text-xs text-muted-foreground">{country.workers} workers</p>
+                    
                   </div>
                 </div>
                 <div
@@ -187,33 +187,6 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
         </AnimatePresence>
       </div>
 
-      {/* Summary & Export */}
-      <AnimatePresence>
-        {canExport && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.15 }}
-            className="rounded-xl border border-border/30 bg-card/20 p-4 space-y-3"
-          >
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Export Summary</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="text-xl font-semibold text-foreground">{selectedCountries.length}</p>
-                <p className="text-xs text-muted-foreground">{selectedCountries.length === 1 ? "Country" : "Countries"}</p>
-              </div>
-              <div>
-                <p className="text-xl font-semibold text-foreground">{totalWorkers}</p>
-                <p className="text-xs text-muted-foreground">Workers</p>
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Includes base pay, adjustments, deductions, employer costs, and net totals per worker.
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Actions */}
       <div className="flex items-center gap-2 justify-center pt-2">
