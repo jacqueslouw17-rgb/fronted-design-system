@@ -1135,8 +1135,6 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                   isOpen={isAddingAdjustment}
                   onOpenChange={setIsAddingAdjustment}
                   onAddAdjustment={(adjustment) => handleAdminAddAdjustment(selectedSubmission.id, adjustment)} /> :
-  // Undo confirmation dialog state
-  const [undoConfirmation, setUndoConfirmation] = useState<{ open: boolean; scope: 'single' | 'all'; label?: string; workerName?: string; onConfirm: () => void } | null>(null);
 
                 <>
                     <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/30">
