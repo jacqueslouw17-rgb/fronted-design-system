@@ -60,15 +60,17 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
     return () => document.body.classList.remove('v7-glass-active');
   }, []);
 
-  // Scroll-based topbar frosted glass
+  // Scroll-based topbar frosted glass — listen on the actual scroll container
   useEffect(() => {
+    const scrollContainer = document.querySelector('.ca5-scroll-container');
+    if (!scrollContainer) return;
     const onScroll = () => {
-      const scrolled = window.scrollY > 16;
+      const scrolled = scrollContainer.scrollTop > 16;
       document.body.classList.toggle("v7-topbar-scrolled", scrolled);
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
+    scrollContainer.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      scrollContainer.removeEventListener("scroll", onScroll);
       document.body.classList.remove("v7-topbar-scrolled");
     };
   }, []);
