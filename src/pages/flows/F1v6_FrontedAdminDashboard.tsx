@@ -824,7 +824,7 @@ const AdminContractingMultiCompany = () => {
 
   return (
     <RoleLensProvider initialRole="admin">
-      <div className="min-h-screen flex flex-col w-full bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+      <div className="min-h-screen flex flex-col w-full bg-background">
       {/* Topbar - shown on pipeline view (idle + offer-accepted + data-collection) */}
       {!isAddingNewCompany && !isEditingCompany && (
         contractFlow.phase === "idle" ||
@@ -917,7 +917,7 @@ const AdminContractingMultiCompany = () => {
 
           {/* Contract Flow Main Area with Agent Layout */}
           <AgentLayout context="Contract Flow">
-            <div className="flex-1 overflow-auto relative min-h-full bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+            <div className="flex-1 overflow-auto relative min-h-full">
               <div className="relative z-10 min-h-full">
               {isAddingNewCompany ? (
                 <F1v4_EmbeddedAdminOnboarding
