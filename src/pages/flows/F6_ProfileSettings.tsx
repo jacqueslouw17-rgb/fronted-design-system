@@ -19,9 +19,10 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { FrostedHeader } from "@/components/shared/FrostedHeader";
 import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
+import { CA4_ExportSection } from "@/components/flows/company-admin-v4/CA4_ExportSection";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 
-type Section = "overview" | "profile-details" | "change-password";
+type Section = "overview" | "profile-details" | "change-password" | "export-accountant";
 
 const OVERVIEW_CARDS = [
   {
@@ -34,12 +35,18 @@ const OVERVIEW_CARDS = [
     title: "Change Password",
     description: "Update your login password"
   },
+  {
+    id: "export-accountant" as Section,
+    title: "Export for Accountant",
+    description: "Generate payroll exports for accountant validation"
+  },
 ];
 
 const SECTION_HEADERS: Record<Section, { title: string; subtitle: string }> = {
   "overview": { title: "Profile Settings", subtitle: "Manage your company profile and account." },
   "profile-details": { title: "Profile Details", subtitle: "Your company and admin details." },
   "change-password": { title: "Change Password", subtitle: "Update your login password." },
+  "export-accountant": { title: "Export for Accountant", subtitle: "Generate payroll exports for validation." },
 };
 
 const PROFILE_SECTIONS = [
@@ -277,6 +284,21 @@ const F6_ProfileSettings = () => {
                 >
                   <Flow6ChangePassword
                     onCancel={() => setCurrentSection("overview")}
+                  />
+                </motion.div>
+              )}
+
+              {currentSection === "export-accountant" && (
+                <motion.div
+                  key="export-accountant"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.2 }}
+                  className="pb-20 sm:pb-8"
+                >
+                  <CA4_ExportSection
+                    onBack={() => setCurrentSection("overview")}
                   />
                 </motion.div>
               )}
