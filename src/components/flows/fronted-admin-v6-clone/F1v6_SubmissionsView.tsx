@@ -1437,20 +1437,25 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       </div>
                       <button
                         onClick={() => {
-                          const newAdjStates = { ...adjustmentStates };
-                          selectedSubmission.submissions.forEach((adj, idx) => {
-                            const key = `${selectedSubmission.id}-${idx}`;
-                            if (newAdjStates[key]) newAdjStates[key] = { status: 'pending' };
+                          setUndoConfirmation({
+                            open: true, scope: 'all', workerName: selectedSubmission.workerName,
+                            onConfirm: () => {
+                              const newAdjStates = { ...adjustmentStates };
+                              selectedSubmission.submissions.forEach((adj, idx) => {
+                                const key = `${selectedSubmission.id}-${idx}`;
+                                if (newAdjStates[key]) newAdjStates[key] = { status: 'pending' };
+                              });
+                              setAdjustmentStates(newAdjStates);
+                              const newLeaveStates = { ...leaveStates };
+                              (selectedSubmission.pendingLeaves || []).forEach(leave => {
+                                const key = `${selectedSubmission.id}-leave-${leave.id}`;
+                                if (newLeaveStates[key]) newLeaveStates[key] = { status: 'pending' };
+                              });
+                              setLeaveStates(newLeaveStates);
+                              setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
+                              toast.info(`${selectedSubmission.workerName} moved back to review`);
+                            },
                           });
-                          setAdjustmentStates(newAdjStates);
-                          const newLeaveStates = { ...leaveStates };
-                          (selectedSubmission.pendingLeaves || []).forEach(leave => {
-                            const key = `${selectedSubmission.id}-leave-${leave.id}`;
-                            if (newLeaveStates[key]) newLeaveStates[key] = { status: 'pending' };
-                          });
-                          setLeaveStates(newLeaveStates);
-                          setFinalizedWorkers((prev) => { const next = new Set(prev); next.delete(selectedSubmission.id); return next; });
-                          toast.info(`${selectedSubmission.workerName} moved back to review`);
                         }}
                         className="mx-auto flex items-center gap-1 px-3 py-1 rounded-full border border-border/50 hover:border-border hover:bg-muted text-muted-foreground hover:text-foreground text-xs transition-colors duration-200"
                       >
