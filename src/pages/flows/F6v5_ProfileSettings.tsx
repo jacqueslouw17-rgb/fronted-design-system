@@ -91,6 +91,21 @@ const F6v5_ProfileSettings = () => {
     return () => document.body.classList.remove('v7-glass-active');
   }, []);
 
+  // Scroll-based frosted header — listen on AgentLayout's scroll container
+  useEffect(() => {
+    // AgentLayout renders a motion.div with overflow-y-auto as the scroll container
+    const scrollContainer = document.querySelector('.v7-glass-bg .overflow-y-auto');
+    if (!scrollContainer) return;
+    const onScroll = () => {
+      document.body.classList.toggle("v7-topbar-scrolled", scrollContainer.scrollTop > 16);
+    };
+    scrollContainer.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      scrollContainer.removeEventListener("scroll", onScroll);
+      document.body.classList.remove("v7-topbar-scrolled");
+    };
+  }, []);
+
   const formData = {
     companyName: "JBOX Technologies",
     hqCountry: "NO",
