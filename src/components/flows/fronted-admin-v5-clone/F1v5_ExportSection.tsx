@@ -14,12 +14,12 @@ interface F1v5_ExportSectionProps {
 }
 
 const COUNTRIES = [
-  { code: "GB", name: "United Kingdom", flag: "🇬🇧", workers: 24 },
-  { code: "DE", name: "Germany", flag: "🇩🇪", workers: 18 },
-  { code: "FR", name: "France", flag: "🇫🇷", workers: 12 },
-  { code: "NL", name: "Netherlands", flag: "🇳🇱", workers: 8 },
-  { code: "ES", name: "Spain", flag: "🇪🇸", workers: 6 },
-  { code: "IE", name: "Ireland", flag: "🇮🇪", workers: 4 },
+  { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
+  { code: "DE", name: "Germany", flag: "🇩🇪" },
+  { code: "FR", name: "France", flag: "🇫🇷" },
+  { code: "NL", name: "Netherlands", flag: "🇳🇱" },
+  { code: "ES", name: "Spain", flag: "🇪🇸" },
+  { code: "IE", name: "Ireland", flag: "🇮🇪" },
 ];
 
 const BATCHES = [
@@ -57,16 +57,12 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
   const selectedBatchData = BATCHES.find((b) => b.id === selectedBatch);
   const canExport = selectedCountries.length > 0 && selectedBatch;
 
-  const totalWorkers = COUNTRIES
-    .filter((c) => selectedCountries.includes(c.code))
-    .reduce((sum, c) => sum + c.workers, 0);
-
   const handleExport = () => {
     setExporting(true);
     setTimeout(() => {
       setExporting(false);
       toast.success(
-        `Exported ${selectedCountries.length} ${selectedCountries.length === 1 ? "country" : "countries"} · ${totalWorkers} workers`,
+        `Exported ${selectedCountries.length} ${selectedCountries.length === 1 ? "country" : "countries"}`,
         { description: `${selectedBatchData?.label} – ready to send to your accountant` }
       );
     }, 1500);
@@ -104,10 +100,7 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="text-base">{country.flag}</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground">{country.name}</p>
-                    
-                  </div>
+                  <p className="text-sm font-medium text-foreground">{country.name}</p>
                 </div>
                 <div
                   className={`h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
