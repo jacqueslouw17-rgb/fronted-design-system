@@ -86,14 +86,14 @@ const F1v5_ProfileSettings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/95 to-primary/5">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
+    <div className="min-h-screen bg-background">
       {/* Logo and Close Button */}
       <FrostedHeader
         onLogoClick={() => navigate("/flows/fronted-admin-dashboard-v6-clone")}
@@ -102,7 +102,7 @@ const F1v5_ProfileSettings = () => {
 
       <AgentLayout context="admin-profile-settings-v5">
         <RBACProvider>
-          <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
+          <div className="min-h-screen bg-background text-foreground relative">
             {/* Static background */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
