@@ -113,7 +113,7 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
           <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
           {/* Main Area — transparent bg, glass theme handles background */}
-          <div className="flex-1 overflow-auto relative min-h-full ca5-scroll-container">
+          <div ref={scrollCallbackRef} className="flex-1 overflow-auto relative min-h-full">
             <div className="relative">
               <motion.div 
                 key="payroll-pipeline-agent"
