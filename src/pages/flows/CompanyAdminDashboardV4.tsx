@@ -88,7 +88,7 @@ const CompanyAdminDashboardV4Content: React.FC = () => {
               />
             </div>
             
-            <div className="relative z-10">
+            <div className="relative z-10 [&_header]:!bg-transparent [&_header]:!border-transparent [&_header]:shadow-none">
               {/* Topbar - scrolls with content, not fixed */}
               <Topbar 
                 userName={`${userData.firstName} ${userData.lastName}`} 
