@@ -691,7 +691,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const undoAdjustmentStatus = (submissionId: string, adjIndex: number) => {
     const submission = submissions.find(s => s.id === submissionId);
     const adj = submission?.submissions[adjIndex];
-    const label = adj?.label || adj?.type || 'this adjustment';
+    const label = adj?.description || adj?.type || 'this adjustment';
     setUndoConfirmation({
       open: true, scope: 'single', label,
       onConfirm: () => {
