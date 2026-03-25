@@ -110,7 +110,7 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex-1 overflow-y-auto"
+                className="flex-1"
               >
                 <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 pt-16 sm:pt-20">
                   {/* Agent Header - Centered with frequency visualizer */}
