@@ -197,7 +197,6 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
           className="rounded-xl gap-2"
           size="sm"
         >
-          <Download className="h-3.5 w-3.5" />
           {exporting ? "Exporting…" : "Export for Accountant"}
         </Button>
       </div>
