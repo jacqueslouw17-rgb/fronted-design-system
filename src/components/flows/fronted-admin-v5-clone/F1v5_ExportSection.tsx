@@ -62,8 +62,8 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
     setTimeout(() => {
       setExporting(false);
       toast.success(
-        `Exported ${selectedCountries.length} ${selectedCountries.length === 1 ? "country" : "countries"}`,
-        { description: `${selectedBatchData?.label} – ready to send to your accountant` }
+        `Export sent to your email`,
+        { description: `${selectedCountries.length} ${selectedCountries.length === 1 ? "country" : "countries"} · ${selectedBatchData?.label}` }
       );
     }, 1500);
   };
