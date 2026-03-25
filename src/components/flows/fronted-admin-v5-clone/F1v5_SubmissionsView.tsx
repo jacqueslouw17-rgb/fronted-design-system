@@ -527,6 +527,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
   const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
   // Skip remaining: explicit signal that user is done reviewing for off-cycle batches
   const [skippedOthers, setSkippedOthers] = useState(false);
+  // Undo confirmation dialog state
+  const [undoConfirmation, setUndoConfirmation] = useState<{ open: boolean; scope: 'single' | 'all'; label?: string; workerName?: string; onConfirm: () => void } | null>(null);
 
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments((prev) => ({ ...prev, [submissionId]: [...(prev[submissionId] || []), adjustment] }));
