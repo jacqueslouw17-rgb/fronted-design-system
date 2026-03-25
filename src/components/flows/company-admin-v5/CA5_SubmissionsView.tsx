@@ -831,6 +831,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
   // Finalized workers - once finalized, their items are locked
   const [finalizedWorkers, setFinalizedWorkers] = useState<Set<string>>(new Set());
   // Status change decisions (Flag 1) - keyed by worker submission id
+  // Undo confirmation dialog state
+  const [undoConfirmation, setUndoConfirmation] = useState<{ open: boolean; scope: 'single' | 'all'; label?: string; workerName?: string; onConfirm: () => void } | null>(null);
   const [statusDecisions, setStatusDecisions] = useState<Record<string, StatusDecision>>({});
   // Skip remaining: explicit signal that user is done reviewing for off-cycle batches
   const [skippedOthers, setSkippedOthers] = useState(false);
