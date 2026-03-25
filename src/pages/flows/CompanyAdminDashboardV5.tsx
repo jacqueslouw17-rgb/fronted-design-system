@@ -7,7 +7,7 @@
  * @refresh reset
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import Topbar from "@/components/dashboard/Topbar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
@@ -60,17 +60,27 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
     return () => document.body.classList.remove('v7-glass-active');
   }, []);
 
-  // Scroll-based topbar frosted glass — listen on the actual scroll container
+  // Scroll-based topbar frosted glass — use ref callback for reliable binding
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollCallbackRef = useCallback((node: HTMLDivElement | null) => {
+    // Cleanup previous listener
+    if (scrollRef.current) {
+      scrollRef.current.removeEventListener("scroll", handleScroll);
+    }
+    scrollRef.current = node;
+    if (node) {
+      node.addEventListener("scroll", handleScroll, { passive: true });
+    }
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    if (scrollRef.current) {
+      document.body.classList.toggle("v7-topbar-scrolled", scrollRef.current.scrollTop > 16);
+    }
+  }, []);
+
   useEffect(() => {
-    const scrollContainer = document.querySelector('.ca5-scroll-container');
-    if (!scrollContainer) return;
-    const onScroll = () => {
-      const scrolled = scrollContainer.scrollTop > 16;
-      document.body.classList.toggle("v7-topbar-scrolled", scrolled);
-    };
-    scrollContainer.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      scrollContainer.removeEventListener("scroll", onScroll);
       document.body.classList.remove("v7-topbar-scrolled");
     };
   }, []);
