@@ -2559,6 +2559,8 @@ export const CA4_SubmissionsView: React.FC<CA4_SubmissionsViewProps> = ({
                   );
                 })()}
                 
+                {undoConfirmation && <UndoConfirmationDialog open={undoConfirmation.open} onOpenChange={(open) => { if (!open) setUndoConfirmation(null); }} onConfirm={undoConfirmation.onConfirm} scope={undoConfirmation.scope} itemLabel={undoConfirmation.label} workerName={undoConfirmation.workerName} />}
+
                 {/* Receipt Overlay View */}
                 <AnimatePresence>
                   {showReceiptView && (
