@@ -89,51 +89,40 @@ const CompanyAdminDashboardV5Content: React.FC = () => {
       {/* Main Content Area */}
       <main className="flex-1">
         <div className="relative">
-            <div className="relative">
-              <motion.div 
-                key="payroll-pipeline-agent"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex-1"
-              >
-                <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 pt-16 sm:pt-20">
-                  {/* Agent Header - Centered with frequency visualizer */}
-                  <div className="flex flex-col items-center text-center space-y-4 pt-4 pb-6">
-                    {/* Kurt Frequency Visualizer - Interactive entry point */}
-                    <CA5_KurtVisualizer />
-                    
-                    {/* Title & Subtitle */}
-                    <div className="space-y-2 pt-2">
-                      <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                        Company Admin · Payroll
-                      </h1>
-                      <p className="text-sm sm:text-base text-muted-foreground">
-                        Ask about payroll, taxes, FX, or worker costs.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Tab Content */}
-                  <div>
-                    {activeTab === "leaves" && (
-                      <CA5_LeavesTab />
-                    )}
-
-                    {activeTab === "payroll" && (
-                      <CA5_PayrollSection 
-                        payPeriod={payrollCycleData.current.label} 
-                      />
-                    )}
-                  </div>
+          <motion.div 
+            key="payroll-pipeline-agent"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex-1"
+          >
+            <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-6 pt-16 sm:pt-20">
+              {/* Agent Header - Centered with frequency visualizer */}
+              <div className="flex flex-col items-center text-center space-y-4 pt-4 pb-6">
+                <CA5_KurtVisualizer />
+                <div className="space-y-2 pt-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                    Company Admin · Payroll
+                  </h1>
+                  <p className="text-sm sm:text-base text-muted-foreground">
+                    Ask about payroll, taxes, FX, or worker costs.
+                  </p>
                 </div>
-              </motion.div>
-            </div>
-          </div>
-        </main>
-      </motion.div>
+              </div>
 
-      {/* Right: Agent Chat Panel - completely outside product area */}
+              {/* Tab Content */}
+              <div>
+                {activeTab === "leaves" && <CA5_LeavesTab />}
+                {activeTab === "payroll" && (
+                  <CA5_PayrollSection payPeriod={payrollCycleData.current.label} />
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </main>
+
+      {/* Right: Agent Chat Panel */}
       <CA5_AgentChatPanel />
     </div>
   );
