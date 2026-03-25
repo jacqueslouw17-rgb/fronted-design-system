@@ -689,20 +689,36 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     toast.info(`Rejected all pending items for ${selectedSubmission.workerName}`);
   };
 
-  // Undo adjustment status (revert to pending)
+  // Undo adjustment status (revert to pending) - with confirmation dialog
   const undoAdjustmentStatus = (submissionId: string, adjIndex: number) => {
-    const key = `${submissionId}-${adjIndex}`;
-    setAdjustmentStates((prev) => ({ ...prev, [key]: { status: 'pending' } }));
-    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
-    toast.info('Action undone');
+    const submission = submissions.find(s => s.id === submissionId);
+    const adj = submission?.submissions[adjIndex];
+    const label = adj?.label || adj?.type || 'this adjustment';
+    setUndoConfirmation({
+      open: true, scope: 'single', label,
+      onConfirm: () => {
+        const key = `${submissionId}-${adjIndex}`;
+        setAdjustmentStates((prev) => ({ ...prev, [key]: { status: 'pending' } }));
+        setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
+        toast.info('Action undone');
+      },
+    });
   };
 
-  // Undo leave status (revert to pending)
+  // Undo leave status (revert to pending) - with confirmation dialog
   const undoLeaveStatus = (submissionId: string, leaveId: string) => {
-    const key = `${submissionId}-leave-${leaveId}`;
-    setLeaveStates((prev) => ({ ...prev, [key]: { status: 'pending' } }));
-    setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
-    toast.info('Action undone');
+    const submission = submissions.find(s => s.id === submissionId);
+    const leave = submission?.pendingLeaves?.find(l => l.id === leaveId);
+    const label = leave?.leaveType || 'this leave';
+    setUndoConfirmation({
+      open: true, scope: 'single', label,
+      onConfirm: () => {
+        const key = `${submissionId}-leave-${leaveId}`;
+        setLeaveStates((prev) => ({ ...prev, [key]: { status: 'pending' } }));
+        setFinalizedWorkers(prev => { const next = new Set(prev); next.delete(submissionId); return next; });
+        toast.info('Action undone');
+      },
+    });
   };
 
   // Mark worker as ready (finalize all reviews)
