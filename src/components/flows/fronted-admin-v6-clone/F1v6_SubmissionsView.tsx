@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog, CA3_ExcludeWorkerDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
+import { UndoConfirmationDialog } from "@/components/flows/shared/UndoConfirmationDialog";
 import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_CollapsibleSection";
 import { F1v6_AdminAddAdjustment, AdminAddedAdjustment } from "./F1v6_AdminAddAdjustment";
 import { CurrencyToggle, convertToEUR } from "@/components/flows/shared/CurrencyToggle";
