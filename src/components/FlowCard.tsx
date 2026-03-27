@@ -789,6 +789,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       ],
       additionalCount: 0,
       dataModel: null
+    },
+    'shared-worker-empty-states': {
+      path: "/flows/shared-worker-empty-states",
+      iconColor: "blue",
+      icon: FileText,
+      title: "Shared – Worker Empty States",
+      status: "next" as const,
+      deprecated: false,
+      description: "First-time worker dashboard experience with empty states for payroll and adjustments tabs. Used by both Flow 4.1 (Employee) and Flow 4.2 (Contractor).",
+      steps: "2 tabs",
+      patterns: "2 patterns",
+      badges: [
+        { label: "Empty Payroll", path: "/flows/shared-worker-empty-states" },
+        { label: "Empty Adjustments", path: "/flows/shared-worker-empty-states" }
+      ],
+      additionalCount: 0,
+      dataModel: null
     }
   };
 

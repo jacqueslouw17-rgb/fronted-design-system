@@ -75,6 +75,7 @@ import ServerError from "./pages/flows/ServerError";
 import OnboardingLinkGone from "./pages/flows/OnboardingLinkGone";
 import PayslipPreviewPage from "./pages/flows/PayslipPreviewPage";
 import InvoicePreviewPage from "./pages/flows/InvoicePreviewPage";
+import SharedWorkerEmptyStates from "./pages/flows/SharedWorkerEmptyStates";
 import CandidateProfileSettings from "./pages/CandidateProfileSettings";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -278,6 +279,8 @@ const App = () => (
         <Route path="/flows/invoice-preview" element={<InvoicePreviewPage />} />
         <Route path="/invoice-template" element={<InvoicePreviewPage />} />
         <Route path="/flows/invoice-template" element={<InvoicePreviewPage />} />
+        <Route path="/flows/shared-worker-empty-states" element={<SharedWorkerEmptyStates />} />
+        <Route path="/shared-worker-empty-states" element={<SharedWorkerEmptyStates />} />
         <Route path="*" element={<NotFound />} />
           </Routes>
         </RoleLensProvider>
