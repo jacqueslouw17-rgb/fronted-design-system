@@ -795,7 +795,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       iconColor: "blue",
       icon: FileText,
       title: "Shared – Worker Empty States",
-      status: "next" as const,
+      status: "future" as const,
       deprecated: false,
       description: "First-time worker dashboard experience with empty states for payroll and adjustments tabs. Used by both Flow 4.1 (Employee) and Flow 4.2 (Contractor).",
       steps: "2 tabs",
