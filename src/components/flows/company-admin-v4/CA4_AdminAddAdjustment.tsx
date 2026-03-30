@@ -200,6 +200,12 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     { id: crypto.randomUUID(), amount: "", attachment: [] },
   ]);
 
+  // Other adjustment state
+  const [otherDescription, setOtherDescription] = useState("");
+  const [otherAmount, setOtherAmount] = useState("");
+  const [otherIsTaxable, setOtherIsTaxable] = useState(true);
+  const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
+
   const requestTypeOptions: RequestOption[] = useMemo(() => {
     const base: RequestOption[] = [
       {
