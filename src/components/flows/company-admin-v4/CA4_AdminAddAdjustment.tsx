@@ -707,6 +707,9 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         {/* Overtime / Additional hours — single entry with date + start/end time */}
         {selectedType === "overtime" && (
           <div className="space-y-5">
+            <DirectionPicker direction={direction} onChange={setDirection} />
+            <TaxableToggle isTaxable={overtimeIsTaxable} onChange={setOvertimeIsTaxable} />
+
             <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
               {/* Date picker */}
               <div className="space-y-1.5">
