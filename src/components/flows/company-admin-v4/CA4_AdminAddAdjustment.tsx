@@ -387,6 +387,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       description: workerType === "contractor" ? `${label} additional hours` : `${label} overtime`,
       currency,
       addedAt: new Date().toISOString(),
+      direction,
+      isTaxable: overtimeIsTaxable,
     });
 
     toast.success(`Added ${workerType === "contractor" ? "additional hours" : "overtime"} for ${workerName}`);
