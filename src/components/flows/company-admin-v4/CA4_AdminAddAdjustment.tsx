@@ -266,6 +266,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
 
   const resetForm = () => {
     setSelectedType(null);
+    setDirection("add");
     setUnpaidLeaveDays("");
     setUnpaidLeaveDescription("");
     setExpenseItems([{ id: crypto.randomUUID(), category: "", otherCategory: "", amount: "", receipt: [] }]);
@@ -275,6 +276,11 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     setOvertimeEndTime("");
     setBonusItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
     setCommissionItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
+    setExpenseIsTaxable(false);
+    setOvertimeIsTaxable(true);
+    setBonusIsTaxable(true);
+    setLeaveIsTaxable(false);
+    setCommissionIsTaxable(false);
   };
 
   const handleClose = () => {
