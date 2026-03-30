@@ -1104,21 +1104,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
             {/* 1. Adjustment direction */}
             <DirectionPicker direction={direction} onChange={setDirection} />
 
-            {/* 2. Amount */}
-            <div className="space-y-1.5">
-              <Label className="text-xs">Amount ({currency})</Label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0.01"
-                placeholder="0.00"
-                value={otherAmount}
-                onChange={(e) => setOtherAmount(e.target.value)}
-                className="h-9"
-              />
-            </div>
-
-            {/* 3. Taxable? toggle */}
+            {/* 2. Taxable? toggle */}
             <div className="flex items-center justify-between py-1">
               <div className="space-y-0.5">
                 <Label className="text-xs font-medium">Taxable?</Label>
@@ -1146,6 +1132,20 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
                   />
                 </button>
               </div>
+            </div>
+
+            {/* 3. Amount */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Amount ({currency})</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00"
+                value={otherAmount}
+                onChange={(e) => setOtherAmount(e.target.value)}
+                className="h-9"
+              />
             </div>
 
             {/* 4. Description */}
