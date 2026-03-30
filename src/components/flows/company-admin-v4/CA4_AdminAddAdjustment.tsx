@@ -295,6 +295,10 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     setBonusIsTaxable(true);
     setLeaveIsTaxable(false);
     setCommissionIsTaxable(false);
+    setOtherDescription("");
+    setOtherAmount("");
+    setOtherIsTaxable(true);
+    setOtherAttachment([]);
   };
 
   const handleClose = () => {
