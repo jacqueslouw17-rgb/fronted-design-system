@@ -630,7 +630,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
             <DirectionPicker direction={direction} onChange={setDirection} />
             <TaxableToggle isTaxable={expenseIsTaxable} onChange={setExpenseIsTaxable} />
 
-              {expenseItems.map((item, index) => (
+            <div className="space-y-3">
                 <div
                   key={item.id}
                   className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
