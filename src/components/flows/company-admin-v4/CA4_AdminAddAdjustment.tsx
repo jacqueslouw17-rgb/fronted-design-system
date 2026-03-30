@@ -496,7 +496,37 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     handleClose();
   };
 
-  const handleSelectType = (type: AdminAdjustmentType) => {
+  const submitOther = () => {
+    const desc = otherDescription.trim();
+    if (!desc) {
+      toast.error("Please enter a description");
+      return;
+    }
+    if (desc.length < 3) {
+      toast.error("Description must be at least 3 characters");
+      return;
+    }
+    const amt = parseFloat(otherAmount);
+    if (Number.isNaN(amt) || amt <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    onAddAdjustment({
+      id: `admin-${Date.now()}`,
+      type: "other",
+      amount: amt,
+      description: `${desc} · ${otherIsTaxable ? "Taxable" : "Non-taxable"}`,
+      currency,
+      addedAt: new Date().toISOString(),
+      direction,
+      isTaxable: otherIsTaxable,
+    });
+
+    toast.success(`Added adjustment for ${workerName}`);
+    handleClose();
+  };
+
     setSelectedType(type);
     if (type === "unpaid_leave") {
       setDirection("deduct");
