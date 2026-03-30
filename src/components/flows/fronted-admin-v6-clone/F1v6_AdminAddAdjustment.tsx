@@ -126,6 +126,44 @@ const DirectionPicker = ({
   </div>
 );
 
+/* ─── Taxable Toggle ─── */
+const TaxableToggle = ({
+  isTaxable,
+  onChange,
+}: {
+  isTaxable: boolean;
+  onChange: (v: boolean) => void;
+}) => (
+  <div className="flex items-center justify-between py-1">
+    <div className="space-y-0.5">
+      <Label className="text-xs font-medium">Taxable?</Label>
+      <p className="text-[11px] text-muted-foreground">Subject to withholding tax</p>
+    </div>
+    <div className="flex items-center gap-2">
+      <span className={cn("text-xs font-medium", isTaxable ? "text-primary" : "text-muted-foreground")}>
+        {isTaxable ? "Yes" : "No"}
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isTaxable}
+        onClick={() => onChange(!isTaxable)}
+        className={cn(
+          "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
+          isTaxable ? "bg-primary" : "bg-muted-foreground/30"
+        )}
+      >
+        <span
+          className={cn(
+            "pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform",
+            isTaxable ? "translate-x-4" : "translate-x-0"
+          )}
+        />
+      </button>
+    </div>
+  </div>
+);
+
 export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = ({
   workerType,
   workerName,
@@ -157,6 +195,13 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
   const [commissionItems, setCommissionItems] = useState<CommissionLineItem[]>([
     { id: crypto.randomUUID(), amount: "", attachment: [] },
   ]);
+
+  // Taxable toggles per form type
+  const [expenseIsTaxable, setExpenseIsTaxable] = useState(false);
+  const [overtimeIsTaxable, setOvertimeIsTaxable] = useState(true);
+  const [bonusIsTaxable, setBonusIsTaxable] = useState(true);
+  const [leaveIsTaxable, setLeaveIsTaxable] = useState(false);
+  const [commissionIsTaxable, setCommissionIsTaxable] = useState(false);
 
   // Other adjustment state
   const [otherDescription, setOtherDescription] = useState("");
@@ -259,6 +304,11 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     setOvertimeEndTime("");
     setBonusItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
     setCommissionItems([{ id: crypto.randomUUID(), amount: "", attachment: [] }]);
+    setExpenseIsTaxable(false);
+    setOvertimeIsTaxable(true);
+    setBonusIsTaxable(true);
+    setLeaveIsTaxable(false);
+    setCommissionIsTaxable(false);
     setOtherDescription("");
     setOtherAmount("");
     setOtherTaxTiming("before_tax");
@@ -332,6 +382,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         currency,
         addedAt: new Date().toISOString(),
         direction,
+        isTaxable: expenseIsTaxable,
       });
     });
 
@@ -366,6 +417,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       currency,
       addedAt: new Date().toISOString(),
       direction,
+      isTaxable: overtimeIsTaxable,
     });
 
     toast.success(`Added ${workerType === "contractor" ? "additional hours" : "overtime"} for ${workerName}`);
@@ -390,6 +442,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       currency,
       addedAt: new Date().toISOString(),
       direction,
+      isTaxable: leaveIsTaxable,
     });
 
     toast.success(`Added leave adjustment for ${workerName}`);
@@ -418,6 +471,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       currency,
       addedAt: new Date().toISOString(),
       direction,
+      isTaxable: bonusIsTaxable,
     });
     toast.success(`Added bonus for ${workerName}`);
     handleClose();
@@ -445,6 +499,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       currency,
       addedAt: new Date().toISOString(),
       direction,
+      isTaxable: commissionIsTaxable,
     });
     toast.success(`Added commission for ${workerName}`);
     handleClose();
@@ -578,6 +633,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         {selectedType === "expense" && (
           <div className="space-y-5">
             <DirectionPicker direction={direction} onChange={setDirection} />
+            <TaxableToggle isTaxable={expenseIsTaxable} onChange={setExpenseIsTaxable} />
 
             <div className="space-y-3">
               {expenseItems.map((item, index) => (
@@ -737,6 +793,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         {selectedType === "overtime" && (
           <div className="space-y-5">
             <DirectionPicker direction={direction} onChange={setDirection} />
+            <TaxableToggle isTaxable={overtimeIsTaxable} onChange={setOvertimeIsTaxable} />
 
             <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
               <div className="space-y-1.5">
@@ -818,6 +875,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         {selectedType === "unpaid_leave" && (
           <div className="space-y-5">
             <DirectionPicker direction={direction} onChange={setDirection} />
+            <TaxableToggle isTaxable={leaveIsTaxable} onChange={setLeaveIsTaxable} />
 
             <div className="space-y-1.5">
               <Label className="text-xs">Days</Label>
@@ -868,6 +926,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         {selectedType === "bonus" && (
           <div className="space-y-5">
             <DirectionPicker direction={direction} onChange={setDirection} />
+            <TaxableToggle isTaxable={bonusIsTaxable} onChange={setBonusIsTaxable} />
 
             <div className="space-y-3">
               {bonusItems.map((item) => (
@@ -955,6 +1014,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         {selectedType === "commission" && (
           <div className="space-y-5">
             <DirectionPicker direction={direction} onChange={setDirection} />
+            <TaxableToggle isTaxable={commissionIsTaxable} onChange={setCommissionIsTaxable} />
 
             <div className="space-y-3">
               {commissionItems.map((item) => (
