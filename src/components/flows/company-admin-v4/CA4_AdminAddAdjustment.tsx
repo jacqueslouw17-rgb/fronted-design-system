@@ -173,8 +173,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
 
   // Taxable toggles per form type
   const [expenseIsTaxable, setExpenseIsTaxable] = useState(false);
-  const [overtimeIsTaxable, setOvertimeIsTaxable] = useState(true);
-  const [bonusIsTaxable, setBonusIsTaxable] = useState(true);
+  const [overtimeIsTaxable, setOvertimeIsTaxable] = useState(false);
+  const [bonusIsTaxable, setBonusIsTaxable] = useState(false);
   const [leaveIsTaxable, setLeaveIsTaxable] = useState(false);
   const [commissionIsTaxable, setCommissionIsTaxable] = useState(false);
 
@@ -203,7 +203,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   // Other adjustment state
   const [otherDescription, setOtherDescription] = useState("");
   const [otherAmount, setOtherAmount] = useState("");
-  const [otherIsTaxable, setOtherIsTaxable] = useState(true);
+  const [otherIsTaxable, setOtherIsTaxable] = useState(false);
   const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
 
   const requestTypeOptions: RequestOption[] = useMemo(() => {

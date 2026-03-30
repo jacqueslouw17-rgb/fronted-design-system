@@ -198,8 +198,8 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
 
   // Taxable toggles per form type
   const [expenseIsTaxable, setExpenseIsTaxable] = useState(false);
-  const [overtimeIsTaxable, setOvertimeIsTaxable] = useState(true);
-  const [bonusIsTaxable, setBonusIsTaxable] = useState(true);
+  const [overtimeIsTaxable, setOvertimeIsTaxable] = useState(false);
+  const [bonusIsTaxable, setBonusIsTaxable] = useState(false);
   const [leaveIsTaxable, setLeaveIsTaxable] = useState(false);
   const [commissionIsTaxable, setCommissionIsTaxable] = useState(false);
 
@@ -207,7 +207,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
   const [otherDescription, setOtherDescription] = useState("");
   const [otherAmount, setOtherAmount] = useState("");
   const [otherTaxTiming, setOtherTaxTiming] = useState<TaxTiming>("before_tax");
-  const [otherIsTaxable, setOtherIsTaxable] = useState(true);
+  const [otherIsTaxable, setOtherIsTaxable] = useState(false);
   const [otherTaxabilityMode, setOtherTaxabilityMode] = useState<TaxabilityMode>("taxable");
   const [otherExemptAmount, setOtherExemptAmount] = useState("");
   const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
