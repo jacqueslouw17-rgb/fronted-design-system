@@ -1072,7 +1072,10 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
             {/* 1. Adjustment direction */}
             <DirectionPicker direction={direction} onChange={setDirection} />
 
-            {/* 2. Amount */}
+            {/* 2. Taxable? toggle */}
+            <TaxableToggle isTaxable={otherIsTaxable} onChange={setOtherIsTaxable} />
+
+            {/* 3. Amount */}
             <div className="space-y-1.5">
               <Label className="text-xs">Amount ({currency})</Label>
               <Input
@@ -1085,9 +1088,6 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                 className="h-9"
               />
             </div>
-
-            {/* 3. Taxable? toggle */}
-            <TaxableToggle isTaxable={otherIsTaxable} onChange={setOtherIsTaxable} />
 
             {/* 4. Description */}
             <div className="space-y-1.5">
