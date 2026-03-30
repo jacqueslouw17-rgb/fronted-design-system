@@ -21,6 +21,7 @@ import { TagInput } from "@/components/flows/shared/TagInput";
 
 // Types for admin-added adjustments
 export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission";
+export type AdjustmentDirection = "add" | "deduct";
 
 export interface AdminAddedAdjustment {
   id: string;
@@ -31,7 +32,88 @@ export interface AdminAddedAdjustment {
   description?: string;
   currency: string;
   addedAt: string;
+  direction?: AdjustmentDirection;
+  isTaxable?: boolean;
 }
+
+/* ─── Direction Picker ─── */
+const DirectionPicker = ({
+  direction,
+  onChange,
+}: {
+  direction: AdjustmentDirection;
+  onChange: (d: AdjustmentDirection) => void;
+}) => (
+  <div className="space-y-1.5">
+    <Label className="text-xs">Adjustment direction</Label>
+    <div className="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        onClick={() => onChange("add")}
+        className={cn(
+          "flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left text-xs font-medium",
+          direction === "add"
+            ? "border-primary bg-primary/5 text-primary"
+            : "border-border/60 text-muted-foreground hover:border-primary/30"
+        )}
+      >
+        <Plus className="h-3.5 w-3.5" />
+        Add to payout
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("deduct")}
+        className={cn(
+          "flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left text-xs font-medium",
+          direction === "deduct"
+            ? "border-destructive bg-destructive/5 text-destructive"
+            : "border-border/60 text-muted-foreground hover:border-destructive/30"
+        )}
+      >
+        <Minus className="h-3.5 w-3.5" />
+        Deduct from payout
+      </button>
+    </div>
+  </div>
+);
+
+/* ─── Taxable Toggle ─── */
+const TaxableToggle = ({
+  isTaxable,
+  onChange,
+}: {
+  isTaxable: boolean;
+  onChange: (v: boolean) => void;
+}) => (
+  <div className="flex items-center justify-between py-1">
+    <div className="space-y-0.5">
+      <Label className="text-xs font-medium">Taxable?</Label>
+      <p className="text-[11px] text-muted-foreground">Subject to withholding tax</p>
+    </div>
+    <div className="flex items-center gap-2">
+      <span className={cn("text-xs font-medium", isTaxable ? "text-primary" : "text-muted-foreground")}>
+        {isTaxable ? "Yes" : "No"}
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isTaxable}
+        onClick={() => onChange(!isTaxable)}
+        className={cn(
+          "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
+          isTaxable ? "bg-primary" : "bg-muted-foreground/30"
+        )}
+      >
+        <span
+          className={cn(
+            "pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform",
+            isTaxable ? "translate-x-4" : "translate-x-0"
+          )}
+        />
+      </button>
+    </div>
+  </div>
+);
 
 interface CA3_AdminAddAdjustmentProps {
   workerType: "employee" | "contractor";
