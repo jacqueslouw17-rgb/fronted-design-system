@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ArrowLeft, CalendarOff, Clock, Receipt, X, Upload, FileText, Image, Gift, Coins, Plus, Minus } from "lucide-react";
+import { ArrowLeft, CalendarOff, Clock, Receipt, X, Upload, FileText, Image, Gift, Coins, Plus, Minus, MoreHorizontal, AlertTriangle } from "lucide-react";
 import { validateFiles, FILE_UPLOAD_ACCEPT, FILE_UPLOAD_MAX_COUNT, FILE_UPLOAD_HELPER_RECEIPT } from "../shared/fileUploadValidation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import { F41v7_TimeInput } from "@/components/flows/employee-dashboard-v7/F41v7_
 import { TagInput } from "@/components/flows/shared/TagInput";
 
 // Types for admin-added adjustments
-export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission";
+export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission" | "other";
 export type AdjustmentDirection = "add" | "deduct";
 
 export interface AdminAddedAdjustment {
@@ -200,6 +200,12 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     { id: crypto.randomUUID(), amount: "", attachment: [] },
   ]);
 
+  // Other adjustment state
+  const [otherDescription, setOtherDescription] = useState("");
+  const [otherAmount, setOtherAmount] = useState("");
+  const [otherIsTaxable, setOtherIsTaxable] = useState(true);
+  const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
+
   const requestTypeOptions: RequestOption[] = useMemo(() => {
     const base: RequestOption[] = [
       {
@@ -239,6 +245,14 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         icon: Coins,
       });
     }
+
+    // "Other" is always available for both worker types — placed last
+    base.push({
+      id: "other",
+      label: "Other",
+      description: "Custom earning or deduction",
+      icon: MoreHorizontal,
+    });
 
     return base;
   }, [workerType]);
@@ -281,6 +295,10 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     setBonusIsTaxable(true);
     setLeaveIsTaxable(false);
     setCommissionIsTaxable(false);
+    setOtherDescription("");
+    setOtherAmount("");
+    setOtherIsTaxable(true);
+    setOtherAttachment([]);
   };
 
   const handleClose = () => {
@@ -478,6 +496,37 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     handleClose();
   };
 
+  const submitOther = () => {
+    const desc = otherDescription.trim();
+    if (!desc) {
+      toast.error("Please enter a description");
+      return;
+    }
+    if (desc.length < 3) {
+      toast.error("Description must be at least 3 characters");
+      return;
+    }
+    const amt = parseFloat(otherAmount);
+    if (Number.isNaN(amt) || amt <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    onAddAdjustment({
+      id: `admin-${Date.now()}`,
+      type: "other",
+      amount: amt,
+      description: `${desc} · ${otherIsTaxable ? "Taxable" : "Non-taxable"}`,
+      currency,
+      addedAt: new Date().toISOString(),
+      direction,
+      isTaxable: otherIsTaxable,
+    });
+
+    toast.success(`Added adjustment for ${workerName}`);
+    handleClose();
+  };
+
   const handleSelectType = (type: AdminAdjustmentType) => {
     setSelectedType(type);
     if (type === "unpaid_leave") {
@@ -503,7 +552,9 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
             ? "Bonus request"
             : selectedType === "commission"
               ? "Commission request"
-              : "Unpaid leave";
+              : selectedType === "other"
+                ? "Other adjustment"
+                : "Unpaid leave";
 
   return (
     <div className="flex flex-col h-full">
@@ -1010,6 +1061,118 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
             </div>
 
             <Button onClick={submitCommission} className="w-full">
+              Add adjustment
+            </Button>
+          </div>
+        )}
+
+        {/* Other adjustment form */}
+        {selectedType === "other" && (
+          <div className="space-y-5">
+            {/* 1. Adjustment direction */}
+            <DirectionPicker direction={direction} onChange={setDirection} />
+
+            {/* 2. Amount */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Amount ({currency})</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00"
+                value={otherAmount}
+                onChange={(e) => setOtherAmount(e.target.value)}
+                className="h-9"
+              />
+            </div>
+
+            {/* 3. Taxable? toggle */}
+            <TaxableToggle isTaxable={otherIsTaxable} onChange={setOtherIsTaxable} />
+
+            {/* 4. Description */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Description</Label>
+              <Input
+                placeholder="e.g. SSS loan amortization"
+                value={otherDescription}
+                onChange={(e) => setOtherDescription(e.target.value)}
+                className="h-9"
+                maxLength={200}
+              />
+            </div>
+
+            {/* 5. Attachment (optional) */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Attachment (optional)</Label>
+              {otherAttachment.length > 0 && (
+                <div className="space-y-1.5">
+                  {otherAttachment.map((file, fileIdx) => (
+                    <div key={fileIdx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                      {file.type.startsWith('image/') ? (
+                        <Image className="h-4 w-4 text-primary shrink-0" />
+                      ) : (
+                        <FileText className="h-4 w-4 text-primary shrink-0" />
+                      )}
+                      <span className="text-xs flex-1 truncate">{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setOtherAttachment(prev => prev.filter((_, i) => i !== fileIdx))}
+                        className="p-0.5 hover:bg-muted rounded shrink-0"
+                      >
+                        <X className="h-3 w-3 text-muted-foreground" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {otherAttachment.length < FILE_UPLOAD_MAX_COUNT && (
+                <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                  <Upload className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">
+                    {otherAttachment.length === 0 ? 'Upload documents' : 'Add more'}
+                  </span>
+                  <input
+                    type="file"
+                    accept={FILE_UPLOAD_ACCEPT}
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length > 0) {
+                        const { valid, error } = validateFiles(files, otherAttachment.length);
+                        if (error) {
+                          toast.error(error);
+                        } else if (valid.length > 0) {
+                          setOtherAttachment(prev => [...prev, ...valid]);
+                        }
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              )}
+              <p className="text-[11px] text-muted-foreground/70">{FILE_UPLOAD_HELPER_RECEIPT}</p>
+            </div>
+
+            {/* Summary */}
+            {parseFloat(otherAmount) > 0 && (
+              <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Amount</span>
+                  <span className="text-sm font-semibold tabular-nums">
+                    {directionSign}{formatMoney(parseFloat(otherAmount))}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Taxable</span>
+                  <span className="text-xs text-muted-foreground">
+                    {otherIsTaxable ? "Yes" : "No"}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <Button onClick={submitOther} className="w-full">
               Add adjustment
             </Button>
           </div>
