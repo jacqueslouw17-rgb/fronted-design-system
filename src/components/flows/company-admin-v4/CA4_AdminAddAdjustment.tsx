@@ -827,7 +827,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Session total</span>
                   <span className="text-sm font-semibold tabular-nums">
-                    −{formatMoney(parseFloat(unpaidLeaveDays) * dailyRate)}
+                    {directionSign}{formatMoney(parseFloat(unpaidLeaveDays) * dailyRate)}
                   </span>
                 </div>
               </div>
