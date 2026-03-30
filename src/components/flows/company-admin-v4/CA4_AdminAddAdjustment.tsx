@@ -776,7 +776,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Session total</span>
                   <span className="text-sm font-semibold tabular-nums">
-                    {calculatedOvertimeHours}h · +{formatMoney(calculatedOvertimeHours * hourlyRate)}
+                    {calculatedOvertimeHours}h · {directionSign}{formatMoney(calculatedOvertimeHours * hourlyRate)}
                   </span>
                 </div>
               </div>
