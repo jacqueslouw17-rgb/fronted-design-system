@@ -203,7 +203,7 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   // Other adjustment state
   const [otherDescription, setOtherDescription] = useState("");
   const [otherAmount, setOtherAmount] = useState("");
-  const [otherIsTaxable, setOtherIsTaxable] = useState(true);
+  const [otherIsTaxable, setOtherIsTaxable] = useState(false);
   const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
 
   const requestTypeOptions: RequestOption[] = useMemo(() => {
