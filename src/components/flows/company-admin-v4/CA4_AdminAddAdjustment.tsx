@@ -412,6 +412,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
       description: `${daysValue} day${daysValue !== 1 ? "s" : ""} unpaid leave${descPart}`,
       currency,
       addedAt: new Date().toISOString(),
+      direction,
+      isTaxable: leaveIsTaxable,
     });
 
     toast.success(`Added unpaid leave for ${workerName}`);
