@@ -478,7 +478,17 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
     handleClose();
   };
 
-  if (!isOpen) return null;
+  const handleSelectType = (type: AdminAdjustmentType) => {
+    setSelectedType(type);
+    if (type === "unpaid_leave") {
+      setDirection("deduct");
+    } else {
+      setDirection("add");
+    }
+  };
+
+  const directionSign = direction === "add" ? "+" : "−";
+
 
   const headerTitle =
     selectedType === null
