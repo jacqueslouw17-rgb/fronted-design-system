@@ -787,8 +787,8 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         {selectedType === "overtime" && (
           <div className="space-y-5">
             <DirectionPicker direction={direction} onChange={setDirection} />
+            <TaxableToggle isTaxable={overtimeIsTaxable} onChange={setOvertimeIsTaxable} />
 
-            <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Date</Label>
                 <Popover open={openDatePopover} onOpenChange={setOpenDatePopover}>
