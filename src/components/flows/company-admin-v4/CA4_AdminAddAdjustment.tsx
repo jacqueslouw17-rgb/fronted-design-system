@@ -169,6 +169,14 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
   onAddAdjustment,
 }) => {
   const [selectedType, setSelectedType] = useState<RequestType>(null);
+  const [direction, setDirection] = useState<AdjustmentDirection>("add");
+
+  // Taxable toggles per form type
+  const [expenseIsTaxable, setExpenseIsTaxable] = useState(false);
+  const [overtimeIsTaxable, setOvertimeIsTaxable] = useState(true);
+  const [bonusIsTaxable, setBonusIsTaxable] = useState(true);
+  const [leaveIsTaxable, setLeaveIsTaxable] = useState(false);
+  const [commissionIsTaxable, setCommissionIsTaxable] = useState(false);
 
   // Forms
   const [unpaidLeaveDays, setUnpaidLeaveDays] = useState("");
