@@ -471,6 +471,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       currency,
       addedAt: new Date().toISOString(),
       direction,
+      isTaxable: bonusIsTaxable,
     });
     toast.success(`Added bonus for ${workerName}`);
     handleClose();
