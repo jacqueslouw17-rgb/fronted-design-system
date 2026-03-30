@@ -352,6 +352,8 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
         description: `${item.categoryLabel} expense`,
         currency,
         addedAt: new Date().toISOString(),
+        direction,
+        isTaxable: expenseIsTaxable,
       });
     });
 
