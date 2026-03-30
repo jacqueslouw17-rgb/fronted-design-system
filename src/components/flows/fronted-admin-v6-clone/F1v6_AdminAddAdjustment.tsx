@@ -917,9 +917,8 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         {selectedType === "bonus" && (
           <div className="space-y-5">
             <DirectionPicker direction={direction} onChange={setDirection} />
+            <TaxableToggle isTaxable={bonusIsTaxable} onChange={setBonusIsTaxable} />
 
-            <div className="space-y-3">
-              {bonusItems.map((item) => (
                 <div
                   key={item.id}
                   className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
