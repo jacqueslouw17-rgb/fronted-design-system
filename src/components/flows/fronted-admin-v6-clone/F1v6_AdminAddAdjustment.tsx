@@ -871,6 +871,8 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
             <DirectionPicker direction={direction} onChange={setDirection} />
             <TaxableToggle isTaxable={leaveIsTaxable} onChange={setLeaveIsTaxable} />
 
+            <div className="space-y-1.5">
+              <Label className="text-xs">Days</Label>
               <Input
                 type="number"
                 step="0.5"
