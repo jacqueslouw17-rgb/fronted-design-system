@@ -521,7 +521,9 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
             ? "Bonus request"
             : selectedType === "commission"
               ? "Commission request"
-              : "Unpaid leave";
+              : selectedType === "other"
+                ? "Other adjustment"
+                : "Unpaid leave";
 
   return (
     <div className="flex flex-col h-full">
