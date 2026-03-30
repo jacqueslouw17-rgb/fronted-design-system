@@ -417,6 +417,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       currency,
       addedAt: new Date().toISOString(),
       direction,
+      isTaxable: overtimeIsTaxable,
     });
 
     toast.success(`Added ${workerType === "contractor" ? "additional hours" : "overtime"} for ${workerName}`);
