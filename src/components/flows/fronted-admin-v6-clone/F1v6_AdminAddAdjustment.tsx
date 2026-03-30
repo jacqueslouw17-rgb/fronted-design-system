@@ -158,6 +158,13 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     { id: crypto.randomUUID(), amount: "", attachment: [] },
   ]);
 
+  // Taxable toggles per form type
+  const [expenseIsTaxable, setExpenseIsTaxable] = useState(false);
+  const [overtimeIsTaxable, setOvertimeIsTaxable] = useState(true);
+  const [bonusIsTaxable, setBonusIsTaxable] = useState(true);
+  const [leaveIsTaxable, setLeaveIsTaxable] = useState(false);
+  const [commissionIsTaxable, setCommissionIsTaxable] = useState(false);
+
   // Other adjustment state
   const [otherDescription, setOtherDescription] = useState("");
   const [otherAmount, setOtherAmount] = useState("");
