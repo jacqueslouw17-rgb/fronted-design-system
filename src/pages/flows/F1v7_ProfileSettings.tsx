@@ -60,6 +60,7 @@ const SECTION_HEADERS: Record<Section, { title: string; subtitle: string }> = {
   "team-members": { title: "Team Members", subtitle: "Invite and manage team members with role assignments." },
   "roles-permissions": { title: "Roles & Permissions", subtitle: "Create and configure roles with module-level permissions." },
   "change-password": { title: "Change Password", subtitle: "Update your login password." },
+  "export": { title: "Export for Accountant", subtitle: "Generate country-specific payroll exports to send to your accountants or payroll experts." },
 };
 
 const F1v7_ProfileSettings = () => {
