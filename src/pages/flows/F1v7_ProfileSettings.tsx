@@ -46,6 +46,11 @@ const OVERVIEW_CARDS = [
     id: "change-password" as Section,
     title: "Change Password",
     description: "Update your login password"
+  },
+  {
+    id: "export" as Section,
+    title: "Export for Accountant",
+    description: "Send country-specific payroll exports to your accountants"
   }
 ];
 
