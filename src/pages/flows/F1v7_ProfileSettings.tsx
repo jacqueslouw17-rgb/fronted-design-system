@@ -183,6 +183,7 @@ const F1v7_ProfileSettings = () => {
                     <F1v7_ExportSection onBack={() => setCurrentSection("overview")} />
                   </motion.div>
                 )}
+              </AnimatePresence>
             </div>
           </div>
         </RBACProvider>
