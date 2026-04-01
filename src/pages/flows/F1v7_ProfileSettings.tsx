@@ -22,8 +22,9 @@ import frontedLogo from "@/assets/fronted-logo.png";
 import { F1v5_CompanyAdministratorsDetail } from "@/components/flows/fronted-admin-v7-clone/F1v7_CompanyAdministratorsDetail";
 import { F1v5_TeamMembersSection } from "@/components/flows/fronted-admin-v7-clone/F1v7_TeamMembersSection";
 import { F1v5_RolesPermissionsSection } from "@/components/flows/fronted-admin-v7-clone/F1v7_RolesPermissionsSection";
+import { F1v7_ExportSection } from "@/components/flows/fronted-admin-v7-clone/F1v7_ExportSection";
 
-type Section = "overview" | "company-administrators" | "team-members" | "roles-permissions" | "change-password";
+type Section = "overview" | "company-administrators" | "team-members" | "roles-permissions" | "change-password" | "export";
 
 const OVERVIEW_CARDS = [
   {
@@ -45,6 +46,11 @@ const OVERVIEW_CARDS = [
     id: "change-password" as Section,
     title: "Change Password",
     description: "Update your login password"
+  },
+  {
+    id: "export" as Section,
+    title: "Export for Accountant",
+    description: "Send country-specific payroll exports to your accountants"
   }
 ];
 
@@ -54,6 +60,7 @@ const SECTION_HEADERS: Record<Section, { title: string; subtitle: string }> = {
   "team-members": { title: "Team Members", subtitle: "Invite and manage team members with role assignments." },
   "roles-permissions": { title: "Roles & Permissions", subtitle: "Create and configure roles with module-level permissions." },
   "change-password": { title: "Change Password", subtitle: "Update your login password." },
+  "export": { title: "Export for Accountant", subtitle: "Generate country-specific payroll exports to send to your accountants or payroll experts." },
 };
 
 const F1v7_ProfileSettings = () => {
@@ -168,6 +175,12 @@ const F1v7_ProfileSettings = () => {
                 {currentSection === "change-password" && (
                   <motion.div key="change-password" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="pb-20 sm:pb-8">
                     <Flow6ChangePassword onCancel={() => setCurrentSection("overview")} />
+                  </motion.div>
+                )}
+
+                {currentSection === "export" && (
+                  <motion.div key="export" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="pb-20 sm:pb-8">
+                    <F1v7_ExportSection onBack={() => setCurrentSection("overview")} />
                   </motion.div>
                 )}
               </AnimatePresence>

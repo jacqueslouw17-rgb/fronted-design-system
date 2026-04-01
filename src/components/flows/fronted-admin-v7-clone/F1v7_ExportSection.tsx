@@ -1,6 +1,6 @@
 /**
- * F1v5_ExportSection – Country & batch export for accountant validation
- * Flow 1 v6 (Next) only
+ * F1v7_ExportSection – Country & batch export for accountant validation
+ * Flow 1 v7 (Future) only – cloned from F1v5_ExportSection
  * Single country select with search, batch dropdown filtered by selected country
  */
 
@@ -10,7 +10,7 @@ import { Check, FileSpreadsheet, Globe, ChevronDown, Search } from "lucide-react
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface F1v5_ExportSectionProps {
+interface F1v7_ExportSectionProps {
   onBack: () => void;
 }
 
@@ -25,7 +25,7 @@ interface BatchData {
   label: string;
   status: "in-review" | "processing" | "paid";
   date: string;
-  countries: string[]; // which countries this batch applies to
+  countries: string[];
 }
 
 const COUNTRIES: CountryData[] = [
@@ -57,7 +57,7 @@ const statusLabels: Record<string, string> = {
   "paid": "Paid",
 };
 
-export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
+export const F1v7_ExportSection = ({ onBack }: F1v7_ExportSectionProps) => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [countrySearch, setCountrySearch] = useState("");
   const [countryOpen, setCountryOpen] = useState(false);
@@ -71,7 +71,6 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
   const countryInputRef = useRef<HTMLInputElement>(null);
   const batchInputRef = useRef<HTMLInputElement>(null);
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (countryRef.current && !countryRef.current.contains(e.target as Node)) {
@@ -87,7 +86,6 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Focus search input when dropdown opens
   useEffect(() => {
     if (countryOpen) countryInputRef.current?.focus();
   }, [countryOpen]);
@@ -100,7 +98,6 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
     c.name.toLowerCase().includes(countrySearch.toLowerCase())
   );
 
-  // Filter batches by selected country
   const availableBatches = selectedCountry
     ? BATCHES.filter((b) => b.countries.includes(selectedCountry))
     : [];
@@ -111,12 +108,10 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
   const selectedBatchData = BATCHES.find((b) => b.id === selectedBatch);
   const canExport = selectedCountry && selectedBatch;
 
-  // Reset batch when country changes
   const handleSelectCountry = (code: string) => {
     setSelectedCountry(code);
     setCountryOpen(false);
     setCountrySearch("");
-    // Reset batch if it's not available for the new country
     if (selectedBatch) {
       const batchStillValid = BATCHES.find(
         (b) => b.id === selectedBatch && b.countries.includes(code)
@@ -137,7 +132,7 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
 
   return (
     <div className="space-y-5">
-      {/* Country Selection – single searchable */}
+      {/* Country Selection */}
       <div ref={countryRef} className="relative">
         <div className="flex items-center gap-2 mb-3">
           <Globe className="h-4 w-4 text-muted-foreground" />
@@ -146,7 +141,7 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
 
         <button
           onClick={() => setCountryOpen(!countryOpen)}
-          className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-border/30 bg-card/20 hover:bg-card/40 hover:border-border/50 transition-all text-left"
+          className="v7-glass-item w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
         >
           <div className="min-w-0">
             {selectedCountryData ? (
@@ -174,7 +169,6 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
               transition={{ duration: 0.12 }}
               className="absolute z-50 mt-1.5 w-full rounded-xl border border-border/40 bg-popover shadow-lg overflow-hidden"
             >
-              {/* Search */}
               <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border/30">
                 <Search className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
                 <input
@@ -220,7 +214,7 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
         </AnimatePresence>
       </div>
 
-      {/* Batch Selection – searchable, filtered by country */}
+      {/* Batch Selection */}
       <div ref={batchRef} className="relative">
         <div className="flex items-center gap-2 mb-3">
           <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
@@ -235,10 +229,8 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
             }
             setBatchOpen(!batchOpen);
           }}
-          className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
-            !selectedCountry
-              ? "border-border/20 bg-card/10 opacity-60 cursor-not-allowed"
-              : "border-border/30 bg-card/20 hover:bg-card/40 hover:border-border/50"
+          className={`v7-glass-item w-full flex items-center justify-between gap-3 px-4 py-3 text-left ${
+            !selectedCountry ? "opacity-60 cursor-not-allowed" : ""
           }`}
         >
           <div className="min-w-0">
@@ -274,7 +266,6 @@ export const F1v5_ExportSection = ({ onBack }: F1v5_ExportSectionProps) => {
               transition={{ duration: 0.12 }}
               className="absolute z-50 mt-1.5 w-full rounded-xl border border-border/40 bg-popover shadow-lg overflow-hidden"
             >
-              {/* Search */}
               <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border/30">
                 <Search className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
                 <input
