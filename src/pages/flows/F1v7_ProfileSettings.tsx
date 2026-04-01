@@ -177,7 +177,12 @@ const F1v7_ProfileSettings = () => {
                     <Flow6ChangePassword onCancel={() => setCurrentSection("overview")} />
                   </motion.div>
                 )}
-              </AnimatePresence>
+
+                {currentSection === "export" && (
+                  <motion.div key="export" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="pb-20 sm:pb-8">
+                    <F1v7_ExportSection onBack={() => setCurrentSection("overview")} />
+                  </motion.div>
+                )}
             </div>
           </div>
         </RBACProvider>
