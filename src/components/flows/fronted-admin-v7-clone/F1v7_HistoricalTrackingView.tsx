@@ -1,10 +1,8 @@
 /**
  * F1v4_HistoricalTrackingView - Read-only tracking view for historical payroll periods
  * 
- * Row layout matches TrackStep and SubmissionsView:
- * Line 1: Name + TypeIcon + CompanyChip
- * Line 2: Flag + Country
- * Includes All/Employees/Contractors filter tabs and search
+ * Workers are clickable to open detail drawer with payslip/invoice download.
+ * Includes All/Employees/Contractors filter tabs and search.
  */
 
 import React, { useState, useMemo } from "react";
@@ -16,6 +14,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { F1v4_WorkerDetailDrawer } from "./F1v7_WorkerDetailDrawer";
+import type { WorkerData } from "./F1v7_WorkerDetailDrawer";
+import { F1v4_PayslipPreviewModal } from "./F1v7_PayslipPreviewModal";
 
 export interface HistoricalWorker {
   id: string;
@@ -58,6 +59,20 @@ const countryFlags: Record<string, string> = {
   EG: "🇪🇬", GR: "🇬🇷",
 };
 
+/** Convert HistoricalWorker → WorkerData so the drawer can render it */
+const toWorkerData = (hw: HistoricalWorker): WorkerData => ({
+  id: hw.id,
+  name: hw.name,
+  country: hw.country,
+  type: hw.type,
+  currency: hw.currency,
+  status: "ready",
+  netPay: hw.amount,
+  issues: 0,
+  paymentStatus: "paid",
+  providerRef: hw.providerRef,
+});
+
 type FilterTab = "all" | "employees" | "contractors";
 
 export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewProps> = ({
@@ -66,6 +81,10 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
 }) => {
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0);
+  const [payslipModalOpen, setPayslipModalOpen] = useState(false);
+  const [payslipWorker, setPayslipWorker] = useState<WorkerData | null>(null);
 
   const employees = workers.filter(w => w.type === "employee");
   const contractors = workers.filter(w => w.type === "contractor");
@@ -85,6 +104,8 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
     return filtered;
   }, [workers, activeTab, searchQuery, employees, contractors]);
 
+  const drawerWorkers: WorkerData[] = filteredWorkers.map(toWorkerData);
+
   const formatCurrency = (amount: number, currency: string) => {
     const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", SGD: "S$" };
     return `${symbols[currency] || currency} ${amount.toLocaleString()}`;
@@ -94,6 +115,16 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
 
   const handleExportCSV = () => toast.success("CSV exported");
 
+  const handleViewDetails = (index: number) => {
+    setSelectedWorkerIndex(index);
+    setDrawerOpen(true);
+  };
+
+  const handlePayslipPreview = (worker: WorkerData) => {
+    setPayslipWorker(worker);
+    setPayslipModalOpen(true);
+  };
+
   const tabs: { key: FilterTab; label: string; count: number }[] = [
     { key: "all", label: "All", count: workers.length },
     { key: "employees", label: "Employees", count: employees.length },
@@ -101,107 +132,128 @@ export const F1v4_HistoricalTrackingView: React.FC<F1v4_HistoricalTrackingViewPr
   ];
 
   return (
-    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-      {/* Header */}
-      <div className="px-6 pt-4 pb-3 border-b border-border/40">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">Payment Status</p>
+    <>
+      <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
+        {/* Header */}
+        <div className="px-6 pt-4 pb-3 border-b border-border/40">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Payment Status</p>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <Button variant="outline" size="sm" onClick={handleExportCSV} className="h-7 text-xs gap-1.5">
+                <Download className="h-3.5 w-3.5" />
+                Export CSV
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <Button variant="outline" size="sm" onClick={handleExportCSV} className="h-7 text-xs gap-1.5">
-              <Download className="h-3.5 w-3.5" />
-              Export CSV
-            </Button>
-          </div>
         </div>
-      </div>
 
-      {/* Filter Tabs + Search */}
-      <div className="px-6 pt-3 pb-2 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-1">
-          {tabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
-                activeTab === tab.key
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-            >
-              {tab.label} ({tab.count})
-            </button>
-          ))}
-        </div>
-        <div className="relative w-48">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="h-8 pl-8 text-xs"
-          />
-        </div>
-      </div>
-
-      {/* Worker List */}
-      <CardContent className="p-4">
-        <div className="max-h-[380px] overflow-y-auto space-y-1">
-          {filteredWorkers.map((worker) => {
-            const TypeIcon = worker.type === "employee" ? Users : Briefcase;
-
-            return (
-              <div 
-                key={worker.id}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20"
+        {/* Filter Tabs + Search */}
+        <div className="px-6 pt-3 pb-2 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-1">
+            {tabs.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
+                  activeTab === tab.key
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
               >
-                {/* Avatar */}
-                <Avatar className="h-6 w-6 flex-shrink-0">
-                  <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
-                    {getInitials(worker.name)}
-                  </AvatarFallback>
-                </Avatar>
-
-                {/* Name + Country (two-line layout matching TrackStep) */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
-                    <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                    {worker.companyName && (
-                      <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium bg-muted text-muted-foreground border border-border/40 shrink-0 truncate max-w-[100px]">
-                        {worker.companyName}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[worker.country] || ""} {worker.country}</span>
-                  </div>
-                </div>
-
-                {/* Amount */}
-                <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-                  {worker.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(worker.amount, worker.currency)), "EUR")}` : formatCurrency(worker.amount, "EUR")}
-                </p>
-
-                {/* Status Pill */}
-                <div className={cn(
-                  "flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium flex-shrink-0",
-                  "bg-accent-green/10 text-accent-green-text"
-                )}>
-                  <CheckCircle2 className="h-3 w-3" />
-                  Paid
-                </div>
-              </div>
-            );
-          })}
-          {filteredWorkers.length === 0 && (
-            <p className="text-center text-sm text-muted-foreground py-8">No workers found</p>
-          )}
+                {tab.label} ({tab.count})
+              </button>
+            ))}
+          </div>
+          <div className="relative w-48">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="h-8 pl-8 text-xs"
+            />
+          </div>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Worker List */}
+        <CardContent className="p-4">
+          <div className="max-h-[380px] overflow-y-auto space-y-1">
+            {filteredWorkers.map((worker, index) => {
+              const TypeIcon = worker.type === "employee" ? Users : Briefcase;
+
+              return (
+                <div 
+                  key={worker.id}
+                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20 cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleViewDetails(index)}
+                >
+                  {/* Avatar */}
+                  <Avatar className="h-6 w-6 flex-shrink-0">
+                    <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
+                      {getInitials(worker.name)}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  {/* Name + Country (two-line layout matching TrackStep) */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
+                      <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                      {worker.companyName && (
+                        <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-medium bg-muted text-muted-foreground border border-border/40 shrink-0 truncate max-w-[100px]">
+                          {worker.companyName}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] text-muted-foreground leading-tight">{countryFlags[worker.country] || ""} {worker.country}</span>
+                    </div>
+                  </div>
+
+                  {/* Amount */}
+                  <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
+                    {worker.currency !== "EUR" ? `≈ ${formatCurrency(Math.round(convertToEUR(worker.amount, worker.currency)), "EUR")}` : formatCurrency(worker.amount, "EUR")}
+                  </p>
+
+                  {/* Status Pill */}
+                  <div className={cn(
+                    "flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium flex-shrink-0",
+                    "bg-accent-green/10 text-accent-green-text"
+                  )}>
+                    <CheckCircle2 className="h-3 w-3" />
+                    Paid
+                  </div>
+                </div>
+              );
+            })}
+            {filteredWorkers.length === 0 && (
+              <p className="text-center text-sm text-muted-foreground py-8">No workers found</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <F1v4_WorkerDetailDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        worker={drawerWorkers[selectedWorkerIndex] || null}
+        workers={drawerWorkers}
+        currentIndex={selectedWorkerIndex}
+        onNavigate={setSelectedWorkerIndex}
+        onPayslipPreview={handlePayslipPreview}
+        isTrackStep={true}
+        isViewOnly={true}
+      />
+
+      <F1v4_PayslipPreviewModal
+        open={payslipModalOpen}
+        onOpenChange={setPayslipModalOpen}
+        worker={payslipWorker}
+      />
+    </>
   );
 };
 
