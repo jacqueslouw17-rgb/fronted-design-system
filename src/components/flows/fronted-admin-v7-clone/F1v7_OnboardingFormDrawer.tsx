@@ -157,6 +157,7 @@ interface OnboardingFormDrawerProps {
   candidate: Candidate;
   onComplete: () => void;
   onSent: () => void;
+  onPrepareContract?: () => void;
   isResend?: boolean;
 }
 
