@@ -970,6 +970,28 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
     }, 800);
   };
+  const handleSkipToDrafting = (contractorId: string) => {
+    const contractor = contractors.find(c => c.id === contractorId);
+    setTransitioningIds(prev => new Set([...prev, contractorId]));
+    setTimeout(() => {
+      const updated = contractors.map(c => c.id === contractorId ? {
+        ...c,
+        status: "drafting" as const,
+        dataReceived: true,
+        hasATSData: true,
+      } : c);
+      setContractors(updated);
+      onContractorUpdate?.(updated);
+      setTransitioningIds(prev => {
+        const next = new Set(prev);
+        next.delete(contractorId);
+        return next;
+      });
+      toast.success(`${contractor?.name} moved to Prepare Contract`, {
+        description: "Admin will fill in all details directly"
+      });
+    }, 600);
+  };
   const [workerToDelete, setWorkerToDelete] = useState<Contractor | null>(null);
 
   const handleRemoveFromOfferAccepted = (contractor: Contractor) => {
