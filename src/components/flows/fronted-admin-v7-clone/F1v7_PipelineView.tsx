@@ -1611,33 +1611,34 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               Track Progress
                             </Button>}
                           
-                          {status === "trigger-onboarding" && <>
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
-                            e.stopPropagation();
-                            setSelectedForPayrollCollection(contractor);
-                            setPayrollCollectionDrawerOpen(true);
-                           }}>
-                                <Settings className="h-3 w-3" />
-                                Configure
-                              </Button>
-                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
-                            e.stopPropagation();
-                            setSendingFormIds(prev => new Set([...prev, contractor.id]));
-                            setTimeout(() => {
-                              setSendingFormIds(prev => {
-                                const next = new Set(prev);
-                                next.delete(contractor.id);
-                                return next;
-                              });
-                              handleConfirmStartOnboarding_direct(contractor);
-                            }, 800);
-                          }}>
-                                <Send className="h-3 w-3" />
-                                Send Form
-                              </Button>
+                          {status === "trigger-onboarding" && <div className="w-full space-y-2">
+                              <div className="flex gap-2">
+                                <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
+                              e.stopPropagation();
+                              setSelectedForPayrollCollection(contractor);
+                              setPayrollCollectionDrawerOpen(true);
+                             }}>
+                                  <Settings className="h-3 w-3" />
+                                  Configure
+                                </Button>
+                                <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
+                              e.stopPropagation();
+                              setSendingFormIds(prev => new Set([...prev, contractor.id]));
+                              setTimeout(() => {
+                                setSendingFormIds(prev => {
+                                  const next = new Set(prev);
+                                  next.delete(contractor.id);
+                                  return next;
+                                });
+                                handleConfirmStartOnboarding_direct(contractor);
+                              }, 800);
+                            }}>
+                                  <Send className="h-3 w-3" />
+                                  Send Form
+                                </Button>
+                              </div>
                               <button
-                                type="button"
-                                className="w-full text-center text-[10px] text-muted-foreground/70 hover:text-primary transition-colors underline decoration-dotted underline-offset-2 mt-0.5"
+                                className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground/70 hover:text-primary py-0.5 transition-colors duration-200"
                                 onClick={e => {
                                   e.stopPropagation();
                                   const updated = contractors.map(c => c.id === contractor.id ? { ...c, status: "CERTIFIED" as const } : c);
@@ -1646,9 +1647,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   toast.success(`${contractor.name} marked as done — skipped onboarding`);
                                 }}
                               >
-                                or skip & mark as done
+                                <CheckCircle2 className="h-2.5 w-2.5" />
+                                <span className="underline underline-offset-2 decoration-dotted">or skip & mark as done</span>
                               </button>
-                            </>}
+                            </div>}
                           
                           {status === "onboarding-pending" && <div className="w-full space-y-2">
                               <p className="text-xs text-muted-foreground text-center">Awaiting candidate response</p>
