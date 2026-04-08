@@ -1305,6 +1305,11 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         <Plus className="h-3.5 w-3.5" />
                       </Button>
                     )}
+                    {status === "CERTIFIED" && (
+                      <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10" onClick={() => setManualWorkerDrawerOpen(true)}>
+                        <Plus className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                     {status !== "payroll-ready" && getSelectedCount(status) > 0 ? <span className="text-xs text-muted-foreground">
                         {getSelectedCount(status)} selected
                       </span> : null}
