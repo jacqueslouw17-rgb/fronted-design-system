@@ -539,13 +539,15 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
                     {doc.name.toLowerCase().includes("agreement") && doc.file && (
                       <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-border/30">
                         <span className="text-[11px] text-muted-foreground">Signed by both parties?</span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                           {doc.signed ? (
                             <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
                           ) : (
                             <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
                           )}
-                          <Switch checked={doc.signed} onCheckedChange={() => toggleSigned(i)} className="scale-75" />
+                          <Switch checked={doc.signed} onCheckedChange={(checked) => {
+                            setDocuments(prev => prev.map((d, idx) => idx === i ? { ...d, signed: checked } : d));
+                          }} />
                         </div>
                       </div>
                     )}
