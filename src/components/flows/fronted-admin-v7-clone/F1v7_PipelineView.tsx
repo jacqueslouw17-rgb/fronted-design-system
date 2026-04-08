@@ -1415,6 +1415,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 }
               }}>
                 <Card 
+                  data-pinned={pinnedCardId === contractor.id ? "true" : undefined}
                   className={cn(
                     "v7-glass-item border cursor-pointer overflow-hidden group/card",
                     status === "onboarding-pending"
