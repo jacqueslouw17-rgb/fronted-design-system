@@ -259,7 +259,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setBankCountry(country);
     // Build document list
     const docs: DocUpload[] = [
-      ...countryRule.mandatoryDocs.map(d => ({ name: d, mandatory: true, file: null, signed: d.toLowerCase().includes("agreement") })),
+      ...countryRule.mandatoryDocs.map(d => ({ name: d, mandatory: true, file: null, signed: false })),
       ...countryRule.optionalDocs.map(d => ({ name: d, mandatory: false, file: null, signed: false })),
     ];
     setDocuments(docs);
@@ -576,7 +576,6 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
               disabled={!canSave}
               className="w-full"
             >
-              <Plus className="h-4 w-4 mr-1.5" />
               Save & Add to Done
             </Button>
           </div>
