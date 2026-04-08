@@ -2019,5 +2019,24 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Manual Worker Drawer */}
+      <F1v7_ManualWorkerDrawer
+        open={manualWorkerDrawerOpen}
+        onOpenChange={setManualWorkerDrawerOpen}
+        onSave={(newWorker) => {
+          const worker: Contractor = {
+            ...newWorker,
+            workerStatus: "active",
+            dataReceived: true,
+            formSent: true,
+          };
+          setContractors(prev => {
+            const updated = [...prev, worker];
+            onContractorUpdate?.(updated);
+            return updated;
+          });
+        }}
+      />
+
     </div>;
 };
