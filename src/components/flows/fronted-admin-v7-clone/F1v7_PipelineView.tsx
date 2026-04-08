@@ -1617,8 +1617,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             setSelectedForPayrollCollection(contractor);
                             setPayrollCollectionDrawerOpen(true);
                            }}>
-                                <Eye className="h-3 w-3" />
-                                Preview
+                                <Settings className="h-3 w-3" />
+                                Configure
                               </Button>
                               <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
                             e.stopPropagation();
@@ -1629,13 +1629,25 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 next.delete(contractor.id);
                                 return next;
                               });
-                              // Directly start onboarding (no confirmation modal) — matches offer-accepted Send Form behavior
                               handleConfirmStartOnboarding_direct(contractor);
                             }, 800);
                           }}>
                                 <Send className="h-3 w-3" />
                                 Send Form
                               </Button>
+                              <button
+                                type="button"
+                                className="w-full text-center text-[10px] text-muted-foreground/70 hover:text-primary transition-colors underline decoration-dotted underline-offset-2 mt-0.5"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  const updated = contractors.map(c => c.id === contractor.id ? { ...c, status: "CERTIFIED" as const } : c);
+                                  setContractors(updated);
+                                  onContractorUpdate?.(updated);
+                                  toast.success(`${contractor.name} marked as done — skipped onboarding`);
+                                }}
+                              >
+                                or skip & mark as done
+                              </button>
                             </>}
                           
                           {status === "onboarding-pending" && <div className="w-full space-y-2">
@@ -1956,6 +1968,15 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         onSendForm={() => {
           if (selectedForPayrollCollection) {
             handleConfirmStartOnboarding_direct(selectedForPayrollCollection);
+          }
+          setPayrollCollectionDrawerOpen(false);
+        }}
+        onSkipToDone={() => {
+          if (selectedForPayrollCollection) {
+            const updated = contractors.map(c => c.id === selectedForPayrollCollection.id ? { ...c, status: "CERTIFIED" as const } : c);
+            setContractors(updated);
+            onContractorUpdate?.(updated);
+            toast.success(`${selectedForPayrollCollection.name} marked as done — skipped onboarding`);
           }
           setPayrollCollectionDrawerOpen(false);
         }}
