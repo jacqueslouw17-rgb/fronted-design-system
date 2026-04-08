@@ -1772,6 +1772,15 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           }
           setPayrollCollectionDrawerOpen(false);
         }}
+        onSkipToDone={() => {
+          if (selectedForPayrollCollection) {
+            const updated = contractors.map(c => c.id === selectedForPayrollCollection.id ? { ...c, status: "CERTIFIED" as const } : c);
+            setContractors(updated);
+            onContractorUpdate?.(updated);
+            toast.success(`${selectedForPayrollCollection.name} marked as done — skipped onboarding`);
+          }
+          setPayrollCollectionDrawerOpen(false);
+        }}
       />
 
       {/* Delete Worker Confirmation */}
