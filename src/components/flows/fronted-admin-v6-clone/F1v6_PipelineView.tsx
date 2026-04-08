@@ -1646,6 +1646,11 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           handleSendForm(selectedContractor.id);
         }
       }
+    }} onPrepareContract={() => {
+      if (selectedContractor && selectedContractor.status === "offer-accepted") {
+        setConfigureDrawerOpen(false);
+        handleSkipToDrafting(selectedContractor.id);
+      }
     }} isResend={selectedContractor?.status === "data-pending"} />
 
       {/* Document Bundle Drawer */}
