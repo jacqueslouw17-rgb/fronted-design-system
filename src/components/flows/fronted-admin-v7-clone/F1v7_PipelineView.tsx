@@ -361,6 +361,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedForVerification, setSelectedForVerification] = useState<Contractor | null>(null);
   const [draggingContractorId, setDraggingContractorId] = useState<string | null>(null);
   const [pinnedCardId, setPinnedCardId] = useState<string | null>(null);
+  const [manualWorkerDrawerOpen, setManualWorkerDrawerOpen] = useState(false);
 
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
