@@ -1075,9 +1075,31 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           y: 0
         }} transition={{
           duration: 0.3
-        }} className="flex-shrink-0 w-[280px]">
+        }} className={cn(
+          "flex-shrink-0 w-[280px] transition-all duration-300",
+          draggingContractorId && status !== "drafting" && status !== "offer-accepted" && "opacity-30 scale-[0.97]",
+          draggingContractorId && status === "drafting" && "scale-[1.02]",
+        )}
+        onDragOver={(e) => {
+          if (draggingContractorId && status === "drafting") {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+          }
+        }}
+        onDrop={(e) => {
+          if (status === "drafting") {
+            e.preventDefault();
+            const contractorId = e.dataTransfer.getData("text/plain");
+            if (contractorId) handleSkipToDrafting(contractorId);
+          }
+        }}
+        >
               {/* Column Header */}
-              <div className={cn("p-3 rounded-t-lg border-t border-x", config.color)}>
+              <div className={cn(
+                "p-3 rounded-t-lg border-t border-x transition-all duration-300",
+                config.color,
+                draggingContractorId && status === "drafting" && "ring-2 ring-primary/50 bg-primary/10 shadow-lg shadow-primary/20",
+              )}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
                     {/* Select All for all columns except data-pending, awaiting-signature, onboarding-pending, payroll-ready, and payroll statuses */}
