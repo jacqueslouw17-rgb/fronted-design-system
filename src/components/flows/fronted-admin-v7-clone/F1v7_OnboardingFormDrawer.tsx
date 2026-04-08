@@ -664,19 +664,32 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
 
           {/* Action buttons */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleSaveDraft}
-              disabled={isSubmitting || isSavingDraft || hasValidationErrors}
-              className="flex-1"
-            >
-              {isSavingDraft ? "Saving..." : "Save Changes"}
-            </Button>
-            <Button type="button" onClick={handleSendForm} disabled={isSubmitting || hasValidationErrors} className="flex-1">
-              {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
-            </Button>
+          <div className="space-y-2 pt-4">
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSaveDraft}
+                disabled={isSubmitting || isSavingDraft || hasValidationErrors}
+                className="flex-1"
+              >
+                {isSavingDraft ? "Saving..." : "Save Changes"}
+              </Button>
+              <Button type="button" onClick={handleSendForm} disabled={isSubmitting || hasValidationErrors} className="flex-1">
+                {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
+              </Button>
+            </div>
+            {onPrepareContract && !isResend && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onPrepareContract}
+                className="w-full text-xs h-8 gap-1.5 border-dashed border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50"
+              >
+                <FileEdit className="h-3.5 w-3.5" />
+                Skip data collection — Prepare contract directly
+              </Button>
+            )}
           </div>
         </div>
       </SheetContent>
