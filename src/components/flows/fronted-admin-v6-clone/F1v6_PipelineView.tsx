@@ -1348,41 +1348,34 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
 
                         {/* Quick Actions */}
                         <div className="flex gap-2 pt-3">
-                          {status === "offer-accepted" && <>
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
-                          e.stopPropagation();
-                          handleOpenConfigure(contractor);
-                        }}>
-                                <Settings className="h-3 w-3" />
-                                Configure
-                              </Button>
-                              <div className="flex flex-1">
-                                <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90 rounded-r-none border-r border-white/20" onClick={e => {
+                          {status === "offer-accepted" && <div className="w-full space-y-2">
+                              <div className="flex gap-2">
+                                <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
+                            e.stopPropagation();
+                            handleOpenConfigure(contractor);
+                          }}>
+                                  <Settings className="h-3 w-3" />
+                                  Configure
+                                </Button>
+                                <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
                             e.stopPropagation();
                             handleSendForm(contractor.id);
                           }}>
                                   <Send className="h-3 w-3" />
                                   Send Form
                                 </Button>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button size="sm" className="text-xs h-7 w-7 p-0 bg-gradient-primary hover:opacity-90 rounded-l-none" onClick={e => e.stopPropagation()}>
-                                      <ChevronDown className="h-3 w-3" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="w-48">
-                                    <DropdownMenuItem onClick={() => handleSendForm(contractor.id)} className="text-xs gap-2">
-                                      <Send className="h-3.5 w-3.5" />
-                                      Send Form to Worker
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleSkipToDrafting(contractor.id)} className="text-xs gap-2">
-                                      <FileEdit className="h-3.5 w-3.5" />
-                                      Prepare Contract Directly
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
                               </div>
-                            </>}
+                              <button
+                                className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground/70 hover:text-primary py-0.5 transition-colors duration-200"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  handleSkipToDrafting(contractor.id);
+                                }}
+                              >
+                                <FileEdit className="h-2.5 w-2.5" />
+                                <span className="underline underline-offset-2 decoration-dotted">or prepare contract directly</span>
+                              </button>
+                            </div>}
                           
                           {status === "data-pending" && <div className="w-full space-y-2">
                               <p className="text-xs text-muted-foreground text-center">Awaiting candidate details</p>

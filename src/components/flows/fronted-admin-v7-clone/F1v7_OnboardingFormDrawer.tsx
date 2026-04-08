@@ -664,7 +664,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
 
           {/* Action buttons */}
-          <div className="space-y-2 pt-4">
+          <div className="space-y-3 pt-4">
             <div className="flex gap-3">
               <Button
                 type="button"
@@ -680,15 +680,14 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               </Button>
             </div>
             {onPrepareContract && !isResend && (
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={onPrepareContract}
-                className="w-full text-xs h-8 gap-1.5 border-dashed border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50"
+                className="w-full flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-primary py-1.5 transition-colors duration-200 group/skip"
               >
-                <FileEdit className="h-3.5 w-3.5" />
-                Skip data collection — Prepare contract directly
-              </Button>
+                <FileEdit className="h-3 w-3 opacity-60 group-hover/skip:opacity-100 transition-opacity" />
+                <span>I have all details — <span className="underline underline-offset-2 decoration-dashed">prepare contract directly</span></span>
+              </button>
             )}
           </div>
         </div>
