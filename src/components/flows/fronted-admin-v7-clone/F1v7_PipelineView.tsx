@@ -56,6 +56,7 @@ import { ResolvePayrollIssueDrawer } from "@/components/contract-flow/ResolvePay
 import { CertificateCard } from "@/components/contract-flow/CertificateCard";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { F1v4_DoneWorkerDetailDrawer, type DoneWorkerData } from "./F1v7_DoneWorkerDetailDrawer";
+import { F1v7_ManualWorkerDrawer } from "./F1v7_ManualWorkerDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { useNavigate } from "react-router-dom";
@@ -360,6 +361,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedForVerification, setSelectedForVerification] = useState<Contractor | null>(null);
   const [draggingContractorId, setDraggingContractorId] = useState<string | null>(null);
   const [pinnedCardId, setPinnedCardId] = useState<string | null>(null);
+  const [manualWorkerDrawerOpen, setManualWorkerDrawerOpen] = useState(false);
 
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
@@ -1303,6 +1305,11 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         <Plus className="h-3.5 w-3.5" />
                       </Button>
                     )}
+                    {status === "CERTIFIED" && (
+                      <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10" onClick={() => setManualWorkerDrawerOpen(true)}>
+                        <Plus className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                     {status !== "payroll-ready" && getSelectedCount(status) > 0 ? <span className="text-xs text-muted-foreground">
                         {getSelectedCount(status)} selected
                       </span> : null}
@@ -2011,6 +2018,25 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Manual Worker Drawer */}
+      <F1v7_ManualWorkerDrawer
+        open={manualWorkerDrawerOpen}
+        onOpenChange={setManualWorkerDrawerOpen}
+        onSave={(newWorker) => {
+          const worker: Contractor = {
+            ...newWorker,
+            workerStatus: "active",
+            dataReceived: true,
+            formSent: true,
+          };
+          setContractors(prev => {
+            const updated = [...prev, worker];
+            onContractorUpdate?.(updated);
+            return updated;
+          });
+        }}
+      />
 
     </div>;
 };
