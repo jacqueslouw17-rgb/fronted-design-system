@@ -1538,13 +1538,32 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                   <Settings className="h-3 w-3" />
                                   Configure
                                 </Button>
-                                <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
-                            e.stopPropagation();
-                            handleSendForm(contractor.id);
-                          }}>
-                                  <Send className="h-3 w-3" />
-                                  Send Form
-                                </Button>
+                                <div className="flex flex-1">
+                                  <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90 rounded-r-none border-r border-white/20" onClick={e => {
+                              e.stopPropagation();
+                              handleSendForm(contractor.id);
+                            }}>
+                                    <Send className="h-3 w-3" />
+                                    Send Form
+                                  </Button>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button size="sm" className="text-xs h-7 w-7 p-0 bg-gradient-primary hover:opacity-90 rounded-l-none" onClick={e => e.stopPropagation()}>
+                                        <ChevronDown className="h-3 w-3" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-48">
+                                      <DropdownMenuItem onClick={() => handleSendForm(contractor.id)} className="text-xs gap-2">
+                                        <Send className="h-3.5 w-3.5" />
+                                        Send Form to Worker
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => handleSkipToDrafting(contractor.id)} className="text-xs gap-2">
+                                        <FileEdit className="h-3.5 w-3.5" />
+                                        Prepare Contract Directly
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
                               </div>
                               <SaveAsTemplateButton contractor={contractor} />
                             </>}
