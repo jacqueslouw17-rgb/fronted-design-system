@@ -1164,7 +1164,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     <p className="text-[10px] text-muted-foreground mt-0.5">Admin fills details directly</p>
                   </motion.div>
                 )}
-                
+
+                {status === "trigger-onboarding" && getSelectedCount(status) > 0 && <div className="mt-2">
                     <Button size="sm" className="w-full text-xs h-7 bg-gradient-primary" onClick={handleBulkStartOnboarding}>
                       <CheckCircle2 className="h-3 w-3 mr-1" />
                       Start All ({getSelectedCount(status)})
