@@ -1561,7 +1561,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                     <Send className="h-3 w-3" />
                                     Send Form
                                   </Button>
-                                  <DropdownMenu>
+                                  <DropdownMenu onOpenChange={(open) => setPinnedCardId(open ? contractor.id : null)}>
                                     <DropdownMenuTrigger asChild>
                                       <Button size="sm" className="text-xs h-7 w-7 p-0 bg-gradient-primary hover:opacity-90 rounded-l-none" onClick={e => e.stopPropagation()}>
                                         <ChevronDown className="h-3 w-3" />
