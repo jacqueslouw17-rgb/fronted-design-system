@@ -1405,8 +1405,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     "v7-glass-item border cursor-pointer overflow-hidden group/card",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
-                      : ""
-                  )} 
+                      : "",
+                    draggingContractorId === contractor.id && "opacity-50 scale-95"
+                  )}
+                  draggable={status === "offer-accepted"}
+                  onDragStart={(e) => {
+                    if (status === "offer-accepted") {
+                      setDraggingContractorId(contractor.id);
+                      e.dataTransfer.effectAllowed = "move";
+                      e.dataTransfer.setData("text/plain", contractor.id);
+                    }
+                  }}
+                  onDragEnd={() => setDraggingContractorId(null)}
                   onClick={() => {
                     if (status === "awaiting-signature") {
                       handleOpenSignatureWorkflow(contractor);
