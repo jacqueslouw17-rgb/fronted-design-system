@@ -170,8 +170,9 @@ body.v7-glass-active::after {
 }
 
 .v7-glass-bg .v7-glass-item:hover .v7-card-reveal,
-.v7-glass-bg .v7-glass-item:focus-within .v7-card-reveal {
-  max-height: 280px;
+.v7-glass-bg .v7-glass-item:focus-within .v7-card-reveal,
+.v7-glass-bg .v7-glass-item[data-pinned="true"] .v7-card-reveal {
+  max-height: 320px;
   opacity: 1;
 }
 
