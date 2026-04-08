@@ -1327,6 +1327,19 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                       Draft Contracts ({getSelectedCount(status)})
                     </Button>
                   </div>}
+
+                {/* Drop zone hint when dragging */}
+                {draggingContractorId && status === "drafting" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="mt-2 p-3 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5 text-center"
+                  >
+                    <FileEdit className="h-4 w-4 text-primary mx-auto mb-1" />
+                    <p className="text-xs text-primary font-medium">Drop here to skip data collection</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Admin fills details directly</p>
+                  </motion.div>
+                )}
                 
                 {status === "trigger-onboarding" && getSelectedCount(status) > 0 && <div className="mt-2">
                     <Button size="sm" className="w-full text-xs h-7 bg-gradient-primary" onClick={handleBulkStartOnboarding}>
