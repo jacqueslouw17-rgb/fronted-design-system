@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CheckCircle2, Bot, ChevronDown } from "lucide-react";
+import { CheckCircle2, Bot, ChevronDown, FileEdit } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 import { toast } from "sonner";
@@ -49,6 +49,7 @@ interface OnboardingFormDrawerProps {
   candidate: Candidate;
   onComplete: () => void;
   onSent: () => void;
+  onPrepareContract?: () => void;
   isResend?: boolean;
 }
 
@@ -121,6 +122,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   candidate,
   onComplete,
   onSent,
+  onPrepareContract,
   isResend = false,
 }) => {
   const isFromATS = candidate.employmentTypeSource === "ats" || (candidate as any).hasATSData;
@@ -396,19 +398,32 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
 
           {/* Action buttons */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleSaveDraft}
-              disabled={isSubmitting || isSavingDraft || hasValidationErrors}
-              className="flex-1"
-            >
-              {isSavingDraft ? "Saving..." : "Save Changes"}
-            </Button>
-            <Button type="button" onClick={handleSendForm} disabled={isSubmitting || hasValidationErrors} className="flex-1">
-              {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
-            </Button>
+          <div className="space-y-2 pt-4">
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSaveDraft}
+                disabled={isSubmitting || isSavingDraft || hasValidationErrors}
+                className="flex-1"
+              >
+                {isSavingDraft ? "Saving..." : "Save Changes"}
+              </Button>
+              <Button type="button" onClick={handleSendForm} disabled={isSubmitting || hasValidationErrors} className="flex-1">
+                {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
+              </Button>
+            </div>
+            {onPrepareContract && !isResend && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onPrepareContract}
+                className="w-full text-xs h-8 gap-1.5 border-dashed border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50"
+              >
+                <FileEdit className="h-3.5 w-3.5" />
+                Skip data collection — Prepare contract directly
+              </Button>
+            )}
           </div>
         </div>
       </SheetContent>

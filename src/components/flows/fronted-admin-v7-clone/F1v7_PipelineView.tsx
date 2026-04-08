@@ -359,6 +359,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   const [verificationDrawerOpen, setVerificationDrawerOpen] = useState(false);
   const [selectedForVerification, setSelectedForVerification] = useState<Contractor | null>(null);
   const [draggingContractorId, setDraggingContractorId] = useState<string | null>(null);
+  const [pinnedCardId, setPinnedCardId] = useState<string | null>(null);
 
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
@@ -1414,6 +1415,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 }
               }}>
                 <Card 
+                  data-pinned={pinnedCardId === contractor.id ? "true" : undefined}
                   className={cn(
                     "v7-glass-item border cursor-pointer overflow-hidden group/card",
                     status === "onboarding-pending"
@@ -1559,7 +1561,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                     <Send className="h-3 w-3" />
                                     Send Form
                                   </Button>
-                                  <DropdownMenu>
+                                  <DropdownMenu onOpenChange={(open) => setPinnedCardId(open ? contractor.id : null)}>
                                     <DropdownMenuTrigger asChild>
                                       <Button size="sm" className="text-xs h-7 w-7 p-0 bg-gradient-primary hover:opacity-90 rounded-l-none" onClick={e => e.stopPropagation()}>
                                         <ChevronDown className="h-3 w-3" />
@@ -1844,6 +1846,11 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           // Move from offer-accepted to data-pending
           handleSendForm(selectedContractor.id);
         }
+      }
+    }} onPrepareContract={() => {
+      if (selectedContractor && selectedContractor.status === "offer-accepted") {
+        setConfigureDrawerOpen(false);
+        handleSkipToDrafting(selectedContractor.id);
       }
     }} isResend={selectedContractor?.status === "data-pending"} />
 
