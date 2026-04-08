@@ -52,6 +52,7 @@ import { ResolvePayrollIssueDrawer } from "@/components/contract-flow/ResolvePay
 import { CertificateCard } from "@/components/contract-flow/CertificateCard";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { F1v4_DoneWorkerDetailDrawer, type DoneWorkerData } from "./F1v6_DoneWorkerDetailDrawer";
+import { F1v6_ManualWorkerDrawer } from "./F1v6_ManualWorkerDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { useNavigate } from "react-router-dom";
