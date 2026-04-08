@@ -17,7 +17,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown, X } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown, X, GripVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -244,6 +250,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedForPayrollCollection, setSelectedForPayrollCollection] = useState<Contractor | null>(null);
   const [verificationDrawerOpen, setVerificationDrawerOpen] = useState(false);
   const [selectedForVerification, setSelectedForVerification] = useState<Contractor | null>(null);
+  const [draggingContractorId, setDraggingContractorId] = useState<string | null>(null);
 
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
@@ -855,6 +862,28 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
     }, 800);
   };
+  const handleSkipToDrafting = (contractorId: string) => {
+    const contractor = contractors.find(c => c.id === contractorId);
+    setTransitioningIds(prev => new Set([...prev, contractorId]));
+    setTimeout(() => {
+      const updated = contractors.map(c => c.id === contractorId ? {
+        ...c,
+        status: "drafting" as const,
+        dataReceived: true,
+        hasATSData: true,
+      } : c);
+      setContractors(updated);
+      onContractorUpdate?.(updated);
+      setTransitioningIds(prev => {
+        const next = new Set(prev);
+        next.delete(contractorId);
+        return next;
+      });
+      toast.success(`${contractor?.name} moved to Prepare Contract`, {
+        description: "Admin will fill in all details directly"
+      });
+    }, 600);
+  };
   const [workerToDelete, setWorkerToDelete] = useState<string | null>(null);
   const workerToDeleteName = workerToDelete ? contractors.find(c => c.id === workerToDelete)?.name : "";
 
@@ -1046,9 +1075,31 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           y: 0
         }} transition={{
           duration: 0.3
-        }} className="flex-shrink-0 w-[280px]">
+        }} className={cn(
+          "flex-shrink-0 w-[280px] transition-all duration-300",
+          draggingContractorId && status !== "drafting" && status !== "offer-accepted" && "opacity-30 scale-[0.97]",
+          draggingContractorId && status === "drafting" && "scale-[1.02]",
+        )}
+        onDragOver={(e) => {
+          if (draggingContractorId && status === "drafting") {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+          }
+        }}
+        onDrop={(e) => {
+          if (status === "drafting") {
+            e.preventDefault();
+            const contractorId = e.dataTransfer.getData("text/plain");
+            if (contractorId) handleSkipToDrafting(contractorId);
+          }
+        }}
+        >
               {/* Column Header */}
-              <div className={cn("p-3 rounded-t-lg border-t border-x", config.color)}>
+              <div className={cn(
+                "p-3 rounded-t-lg border-t border-x transition-all duration-300",
+                config.color,
+                draggingContractorId && status === "drafting" && "ring-2 ring-primary/50 bg-primary/10 shadow-lg shadow-primary/20",
+              )}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
                     {/* Select All for all columns except data-pending, awaiting-signature, onboarding-pending, payroll-ready, and payroll statuses */}
@@ -1100,7 +1151,20 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                       Draft Contracts ({getSelectedCount(status)})
                     </Button>
                   </div>}
-                
+
+                {/* Drop zone hint when dragging */}
+                {draggingContractorId && status === "drafting" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="mt-2 p-3 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5 text-center"
+                  >
+                    <FileEdit className="h-4 w-4 text-primary mx-auto mb-1" />
+                    <p className="text-xs text-primary font-medium">Drop here to skip data collection</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Admin fills details directly</p>
+                  </motion.div>
+                )}
+
                 {status === "trigger-onboarding" && getSelectedCount(status) > 0 && <div className="mt-2">
                     <Button size="sm" className="w-full text-xs h-7 bg-gradient-primary" onClick={handleBulkStartOnboarding}>
                       <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -1173,12 +1237,24 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   duration: 0.2
                 }
               }}>
-                <Card className={cn(
-                  "border cursor-pointer bg-card",
-                  status === "onboarding-pending"
-                    ? "border-primary/30 shadow-sm shadow-primary/5"
-                    : "border-border/40"
-                )} onClick={() => {
+                <Card 
+                  className={cn(
+                    "border cursor-pointer bg-card",
+                    status === "onboarding-pending"
+                      ? "border-primary/30 shadow-sm shadow-primary/5"
+                      : "border-border/40",
+                    draggingContractorId === contractor.id && "opacity-50 scale-95"
+                  )}
+                  draggable={status === "offer-accepted"}
+                  onDragStart={(e) => {
+                    if (status === "offer-accepted") {
+                      setDraggingContractorId(contractor.id);
+                      e.dataTransfer.effectAllowed = "move";
+                      e.dataTransfer.setData("text/plain", contractor.id);
+                    }
+                  }}
+                  onDragEnd={() => setDraggingContractorId(null)}
+                  onClick={() => {
                   if (status === "awaiting-signature") {
                     handleOpenSignatureWorkflow(contractor);
                   } else if (status === "CERTIFIED") {
@@ -1280,13 +1356,32 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <Settings className="h-3 w-3" />
                                 Configure
                               </Button>
-                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
-                          e.stopPropagation();
-                          handleSendForm(contractor.id);
-                        }}>
-                                <Send className="h-3 w-3" />
-                                Send Form
-                              </Button>
+                              <div className="flex flex-1">
+                                <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90 rounded-r-none border-r border-white/20" onClick={e => {
+                            e.stopPropagation();
+                            handleSendForm(contractor.id);
+                          }}>
+                                  <Send className="h-3 w-3" />
+                                  Send Form
+                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button size="sm" className="text-xs h-7 w-7 p-0 bg-gradient-primary hover:opacity-90 rounded-l-none" onClick={e => e.stopPropagation()}>
+                                      <ChevronDown className="h-3 w-3" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuItem onClick={() => handleSendForm(contractor.id)} className="text-xs gap-2">
+                                      <Send className="h-3.5 w-3.5" />
+                                      Send Form to Worker
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleSkipToDrafting(contractor.id)} className="text-xs gap-2">
+                                      <FileEdit className="h-3.5 w-3.5" />
+                                      Prepare Contract Directly
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
                             </>}
                           
                           {status === "data-pending" && <div className="w-full space-y-2">
