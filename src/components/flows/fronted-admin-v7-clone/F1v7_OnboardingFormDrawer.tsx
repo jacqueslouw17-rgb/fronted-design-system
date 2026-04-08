@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CheckCircle2, Bot, ChevronDown, Shield, Info } from "lucide-react";
+import { CheckCircle2, Bot, ChevronDown, Shield, Info, FileEdit } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 import { toast } from "sonner";
@@ -230,6 +230,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   candidate,
   onComplete,
   onSent,
+  onPrepareContract,
   isResend = false,
 }) => {
   const isFromATS = candidate.employmentTypeSource === "ats" || (candidate as any).hasATSData;
