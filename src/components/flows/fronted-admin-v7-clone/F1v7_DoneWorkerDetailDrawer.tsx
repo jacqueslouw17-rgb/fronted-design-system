@@ -314,6 +314,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   const [actionReason, setActionReason] = useState("");
   const [showAgreement, setShowAgreement] = useState(false);
   const [pendingAction, setPendingAction] = useState<ActionType | null>(null);
+  const reuploadInputRef = useRef<HTMLInputElement>(null);
+  const [reuploadTarget, setReuploadTarget] = useState<string | null>(null);
 
   const confirmationLabels: Record<ActionType, { title: string; description: string; buttonLabel: string; buttonClass: string }> = {
     "terminated": {
