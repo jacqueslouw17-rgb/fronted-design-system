@@ -1952,9 +1952,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           salary: selectedForVerification.salary,
           employmentType: selectedForVerification.employmentType || "contractor",
           email: selectedForVerification.email,
-          workerStatus: "active",
-          documentsVerified: true,
-          needsDocumentVerification: false,
+          workerStatus: undefined,
+          documentsVerified: false,
+          needsDocumentVerification: true,
         } : null}
         verificationMode
         onDocumentsVerified={(workerId) => {
