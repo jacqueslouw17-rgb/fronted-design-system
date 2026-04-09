@@ -880,6 +880,13 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                   </Button>
                 ) : undefined}
               >
+                <input
+                  ref={reuploadInputRef}
+                  type="file"
+                  className="hidden"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={handleReuploadFile}
+                />
                 <div className="space-y-2">
                   <DocumentRow 
                     name="Identity document"
