@@ -286,6 +286,16 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
     weeklyHours: "", payFrequency: "",
   });
 
+  // Payroll opt-in state
+  const [payrollOptIn, setPayrollOptIn] = useState(false);
+  const [tin, setTin] = useState("");
+  const [philHealth, setPhilHealth] = useState("");
+  const [bankCountry, setBankCountry] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [swiftBic, setSwiftBic] = useState("");
+
   const countryRule = formData.country ? COUNTRY_RULES[formData.country] : null;
   const isContractorOnly = countryRule?.employmentTypes.length === 1 && countryRule.employmentTypes[0] === "contractor";
 
