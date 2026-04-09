@@ -539,7 +539,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                 </Button>
               </div>
             )}
-            {onPrepareContract && !isResend && !payrollOptIn && (
+            {onPrepareContract && !isResend && (
               <button
                 type="button"
                 onClick={onPrepareContract}
