@@ -47,6 +47,7 @@ import {
   CalendarOff,
   ChevronDown,
   ArrowLeft,
+  RefreshCw,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -318,14 +319,35 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     return <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4", c.className)}>{c.label}</Badge>;
   };
 
-  const DocumentRow = ({ name, status, fileName, actionType = "download", onView }: { 
+  const handleReuploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !reuploadTarget) return;
+    const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      setReuploadTarget(null);
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setReuploadTarget(null);
+      return;
+    }
+    setReuploadedDocs(prev => new Set([...prev, reuploadTarget]));
+    setReuploadTarget(null);
+    if (reuploadInputRef.current) reuploadInputRef.current.value = "";
+  };
+
+  const DocumentRow = ({ name, status, fileName, actionType = "download", onView, docKey }: { 
     name: string; 
     status: "uploaded" | "verified" | "missing"; 
     fileName: string;
     actionType?: "download" | "view";
     onView?: () => void;
+    docKey?: string;
   }) => {
-    if (status === "missing") {
+    const wasReuploaded = docKey ? reuploadedDocs.has(docKey) : false;
+    const effectiveStatus = wasReuploaded ? "uploaded" as const : status;
+
+    if (effectiveStatus === "missing" && !verificationMode) {
       return (
         <div className="flex items-center justify-between gap-4 p-3 rounded-lg border border-border/40 bg-muted/20">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -337,49 +359,92 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
       );
     }
 
-    return (
-      <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/40 bg-card/30">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className={cn(
-            "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
-            status === "verified" ? "bg-accent-green-fill/10" : "bg-primary/5"
-          )}>
-            <FileCheck className={cn(
-              "h-4 w-4",
-              status === "verified" ? "text-accent-green-text" : "text-primary"
-            )} />
+    if (effectiveStatus === "missing" && verificationMode) {
+      return (
+        <div className="flex items-center justify-between gap-4 p-3 rounded-lg border border-border/40 bg-muted/20">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm text-muted-foreground truncate">{name}</span>
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <p className="text-sm font-medium text-foreground truncate">{name}</p>
-              <StatusBadge status={status} />
-            </div>
-            <p className="text-[11px] text-muted-foreground">{fileName}</p>
-          </div>
-        </div>
-        {actionType === "view" ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
-            onClick={onView}
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            View
-          </Button>
-        ) : (
           <Button
             variant="ghost"
             size="sm"
             className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
             onClick={() => {
-              console.log(`Download: ${fileName}`);
+              if (docKey) {
+                setReuploadTarget(docKey);
+                reuploadInputRef.current?.click();
+              }
             }}
           >
-            <Download className="h-3.5 w-3.5" />
-            Download
+            <Upload className="h-3.5 w-3.5" />
+            Upload
           </Button>
-        )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/40 bg-card/30">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className={cn(
+            "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
+            effectiveStatus === "verified" ? "bg-accent-green-fill/10" : "bg-primary/5"
+          )}>
+            <FileCheck className={cn(
+              "h-4 w-4",
+              effectiveStatus === "verified" ? "text-accent-green-text" : "text-primary"
+            )} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-medium text-foreground truncate">{name}</p>
+              <StatusBadge status={effectiveStatus} />
+            </div>
+            <p className="text-[11px] text-muted-foreground">{fileName}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          {verificationMode && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                if (docKey) {
+                  setReuploadTarget(docKey);
+                  reuploadInputRef.current?.click();
+                }
+              }}
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Re-upload
+            </Button>
+          )}
+          {actionType === "view" ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+              onClick={onView}
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              View
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                console.log(`Download: ${fileName}`);
+              }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Download
+            </Button>
+          )}
+        </div>
       </div>
     );
   };
