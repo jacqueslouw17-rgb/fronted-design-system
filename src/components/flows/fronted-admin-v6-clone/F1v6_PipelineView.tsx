@@ -661,17 +661,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     if (selectedForSignature) {
       const contractor = contractors.find(c => c.id === selectedForSignature.id);
       if (contractor?.payrollIncluded) {
-        // Payroll data was included at offer stage — skip onboarding, go to CERTIFIED (inactive until docs verified)
+        // Payroll data was included and docs already verified — skip onboarding, go to CERTIFIED active
         const updated = contractors.map(c => c.id === selectedForSignature.id ? {
           ...c,
           status: "CERTIFIED" as const,
-          needsDocumentVerification: true,
-          documentsVerified: false,
+          needsDocumentVerification: false,
+          documentsVerified: true,
           workerStatus: "active" as const,
         } : c);
         setContractors(updated);
         onContractorUpdate?.(updated);
-        toast.success(`${selectedForSignature.name} moved to Done — payroll details already collected. Verify documents to activate.`, { duration: 5000 });
+        toast.success(`${selectedForSignature.name} is now active — all details verified`, { duration: 5000 });
       } else {
         const updated = contractors.map(c => c.id === selectedForSignature.id ? {
           ...c,
@@ -1755,8 +1755,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           employmentType: selectedForVerification.employmentType || "contractor",
           email: selectedForVerification.email,
           workerStatus: "active",
-          documentsVerified: false,
-          needsDocumentVerification: true,
+          documentsVerified: true,
+          needsDocumentVerification: false,
         } : null}
         verificationMode
         onDocumentsVerified={(workerId) => {
