@@ -94,6 +94,8 @@ interface Contractor {
   // Document verification
   needsDocumentVerification?: boolean;
   documentsVerified?: boolean;
+  // Payroll data included at offer stage
+  payrollIncluded?: boolean;
   // Multi-company "All clients" view
   companyId?: string;
   companyName?: string;
@@ -765,15 +767,28 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     }
   };
   const handleSignatureComplete = () => {
-    // Move the contractor who was signing to trigger-onboarding
-    // The useEffect will handle the smooth transition animation
     if (selectedForSignature) {
-      const updated = contractors.map(c => c.id === selectedForSignature.id ? {
-        ...c,
-        status: "trigger-onboarding" as const
-      } : c);
-      setContractors(updated);
-      onContractorUpdate?.(updated);
+      const contractor = contractors.find(c => c.id === selectedForSignature.id);
+      if (contractor?.payrollIncluded) {
+        // Payroll data was included at offer stage — skip onboarding, go to CERTIFIED (inactive until docs verified)
+        const updated = contractors.map(c => c.id === selectedForSignature.id ? {
+          ...c,
+          status: "CERTIFIED" as const,
+          needsDocumentVerification: true,
+          documentsVerified: false,
+          workerStatus: "active" as const,
+        } : c);
+        setContractors(updated);
+        onContractorUpdate?.(updated);
+        toast.success(`${selectedForSignature.name} moved to Done — payroll details already collected. Verify documents to activate.`, { duration: 5000 });
+      } else {
+        const updated = contractors.map(c => c.id === selectedForSignature.id ? {
+          ...c,
+          status: "trigger-onboarding" as const
+        } : c);
+        setContractors(updated);
+        onContractorUpdate?.(updated);
+      }
     }
     onSignatureComplete?.();
     setSignatureDrawerOpen(false);
