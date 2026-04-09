@@ -878,6 +878,14 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         newSet.delete(contractorId);
         return newSet;
       });
+
+      // Auto-simulate candidate submission after 4s when payrollIncluded
+      const c = contractors.find(cc => cc.id === contractorId);
+      if (c?.payrollIncluded) {
+        setTimeout(() => {
+          handleMarkDataReceived(contractorId);
+        }, 4000);
+      }
     }, 800);
   };
   const handleSkipToDrafting = (contractorId: string) => {
