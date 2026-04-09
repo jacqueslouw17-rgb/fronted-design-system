@@ -1598,10 +1598,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             <CheckCircle2 className="h-3 w-3" />
                             <span>Data received</span>
                           </div>}
-                        {status === "data-pending" && contractor.payrollIncluded && !contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-primary/60">
-                            <Info className="h-3 w-3" />
-                            <span>Payroll data included</span>
-                          </div>}
                       </CardContent>
                     </Card>
                     </motion.div>)}
@@ -1746,8 +1742,29 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       setConfigureDrawerOpen(false);
     }} isResend={selectedContractor?.status === "data-pending"} />
 
-      {/* Payroll Verification Drawer */}
-      <F1v6_PayrollVerificationDrawer open={verificationDrawerOpen} onOpenChange={setVerificationDrawerOpen} contractor={selectedForVerification} onVerified={handlePayrollVerified} />
+      {/* Payroll Verification — reuse Done Worker Detail Drawer in verification mode */}
+      <F1v4_DoneWorkerDetailDrawer 
+        open={verificationDrawerOpen} 
+        onOpenChange={setVerificationDrawerOpen} 
+        worker={selectedForVerification ? {
+          id: selectedForVerification.id,
+          name: selectedForVerification.name,
+          country: selectedForVerification.country,
+          countryFlag: selectedForVerification.countryFlag,
+          role: selectedForVerification.role,
+          salary: selectedForVerification.salary,
+          employmentType: selectedForVerification.employmentType || "contractor",
+          email: selectedForVerification.email,
+          workerStatus: "active",
+          documentsVerified: false,
+          needsDocumentVerification: true,
+        } : null}
+        verificationMode
+        onDocumentsVerified={(workerId) => {
+          setVerificationDrawerOpen(false);
+          setTimeout(() => handlePayrollVerified(workerId), 300);
+        }}
+      />
 
       {/* Document Bundle Drawer */}
       <DocumentBundleDrawer open={documentDrawerOpen} onOpenChange={setDocumentDrawerOpen} candidate={selectedForDocuments} />
