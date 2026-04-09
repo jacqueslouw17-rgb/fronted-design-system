@@ -395,6 +395,7 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
       sickLeave: formData.sickLeave,
       weeklyHours: formData.weeklyHours,
       payFrequency: formData.payFrequency,
+      payrollIncluded: payrollOptIn,
     });
     toast.success(`✅ ${formData.name} added to pipeline`);
     resetForm();
@@ -403,6 +404,9 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 
   const resetForm = () => {
     setSelectedAtsId("");
+    setPayrollOptIn(false);
+    setTin(""); setPhilHealth(""); setBankCountry(""); setBankName("");
+    setAccountHolder(""); setAccountNumber(""); setSwiftBic("");
     setFormData({
       name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
       country: "", role: "", employmentType: "", salary: "", startDate: "",
