@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ interface OnboardingFormDrawerProps {
   onComplete: () => void;
   onSent: () => void;
   onPrepareContract?: () => void;
+  onPayrollIncluded?: () => void;
   isResend?: boolean;
 }
 
@@ -123,6 +125,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   onComplete,
   onSent,
   onPrepareContract,
+  onPayrollIncluded,
   isResend = false,
 }) => {
   const isFromATS = candidate.employmentTypeSource === "ats" || (candidate as any).hasATSData;
