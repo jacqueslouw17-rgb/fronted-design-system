@@ -138,6 +138,19 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [payrollOptIn, setPayrollOptIn] = useState(false);
+
+  // Payroll Parameters state
+  const [tin, setTin] = useState("");
+  const [philHealth, setPhilHealth] = useState("");
+  const [payFrequencyPayroll, setPayFrequencyPayroll] = useState("monthly");
+
+  // Payout Destination state
+  const [bankCountry, setBankCountry] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [swiftBic, setSwiftBic] = useState("");
 
   const activeCountryRule = COUNTRY_RULES[candidate.country];
 
