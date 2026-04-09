@@ -801,12 +801,20 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               </SectionCard>
 
               {/* 5) Documents */}
-              <SectionCard title="Documents" defaultOpen={false}>
+              <SectionCard title="Documents" defaultOpen={verificationMode}>
+                <input
+                  ref={reuploadInputRef}
+                  type="file"
+                  className="hidden"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={handleReuploadFile}
+                />
                 <div className="space-y-2">
                   <DocumentRow 
                     name="Identity document"
                     status={mockData.idDocumentStatus}
                     fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
+                    docKey="identity"
                   />
                   <DocumentRow 
                     name={isEmployee ? "Employment agreement" : "Contractor agreement"}
@@ -814,13 +822,15 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement_Signed.pdf`}
                     actionType="view"
                     onView={() => setShowAgreement(true)}
+                    docKey="agreement"
                   />
-                  {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
+                  {worker.optionalUploads?.filter(u => verificationMode ? true : u.status !== "missing").map((upload, idx) => (
                     <DocumentRow
                       key={idx}
                       name={upload.name}
                       status={upload.status}
                       fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
+                      docKey={`optional-${idx}`}
                     />
                   ))}
                 </div>
