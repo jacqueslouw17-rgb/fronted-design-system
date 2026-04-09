@@ -573,7 +573,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <span className="text-lg">{worker.countryFlag}</span>
             <span>{worker.role} · {isEmployee ? "Employee (EOR)" : "Contractor (COR)"}</span>
           </div>
-          <div className="flex items-center gap-2 mt-1">
+          {!verificationMode && <div className="flex items-center gap-2 mt-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className={cn(
@@ -641,7 +641,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
+          </div>}
           {!isActive && worker.endDate && (
             <p className="text-xs text-muted-foreground mt-1">
               {workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Terminated on" : "Contract ended"}: {worker.endDate}

@@ -6,7 +6,7 @@
  * (terminate, resign, end contract).
  */
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { AgreementViewerSheet } from "./F1v6_AgreementViewerSheet";
 import {
   Sheet,
@@ -44,6 +44,7 @@ import {
   CalendarOff,
   ChevronDown,
   ArrowLeft,
+  RefreshCw,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -216,6 +217,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   const [actionReason, setActionReason] = useState("");
   const [showAgreement, setShowAgreement] = useState(false);
   const [pendingAction, setPendingAction] = useState<ActionType | null>(null);
+  const reuploadInputRef = useRef<HTMLInputElement>(null);
+  const [reuploadTarget, setReuploadTarget] = useState<string | null>(null);
 
   const confirmationLabels: Record<ActionType, { title: string; description: string; buttonLabel: string; buttonClass: string }> = {
     "terminated": {
@@ -320,6 +323,16 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     return <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4", c.className)}>{c.label}</Badge>;
   };
 
+  const handleReuploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !reuploadTarget) { setReuploadTarget(null); return; }
+    const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!validTypes.includes(file.type) || file.size > 5 * 1024 * 1024) { setReuploadTarget(null); return; }
+    // In production: upload file to storage
+    setReuploadTarget(null);
+    if (reuploadInputRef.current) reuploadInputRef.current.value = "";
+  };
+
   const DocumentRow = ({ name, status, fileName, onView }: { 
     name: string; 
     status: "uploaded" | "verified" | "missing"; 
@@ -347,16 +360,35 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
     };
 
     return (
-      <button
-        onClick={handleOpen}
-        className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border border-border/40 bg-card/30 hover:bg-muted/40 hover:border-border/60 transition-colors w-full text-left group cursor-pointer"
-      >
+      <div className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border border-border/40 bg-card/30 w-full">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground truncate">{name}</p>
           <p className="text-[11px] text-muted-foreground">{fileName}</p>
         </div>
-        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-foreground shrink-0 transition-colors" />
-      </button>
+        <div className="flex items-center gap-1 shrink-0">
+          {verificationMode && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                setReuploadTarget(name);
+                reuploadInputRef.current?.click();
+              }}
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Re-upload
+            </Button>
+          )}
+          <button
+            onClick={handleOpen}
+            className="inline-flex items-center gap-1 h-7 px-2 text-xs text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/50"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Open
+          </button>
+        </div>
+      </div>
     );
   };
 
@@ -484,7 +516,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <div className="flex items-center gap-2">
               <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.name}</SheetTitle>
               <span className="text-base shrink-0">{worker.countryFlag}</span>
-              {(worker.needsDocumentVerification && !worker.documentsVerified) ? (
+              {(worker.needsDocumentVerification && !worker.documentsVerified && !verificationMode) ? (
                 <span className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 shrink-0">
                   Inactive
                 </span>
@@ -724,6 +756,13 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                   </Button>
                 ) : undefined}
               >
+                <input
+                  ref={reuploadInputRef}
+                  type="file"
+                  className="hidden"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={handleReuploadFile}
+                />
                 <div className="space-y-2">
                   <DocumentRow 
                     name="Identity document"
