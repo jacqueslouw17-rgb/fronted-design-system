@@ -1432,8 +1432,27 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </button>
                             </div>}
                           
-                          {status === "data-pending" && <div className="w-full space-y-2">
-                              <p className="text-xs text-muted-foreground text-center">Awaiting candidate details</p>
+                          {status === "data-pending" && contractor.payrollIncluded && contractor.dataReceived && <div className="w-full space-y-2">
+                              <div className="flex items-center gap-1.5 justify-center">
+                                <Badge className="text-[10px] px-2 py-0.5 font-normal bg-accent-amber-fill/15 text-accent-amber-text border-accent-amber-outline/30">
+                                  <AlertCircle className="h-2.5 w-2.5 mr-1" />
+                                  Submitted — needs verification
+                                </Badge>
+                              </div>
+                              <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" onClick={e => {
+                                e.stopPropagation();
+                                setSelectedForVerification(contractor);
+                                setVerificationDrawerOpen(true);
+                              }}>
+                                <Shield className="h-3.5 w-3.5" />
+                                Review & Verify
+                              </Button>
+                            </div>}
+
+                          {status === "data-pending" && !(contractor.payrollIncluded && contractor.dataReceived) && <div className="w-full space-y-2">
+                              <p className="text-xs text-muted-foreground text-center">
+                                {contractor.payrollIncluded ? "Awaiting candidate details (payroll included)" : "Awaiting candidate details"}
+                              </p>
                               <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
                           e.stopPropagation();
                           setSendingFormIds(prev => new Set([...prev, contractor.id]));
