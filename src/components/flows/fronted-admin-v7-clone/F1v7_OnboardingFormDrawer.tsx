@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -158,6 +159,7 @@ interface OnboardingFormDrawerProps {
   onComplete: () => void;
   onSent: () => void;
   onPrepareContract?: () => void;
+  onPayrollIncluded?: () => void;
   isResend?: boolean;
 }
 
@@ -231,6 +233,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   onComplete,
   onSent,
   onPrepareContract,
+  onPayrollIncluded,
   isResend = false,
 }) => {
   const isFromATS = candidate.employmentTypeSource === "ats" || (candidate as any).hasATSData;
@@ -244,6 +247,19 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [insuranceOptIn, setInsuranceOptIn] = useState(true);
+  const [payrollOptIn, setPayrollOptIn] = useState(false);
+
+  // Payroll Parameters state
+  const [tin, setTin] = useState("");
+  const [philHealth, setPhilHealth] = useState("");
+  const [payFrequencyPayroll, setPayFrequencyPayroll] = useState("monthly");
+
+  // Payout Destination state
+  const [bankCountry, setBankCountry] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [swiftBic, setSwiftBic] = useState("");
 
   const activeCountryRule = COUNTRY_RULES[candidate.country];
 
@@ -663,23 +679,134 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           </SectionCard>
 
 
+          {/* ── Payroll Opt-In Banner ── */}
+          {!isResend && (
+            <div className={cn(
+              "rounded-xl border transition-all duration-300",
+              payrollOptIn 
+                ? "border-primary/30 bg-primary/[0.03]" 
+                : "border-dashed border-border/50 bg-muted/10"
+            )}>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setPayrollOptIn(!payrollOptIn); }}
+                className="flex items-center gap-3 px-4 py-3 w-full text-left cursor-pointer group"
+              >
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Switch 
+                    checked={payrollOptIn} 
+                    onCheckedChange={setPayrollOptIn}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={cn(
+                    "text-xs font-medium transition-colors",
+                    payrollOptIn ? "text-foreground" : "text-muted-foreground/70"
+                  )}>
+                    Include payroll & payout details
+                  </p>
+                  <p className="text-[10px] text-muted-foreground/50 mt-0.5">
+                    {payrollOptIn 
+                      ? "Onboarding step will be skipped after contract signing" 
+                      : "Enable to collect payroll info now and skip onboarding later"}
+                  </p>
+                </div>
+                {payrollOptIn && (
+                  <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal bg-primary/10 text-primary border-0 shrink-0">
+                    Skips onboarding
+                  </Badge>
+                )}
+              </button>
+
+              {payrollOptIn && (
+                <div className="px-4 pb-4 space-y-3 border-t border-border/30 pt-3">
+                  {/* Payroll Parameters */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-semibold text-foreground">Payroll Parameters</h4>
+                    <Field label="Pay Frequency">
+                      <Select value={payFrequencyPayroll} onValueChange={setPayFrequencyPayroll}>
+                        <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="fortnightly">Fortnightly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Tax Identification Number (TIN)">
+                      <Input value={tin} onChange={e => setTin(e.target.value)} placeholder="e.g. 123-456-789-000" className="h-10" />
+                    </Field>
+                    {formData.country === "Philippines" && (
+                      <Field label="PhilHealth Number" optional>
+                        <Input value={philHealth} onChange={e => setPhilHealth(e.target.value)} placeholder="12-345678901-2" className="h-10" />
+                      </Field>
+                    )}
+                  </div>
+
+                  {/* Payout Destination */}
+                  <div className="space-y-3 border-t border-border/30 pt-3">
+                    <h4 className="text-xs font-semibold text-foreground">Payout Destination</h4>
+                    <Field label="Bank Country">
+                      <Input value={bankCountry} onChange={e => setBankCountry(e.target.value)} placeholder="Same as working country" className="h-10" />
+                    </Field>
+                    <Field label="Bank Name">
+                      <Input value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. BDO Unibank" className="h-10" />
+                    </Field>
+                    <Field label="Account Holder Name">
+                      <Input value={accountHolder || formData.name} onChange={e => setAccountHolder(e.target.value)} className="h-10" />
+                    </Field>
+                    <Field label="Account Number / IBAN">
+                      <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Account number" className="h-10" />
+                    </Field>
+                    <Field label="SWIFT / BIC" optional>
+                      <Input value={swiftBic} onChange={e => setSwiftBic(e.target.value)} placeholder="e.g. BNORPHMM" className="h-10" />
+                    </Field>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Action buttons */}
           <div className="space-y-3 pt-4">
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleSaveDraft}
-                disabled={isSubmitting || isSavingDraft || hasValidationErrors}
-                className="flex-1"
-              >
-                {isSavingDraft ? "Saving..." : "Save Changes"}
-              </Button>
-              <Button type="button" onClick={handleSendForm} disabled={isSubmitting || hasValidationErrors} className="flex-1">
-                {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
-              </Button>
-            </div>
-            {onPrepareContract && !isResend && (
+            {payrollOptIn ? (
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSaveDraft}
+                  disabled={isSubmitting || isSavingDraft || hasValidationErrors}
+                  className="flex-1"
+                >
+                  {isSavingDraft ? "Saving..." : "Save Changes"}
+                </Button>
+                <Button 
+                  type="button" 
+                  onClick={() => {
+                    onPayrollIncluded?.();
+                  }}
+                  disabled={isSubmitting || hasValidationErrors || !tin || !accountNumber}
+                  className="flex-1"
+                >
+                  Save & Send Form
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSaveDraft}
+                  disabled={isSubmitting || isSavingDraft || hasValidationErrors}
+                  className="flex-1"
+                >
+                  {isSavingDraft ? "Saving..." : "Save Changes"}
+                </Button>
+                <Button type="button" onClick={handleSendForm} disabled={isSubmitting || hasValidationErrors} className="flex-1">
+                  {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
+                </Button>
+              </div>
+            )}
+            {onPrepareContract && !isResend && !payrollOptIn && (
               <button
                 type="button"
                 onClick={onPrepareContract}
