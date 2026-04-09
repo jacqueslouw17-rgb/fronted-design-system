@@ -641,7 +641,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
+          </div>}
           {!isActive && worker.endDate && (
             <p className="text-xs text-muted-foreground mt-1">
               {workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Terminated on" : "Contract ended"}: {worker.endDate}
