@@ -1738,14 +1738,12 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       }
     }} onPayrollIncluded={() => {
       if (selectedContractor) {
-        // Mark payroll included and also send the form
+        // Set payrollIncluded flag first
+        setContractors(prev => prev.map(c => c.id === selectedContractor.id ? { ...c, payrollIncluded: true } : c));
+        // Then send the form (it reads the updated state)
         if (selectedContractor.status === "offer-accepted") {
-          handleSendForm(selectedContractor.id);
+          setTimeout(() => handleSendForm(selectedContractor.id), 50);
         }
-        // Set payrollIncluded flag after status change
-        setTimeout(() => {
-          setContractors(prev => prev.map(c => c.id === selectedContractor.id ? { ...c, payrollIncluded: true } : c));
-        }, 100);
         toast.success(`Form sent with payroll details — onboarding will be skipped after signatures`, { duration: 5000 });
       }
       setConfigureDrawerOpen(false);
