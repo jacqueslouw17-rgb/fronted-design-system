@@ -595,6 +595,109 @@ export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                   </AnimatePresence>
                 </SectionCard>
 
+                {/* ── Payroll & Payout Opt-In ── */}
+                {showContractFields && (
+                  <div className={cn(
+                    "rounded-xl border transition-all duration-300",
+                    payrollOptIn 
+                      ? "border-primary/30 bg-primary/[0.03]" 
+                      : "border-dashed border-border/50 bg-muted/10"
+                  )}>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setPayrollOptIn(!payrollOptIn); }}
+                      className="flex items-center gap-3 px-4 py-3 w-full text-left cursor-pointer group"
+                    >
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <Switch 
+                          checked={payrollOptIn} 
+                          onCheckedChange={setPayrollOptIn}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={cn(
+                          "text-xs font-medium transition-colors",
+                          payrollOptIn ? "text-foreground" : "text-muted-foreground/70"
+                        )}>
+                          Include payroll & payout details
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/50 mt-0.5">
+                          {payrollOptIn 
+                            ? "Onboarding step will be skipped after contract signing" 
+                            : "Enable to collect payroll info now and skip onboarding later"}
+                        </p>
+                      </div>
+                      {payrollOptIn && (
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal bg-primary/10 text-primary border-0 shrink-0">
+                          Skips onboarding
+                        </Badge>
+                      )}
+                    </button>
+
+                    <AnimatePresence>
+                      {payrollOptIn && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-4 space-y-3 border-t border-border/30 pt-3">
+                            {/* Payroll Parameters */}
+                            <div className="space-y-3">
+                              <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                                <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
+                                Payroll Parameters
+                              </h4>
+                              <Field label="Pay Frequency">
+                                <Select value={formData.payFrequency || "monthly"} onValueChange={v => set("payFrequency")(v)}>
+                                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="fortnightly">Fortnightly</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </Field>
+                              <Field label="Tax Identification Number (TIN)">
+                                <Input value={tin} onChange={e => setTin(e.target.value)} placeholder="e.g. 123-456-789-000" className="h-10" />
+                              </Field>
+                              {formData.country === "Philippines" && (
+                                <Field label="PhilHealth Number" optionalTooltip="Optional">
+                                  <Input value={philHealth} onChange={e => setPhilHealth(e.target.value)} placeholder="12-345678901-2" className="h-10" />
+                                </Field>
+                              )}
+                            </div>
+
+                            {/* Payout Destination */}
+                            <div className="space-y-3 border-t border-border/30 pt-3">
+                              <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                                <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
+                                Payout Destination
+                              </h4>
+                              <Field label="Bank Country">
+                                <Input value={bankCountry} onChange={e => setBankCountry(e.target.value)} placeholder="Same as working country" className="h-10" />
+                              </Field>
+                              <Field label="Bank Name">
+                                <Input value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. BDO Unibank" className="h-10" />
+                              </Field>
+                              <Field label="Account Holder Name">
+                                <Input value={accountHolder || formData.name} onChange={e => setAccountHolder(e.target.value)} className="h-10" />
+                              </Field>
+                              <Field label="Account Number / IBAN">
+                                <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Account number" className="h-10" />
+                              </Field>
+                              <Field label="SWIFT / BIC" optionalTooltip="Optional">
+                                <Input value={swiftBic} onChange={e => setSwiftBic(e.target.value)} placeholder="e.g. BNORPHMM" className="h-10" />
+                              </Field>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
+
                 {/* ── Sticky Actions ── */}
                 <div className="flex gap-3 pt-2 pb-2">
                   <Button variant="outline" className="flex-1 h-11" onClick={() => { resetForm(); onOpenChange(false); }}>
