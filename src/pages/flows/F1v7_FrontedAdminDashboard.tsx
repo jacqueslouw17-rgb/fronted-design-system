@@ -1758,6 +1758,30 @@ const AdminContractingMultiCompany = () => {
                                   <F1v4_PipelineView 
                                     key={isAllClientsMode ? "all-clients" : selectedCompany}
                                     contractors={isAllClientsMode ? allClientsContractors : (companyContractors[selectedCompany] || [])}
+                                    onContractorUpdate={(updatedContractors) => {
+                                      if (isAllClientsMode) {
+                                        setCompanyContractors(prev => {
+                                          const next = { ...prev };
+                                          const byCompany = updatedContractors.reduce<Record<string, any[]>>((acc, contractor) => {
+                                            const companyId = contractor.companyId || selectedCompany;
+                                            if (!acc[companyId]) acc[companyId] = [];
+                                            acc[companyId].push(contractor);
+                                            return acc;
+                                          }, {});
+
+                                          Object.entries(byCompany).forEach(([companyId, contractors]) => {
+                                            next[companyId] = contractors.map(({ companyId: _companyId, companyName: _companyName, companyColor: _companyColor, ...rest }) => rest);
+                                          });
+
+                                          return next;
+                                        });
+                                      } else {
+                                        setCompanyContractors(prev => ({
+                                          ...prev,
+                                          [selectedCompany]: updatedContractors,
+                                        }));
+                                      }
+                                    }}
                                     onAddCandidate={handleAddCandidate}
                                     scrollToEnd={kurtScrollTrackerToEnd}
                                     onScrollToEndComplete={() => setKurtScrollTrackerToEnd(false)}

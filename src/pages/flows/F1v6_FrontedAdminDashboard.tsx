@@ -1094,6 +1094,12 @@ const AdminContractingMultiCompany = () => {
                               <F1v4_PipelineView 
                                 key={selectedCompany}
                                 contractors={companyContractors[selectedCompany] || []}
+                                onContractorUpdate={(updatedContractors) => {
+                                  setCompanyContractors(prev => ({
+                                    ...prev,
+                                    [selectedCompany]: updatedContractors,
+                                  }));
+                                }}
                                 onAddCandidate={handleAddCandidate}
                                 onRemoveContractor={(contractorId) => {
                                   setCompanyContractors(prev => ({

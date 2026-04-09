@@ -769,7 +769,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
   const handleSignatureComplete = () => {
     if (selectedForSignature) {
       const contractor = contractors.find(c => c.id === selectedForSignature.id);
-      if (contractor?.payrollIncluded) {
+      if (contractor?.payrollIncluded || contractor?.documentsVerified) {
         // Payroll data was included and docs already verified — skip onboarding, go to CERTIFIED active
         const updated = contractors.map(c => c.id === selectedForSignature.id ? {
           ...c,
@@ -1079,6 +1079,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     const updated = contractors.map(c => c.id === contractorId ? {
       ...c,
       status: "drafting" as const,
+      documentsVerified: true,
+      needsDocumentVerification: false,
     } : c);
     setContractors(updated);
     onContractorUpdate?.(updated);
