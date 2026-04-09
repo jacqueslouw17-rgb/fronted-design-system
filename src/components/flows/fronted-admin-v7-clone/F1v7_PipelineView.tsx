@@ -46,7 +46,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { F1v4_OnboardingFormDrawer } from "./F1v7_OnboardingFormDrawer";
 import { F1v5_PayrollDataCollectionDrawer } from "./F1v7_PayrollDataCollectionDrawer";
-import { F1v7_PayrollVerificationDrawer } from "./F1v7_PayrollVerificationDrawer";
 import { DocumentBundleDrawer } from "@/components/contract-flow/DocumentBundleDrawer";
 import { F1v4_SignatureWorkflowDrawer } from "./F1v7_SignatureWorkflowDrawer";
 import { F1v4_StartOnboardingConfirmation } from "./F1v7_StartOnboardingConfirmation";
@@ -1634,12 +1633,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             </div>}
                           
                           {status === "data-pending" && contractor.payrollIncluded && contractor.dataReceived && <div className="w-full space-y-2">
-                              <div className="flex items-center gap-1.5 justify-center">
-                                <Badge className="text-[10px] px-2 py-0.5 font-normal bg-accent-amber-fill/15 text-accent-amber-text border-accent-amber-outline/30">
-                                  <AlertCircle className="h-2.5 w-2.5 mr-1" />
-                                  Submitted — needs verification
-                                </Badge>
-                              </div>
                               <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" onClick={e => {
                                 e.stopPropagation();
                                 setSelectedForVerification(contractor);
@@ -1651,9 +1644,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             </div>}
 
                           {status === "data-pending" && !(contractor.payrollIncluded && contractor.dataReceived) && <div className="w-full space-y-2">
-                              <p className="text-xs text-muted-foreground text-center">
-                                {contractor.payrollIncluded ? "Awaiting candidate details (payroll included)" : "Awaiting candidate details"}
-                              </p>
+                              <p className="text-xs text-muted-foreground text-center">Awaiting candidate details</p>
                               <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
                           e.stopPropagation();
                           setSendingFormIds(prev => new Set([...prev, contractor.id]));
@@ -1802,10 +1793,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               <CheckCircle2 className="h-3 w-3" />
                               <span>Data received</span>
                             </div>}
-                          {status === "data-pending" && contractor.payrollIncluded && !contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-primary/60">
-                              <Info className="h-3 w-3" />
-                              <span>Payroll data included</span>
-                            </div>}
                         </div>{/* end v7-card-reveal */}
                       </CardContent>
                     </Card>
@@ -1952,8 +1939,29 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       setConfigureDrawerOpen(false);
     }} isResend={selectedContractor?.status === "data-pending"} />
 
-      {/* Payroll Verification Drawer */}
-      <F1v7_PayrollVerificationDrawer open={verificationDrawerOpen} onOpenChange={setVerificationDrawerOpen} contractor={selectedForVerification} onVerified={handlePayrollVerified} />
+      {/* Payroll Verification — reuse Done Worker Detail Drawer in verification mode */}
+      <F1v4_DoneWorkerDetailDrawer 
+        open={verificationDrawerOpen} 
+        onOpenChange={setVerificationDrawerOpen} 
+        worker={selectedForVerification ? {
+          id: selectedForVerification.id,
+          name: selectedForVerification.name,
+          country: selectedForVerification.country,
+          countryFlag: selectedForVerification.countryFlag,
+          role: selectedForVerification.role,
+          salary: selectedForVerification.salary,
+          employmentType: selectedForVerification.employmentType || "contractor",
+          email: selectedForVerification.email,
+          workerStatus: "active",
+          documentsVerified: false,
+          needsDocumentVerification: true,
+        } : null}
+        verificationMode
+        onDocumentsVerified={(workerId) => {
+          setVerificationDrawerOpen(false);
+          setTimeout(() => handlePayrollVerified(workerId), 300);
+        }}
+      />
 
       {/* Document Bundle Drawer */}
       <DocumentBundleDrawer open={documentDrawerOpen} onOpenChange={setDocumentDrawerOpen} candidate={selectedForDocuments} />
