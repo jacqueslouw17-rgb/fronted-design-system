@@ -880,8 +880,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
 
       // Auto-simulate candidate submission after 4s when payrollIncluded
-      const c = contractors.find(cc => cc.id === contractorId);
-      if (c?.payrollIncluded) {
+      const freshC = updated.find(cc => cc.id === contractorId);
+      if (freshC?.payrollIncluded) {
         setTimeout(() => {
           handleMarkDataReceived(contractorId);
         }, 4000);
