@@ -88,6 +88,8 @@ interface Contractor {
   // Document verification
   needsDocumentVerification?: boolean;
   documentsVerified?: boolean;
+  // Payroll data included at offer stage
+  payrollIncluded?: boolean;
 }
 interface PayrollChecklistItem {
   id: string;
