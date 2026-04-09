@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -158,6 +159,7 @@ interface OnboardingFormDrawerProps {
   onComplete: () => void;
   onSent: () => void;
   onPrepareContract?: () => void;
+  onPayrollIncluded?: () => void;
   isResend?: boolean;
 }
 
@@ -231,6 +233,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   onComplete,
   onSent,
   onPrepareContract,
+  onPayrollIncluded,
   isResend = false,
 }) => {
   const isFromATS = candidate.employmentTypeSource === "ats" || (candidate as any).hasATSData;
@@ -244,6 +247,19 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [insuranceOptIn, setInsuranceOptIn] = useState(true);
+  const [payrollOptIn, setPayrollOptIn] = useState(false);
+
+  // Payroll Parameters state
+  const [tin, setTin] = useState("");
+  const [philHealth, setPhilHealth] = useState("");
+  const [payFrequencyPayroll, setPayFrequencyPayroll] = useState("monthly");
+
+  // Payout Destination state
+  const [bankCountry, setBankCountry] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [swiftBic, setSwiftBic] = useState("");
 
   const activeCountryRule = COUNTRY_RULES[candidate.country];
 
