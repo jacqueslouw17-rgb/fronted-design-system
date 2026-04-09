@@ -975,13 +975,18 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     // Initial send - move to data-pending
     setSendingFormIds(prev => new Set([...prev, contractorId]));
     setTimeout(() => {
-      const updated = contractors.map(c => c.id === contractorId ? {
-        ...c,
-        status: "data-pending" as const,
-        formSent: true
-      } : c);
-      setContractors(updated);
-      onContractorUpdate?.(updated);
+      let hasPayroll = false;
+      setContractors(prev => {
+        const updated = prev.map(c => c.id === contractorId ? {
+          ...c,
+          status: "data-pending" as const,
+          formSent: true
+        } : c);
+        const freshC = updated.find(cc => cc.id === contractorId);
+        hasPayroll = !!freshC?.payrollIncluded;
+        onContractorUpdate?.(updated);
+        return updated;
+      });
       setSendingFormIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(contractorId);
@@ -989,8 +994,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       });
 
       // Auto-simulate candidate submission after 4s when payrollIncluded
-      const c = contractors.find(cc => cc.id === contractorId);
-      if (c?.payrollIncluded) {
+      if (hasPayroll) {
         setTimeout(() => {
           handleMarkDataReceived(contractorId);
         }, 4000);
@@ -1044,29 +1048,29 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     toast.success(`Forms sent to ${selectedInOfferAccepted.length} candidates`);
   };
   const handleMarkDataReceived = (contractorId: string) => {
-    const contractor = contractors.find(c => c.id === contractorId);
-    // If payrollIncluded, stay in data-pending with dataReceived for admin verification
-    if (contractor?.payrollIncluded) {
-      const updated = contractors.map(c => c.id === contractorId ? {
+    setContractors(prev => {
+      const contractor = prev.find(c => c.id === contractorId);
+      if (contractor?.payrollIncluded) {
+        const updated = prev.map(c => c.id === contractorId ? {
+          ...c,
+          dataReceived: true
+        } : c);
+        onContractorUpdate?.(updated);
+        toast.info(`${contractor.name} submitted details — review & verify required`, {
+          description: "Payroll data included. Admin must verify before proceeding.",
+          duration: 4000,
+        });
+        return updated;
+      }
+      const updated = prev.map(c => c.id === contractorId ? {
         ...c,
+        status: "drafting" as const,
         dataReceived: true
       } : c);
-      setContractors(updated);
       onContractorUpdate?.(updated);
-      toast.info(`${contractor.name} submitted details — review & verify required`, {
-        description: "Payroll data included. Admin must verify before proceeding.",
-        duration: 4000,
-      });
-      return;
-    }
-    const updated = contractors.map(c => c.id === contractorId ? {
-      ...c,
-      status: "drafting" as const,
-      dataReceived: true
-    } : c);
-    setContractors(updated);
-    onContractorUpdate?.(updated);
-    toast.success(`${contractor?.name} is ready for contract drafting`);
+      toast.success(`${contractor?.name} is ready for contract drafting`);
+      return updated;
+    });
   };
   const handleFormSubmitted = (contractorId: string) => {
     // Simulate candidate submitting the form
