@@ -1036,6 +1036,21 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     toast.success(`Forms sent to ${selectedInOfferAccepted.length} candidates`);
   };
   const handleMarkDataReceived = (contractorId: string) => {
+    const contractor = contractors.find(c => c.id === contractorId);
+    // If payrollIncluded, stay in data-pending with dataReceived for admin verification
+    if (contractor?.payrollIncluded) {
+      const updated = contractors.map(c => c.id === contractorId ? {
+        ...c,
+        dataReceived: true
+      } : c);
+      setContractors(updated);
+      onContractorUpdate?.(updated);
+      toast.info(`${contractor.name} submitted details — review & verify required`, {
+        description: "Payroll data included. Admin must verify before proceeding.",
+        duration: 4000,
+      });
+      return;
+    }
     const updated = contractors.map(c => c.id === contractorId ? {
       ...c,
       status: "drafting" as const,
@@ -1043,12 +1058,21 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     } : c);
     setContractors(updated);
     onContractorUpdate?.(updated);
-    const contractor = contractors.find(c => c.id === contractorId);
     toast.success(`${contractor?.name} is ready for contract drafting`);
   };
   const handleFormSubmitted = (contractorId: string) => {
-    // Simulate candidate submitting the form - auto-move to drafting
+    // Simulate candidate submitting the form
     handleMarkDataReceived(contractorId);
+  };
+  const handlePayrollVerified = (contractorId: string) => {
+    const updated = contractors.map(c => c.id === contractorId ? {
+      ...c,
+      status: "drafting" as const,
+    } : c);
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+    const contractor = contractors.find(c => c.id === contractorId);
+    toast.success(`${contractor?.name} verified — ready for contract drafting`);
   };
   const handleDraftContract = (contractorIds: string[]) => {
     onDraftContract?.(contractorIds);
