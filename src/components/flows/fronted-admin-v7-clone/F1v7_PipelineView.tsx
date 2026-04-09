@@ -1944,6 +1944,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       setConfigureDrawerOpen(false);
     }} isResend={selectedContractor?.status === "data-pending"} />
 
+      {/* Payroll Verification Drawer */}
+      <F1v7_PayrollVerificationDrawer open={verificationDrawerOpen} onOpenChange={setVerificationDrawerOpen} contractor={selectedForVerification} onVerified={handlePayrollVerified} />
+
       {/* Document Bundle Drawer */}
       <DocumentBundleDrawer open={documentDrawerOpen} onOpenChange={setDocumentDrawerOpen} candidate={selectedForDocuments} />
 
