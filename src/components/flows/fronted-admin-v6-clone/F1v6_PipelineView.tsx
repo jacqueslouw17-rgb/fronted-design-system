@@ -1449,9 +1449,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             </div>}
 
                           {status === "data-pending" && !(contractor.payrollIncluded && contractor.dataReceived) && <div className="w-full space-y-2">
-                              <p className="text-xs text-muted-foreground text-center">
-                                {contractor.payrollIncluded ? "Awaiting candidate details" : "Awaiting candidate details"}
-                              </p>
+                              <p className="text-xs text-muted-foreground text-center">Awaiting candidate details</p>
                               <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
                           e.stopPropagation();
                           setSendingFormIds(prev => new Set([...prev, contractor.id]));
