@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown, X, GripVertical } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw, ChevronDown, X, GripVertical, Shield } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,6 +42,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { F1v4_OnboardingFormDrawer } from "./F1v6_OnboardingFormDrawer";
 import { F1v5_PayrollDataCollectionDrawer } from "./F1v6_PayrollDataCollectionDrawer";
+import { F1v6_PayrollVerificationDrawer } from "./F1v6_PayrollVerificationDrawer";
 import { DocumentBundleDrawer } from "@/components/contract-flow/DocumentBundleDrawer";
 import { F1v4_SignatureWorkflowDrawer } from "./F1v6_SignatureWorkflowDrawer";
 import { F1v4_StartOnboardingConfirmation } from "./F1v6_StartOnboardingConfirmation";
@@ -877,6 +878,14 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         newSet.delete(contractorId);
         return newSet;
       });
+
+      // Auto-simulate candidate submission after 4s when payrollIncluded
+      const c = contractors.find(cc => cc.id === contractorId);
+      if (c?.payrollIncluded) {
+        setTimeout(() => {
+          handleMarkDataReceived(contractorId);
+        }, 4000);
+      }
     }, 800);
   };
   const handleSkipToDrafting = (contractorId: string) => {
@@ -927,6 +936,21 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     toast.success(`Forms sent to ${selectedInOfferAccepted.length} candidates`);
   };
   const handleMarkDataReceived = (contractorId: string) => {
+    const contractor = contractors.find(c => c.id === contractorId);
+    // If payrollIncluded, stay in data-pending with dataReceived for admin verification
+    if (contractor?.payrollIncluded) {
+      const updated = contractors.map(c => c.id === contractorId ? {
+        ...c,
+        dataReceived: true
+      } : c);
+      setContractors(updated);
+      onContractorUpdate?.(updated);
+      toast.info(`${contractor.name} submitted details — review & verify required`, {
+        description: "Payroll data included. Admin must verify before proceeding.",
+        duration: 4000,
+      });
+      return;
+    }
     const updated = contractors.map(c => c.id === contractorId ? {
       ...c,
       status: "drafting" as const,
@@ -934,12 +958,21 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
     } : c);
     setContractors(updated);
     onContractorUpdate?.(updated);
-    const contractor = contractors.find(c => c.id === contractorId);
     toast.success(`${contractor?.name} is ready for contract drafting`);
   };
   const handleFormSubmitted = (contractorId: string) => {
-    // Simulate candidate submitting the form - auto-move to drafting
+    // Simulate candidate submitting the form
     handleMarkDataReceived(contractorId);
+  };
+  const handlePayrollVerified = (contractorId: string) => {
+    const updated = contractors.map(c => c.id === contractorId ? {
+      ...c,
+      status: "drafting" as const,
+    } : c);
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+    const contractor = contractors.find(c => c.id === contractorId);
+    toast.success(`${contractor?.name} verified — ready for contract drafting`);
   };
   const handleDraftContract = (contractorIds: string[]) => {
     onDraftContract?.(contractorIds);
@@ -1399,8 +1432,27 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </button>
                             </div>}
                           
-                          {status === "data-pending" && <div className="w-full space-y-2">
-                              <p className="text-xs text-muted-foreground text-center">Awaiting candidate details</p>
+                          {status === "data-pending" && contractor.payrollIncluded && contractor.dataReceived && <div className="w-full space-y-2">
+                              <div className="flex items-center gap-1.5 justify-center">
+                                <Badge className="text-[10px] px-2 py-0.5 font-normal bg-accent-amber-fill/15 text-accent-amber-text border-accent-amber-outline/30">
+                                  <AlertCircle className="h-2.5 w-2.5 mr-1" />
+                                  Submitted — needs verification
+                                </Badge>
+                              </div>
+                              <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" onClick={e => {
+                                e.stopPropagation();
+                                setSelectedForVerification(contractor);
+                                setVerificationDrawerOpen(true);
+                              }}>
+                                <Shield className="h-3.5 w-3.5" />
+                                Review & Verify
+                              </Button>
+                            </div>}
+
+                          {status === "data-pending" && !(contractor.payrollIncluded && contractor.dataReceived) && <div className="w-full space-y-2">
+                              <p className="text-xs text-muted-foreground text-center">
+                                {contractor.payrollIncluded ? "Awaiting candidate details (payroll included)" : "Awaiting candidate details"}
+                              </p>
                               <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
                           e.stopPropagation();
                           setSendingFormIds(prev => new Set([...prev, contractor.id]));
@@ -1545,9 +1597,13 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                         </div>
 
                         {/* Display Flags */}
-                        {status === "data-pending" && contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-accent-green-text">
+                        {status === "data-pending" && contractor.dataReceived && !contractor.payrollIncluded && <div className="flex items-center gap-1 text-[10px] text-accent-green-text">
                             <CheckCircle2 className="h-3 w-3" />
                             <span>Data received</span>
+                          </div>}
+                        {status === "data-pending" && contractor.payrollIncluded && !contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-primary/60">
+                            <Info className="h-3 w-3" />
+                            <span>Payroll data included</span>
                           </div>}
                       </CardContent>
                     </Card>
@@ -1682,18 +1738,19 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       }
     }} onPayrollIncluded={() => {
       if (selectedContractor) {
-        // Mark payroll included and also send the form
+        // Set payrollIncluded flag first
+        setContractors(prev => prev.map(c => c.id === selectedContractor.id ? { ...c, payrollIncluded: true } : c));
+        // Then send the form (it reads the updated state)
         if (selectedContractor.status === "offer-accepted") {
-          handleSendForm(selectedContractor.id);
+          setTimeout(() => handleSendForm(selectedContractor.id), 50);
         }
-        // Set payrollIncluded flag after status change
-        setTimeout(() => {
-          setContractors(prev => prev.map(c => c.id === selectedContractor.id ? { ...c, payrollIncluded: true } : c));
-        }, 100);
         toast.success(`Form sent with payroll details — onboarding will be skipped after signatures`, { duration: 5000 });
       }
       setConfigureDrawerOpen(false);
     }} isResend={selectedContractor?.status === "data-pending"} />
+
+      {/* Payroll Verification Drawer */}
+      <F1v6_PayrollVerificationDrawer open={verificationDrawerOpen} onOpenChange={setVerificationDrawerOpen} contractor={selectedForVerification} onVerified={handlePayrollVerified} />
 
       {/* Document Bundle Drawer */}
       <DocumentBundleDrawer open={documentDrawerOpen} onOpenChange={setDocumentDrawerOpen} candidate={selectedForDocuments} />
