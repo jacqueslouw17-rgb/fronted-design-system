@@ -1881,8 +1881,13 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       }
     }} onPayrollIncluded={() => {
       if (selectedContractor) {
-        setContractors(prev => prev.map(c => c.id === selectedContractor.id ? { ...c, payrollIncluded: true } : c));
-        toast.success(`Payroll details saved for ${selectedContractor.name} — onboarding will be skipped after signatures`, { duration: 5000 });
+        if (selectedContractor.status === "offer-accepted") {
+          handleSendForm(selectedContractor.id);
+        }
+        setTimeout(() => {
+          setContractors(prev => prev.map(c => c.id === selectedContractor.id ? { ...c, payrollIncluded: true } : c));
+        }, 100);
+        toast.success(`Form sent with payroll details — onboarding will be skipped after signatures`, { duration: 5000 });
       }
       setConfigureDrawerOpen(false);
     }} isResend={selectedContractor?.status === "data-pending"} />
