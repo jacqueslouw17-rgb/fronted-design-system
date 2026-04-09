@@ -6,7 +6,7 @@
  * (terminate, resign, end contract).
  */
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { AgreementViewerSheet } from "./F1v7_AgreementViewerSheet";
 import {
   Sheet,
@@ -44,6 +44,7 @@ import {
   CalendarOff,
   ChevronDown,
   ArrowLeft,
+  RefreshCw,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
