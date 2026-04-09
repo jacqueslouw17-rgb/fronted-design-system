@@ -485,7 +485,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <div className="flex items-center gap-2">
               <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.name}</SheetTitle>
               <span className="text-base shrink-0">{worker.countryFlag}</span>
-              {(worker.needsDocumentVerification && !worker.documentsVerified) ? (
+              {(worker.needsDocumentVerification && !worker.documentsVerified && !verificationMode) ? (
                 <span className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 shrink-0">
                   Inactive
                 </span>
