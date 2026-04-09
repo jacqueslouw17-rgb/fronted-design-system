@@ -1794,10 +1794,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               <CheckCircle2 className="h-3 w-3" />
                               <span>Data received</span>
                             </div>}
-                          {status === "data-pending" && contractor.payrollIncluded && !contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-primary/60">
-                              <Info className="h-3 w-3" />
-                              <span>Payroll data included</span>
-                            </div>}
                         </div>{/* end v7-card-reveal */}
                       </CardContent>
                     </Card>
