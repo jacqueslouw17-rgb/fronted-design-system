@@ -203,12 +203,17 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   worker,
   onGoToDataCollection,
   onLifecycleAction,
+  verificationMode = false,
+  onDocumentsVerified,
 }) => {
   const [actionView, setActionView] = useState<ActionType | null>(null);
   const [actionDate, setActionDate] = useState("");
   const [actionReason, setActionReason] = useState("");
   const [showAgreement, setShowAgreement] = useState(false);
   const [pendingAction, setPendingAction] = useState<ActionType | null>(null);
+  const reuploadInputRef = React.useRef<HTMLInputElement>(null);
+  const [reuploadTarget, setReuploadTarget] = useState<string | null>(null);
+  const [reuploadedDocs, setReuploadedDocs] = useState<Set<string>>(new Set());
 
   const confirmationLabels: Record<ActionType, { title: string; description: string; buttonLabel: string; buttonClass: string }> = {
     "terminated": {
