@@ -324,6 +324,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   onLifecycleAction,
   verificationMode = false,
   onDocumentsVerified,
+  onSendForm,
+  onMarkAsActive,
 }) => {
   const [actionView, setActionView] = useState<ActionType | null>(null);
   const [actionDate, setActionDate] = useState("");
