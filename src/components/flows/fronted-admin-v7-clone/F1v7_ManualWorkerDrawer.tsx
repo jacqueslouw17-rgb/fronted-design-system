@@ -498,12 +498,6 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
             badge={
               country ? (
                 <div className="flex items-center gap-1.5">
-                  {mandatoryDocsComplete && agreementSigned && (
-                    <Badge className="text-[10px] px-2 py-0 h-4 font-normal bg-accent-green-text/15 text-accent-green-text border-0">
-                      <CheckCircle2 className="h-2.5 w-2.5 mr-0.5" />
-                      Verified
-                    </Badge>
-                  )}
                   <Badge variant="secondary" className="text-[10px] px-2 py-0 h-4 font-normal">
                     {uploadedMandatoryCount}/{totalMandatoryCount} required
                   </Badge>
