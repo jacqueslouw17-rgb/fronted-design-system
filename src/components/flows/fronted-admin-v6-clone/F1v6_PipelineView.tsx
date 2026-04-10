@@ -1348,15 +1348,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               {status === "CERTIFIED" && (
                                 <Badge variant="outline" className={cn(
                                   "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
-                                  // Inactive: needs doc verification but not yet verified
-                                  (contractor.needsDocumentVerification && !contractor.documentsVerified) && "bg-amber-500/10 text-amber-700 border-amber-500/20",
-                                  // Active: no doc verification needed OR already verified
+                                  contractor.workerStatus === "awaiting" && "bg-blue-500/10 text-blue-700 border-blue-500/20",
+                                  contractor.workerStatus === "inactive" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                  (contractor.needsDocumentVerification && !contractor.documentsVerified && contractor.workerStatus !== "awaiting") && "bg-amber-500/10 text-amber-700 border-amber-500/20",
                                   (!contractor.needsDocumentVerification || contractor.documentsVerified) && (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
                                   contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
                                   contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
                                   contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
                                 )}>
-                                  {contractor.workerStatus === "contract-ended" ? "Ended" 
+                                  {contractor.workerStatus === "awaiting" ? "Awaiting"
+                                    : contractor.workerStatus === "inactive" ? "Inactive"
+                                    : contractor.workerStatus === "contract-ended" ? "Ended" 
                                     : contractor.workerStatus === "resigned" ? "Resigned"
                                     : contractor.workerStatus === "terminated" ? "Terminated"
                                     : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
