@@ -1554,7 +1554,48 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Badge>
                             </div>}
                           
-                          {status === "CERTIFIED" && <Button 
+                          {status === "CERTIFIED" && contractor.workerStatus === "awaiting" && <div className="w-full space-y-2">
+                              <div className="flex gap-2">
+                                <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
+                                  e.stopPropagation();
+                                  setSelectedForDoneDetail(contractor);
+                                  setDoneDetailDrawerOpen(true);
+                                }}>
+                                  <Settings className="h-3 w-3" />
+                                  Configure
+                                </Button>
+                                <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
+                                  e.stopPropagation();
+                                  // Send form — transition to inactive (awaiting worker submission)
+                                  const updated = contractors.map(c => c.id === contractor.id ? { ...c, workerStatus: "inactive" as const } : c);
+                                  setContractors(updated);
+                                  onContractorUpdate?.(updated);
+                                  toast.success("Form sent", { description: `Data collection form sent to ${contractor.name}.` });
+                                  // Simulate worker submitting after delay
+                                  setTimeout(() => {
+                                    setContractors(prev => prev.map(c => c.id === contractor.id ? { ...c, workerStatus: "inactive" as const } : c));
+                                  }, 3000);
+                                }}>
+                                  <Send className="h-3 w-3" />
+                                  Send Form
+                                </Button>
+                              </div>
+                              <button
+                                className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground/70 hover:text-primary py-0.5 transition-colors duration-200"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  const updated = contractors.map(c => c.id === contractor.id ? { ...c, workerStatus: "active" as const } : c);
+                                  setContractors(updated);
+                                  onContractorUpdate?.(updated);
+                                  toast.success(`${contractor.name} marked as active`);
+                                }}
+                              >
+                                <FileEdit className="h-2.5 w-2.5" />
+                                <span className="underline underline-offset-2 decoration-dotted">I have all details – mark as active</span>
+                              </button>
+                            </div>}
+                          
+                          {status === "CERTIFIED" && contractor.workerStatus !== "awaiting" && <Button 
                               size="sm" 
                               variant="outline" 
                               className="w-full text-xs h-7 gap-1"
