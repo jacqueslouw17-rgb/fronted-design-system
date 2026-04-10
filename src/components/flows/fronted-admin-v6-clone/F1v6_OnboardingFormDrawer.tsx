@@ -140,10 +140,25 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [payrollOptIn, setPayrollOptIn] = useState(false);
 
-  // Payroll Parameters state
-  const [tin, setTin] = useState("");
-  const [philHealth, setPhilHealth] = useState("");
+  // Payroll Parameters state - common
   const [payFrequencyPayroll, setPayFrequencyPayroll] = useState("monthly");
+
+  // India payroll
+  const [panNumber, setPanNumber] = useState("");
+  const [taxRegime, setTaxRegime] = useState("new");
+  const [uanNumber, setUanNumber] = useState("");
+  const [pfContribution, setPfContribution] = useState("statutory");
+  const [esiNumber, setEsiNumber] = useState("");
+  const [professionalTax, setProfessionalTax] = useState("applicable");
+  const [gratuityNominee, setGratuityNominee] = useState("");
+
+  // Philippines payroll
+  const [tin, setTin] = useState("");
+  const [civilStatus, setCivilStatus] = useState("single");
+  const [numDependents, setNumDependents] = useState("");
+  const [sssNumber, setSssNumber] = useState("");
+  const [philHealth, setPhilHealth] = useState("");
+  const [pagibigNumber, setPagibigNumber] = useState("");
 
   // Payout Destination state
   const [bankCountry, setBankCountry] = useState("");
@@ -151,6 +166,8 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [accountHolder, setAccountHolder] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [swiftBic, setSwiftBic] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
+  const [branch, setBranch] = useState("");
 
   const activeCountryRule = COUNTRY_RULES[candidate.country];
 
