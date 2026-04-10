@@ -363,6 +363,18 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     dataReceived: true,
   },
   {
+    id: "onboard-ph-1",
+    name: "Rafael Cruz",
+    country: "Philippines",
+    countryFlag: "🇵🇭",
+    role: "Customer Success Lead",
+    salary: "PHP 85,000/mo",
+    status: "trigger-onboarding",
+    employmentType: "employee",
+    email: "rafael.cruz@example.com",
+    dataReceived: true,
+  },
+  {
     id: "onboard-2",
     name: "Lena Müller",
     country: "Germany",
