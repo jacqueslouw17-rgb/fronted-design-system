@@ -767,7 +767,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               <SectionCard 
                 title="Documents" 
                 defaultOpen={verificationMode || (worker.needsDocumentVerification && !worker.documentsVerified) || (workerStatus === "inactive" && !!worker.dataReceived)}
-                badge={worker.documentsVerified ? (
+                badge={(!isEditMode && worker.documentsVerified) ? (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
                     Verified
                   </Badge>
