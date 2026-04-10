@@ -345,8 +345,10 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setName(""); setEmail(""); setPhone(""); setDob(""); setNationality(""); setAddress(""); setNationalId("");
     setRole(""); setCountry(""); setEmploymentType("contractor"); setStartDate(""); setSalary(""); setCity("");
     setProbation(""); setNoticePeriod(""); setAnnualLeave(""); setSickLeave(""); setWeeklyHours("");
-    setTin(""); setPhilHealth(""); setPayFrequency("monthly");
-    setBankCountry(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setSwiftBic("");
+    setPayFrequency("monthly");
+    setPanNumber(""); setTaxRegime("new"); setUanNumber(""); setPfContribution("statutory"); setEsiNumber(""); setProfessionalTax("applicable"); setGratuityNominee("");
+    setTin(""); setCivilStatus("single"); setNumDependents(""); setSssNumber(""); setPhilHealth(""); setPagibigNumber("");
+    setBankCountry(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setSwiftBic(""); setIfscCode(""); setBranch("");
     setDocuments([]);
     setWorkerStatus("draft");
   };
