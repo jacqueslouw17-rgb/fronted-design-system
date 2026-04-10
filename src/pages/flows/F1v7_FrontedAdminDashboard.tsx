@@ -518,10 +518,15 @@ const AdminContractingMultiCompany = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        const defaults: Record<string, any[]> = {
+          "company-default": [...DEFAULT_DRAFTING_CANDIDATES],
+          "company-globex": [...GLOBEX_CANDIDATES],
+          "company-initech": [...INITECH_CANDIDATES],
+          "company-waystar": [...WAYSTAR_CANDIDATES],
+        };
         const result = Object.fromEntries(
-          Object.entries(parsed).map(([companyId, contractors]) => [
-            companyId,
-            Array.isArray(contractors)
+          Object.entries(parsed).map(([companyId, contractors]) => {
+            const list = Array.isArray(contractors)
               ? (contractors as any[]).map((c: any) => {
                   const isDemoDraftCandidate =
                     c?.id === "default-1" ||
@@ -530,25 +535,20 @@ const AdminContractingMultiCompany = () => {
                     c?.name === "Sofia Rodriguez";
                   return isDemoDraftCandidate ? { ...c, status: "drafting" } : c;
                 })
-              : [],
-          ])
+              : [];
+            // Merge in any missing default candidates for this company
+            const defaultList = defaults[companyId];
+            if (defaultList) {
+              const existingIds = new Set(list.map((c: any) => c?.id));
+              const missing = defaultList.filter((c: any) => !existingIds.has(c.id));
+              if (missing.length > 0) list.push(...missing);
+            }
+            return [companyId, list];
+          })
         ) as Record<string, any[]>;
-        // Merge missing company contractor lists
-        const defaults: Record<string, any[]> = {
-          "company-default": [...DEFAULT_DRAFTING_CANDIDATES],
-          "company-globex": [...GLOBEX_CANDIDATES],
-          "company-initech": [...INITECH_CANDIDATES],
-          "company-waystar": [...WAYSTAR_CANDIDATES],
-        };
-        let updated = false;
+        // Add any entirely missing company keys
         for (const [key, val] of Object.entries(defaults)) {
-          if (!(key in result)) {
-            result[key] = val;
-            updated = true;
-          }
-        }
-        if (updated) {
-          localStorage.setItem('adminflow-v7-company-contractors', JSON.stringify(result));
+          if (!(key in result)) result[key] = val;
         }
         return result;
       } catch {
