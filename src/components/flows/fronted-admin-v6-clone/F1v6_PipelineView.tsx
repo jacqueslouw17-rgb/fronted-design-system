@@ -1901,7 +1901,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
      }}
      onDocumentsVerified={(workerId) => {
        setDoneDetailDrawerOpen(false);
-       // Mark as verified and active
        setTimeout(() => {
          setContractors(current => current.map(c => 
            c.id === workerId 
@@ -1912,7 +1911,28 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
            duration: 5000
          });
        }, 300);
-     }} />
+     }}
+     onSendForm={(workerId) => {
+       setContractors(current => current.map(c => 
+         c.id === workerId ? { ...c, workerStatus: "awaiting" as const } : c
+       ));
+       setSelectedForDoneDetail(prev => prev ? { ...prev, workerStatus: "awaiting" as const } : null);
+       setDoneDetailDrawerOpen(false);
+       toast.success("Form sent", { description: `Data collection form sent.` });
+       // Simulate worker submitting
+       setTimeout(() => {
+         setContractors(prev => prev.map(c => c.id === workerId ? { ...c, workerStatus: "inactive" as const } : c));
+       }, 3000);
+     }}
+     onMarkAsActive={(workerId) => {
+       setContractors(current => current.map(c => 
+         c.id === workerId ? { ...c, workerStatus: "active" as const } : c
+       ));
+       setSelectedForDoneDetail(prev => prev ? { ...prev, workerStatus: "active" as const } : null);
+       setDoneDetailDrawerOpen(false);
+       toast.success(`${selectedForDoneDetail?.name} marked as active`);
+     }}
+     />
       {/* Payroll Data Collection Drawer */}
       <F1v5_PayrollDataCollectionDrawer
         open={payrollCollectionDrawerOpen}
