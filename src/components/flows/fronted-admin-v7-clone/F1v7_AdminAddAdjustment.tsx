@@ -238,6 +238,14 @@ export const F1v7_AdminAddAdjustment: React.FC<F1v7_AdminAddAdjustmentProps> = (
       });
     }
 
+    // "Other" is always available for both worker types — placed last
+    base.push({
+      id: "other",
+      label: "Other",
+      description: "Custom earning or deduction",
+      icon: MoreHorizontal,
+    });
+
     return base;
   }, [workerType]);
 
