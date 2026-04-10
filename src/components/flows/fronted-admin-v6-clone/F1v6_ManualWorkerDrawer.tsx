@@ -229,10 +229,25 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   const [sickLeave, setSickLeave] = useState("");
   const [weeklyHours, setWeeklyHours] = useState("");
 
-  // Payroll Parameters
-  const [tin, setTin] = useState("");
-  const [philHealth, setPhilHealth] = useState("");
+  // Payroll Parameters - common
   const [payFrequency, setPayFrequency] = useState("monthly");
+
+  // India payroll
+  const [panNumber, setPanNumber] = useState("");
+  const [taxRegime, setTaxRegime] = useState("new");
+  const [uanNumber, setUanNumber] = useState("");
+  const [pfContribution, setPfContribution] = useState("statutory");
+  const [esiNumber, setEsiNumber] = useState("");
+  const [professionalTax, setProfessionalTax] = useState("applicable");
+  const [gratuityNominee, setGratuityNominee] = useState("");
+
+  // Philippines payroll
+  const [tin, setTin] = useState("");
+  const [civilStatus, setCivilStatus] = useState("single");
+  const [numDependents, setNumDependents] = useState("");
+  const [sssNumber, setSssNumber] = useState("");
+  const [philHealth, setPhilHealth] = useState("");
+  const [pagibigNumber, setPagibigNumber] = useState("");
 
   // Payout Destination
   const [bankCountry, setBankCountry] = useState("");
@@ -240,6 +255,8 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   const [accountHolder, setAccountHolder] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [swiftBic, setSwiftBic] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
+  const [branch, setBranch] = useState("");
 
   // Documents
   const [documents, setDocuments] = useState<DocUpload[]>([]);
@@ -328,8 +345,10 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setName(""); setEmail(""); setPhone(""); setDob(""); setNationality(""); setAddress(""); setNationalId("");
     setRole(""); setCountry(""); setEmploymentType("contractor"); setStartDate(""); setSalary(""); setCity("");
     setProbation(""); setNoticePeriod(""); setAnnualLeave(""); setSickLeave(""); setWeeklyHours("");
-    setTin(""); setPhilHealth(""); setPayFrequency("monthly");
-    setBankCountry(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setSwiftBic("");
+    setPayFrequency("monthly");
+    setPanNumber(""); setTaxRegime("new"); setUanNumber(""); setPfContribution("statutory"); setEsiNumber(""); setProfessionalTax("applicable"); setGratuityNominee("");
+    setTin(""); setCivilStatus("single"); setNumDependents(""); setSssNumber(""); setPhilHealth(""); setPagibigNumber("");
+    setBankCountry(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setSwiftBic(""); setIfscCode(""); setBranch("");
     setDocuments([]);
     setWorkerStatus("draft");
   };
@@ -463,33 +482,148 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
             <Field label="Pay Frequency">
               <Input value={payFrequency === "fortnightly" ? "Fortnightly" : "Monthly"} disabled className="h-10 bg-muted/50 cursor-not-allowed" />
             </Field>
-            <Field label="Tax Identification Number (TIN)">
-              <Input value={tin} onChange={e => setTin(e.target.value)} placeholder="e.g. 123-456-789-000" className="h-10" />
-            </Field>
+
+            {/* India-specific payroll */}
+            {country === "India" && (
+              <>
+                <Field label="PAN Number">
+                  <Input value={panNumber} onChange={e => setPanNumber(e.target.value)} placeholder="e.g., ABCDE1234F" className="h-10" />
+                </Field>
+                <Field label="Income Tax Regime" hint="New regime: simpler, lower rates. Old regime: allows deductions (80C, HRA, etc.)">
+                  <Select value={taxRegime} onValueChange={setTaxRegime}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new">New Regime (FY 2024-25)</SelectItem>
+                      <SelectItem value="old">Old Regime (with deductions)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="UAN (PF Number)" optional>
+                  <Input value={uanNumber} onChange={e => setUanNumber(e.target.value)} placeholder="e.g., 100123456789" className="h-10" />
+                </Field>
+                <Field label="PF Contribution">
+                  <Select value={pfContribution} onValueChange={setPfContribution}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="statutory">Statutory (12% of basic)</SelectItem>
+                      <SelectItem value="voluntary">Voluntary PF (higher)</SelectItem>
+                      <SelectItem value="opted_out">Opted Out (salary &gt; ₹15,000)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="ESI Number" optional hint="If applicable (gross salary ≤ ₹21,000/month)">
+                  <Input value={esiNumber} onChange={e => setEsiNumber(e.target.value)} placeholder="If applicable" className="h-10" />
+                </Field>
+                <Field label="Professional Tax">
+                  <Select value={professionalTax} onValueChange={setProfessionalTax}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="applicable">Applicable</SelectItem>
+                      <SelectItem value="exempt">Exempt</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Gratuity Nominee Name" optional>
+                  <Input value={gratuityNominee} onChange={e => setGratuityNominee(e.target.value)} placeholder="Full legal name" className="h-10" />
+                </Field>
+              </>
+            )}
+
+            {/* Philippines-specific payroll */}
             {country === "Philippines" && (
-              <Field label="PhilHealth Number" optional>
-                <Input value={philHealth} onChange={e => setPhilHealth(e.target.value)} placeholder="12-345678901-2" className="h-10" />
+              <>
+                <Field label="TIN (Tax ID)">
+                  <Input value={tin} onChange={e => setTin(e.target.value)} placeholder="e.g., 123-456-789-000" className="h-10" />
+                </Field>
+                <Field label="Civil Status / Tax Status" hint="Determines withholding tax bracket under BIR">
+                  <Select value={civilStatus} onValueChange={setCivilStatus}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="single">Single (S)</SelectItem>
+                      <SelectItem value="married">Married (ME)</SelectItem>
+                      <SelectItem value="head_of_family">Head of Family (HF)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Number of Qualified Dependents" optional hint="Qualified dependents for additional tax exemption">
+                  <Input type="number" value={numDependents} onChange={e => setNumDependents(e.target.value)} placeholder="0" min={0} className="h-10" />
+                </Field>
+                <Field label="SSS Number" hint="Social Security System — mandatory for all employees">
+                  <Input value={sssNumber} onChange={e => setSssNumber(e.target.value)} placeholder="e.g., 34-1234567-8" className="h-10" />
+                </Field>
+                <Field label="PhilHealth Number" hint="Philippine Health Insurance Corporation">
+                  <Input value={philHealth} onChange={e => setPhilHealth(e.target.value)} placeholder="e.g., 12-345678901-2" className="h-10" />
+                </Field>
+                <Field label="Pag-IBIG / HDMF Number" hint="Home Development Mutual Fund — mandatory contribution">
+                  <Input value={pagibigNumber} onChange={e => setPagibigNumber(e.target.value)} placeholder="e.g., 1234-5678-9012" className="h-10" />
+                </Field>
+              </>
+            )}
+
+            {/* Generic fallback */}
+            {country && country !== "India" && country !== "Philippines" && (
+              <Field label="Tax Identification Number (TIN)">
+                <Input value={tin} onChange={e => setTin(e.target.value)} placeholder="National tax identifier" className="h-10" />
               </Field>
             )}
           </SectionCard>
 
           {/* ── 4) Payout Destination ── */}
           <SectionCard title="Payout Destination" defaultOpen={!!country}>
-            <Field label="Bank Country">
-              <Input value={bankCountry} onChange={e => setBankCountry(e.target.value)} placeholder="Same as working country" className="h-10" />
-            </Field>
-            <Field label="Bank Name">
-              <Input value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. BDO Unibank" className="h-10" />
-            </Field>
             <Field label="Account Holder Name">
-              <Input value={accountHolder || name} onChange={e => setAccountHolder(e.target.value)} className="h-10" />
+              <Input value={accountHolder || name} onChange={e => setAccountHolder(e.target.value)} placeholder="As per bank records" className="h-10" />
             </Field>
-            <Field label="Account Number / IBAN">
-              <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Account number" className="h-10" />
-            </Field>
-            <Field label="SWIFT / BIC" optional>
-              <Input value={swiftBic} onChange={e => setSwiftBic(e.target.value)} placeholder="e.g. BNORPHMM" className="h-10" />
-            </Field>
+
+            {/* India payout */}
+            {country === "India" && (
+              <>
+                <Field label="Bank Account Number">
+                  <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Enter account number" className="h-10" />
+                </Field>
+                <Field label="IFSC Code">
+                  <Input value={ifscCode} onChange={e => setIfscCode(e.target.value)} placeholder="e.g., SBIN0001234" className="h-10" />
+                </Field>
+                <Field label="Bank Name">
+                  <Input value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g., State Bank of India" className="h-10" />
+                </Field>
+                <Field label="Branch" optional>
+                  <Input value={branch} onChange={e => setBranch(e.target.value)} placeholder="e.g., Koramangala, Bangalore" className="h-10" />
+                </Field>
+              </>
+            )}
+
+            {/* Philippines payout */}
+            {country === "Philippines" && (
+              <>
+                <Field label="Bank Account Number">
+                  <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Enter account number" className="h-10" />
+                </Field>
+                <Field label="Bank Name">
+                  <Input value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g., BDO, BPI, Metrobank" className="h-10" />
+                </Field>
+                <Field label="Branch" optional>
+                  <Input value={branch} onChange={e => setBranch(e.target.value)} placeholder="e.g., Makati, BGC" className="h-10" />
+                </Field>
+              </>
+            )}
+
+            {/* Generic payout */}
+            {country && country !== "India" && country !== "Philippines" && (
+              <>
+                <Field label="IBAN / Account Number">
+                  <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Enter IBAN or account number" className="h-10" />
+                </Field>
+                <Field label="SWIFT / BIC" optional>
+                  <Input value={swiftBic} onChange={e => setSwiftBic(e.target.value)} placeholder="e.g., DEUTDEFF" className="h-10" />
+                </Field>
+                <Field label="Bank Name">
+                  <Input value={bankName} onChange={e => setBankName(e.target.value)} placeholder="Enter bank name" className="h-10" />
+                </Field>
+                <Field label="Bank Country" optional>
+                  <Input value={bankCountry} onChange={e => setBankCountry(e.target.value)} placeholder="Same as working country" className="h-10" />
+                </Field>
+              </>
+            )}
           </SectionCard>
 
           {/* ── 5) Documents ── */}

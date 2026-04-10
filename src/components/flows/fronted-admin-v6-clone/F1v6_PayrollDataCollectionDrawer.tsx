@@ -78,22 +78,24 @@ const PHILIPPINES_CONFIG: CountryPayrollConfig = {
   payrollFields: [
     { key: "tin", label: "TIN (Tax ID)", type: "text", required: true, placeholder: "e.g., 123-456-789-000" },
     {
-      key: "tax_status", label: "Tax Status", type: "select", required: true,
+      key: "civil_status", label: "Civil Status / Tax Status", type: "select", required: true,
+      helpText: "Determines withholding tax bracket under BIR",
       options: [
         { value: "single", label: "Single (S)" },
         { value: "married", label: "Married (ME)" },
         { value: "head_of_family", label: "Head of Family (HF)" },
       ],
     },
-    { key: "sss_number", label: "SSS Number", type: "text", required: true, placeholder: "Social Security System" },
-    { key: "philhealth_number", label: "PhilHealth Number", type: "text", required: true, placeholder: "Health insurance ID" },
-    { key: "pagibig_number", label: "Pag-IBIG / HDMF Number", type: "text", required: true, placeholder: "Home Development Fund" },
+    { key: "num_dependents", label: "Number of Qualified Dependents", type: "number", placeholder: "0", helpText: "Qualified dependents for additional tax exemption" },
+    { key: "sss_number", label: "SSS Number", type: "text", required: true, placeholder: "e.g., 34-1234567-8", helpText: "Social Security System — mandatory for all employees" },
+    { key: "philhealth_number", label: "PhilHealth Number", type: "text", required: true, placeholder: "e.g., 12-345678901-2", helpText: "Philippine Health Insurance Corporation" },
+    { key: "pagibig_number", label: "Pag-IBIG / HDMF Number", type: "text", required: true, placeholder: "e.g., 1234-5678-9012", helpText: "Home Development Mutual Fund — mandatory contribution" },
   ],
   bankFields: [
     { key: "account_holder_name", label: "Account Holder Name", type: "text", required: true, placeholder: "As per bank records" },
     { key: "account_number", label: "Bank Account Number", type: "text", required: true, placeholder: "Enter account number" },
-    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "e.g., BDO, BPI" },
-    { key: "branch_name", label: "Branch", type: "text", placeholder: "e.g., Makati, BGC" },
+    { key: "bank_name", label: "Bank Name", type: "text", required: true, placeholder: "e.g., BDO, BPI, Metrobank" },
+    { key: "bank_branch", label: "Branch", type: "text", placeholder: "e.g., Makati, BGC" },
   ],
 };
 
