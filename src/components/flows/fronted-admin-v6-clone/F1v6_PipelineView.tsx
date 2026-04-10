@@ -80,7 +80,7 @@ interface Contractor {
   payrollProgress?: number;
   payrollMonth?: "last" | "current" | "next";
   // Worker lifecycle
-  workerStatus?: "active" | "contract-ended" | "resigned" | "terminated";
+  workerStatus?: "active" | "awaiting" | "inactive" | "contract-ended" | "resigned" | "terminated";
   endDate?: string;
   endReason?: string;
   bankDetails?: string;
