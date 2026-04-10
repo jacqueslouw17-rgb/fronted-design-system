@@ -14,13 +14,15 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { F41v7_TimeInput } from "@/components/flows/employee-dashboard-v7/F41v7_TimeInput";
 import { TagInput } from "@/components/flows/shared/TagInput";
 
 // Types for admin-added adjustments
-export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission";
+export type AdminAdjustmentType = "unpaid_leave" | "overtime" | "expense" | "bonus" | "commission" | "other";
+export type OtherSubType = "earning" | "deduction" | "benefit";
 export type AdjustmentDirection = "add" | "deduct";
 
 export interface AdminAddedAdjustment {
@@ -33,6 +35,7 @@ export interface AdminAddedAdjustment {
   currency: string;
   addedAt: string;
   direction: AdjustmentDirection;
+  isTaxable?: boolean;
 }
 
 interface F1v7_AdminAddAdjustmentProps {
