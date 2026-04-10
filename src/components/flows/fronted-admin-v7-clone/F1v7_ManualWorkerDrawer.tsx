@@ -461,13 +461,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
           {/* ── 3) Payroll Parameters ── */}
           <SectionCard title="Payroll Parameters" defaultOpen={!!country}>
             <Field label="Pay Frequency">
-              <Select value={payFrequency} onValueChange={setPayFrequency}>
-                <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="fortnightly">Fortnightly</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input value={payFrequency === "fortnightly" ? "Fortnightly" : "Monthly"} disabled className="h-10 bg-muted/50 cursor-not-allowed" />
             </Field>
             <Field label="Tax Identification Number (TIN)">
               <Input value={tin} onChange={e => setTin(e.target.value)} placeholder="e.g. 123-456-789-000" className="h-10" />
