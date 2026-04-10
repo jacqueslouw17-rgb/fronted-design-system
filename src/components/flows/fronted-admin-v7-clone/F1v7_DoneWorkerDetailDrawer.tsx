@@ -976,18 +976,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
           </div>
         )}
 
-        {/* Footer for inactive workers after form submitted — Verify All & Activate */}
-        {workerStatus === "inactive" && worker.dataReceived && (
-          <div className="px-5 py-4 border-t border-border/30 shrink-0">
-            <Button
-              className="w-full text-xs h-9 gap-1.5 bg-gradient-primary hover:opacity-90"
-              onClick={() => onMarkAsActive?.(worker.id)}
-            >
-              <Shield className="h-3.5 w-3.5" />
-              Verify All & Activate
-            </Button>
-          </div>
-        )}
       </SheetContent>
     </Sheet>
 
