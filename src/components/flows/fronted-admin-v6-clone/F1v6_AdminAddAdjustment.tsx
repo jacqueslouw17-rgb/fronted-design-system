@@ -529,8 +529,8 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     // Auto-set direction based on sub-type
     const autoDirection: AdjustmentDirection = otherSubType === "deduction" ? "deduct" : "add";
 
-    const subTypeLabel = otherSubType === "earning" ? "Other Earning"
-      : otherSubType === "deduction" ? "Other Deduction"
+    const subTypeLabel = otherSubType === "earning" ? "Earning"
+      : otherSubType === "deduction" ? "Deduction"
       : "Benefit Adjustment";
 
     const taxLabel = (otherSubType === "earning" || otherSubType === "benefit")
