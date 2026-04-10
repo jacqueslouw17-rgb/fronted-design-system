@@ -1805,6 +1805,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                     return next;
                                   });
                                   toast.info(`Form resent to ${contractor.name}`);
+                                  setTimeout(() => {
+                                    setContractors(prev => prev.map(c => c.id === contractor.id ? { ...c, workerStatus: "inactive" as const, dataReceived: true } : c));
+                                  }, 3000);
                                 }, 1500);
                               }}>
                                 <RotateCcw className={cn("h-3.5 w-3.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
