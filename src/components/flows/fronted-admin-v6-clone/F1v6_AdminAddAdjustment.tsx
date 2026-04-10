@@ -204,12 +204,10 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
   const [commissionIsTaxable, setCommissionIsTaxable] = useState(false);
 
   // Other adjustment state
+  const [otherSubType, setOtherSubType] = useState<"earning" | "deduction" | "benefit" | null>(null);
   const [otherDescription, setOtherDescription] = useState("");
   const [otherAmount, setOtherAmount] = useState("");
-  const [otherTaxTiming, setOtherTaxTiming] = useState<TaxTiming>("before_tax");
   const [otherIsTaxable, setOtherIsTaxable] = useState(false);
-  const [otherTaxabilityMode, setOtherTaxabilityMode] = useState<TaxabilityMode>("taxable");
-  const [otherExemptAmount, setOtherExemptAmount] = useState("");
   const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
 
   const requestTypeOptions: RequestOption[] = useMemo(() => {
@@ -309,12 +307,10 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
     setBonusIsTaxable(true);
     setLeaveIsTaxable(false);
     setCommissionIsTaxable(false);
+    setOtherSubType(null);
     setOtherDescription("");
     setOtherAmount("");
-    setOtherTaxTiming("before_tax");
-    setOtherIsTaxable(true);
-    setOtherTaxabilityMode("taxable");
-    setOtherExemptAmount("");
+    setOtherIsTaxable(false);
     setOtherAttachment([]);
   };
 
