@@ -42,6 +42,7 @@ export interface AdminAddedAdjustment {
   isTaxable?: boolean;
   taxabilityMode?: TaxabilityMode;
   exemptAmount?: number;
+  attachmentCount?: number;
 }
 
 interface F1v6_AdminAddAdjustmentProps {

@@ -36,6 +36,7 @@ export interface AdminAddedAdjustment {
   addedAt: string;
   direction: AdjustmentDirection;
   isTaxable?: boolean;
+  attachmentCount?: number;
 }
 
 interface F1v7_AdminAddAdjustmentProps {
