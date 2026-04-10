@@ -880,18 +880,28 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               {/* 5) Documents */}
               <SectionCard 
                 title="Documents" 
-                defaultOpen={verificationMode || (worker.needsDocumentVerification && !worker.documentsVerified)}
+                defaultOpen={verificationMode || (worker.needsDocumentVerification && !worker.documentsVerified) || (workerStatus === "inactive" && !!worker.dataReceived)}
                 badge={worker.documentsVerified ? (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
                     Verified
                   </Badge>
                 ) : undefined}
-                headerAction={(worker.needsDocumentVerification && !worker.documentsVerified) || verificationMode ? (
+                headerAction={((worker.needsDocumentVerification && !worker.documentsVerified) || verificationMode) ? (
                   <Button
                     size="sm"
                     className="h-6 px-3 text-[11px] gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-colors font-medium"
                     variant="ghost"
                     onClick={() => onDocumentsVerified?.(worker.id)}
+                  >
+                    <CheckCircle2 className="h-3 w-3" />
+                    Verify All
+                  </Button>
+                ) : (workerStatus === "inactive" && worker.dataReceived && !worker.documentsVerified) ? (
+                  <Button
+                    size="sm"
+                    className="h-6 px-3 text-[11px] gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-colors font-medium"
+                    variant="ghost"
+                    onClick={() => onMarkAsActive?.(worker.id)}
                   >
                     <CheckCircle2 className="h-3 w-3" />
                     Verify All
