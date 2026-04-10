@@ -457,13 +457,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   <div className="space-y-3">
                     <h4 className="text-xs font-semibold text-foreground">Payroll Parameters</h4>
                     <Field label="Pay Frequency">
-                      <Select value={payFrequencyPayroll} onValueChange={setPayFrequencyPayroll}>
-                        <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                          <SelectItem value="fortnightly">Fortnightly</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Input value={payFrequencyPayroll === "fortnightly" ? "Fortnightly" : "Monthly"} disabled className="h-10 bg-muted/50 cursor-not-allowed" />
                     </Field>
                     <Field label="Tax Identification Number (TIN)">
                       <Input value={tin} onChange={e => setTin(e.target.value)} placeholder="e.g. 123-456-789-000" className="h-10" />
