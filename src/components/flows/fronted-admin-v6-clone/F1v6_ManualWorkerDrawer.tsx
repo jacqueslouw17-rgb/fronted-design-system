@@ -304,23 +304,8 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   const canSaveBasic = name.trim() && country && role.trim() && salary.trim();
   const canSave = canSaveBasic && mandatoryDocsComplete && agreementSigned;
 
-  const handleSaveChanges = () => {
+  const handleSaveCandidate = () => {
     if (!canSaveBasic) return;
-    toast.success("Changes saved", { description: `${name.trim()}'s details have been saved.` });
-  };
-
-  const handleSendForm = () => {
-    if (!canSaveBasic) return;
-    setWorkerStatus("awaiting");
-    toast.success("Form sent", { description: `Data collection form sent to ${name.trim()}.` });
-    // Simulate worker submitting the form after a delay
-    setTimeout(() => {
-      setWorkerStatus("inactive");
-      toast.info(`${name.trim()} submitted their form`, { description: "Review and verify to activate." });
-    }, 3000);
-  };
-
-  const handleVerifyAndActivate = () => {
     const flag = countryRule?.flag || "🌍";
     const currencyCode = getCurrencyCode(country, employmentType);
     onSave({
@@ -332,29 +317,9 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
       salary: `${currencyCode} ${salary}`,
       employmentType,
       status: "CERTIFIED",
-      workerStatus: "active",
+      workerStatus: "awaiting",
     });
-    toast.success(`${name.trim()} added to Done`, { description: "Worker profile is active and payroll-ready." });
-    resetForm();
-    onOpenChange(false);
-  };
-
-  const handleMarkAsActive = () => {
-    if (!canSave) return;
-    const flag = countryRule?.flag || "🌍";
-    const currencyCode = getCurrencyCode(country, employmentType);
-    onSave({
-      id: `manual-${Date.now()}`,
-      name: name.trim(),
-      country,
-      countryFlag: flag,
-      role: role.trim(),
-      salary: `${currencyCode} ${salary}`,
-      employmentType,
-      status: "CERTIFIED",
-      workerStatus: "active",
-    });
-    toast.success(`${name.trim()} added to Done`, { description: "Worker profile is active and payroll-ready." });
+    toast.success(`${name.trim()} added to Done`, { description: "Configure and send form to complete onboarding." });
     resetForm();
     onOpenChange(false);
   };
