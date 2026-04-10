@@ -178,46 +178,38 @@ export interface DoneWorkerData {
   role: string;
   salary: string;
   employmentType: "contractor" | "employee";
-  // Lifecycle
   workerStatus?: WorkerLifecycleStatus;
   endDate?: string;
   endReason?: string;
-  // Personal details
   email?: string;
   phone?: string;
   dateOfBirth?: string;
   nationality?: string;
   address?: string;
-  // Employment & contract
   startDate?: string;
   contractStatus?: "drafted" | "signed" | "completed";
   workLocation?: string;
-  // Payroll details
   payFrequency?: "monthly" | "fortnightly";
   paymentSchedule?: string;
   firstPayrollNote?: string;
-  // Bank details
   bankCountry?: string;
   bankName?: string;
   accountHolder?: string;
   accountNumber?: string;
   swiftBic?: string;
-  // Compliance (country-specific)
   tin?: string;
   philHealthNumber?: string;
   nationalId?: string;
   idDocumentStatus?: "uploaded" | "verified" | "missing";
   optionalUploads?: { name: string; status: "uploaded" | "verified" | "missing" }[];
-  // Audit
   detailsSubmittedOn?: string;
   verifiedBy?: string;
   lastUpdated?: string;
   completedOn?: string;
-  // Missing data
   missingDetails?: { field: string; message: string }[];
-  // Document verification state
   documentsVerified?: boolean;
   needsDocumentVerification?: boolean;
+  dataReceived?: boolean;
 }
 
 interface F1v4_DoneWorkerDetailDrawerProps {
@@ -361,6 +353,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   const workerStatus = worker.workerStatus || "active";
   const isActive = workerStatus === "active";
   const isEmployee = worker.employmentType === "employee";
+  const isEditMode = workerStatus === "inactive" && !worker.dataReceived;
   const statusConfig = lifecycleStatusConfig[workerStatus];
 
   const resetActionView = () => {
@@ -422,10 +415,17 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   const hasMissingDetails = worker.missingDetails && worker.missingDetails.length > 0;
 
   const DetailRow = ({ label, value, className }: { label: string; value?: string; icon?: React.ElementType; className?: string }) => (
-    <div className={cn("flex items-start justify-between gap-4 py-1.5", className)}>
-      <span className="text-sm text-muted-foreground truncate">{label}</span>
-      <span className="text-sm font-medium text-foreground text-right">{value || "—"}</span>
-    </div>
+    isEditMode ? (
+      <div className={cn("space-y-1 py-1", className)}>
+        <label className="text-xs text-muted-foreground">{label}</label>
+        <Input defaultValue={value || ""} className="h-8 text-sm" />
+      </div>
+    ) : (
+      <div className={cn("flex items-start justify-between gap-4 py-1.5", className)}>
+        <span className="text-sm text-muted-foreground truncate">{label}</span>
+        <span className="text-sm font-medium text-foreground text-right">{value || "—"}</span>
+      </div>
+    )
   );
 
   const StatusBadge = ({ status }: { status: "uploaded" | "verified" | "missing" }) => {
@@ -631,8 +631,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <div className="flex items-center gap-2">
               <SheetTitle className="text-base font-semibold text-foreground leading-tight truncate">{worker.name}</SheetTitle>
               <span className="text-base shrink-0">{worker.countryFlag}</span>
-              {(worker.needsDocumentVerification && !worker.documentsVerified && !verificationMode) ? (
-                <span className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 shrink-0">
+              {(workerStatus === "inactive" || (worker.needsDocumentVerification && !worker.documentsVerified && !verificationMode)) ? (
+                <span className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border bg-amber-100 text-amber-700 border-amber-200 shrink-0">
                   Inactive
                 </span>
               ) : !verificationMode ? (
@@ -756,7 +756,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <div className="space-y-1.5">
               
               {/* 1) Personal Profile */}
-              <SectionCard title="Personal Profile" defaultOpen={false}>
+              <SectionCard title="Personal Profile" defaultOpen={isEditMode}>
                 <div className="space-y-0.5">
                   <DetailRow label="Full name" value={worker.name} />
                   <DetailRow label="Email" value={mockData.email} />
@@ -771,7 +771,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               {/* 2) Working Engagement */}
               <SectionCard 
                 title="Working Engagement" 
-                defaultOpen={false}
+                defaultOpen={isEditMode}
               >
                 <div className="space-y-0.5">
                   <DetailRow 
@@ -850,7 +850,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               </SectionCard>
 
               {/* 3) Payroll Parameters */}
-              <SectionCard title="Payroll Parameters" defaultOpen={false}>
+              <SectionCard title="Payroll Parameters" defaultOpen={isEditMode}>
                 <div className="space-y-0.5">
                   <DetailRow label="TIN" value={mockData.tin} />
                   {isPhilippines && mockData.philHealthNumber && (
@@ -865,7 +865,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               </SectionCard>
 
               {/* 4) Payout Destination */}
-              <SectionCard title="Payout Destination" defaultOpen={false}>
+              <SectionCard title="Payout Destination" defaultOpen={isEditMode}>
                 <div className="space-y-0.5">
                   <DetailRow label="Bank country" value={mockData.bankCountry} />
                   <DetailRow label="Bank name" value={mockData.bankName} />
@@ -944,8 +944,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
           </div>
         </div>
 
-        {/* Footer for inactive workers — Save Changes / Send Form / Mark as active */}
-        {workerStatus === "inactive" && (
+        {/* Footer for inactive workers — edit mode: Save Changes / Send Form / Mark as active */}
+        {workerStatus === "inactive" && !worker.dataReceived && (
           <div className="px-5 py-4 border-t border-border/30 shrink-0 space-y-2">
             <div className="flex gap-2">
               <Button
@@ -973,6 +973,19 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
               <FileEdit className="h-2.5 w-2.5" />
               <span className="underline underline-offset-2 decoration-dotted">I have all details – Mark as active</span>
             </button>
+          </div>
+        )}
+
+        {/* Footer for inactive workers after form submitted — Verify All & Activate */}
+        {workerStatus === "inactive" && worker.dataReceived && (
+          <div className="px-5 py-4 border-t border-border/30 shrink-0">
+            <Button
+              className="w-full text-xs h-9 gap-1.5 bg-gradient-primary hover:opacity-90"
+              onClick={() => onMarkAsActive?.(worker.id)}
+            >
+              <Shield className="h-3.5 w-3.5" />
+              Verify All & Activate
+            </Button>
           </div>
         )}
       </SheetContent>
