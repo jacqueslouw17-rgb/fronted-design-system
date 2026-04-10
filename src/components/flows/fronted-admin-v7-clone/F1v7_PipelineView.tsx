@@ -1445,10 +1445,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 {/* For CERTIFIED (Done) column: group active on top, inactive in collapsible section */}
                 {(() => {
                   const activeItems = status === "CERTIFIED" 
-                    ? items.filter(c => !c.workerStatus || c.workerStatus === "active" || c.workerStatus === "awaiting")
+                    ? items.filter(c => !c.workerStatus || c.workerStatus === "active" || c.workerStatus === "inactive")
                     : items;
                   const inactiveItems = status === "CERTIFIED"
-                    ? items.filter(c => c.workerStatus && c.workerStatus !== "active" && c.workerStatus !== "awaiting")
+                    ? items.filter(c => c.workerStatus && c.workerStatus !== "active" && c.workerStatus !== "inactive")
                     : [];
                   
                   return <>
