@@ -121,6 +121,44 @@ const DirectionPicker = ({
   </div>
 );
 
+/* ─── Taxable Toggle ─── */
+const TaxableToggle = ({
+  isTaxable,
+  onChange,
+}: {
+  isTaxable: boolean;
+  onChange: (v: boolean) => void;
+}) => (
+  <div className="flex items-center justify-between py-1">
+    <div className="space-y-0.5">
+      <Label className="text-xs font-medium">Taxable?</Label>
+      <p className="text-[11px] text-muted-foreground">Subject to withholding tax</p>
+    </div>
+    <div className="flex items-center gap-2">
+      <span className={cn("text-xs font-medium", isTaxable ? "text-primary" : "text-muted-foreground")}>
+        {isTaxable ? "Yes" : "No"}
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isTaxable}
+        onClick={() => onChange(!isTaxable)}
+        className={cn(
+          "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
+          isTaxable ? "bg-primary" : "bg-muted-foreground/30"
+        )}
+      >
+        <span
+          className={cn(
+            "pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform",
+            isTaxable ? "translate-x-4" : "translate-x-0"
+          )}
+        />
+      </button>
+    </div>
+  </div>
+);
+
 export const F1v7_AdminAddAdjustment: React.FC<F1v7_AdminAddAdjustmentProps> = ({
   workerType,
   workerName,
@@ -152,6 +190,13 @@ export const F1v7_AdminAddAdjustment: React.FC<F1v7_AdminAddAdjustmentProps> = (
   const [commissionItems, setCommissionItems] = useState<CommissionLineItem[]>([
     { id: crypto.randomUUID(), amount: "", attachment: [] },
   ]);
+
+  // Other adjustment state
+  const [otherSubType, setOtherSubType] = useState<OtherSubType | null>(null);
+  const [otherDescription, setOtherDescription] = useState("");
+  const [otherAmount, setOtherAmount] = useState("");
+  const [otherIsTaxable, setOtherIsTaxable] = useState(false);
+  const [otherAttachment, setOtherAttachment] = useState<File[]>([]);
 
   const requestTypeOptions: RequestOption[] = useMemo(() => {
     const base: RequestOption[] = [
