@@ -1445,10 +1445,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 {/* For CERTIFIED (Done) column: group active on top, inactive in collapsible section */}
                 {(() => {
                   const activeItems = status === "CERTIFIED" 
-                    ? items.filter(c => !c.workerStatus || c.workerStatus === "active" || c.workerStatus === "awaiting")
+                    ? items.filter(c => !c.workerStatus || c.workerStatus === "active" || c.workerStatus === "inactive")
                     : items;
                   const inactiveItems = status === "CERTIFIED"
-                    ? items.filter(c => c.workerStatus && c.workerStatus !== "active" && c.workerStatus !== "awaiting")
+                    ? items.filter(c => c.workerStatus && c.workerStatus !== "active" && c.workerStatus !== "inactive")
                     : [];
                   
                   return <>
@@ -1754,7 +1754,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Badge>
                             </div>}
                           
-                          {status === "CERTIFIED" && contractor.workerStatus === "awaiting" && <div className="w-full space-y-2">
+                          {status === "CERTIFIED" && contractor.workerStatus === "inactive" && <div className="w-full space-y-2">
                               <div className="flex gap-2">
                                 <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
                                   e.stopPropagation();
@@ -1793,7 +1793,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </button>
                             </div>}
                           
-                          {status === "CERTIFIED" && contractor.workerStatus !== "awaiting" && <Button 
+                          {status === "CERTIFIED" && contractor.workerStatus !== "inactive" && <Button 
                               size="sm" 
                               variant="outline" 
                               className="w-full text-xs h-7 gap-1"
@@ -2099,7 +2099,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
      }}
      onDocumentsVerified={(workerId) => {
        setDoneDetailDrawerOpen(false);
-       // Mark as verified and active
        setTimeout(() => {
          setContractors(current => current.map(c => 
            c.id === workerId 
@@ -2110,7 +2109,27 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
            duration: 5000
          });
        }, 300);
-     }} />
+     }}
+     onSendForm={(workerId) => {
+       setContractors(current => current.map(c => 
+         c.id === workerId ? { ...c, workerStatus: "awaiting" as const } : c
+       ));
+       setSelectedForDoneDetail(prev => prev ? { ...prev, workerStatus: "awaiting" as const } : null);
+       setDoneDetailDrawerOpen(false);
+       toast.success("Form sent", { description: `Data collection form sent.` });
+       setTimeout(() => {
+         setContractors(prev => prev.map(c => c.id === workerId ? { ...c, workerStatus: "inactive" as const } : c));
+       }, 3000);
+     }}
+     onMarkAsActive={(workerId) => {
+       setContractors(current => current.map(c => 
+         c.id === workerId ? { ...c, workerStatus: "active" as const } : c
+       ));
+       setSelectedForDoneDetail(prev => prev ? { ...prev, workerStatus: "active" as const } : null);
+       setDoneDetailDrawerOpen(false);
+       toast.success(`${selectedForDoneDetail?.name} marked as active`);
+     }}
+     />
       {/* Payroll Data Collection Drawer */}
       <F1v5_PayrollDataCollectionDrawer
         open={payrollCollectionDrawerOpen}

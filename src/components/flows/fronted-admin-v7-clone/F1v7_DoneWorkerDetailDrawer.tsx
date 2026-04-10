@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useRef } from "react";
+import { toast } from "sonner";
 import { AgreementViewerSheet } from "./F1v7_AgreementViewerSheet";
 import {
   Sheet,
@@ -45,6 +46,9 @@ import {
   ChevronDown,
   ArrowLeft,
   RefreshCw,
+  Send,
+  Settings,
+  FileEdit,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -224,6 +228,8 @@ interface F1v4_DoneWorkerDetailDrawerProps {
   onLifecycleAction?: (workerId: string, action: WorkerLifecycleStatus, endDate: string, reason: string) => void;
   verificationMode?: boolean;
   onDocumentsVerified?: (workerId: string) => void;
+  onSendForm?: (workerId: string) => void;
+  onMarkAsActive?: (workerId: string) => void;
 }
 
 const countryPayFrequencyDefaults: Record<string, { frequency: "monthly" | "fortnightly"; schedule: string }> = {
@@ -318,6 +324,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   onLifecycleAction,
   verificationMode = false,
   onDocumentsVerified,
+  onSendForm,
+  onMarkAsActive,
 }) => {
   const [actionView, setActionView] = useState<ActionType | null>(null);
   const [actionDate, setActionDate] = useState("");
@@ -935,6 +943,38 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             </div>
           </div>
         </div>
+
+        {/* Footer for inactive workers — Save Changes / Send Form / Mark as active */}
+        {workerStatus === "inactive" && (
+          <div className="px-5 py-4 border-t border-border/30 shrink-0 space-y-2">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1 text-xs h-8 gap-1"
+                onClick={() => {
+                  toast.success("Changes saved", { description: `${worker.name}'s details have been saved.` });
+                }}
+              >
+                <Settings className="h-3 w-3" />
+                Save Changes
+              </Button>
+              <Button
+                className="flex-1 text-xs h-8 gap-1 bg-gradient-primary hover:opacity-90"
+                onClick={() => onSendForm?.(worker.id)}
+              >
+                <Send className="h-3 w-3" />
+                Send Form
+              </Button>
+            </div>
+            <button
+              className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground/70 hover:text-primary py-0.5 transition-colors duration-200"
+              onClick={() => onMarkAsActive?.(worker.id)}
+            >
+              <FileEdit className="h-2.5 w-2.5" />
+              <span className="underline underline-offset-2 decoration-dotted">I have all details – Mark as active</span>
+            </button>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
 
