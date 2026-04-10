@@ -437,6 +437,20 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
               {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
             </Button>
           </div>
+          {onSkipToDone && (
+            <p className="text-center pt-2 pb-1">
+              <button
+                type="button"
+                className="text-[11px] text-muted-foreground/70 hover:text-primary transition-colors underline decoration-dotted underline-offset-2"
+                onClick={() => {
+                  onSkipToDone();
+                  onOpenChange(false);
+                }}
+              >
+                I have all details — skip sending & mark as done
+              </button>
+            </p>
+          )}
         </div>
       </SheetContent>
     </Sheet>
