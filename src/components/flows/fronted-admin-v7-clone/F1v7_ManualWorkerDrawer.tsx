@@ -229,10 +229,25 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   const [sickLeave, setSickLeave] = useState("");
   const [weeklyHours, setWeeklyHours] = useState("");
 
-  // Payroll Parameters
-  const [tin, setTin] = useState("");
-  const [philHealth, setPhilHealth] = useState("");
+  // Payroll Parameters - common
   const [payFrequency, setPayFrequency] = useState("monthly");
+
+  // India payroll
+  const [panNumber, setPanNumber] = useState("");
+  const [taxRegime, setTaxRegime] = useState("new");
+  const [uanNumber, setUanNumber] = useState("");
+  const [pfContribution, setPfContribution] = useState("statutory");
+  const [esiNumber, setEsiNumber] = useState("");
+  const [professionalTax, setProfessionalTax] = useState("applicable");
+  const [gratuityNominee, setGratuityNominee] = useState("");
+
+  // Philippines payroll
+  const [tin, setTin] = useState("");
+  const [civilStatus, setCivilStatus] = useState("single");
+  const [numDependents, setNumDependents] = useState("");
+  const [sssNumber, setSssNumber] = useState("");
+  const [philHealth, setPhilHealth] = useState("");
+  const [pagibigNumber, setPagibigNumber] = useState("");
 
   // Payout Destination
   const [bankCountry, setBankCountry] = useState("");
@@ -240,6 +255,8 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   const [accountHolder, setAccountHolder] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [swiftBic, setSwiftBic] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
+  const [branch, setBranch] = useState("");
 
   // Documents
   const [documents, setDocuments] = useState<DocUpload[]>([]);
