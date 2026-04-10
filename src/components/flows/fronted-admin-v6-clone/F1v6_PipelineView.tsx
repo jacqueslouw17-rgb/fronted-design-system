@@ -1927,7 +1927,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         onSave={(newWorker) => {
           const worker: Contractor = {
             ...newWorker,
-            workerStatus: "active",
+            workerStatus: newWorker.workerStatus || "active",
             dataReceived: true,
             formSent: true,
           };
