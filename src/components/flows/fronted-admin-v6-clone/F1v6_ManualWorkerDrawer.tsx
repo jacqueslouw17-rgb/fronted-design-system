@@ -583,11 +583,11 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
           {/* Action Buttons */}
           <div className="pt-4 pb-2">
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
-                Cancel
+              <Button variant="outline" className="flex-1" onClick={handleSaveCandidate} disabled={!canSaveBasic}>
+                Save Changes
               </Button>
               <Button className="flex-1" onClick={handleSaveCandidate} disabled={!canSaveBasic}>
-                Save Candidate
+                Send Form
               </Button>
             </div>
           </div>
