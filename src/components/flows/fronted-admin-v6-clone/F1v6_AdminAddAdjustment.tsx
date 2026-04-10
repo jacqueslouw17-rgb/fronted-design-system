@@ -502,6 +502,10 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
   };
 
   const submitOther = () => {
+    if (!otherSubType) {
+      toast.error("Please select a sub-type");
+      return;
+    }
     const desc = otherDescription.trim();
     if (!desc) {
       toast.error("Please enter a description");
@@ -521,45 +525,26 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       return;
     }
 
-    // PH rule: after-tax items cannot be taxable or partially taxable
-    if (otherTaxTiming === "after_tax" && otherTaxabilityMode !== "non_taxable") {
-      toast.error("After-tax adjustments must be non-taxable. Change taxability or switch to 'Before tax'.");
-      return;
-    }
+    // Auto-set direction based on sub-type
+    const autoDirection: AdjustmentDirection = otherSubType === "deduction" ? "deduct" : "add";
 
-    // Partially taxable: validate exempt amount
-    let exemptAmt: number | undefined;
-    if (otherTaxabilityMode === "partially_taxable") {
-      exemptAmt = parseFloat(otherExemptAmount);
-      if (Number.isNaN(exemptAmt) || exemptAmt <= 0) {
-        toast.error("Please enter a valid tax-exempt threshold");
-        return;
-      }
-      if (exemptAmt >= amt) {
-        toast.error("Exempt threshold must be less than total amount. Use 'Non-taxable' instead.");
-        return;
-      }
-    }
+    const subTypeLabel = otherSubType === "earning" ? "Other Earning"
+      : otherSubType === "deduction" ? "Other Deduction"
+      : "Benefit Adjustment";
 
-    const taxLabel = otherTaxabilityMode === "taxable" 
-      ? "Taxable" 
-      : otherTaxabilityMode === "non_taxable" 
-        ? "Non-taxable" 
-        : `Partially taxable (₱${exemptAmt!.toLocaleString()} exempt)`;
-    const timingLabel = otherTaxTiming === "before_tax" ? "Before tax" : "After tax";
+    const taxLabel = (otherSubType === "earning" || otherSubType === "benefit")
+      ? (otherIsTaxable ? " · Taxable" : " · Non-taxable")
+      : "";
 
     onAddAdjustment({
       id: `admin-${Date.now()}`,
       type: "other",
       amount: amt,
-      description: `${desc} · ${timingLabel} · ${taxLabel}`,
+      description: `${subTypeLabel} · ${desc}${taxLabel}`,
       currency,
       addedAt: new Date().toISOString(),
-      direction,
-      taxTiming: otherTaxTiming,
-      isTaxable: otherTaxabilityMode !== "non_taxable",
-      taxabilityMode: otherTaxabilityMode,
-      exemptAmount: exemptAmt,
+      direction: autoDirection,
+      isTaxable: (otherSubType === "earning" || otherSubType === "benefit") ? otherIsTaxable : false,
     });
 
     toast.success(`Added adjustment for ${workerName}`);
