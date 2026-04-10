@@ -1,8 +1,9 @@
 /**
- * Flow 1 v5 — Add Candidate Drawer (Enhanced v2)
+ * Flow 1 v7 — Add Candidate Drawer (Enhanced v2)
  * Progressive disclosure: Personal Details → Contract Details (revealed after country selection)
+ * Features: payroll & payout opt-in toggle, "prepare contract directly" skip link
  * Premium UI with proper hierarchy, card sections, and no overlap issues.
- * ISOLATED: Changes here do NOT affect v4 or any other flow.
+ * ISOLATED: Changes here do NOT affect v4, v5, v6, or any other flow.
  */
 
 import React, { useState, useCallback } from "react";
