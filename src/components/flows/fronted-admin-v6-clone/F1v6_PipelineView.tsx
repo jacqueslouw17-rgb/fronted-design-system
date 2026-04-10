@@ -1269,10 +1269,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 {/* For CERTIFIED (Done) column: group active on top, inactive in collapsible section */}
                 {(() => {
                   const activeItems = status === "CERTIFIED" 
-                    ? items.filter(c => !c.workerStatus || c.workerStatus === "active")
+                    ? items.filter(c => !c.workerStatus || c.workerStatus === "active" || c.workerStatus === "awaiting")
                     : items;
                   const inactiveItems = status === "CERTIFIED"
-                    ? items.filter(c => c.workerStatus && c.workerStatus !== "active")
+                    ? items.filter(c => c.workerStatus && c.workerStatus !== "active" && c.workerStatus !== "awaiting")
                     : [];
                   
                   return <>
@@ -1348,15 +1348,17 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               {status === "CERTIFIED" && (
                                 <Badge variant="outline" className={cn(
                                   "text-[9px] px-1.5 py-0 h-[14px] flex-shrink-0 pointer-events-none ml-auto",
-                                  // Inactive: needs doc verification but not yet verified
-                                  (contractor.needsDocumentVerification && !contractor.documentsVerified) && "bg-amber-500/10 text-amber-700 border-amber-500/20",
-                                  // Active: no doc verification needed OR already verified
+                                  contractor.workerStatus === "awaiting" && "bg-blue-500/10 text-blue-700 border-blue-500/20",
+                                  contractor.workerStatus === "inactive" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
+                                  (contractor.needsDocumentVerification && !contractor.documentsVerified && contractor.workerStatus !== "awaiting") && "bg-amber-500/10 text-amber-700 border-amber-500/20",
                                   (!contractor.needsDocumentVerification || contractor.documentsVerified) && (!contractor.workerStatus || contractor.workerStatus === "active") && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
                                   contractor.workerStatus === "contract-ended" && "bg-muted text-muted-foreground border-border",
                                   contractor.workerStatus === "resigned" && "bg-amber-500/10 text-amber-700 border-amber-500/20",
                                   contractor.workerStatus === "terminated" && "bg-destructive/10 text-destructive border-destructive/20",
                                 )}>
-                                  {contractor.workerStatus === "contract-ended" ? "Ended" 
+                                  {contractor.workerStatus === "awaiting" ? "Awaiting"
+                                    : contractor.workerStatus === "inactive" ? "Inactive"
+                                    : contractor.workerStatus === "contract-ended" ? "Ended" 
                                     : contractor.workerStatus === "resigned" ? "Resigned"
                                     : contractor.workerStatus === "terminated" ? "Terminated"
                                     : (contractor.needsDocumentVerification && !contractor.documentsVerified) ? "Inactive"
@@ -1554,7 +1556,48 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Badge>
                             </div>}
                           
-                          {status === "CERTIFIED" && <Button 
+                          {status === "CERTIFIED" && contractor.workerStatus === "awaiting" && <div className="w-full space-y-2">
+                              <div className="flex gap-2">
+                                <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
+                                  e.stopPropagation();
+                                  setSelectedForDoneDetail(contractor);
+                                  setDoneDetailDrawerOpen(true);
+                                }}>
+                                  <Settings className="h-3 w-3" />
+                                  Configure
+                                </Button>
+                                <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
+                                  e.stopPropagation();
+                                  // Send form — transition to inactive (awaiting worker submission)
+                                  const updated = contractors.map(c => c.id === contractor.id ? { ...c, workerStatus: "inactive" as const } : c);
+                                  setContractors(updated);
+                                  onContractorUpdate?.(updated);
+                                  toast.success("Form sent", { description: `Data collection form sent to ${contractor.name}.` });
+                                  // Simulate worker submitting after delay
+                                  setTimeout(() => {
+                                    setContractors(prev => prev.map(c => c.id === contractor.id ? { ...c, workerStatus: "inactive" as const } : c));
+                                  }, 3000);
+                                }}>
+                                  <Send className="h-3 w-3" />
+                                  Send Form
+                                </Button>
+                              </div>
+                              <button
+                                className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground/70 hover:text-primary py-0.5 transition-colors duration-200"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  const updated = contractors.map(c => c.id === contractor.id ? { ...c, workerStatus: "active" as const } : c);
+                                  setContractors(updated);
+                                  onContractorUpdate?.(updated);
+                                  toast.success(`${contractor.name} marked as active`);
+                                }}
+                              >
+                                <FileEdit className="h-2.5 w-2.5" />
+                                <span className="underline underline-offset-2 decoration-dotted">I have all details – mark as active</span>
+                              </button>
+                            </div>}
+                          
+                          {status === "CERTIFIED" && contractor.workerStatus !== "awaiting" && <Button 
                               size="sm" 
                               variant="outline" 
                               className="w-full text-xs h-7 gap-1"
