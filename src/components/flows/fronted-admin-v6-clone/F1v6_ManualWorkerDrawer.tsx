@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Switch } from "@/components/ui/switch";
-import { ChevronDown, Upload, X, FileText, CheckCircle2, AlertCircle, Plus } from "lucide-react";
+import { ChevronDown, Upload, X, FileText, CheckCircle2, AlertCircle, Plus, Send, Settings, FileEdit, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getCurrencyCode } from "@/utils/currencyUtils";
@@ -133,6 +133,7 @@ interface ManualWorkerDrawerProps {
     salary: string;
     employmentType: "contractor" | "employee";
     status: "CERTIFIED";
+    workerStatus: "active" | "awaiting" | "inactive";
   }) => void;
 }
 
@@ -243,6 +244,9 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   // Documents
   const [documents, setDocuments] = useState<DocUpload[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Worker status flow: draft → awaiting → inactive → active
+  const [workerStatus, setWorkerStatus] = useState<"draft" | "awaiting" | "inactive" | "active">("draft");
   const [uploadingDocIndex, setUploadingDocIndex] = useState<number | null>(null);
 
   const countryRule = COUNTRY_RULES[country] || (country ? DEFAULT_RULE : null);
@@ -297,9 +301,26 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
 
   const mandatoryDocsComplete = documents.filter(d => d.mandatory).every(d => d.file !== null);
   const agreementSigned = documents.filter(d => d.name.toLowerCase().includes("agreement")).every(d => d.signed);
-  const canSave = name.trim() && country && role.trim() && salary.trim() && mandatoryDocsComplete && agreementSigned;
+  const canSaveBasic = name.trim() && country && role.trim() && salary.trim();
+  const canSave = canSaveBasic && mandatoryDocsComplete && agreementSigned;
 
-  const handleSave = () => {
+  const handleSaveChanges = () => {
+    if (!canSaveBasic) return;
+    toast.success("Changes saved", { description: `${name.trim()}'s details have been saved.` });
+  };
+
+  const handleSendForm = () => {
+    if (!canSaveBasic) return;
+    setWorkerStatus("awaiting");
+    toast.success("Form sent", { description: `Data collection form sent to ${name.trim()}.` });
+    // Simulate worker submitting the form after a delay
+    setTimeout(() => {
+      setWorkerStatus("inactive");
+      toast.info(`${name.trim()} submitted their form`, { description: "Review and verify to activate." });
+    }, 3000);
+  };
+
+  const handleVerifyAndActivate = () => {
     const flag = countryRule?.flag || "🌍";
     const currencyCode = getCurrencyCode(country, employmentType);
     onSave({
@@ -311,6 +332,27 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
       salary: `${currencyCode} ${salary}`,
       employmentType,
       status: "CERTIFIED",
+      workerStatus: "active",
+    });
+    toast.success(`${name.trim()} added to Done`, { description: "Worker profile is active and payroll-ready." });
+    resetForm();
+    onOpenChange(false);
+  };
+
+  const handleMarkAsActive = () => {
+    if (!canSave) return;
+    const flag = countryRule?.flag || "🌍";
+    const currencyCode = getCurrencyCode(country, employmentType);
+    onSave({
+      id: `manual-${Date.now()}`,
+      name: name.trim(),
+      country,
+      countryFlag: flag,
+      role: role.trim(),
+      salary: `${currencyCode} ${salary}`,
+      employmentType,
+      status: "CERTIFIED",
+      workerStatus: "active",
     });
     toast.success(`${name.trim()} added to Done`, { description: "Worker profile is active and payroll-ready." });
     resetForm();
@@ -324,6 +366,7 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setTin(""); setPhilHealth(""); setPayFrequency("monthly");
     setBankCountry(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setSwiftBic("");
     setDocuments([]);
+    setWorkerStatus("draft");
   };
 
   const uploadedMandatoryCount = documents.filter(d => d.mandatory && d.file).length;
@@ -341,7 +384,12 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
               </SheetTitle>
               {country && countryRule && <span className="text-base shrink-0">{countryRule.flag}</span>}
             </div>
-            <p className="text-[11px] text-muted-foreground/60 mt-0.5">Add directly to Done · All details provided by admin</p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="text-[11px] text-muted-foreground/60">Add directly to Done</p>
+              {workerStatus === "awaiting" && <Badge className="text-[9px] px-1.5 py-0 h-4 bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100">Awaiting</Badge>}
+              {workerStatus === "inactive" && <Badge className="text-[9px] px-1.5 py-0 h-4 bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100">Inactive</Badge>}
+              {workerStatus === "active" && <Badge className="text-[9px] px-1.5 py-0 h-4 bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Active</Badge>}
+            </div>
             <p className="text-[11px] text-muted-foreground mt-1.5">
               For workers already running payroll externally. Fill all sections, upload signed contracts, and save.
             </p>
@@ -579,15 +627,49 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
             </div>
           )}
 
-          {/* Save */}
-          <div className="pt-4 pb-2">
-            <Button
-              onClick={handleSave}
-              disabled={!canSave}
-              className="w-full"
-            >
-              Save & Add to Done
-            </Button>
+          {/* Action Buttons */}
+          <div className="pt-4 pb-2 space-y-2">
+            {workerStatus === "inactive" ? (
+              /* After worker submitted form — admin must verify */
+              <Button
+                onClick={handleVerifyAndActivate}
+                disabled={!canSave}
+                className="w-full gap-1.5"
+              >
+                <Shield className="h-3.5 w-3.5" />
+                Verify All & Activate
+              </Button>
+            ) : (
+              <>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleSaveChanges}
+                    disabled={!canSaveBasic}
+                    className="flex-1 text-xs h-8 gap-1"
+                  >
+                    <Settings className="h-3 w-3" />
+                    Save Changes
+                  </Button>
+                  <Button
+                    onClick={handleSendForm}
+                    disabled={!canSaveBasic || workerStatus === "awaiting"}
+                    className="flex-1 text-xs h-8 gap-1 bg-gradient-primary hover:opacity-90"
+                  >
+                    <Send className="h-3 w-3" />
+                    {workerStatus === "awaiting" ? "Form Sent" : "Send Form"}
+                  </Button>
+                </div>
+                <button
+                  className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground/70 hover:text-primary py-0.5 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                  onClick={handleMarkAsActive}
+                  disabled={!canSave}
+                >
+                  <FileEdit className="h-2.5 w-2.5" />
+                  <span className="underline underline-offset-2 decoration-dotted">I have all details – mark as active</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </SheetContent>
