@@ -278,6 +278,14 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setWeeklyHours(String(countryRule.weeklyHours.default));
     setPayFrequency(countryRule.payFrequency.default);
     setBankCountry(country);
+    // Reset payroll parameter fields on country change
+    setPanNumber(""); setTaxRegime("new"); setUanNumber(""); setPfContribution("statutory");
+    setEsiNumber(""); setProfessionalTax("applicable"); setGratuityNominee("");
+    setTin(""); setCivilStatus("single"); setNumDependents(""); setSssNumber("");
+    setPhilHealth(""); setPagibigNumber("");
+    // Reset payout fields on country change
+    setBankName(""); setAccountHolder(""); setAccountNumber("");
+    setSwiftBic(""); setIfscCode(""); setBranch("");
     // Build document list
     const docs: DocUpload[] = [
       ...countryRule.mandatoryDocs.map(d => ({ name: d, mandatory: true, file: null, signed: false })),
@@ -479,9 +487,11 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
 
           {/* ── 3) Payroll Parameters ── */}
           <SectionCard title="Payroll Parameters" defaultOpen={!!country}>
-            <Field label="Pay Frequency">
-              <Input value={payFrequency === "fortnightly" ? "Fortnightly" : "Monthly"} disabled className="h-10 bg-muted/50 cursor-not-allowed" />
-            </Field>
+            {country !== "Philippines" && (
+              <Field label="Pay Frequency">
+                <Input value={payFrequency === "fortnightly" ? "Fortnightly" : "Monthly"} disabled className="h-10 bg-muted/50 cursor-not-allowed" />
+              </Field>
+            )}
 
             {/* India-specific payroll */}
             {country === "India" && (

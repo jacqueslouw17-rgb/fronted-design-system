@@ -741,9 +741,11 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   {/* Payroll Parameters */}
                   <div className="space-y-3">
                     <h4 className="text-xs font-semibold text-foreground">Payroll Parameters</h4>
-                    <Field label="Pay Frequency">
-                      <Input value={payFrequencyPayroll === "fortnightly" ? "Fortnightly" : "Monthly"} disabled className="h-10 bg-muted/50 cursor-not-allowed" />
-                    </Field>
+                    {activeCountry !== "Philippines" && (
+                      <Field label="Pay Frequency">
+                        <Input value={payFrequencyPayroll === "fortnightly" ? "Fortnightly" : "Monthly"} disabled className="h-10 bg-muted/50 cursor-not-allowed" />
+                      </Field>
+                    )}
 
                     {/* India-specific payroll */}
                     {formData.country === "India" && (
