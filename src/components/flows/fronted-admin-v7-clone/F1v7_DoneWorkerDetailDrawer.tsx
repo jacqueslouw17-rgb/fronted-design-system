@@ -164,7 +164,7 @@ const COUNTRY_INSURANCE_DONE: Record<string, KotaInsuranceData> = {
   },
 };
 
-export type WorkerLifecycleStatus = "active" | "contract-ended" | "resigned" | "terminated";
+export type WorkerLifecycleStatus = "active" | "awaiting" | "inactive" | "contract-ended" | "resigned" | "terminated";
 
 export interface DoneWorkerData {
   id: string;
@@ -245,6 +245,16 @@ const lifecycleStatusConfig: Record<WorkerLifecycleStatus, { label: string; badg
   "active": {
     label: "Active",
     badgeClass: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+    icon: CheckCircle2,
+  },
+  "awaiting": {
+    label: "Awaiting",
+    badgeClass: "bg-blue-100 text-blue-700 border-blue-200",
+    icon: CheckCircle2,
+  },
+  "inactive": {
+    label: "Inactive",
+    badgeClass: "bg-amber-100 text-amber-700 border-amber-200",
     icon: CheckCircle2,
   },
   "contract-ended": {
