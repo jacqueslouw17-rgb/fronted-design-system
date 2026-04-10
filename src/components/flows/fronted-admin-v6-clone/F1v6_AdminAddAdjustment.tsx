@@ -381,6 +381,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         addedAt: new Date().toISOString(),
         direction,
         isTaxable: expenseIsTaxable,
+        attachmentCount: item.receipt?.length || 0,
       });
     });
 
@@ -461,6 +462,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       return;
     }
     const totalAmount = validItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+    const totalAttachments = validItems.reduce((sum, item) => sum + (item.attachment?.length || 0), 0);
     onAddAdjustment({
       id: `admin-${Date.now()}`,
       type: "bonus",
@@ -470,6 +472,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       addedAt: new Date().toISOString(),
       direction,
       isTaxable: bonusIsTaxable,
+      attachmentCount: totalAttachments,
     });
     toast.success(`Added bonus for ${workerName}`);
     handleClose();
@@ -489,6 +492,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       return;
     }
     const totalAmount = validItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+    const totalAttachments = validItems.reduce((sum, item) => sum + (item.attachment?.length || 0), 0);
     onAddAdjustment({
       id: `admin-${Date.now()}`,
       type: "commission",
@@ -498,6 +502,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       addedAt: new Date().toISOString(),
       direction,
       isTaxable: commissionIsTaxable,
+      attachmentCount: totalAttachments,
     });
     toast.success(`Added commission for ${workerName}`);
     handleClose();
@@ -547,6 +552,7 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
       addedAt: new Date().toISOString(),
       direction: autoDirection,
       isTaxable: (otherSubType === "earning" || otherSubType === "benefit") ? otherIsTaxable : false,
+      attachmentCount: otherAttachment.length,
     });
 
     toast.success(`Added adjustment for ${workerName}`);
