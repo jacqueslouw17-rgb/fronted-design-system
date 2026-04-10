@@ -479,6 +479,55 @@ export const F1v7_AdminAddAdjustment: React.FC<F1v7_AdminAddAdjustmentProps> = (
     handleClose();
   };
 
+  const submitOther = () => {
+    if (!otherSubType) {
+      toast.error("Please select a sub-type");
+      return;
+    }
+    const desc = otherDescription.trim();
+    if (!desc) {
+      toast.error("Please enter a description");
+      return;
+    }
+    if (desc.length < 3) {
+      toast.error("Description must be at least 3 characters");
+      return;
+    }
+    const amt = parseFloat(otherAmount);
+    if (Number.isNaN(amt) || amt <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    if (amt > 1_000_000) {
+      toast.error("Amount exceeds maximum limit (₱1,000,000)");
+      return;
+    }
+
+    const autoDirection: AdjustmentDirection = otherSubType === "deduction" ? "deduct" : "add";
+
+    const subTypeLabel = otherSubType === "earning" ? "Other Earning"
+      : otherSubType === "deduction" ? "Other Deduction"
+      : "Benefit Adjustment";
+
+    const taxLabel = (otherSubType === "earning" || otherSubType === "benefit")
+      ? (otherIsTaxable ? " · Taxable" : " · Non-taxable")
+      : "";
+
+    onAddAdjustment({
+      id: `admin-${Date.now()}`,
+      type: "other",
+      amount: amt,
+      description: `${subTypeLabel} · ${desc}${taxLabel}`,
+      currency,
+      addedAt: new Date().toISOString(),
+      direction: autoDirection,
+      isTaxable: (otherSubType === "earning" || otherSubType === "benefit") ? otherIsTaxable : false,
+    });
+
+    toast.success(`Added adjustment for ${workerName}`);
+    handleClose();
+  };
+
   if (!isOpen) return null;
 
   const headerTitle =
@@ -494,7 +543,9 @@ export const F1v7_AdminAddAdjustment: React.FC<F1v7_AdminAddAdjustmentProps> = (
             ? "Bonus"
             : selectedType === "commission"
               ? "Commission"
-              : "Leave adjustment";
+              : selectedType === "other"
+                ? "Other adjustment"
+                : "Leave adjustment";
 
   const directionSign = direction === "add" ? "+" : "−";
 
