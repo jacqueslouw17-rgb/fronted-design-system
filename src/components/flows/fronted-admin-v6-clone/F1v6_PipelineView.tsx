@@ -2009,8 +2009,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
           const worker: Contractor = {
             ...newWorker,
             workerStatus: newWorker.workerStatus || "active",
-            dataReceived: true,
-            formSent: true,
+            dataReceived: false,
+            formSent: false,
           };
           setContractors(prev => {
             const updated = [...prev, worker];
