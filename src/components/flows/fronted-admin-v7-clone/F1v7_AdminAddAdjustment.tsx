@@ -1057,31 +1057,22 @@ export const F1v7_AdminAddAdjustment: React.FC<F1v7_AdminAddAdjustmentProps> = (
             {/* 1. Sub-type picker */}
             <div className="space-y-1.5">
               <Label className="text-xs">Type</Label>
-              <div className="grid grid-cols-1 gap-2">
-                {([
-                  { id: "earning" as const, label: "Other Earning", desc: "Additional earning not covered above" },
-                  { id: "deduction" as const, label: "Other Deduction", desc: "Deduction from payout" },
-                  { id: "benefit" as const, label: "Benefit Adjustment", desc: "Adjust a benefit amount" },
-                ]).map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => {
-                      setOtherSubType(opt.id);
-                      setOtherIsTaxable(false);
-                    }}
-                    className={cn(
-                      "flex flex-col gap-0.5 p-3 rounded-lg border-2 transition-all text-left",
-                      otherSubType === opt.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border/60 hover:border-primary/30"
-                    )}
-                  >
-                    <span className="text-xs font-medium text-foreground">{opt.label}</span>
-                    <span className="text-[11px] text-muted-foreground">{opt.desc}</span>
-                  </button>
-                ))}
-              </div>
+              <Select
+                value={otherSubType || ""}
+                onValueChange={(val) => {
+                  setOtherSubType(val as "earning" | "deduction" | "benefit");
+                  setOtherIsTaxable(false);
+                }}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent className="z-[200]">
+                  <SelectItem value="earning">Other Earning</SelectItem>
+                  <SelectItem value="deduction">Other Deduction</SelectItem>
+                  <SelectItem value="benefit">Benefit Adjustment</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {otherSubType && (
