@@ -422,40 +422,21 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
             <Button
               variant="outline"
               className="flex-1"
-              onClick={handleSendForm}
-              disabled={isSubmitting || isSaving}
-            >
-              {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Save & Send")}
-            </Button>
-            <Button
-              className="flex-1 bg-gradient-primary"
-              onClick={async () => {
-                setIsSaving(true);
-                await new Promise(r => setTimeout(r, 800));
-                toast.success(`✅ ${contractor?.name} marked as done — skipped onboarding form`, { duration: 4000 });
-                setIsSaving(false);
-                onSkipToDone?.();
-                onOpenChange(false);
+              onClick={() => {
+                toast.success("Changes saved", { description: `${contractor?.name}'s details have been saved.` });
               }}
               disabled={isSubmitting || isSaving}
             >
-              {isSaving ? "Saving..." : "Save & Mark Done"}
+              Save Changes
+            </Button>
+            <Button
+              className="flex-1 bg-gradient-primary"
+              onClick={handleSendForm}
+              disabled={isSubmitting || isSaving}
+            >
+              {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
             </Button>
           </div>
-          {onSkipToDone && (
-            <p className="text-center pt-2 pb-1">
-              <button
-                type="button"
-                className="text-[11px] text-muted-foreground/70 hover:text-primary transition-colors underline decoration-dotted underline-offset-2"
-                onClick={() => {
-                  onSkipToDone();
-                  onOpenChange(false);
-                }}
-              >
-                I have all details — skip sending & mark as done
-              </button>
-            </p>
-          )}
         </div>
       </SheetContent>
     </Sheet>

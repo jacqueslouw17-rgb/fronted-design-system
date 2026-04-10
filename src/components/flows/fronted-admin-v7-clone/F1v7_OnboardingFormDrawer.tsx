@@ -782,7 +782,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   disabled={isSubmitting || hasValidationErrors || !tin || !accountNumber}
                   className="flex-1"
                 >
-                  Save & Send Form
+                  Send Form
                 </Button>
               </div>
             ) : (
