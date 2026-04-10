@@ -1291,7 +1291,14 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                           })()}
                     {!showPendingOnly && adminAdditions.map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
                           <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || adj.type}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm text-muted-foreground">{adj.description || adj.type}</span>
+                              {(adj.attachmentCount || 0) > 0 && (
+                                <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground/70">
+                                  <Paperclip className="h-2.5 w-2.5" /> {adj.attachmentCount}
+                                </span>
+                              )}
+                            </div>
                             <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
                           </div>
                           <div className="flex items-center">
@@ -1313,7 +1320,14 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                       {deductions.map((item, idx) => <BreakdownRow key={idx} label={item.label} amount={cvt(Math.abs(item.amount))} currency={dc} isLocked={item.locked} isPositive={false} />)}
                       {adminDeductions.map((adj) => <div key={adj.id} className="flex items-center justify-between py-2 group">
                           <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-sm text-muted-foreground">{adj.description || adj.type}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm text-muted-foreground">{adj.description || adj.type}</span>
+                              {(adj.attachmentCount || 0) > 0 && (
+                                <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground/70">
+                                  <Paperclip className="h-2.5 w-2.5" /> {adj.attachmentCount}
+                                </span>
+                              )}
+                            </div>
                             <span className="text-[10px] text-muted-foreground/70">Added by admin</span>
                           </div>
                           <div className="flex items-center">
