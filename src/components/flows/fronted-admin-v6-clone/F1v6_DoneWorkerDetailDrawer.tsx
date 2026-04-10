@@ -45,6 +45,9 @@ import {
   ChevronDown,
   ArrowLeft,
   RefreshCw,
+  Send,
+  Settings,
+  FileEdit,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -127,6 +130,8 @@ interface F1v4_DoneWorkerDetailDrawerProps {
   onLifecycleAction?: (workerId: string, action: WorkerLifecycleStatus, endDate: string, reason: string) => void;
   verificationMode?: boolean;
   onDocumentsVerified?: (workerId: string) => void;
+  onSendForm?: (workerId: string) => void;
+  onMarkAsActive?: (workerId: string) => void;
 }
 
 const countryPayFrequencyDefaults: Record<string, { frequency: "monthly" | "fortnightly"; schedule: string }> = {
