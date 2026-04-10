@@ -628,48 +628,15 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
           )}
 
           {/* Action Buttons */}
-          <div className="pt-4 pb-2 space-y-2">
-            {workerStatus === "inactive" ? (
-              /* After worker submitted form — admin must verify */
-              <Button
-                onClick={handleVerifyAndActivate}
-                disabled={!canSave}
-                className="w-full gap-1.5"
-              >
-                <Shield className="h-3.5 w-3.5" />
-                Verify All & Activate
+          <div className="pt-4 pb-2">
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+                Cancel
               </Button>
-            ) : (
-              <>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={handleSaveChanges}
-                    disabled={!canSaveBasic}
-                    className="flex-1 text-xs h-8 gap-1"
-                  >
-                    <Settings className="h-3 w-3" />
-                    Save Changes
-                  </Button>
-                  <Button
-                    onClick={handleSendForm}
-                    disabled={!canSaveBasic || workerStatus === "awaiting"}
-                    className="flex-1 text-xs h-8 gap-1 bg-gradient-primary hover:opacity-90"
-                  >
-                    <Send className="h-3 w-3" />
-                    {workerStatus === "awaiting" ? "Form Sent" : "Send Form"}
-                  </Button>
-                </div>
-                <button
-                  className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground/70 hover:text-primary py-0.5 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-                  onClick={handleMarkAsActive}
-                  disabled={!canSave}
-                >
-                  <FileEdit className="h-2.5 w-2.5" />
-                  <span className="underline underline-offset-2 decoration-dotted">I have all details – mark as active</span>
-                </button>
-              </>
-            )}
+              <Button className="flex-1" onClick={handleSaveCandidate} disabled={!canSaveBasic}>
+                Save Candidate
+              </Button>
+            </div>
           </div>
         </div>
       </SheetContent>
