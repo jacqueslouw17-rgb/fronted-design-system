@@ -1556,7 +1556,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Badge>
                             </div>}
                           
-                          {status === "CERTIFIED" && contractor.workerStatus === "inactive" && <div className="w-full space-y-2">
+                          {status === "CERTIFIED" && contractor.workerStatus === "inactive" && !contractor.dataReceived && <div className="w-full space-y-2">
                               <div className="flex gap-2">
                                 <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
                                   e.stopPropagation();
@@ -1568,14 +1568,12 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 </Button>
                                 <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
                                   e.stopPropagation();
-                                  // Send form — transition to inactive (awaiting worker submission)
-                                  const updated = contractors.map(c => c.id === contractor.id ? { ...c, workerStatus: "inactive" as const } : c);
+                                  const updated = contractors.map(c => c.id === contractor.id ? { ...c, workerStatus: "awaiting" as const } : c);
                                   setContractors(updated);
                                   onContractorUpdate?.(updated);
                                   toast.success("Form sent", { description: `Data collection form sent to ${contractor.name}.` });
-                                  // Simulate worker submitting after delay
                                   setTimeout(() => {
-                                    setContractors(prev => prev.map(c => c.id === contractor.id ? { ...c, workerStatus: "inactive" as const } : c));
+                                    setContractors(prev => prev.map(c => c.id === contractor.id ? { ...c, workerStatus: "inactive" as const, dataReceived: true } : c));
                                   }, 3000);
                                 }}>
                                   <Send className="h-3 w-3" />
@@ -1596,8 +1594,27 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                 <span className="underline underline-offset-2 decoration-dotted">I have all details – mark as active</span>
                               </button>
                             </div>}
+
+                          {status === "CERTIFIED" && contractor.workerStatus === "awaiting" && <div className="w-full space-y-2">
+                              <p className="text-xs text-muted-foreground text-center">Awaiting candidate response</p>
+                              <Button size="sm" className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
+                                e.stopPropagation();
+                                setSendingFormIds(prev => new Set([...prev, contractor.id]));
+                                setTimeout(() => {
+                                  setSendingFormIds(prev => {
+                                    const next = new Set(prev);
+                                    next.delete(contractor.id);
+                                    return next;
+                                  });
+                                  toast.info(`Form resent to ${contractor.name}`);
+                                }, 1500);
+                              }}>
+                                <RotateCcw className={cn("h-3.5 w-3.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
+                                Resend
+                              </Button>
+                            </div>}
                           
-                          {status === "CERTIFIED" && contractor.workerStatus !== "inactive" && <Button 
+                          {status === "CERTIFIED" && contractor.workerStatus !== "awaiting" && !(contractor.workerStatus === "inactive" && !contractor.dataReceived) && <Button 
                               size="sm" 
                               variant="outline" 
                               className="w-full text-xs h-7 gap-1"
@@ -1883,6 +1900,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       employmentType: selectedForDoneDetail.employmentType || "contractor",
       email: selectedForDoneDetail.email,
       workerStatus: selectedForDoneDetail.workerStatus || "active",
+      dataReceived: selectedForDoneDetail.dataReceived || false,
       documentsVerified: selectedForDoneDetail.documentsVerified || false,
       needsDocumentVerification: selectedForDoneDetail.needsDocumentVerification || false,
       endDate: selectedForDoneDetail.endDate,
@@ -1921,7 +1939,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
        toast.success("Form sent", { description: `Data collection form sent.` });
        // Simulate worker submitting
        setTimeout(() => {
-         setContractors(prev => prev.map(c => c.id === workerId ? { ...c, workerStatus: "inactive" as const } : c));
+         setContractors(prev => prev.map(c => c.id === workerId ? { ...c, workerStatus: "inactive" as const, dataReceived: true } : c));
        }, 3000);
      }}
      onMarkAsActive={(workerId) => {
