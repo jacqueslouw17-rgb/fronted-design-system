@@ -1,7 +1,8 @@
 /**
- * Flow 1 — Fronted Admin Dashboard v5
+ * Flow 1 — Fronted Admin Dashboard v7
  * 
  * OnboardingFormDrawer — "Configure & Send" drawer for Offer Accepted column.
+ * Features: payroll & payout opt-in toggle, "I have all details — prepare contract directly" skip link.
  * Sections: Personal Profile + Working Engagement (matching Done column categories).
  */
 
