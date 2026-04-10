@@ -1097,8 +1097,8 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent className="z-[200]">
-                  <SelectItem value="earning">Other Earning</SelectItem>
-                  <SelectItem value="deduction">Other Deduction</SelectItem>
+                  <SelectItem value="earning">Earning</SelectItem>
+                  <SelectItem value="deduction">Deduction</SelectItem>
                   <SelectItem value="benefit">Benefit Adjustment</SelectItem>
                 </SelectContent>
               </Select>
