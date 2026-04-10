@@ -1754,7 +1754,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Badge>
                             </div>}
                           
-                          {status === "CERTIFIED" && contractor.workerStatus === "awaiting" && <div className="w-full space-y-2">
+                          {status === "CERTIFIED" && contractor.workerStatus === "inactive" && <div className="w-full space-y-2">
                               <div className="flex gap-2">
                                 <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
                                   e.stopPropagation();
@@ -1793,7 +1793,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </button>
                             </div>}
                           
-                          {status === "CERTIFIED" && contractor.workerStatus !== "awaiting" && <Button 
+                          {status === "CERTIFIED" && contractor.workerStatus !== "inactive" && <Button 
                               size="sm" 
                               variant="outline" 
                               className="w-full text-xs h-7 gap-1"

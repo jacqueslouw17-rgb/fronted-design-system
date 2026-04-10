@@ -317,7 +317,7 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
       salary: `${currencyCode} ${salary}`,
       employmentType,
       status: "CERTIFIED",
-      workerStatus: "awaiting",
+      workerStatus: "inactive",
     });
     toast.success(`${name.trim()} added to Done`, { description: "Configure and send form to complete onboarding." });
     resetForm();
