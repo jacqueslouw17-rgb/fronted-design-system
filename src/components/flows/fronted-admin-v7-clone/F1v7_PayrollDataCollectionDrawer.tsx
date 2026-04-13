@@ -30,6 +30,54 @@ interface PayrollField {
   options?: { value: string; label: string }[];
 }
 
+// ─── Payroll Country Defaults (country-level payroll config, not worker-specific) ───
+interface PayrollCountryDefault {
+  key: string;
+  label: string;
+  value: string;
+  type: "text" | "number" | "info";
+  helpText?: string;
+}
+
+interface DeMinimisItem {
+  label: string;
+  amount: string;
+  period: string;
+}
+
+interface PayrollCountryDefaultsConfig {
+  overtimeDefaults: PayrollCountryDefault[];
+  deMinimis: DeMinimisItem[];
+  additionalDefaults?: PayrollCountryDefault[];
+}
+
+const PAYROLL_COUNTRY_DEFAULTS: Record<string, PayrollCountryDefaultsConfig> = {
+  Philippines: {
+    overtimeDefaults: [
+      { key: "ot_regular", label: "Regular OT Rate", value: "1.25x", type: "text", helpText: "125% of hourly rate for work beyond 8 hours" },
+      { key: "ot_restday", label: "Rest Day / Special Holiday OT", value: "1.30x", type: "text", helpText: "130% of hourly rate" },
+      { key: "ot_regular_holiday", label: "Regular Holiday OT", value: "2.00x", type: "text", helpText: "200% of daily rate" },
+      { key: "night_diff", label: "Night Differential", value: "10%", type: "text", helpText: "Additional 10% for work between 10PM–6AM" },
+    ],
+    deMinimis: [
+      { label: "Rice Subsidy", amount: "₱2,000", period: "/month" },
+      { label: "Clothing Allowance", amount: "₱6,000", period: "/year" },
+      { label: "Laundry Allowance", amount: "₱300", period: "/month" },
+      { label: "Medical (Cash)", amount: "₱10,000", period: "/year" },
+      { label: "Achievement Award", amount: "₱10,000", period: "/year" },
+    ],
+    additionalDefaults: [
+      { key: "thirteenth_month", label: "13th Month Pay", value: "Mandatory", type: "info", helpText: "Required for all rank-and-file employees — paid on or before Dec 24" },
+    ],
+  },
+  India: {
+    overtimeDefaults: [
+      { key: "ot_regular", label: "Regular OT Rate", value: "2.00x", type: "text", helpText: "Factories Act: 200% of ordinary wages" },
+    ],
+    deMinimis: [],
+  },
+};
+
 interface CountryPayrollConfig {
   payrollFields: PayrollField[];
   bankFields: PayrollField[];
