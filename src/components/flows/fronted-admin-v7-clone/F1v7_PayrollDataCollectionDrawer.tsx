@@ -70,12 +70,6 @@ const PAYROLL_COUNTRY_DEFAULTS: Record<string, PayrollCountryDefaultsConfig> = {
       { key: "thirteenth_month", label: "13th Month Pay", value: "Mandatory", type: "info", helpText: "Required for all rank-and-file employees — paid on or before Dec 24" },
     ],
   },
-  India: {
-    overtimeDefaults: [
-      { key: "ot_regular", label: "Regular OT Rate", value: "2.00x", type: "text", helpText: "Factories Act: 200% of ordinary wages" },
-    ],
-    deMinimis: [],
-  },
 };
 
 interface CountryPayrollConfig {
