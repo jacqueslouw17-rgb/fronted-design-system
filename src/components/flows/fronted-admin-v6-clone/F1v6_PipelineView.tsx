@@ -1804,7 +1804,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
         toast.success(`Form sent with payroll details — onboarding will be skipped after signatures`, { duration: 5000 });
       }
       setConfigureDrawerOpen(false);
-    }} isResend={selectedContractor?.status === "data-pending"} />
+    }} isResend={selectedContractor?.status === "data-pending"} candidateStatus={selectedContractor?.status} />
 
       {/* Payroll Verification — reuse Done Worker Detail Drawer in verification mode */}
       <F1v4_DoneWorkerDetailDrawer 
