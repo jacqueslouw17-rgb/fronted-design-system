@@ -317,6 +317,14 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [ifscCode, setIfscCode] = useState("");
   const [branch, setBranch] = useState("");
 
+  // Payroll Country Defaults state (country-level, not worker-specific)
+  const [otRegular, setOtRegular] = useState("");
+  const [otRestDay, setOtRestDay] = useState("");
+  const [otSpecialHoliday, setOtSpecialHoliday] = useState("");
+  const [otRegularHoliday, setOtRegularHoliday] = useState("");
+  const [nightDiff, setNightDiff] = useState("");
+  const [deMinimisOverrides, setDeMinimisOverrides] = useState<Record<string, string>>({});
+
   const activeCountryRule = COUNTRY_RULES[candidate.country];
 
   const [formData, setFormData] = useState({
