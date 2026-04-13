@@ -572,7 +572,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                     <p className="text-[10px] text-muted-foreground/60 mb-3">Tax-exempt benefits under BIR regulations — adjust amounts as needed</p>
                     <div className="space-y-2.5">
                       {defaults.deMinimis.map((item) => (
-                        <Field key={item.label} label={item.label} hint={`Default: {currency} ${item.amount}${item.period}`}>
+                        <Field key={item.label} label={item.label} hint={`Default: ${currency} ${item.amount}${item.period}`}>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">{currency}</span>
                             <Input
