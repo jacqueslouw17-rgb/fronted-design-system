@@ -324,8 +324,11 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [countryDefaultOverrides, setCountryDefaultOverrides] = useState<Record<string, string>>({});
+  const [deMinimisOverrides, setDeMinimisOverrides] = useState<Record<string, string>>({});
 
   const config = contractor ? getPayrollConfig(contractor.country) : DEFAULT_CONFIG;
+  const countryDefaults = contractor ? PAYROLL_COUNTRY_DEFAULTS[contractor.country] : undefined;
 
   // Reset form when contractor changes
   useEffect(() => {
@@ -340,6 +343,21 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
       }
     });
     setFormValues(defaults);
+
+    // Initialize country default overrides
+    const pcd = PAYROLL_COUNTRY_DEFAULTS[contractor.country];
+    if (pcd) {
+      const otDefaults: Record<string, string> = {};
+      pcd.overtimeDefaults.forEach(d => { otDefaults[d.key] = d.value; });
+      (pcd.additionalDefaults || []).forEach(d => { otDefaults[d.key] = d.value; });
+      setCountryDefaultOverrides(otDefaults);
+      const dmDefaults: Record<string, string> = {};
+      pcd.deMinimis.forEach(d => { dmDefaults[d.label] = d.amount; });
+      setDeMinimisOverrides(dmDefaults);
+    } else {
+      setCountryDefaultOverrides({});
+      setDeMinimisOverrides({});
+    }
   }, [contractor?.id, contractor?.country]);
 
   const setValue = (key: string) => (value: string) =>
@@ -454,7 +472,61 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
             ))}
           </SectionCard>
 
-          {/* ── Section 2: Payout Destination ── */}
+          {/* ── Section 2: Payroll Country Defaults ── */}
+          {countryDefaults && (
+            <SectionCard title={`Payroll Country Defaults — ${contractor.country}`}>
+              <p className="text-[11px] text-muted-foreground -mt-1 mb-2">
+                Country defaults for {contractor.country} — adjust as negotiated
+              </p>
+
+              {/* Overtime & Premium Rates */}
+              {countryDefaults.overtimeDefaults.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Overtime & Premium Pay</p>
+                  {countryDefaults.overtimeDefaults.map(d => (
+                    <Field key={d.key} label={d.label} helpText={d.helpText}>
+                      <Input
+                        value={countryDefaultOverrides[d.key] ?? d.value}
+                        onChange={e => setCountryDefaultOverrides(prev => ({ ...prev, [d.key]: e.target.value }))}
+                        className="h-9"
+                      />
+                    </Field>
+                  ))}
+                </div>
+              )}
+
+              {/* Additional Defaults (e.g., 13th month) */}
+              {(countryDefaults.additionalDefaults || []).map(d => (
+                <div key={d.key} className="flex items-start gap-2 p-2.5 rounded-lg bg-muted/40 border border-border/30">
+                  <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-medium">{d.label}: {d.value}</p>
+                    {d.helpText && <p className="text-[11px] text-muted-foreground">{d.helpText}</p>}
+                  </div>
+                </div>
+              ))}
+
+              {/* De Minimis Allowances */}
+              {countryDefaults.deMinimis.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">De Minimis Allowances (Tax-exempt)</p>
+                  {countryDefaults.deMinimis.map(item => (
+                    <div key={item.label} className="flex items-center gap-2">
+                      <Label className="text-xs text-muted-foreground flex-1 min-w-0">{item.label}</Label>
+                      <Input
+                        value={deMinimisOverrides[item.label] ?? item.amount}
+                        onChange={e => setDeMinimisOverrides(prev => ({ ...prev, [item.label]: e.target.value }))}
+                        className="h-9 w-28 text-right"
+                      />
+                      <span className="text-[10px] text-muted-foreground/60 w-14 shrink-0">{item.period}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
+          )}
+
+          {/* ── Section 3: Payout Destination ── */}
           <SectionCard title="Payout Destination">
             {config.bankFields.map(field => (
               <PayrollFieldInput
