@@ -53,7 +53,43 @@ interface OnboardingFormDrawerProps {
   onPrepareContract?: () => void;
   onPayrollIncluded?: () => void;
   isResend?: boolean;
+  candidateStatus?: string;
 }
+
+// ─── Payroll Country Defaults (country-level payroll config, not worker-specific) ───
+interface PayrollCountryDefaults {
+  overtimeRegular: number;       // multiplier e.g. 1.25
+  overtimeRestDay?: number;
+  overtimeSpecialHoliday?: number;
+  overtimeRegularHoliday?: number;
+  nightDifferential: number;     // percentage e.g. 10
+  thirteenthMonthPay: boolean;   // mandatory flag
+  deMinimis: { label: string; amount: string; period: string }[];
+}
+
+const PAYROLL_COUNTRY_DEFAULTS: Record<string, PayrollCountryDefaults> = {
+  Philippines: {
+    overtimeRegular: 1.25,
+    overtimeRestDay: 1.30,
+    overtimeSpecialHoliday: 1.30,
+    overtimeRegularHoliday: 2.00,
+    nightDifferential: 10,
+    thirteenthMonthPay: true,
+    deMinimis: [
+      { label: "Rice Subsidy", amount: "2,000", period: "/mo" },
+      { label: "Clothing Allowance", amount: "6,000", period: "/yr" },
+      { label: "Laundry Allowance", amount: "300", period: "/mo" },
+      { label: "Medical Cash Allowance", amount: "10,000", period: "/yr" },
+      { label: "Achievement Awards", amount: "10,000", period: "/yr" },
+    ],
+  },
+  India: {
+    overtimeRegular: 2.00,
+    nightDifferential: 0,
+    thirteenthMonthPay: false,
+    deMinimis: [],
+  },
+};
 
 /* ── Section Card ── */
 const SectionCard: React.FC<{
