@@ -394,6 +394,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
     }
   }, [formData.country]);
 
+  const set = (key: string) => (value: string) =>
     setFormData(prev => ({ ...prev, [key]: value }));
 
   const countryRule = COUNTRY_RULES[formData.country];
