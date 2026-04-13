@@ -324,8 +324,11 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [countryDefaultOverrides, setCountryDefaultOverrides] = useState<Record<string, string>>({});
+  const [deMinimisOverrides, setDeMinimisOverrides] = useState<Record<string, string>>({});
 
   const config = contractor ? getPayrollConfig(contractor.country) : DEFAULT_CONFIG;
+  const countryDefaults = contractor ? PAYROLL_COUNTRY_DEFAULTS[contractor.country] : undefined;
 
   // Reset form when contractor changes
   useEffect(() => {
@@ -340,6 +343,21 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
       }
     });
     setFormValues(defaults);
+
+    // Initialize country default overrides
+    const pcd = PAYROLL_COUNTRY_DEFAULTS[contractor.country];
+    if (pcd) {
+      const otDefaults: Record<string, string> = {};
+      pcd.overtimeDefaults.forEach(d => { otDefaults[d.key] = d.value; });
+      (pcd.additionalDefaults || []).forEach(d => { otDefaults[d.key] = d.value; });
+      setCountryDefaultOverrides(otDefaults);
+      const dmDefaults: Record<string, string> = {};
+      pcd.deMinimis.forEach(d => { dmDefaults[d.label] = d.amount; });
+      setDeMinimisOverrides(dmDefaults);
+    } else {
+      setCountryDefaultOverrides({});
+      setDeMinimisOverrides({});
+    }
   }, [contractor?.id, contractor?.country]);
 
   const setValue = (key: string) => (value: string) =>
