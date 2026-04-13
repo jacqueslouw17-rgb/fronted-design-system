@@ -163,7 +163,9 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   onPrepareContract,
   onPayrollIncluded,
   isResend = false,
+  candidateStatus,
 }) => {
+  const isOnboardingStage = candidateStatus === "trigger-onboarding";
   const isFromATS = candidate.employmentTypeSource === "ats" || (candidate as any).hasATSData;
 
   const [employmentType, setEmploymentType] = useState<"contractor" | "employee">(
