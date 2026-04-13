@@ -761,6 +761,103 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           </SectionCard>
 
 
+          {/* ── Payroll Country Defaults (onboarding stage) ── */}
+          {isOnboardingStage && PAYROLL_COUNTRY_DEFAULTS[formData.country] && (() => {
+            const defaults = PAYROLL_COUNTRY_DEFAULTS[formData.country];
+            const currency = countryRule?.currency || "USD";
+            return (
+              <SectionCard title="Payroll Country Defaults">
+                <p className="text-[11px] text-muted-foreground mb-1">Country defaults for {formData.country} — payroll configuration</p>
+
+                {/* Overtime Setup */}
+                <div className="border-t border-border/40 pt-3 mt-1">
+                  <h4 className="text-xs font-semibold text-foreground mb-3">Overtime & Premium Rates</h4>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Regular OT Rate" hint="Multiplier on hourly rate">
+                        <div className="flex items-center gap-2">
+                          <Input value={otRegular} onChange={e => setOtRegular(e.target.value)} className="flex-1 h-10" />
+                          <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">×</span>
+                        </div>
+                      </Field>
+                      {defaults.overtimeRestDay !== undefined && (
+                        <Field label="Rest Day OT" hint="Work on rest day">
+                          <div className="flex items-center gap-2">
+                            <Input value={otRestDay} onChange={e => setOtRestDay(e.target.value)} className="flex-1 h-10" />
+                            <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">×</span>
+                          </div>
+                        </Field>
+                      )}
+                    </div>
+                    {(defaults.overtimeSpecialHoliday !== undefined || defaults.overtimeRegularHoliday !== undefined) && (
+                      <div className="grid grid-cols-2 gap-3">
+                        {defaults.overtimeSpecialHoliday !== undefined && (
+                          <Field label="Special Holiday OT" hint="Special non-working holiday">
+                            <div className="flex items-center gap-2">
+                              <Input value={otSpecialHoliday} onChange={e => setOtSpecialHoliday(e.target.value)} className="flex-1 h-10" />
+                              <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">×</span>
+                            </div>
+                          </Field>
+                        )}
+                        {defaults.overtimeRegularHoliday !== undefined && (
+                          <Field label="Regular Holiday OT" hint="Regular holiday rate">
+                            <div className="flex items-center gap-2">
+                              <Input value={otRegularHoliday} onChange={e => setOtRegularHoliday(e.target.value)} className="flex-1 h-10" />
+                              <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">×</span>
+                            </div>
+                          </Field>
+                        )}
+                      </div>
+                    )}
+                    {defaults.nightDifferential > 0 && (
+                      <Field label="Night Shift Differential" hint="Premium for work between 10PM–6AM">
+                        <div className="flex items-center gap-2">
+                          <Input value={nightDiff} onChange={e => setNightDiff(e.target.value)} className="flex-1 h-10" />
+                          <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">%</span>
+                        </div>
+                      </Field>
+                    )}
+                  </div>
+                </div>
+
+                {/* 13th Month Pay */}
+                {defaults.thirteenthMonthPay && (
+                  <div className="border-t border-border/40 pt-3 mt-1">
+                    <div className="flex items-center gap-2">
+                      <Field label="13th Month Pay">
+                        <Input value="Mandatory" disabled className="h-10 bg-muted/50 cursor-not-allowed" />
+                      </Field>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground/60 mt-1">Required by law — equivalent to 1/12 of total basic salary earned</p>
+                  </div>
+                )}
+
+                {/* De Minimis Allowances */}
+                {defaults.deMinimis.length > 0 && (
+                  <div className="border-t border-border/40 pt-3 mt-1">
+                    <h4 className="text-xs font-semibold text-foreground mb-1">De Minimis Allowances</h4>
+                    <p className="text-[10px] text-muted-foreground/60 mb-3">Tax-exempt benefits under BIR regulations — adjust amounts as needed</p>
+                    <div className="space-y-2.5">
+                      {defaults.deMinimis.map((item) => (
+                        <Field key={item.label} label={item.label} hint={`Default: ${currency} ${item.amount}${item.period}`}>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">{currency}</span>
+                            <Input
+                              value={deMinimisOverrides[item.label] ?? item.amount}
+                              onChange={e => setDeMinimisOverrides(prev => ({ ...prev, [item.label]: e.target.value }))}
+                              className="flex-1 h-10"
+                            />
+                            <span className="text-[10px] text-muted-foreground/60 whitespace-nowrap">{item.period}</span>
+                          </div>
+                        </Field>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </SectionCard>
+            );
+          })()}
+
           {/* ── Payroll Opt-In Banner ── */}
           {!isResend && (
             <div className={cn(
