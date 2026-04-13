@@ -215,23 +215,6 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [nightDiff, setNightDiff] = useState("");
   const [deMinimisOverrides, setDeMinimisOverrides] = useState<Record<string, string>>({});
 
-  // Initialize payroll country defaults when country changes
-  React.useEffect(() => {
-    const defaults = PAYROLL_COUNTRY_DEFAULTS[formData?.country];
-    if (defaults) {
-      setOtRegular(String(defaults.overtimeRegular));
-      setOtRestDay(defaults.overtimeRestDay ? String(defaults.overtimeRestDay) : "");
-      setOtSpecialHoliday(defaults.overtimeSpecialHoliday ? String(defaults.overtimeSpecialHoliday) : "");
-      setOtRegularHoliday(defaults.overtimeRegularHoliday ? String(defaults.overtimeRegularHoliday) : "");
-      setNightDiff(String(defaults.nightDifferential));
-      const overrides: Record<string, string> = {};
-      defaults.deMinimis.forEach(d => { overrides[d.label] = d.amount; });
-      setDeMinimisOverrides(overrides);
-    } else {
-      setOtRegular(""); setOtRestDay(""); setOtSpecialHoliday(""); setOtRegularHoliday("");
-      setNightDiff(""); setDeMinimisOverrides({});
-    }
-  }, [formData?.country]);
 
   const activeCountryRule = COUNTRY_RULES[candidate.country];
 
