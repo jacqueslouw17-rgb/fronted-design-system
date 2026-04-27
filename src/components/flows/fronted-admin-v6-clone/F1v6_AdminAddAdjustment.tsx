@@ -621,8 +621,6 @@ export const F1v6_AdminAddAdjustment: React.FC<F1v6_AdminAddAdjustmentProps> = (
         {/* Expense Form */}
         {selectedType === "expense" && (
           <div className="space-y-5">
-            <DirectionPicker direction={direction} onChange={setDirection} />
-            <TaxableToggle isTaxable={expenseIsTaxable} onChange={setExpenseIsTaxable} />
 
             <div className="space-y-3">
               {expenseItems.map((item, index) => (
