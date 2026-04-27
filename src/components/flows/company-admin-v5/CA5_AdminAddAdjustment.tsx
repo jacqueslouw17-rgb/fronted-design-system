@@ -474,7 +474,6 @@ export const CA3_AdminAddAdjustment: React.FC<CA3_AdminAddAdjustmentProps> = ({
 
         {selectedType === "expense" && (
           <div className="space-y-5">
-            <DirectionPicker direction={direction} onChange={setDirection} />
 
             <div className="space-y-3">
               {expenseItems.map((item, index) => (

@@ -597,7 +597,6 @@ export const F1v7_AdminAddAdjustment: React.FC<F1v7_AdminAddAdjustmentProps> = (
         {/* Expense Form */}
         {selectedType === "expense" && (
           <div className="space-y-5">
-            <DirectionPicker direction={direction} onChange={setDirection} />
 
             <div className="space-y-3">
               {expenseItems.map((item, index) => (
