@@ -166,7 +166,7 @@ const SECTION_UNLOCKED_AT: Record<SectionKey, PipelineStage> = {
   engagement: "offer",
   payroll: "certified",
   payout: "certified",
-  documents: "drafting",
+  documents: "onboarding-pending",
 };
 
 const STAGE_ORDER: PipelineStage[] = [
