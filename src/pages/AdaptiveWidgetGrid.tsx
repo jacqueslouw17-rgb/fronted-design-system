@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
-import "react-resizable/css/styles.css";
+// react-resizable CSS not installed; styling provided by react-grid-layout above
 
 interface WidgetConfig {
   i: string;
