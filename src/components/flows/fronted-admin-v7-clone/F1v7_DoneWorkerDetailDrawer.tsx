@@ -152,7 +152,7 @@ const STAGE_LABEL: Record<PipelineStage, string> = {
   "drafting": "Draft Contract",
   "awaiting-signature": "Awaiting Signature",
   "onboarding-pending": "Onboarding",
-  "certified": "Payroll Ready",
+  "certified": "Onboarding",
 };
 
 type SectionKey = "personal" | "engagement" | "payroll" | "payout" | "documents";
