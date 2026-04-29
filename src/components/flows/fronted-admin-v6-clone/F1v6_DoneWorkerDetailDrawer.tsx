@@ -768,58 +768,109 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 )}
               </SectionCard>
 
-              {/* 2) Working Engagement */}
-              <SectionCard 
-                title="Working Engagement" 
+              {/* 2) Working Engagement — offer terms always; full terms after drafting */}
+              <SectionCard
+                title="Working Engagement"
                 defaultOpen={isEditMode}
               >
-                <div className="space-y-0.5">
-                  <DetailRow 
-                    label="Worker type" 
-                    value={isEmployee ? "Employee (EOR)" : "Contractor (COR)"} 
-                  />
-                  <DetailRow label="Role / title" value={worker.role} />
-                  <DetailRow label="Country" value={`${worker.countryFlag} ${worker.country}`} />
-                  <DetailRow label="Start date" value={mockData.startDate} />
-                  {!isActive && worker.endDate && (
-                    <DetailRow 
-                      label={workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Termination date" : "End date"} 
-                      value={worker.endDate} 
-                    />
-                  )}
-                  <div className="flex items-center justify-between gap-4 py-1.5">
-                    <span className="text-sm text-muted-foreground">Contract status</span>
-                    <Badge 
-                      variant="outline" 
-                      className={cn(
-                        "text-[10px] px-1.5 py-0 h-4 capitalize",
-                        !isActive && "bg-muted text-muted-foreground border-border",
-                        isActive && mockData.contractStatus === "completed" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
-                        isActive && mockData.contractStatus === "signed" && "bg-blue-500/10 text-blue-600 border-blue-500/20",
-                        isActive && mockData.contractStatus === "drafted" && "bg-muted text-muted-foreground border-border"
+                {engagementUnlocked ? (
+                  <>
+                    <div className="space-y-0.5">
+                      <DetailRow
+                        label="Worker type"
+                        value={isEmployee ? "Employee (EOR)" : "Contractor (COR)"}
+                      />
+                      <DetailRow label="Role / title" value={worker.role} />
+                      <DetailRow label="Country" value={`${worker.countryFlag} ${worker.country}`} />
+                      <DetailRow label="Start date" value={mockData.startDate} />
+                      {!isActive && worker.endDate && (
+                        <DetailRow
+                          label={workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Termination date" : "End date"}
+                          value={worker.endDate}
+                        />
                       )}
-                    >
-                      {!isActive ? workerStatus.replace("-", " ") : mockData.contractStatus}
-                    </Badge>
-                  </div>
-                  <DetailRow label="Work location" value={mockData.workLocation} />
-                  <DetailRow 
-                    label={isEmployee ? "Salary" : "Consultancy fee"} 
-                    value={worker.salary} 
-                  />
-                </div>
+                      {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("drafting") && (
+                        <div className="flex items-center justify-between gap-4 py-1.5">
+                          <span className="text-sm text-muted-foreground">Contract status</span>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-[10px] px-1.5 py-0 h-4 capitalize",
+                              !isActive && "bg-muted text-muted-foreground border-border",
+                              isActive && mockData.contractStatus === "completed" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                              isActive && mockData.contractStatus === "signed" && "bg-blue-500/10 text-blue-600 border-blue-500/20",
+                              isActive && mockData.contractStatus === "drafted" && "bg-muted text-muted-foreground border-border"
+                            )}
+                          >
+                            {!isActive ? workerStatus.replace("-", " ") : mockData.contractStatus}
+                          </Badge>
+                        </div>
+                      )}
+                      <DetailRow label="Work location" value={mockData.workLocation} />
+                      <DetailRow
+                        label={isEmployee ? "Salary" : "Consultancy fee"}
+                        value={worker.salary}
+                      />
+                    </div>
 
-                {/* Terms sub-section */}
-                <div className="border-t border-border/40 pt-3 mt-2">
-                  <p className="text-[11px] text-muted-foreground mb-2">Contract terms</p>
+                    {/* Contract terms unlock once contract is drafted */}
+                    {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("drafting") ? (
+                      <div className="border-t border-border/40 pt-3 mt-2">
+                        <p className="text-[11px] text-muted-foreground mb-2">Contract terms</p>
+                        <div className="space-y-0.5">
+                          <DetailRow label="Probation period" value="180 days" />
+                          <DetailRow label="Notice period" value="30 days" />
+                          <DetailRow label="Annual leave" value={isPhilippines ? "5 days" : "25 days"} />
+                          <DetailRow label="Sick leave" value={isPhilippines ? "5 days" : "365 days"} />
+                          <DetailRow label="Weekly hours" value={isPhilippines ? "48 hrs" : "37.5 hrs"} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border-t border-border/40 pt-3 mt-2">
+                        <p className="text-[11px] text-muted-foreground mb-1">Contract terms</p>
+                        <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL["drafting"]} />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.engagement]} />
+                )}
+              </SectionCard>
+
+              {/* 3) Payroll Parameters — unlocked at Payroll Ready */}
+              <SectionCard title="Payroll Parameters" defaultOpen={isEditMode && payrollUnlocked}>
+                {payrollUnlocked ? (
                   <div className="space-y-0.5">
-                    <DetailRow label="Probation period" value="180 days" />
-                    <DetailRow label="Notice period" value="30 days" />
-                    <DetailRow label="Annual leave" value={isPhilippines ? "5 days" : "25 days"} />
-                    <DetailRow label="Sick leave" value={isPhilippines ? "5 days" : "365 days"} />
-                    <DetailRow label="Weekly hours" value={isPhilippines ? "48 hrs" : "37.5 hrs"} />
+                    <DetailRow label="TIN" value={mockData.tin} />
+                    {isPhilippines && mockData.philHealthNumber && (
+                      <DetailRow label="PhilHealth number" value={mockData.philHealthNumber} />
+                    )}
+                    {worker.firstPayrollNote && (
+                      <div className="mt-2 p-2.5 rounded-lg bg-muted/50">
+                        <p className="text-[11px] text-muted-foreground">{worker.firstPayrollNote}</p>
+                      </div>
+                    )}
                   </div>
-                </div>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.payroll]} />
+                )}
+              </SectionCard>
+
+              {/* 4) Payout Destination — unlocked at Payroll Ready */}
+              <SectionCard title="Payout Destination" defaultOpen={isEditMode && payoutUnlocked}>
+                {payoutUnlocked ? (
+                  <div className="space-y-0.5">
+                    <DetailRow label="Bank country" value={mockData.bankCountry} />
+                    <DetailRow label="Bank name" value={mockData.bankName} />
+                    <DetailRow label="Account holder" value={mockData.accountHolder} />
+                    <DetailRow label="Account number" value={formatMaskedAccount(mockData.accountNumber)} />
+                    {mockData.swiftBic && (
+                      <DetailRow label="SWIFT / BIC" value={mockData.swiftBic} />
+                    )}
+                  </div>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.payout]} />
+                )}
               </SectionCard>
 
               {/* 3) Payroll Parameters */}
