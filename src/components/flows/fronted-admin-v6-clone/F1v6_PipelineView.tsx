@@ -1347,8 +1347,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     setDoneDetailDrawerOpen(true);
                   }
                 }}>
-                      {/* Hover-only subtle view glyph — bottom-right to avoid overlap with status badges/trash */}
-                      <Eye className="absolute bottom-1.5 right-1.5 h-3 w-3 text-muted-foreground/50 opacity-0 group-hover/wcard:opacity-100 transition-opacity duration-150 pointer-events-none" />
+                       {/* Hover-only subtle view glyph — top-right; hidden in offer-accepted where trash takes that slot */}
+                       {status !== "offer-accepted" && (
+                         <Eye className="absolute top-2 right-2 h-3 w-3 text-muted-foreground/40 opacity-0 group-hover/wcard:opacity-100 transition-opacity duration-150 pointer-events-none z-10" />
+                       )}
                       <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
                         <div className="flex items-center gap-2">
@@ -1391,13 +1393,13 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                                     : "Active"}
                                 </Badge>
                               )}
-                              {status === "offer-accepted" && onRemoveContractor && <Button variant="ghost" size="icon" className="h-5 w-5 ml-auto text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0" onClick={e => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleRemoveFromOfferAccepted(contractor.id);
-                              }}>
-                                <Trash2 className="h-3 w-3" />
-                              </Button>}
+                              {status === "offer-accepted" && onRemoveContractor && <Button variant="ghost" size="icon" className="h-5 w-5 ml-auto text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0 opacity-0 group-hover/wcard:opacity-100 transition-opacity duration-150" onClick={e => {
+                                 e.preventDefault();
+                                 e.stopPropagation();
+                                 handleRemoveFromOfferAccepted(contractor.id);
+                               }}>
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>}
                             </div>
                             <p className="text-xs text-muted-foreground truncate">{contractor.role}</p>
                           </div>
