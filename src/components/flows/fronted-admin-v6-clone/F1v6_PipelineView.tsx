@@ -1323,7 +1323,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 <Card 
                   className={cn(
                     "border bg-card relative group/wcard transition-colors duration-150",
-                    status !== "offer-accepted" && "cursor-pointer hover:border-border hover:bg-muted/30",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
                       : "border-border/40",
@@ -1337,31 +1336,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                       e.dataTransfer.setData("text/plain", contractor.id);
                     }
                   }}
-                  onDragEnd={() => setDraggingContractorId(null)}
-                  onClick={() => {
-                  // Card click mirrors the primary button action of each column
-                  if (status === "offer-accepted") {
-                    // Data not yet collected — card not clickable; use action buttons instead
-                    return;
-                  }
-                  if (status === "data-pending" && contractor.payrollIncluded && contractor.dataReceived) {
-                    setSelectedForVerification(contractor);
-                    setVerificationDrawerOpen(true);
-                    return;
-                  }
-                  if (status === "drafting") {
-                    handleDraftContract([contractor.id]);
-                    return;
-                  }
-                  if (status === "awaiting-signature") {
-                    handleOpenSignatureWorkflow(contractor);
-                    return;
-                  }
-                  // Default: open the worker detail drawer
-                  // (drawer adapts which sections are unlocked based on pipeline stage)
-                  setSelectedForDoneDetail(contractor);
-                  setDoneDetailDrawerOpen(true);
-                }}>
+                  onDragEnd={() => setDraggingContractorId(null)}>
+
                       <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
                         <div className="flex items-center gap-2">
