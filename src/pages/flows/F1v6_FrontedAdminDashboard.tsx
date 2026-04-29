@@ -166,6 +166,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     payFrequency: "Fortnightly",
     workerStatus: "active",
     documentsVerified: true,
+    firstPayrollStartDate: "May 1, 2026",
   },
   {
     id: "done-2",
