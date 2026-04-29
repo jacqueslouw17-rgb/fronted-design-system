@@ -196,13 +196,29 @@ interface F1v4_DoneWorkerDetailDrawerProps {
   accessibleStage?: PipelineStage;
 }
 
-/** Subtle placeholder rendered inside locked sections. */
+/** Subtle placeholder rendered inside locked sections (kept for backward compat — no longer rendered for fully-locked sections). */
 const LockedSectionPlaceholder: React.FC<{ unlockedAtLabel: string }> = ({ unlockedAtLabel }) => (
   <div className="flex items-center gap-2 py-1.5 px-1 text-xs text-muted-foreground/70">
     <Lock className="h-3 w-3 shrink-0" />
     <span>
       Collected during <span className="font-medium text-muted-foreground">{unlockedAtLabel}</span>
     </span>
+  </div>
+);
+
+/**
+ * Locked section header — replaces the entire SectionCard when a section is fully gated.
+ * No expand affordance, lightly disabled, helper text inline.
+ */
+const LockedSectionRow: React.FC<{ title: string; unlockedAtLabel: string }> = ({ title, unlockedAtLabel }) => (
+  <div className="rounded-xl border border-border/40 bg-card/20 px-5 py-3 opacity-60">
+    <div className="flex items-center gap-2">
+      <Lock className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+      <h3 className="text-sm font-medium text-muted-foreground leading-tight">{title}</h3>
+    </div>
+    <p className="text-[11px] text-muted-foreground/70 mt-1 ml-[22px]">
+      Collected during <span className="font-medium">{unlockedAtLabel}</span>
+    </p>
   </div>
 );
 
