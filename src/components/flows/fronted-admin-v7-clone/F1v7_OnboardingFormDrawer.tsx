@@ -471,6 +471,17 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-1.5">
           {/* ── Section 1: Personal Profile ── */}
+          {isOnboardingStage ? (
+            <SectionCard title="Personal Profile" defaultOpen={false} badge={<Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal text-muted-foreground border-border/60">Collected during Data Collection</Badge>}>
+              <div className="space-y-0.5">
+                <ReadOnlyRow label="Full name" value={isFromATS ? candidate.name : formData.name} />
+                <ReadOnlyRow label="Email" value={isFromATS ? (candidate.email || "candidate@example.com") : formData.email} />
+                <ReadOnlyRow label="Nationality" value={formData.nationality || "—"} />
+                <ReadOnlyRow label="Address" value={formData.address || "—"} />
+                <ReadOnlyRow label="ID Number" value={formData.idNumber || "—"} />
+              </div>
+            </SectionCard>
+          ) : (
           <SectionCard title="Personal Profile">
             <Field label="Full Name">
               {isFromATS ? (
@@ -496,6 +507,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="National ID / Government ID" className="h-10" />
             </Field>
           </SectionCard>
+          )}
 
           {/* ── Section 2: Working Engagement ── */}
           <SectionCard
