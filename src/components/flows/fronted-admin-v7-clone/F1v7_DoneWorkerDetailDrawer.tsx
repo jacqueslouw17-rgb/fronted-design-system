@@ -818,17 +818,27 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             {/* Sections */}
             <div className="space-y-1.5">
               
-              {/* 1) Personal Profile */}
+              {/* 1) Personal Profile — basic info from offer; full details after data collection */}
               <SectionCard title="Personal Profile" defaultOpen={isEditMode}>
-                <div className="space-y-0.5">
-                  <DetailRow label="Full name" value={worker.name} />
-                  <DetailRow label="Email" value={mockData.email} />
-                  <DetailRow label="Phone" value={mockData.phone} />
-                  <DetailRow label="Date of birth" value={mockData.dateOfBirth} />
-                  <DetailRow label="Nationality" value={mockData.nationality} />
-                  <DetailRow label="Residential address" value={mockData.address} />
-                  <DetailRow label="National ID" value={mockData.nationalId} />
-                </div>
+                {personalUnlocked ? (
+                  <div className="space-y-0.5">
+                    <DetailRow label="Full name" value={worker.name} />
+                    <DetailRow label="Email" value={mockData.email} />
+                    {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("drafting") ? (
+                      <>
+                        <DetailRow label="Phone" value={mockData.phone} />
+                        <DetailRow label="Date of birth" value={mockData.dateOfBirth} />
+                        <DetailRow label="Nationality" value={mockData.nationality} />
+                        <DetailRow label="Residential address" value={mockData.address} />
+                        <DetailRow label="National ID" value={mockData.nationalId} />
+                      </>
+                    ) : (
+                      <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL["drafting"]} />
+                    )}
+                  </div>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.personal]} />
+                )}
               </SectionCard>
 
               {/* 2) Working Engagement */}
