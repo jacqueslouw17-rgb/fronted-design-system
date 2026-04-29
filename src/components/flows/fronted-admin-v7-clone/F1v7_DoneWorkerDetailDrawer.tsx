@@ -708,7 +708,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
-              ) : null}
+              ) : null)}
             </div>
             <p className="text-[11px] text-muted-foreground/60 mt-0.5">{isEmployee ? "Employee" : "Contractor"} · {worker.role}</p>
           </div>
