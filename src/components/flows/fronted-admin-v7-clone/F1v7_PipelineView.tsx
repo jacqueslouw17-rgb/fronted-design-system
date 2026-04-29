@@ -1510,18 +1510,28 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   }}
                   onDragEnd={() => setDraggingContractorId(null)}
                   onClick={() => {
+                    // Card click mirrors the primary button action of each column
                     if (status === "offer-accepted") {
                       // Data not yet collected — card not clickable; use action buttons instead
                       return;
                     }
+                    if (status === "data-pending" && contractor.payrollIncluded && contractor.dataReceived) {
+                      setSelectedForVerification(contractor);
+                      setVerificationDrawerOpen(true);
+                      return;
+                    }
+                    if (status === "drafting") {
+                      handleDraftContract([contractor.id]);
+                      return;
+                    }
                     if (status === "awaiting-signature") {
                       handleOpenSignatureWorkflow(contractor);
-                    } else {
-                      // Universal: clicking any card opens the worker detail drawer
-                      // (drawer adapts which sections are unlocked based on pipeline stage)
-                      setSelectedForDoneDetail(contractor);
-                      setDoneDetailDrawerOpen(true);
+                      return;
                     }
+                    // Default: open the worker detail drawer
+                    // (drawer adapts which sections are unlocked based on pipeline stage)
+                    setSelectedForDoneDetail(contractor);
+                    setDoneDetailDrawerOpen(true);
                   }}>
                       <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
