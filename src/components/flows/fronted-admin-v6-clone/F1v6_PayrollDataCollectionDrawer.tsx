@@ -238,6 +238,14 @@ const SectionCard: React.FC<{
   );
 };
 
+/* ── Read-only detail row (for traceability of previously collected data) ── */
+const ReadOnlyRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
+  <div className="flex items-center justify-between gap-4 py-1.5">
+    <span className="text-xs text-muted-foreground">{label}</span>
+    <span className="text-xs text-foreground text-right truncate">{value}</span>
+  </div>
+);
+
 /* ── Field wrapper ── */
 const Field: React.FC<{
   label: string;
@@ -392,6 +400,22 @@ export const F1v5_PayrollDataCollectionDrawer: React.FC<PayrollDataCollectionDra
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
+          {/* ── Read-only context (for traceability) ── */}
+          <SectionCard title="Personal Profile" defaultOpen={false} badge={<Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal text-muted-foreground border-border/60">Collected during Data Collection</Badge>}>
+            <div className="space-y-0.5">
+              <ReadOnlyRow label="Full name" value={contractor.name} />
+              <ReadOnlyRow label="Email" value={contractor.email || "—"} />
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Working Engagement" defaultOpen={false} badge={<Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal text-muted-foreground border-border/60">Collected during Data Collection</Badge>}>
+            <div className="space-y-0.5">
+              <ReadOnlyRow label="Role" value={contractor.role} />
+              <ReadOnlyRow label="Country" value={`${contractor.countryFlag} ${contractor.country}`} />
+              <ReadOnlyRow label="Salary / Fee" value={contractor.salary} />
+            </div>
+          </SectionCard>
+
           {/* ── Section 1: Payroll Parameters ── */}
           <SectionCard
             title="Payroll Parameters"
