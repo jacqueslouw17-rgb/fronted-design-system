@@ -154,6 +154,14 @@ const NumberFieldWithUnit: React.FC<{
   </div>
 );
 
+/* ── Read-only detail row (for completed/locked sections) ── */
+const ReadOnlyRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
+  <div className="flex items-center justify-between gap-4 py-1.5">
+    <span className="text-xs text-muted-foreground">{label}</span>
+    <span className="text-xs text-foreground text-right truncate">{value}</span>
+  </div>
+);
+
 export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   open,
   onOpenChange,
