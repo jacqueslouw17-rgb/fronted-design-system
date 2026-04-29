@@ -873,33 +873,6 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                 )}
               </SectionCard>
 
-              {/* 3) Payroll Parameters */}
-              <SectionCard title="Payroll Parameters" defaultOpen={isEditMode}>
-                <div className="space-y-0.5">
-                  <DetailRow label="TIN" value={mockData.tin} />
-                  {isPhilippines && mockData.philHealthNumber && (
-                    <DetailRow label="PhilHealth number" value={mockData.philHealthNumber} />
-                  )}
-                  {worker.firstPayrollNote && (
-                    <div className="mt-2 p-2.5 rounded-lg bg-muted/50">
-                      <p className="text-[11px] text-muted-foreground">{worker.firstPayrollNote}</p>
-                    </div>
-                  )}
-                </div>
-              </SectionCard>
-
-              {/* 4) Payout Destination */}
-              <SectionCard title="Payout Destination" defaultOpen={isEditMode}>
-                <div className="space-y-0.5">
-                  <DetailRow label="Bank country" value={mockData.bankCountry} />
-                  <DetailRow label="Bank name" value={mockData.bankName} />
-                  <DetailRow label="Account holder" value={mockData.accountHolder} />
-                  <DetailRow label="Account number" value={formatMaskedAccount(mockData.accountNumber)} />
-                  {mockData.swiftBic && (
-                    <DetailRow label="SWIFT / BIC" value={mockData.swiftBic} />
-                  )}
-                </div>
-              </SectionCard>
 
               {/* 5) Documents */}
               <SectionCard 
