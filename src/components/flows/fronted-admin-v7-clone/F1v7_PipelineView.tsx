@@ -2133,7 +2133,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       needsDocumentVerification: selectedForDoneDetail.needsDocumentVerification || false,
       endDate: selectedForDoneDetail.endDate,
       endReason: selectedForDoneDetail.endReason,
-    } : null} onGoToDataCollection={workerId => {
+    } : null}
+    accessibleStage={selectedForDoneDetail ? contractorStatusToStage(selectedForDoneDetail.status) : "certified"}
+    onGoToDataCollection={workerId => {
       setDoneDetailDrawerOpen(false);
       toast.info("Redirecting to data collection...");
     }} onLifecycleAction={(workerId, action, endDate, reason) => {
