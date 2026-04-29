@@ -803,6 +803,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               );
             })()}
           </SectionCard>
+          )}
 
 
           {/* ── Payroll Country Defaults (onboarding stage) ── */}
