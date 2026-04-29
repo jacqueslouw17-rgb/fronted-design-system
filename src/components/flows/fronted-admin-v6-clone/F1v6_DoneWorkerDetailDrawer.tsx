@@ -905,47 +905,65 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                   </Button>
                 ) : undefined}
               >
-                <input
-                  ref={reuploadInputRef}
-                  type="file"
-                  className="hidden"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  onChange={handleReuploadFile}
-                />
-                <div className="space-y-2">
-                  <DocumentRow 
-                    name="Identity document"
-                    status={verificationMode ? "uploaded" : mockData.idDocumentStatus}
-                    fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
-                  />
-                  {verificationMode && worker.country === "India" && (
-                    <>
-                      <DocumentRow 
-                        name="PAN Card"
-                        status="uploaded"
-                        fileName={`${worker.name.split(" ")[0]}_PAN_Card.pdf`}
-                      />
-                      <DocumentRow 
-                        name="Investment proof (80C/80D)"
-                        status="uploaded"
-                        fileName={`${worker.name.split(" ")[0]}_Investment_Proof.pdf`}
-                      />
-                    </>
-                  )}
-                  <DocumentRow 
-                    name={isEmployee ? "Employment agreement" : "Contractor agreement"}
-                    status="verified"
-                    fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement_Signed.pdf`}
-                  />
-                  {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
-                    <DocumentRow
-                      key={idx}
-                      name={upload.name}
-                      status={upload.status}
-                      fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
+                {documentsUnlocked ? (
+                  <>
+                    <input
+                      ref={reuploadInputRef}
+                      type="file"
+                      className="hidden"
+                      accept=".jpg,.jpeg,.png,.pdf"
+                      onChange={handleReuploadFile}
                     />
-                  ))}
-                </div>
+                    <div className="space-y-2">
+                      {/* Identity document — only after onboarding completion */}
+                      {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("certified") && (
+                        <DocumentRow
+                          name="Identity document"
+                          status={verificationMode ? "uploaded" : mockData.idDocumentStatus}
+                          fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
+                        />
+                      )}
+                      {verificationMode && worker.country === "India" && (
+                        <>
+                          <DocumentRow
+                            name="PAN Card"
+                            status="uploaded"
+                            fileName={`${worker.name.split(" ")[0]}_PAN_Card.pdf`}
+                          />
+                          <DocumentRow
+                            name="Investment proof (80C/80D)"
+                            status="uploaded"
+                            fileName={`${worker.name.split(" ")[0]}_Investment_Proof.pdf`}
+                          />
+                        </>
+                      )}
+                      {/* Contract document — drafted at "drafting", signed by "onboarding-pending" */}
+                      <DocumentRow
+                        name={isEmployee ? "Employment agreement" : "Contractor agreement"}
+                        status={
+                          STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("onboarding-pending")
+                            ? "verified"
+                            : STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("awaiting-signature")
+                              ? "uploaded"
+                              : "uploaded"
+                        }
+                        fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement${
+                          STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("onboarding-pending") ? "_Signed" : "_Draft"
+                        }.pdf`}
+                      />
+                      {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
+                        <DocumentRow
+                          key={idx}
+                          name={upload.name}
+                          status={upload.status}
+                          fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.documents]} />
+                )}
               </SectionCard>
 
               {/* Action buttons for inactive workers in edit mode — inline, not sticky */}
