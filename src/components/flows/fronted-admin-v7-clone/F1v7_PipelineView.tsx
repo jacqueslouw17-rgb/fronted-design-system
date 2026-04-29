@@ -1497,7 +1497,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   onClick={() => {
                     if (status === "awaiting-signature") {
                       handleOpenSignatureWorkflow(contractor);
-                    } else if (status === "CERTIFIED") {
+                    } else {
+                      // Universal: clicking any card opens the worker detail drawer
+                      // (drawer adapts which sections are unlocked based on pipeline stage)
                       setSelectedForDoneDetail(contractor);
                       setDoneDetailDrawerOpen(true);
                     }
