@@ -72,103 +72,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// ─── Insurance data from Kota.io (mirrors OnboardingFormDrawer) ───
-interface KotaContributionLine {
-  id: string;
-  category: "gross_premium" | "tax" | "tax_relief";
-  member_type: "policyholder" | "partner_dependant" | "child_dependant";
-  amount: number;
-  note?: string;
-}
-
-interface KotaInsuranceData {
-  provider: string;
-  plan: string;
-  currency: string;
-  employer_contributions: KotaContributionLine[];
-  employee_contributions: KotaContributionLine[];
-}
-
-const COUNTRY_INSURANCE_DONE: Record<string, KotaInsuranceData> = {
-  Norway: {
-    provider: "Allianz", plan: "Allianz Care Europe", currency: "NOK",
-    employer_contributions: [
-      { id: "ct_no_er_01", category: "gross_premium", member_type: "policyholder", amount: 3150 },
-      { id: "ct_no_er_02", category: "tax", member_type: "policyholder", amount: 315 },
-    ],
-    employee_contributions: [
-      { id: "ct_no_ee_01", category: "gross_premium", member_type: "policyholder", amount: 735 },
-    ],
-  },
-  Sweden: {
-    provider: "Allianz", plan: "Allianz Care Europe", currency: "SEK",
-    employer_contributions: [
-      { id: "ct_se_er_01", category: "gross_premium", member_type: "policyholder", amount: 2850 },
-      { id: "ct_se_er_02", category: "tax", member_type: "policyholder", amount: 285 },
-    ],
-    employee_contributions: [
-      { id: "ct_se_ee_01", category: "gross_premium", member_type: "policyholder", amount: 665 },
-    ],
-  },
-  Denmark: {
-    provider: "Allianz", plan: "Allianz Care Europe", currency: "DKK",
-    employer_contributions: [
-      { id: "ct_dk_er_01", category: "gross_premium", member_type: "policyholder", amount: 2600 },
-      { id: "ct_dk_er_02", category: "tax", member_type: "policyholder", amount: 260 },
-    ],
-    employee_contributions: [
-      { id: "ct_dk_ee_01", category: "gross_premium", member_type: "policyholder", amount: 640 },
-    ],
-  },
-  Spain: {
-    provider: "Allianz", plan: "Allianz Care Europe", currency: "EUR",
-    employer_contributions: [
-      { id: "ct_es_er_01", category: "gross_premium", member_type: "policyholder", amount: 210 },
-      { id: "ct_es_er_02", category: "tax", member_type: "policyholder", amount: 21 },
-    ],
-    employee_contributions: [
-      { id: "ct_es_ee_01", category: "gross_premium", member_type: "policyholder", amount: 49 },
-    ],
-  },
-  Singapore: {
-    provider: "AIA", plan: "AIA HealthShield Gold", currency: "SGD",
-    employer_contributions: [
-      { id: "ct_sg_er_01", category: "gross_premium", member_type: "policyholder", amount: 338 },
-      { id: "ct_sg_er_02", category: "tax_relief", member_type: "policyholder", amount: -45 },
-    ],
-    employee_contributions: [
-      { id: "ct_sg_ee_01", category: "gross_premium", member_type: "policyholder", amount: 112 },
-    ],
-  },
-  Philippines: {
-    provider: "AXA Philippines", plan: "AXA Health Max", currency: "PHP",
-    employer_contributions: [
-      { id: "ct_ph_er_01", category: "gross_premium", member_type: "policyholder", amount: 9375 },
-    ],
-    employee_contributions: [
-      { id: "ct_ph_ee_01", category: "gross_premium", member_type: "policyholder", amount: 3125 },
-    ],
-  },
-  India: {
-    provider: "HDFC Ergo", plan: "HDFC Optima Secure", currency: "INR",
-    employer_contributions: [
-      { id: "ct_in_er_01", category: "gross_premium", member_type: "policyholder", amount: 6375 },
-    ],
-    employee_contributions: [
-      { id: "ct_in_ee_01", category: "gross_premium", member_type: "policyholder", amount: 2125 },
-    ],
-  },
-  Ireland: {
-    provider: "Laya Healthcare", plan: "Laya Simply Health", currency: "EUR",
-    employer_contributions: [
-      { id: "ct_ie_er_01", category: "gross_premium", member_type: "policyholder", amount: 195 },
-    ],
-    employee_contributions: [
-      { id: "ct_ie_ee_01", category: "gross_premium", member_type: "policyholder", amount: 65 },
-    ],
-  },
-};
-
 export type WorkerLifecycleStatus = "active" | "awaiting" | "inactive" | "contract-ended" | "resigned" | "terminated";
 
 export interface DoneWorkerData {
@@ -179,43 +82,61 @@ export interface DoneWorkerData {
   role: string;
   salary: string;
   employmentType: "contractor" | "employee";
+  // Lifecycle
   workerStatus?: WorkerLifecycleStatus;
   endDate?: string;
   endReason?: string;
+  // Personal details
   email?: string;
   phone?: string;
   dateOfBirth?: string;
   nationality?: string;
   address?: string;
+  // Employment & contract
   startDate?: string;
   contractStatus?: "drafted" | "signed" | "completed";
   workLocation?: string;
+  // Payroll details
   payFrequency?: "monthly" | "fortnightly";
   paymentSchedule?: string;
   firstPayrollNote?: string;
+  // Bank details
   bankCountry?: string;
   bankName?: string;
   accountHolder?: string;
   accountNumber?: string;
   swiftBic?: string;
+  // Compliance (country-specific)
   tin?: string;
   philHealthNumber?: string;
   nationalId?: string;
   idDocumentStatus?: "uploaded" | "verified" | "missing";
   optionalUploads?: { name: string; status: "uploaded" | "verified" | "missing" }[];
+  // Audit
   detailsSubmittedOn?: string;
   verifiedBy?: string;
   lastUpdated?: string;
   completedOn?: string;
+  // Missing data
   missingDetails?: { field: string; message: string }[];
+  // Document verification state
   documentsVerified?: boolean;
   needsDocumentVerification?: boolean;
+  // Data collection form
   dataReceived?: boolean;
 }
 
 /**
  * Pipeline stage at which the worker currently sits.
  * Drives which of the 5 detail sections are unlocked vs locked-pending.
+ *
+ * Section unlock map:
+ *   offer            → Personal (basic), Engagement (offer terms)
+ *   data-pending     → Personal (basic), Engagement (offer terms)
+ *   drafting         → + full Personal, full Engagement, Documents (draft)
+ *   awaiting-signature → + Documents (contract)
+ *   onboarding-pending → + Documents (contract)
+ *   certified        → all 5 sections (Payroll Parameters + Payout Destination unlocked)
  */
 export type PipelineStage =
   | "offer"
@@ -236,6 +157,10 @@ const STAGE_LABEL: Record<PipelineStage, string> = {
 
 type SectionKey = "personal" | "engagement" | "payroll" | "payout" | "documents";
 
+/**
+ * Returns which stage of the pipeline first unlocks a given section.
+ * If the worker's current stage is at or beyond this, the section is unlocked.
+ */
 const SECTION_UNLOCKED_AT: Record<SectionKey, PipelineStage> = {
   personal: "offer",
   engagement: "offer",
@@ -271,12 +196,29 @@ interface F1v4_DoneWorkerDetailDrawerProps {
   accessibleStage?: PipelineStage;
 }
 
+/** Subtle placeholder rendered inside locked sections (kept for backward compat — no longer rendered for fully-locked sections). */
 const LockedSectionPlaceholder: React.FC<{ unlockedAtLabel: string }> = ({ unlockedAtLabel }) => (
   <div className="flex items-center gap-2 py-1.5 px-1 text-xs text-muted-foreground/70">
     <Lock className="h-3 w-3 shrink-0" />
     <span>
       Collected during <span className="font-medium text-muted-foreground">{unlockedAtLabel}</span>
     </span>
+  </div>
+);
+
+/**
+ * Locked section header — replaces the entire SectionCard when a section is fully gated.
+ * No expand affordance, lightly disabled, helper text inline.
+ */
+const LockedSectionRow: React.FC<{ title: string; unlockedAtLabel: string }> = ({ title, unlockedAtLabel }) => (
+  <div className="rounded-xl border border-border/40 bg-card/20 px-5 py-3 opacity-60">
+    <div className="flex items-center gap-2">
+      <Lock className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+      <h3 className="text-sm font-medium text-muted-foreground leading-tight">{title}</h3>
+    </div>
+    <p className="text-[11px] text-muted-foreground/70 mt-1 ml-[22px]">
+      Collected during <span className="font-medium">{unlockedAtLabel}</span>
+    </p>
   </div>
 );
 
@@ -493,7 +435,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
 
   const StatusBadge = ({ status }: { status: "uploaded" | "verified" | "missing" }) => {
     const config = {
-      uploaded: { label: "Uploaded", className: "bg-teal-100/50 text-teal-700 border-teal-300/20" },
+      uploaded: { label: "Uploaded", className: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
       verified: { label: "Verified", className: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
       missing: { label: "Missing", className: "bg-destructive/10 text-destructive border-destructive/20" },
     };
@@ -816,14 +758,15 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             )}
 
             {/* Sections */}
-            <div className="space-y-1.5">
+            <div className="space-y-3">
               
               {/* 1) Personal Profile — basic info from offer; full details after data collection */}
-              <SectionCard title="Personal Profile" defaultOpen={isEditMode}>
-                {personalUnlocked ? (
+              {personalUnlocked ? (
+                <SectionCard title="Personal Profile" defaultOpen={isEditMode}>
                   <div className="space-y-0.5">
                     <DetailRow label="Full name" value={worker.name} />
                     <DetailRow label="Email" value={mockData.email} />
+                    {/* Fields below are only collected once the worker submits the data form */}
                     {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("drafting") ? (
                       <>
                         <DetailRow label="Phone" value={mockData.phone} />
@@ -833,20 +776,22 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                         <DetailRow label="National ID" value={mockData.nationalId} />
                       </>
                     ) : (
-                      <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL["drafting"]} />
+                      <div className="pt-1">
+                        <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL["drafting"]} />
+                      </div>
                     )}
                   </div>
-                ) : (
-                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.personal]} />
-                )}
-              </SectionCard>
+                </SectionCard>
+              ) : (
+                <LockedSectionRow title="Personal Profile" unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.personal]} />
+              )}
 
               {/* 2) Working Engagement — offer terms always; full terms after drafting */}
-              <SectionCard
-                title="Working Engagement"
-                defaultOpen={isEditMode}
-              >
-                {engagementUnlocked ? (
+              {engagementUnlocked ? (
+                <SectionCard
+                  title="Working Engagement"
+                  defaultOpen={isEditMode}
+                >
                   <>
                     <div className="space-y-0.5">
                       <DetailRow
@@ -904,42 +849,15 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                         <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL["drafting"]} />
                       </div>
                     )}
-
-                    {/* Insurance & Benefits (Kota) — only after contract drafting */}
-                    {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("drafting") && (() => {
-                      const ins = COUNTRY_INSURANCE_DONE[worker.country];
-                      if (!ins) return null;
-                      const erTotal = ins.employer_contributions.reduce((s, c) => s + c.amount, 0);
-                      const eeTotal = ins.employee_contributions.reduce((s, c) => s + c.amount, 0);
-                      const total = erTotal + eeTotal;
-                      const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax relief" };
-                      const fmt = (amt: number) => `${ins.currency} ${amt.toLocaleString()}`;
-                      return (
-                        <div className="border-t border-border/40 pt-3 mt-2">
-                          <p className="text-[11px] text-muted-foreground mb-2">Health insurance</p>
-                          <div className="space-y-0.5">
-                            <DetailRow label="Provider" value={ins.provider} />
-                            <DetailRow label="Plan" value={ins.plan} />
-                            {ins.employer_contributions.map((c) => (
-                              <DetailRow key={c.id} label={`ER ${CAT_LABEL[c.category] || c.category}`} value={fmt(c.amount)} />
-                            ))}
-                            {ins.employee_contributions.map((c) => (
-                              <DetailRow key={c.id} label={`EE ${CAT_LABEL[c.category] || c.category}`} value={fmt(c.amount)} />
-                            ))}
-                            <DetailRow label="Total monthly" value={fmt(total)} />
-                          </div>
-                        </div>
-                      );
-                    })()}
                   </>
-                ) : (
-                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.engagement]} />
-                )}
-              </SectionCard>
+                </SectionCard>
+              ) : (
+                <LockedSectionRow title="Working Engagement" unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.engagement]} />
+              )}
 
               {/* 3) Payroll Parameters — unlocked at Payroll Ready */}
-              <SectionCard title="Payroll Parameters" defaultOpen={isEditMode && payrollUnlocked}>
-                {payrollUnlocked ? (
+              {payrollUnlocked ? (
+                <SectionCard title="Payroll Parameters" defaultOpen={isEditMode && payrollUnlocked}>
                   <div className="space-y-0.5">
                     <DetailRow label="TIN" value={mockData.tin} />
                     {isPhilippines && mockData.philHealthNumber && (
@@ -951,14 +869,14 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       </div>
                     )}
                   </div>
-                ) : (
-                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.payroll]} />
-                )}
-              </SectionCard>
+                </SectionCard>
+              ) : (
+                <LockedSectionRow title="Payroll Parameters" unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.payroll]} />
+              )}
 
               {/* 4) Payout Destination — unlocked at Payroll Ready */}
-              <SectionCard title="Payout Destination" defaultOpen={isEditMode && payoutUnlocked}>
-                {payoutUnlocked ? (
+              {payoutUnlocked ? (
+                <SectionCard title="Payout Destination" defaultOpen={isEditMode && payoutUnlocked}>
                   <div className="space-y-0.5">
                     <DetailRow label="Bank country" value={mockData.bankCountry} />
                     <DetailRow label="Bank name" value={mockData.bankName} />
@@ -968,43 +886,44 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       <DetailRow label="SWIFT / BIC" value={mockData.swiftBic} />
                     )}
                   </div>
-                ) : (
-                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.payout]} />
-                )}
-              </SectionCard>
+                </SectionCard>
+              ) : (
+                <LockedSectionRow title="Payout Destination" unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.payout]} />
+              )}
 
-              {/* 5) Documents */}
-              <SectionCard 
-                title="Documents" 
-                defaultOpen={verificationMode || (worker.needsDocumentVerification && !worker.documentsVerified) || (workerStatus === "inactive" && !!worker.dataReceived)}
-                badge={(!isEditMode && worker.documentsVerified) ? (
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
-                    Verified
-                  </Badge>
-                ) : undefined}
-                headerAction={((worker.needsDocumentVerification && !worker.documentsVerified) || verificationMode) ? (
-                  <Button
-                    size="sm"
-                    className="h-6 px-3 text-[11px] gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-colors font-medium"
-                    variant="ghost"
-                    onClick={() => onDocumentsVerified?.(worker.id)}
-                  >
-                    <CheckCircle2 className="h-3 w-3" />
-                    Verify All
-                  </Button>
-                ) : (workerStatus === "inactive" && worker.dataReceived && !worker.documentsVerified) ? (
-                  <Button
-                    size="sm"
-                    className="h-6 px-3 text-[11px] gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-colors font-medium"
-                    variant="ghost"
-                    onClick={() => onMarkAsActive?.(worker.id)}
-                  >
-                    <CheckCircle2 className="h-3 w-3" />
-                    Verify All
-                  </Button>
-                ) : undefined}
-              >
-                {documentsUnlocked ? (
+
+              {/* 5) Documents — contract from drafting; ID + onboarding docs from Payroll Ready */}
+              {documentsUnlocked ? (
+                <SectionCard 
+                  title="Documents" 
+                  defaultOpen={verificationMode || (worker.needsDocumentVerification && !worker.documentsVerified) || (workerStatus === "inactive" && !!worker.dataReceived)}
+                  badge={(!isEditMode && worker.documentsVerified) ? (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
+                      Verified
+                    </Badge>
+                  ) : undefined}
+                  headerAction={((worker.needsDocumentVerification && !worker.documentsVerified) || verificationMode) ? (
+                    <Button
+                      size="sm"
+                      className="h-6 px-3 text-[11px] gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-colors font-medium"
+                      variant="ghost"
+                      onClick={() => onDocumentsVerified?.(worker.id)}
+                    >
+                      <CheckCircle2 className="h-3 w-3" />
+                      Verify All
+                    </Button>
+                  ) : (workerStatus === "inactive" && worker.dataReceived && !worker.documentsVerified) ? (
+                    <Button
+                      size="sm"
+                      className="h-6 px-3 text-[11px] gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-colors font-medium"
+                      variant="ghost"
+                      onClick={() => onMarkAsActive?.(worker.id)}
+                    >
+                      <CheckCircle2 className="h-3 w-3" />
+                      Verify All
+                    </Button>
+                  ) : undefined}
+                >
                   <>
                     <input
                       ref={reuploadInputRef}
@@ -1014,27 +933,7 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                       onChange={handleReuploadFile}
                     />
                     <div className="space-y-2">
-                      {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("certified") && (
-                        <DocumentRow
-                          name="Identity document"
-                          status={verificationMode ? "uploaded" : mockData.idDocumentStatus}
-                          fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
-                        />
-                      )}
-                      {verificationMode && worker.country === "India" && (
-                        <>
-                          <DocumentRow
-                            name="PAN Card"
-                            status="uploaded"
-                            fileName={`${worker.name.split(" ")[0]}_PAN_Card.pdf`}
-                          />
-                          <DocumentRow
-                            name="Investment proof (80C/80D)"
-                            status="uploaded"
-                            fileName={`${worker.name.split(" ")[0]}_Investment_Proof.pdf`}
-                          />
-                        </>
-                      )}
+                      {/* Contract document — drafted at "drafting", signed by "onboarding-pending" */}
                       <DocumentRow
                         name={isEmployee ? "Employment agreement" : "Contractor agreement"}
                         status={
@@ -1046,20 +945,64 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                           STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("onboarding-pending") ? "_Signed" : "_Draft"
                         }.pdf`}
                       />
-                      {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
-                        <DocumentRow
-                          key={idx}
-                          name={upload.name}
-                          status={upload.status}
-                          fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
-                        />
-                      ))}
+
+                      {/* Identity + onboarding-collected docs — fully gathered at Payroll Ready */}
+                      {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("certified") ? (
+                        <>
+                          <DocumentRow
+                            name="Identity document"
+                            status={verificationMode ? "uploaded" : mockData.idDocumentStatus}
+                            fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
+                          />
+                          <DocumentRow
+                            name="Proof of address"
+                            status={verificationMode ? "uploaded" : "verified"}
+                            fileName={`${worker.name.split(" ")[0]}_Proof_of_Address.pdf`}
+                          />
+                          <DocumentRow
+                            name="Tax form"
+                            status={verificationMode ? "uploaded" : "verified"}
+                            fileName={`${worker.name.split(" ")[0]}_Tax_Form.pdf`}
+                          />
+                          {verificationMode && worker.country === "India" && (
+                            <>
+                              <DocumentRow
+                                name="PAN Card"
+                                status="uploaded"
+                                fileName={`${worker.name.split(" ")[0]}_PAN_Card.pdf`}
+                              />
+                              <DocumentRow
+                                name="Investment proof (80C/80D)"
+                                status="uploaded"
+                                fileName={`${worker.name.split(" ")[0]}_Investment_Proof.pdf`}
+                              />
+                            </>
+                          )}
+                          {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
+                            <DocumentRow
+                              key={idx}
+                              name={upload.name}
+                              status={upload.status}
+                              fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
+                            />
+                          ))}
+                        </>
+                      ) : (
+                        <div className="rounded-lg border border-dashed border-border/40 bg-muted/10 px-3 py-2.5">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground/80">
+                            <Lock className="h-3 w-3 shrink-0" />
+                            <span>
+                              Identity, proof of address & tax forms — collected during <span className="font-medium text-muted-foreground">{STAGE_LABEL["certified"]}</span>
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </>
-                ) : (
-                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.documents]} />
-                )}
-              </SectionCard>
+                </SectionCard>
+              ) : (
+                <LockedSectionRow title="Documents" unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.documents]} />
+              )}
 
               {/* Action buttons for inactive workers in edit mode — inline, not sticky */}
               {workerStatus === "inactive" && !worker.dataReceived && (
