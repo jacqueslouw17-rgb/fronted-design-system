@@ -510,6 +510,30 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           )}
 
           {/* ── Section 2: Working Engagement ── */}
+          {isOnboardingStage ? (
+            <SectionCard title="Working Engagement" defaultOpen={false} badge={<Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal text-muted-foreground border-border/60">Collected during Data Collection</Badge>}>
+              <div className="space-y-0.5">
+                <ReadOnlyRow label="Role" value={isFromATS ? candidate.role : formData.role} />
+                <ReadOnlyRow label="Country" value={`${COUNTRY_RULES[formData.country]?.flag || ""} ${formData.country}`.trim()} />
+                <ReadOnlyRow label="Employment Type" value={employmentType === "contractor" ? "Contractor" : "Employee"} />
+                <ReadOnlyRow label="Start Date" value={(isFromATS && candidate.startDate) ? candidate.startDate : formData.startDate || "—"} />
+                <ReadOnlyRow label={employmentType === "employee" ? "Salary" : "Consultancy Fee"} value={`${getCurrencyCode(formData.country, employmentType)} ${isFromATS ? candidate.salary : (parseSalaryValue(formData.salary) || "—")}`} />
+                <ReadOnlyRow label="Work Location" value={formData.city || "—"} />
+              </div>
+              {countryRule && (
+                <div className="border-t border-border/40 pt-3 mt-2">
+                  <p className="text-[11px] text-muted-foreground mb-2">Contract terms</p>
+                  <div className="space-y-0.5">
+                    <ReadOnlyRow label="Probation Period" value={`${formData.probationPeriod} days`} />
+                    <ReadOnlyRow label="Notice Period" value={`${formData.noticePeriod} days`} />
+                    <ReadOnlyRow label="Annual Leave" value={`${formData.annualLeave} days`} />
+                    <ReadOnlyRow label="Sick Leave" value={`${formData.sickLeave} days`} />
+                    <ReadOnlyRow label="Weekly Hours" value={`${formData.weeklyHours} hrs`} />
+                  </div>
+                </div>
+              )}
+            </SectionCard>
+          ) : (
           <SectionCard
             title="Working Engagement"
           >
