@@ -1493,7 +1493,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 <Card 
                   data-pinned={pinnedCardId === contractor.id ? "true" : undefined}
                   className={cn(
-                    "v7-glass-item border cursor-pointer overflow-hidden group/card relative transition-colors duration-150 hover:border-border",
+                    "v7-glass-item border overflow-hidden group/card relative transition-colors duration-150",
+                    status !== "offer-accepted" && "cursor-pointer hover:border-border",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
                       : "",
@@ -1509,6 +1510,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   }}
                   onDragEnd={() => setDraggingContractorId(null)}
                   onClick={() => {
+                    if (status === "offer-accepted") {
+                      // Data not yet collected — card not clickable; use action buttons instead
+                      return;
+                    }
                     if (status === "awaiting-signature") {
                       handleOpenSignatureWorkflow(contractor);
                     } else {
@@ -1695,22 +1700,41 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                               </Button>
                             </div>}
                           
-                          {status === "drafting" && <Button size="sm" className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
-                        e.stopPropagation();
-                        // Use the shared onDraftContract callback (same as bulk) for consistent behavior
-                        handleDraftContract([contractor.id]);
-                      }}>
-                              <FileEdit className="h-3 w-3" />
-                              Draft Contract
-                            </Button>}
+                          {status === "drafting" && <div className="w-full flex gap-2">
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
+                                e.stopPropagation();
+                                setSelectedForDoneDetail(contractor);
+                                setDoneDetailDrawerOpen(true);
+                              }}>
+                                <Eye className="h-3 w-3" />
+                                View
+                              </Button>
+                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
+                                e.stopPropagation();
+                                handleDraftContract([contractor.id]);
+                              }}>
+                                <FileEdit className="h-3 w-3" />
+                                Draft Contract
+                              </Button>
+                            </div>}
                           
-                          {status === "awaiting-signature" && <Button size="sm" className="w-full text-xs h-7 gap-1" onClick={e => {
-                        e.stopPropagation();
-                        handleOpenSignatureWorkflow(contractor);
-                      }}>
-                              <Eye className="h-3 w-3" />
-                              Track Progress
-                            </Button>}
+                          {status === "awaiting-signature" && <div className="w-full flex gap-2">
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 hover:bg-foreground hover:text-background" onClick={e => {
+                                e.stopPropagation();
+                                setSelectedForDoneDetail(contractor);
+                                setDoneDetailDrawerOpen(true);
+                              }}>
+                                <Eye className="h-3 w-3" />
+                                View
+                              </Button>
+                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
+                                e.stopPropagation();
+                                handleOpenSignatureWorkflow(contractor);
+                              }}>
+                                <FileSignature className="h-3 w-3" />
+                                Track Progress
+                              </Button>
+                            </div>}
                           
                           {status === "trigger-onboarding" && <div className="w-full space-y-2">
                               <div className="flex gap-2">
