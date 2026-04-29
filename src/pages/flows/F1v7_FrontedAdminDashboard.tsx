@@ -421,6 +421,7 @@ const DEFAULT_DRAFTING_CANDIDATES = [
     employmentType: "employee",
     email: "maria.santos@example.com",
     dataReceived: true,
+    firstPayrollStartDate: "May 1, 2026",
   },
   {
     id: "done-2",
