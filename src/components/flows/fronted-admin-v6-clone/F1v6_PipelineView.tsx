@@ -1321,7 +1321,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               }}>
                 <Card 
                   className={cn(
-                    "border cursor-pointer bg-card",
+                    "border cursor-pointer bg-card relative group/wcard transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:bg-primary/[0.02]",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
                       : "border-border/40",
@@ -1346,6 +1346,13 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                     setDoneDetailDrawerOpen(true);
                   }
                 }}>
+                      {/* Hover-only "view details" affordance */}
+                      <div className="absolute top-1.5 right-1.5 z-10 opacity-0 group-hover/wcard:opacity-100 transition-opacity duration-150 pointer-events-none">
+                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-[10px] font-medium">
+                          <Eye className="h-3 w-3" />
+                          <span>View</span>
+                        </div>
+                      </div>
                       <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
                         <div className="flex items-center gap-2">
