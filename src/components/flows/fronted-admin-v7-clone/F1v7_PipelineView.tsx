@@ -1493,7 +1493,7 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 <Card 
                   data-pinned={pinnedCardId === contractor.id ? "true" : undefined}
                   className={cn(
-                    "v7-glass-item border cursor-pointer overflow-hidden group/card relative transition-all duration-200 hover:border-primary/40 hover:shadow-md",
+                    "v7-glass-item border cursor-pointer overflow-hidden group/card relative transition-colors duration-150 hover:border-border",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
                       : "",
@@ -1518,13 +1518,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                       setDoneDetailDrawerOpen(true);
                     }
                   }}>
-                      {/* Hover-only "view details" affordance */}
-                      <div className="absolute top-1.5 right-1.5 z-10 opacity-0 group-hover/card:opacity-100 transition-opacity duration-150 pointer-events-none">
-                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-primary/15 text-primary border border-primary/25 text-[10px] font-medium backdrop-blur-sm">
-                          <Eye className="h-3 w-3" />
-                          <span>View</span>
-                        </div>
-                      </div>
+                      {/* Hover-only subtle view glyph — bottom-right to avoid overlap with status badges/trash */}
+                      <Eye className="absolute bottom-1.5 right-1.5 h-3 w-3 text-muted-foreground/50 opacity-0 group-hover/card:opacity-100 transition-opacity duration-150 pointer-events-none" />
                       <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
                         <div className="flex items-center gap-2">
