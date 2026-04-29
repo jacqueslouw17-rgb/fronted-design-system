@@ -761,8 +761,8 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             <div className="space-y-3">
               
               {/* 1) Personal Profile — basic info from offer; full details after data collection */}
-              <SectionCard title="Personal Profile" defaultOpen={isEditMode}>
-                {personalUnlocked ? (
+              {personalUnlocked ? (
+                <SectionCard title="Personal Profile" defaultOpen={isEditMode}>
                   <div className="space-y-0.5">
                     <DetailRow label="Full name" value={worker.name} />
                     <DetailRow label="Email" value={mockData.email} />
@@ -776,13 +776,15 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                         <DetailRow label="National ID" value={mockData.nationalId} />
                       </>
                     ) : (
-                      <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL["drafting"]} />
+                      <div className="pt-1">
+                        <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL["drafting"]} />
+                      </div>
                     )}
                   </div>
-                ) : (
-                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.personal]} />
-                )}
-              </SectionCard>
+                </SectionCard>
+              ) : (
+                <LockedSectionRow title="Personal Profile" unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.personal]} />
+              )}
 
               {/* 2) Working Engagement — offer terms always; full terms after drafting */}
               <SectionCard
