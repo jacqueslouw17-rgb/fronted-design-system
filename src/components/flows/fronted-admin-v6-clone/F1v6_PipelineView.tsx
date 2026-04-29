@@ -1350,7 +1350,6 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                       {/* Hover-only subtle view glyph — bottom-right to avoid overlap with status badges/trash */}
                       <Eye className="absolute bottom-1.5 right-1.5 h-3 w-3 text-muted-foreground/50 opacity-0 group-hover/wcard:opacity-100 transition-opacity duration-150 pointer-events-none" />
                       <CardContent className="p-2.5 space-y-0">
-                      <CardContent className="p-2.5 space-y-0">
                          {/* Contractor Header */}
                         <div className="flex items-center gap-2">
                           {!["data-pending", "awaiting-signature", "onboarding-pending", "payroll-ready", "CERTIFIED"].includes(status) && !(status === "payroll-ready" && contractor.status !== "PAYROLL_PENDING") && <Checkbox checked={status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" ? batchSelectedIds.has(contractor.id) : selectedIds.has(contractor.id)} onCheckedChange={checked => {
