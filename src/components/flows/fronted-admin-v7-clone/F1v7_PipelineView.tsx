@@ -1469,24 +1469,25 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   return <>
                 <AnimatePresence mode="popLayout">
                   {activeItems.map((contractor, index) => <motion.div key={contractor.id} layout initial={{
-                opacity: 0,
-                scale: 0.8
+                opacity: 1,
+                scale: 1
               }} animate={{
                 opacity: 1,
                 scale: 1
               }} exit={{
                 opacity: 0,
-                scale: 0.8
+                scale: 0.95
               }} transition={{
                 layout: {
-                  duration: 0.5,
-                  type: "spring"
+                  duration: 0.45,
+                  type: "spring",
+                  bounce: 0.15
                 },
                 opacity: {
-                  duration: 0.2
+                  duration: 0.12
                 },
                 scale: {
-                  duration: 0.2
+                  duration: 0.12
                 }
               }}>
                 <Card 
