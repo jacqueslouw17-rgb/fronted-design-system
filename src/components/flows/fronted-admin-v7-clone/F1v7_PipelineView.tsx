@@ -1493,7 +1493,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                 <Card 
                   data-pinned={pinnedCardId === contractor.id ? "true" : undefined}
                   className={cn(
-                    "v7-glass-item border cursor-pointer overflow-hidden group/card relative transition-colors duration-150 hover:border-border",
+                    "v7-glass-item border overflow-hidden group/card relative transition-colors duration-150",
+                    status !== "offer-accepted" && "cursor-pointer hover:border-border",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
                       : "",
@@ -1509,6 +1510,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   }}
                   onDragEnd={() => setDraggingContractorId(null)}
                   onClick={() => {
+                    if (status === "offer-accepted") {
+                      // Data not yet collected — card not clickable; use action buttons instead
+                      return;
+                    }
                     if (status === "awaiting-signature") {
                       handleOpenSignatureWorkflow(contractor);
                     } else {

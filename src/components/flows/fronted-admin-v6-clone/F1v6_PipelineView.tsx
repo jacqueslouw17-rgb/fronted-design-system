@@ -1322,7 +1322,8 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
               }}>
                 <Card 
                   className={cn(
-                    "border cursor-pointer bg-card relative group/wcard transition-colors duration-150 hover:border-border hover:bg-muted/30",
+                    "border bg-card relative group/wcard transition-colors duration-150",
+                    status !== "offer-accepted" && "cursor-pointer hover:border-border hover:bg-muted/30",
                     status === "onboarding-pending"
                       ? "border-primary/30 shadow-sm shadow-primary/5"
                       : "border-border/40",
@@ -1338,6 +1339,10 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   }}
                   onDragEnd={() => setDraggingContractorId(null)}
                   onClick={() => {
+                  if (status === "offer-accepted") {
+                    // Data not yet collected — card not clickable; use action buttons instead
+                    return;
+                  }
                   if (status === "awaiting-signature") {
                     handleOpenSignatureWorkflow(contractor);
                   } else {
