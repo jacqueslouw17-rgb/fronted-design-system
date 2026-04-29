@@ -154,6 +154,14 @@ const NumberFieldWithUnit: React.FC<{
   </div>
 );
 
+/* ── Read-only detail row (for completed/locked sections) ── */
+const ReadOnlyRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
+  <div className="flex items-center justify-between gap-4 py-1.5">
+    <span className="text-xs text-muted-foreground">{label}</span>
+    <span className="text-xs text-foreground text-right truncate">{value}</span>
+  </div>
+);
+
 export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   open,
   onOpenChange,
@@ -354,6 +362,17 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
           {/* ── Section 1: Personal Profile ── */}
+          {isOnboardingStage ? (
+            <SectionCard title="Personal Profile" defaultOpen={false} badge={<Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal text-muted-foreground border-border/60">Collected during Data Collection</Badge>}>
+              <div className="space-y-0.5">
+                <ReadOnlyRow label="Full name" value={isFromATS ? candidate.name : formData.name} />
+                <ReadOnlyRow label="Email" value={isFromATS ? (candidate.email || "candidate@example.com") : formData.email} />
+                <ReadOnlyRow label="Nationality" value={formData.nationality || "—"} />
+                <ReadOnlyRow label="Address" value={formData.address || "—"} />
+                <ReadOnlyRow label="ID Number" value={formData.idNumber || "—"} />
+              </div>
+            </SectionCard>
+          ) : (
           <SectionCard title="Personal Profile">
             <Field label="Full Name">
               {isFromATS ? (
@@ -379,8 +398,33 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="National ID / Government ID" className="h-10" />
             </Field>
           </SectionCard>
+          )}
 
           {/* ── Section 2: Working Engagement ── */}
+          {isOnboardingStage ? (
+            <SectionCard title="Working Engagement" defaultOpen={false} badge={<Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal text-muted-foreground border-border/60">Collected during Data Collection</Badge>}>
+              <div className="space-y-0.5">
+                <ReadOnlyRow label="Role" value={isFromATS ? candidate.role : formData.role} />
+                <ReadOnlyRow label="Country" value={`${COUNTRY_RULES[formData.country]?.flag || ""} ${formData.country}`.trim()} />
+                <ReadOnlyRow label="Employment Type" value={employmentType === "contractor" ? "Contractor" : "Employee"} />
+                <ReadOnlyRow label="Start Date" value={(isFromATS && candidate.startDate) ? candidate.startDate : formData.startDate || "—"} />
+                <ReadOnlyRow label={employmentType === "employee" ? "Salary" : "Consultancy Fee"} value={`${getCurrencyCode(formData.country, employmentType)} ${isFromATS ? candidate.salary : (parseSalaryValue(formData.salary) || "—")}`} />
+                <ReadOnlyRow label="Work Location" value={formData.city || "—"} />
+              </div>
+              {countryRule && (
+                <div className="border-t border-border/40 pt-3 mt-2">
+                  <p className="text-[11px] text-muted-foreground mb-2">Contract terms</p>
+                  <div className="space-y-0.5">
+                    <ReadOnlyRow label="Probation Period" value={`${formData.probationPeriod} days`} />
+                    <ReadOnlyRow label="Notice Period" value={`${formData.noticePeriod} days`} />
+                    <ReadOnlyRow label="Annual Leave" value={`${formData.annualLeave} days`} />
+                    <ReadOnlyRow label="Sick Leave" value={`${formData.sickLeave} days`} />
+                    <ReadOnlyRow label="Weekly Hours" value={`${formData.weeklyHours} hrs`} />
+                  </div>
+                </div>
+              )}
+            </SectionCard>
+          ) : (
           <SectionCard
             title="Working Engagement"
           >
@@ -493,6 +537,7 @@ export const F1v4_OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               </div>
             )}
           </SectionCard>
+          )}
 
           {/* ── Payroll Country Defaults (onboarding stage) ── */}
           {isOnboardingStage && PAYROLL_COUNTRY_DEFAULTS[formData.country] && (() => {
