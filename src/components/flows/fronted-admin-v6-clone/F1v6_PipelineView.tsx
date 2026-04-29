@@ -90,6 +90,8 @@ interface Contractor {
   documentsVerified?: boolean;
   // Payroll data included at offer stage
   payrollIncluded?: boolean;
+  // First payroll cycle the worker will appear in (if start date is in the future)
+  firstPayrollStartDate?: string;
 }
 interface PayrollChecklistItem {
   id: string;
@@ -148,7 +150,7 @@ const statusConfig = {
     tooltip: "Monitor completion status and send reminders"
   },
   "CERTIFIED": {
-    label: "Done",
+    label: "Payroll ready",
     subtitle: "All required details collected and verified. Worker is payroll-ready.",
     color: "bg-accent-green-fill/30 border-accent-green-outline/20",
     badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
@@ -1401,6 +1403,14 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                             <div className="flex justify-between items-center">
                               <span className="text-muted-foreground">End date</span>
                               <span className="font-medium text-foreground text-[10px]">{contractor.endDate}</span>
+                            </div>
+                          )}
+                          {status === "CERTIFIED" && contractor.firstPayrollStartDate && (contractor.workerStatus === "active" || !contractor.workerStatus) && (
+                            <div className="mt-1.5 flex items-center gap-1.5 rounded-md bg-muted/50 border border-border/40 px-2 py-1">
+                              <Clock className="h-3 w-3 text-muted-foreground shrink-0" />
+                              <span className="text-[10px] text-muted-foreground leading-tight">
+                                First payroll run starts on <span className="font-medium text-foreground">{contractor.firstPayrollStartDate}</span>
+                              </span>
                             </div>
                           )}
                           {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && batchSelectedIds.has(contractor.id) && (
