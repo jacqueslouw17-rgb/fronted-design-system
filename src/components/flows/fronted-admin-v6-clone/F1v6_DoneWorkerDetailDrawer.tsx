@@ -49,6 +49,7 @@ import {
   Send,
   Settings,
   FileEdit,
+  Lock,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -125,6 +126,62 @@ export interface DoneWorkerData {
   dataReceived?: boolean;
 }
 
+/**
+ * Pipeline stage at which the worker currently sits.
+ * Drives which of the 5 detail sections are unlocked vs locked-pending.
+ *
+ * Section unlock map:
+ *   offer            → Personal (basic), Engagement (offer terms)
+ *   data-pending     → Personal (basic), Engagement (offer terms)
+ *   drafting         → + full Personal, full Engagement, Documents (draft)
+ *   awaiting-signature → + Documents (contract)
+ *   onboarding-pending → + Documents (contract)
+ *   certified        → all 5 sections (Payroll Parameters + Payout Destination unlocked)
+ */
+export type PipelineStage =
+  | "offer"
+  | "data-pending"
+  | "drafting"
+  | "awaiting-signature"
+  | "onboarding-pending"
+  | "certified";
+
+const STAGE_LABEL: Record<PipelineStage, string> = {
+  "offer": "Offer Accepted",
+  "data-pending": "Collect Candidate Details",
+  "drafting": "Draft Contract",
+  "awaiting-signature": "Awaiting Signature",
+  "onboarding-pending": "Onboarding",
+  "certified": "Payroll Ready",
+};
+
+type SectionKey = "personal" | "engagement" | "payroll" | "payout" | "documents";
+
+/**
+ * Returns which stage of the pipeline first unlocks a given section.
+ * If the worker's current stage is at or beyond this, the section is unlocked.
+ */
+const SECTION_UNLOCKED_AT: Record<SectionKey, PipelineStage> = {
+  personal: "offer",
+  engagement: "offer",
+  payroll: "certified",
+  payout: "certified",
+  documents: "drafting",
+};
+
+const STAGE_ORDER: PipelineStage[] = [
+  "offer",
+  "data-pending",
+  "drafting",
+  "awaiting-signature",
+  "onboarding-pending",
+  "certified",
+];
+
+const isSectionUnlocked = (section: SectionKey, stage: PipelineStage): boolean => {
+  return STAGE_ORDER.indexOf(stage) >= STAGE_ORDER.indexOf(SECTION_UNLOCKED_AT[section]);
+};
+
 interface F1v4_DoneWorkerDetailDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -135,7 +192,20 @@ interface F1v4_DoneWorkerDetailDrawerProps {
   onDocumentsVerified?: (workerId: string) => void;
   onSendForm?: (workerId: string) => void;
   onMarkAsActive?: (workerId: string) => void;
+  /** Current pipeline stage of the worker. Defaults to "certified" (full access). */
+  accessibleStage?: PipelineStage;
 }
+
+/** Subtle placeholder rendered inside locked sections. */
+const LockedSectionPlaceholder: React.FC<{ unlockedAtLabel: string }> = ({ unlockedAtLabel }) => (
+  <div className="flex items-center gap-2 py-1.5 px-1 text-xs text-muted-foreground/70">
+    <Lock className="h-3 w-3 shrink-0" />
+    <span>
+      Collected during <span className="font-medium text-muted-foreground">{unlockedAtLabel}</span>
+    </span>
+  </div>
+);
+
 
 const countryPayFrequencyDefaults: Record<string, { frequency: "monthly" | "fortnightly"; schedule: string }> = {
   "Philippines": { frequency: "fortnightly", schedule: "15th and 30th of each month" },
