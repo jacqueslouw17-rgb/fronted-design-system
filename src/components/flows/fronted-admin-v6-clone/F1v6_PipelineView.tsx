@@ -51,7 +51,26 @@ import { CertifiedActionDrawer } from "@/components/contract-flow/CertifiedActio
 import { ResolvePayrollIssueDrawer } from "@/components/contract-flow/ResolvePayrollIssueDrawer";
 import { CertificateCard } from "@/components/contract-flow/CertificateCard";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { F1v4_DoneWorkerDetailDrawer, type DoneWorkerData } from "./F1v6_DoneWorkerDetailDrawer";
+import { F1v4_DoneWorkerDetailDrawer, type DoneWorkerData, type PipelineStage } from "./F1v6_DoneWorkerDetailDrawer";
+
+/** Map contractor pipeline status → drawer's accessibleStage. */
+const contractorStatusToStage = (status: Contractor["status"]): PipelineStage => {
+  switch (status) {
+    case "offer-accepted": return "offer";
+    case "data-pending": return "data-pending";
+    case "drafting": return "drafting";
+    case "awaiting-signature": return "awaiting-signature";
+    case "trigger-onboarding":
+    case "onboarding-pending": return "onboarding-pending";
+    case "CERTIFIED":
+    case "PAYROLL_PENDING":
+    case "IN_BATCH":
+    case "EXECUTING":
+    case "PAID":
+    case "ON_HOLD":
+    default: return "certified";
+  }
+};
 import { F1v6_ManualWorkerDrawer } from "./F1v6_ManualWorkerDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
