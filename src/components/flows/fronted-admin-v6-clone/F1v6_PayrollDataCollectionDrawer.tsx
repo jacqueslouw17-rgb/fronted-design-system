@@ -240,9 +240,9 @@ const SectionCard: React.FC<{
 
 /* ── Read-only detail row (for traceability of previously collected data) ── */
 const ReadOnlyRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
-  <div className="flex items-center justify-between gap-4 py-1.5">
-    <span className="text-xs text-muted-foreground">{label}</span>
-    <span className="text-xs text-foreground text-right truncate">{value}</span>
+  <div className="flex items-start justify-between gap-4 py-1.5">
+    <span className="text-sm text-muted-foreground truncate">{label}</span>
+    <span className="text-sm font-medium text-foreground text-right">{value ?? "—"}</span>
   </div>
 );
 
