@@ -55,7 +55,20 @@ import { CertifiedActionDrawer } from "@/components/contract-flow/CertifiedActio
 import { ResolvePayrollIssueDrawer } from "@/components/contract-flow/ResolvePayrollIssueDrawer";
 import { CertificateCard } from "@/components/contract-flow/CertificateCard";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { F1v4_DoneWorkerDetailDrawer, type DoneWorkerData } from "./F1v7_DoneWorkerDetailDrawer";
+import { F1v4_DoneWorkerDetailDrawer, type DoneWorkerData, type PipelineStage } from "./F1v7_DoneWorkerDetailDrawer";
+
+/** Map contractor pipeline status → drawer's accessibleStage. */
+const contractorStatusToStage = (status: string): PipelineStage => {
+  switch (status) {
+    case "offer-accepted": return "offer";
+    case "data-pending": return "data-pending";
+    case "drafting": return "drafting";
+    case "awaiting-signature": return "awaiting-signature";
+    case "trigger-onboarding":
+    case "onboarding-pending": return "onboarding-pending";
+    default: return "certified";
+  }
+};
 import { F1v7_ManualWorkerDrawer } from "./F1v7_ManualWorkerDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
@@ -1497,7 +1510,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
                   onClick={() => {
                     if (status === "awaiting-signature") {
                       handleOpenSignatureWorkflow(contractor);
-                    } else if (status === "CERTIFIED") {
+                    } else {
+                      // Universal: clicking any card opens the worker detail drawer
+                      // (drawer adapts which sections are unlocked based on pipeline stage)
                       setSelectedForDoneDetail(contractor);
                       setDoneDetailDrawerOpen(true);
                     }
@@ -2118,7 +2133,9 @@ export const F1v4_PipelineView: React.FC<PipelineViewProps> = ({
       needsDocumentVerification: selectedForDoneDetail.needsDocumentVerification || false,
       endDate: selectedForDoneDetail.endDate,
       endReason: selectedForDoneDetail.endReason,
-    } : null} onGoToDataCollection={workerId => {
+    } : null}
+    accessibleStage={selectedForDoneDetail ? contractorStatusToStage(selectedForDoneDetail.status) : "certified"}
+    onGoToDataCollection={workerId => {
       setDoneDetailDrawerOpen(false);
       toast.info("Redirecting to data collection...");
     }} onLifecycleAction={(workerId, action, endDate, reason) => {

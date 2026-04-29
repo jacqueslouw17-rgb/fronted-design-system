@@ -49,6 +49,7 @@ import {
   Send,
   Settings,
   FileEdit,
+  Lock,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -212,6 +213,50 @@ export interface DoneWorkerData {
   dataReceived?: boolean;
 }
 
+/**
+ * Pipeline stage at which the worker currently sits.
+ * Drives which of the 5 detail sections are unlocked vs locked-pending.
+ */
+export type PipelineStage =
+  | "offer"
+  | "data-pending"
+  | "drafting"
+  | "awaiting-signature"
+  | "onboarding-pending"
+  | "certified";
+
+const STAGE_LABEL: Record<PipelineStage, string> = {
+  "offer": "Offer Accepted",
+  "data-pending": "Collect Candidate Details",
+  "drafting": "Draft Contract",
+  "awaiting-signature": "Awaiting Signature",
+  "onboarding-pending": "Onboarding",
+  "certified": "Payroll Ready",
+};
+
+type SectionKey = "personal" | "engagement" | "payroll" | "payout" | "documents";
+
+const SECTION_UNLOCKED_AT: Record<SectionKey, PipelineStage> = {
+  personal: "offer",
+  engagement: "offer",
+  payroll: "certified",
+  payout: "certified",
+  documents: "drafting",
+};
+
+const STAGE_ORDER: PipelineStage[] = [
+  "offer",
+  "data-pending",
+  "drafting",
+  "awaiting-signature",
+  "onboarding-pending",
+  "certified",
+];
+
+const isSectionUnlocked = (section: SectionKey, stage: PipelineStage): boolean => {
+  return STAGE_ORDER.indexOf(stage) >= STAGE_ORDER.indexOf(SECTION_UNLOCKED_AT[section]);
+};
+
 interface F1v4_DoneWorkerDetailDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -222,7 +267,19 @@ interface F1v4_DoneWorkerDetailDrawerProps {
   onDocumentsVerified?: (workerId: string) => void;
   onSendForm?: (workerId: string) => void;
   onMarkAsActive?: (workerId: string) => void;
+  /** Current pipeline stage of the worker. Defaults to "certified" (full access). */
+  accessibleStage?: PipelineStage;
 }
+
+const LockedSectionPlaceholder: React.FC<{ unlockedAtLabel: string }> = ({ unlockedAtLabel }) => (
+  <div className="flex items-center gap-2 py-1.5 px-1 text-xs text-muted-foreground/70">
+    <Lock className="h-3 w-3 shrink-0" />
+    <span>
+      Collected during <span className="font-medium text-muted-foreground">{unlockedAtLabel}</span>
+    </span>
+  </div>
+);
+
 
 const countryPayFrequencyDefaults: Record<string, { frequency: "monthly" | "fortnightly"; schedule: string }> = {
   "Philippines": { frequency: "fortnightly", schedule: "15th and 30th of each month" },
@@ -318,7 +375,13 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   onDocumentsVerified,
   onSendForm,
   onMarkAsActive,
+  accessibleStage = "certified",
 }) => {
+  const personalUnlocked = isSectionUnlocked("personal", accessibleStage);
+  const engagementUnlocked = isSectionUnlocked("engagement", accessibleStage);
+  const payrollUnlocked = isSectionUnlocked("payroll", accessibleStage);
+  const payoutUnlocked = isSectionUnlocked("payout", accessibleStage);
+  const documentsUnlocked = isSectionUnlocked("documents", accessibleStage);
   const [actionView, setActionView] = useState<ActionType | null>(null);
   const [actionDate, setActionDate] = useState("");
   const [actionReason, setActionReason] = useState("");
@@ -755,126 +818,159 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
             {/* Sections */}
             <div className="space-y-1.5">
               
-              {/* 1) Personal Profile */}
+              {/* 1) Personal Profile — basic info from offer; full details after data collection */}
               <SectionCard title="Personal Profile" defaultOpen={isEditMode}>
-                <div className="space-y-0.5">
-                  <DetailRow label="Full name" value={worker.name} />
-                  <DetailRow label="Email" value={mockData.email} />
-                  <DetailRow label="Phone" value={mockData.phone} />
-                  <DetailRow label="Date of birth" value={mockData.dateOfBirth} />
-                  <DetailRow label="Nationality" value={mockData.nationality} />
-                  <DetailRow label="Residential address" value={mockData.address} />
-                  <DetailRow label="National ID" value={mockData.nationalId} />
-                </div>
+                {personalUnlocked ? (
+                  <div className="space-y-0.5">
+                    <DetailRow label="Full name" value={worker.name} />
+                    <DetailRow label="Email" value={mockData.email} />
+                    {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("drafting") ? (
+                      <>
+                        <DetailRow label="Phone" value={mockData.phone} />
+                        <DetailRow label="Date of birth" value={mockData.dateOfBirth} />
+                        <DetailRow label="Nationality" value={mockData.nationality} />
+                        <DetailRow label="Residential address" value={mockData.address} />
+                        <DetailRow label="National ID" value={mockData.nationalId} />
+                      </>
+                    ) : (
+                      <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL["drafting"]} />
+                    )}
+                  </div>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.personal]} />
+                )}
               </SectionCard>
 
-              {/* 2) Working Engagement */}
-              <SectionCard 
-                title="Working Engagement" 
+              {/* 2) Working Engagement — offer terms always; full terms after drafting */}
+              <SectionCard
+                title="Working Engagement"
                 defaultOpen={isEditMode}
               >
-                <div className="space-y-0.5">
-                  <DetailRow 
-                    label="Worker type" 
-                    value={isEmployee ? "Employee (EOR)" : "Contractor (COR)"} 
-                  />
-                  <DetailRow label="Role / title" value={worker.role} />
-                  <DetailRow label="Country" value={`${worker.countryFlag} ${worker.country}`} />
-                  <DetailRow label="Start date" value={mockData.startDate} />
-                  {!isActive && worker.endDate && (
-                    <DetailRow 
-                      label={workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Termination date" : "End date"} 
-                      value={worker.endDate} 
-                    />
-                  )}
-                  <div className="flex items-center justify-between gap-4 py-1.5">
-                    <span className="text-sm text-muted-foreground">Contract status</span>
-                    <Badge 
-                      variant="outline" 
-                      className={cn(
-                        "text-[10px] px-1.5 py-0 h-4 capitalize",
-                        !isActive && "bg-muted text-muted-foreground border-border",
-                        isActive && mockData.contractStatus === "completed" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
-                        isActive && mockData.contractStatus === "signed" && "bg-blue-500/10 text-blue-600 border-blue-500/20",
-                        isActive && mockData.contractStatus === "drafted" && "bg-muted text-muted-foreground border-border"
+                {engagementUnlocked ? (
+                  <>
+                    <div className="space-y-0.5">
+                      <DetailRow
+                        label="Worker type"
+                        value={isEmployee ? "Employee (EOR)" : "Contractor (COR)"}
+                      />
+                      <DetailRow label="Role / title" value={worker.role} />
+                      <DetailRow label="Country" value={`${worker.countryFlag} ${worker.country}`} />
+                      <DetailRow label="Start date" value={mockData.startDate} />
+                      {!isActive && worker.endDate && (
+                        <DetailRow
+                          label={workerStatus === "resigned" ? "Last working day" : workerStatus === "terminated" ? "Termination date" : "End date"}
+                          value={worker.endDate}
+                        />
                       )}
-                    >
-                      {!isActive ? workerStatus.replace("-", " ") : mockData.contractStatus}
-                    </Badge>
-                  </div>
-                  <DetailRow label="Work location" value={mockData.workLocation} />
-                  <DetailRow 
-                    label={isEmployee ? "Salary" : "Consultancy fee"} 
-                    value={worker.salary} 
-                  />
-                </div>
+                      {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("drafting") && (
+                        <div className="flex items-center justify-between gap-4 py-1.5">
+                          <span className="text-sm text-muted-foreground">Contract status</span>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-[10px] px-1.5 py-0 h-4 capitalize",
+                              !isActive && "bg-muted text-muted-foreground border-border",
+                              isActive && mockData.contractStatus === "completed" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                              isActive && mockData.contractStatus === "signed" && "bg-blue-500/10 text-blue-600 border-blue-500/20",
+                              isActive && mockData.contractStatus === "drafted" && "bg-muted text-muted-foreground border-border"
+                            )}
+                          >
+                            {!isActive ? workerStatus.replace("-", " ") : mockData.contractStatus}
+                          </Badge>
+                        </div>
+                      )}
+                      <DetailRow label="Work location" value={mockData.workLocation} />
+                      <DetailRow
+                        label={isEmployee ? "Salary" : "Consultancy fee"}
+                        value={worker.salary}
+                      />
+                    </div>
 
-                {/* Terms sub-section */}
-                <div className="border-t border-border/40 pt-3 mt-2">
-                  <p className="text-[11px] text-muted-foreground mb-2">Contract terms</p>
-                  <div className="space-y-0.5">
-                    <DetailRow label="Probation period" value="180 days" />
-                    <DetailRow label="Notice period" value="30 days" />
-                    <DetailRow label="Annual leave" value={isPhilippines ? "5 days" : "25 days"} />
-                    <DetailRow label="Sick leave" value={isPhilippines ? "5 days" : "365 days"} />
-                    <DetailRow label="Weekly hours" value={isPhilippines ? "48 hrs" : "37.5 hrs"} />
-                  </div>
-                </div>
-
-                {/* Insurance & Benefits (Kota) */}
-                {(() => {
-                  const ins = COUNTRY_INSURANCE_DONE[worker.country];
-                  if (!ins) return null;
-                  const erTotal = ins.employer_contributions.reduce((s, c) => s + c.amount, 0);
-                  const eeTotal = ins.employee_contributions.reduce((s, c) => s + c.amount, 0);
-                  const total = erTotal + eeTotal;
-                  const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax relief" };
-                  const fmt = (amt: number) => `${ins.currency} ${amt.toLocaleString()}`;
-                  return (
-                    <div className="border-t border-border/40 pt-3 mt-2">
-                      <p className="text-[11px] text-muted-foreground mb-2">Health insurance</p>
-                      <div className="space-y-0.5">
-                        <DetailRow label="Provider" value={ins.provider} />
-                        <DetailRow label="Plan" value={ins.plan} />
-                        {ins.employer_contributions.map((c) => (
-                          <DetailRow key={c.id} label={`ER ${CAT_LABEL[c.category] || c.category}`} value={fmt(c.amount)} />
-                        ))}
-                        {ins.employee_contributions.map((c) => (
-                          <DetailRow key={c.id} label={`EE ${CAT_LABEL[c.category] || c.category}`} value={fmt(c.amount)} />
-                        ))}
-                        <DetailRow label="Total monthly" value={fmt(total)} />
+                    {/* Contract terms unlock once contract is drafted */}
+                    {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("drafting") ? (
+                      <div className="border-t border-border/40 pt-3 mt-2">
+                        <p className="text-[11px] text-muted-foreground mb-2">Contract terms</p>
+                        <div className="space-y-0.5">
+                          <DetailRow label="Probation period" value="180 days" />
+                          <DetailRow label="Notice period" value="30 days" />
+                          <DetailRow label="Annual leave" value={isPhilippines ? "5 days" : "25 days"} />
+                          <DetailRow label="Sick leave" value={isPhilippines ? "5 days" : "365 days"} />
+                          <DetailRow label="Weekly hours" value={isPhilippines ? "48 hrs" : "37.5 hrs"} />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })()}
+                    ) : (
+                      <div className="border-t border-border/40 pt-3 mt-2">
+                        <p className="text-[11px] text-muted-foreground mb-1">Contract terms</p>
+                        <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL["drafting"]} />
+                      </div>
+                    )}
+
+                    {/* Insurance & Benefits (Kota) — only after contract drafting */}
+                    {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("drafting") && (() => {
+                      const ins = COUNTRY_INSURANCE_DONE[worker.country];
+                      if (!ins) return null;
+                      const erTotal = ins.employer_contributions.reduce((s, c) => s + c.amount, 0);
+                      const eeTotal = ins.employee_contributions.reduce((s, c) => s + c.amount, 0);
+                      const total = erTotal + eeTotal;
+                      const CAT_LABEL: Record<string, string> = { gross_premium: "Premium", tax: "Tax", tax_relief: "Tax relief" };
+                      const fmt = (amt: number) => `${ins.currency} ${amt.toLocaleString()}`;
+                      return (
+                        <div className="border-t border-border/40 pt-3 mt-2">
+                          <p className="text-[11px] text-muted-foreground mb-2">Health insurance</p>
+                          <div className="space-y-0.5">
+                            <DetailRow label="Provider" value={ins.provider} />
+                            <DetailRow label="Plan" value={ins.plan} />
+                            {ins.employer_contributions.map((c) => (
+                              <DetailRow key={c.id} label={`ER ${CAT_LABEL[c.category] || c.category}`} value={fmt(c.amount)} />
+                            ))}
+                            {ins.employee_contributions.map((c) => (
+                              <DetailRow key={c.id} label={`EE ${CAT_LABEL[c.category] || c.category}`} value={fmt(c.amount)} />
+                            ))}
+                            <DetailRow label="Total monthly" value={fmt(total)} />
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.engagement]} />
+                )}
               </SectionCard>
 
-              {/* 3) Payroll Parameters */}
-              <SectionCard title="Payroll Parameters" defaultOpen={isEditMode}>
-                <div className="space-y-0.5">
-                  <DetailRow label="TIN" value={mockData.tin} />
-                  {isPhilippines && mockData.philHealthNumber && (
-                    <DetailRow label="PhilHealth number" value={mockData.philHealthNumber} />
-                  )}
-                  {worker.firstPayrollNote && (
-                    <div className="mt-2 p-2.5 rounded-lg bg-muted/50">
-                      <p className="text-[11px] text-muted-foreground">{worker.firstPayrollNote}</p>
-                    </div>
-                  )}
-                </div>
+              {/* 3) Payroll Parameters — unlocked at Payroll Ready */}
+              <SectionCard title="Payroll Parameters" defaultOpen={isEditMode && payrollUnlocked}>
+                {payrollUnlocked ? (
+                  <div className="space-y-0.5">
+                    <DetailRow label="TIN" value={mockData.tin} />
+                    {isPhilippines && mockData.philHealthNumber && (
+                      <DetailRow label="PhilHealth number" value={mockData.philHealthNumber} />
+                    )}
+                    {worker.firstPayrollNote && (
+                      <div className="mt-2 p-2.5 rounded-lg bg-muted/50">
+                        <p className="text-[11px] text-muted-foreground">{worker.firstPayrollNote}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.payroll]} />
+                )}
               </SectionCard>
 
-              {/* 4) Payout Destination */}
-              <SectionCard title="Payout Destination" defaultOpen={isEditMode}>
-                <div className="space-y-0.5">
-                  <DetailRow label="Bank country" value={mockData.bankCountry} />
-                  <DetailRow label="Bank name" value={mockData.bankName} />
-                  <DetailRow label="Account holder" value={mockData.accountHolder} />
-                  <DetailRow label="Account number" value={formatMaskedAccount(mockData.accountNumber)} />
-                  {mockData.swiftBic && (
-                    <DetailRow label="SWIFT / BIC" value={mockData.swiftBic} />
-                  )}
-                </div>
+              {/* 4) Payout Destination — unlocked at Payroll Ready */}
+              <SectionCard title="Payout Destination" defaultOpen={isEditMode && payoutUnlocked}>
+                {payoutUnlocked ? (
+                  <div className="space-y-0.5">
+                    <DetailRow label="Bank country" value={mockData.bankCountry} />
+                    <DetailRow label="Bank name" value={mockData.bankName} />
+                    <DetailRow label="Account holder" value={mockData.accountHolder} />
+                    <DetailRow label="Account number" value={formatMaskedAccount(mockData.accountNumber)} />
+                    {mockData.swiftBic && (
+                      <DetailRow label="SWIFT / BIC" value={mockData.swiftBic} />
+                    )}
+                  </div>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.payout]} />
+                )}
               </SectionCard>
 
               {/* 5) Documents */}
@@ -908,47 +1004,61 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                   </Button>
                 ) : undefined}
               >
-                <input
-                  ref={reuploadInputRef}
-                  type="file"
-                  className="hidden"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  onChange={handleReuploadFile}
-                />
-                <div className="space-y-2">
-                  <DocumentRow 
-                    name="Identity document"
-                    status={verificationMode ? "uploaded" : mockData.idDocumentStatus}
-                    fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
-                  />
-                  {verificationMode && worker.country === "India" && (
-                    <>
-                      <DocumentRow 
-                        name="PAN Card"
-                        status="uploaded"
-                        fileName={`${worker.name.split(" ")[0]}_PAN_Card.pdf`}
-                      />
-                      <DocumentRow 
-                        name="Investment proof (80C/80D)"
-                        status="uploaded"
-                        fileName={`${worker.name.split(" ")[0]}_Investment_Proof.pdf`}
-                      />
-                    </>
-                  )}
-                  <DocumentRow 
-                    name={isEmployee ? "Employment agreement" : "Contractor agreement"}
-                    status="verified"
-                    fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement_Signed.pdf`}
-                  />
-                  {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
-                    <DocumentRow
-                      key={idx}
-                      name={upload.name}
-                      status={upload.status}
-                      fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
+                {documentsUnlocked ? (
+                  <>
+                    <input
+                      ref={reuploadInputRef}
+                      type="file"
+                      className="hidden"
+                      accept=".jpg,.jpeg,.png,.pdf"
+                      onChange={handleReuploadFile}
                     />
-                  ))}
-                </div>
+                    <div className="space-y-2">
+                      {STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("certified") && (
+                        <DocumentRow
+                          name="Identity document"
+                          status={verificationMode ? "uploaded" : mockData.idDocumentStatus}
+                          fileName={`${worker.name.split(" ")[0]}_ID_doc.pdf`}
+                        />
+                      )}
+                      {verificationMode && worker.country === "India" && (
+                        <>
+                          <DocumentRow
+                            name="PAN Card"
+                            status="uploaded"
+                            fileName={`${worker.name.split(" ")[0]}_PAN_Card.pdf`}
+                          />
+                          <DocumentRow
+                            name="Investment proof (80C/80D)"
+                            status="uploaded"
+                            fileName={`${worker.name.split(" ")[0]}_Investment_Proof.pdf`}
+                          />
+                        </>
+                      )}
+                      <DocumentRow
+                        name={isEmployee ? "Employment agreement" : "Contractor agreement"}
+                        status={
+                          STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("onboarding-pending")
+                            ? "verified"
+                            : "uploaded"
+                        }
+                        fileName={`${worker.name.replace(/\s+/g, "_")}_Agreement${
+                          STAGE_ORDER.indexOf(accessibleStage) >= STAGE_ORDER.indexOf("onboarding-pending") ? "_Signed" : "_Draft"
+                        }.pdf`}
+                      />
+                      {worker.optionalUploads?.filter(u => u.status !== "missing").map((upload, idx) => (
+                        <DocumentRow
+                          key={idx}
+                          name={upload.name}
+                          status={upload.status}
+                          fileName={`${worker.name.split(" ")[0]}_${upload.name.replace(/\s+/g, "_")}.pdf`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <LockedSectionPlaceholder unlockedAtLabel={STAGE_LABEL[SECTION_UNLOCKED_AT.documents]} />
+                )}
               </SectionCard>
 
               {/* Action buttons for inactive workers in edit mode — inline, not sticky */}
