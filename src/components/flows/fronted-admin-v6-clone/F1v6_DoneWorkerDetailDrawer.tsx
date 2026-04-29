@@ -301,7 +301,13 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
   onDocumentsVerified,
   onSendForm,
   onMarkAsActive,
+  accessibleStage = "certified",
 }) => {
+  const personalUnlocked = isSectionUnlocked("personal", accessibleStage);
+  const engagementUnlocked = isSectionUnlocked("engagement", accessibleStage);
+  const payrollUnlocked = isSectionUnlocked("payroll", accessibleStage);
+  const payoutUnlocked = isSectionUnlocked("payout", accessibleStage);
+  const documentsUnlocked = isSectionUnlocked("documents", accessibleStage);
   const [actionView, setActionView] = useState<ActionType | null>(null);
   const [actionDate, setActionDate] = useState("");
   const [actionReason, setActionReason] = useState("");
