@@ -1374,9 +1374,18 @@ const AdminContractingMultiCompany = () => {
         onOpenChange={setIsAddCandidateDrawerOpen}
         onSave={handleSaveCandidate}
       />
+
+      {/* Right: Kurt Agent Chat Panel */}
+      <F1v6_AgentChatPanel />
     </div>
   </RoleLensProvider>
   );
 };
 
-export default AdminContractingMultiCompany;
+const F1v6_FrontedAdminDashboard = () => (
+  <F1v6_AgentProvider>
+    <AdminContractingMultiCompany />
+  </F1v6_AgentProvider>
+);
+
+export default F1v6_FrontedAdminDashboard;
