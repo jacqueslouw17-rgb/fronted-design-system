@@ -49,6 +49,11 @@ import F1v4_EmbeddedAdminOnboarding from "@/components/flows/fronted-admin-v6-cl
 import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v6-clone/F1v6_AddCandidateDrawer";
 import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v6-clone/F1v6_PayrollTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  F1v6_AgentProvider,
+  F1v6_AgentChatPanel,
+  F1v6_KurtVisualizer,
+} from "@/components/flows/fronted-admin-v6-clone";
 
 
 // Company type with full details for edit functionality
@@ -1061,6 +1066,10 @@ const AdminContractingMultiCompany = () => {
                     className="flex-1 overflow-y-auto"
                   >
                     <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-16 sm:pb-32 space-y-2">
+                      {/* Kurt Frequency Visualizer - Interactive entry point */}
+                      <div className="flex flex-col items-center pt-2 pb-2">
+                        <F1v6_KurtVisualizer />
+                      </div>
                       {/* Agent Header */}
                       {showContractSignedMessage ? (
                         <ContractSignedMessage 
@@ -1365,9 +1374,18 @@ const AdminContractingMultiCompany = () => {
         onOpenChange={setIsAddCandidateDrawerOpen}
         onSave={handleSaveCandidate}
       />
+
+      {/* Right: Kurt Agent Chat Panel */}
+      <F1v6_AgentChatPanel />
     </div>
   </RoleLensProvider>
   );
 };
 
-export default AdminContractingMultiCompany;
+const F1v6_FrontedAdminDashboard = () => (
+  <F1v6_AgentProvider>
+    <AdminContractingMultiCompany />
+  </F1v6_AgentProvider>
+);
+
+export default F1v6_FrontedAdminDashboard;

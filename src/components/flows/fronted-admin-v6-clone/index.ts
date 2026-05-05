@@ -16,3 +16,9 @@ export { F1v4_SignatureWorkflowDrawer } from './F1v6_SignatureWorkflowDrawer';
 export { F1v4_StartOnboardingConfirmation } from './F1v6_StartOnboardingConfirmation';
 export { default as F1v4_EmbeddedAdminOnboarding } from './F1v6_EmbeddedAdminOnboarding';
 export { F1v5_ContractDraftWorkspace } from './F1v6_ContractDraftWorkspace';
+
+// Kurt Agent (cloned from Flow 6 Company Admin v4)
+export { F1v6_AgentProvider, useF1v6Agent } from './F1v6_AgentContext';
+export { F1v6_AgentChatPanel } from './F1v6_AgentChatPanel';
+export { F1v6_KurtVisualizer } from './F1v6_KurtVisualizer';
+export * from './F1v6_AgentTypes';
