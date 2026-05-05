@@ -49,6 +49,11 @@ import F1v4_EmbeddedAdminOnboarding from "@/components/flows/fronted-admin-v6-cl
 import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v6-clone/F1v6_AddCandidateDrawer";
 import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v6-clone/F1v6_PayrollTab";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  F1v6_AgentProvider,
+  F1v6_AgentChatPanel,
+  F1v6_KurtVisualizer,
+} from "@/components/flows/fronted-admin-v6-clone";
 
 
 // Company type with full details for edit functionality
