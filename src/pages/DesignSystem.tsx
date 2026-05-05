@@ -271,7 +271,7 @@ const DesignSystem = () => {
   const [patternDrawerOpen, setPatternDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const defaultTab = tabParam === "flows" || tabParam === "components" ? tabParam : "patterns";
+  const defaultTab = tabParam === "patterns" || tabParam === "components" ? tabParam : "flows";
   
   // Flow cards - automatic sequential ordering by flow number (from title) then version
   const flowOrder = [
