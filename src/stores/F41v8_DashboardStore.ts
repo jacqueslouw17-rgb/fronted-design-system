@@ -12,7 +12,8 @@ import { create } from 'zustand';
 export type F41v8_PayrollStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised' | 'rejected';
 
 export type F41v8_WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
-export type F41v8_AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction' | 'Unpaid Leave';
+export type F41v8_AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction' | 'Leave';
+export type F41v8_AdjustmentLeaveType = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Other leave';
 export type F41v8_AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
 export type F41v8_LeaveType = 'Vacation' | 'Sick' | 'Compassionate' | 'Maternity';
 export type F41v8_LeaveStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
