@@ -12,7 +12,8 @@ import { create } from 'zustand';
 export type F41v8_PayrollStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised' | 'rejected';
 
 export type F41v8_WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
-export type F41v8_AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction' | 'Unpaid Leave';
+export type F41v8_AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction' | 'Leave';
+export type F41v8_AdjustmentLeaveType = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Other leave';
 export type F41v8_AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
 export type F41v8_LeaveType = 'Vacation' | 'Sick' | 'Compassionate' | 'Maternity';
 export type F41v8_LeaveStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
@@ -46,6 +47,11 @@ export interface F41v8_Adjustment {
   tags?: string[];
   submittedAt: string;
   rejectionReason?: string;
+  // Leave-specific fields
+  leaveType?: F41v8_AdjustmentLeaveType;
+  startDate?: string;
+  endDate?: string;
+  note?: string;
 }
 
 export interface F41v8_LeaveRequest {
@@ -135,11 +141,14 @@ const initialState: F41v8_DashboardState = {
   confirmed: false,
   adjustments: [
     {
-      id: 'adj-demo-unpaid-leave-1',
-      type: 'Unpaid Leave' as F41v8_AdjustmentType,
-      label: '2d · 22–27 Feb 2026',
+      id: 'adj-demo-leave-1',
+      type: 'Leave' as F41v8_AdjustmentType,
+      label: 'Paid leave · 2 days · 22 Feb 2026 – 23 Feb 2026',
       amount: null,
       status: 'Pending' as F41v8_AdjustmentStatus,
+      leaveType: 'Paid leave',
+      startDate: '2026-02-22',
+      endDate: '2026-02-23',
       days: 2,
       submittedAt: '2026-01-22T10:00:00.000Z',
     },
