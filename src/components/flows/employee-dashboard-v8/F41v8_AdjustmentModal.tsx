@@ -103,9 +103,9 @@ const requestTypeOptions = [
     disabled: false 
   },
   { 
-    id: 'unpaid-leave' as RequestType, 
-    label: 'Unpaid Leave', 
-    description: 'Request time off without pay',
+    id: 'leave' as RequestType, 
+    label: 'Leave', 
+    description: 'Request paid, unpaid, or sick leave',
     icon: CalendarOff,
     disabled: false 
   },
