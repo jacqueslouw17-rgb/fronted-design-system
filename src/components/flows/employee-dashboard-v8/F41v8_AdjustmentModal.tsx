@@ -35,7 +35,8 @@ import { Badge } from '@/components/ui/badge';
 import { F41v8_TimeInput } from './F41v8_TimeInput';
 import { F41v9_SmartExpenseContent } from './F41v9_SmartExpenseContent';
 
-export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | 'unpaid-leave' | null;
+export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
+export type LeaveTypeOption = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Other leave';
 
 interface F41v8_AdjustmentModalProps {
   open: boolean;
