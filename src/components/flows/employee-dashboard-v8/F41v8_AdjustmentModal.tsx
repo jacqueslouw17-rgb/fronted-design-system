@@ -540,32 +540,42 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     return Math.round(value * 2) / 2;
   };
 
-  const handleSubmitUnpaidLeave = () => {
-    if (!validateUnpaidLeave()) return;
+  const handleSubmitLeave = () => {
+    if (!validateLeave()) return;
 
-    const rawDays = parseFloat(unpaidLeaveDays);
+    const rawDays = parseFloat(leaveDays);
     const roundedDays = roundToNearestHalf(rawDays);
     const wasRounded = rawDays !== roundedDays;
 
-    const descPart = unpaidLeaveDescription.trim() ? ` · ${unpaidLeaveDescription.trim()}` : '';
+    const startStr = leaveStartDate ? format(leaveStartDate, 'd MMM yyyy') : '';
+    const endStr = leaveEndDate ? format(leaveEndDate, 'd MMM yyyy') : '';
+    const sameDay = startStr && startStr === endStr;
+    const range = sameDay ? startStr : `${startStr} – ${endStr}`;
+    const dayLabel = `${roundedDays} ${roundedDays === 1 ? 'day' : 'days'}`;
+    const label = `${leaveType} · ${dayLabel} · ${range}`;
+
     addAdjustment({
-      type: 'Unpaid Leave',
-      label: `${roundedDays}d${descPart}`,
+      type: 'Leave',
+      label,
       amount: null,
       days: roundedDays,
+      leaveType: leaveType as LeaveTypeOption,
+      startDate: leaveStartDate ? format(leaveStartDate, 'yyyy-MM-dd') : undefined,
+      endDate: leaveEndDate ? format(leaveEndDate, 'yyyy-MM-dd') : undefined,
+      note: leaveNote.trim() || undefined,
+      receiptUrl: leaveAttachments.length > 0 ? URL.createObjectURL(leaveAttachments[0]) : undefined,
     });
 
-    // Mark the rejected item as resubmitted if this was a resubmission
     if (rejectedId) {
       markRejectionResubmitted(rejectedId);
     }
 
     if (wasRounded) {
-      toast.success(`Unpaid leave request submitted for review.`, {
+      toast.success(`Leave request submitted for review.`, {
         description: `Days rounded from ${rawDays} to ${roundedDays} (nearest half day).`,
       });
     } else {
-      toast.success(`Unpaid leave request submitted for review.`);
+      toast.success(`Leave request submitted for review.`);
     }
     handleClose();
   };
