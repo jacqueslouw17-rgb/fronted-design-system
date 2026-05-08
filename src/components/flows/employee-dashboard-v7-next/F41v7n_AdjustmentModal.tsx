@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -34,7 +35,8 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { F41v7n_TimeInput } from './F41v7n_TimeInput';
 
-export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | 'unpaid-leave' | null;
+export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
+export type LeaveTypeOption = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Other leave';
 
 interface F41v7n_AdjustmentModalProps {
   open: boolean;
@@ -100,9 +102,9 @@ const requestTypeOptions = [
     disabled: false 
   },
   { 
-    id: 'unpaid-leave' as RequestType, 
-    label: 'Unpaid Leave', 
-    description: 'Request time off without pay',
+    id: 'leave' as RequestType, 
+    label: 'Leave', 
+    description: 'Request paid, unpaid, or sick leave',
     icon: CalendarOff,
     disabled: false 
   },
@@ -131,8 +133,14 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
   const [bonusItems, setBonusItems] = useState<BonusLineItem[]>([
     { id: crypto.randomUUID(), amount: '', attachment: [] }
   ]);
-  const [unpaidLeaveDays, setUnpaidLeaveDays] = useState<string>('');
-  const [unpaidLeaveDescription, setUnpaidLeaveDescription] = useState<string>('');
+  const [leaveType, setLeaveType] = useState<LeaveTypeOption | ''>('');
+  const [leaveStartDate, setLeaveStartDate] = useState<Date | undefined>(undefined);
+  const [leaveEndDate, setLeaveEndDate] = useState<Date | undefined>(undefined);
+  const [leaveDays, setLeaveDays] = useState<string>('');
+  const [leaveNote, setLeaveNote] = useState<string>('');
+  const [leaveAttachments, setLeaveAttachments] = useState<File[]>([]);
+  const [openLeaveStartPopover, setOpenLeaveStartPopover] = useState(false);
+  const [openLeaveEndPopover, setOpenLeaveEndPopover] = useState(false);
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const clearError = (key: string) => setErrors(prev => {
@@ -153,8 +161,12 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
     setExpenseTags([]);
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: [] }]);
-    setUnpaidLeaveDays(initialDays?.toString() || '');
-    setUnpaidLeaveDescription('');
+    setLeaveType('');
+    setLeaveStartDate(undefined);
+    setLeaveEndDate(undefined);
+    setLeaveDays(initialDays?.toString() || '');
+    setLeaveNote('');
+    setLeaveAttachments([]);
     setErrors({});
   };
 
@@ -283,9 +295,9 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
         calculatedHours: initialHours || 0 
       }]);
     }
-    // Pre-fill unpaid leave days for resubmissions
-    if (open && initialType === 'unpaid-leave' && initialDays) {
-      setUnpaidLeaveDays(initialDays.toString());
+    // Pre-fill leave days for resubmissions
+    if (open && initialType === 'leave' && initialDays) {
+      setLeaveDays(initialDays.toString());
     }
   }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours, initialDays, initialDate, initialStartTime, initialEndTime]);
 
@@ -389,20 +401,26 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
     return !hasError;
   };
 
-  const validateUnpaidLeave = () => {
+  const validateLeave = () => {
     const newErrors: Record<string, string> = {};
-    const days = parseFloat(unpaidLeaveDays);
-    
-    if (!unpaidLeaveDays || isNaN(days) || days <= 0) {
-      newErrors['unpaid_leave_days'] = 'Please enter valid number of days';
-    } else if (days > 30) {
-      newErrors['unpaid_leave_days'] = 'Maximum 30 days allowed';
+    const days = parseFloat(leaveDays);
+
+    if (!leaveType) {
+      newErrors['leave_type'] = 'Required';
     }
-    
-    if (!unpaidLeaveDescription.trim()) {
-      newErrors['unpaid_leave_description'] = 'Please specify the date details';
+    if (!leaveStartDate) {
+      newErrors['leave_start_date'] = 'Required';
     }
-    
+    if (!leaveEndDate) {
+      newErrors['leave_end_date'] = 'Required';
+    }
+    if (leaveStartDate && leaveEndDate && leaveEndDate < leaveStartDate) {
+      newErrors['leave_end_date'] = 'End date cannot be before start date';
+    }
+    if (!leaveDays || isNaN(days) || days <= 0) {
+      newErrors['leave_days'] = 'Enter a number greater than 0';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -521,32 +539,42 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
     return Math.round(value * 2) / 2;
   };
 
-  const handleSubmitUnpaidLeave = () => {
-    if (!validateUnpaidLeave()) return;
+  const handleSubmitLeave = () => {
+    if (!validateLeave()) return;
 
-    const rawDays = parseFloat(unpaidLeaveDays);
+    const rawDays = parseFloat(leaveDays);
     const roundedDays = roundToNearestHalf(rawDays);
     const wasRounded = rawDays !== roundedDays;
 
-    const descPart = unpaidLeaveDescription.trim() ? ` · ${unpaidLeaveDescription.trim()}` : '';
+    const startStr = leaveStartDate ? format(leaveStartDate, 'd MMM yyyy') : '';
+    const endStr = leaveEndDate ? format(leaveEndDate, 'd MMM yyyy') : '';
+    const sameDay = startStr && startStr === endStr;
+    const range = sameDay ? startStr : `${startStr} – ${endStr}`;
+    const dayLabel = `${roundedDays} ${roundedDays === 1 ? 'day' : 'days'}`;
+    const label = `${leaveType} · ${dayLabel} · ${range}`;
+
     addAdjustment({
-      type: 'Unpaid Leave',
-      label: `${roundedDays}d${descPart}`,
+      type: 'Leave',
+      label,
       amount: null,
       days: roundedDays,
+      leaveType: leaveType as LeaveTypeOption,
+      startDate: leaveStartDate ? format(leaveStartDate, 'yyyy-MM-dd') : undefined,
+      endDate: leaveEndDate ? format(leaveEndDate, 'yyyy-MM-dd') : undefined,
+      note: leaveNote.trim() || undefined,
+      receiptUrl: leaveAttachments.length > 0 ? URL.createObjectURL(leaveAttachments[0]) : undefined,
     });
 
-    // Mark the rejected item as resubmitted if this was a resubmission
     if (rejectedId) {
       markRejectionResubmitted(rejectedId);
     }
 
     if (wasRounded) {
-      toast.success(`Unpaid leave request submitted for review.`, {
+      toast.success(`Leave request submitted for review.`, {
         description: `Days rounded from ${rawDays} to ${roundedDays} (nearest half day).`,
       });
     } else {
-      toast.success(`Unpaid leave request submitted for review.`);
+      toast.success(`Leave request submitted for review.`);
     }
     handleClose();
   };
@@ -624,14 +652,14 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                 {selectedType === 'expense' && 'Expense request'}
                 {selectedType === 'overtime' && 'Overtime request'}
                 {selectedType === 'bonus-correction' && 'Bonus request'}
-                {selectedType === 'unpaid-leave' && 'Unpaid leave'}
+                {selectedType === 'leave' && 'Leave'}
               </SheetTitle>
               <SheetDescription className="text-xs mt-0.5">
                 {selectedType === null && 'Submit an adjustment for the current pay cycle'}
                 {selectedType === 'expense' && 'Submit expenses for reimbursement'}
                 {selectedType === 'overtime' && 'Log your overtime hours'}
                 {selectedType === 'bonus-correction' && 'Request a bonus payment'}
-                {selectedType === 'unpaid-leave' && 'Request time off without pay'}
+                {selectedType === 'leave' && 'Request time off for the current pay cycle'}
               </SheetDescription>
             </div>
           </div>
@@ -1065,59 +1093,206 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
             </div>
           )}
 
-          {/* Unpaid Leave Form */}
-          {selectedType === 'unpaid-leave' && (
+          {/* Leave Form */}
+          {selectedType === 'leave' && (
             <div className="space-y-5">
-              <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
+              <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-4">
+                {/* Leave type */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Number of days</Label>
+                  <Label className="text-xs">Leave type</Label>
+                  <Select
+                    value={leaveType}
+                    onValueChange={(value) => {
+                      setLeaveType(value as LeaveTypeOption);
+                      clearError('leave_type');
+                    }}
+                  >
+                    <SelectTrigger
+                      className={cn('h-9', errors['leave_type'] && 'border-destructive')}
+                    >
+                      <SelectValue placeholder="Select leave type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Paid leave">Paid leave</SelectItem>
+                      <SelectItem value="Unpaid leave">Unpaid leave</SelectItem>
+                      <SelectItem value="Sick leave">Sick leave</SelectItem>
+                      <SelectItem value="Other leave">Other leave</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors['leave_type'] ? (
+                    <p className="text-xs text-destructive">{errors['leave_type']}</p>
+                  ) : leaveType === 'Paid leave' ? (
+                    <p className="text-xs text-muted-foreground">Paid leave is tracked for approval and payroll visibility. It does not automatically reduce pay.</p>
+                  ) : leaveType === 'Unpaid leave' ? (
+                    <p className="text-xs text-muted-foreground">Unpaid leave may reduce pay once approved and included in payroll.</p>
+                  ) : leaveType === 'Sick leave' ? (
+                    <p className="text-xs text-muted-foreground">Sick leave may require review depending on country and company rules.</p>
+                  ) : leaveType === 'Other leave' ? (
+                    <p className="text-xs text-muted-foreground">This will be reviewed by your admin before payroll.</p>
+                  ) : null}
+                </div>
+
+                {/* Date range */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Leave start date</Label>
+                    <Popover open={openLeaveStartPopover} onOpenChange={setOpenLeaveStartPopover}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full h-9 justify-start text-left font-normal',
+                            !leaveStartDate && 'text-muted-foreground',
+                            errors['leave_start_date'] && 'border-destructive'
+                          )}
+                        >
+                          {leaveStartDate ? format(leaveStartDate, 'd MMM yyyy') : 'Select date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={leaveStartDate}
+                          onSelect={(date) => {
+                            setLeaveStartDate(date);
+                            clearError('leave_start_date');
+                            if (date && leaveEndDate && leaveEndDate < date) {
+                              setLeaveEndDate(undefined);
+                            }
+                            setOpenLeaveStartPopover(false);
+                          }}
+                          initialFocus
+                          className={cn('p-3 pointer-events-auto')}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {errors['leave_start_date'] && (
+                      <p className="text-xs text-destructive">{errors['leave_start_date']}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Leave end date</Label>
+                    <Popover open={openLeaveEndPopover} onOpenChange={setOpenLeaveEndPopover}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full h-9 justify-start text-left font-normal',
+                            !leaveEndDate && 'text-muted-foreground',
+                            errors['leave_end_date'] && 'border-destructive'
+                          )}
+                        >
+                          {leaveEndDate ? format(leaveEndDate, 'd MMM yyyy') : 'Select date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={leaveEndDate}
+                          onSelect={(date) => {
+                            setLeaveEndDate(date);
+                            clearError('leave_end_date');
+                            setOpenLeaveEndPopover(false);
+                          }}
+                          disabled={(date) => (leaveStartDate ? date < leaveStartDate : false)}
+                          initialFocus
+                          className={cn('p-3 pointer-events-auto')}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {errors['leave_end_date'] && (
+                      <p className="text-xs text-destructive">{errors['leave_end_date']}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Number of leave days */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Number of leave days</Label>
                   <Input
                     type="number"
                     min="0.5"
-                    max="30"
                     step="0.5"
-                    value={unpaidLeaveDays}
-                    onChange={(e) => { setUnpaidLeaveDays(e.target.value); clearError('unpaid_leave_days'); }}
+                    value={leaveDays}
+                    onChange={(e) => { setLeaveDays(e.target.value); clearError('leave_days'); }}
                     placeholder="e.g. 2"
-                    className={cn(
-                      "h-9",
-                      errors['unpaid_leave_days'] && 'border-destructive'
-                    )}
+                    className={cn('h-9', errors['leave_days'] && 'border-destructive')}
                   />
-                  {errors['unpaid_leave_days'] ? (
-                    <p className="text-xs text-destructive">{errors['unpaid_leave_days']}</p>
+                  {errors['leave_days'] ? (
+                    <p className="text-xs text-destructive">{errors['leave_days']}</p>
                   ) : (
-                    <p className="text-xs text-muted-foreground">
-                      Supports half days (e.g. 1.5)
-                    </p>
+                    <p className="text-xs text-muted-foreground">Supports half days, e.g. 0.5 or 1.5</p>
                   )}
                 </div>
 
-                {/* Description / Date details */}
+                {/* Reason / note */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Date details</Label>
-                  <Input
-                    type="text"
-                    value={unpaidLeaveDescription}
-                    onChange={(e) => { setUnpaidLeaveDescription(e.target.value); clearError('unpaid_leave_description'); }}
-                    placeholder="e.g. 22 Feb – 27 Feb 2025"
-                    className={cn(
-                      "h-9",
-                      errors['unpaid_leave_description'] && 'border-destructive'
-                    )}
+                  <Label className="text-xs">Reason / note (optional)</Label>
+                  <Textarea
+                    value={leaveNote}
+                    onChange={(e) => setLeaveNote(e.target.value)}
+                    placeholder="Add context for your admin, e.g. agreed time off, sick leave, personal leave."
+                    rows={3}
                   />
-                  {errors['unpaid_leave_description'] ? (
-                    <p className="text-xs text-destructive">{errors['unpaid_leave_description']}</p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Help your admin by specifying dates, e.g. <span className="font-medium text-foreground/70">"22–27 Feb"</span> or <span className="font-medium text-foreground/70">"Mon 24 – Fri 28 Feb"</span>.
-                    </p>
+                </div>
+
+                {/* Attachment */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Attachment (optional)</Label>
+                  {leaveAttachments.length > 0 && (
+                    <div className="space-y-1.5">
+                      {leaveAttachments.map((file, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                          {file.type.startsWith('image/') ? (
+                            <Image className="h-4 w-4 text-primary shrink-0" />
+                          ) : (
+                            <FileText className="h-4 w-4 text-primary shrink-0" />
+                          )}
+                          <span className="text-xs flex-1 truncate">{file.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setLeaveAttachments((prev) => prev.filter((_, i) => i !== idx))}
+                            className="p-0.5 hover:bg-muted rounded shrink-0"
+                          >
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
+                  {leaveAttachments.length < FILE_UPLOAD_MAX_COUNT && (
+                    <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {leaveAttachments.length === 0 ? 'Upload documents' : 'Add more'}
+                      </span>
+                      <input
+                        type="file"
+                        accept={FILE_UPLOAD_ACCEPT}
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (files.length > 0) {
+                            const { valid, error } = validateFiles(files, leaveAttachments.length);
+                            if (error) {
+                              toast.error(error);
+                            } else if (valid.length > 0) {
+                              setLeaveAttachments((prev) => [...prev, ...valid]);
+                            }
+                          }
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  )}
+                  <p className="text-xs text-muted-foreground">Optional for now. Add proof if required by your company or country rules.</p>
                 </div>
               </div>
 
-              <Button onClick={handleSubmitUnpaidLeave} className="w-full">
-                Request unpaid leave
+              <Button onClick={handleSubmitLeave} className="w-full">
+                Request leave
               </Button>
             </div>
           )}

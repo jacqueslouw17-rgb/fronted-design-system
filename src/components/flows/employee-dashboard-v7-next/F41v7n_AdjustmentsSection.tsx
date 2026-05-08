@@ -86,23 +86,38 @@ export const F41v7n_AdjustmentsSection = ({ onRequestAdjustment }: F41v7n_Adjust
     }
   };
 
+  const formatLeaveDateRange = (adj: F41v7n_Adjustment) => {
+    if (!adj.startDate) return '';
+    const start = format(new Date(adj.startDate), 'd MMM yyyy');
+    if (!adj.endDate || adj.endDate === adj.startDate) return start;
+    const end = format(new Date(adj.endDate), 'd MMM yyyy');
+    return `${start} – ${end}`;
+  };
+
   const getTypeLabel = (adj: F41v7n_Adjustment) => {
     if (adj.type === 'Expense') {
       if (adj.tags && adj.tags.length > 0) return `${adj.tags.join(', ')} expense`;
       return 'Expense';
     }
+    if (adj.type === 'Leave') {
+      return adj.leaveType ?? 'Leave';
+    }
     switch (adj.type) {
       case 'Overtime': return 'Overtime';
       case 'Bonus': return 'Bonus';
       case 'Correction': return 'Correction';
-      case 'Unpaid Leave': return 'Unpaid Leave';
       default: return adj.type;
     }
   };
 
   const getDisplayValue = (adj: F41v7n_Adjustment) => {
     if (adj.type === 'Overtime' && adj.hours) return `${adj.hours}h`;
-    if (adj.type === 'Unpaid Leave' && adj.days) return `${adj.days}d`;
+    if (adj.type === 'Leave') {
+      const days = adj.days ?? 0;
+      const dayLabel = `${days} ${days === 1 ? 'day' : 'days'}`;
+      const range = formatLeaveDateRange(adj);
+      return range ? `${dayLabel} · ${range}` : dayLabel;
+    }
     return formatAmount(adj.amount);
   };
 
