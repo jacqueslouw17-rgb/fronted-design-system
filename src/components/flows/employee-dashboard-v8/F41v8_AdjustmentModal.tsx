@@ -402,20 +402,26 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     return !hasError;
   };
 
-  const validateUnpaidLeave = () => {
+  const validateLeave = () => {
     const newErrors: Record<string, string> = {};
-    const days = parseFloat(unpaidLeaveDays);
-    
-    if (!unpaidLeaveDays || isNaN(days) || days <= 0) {
-      newErrors['unpaid_leave_days'] = 'Please enter valid number of days';
-    } else if (days > 30) {
-      newErrors['unpaid_leave_days'] = 'Maximum 30 days allowed';
+    const days = parseFloat(leaveDays);
+
+    if (!leaveType) {
+      newErrors['leave_type'] = 'Required';
     }
-    
-    if (!unpaidLeaveDescription.trim()) {
-      newErrors['unpaid_leave_description'] = 'Please specify the date details';
+    if (!leaveStartDate) {
+      newErrors['leave_start_date'] = 'Required';
     }
-    
+    if (!leaveEndDate) {
+      newErrors['leave_end_date'] = 'Required';
+    }
+    if (leaveStartDate && leaveEndDate && leaveEndDate < leaveStartDate) {
+      newErrors['leave_end_date'] = 'End date cannot be before start date';
+    }
+    if (!leaveDays || isNaN(days) || days <= 0) {
+      newErrors['leave_days'] = 'Enter a number greater than 0';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
