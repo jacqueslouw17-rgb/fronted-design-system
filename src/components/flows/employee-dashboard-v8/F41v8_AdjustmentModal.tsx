@@ -296,9 +296,9 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         calculatedHours: initialHours || 0 
       }]);
     }
-    // Pre-fill unpaid leave days for resubmissions
-    if (open && initialType === 'unpaid-leave' && initialDays) {
-      setUnpaidLeaveDays(initialDays.toString());
+    // Pre-fill leave days for resubmissions
+    if (open && initialType === 'leave' && initialDays) {
+      setLeaveDays(initialDays.toString());
     }
   }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours, initialDays, initialDate, initialStartTime, initialEndTime]);
 
