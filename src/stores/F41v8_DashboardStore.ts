@@ -47,6 +47,11 @@ export interface F41v8_Adjustment {
   tags?: string[];
   submittedAt: string;
   rejectionReason?: string;
+  // Leave-specific fields
+  leaveType?: F41v8_AdjustmentLeaveType;
+  startDate?: string;
+  endDate?: string;
+  note?: string;
 }
 
 export interface F41v8_LeaveRequest {
