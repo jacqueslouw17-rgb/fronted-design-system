@@ -653,14 +653,14 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 {selectedType === 'expense' && 'Expense request'}
                 {selectedType === 'overtime' && 'Overtime request'}
                 {selectedType === 'bonus-correction' && 'Bonus request'}
-                {selectedType === 'unpaid-leave' && 'Unpaid leave'}
+                {selectedType === 'leave' && 'Leave'}
               </SheetTitle>
               <SheetDescription className="text-xs mt-0.5">
                 {selectedType === null && 'Submit an adjustment for the current pay cycle'}
                 {selectedType === 'expense' && 'Submit expenses for reimbursement'}
                 {selectedType === 'overtime' && 'Log your overtime hours'}
                 {selectedType === 'bonus-correction' && 'Request a bonus payment'}
-                {selectedType === 'unpaid-leave' && 'Request time off without pay'}
+                {selectedType === 'leave' && 'Request time off for the current pay cycle'}
               </SheetDescription>
             </div>
           </div>
