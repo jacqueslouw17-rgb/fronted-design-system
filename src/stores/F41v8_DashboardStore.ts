@@ -141,11 +141,14 @@ const initialState: F41v8_DashboardState = {
   confirmed: false,
   adjustments: [
     {
-      id: 'adj-demo-unpaid-leave-1',
-      type: 'Unpaid Leave' as F41v8_AdjustmentType,
-      label: '2d · 22–27 Feb 2026',
+      id: 'adj-demo-leave-1',
+      type: 'Leave' as F41v8_AdjustmentType,
+      label: 'Paid leave · 2 days · 22 Feb 2026 – 23 Feb 2026',
       amount: null,
       status: 'Pending' as F41v8_AdjustmentStatus,
+      leaveType: 'Paid leave',
+      startDate: '2026-02-22',
+      endDate: '2026-02-23',
       days: 2,
       submittedAt: '2026-01-22T10:00:00.000Z',
     },
