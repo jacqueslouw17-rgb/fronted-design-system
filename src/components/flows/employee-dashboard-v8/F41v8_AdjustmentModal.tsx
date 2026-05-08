@@ -134,8 +134,14 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const [bonusItems, setBonusItems] = useState<BonusLineItem[]>([
     { id: crypto.randomUUID(), amount: '', attachment: [] }
   ]);
-  const [unpaidLeaveDays, setUnpaidLeaveDays] = useState<string>('');
-  const [unpaidLeaveDescription, setUnpaidLeaveDescription] = useState<string>('');
+  const [leaveType, setLeaveType] = useState<LeaveTypeOption | ''>('');
+  const [leaveStartDate, setLeaveStartDate] = useState<Date | undefined>(undefined);
+  const [leaveEndDate, setLeaveEndDate] = useState<Date | undefined>(undefined);
+  const [leaveDays, setLeaveDays] = useState<string>('');
+  const [leaveNote, setLeaveNote] = useState<string>('');
+  const [leaveAttachments, setLeaveAttachments] = useState<File[]>([]);
+  const [openLeaveStartPopover, setOpenLeaveStartPopover] = useState(false);
+  const [openLeaveEndPopover, setOpenLeaveEndPopover] = useState(false);
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const clearError = (key: string) => setErrors(prev => {
