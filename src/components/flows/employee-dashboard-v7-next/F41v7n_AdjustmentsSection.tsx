@@ -144,7 +144,7 @@ export const F41v7n_AdjustmentsSection = ({ onRequestAdjustment }: F41v7n_Adjust
           
           <span className="text-muted-foreground/40 text-xs">·</span>
           
-          <span className="text-xs text-muted-foreground truncate max-w-[220px]">
+          <span className="text-xs text-muted-foreground">
             {adj.label}
           </span>
           
