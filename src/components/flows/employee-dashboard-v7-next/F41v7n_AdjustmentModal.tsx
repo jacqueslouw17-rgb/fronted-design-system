@@ -174,7 +174,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
   const [bonusItems, setBonusItems] = useState<BonusLineItem[]>([
     { id: crypto.randomUUID(), amount: '', attachment: [] }
   ]);
-  const [leaveType, setLeaveType] = useState<LeaveTypeOption | ''>('');
+  const [leaveType, setLeaveType] = useState<LeaveTypeOption | ''>('Paid leave');
   const [leaveStartDate, setLeaveStartDate] = useState<Date | undefined>(undefined);
   const [leaveEndDate, setLeaveEndDate] = useState<Date | undefined>(undefined);
   const [leaveDays, setLeaveDays] = useState<string>('');
