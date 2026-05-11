@@ -171,6 +171,9 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
     setLeaveDays(initialDays?.toString() || '');
     setLeaveNote('');
     setLeaveAttachments([]);
+    setLeaveHalfDayStart(false);
+    setLeaveHalfDayEnd(false);
+    setLeaveDaysOverridden(false);
     setErrors({});
   };
 
