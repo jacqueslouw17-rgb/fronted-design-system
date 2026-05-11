@@ -1172,15 +1172,6 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
               : '';
             const canSubmit = !!leaveType && hasRange && !isNaN(daysNum) && daysNum > 0;
 
-            // Legend doubles as type selector. Shows live deduction when this type is selected.
-            const legend: { type: LeaveTypeOption; short: string; total: number | null; dotClass: string }[] = [
-              { type: 'Paid leave', short: 'Paid', total: 12, dotClass: 'bg-emerald-500' },
-              { type: 'Sick leave', short: 'Sick', total: 5, dotClass: 'bg-amber-500' },
-              { type: 'Maternity / parental leave', short: 'Parental', total: 105, dotClass: 'bg-violet-500' },
-              { type: 'Unpaid leave', short: 'Unpaid', total: null, dotClass: 'bg-muted-foreground/60' },
-              { type: 'Other leave', short: 'Other', total: null, dotClass: 'bg-sky-500' },
-            ];
-
             // Public holidays (PH — Maria Santos). Static seed for 2025/2026 demo.
             const publicHolidays: { date: Date; name: string }[] = [
               { date: new Date(2025, 11, 25), name: 'Christmas Day' },
@@ -1204,14 +1195,54 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                 h.date.getDate() === d.getDate()
               );
 
+            // Count holidays inside the selected range (informational only — already excluded from workdays)
+            let holidaysInRange = 0;
+            if (hasRange) {
+              const cur = new Date(leaveStartDate!);
+              const end = new Date(leaveEndDate!);
+              while (cur <= end) {
+                const dow = cur.getDay();
+                if (dow !== 0 && dow !== 6 && isHoliday(cur)) holidaysInRange += 1;
+                cur.setDate(cur.getDate() + 1);
+              }
+            }
+
+            // Smart split: when selected type has a finite balance and the range exceeds it,
+            // overflow auto-spills into Unpaid. Both tags glow active.
+            const legend: { type: LeaveTypeOption; short: string; total: number | null; dotClass: string }[] = [
+              { type: 'Paid leave', short: 'Paid', total: 12, dotClass: 'bg-emerald-500' },
+              { type: 'Sick leave', short: 'Sick', total: 5, dotClass: 'bg-amber-500' },
+              { type: 'Maternity / parental leave', short: 'Parental', total: 105, dotClass: 'bg-violet-500' },
+              { type: 'Unpaid leave', short: 'Unpaid', total: null, dotClass: 'bg-muted-foreground/60' },
+              { type: 'Other leave', short: 'Other', total: null, dotClass: 'bg-sky-500' },
+            ];
+
+            const activeBucket = legend.find(b => b.type === leaveType);
+            const activeTotal = activeBucket?.total ?? null;
+            const usableDays = hasRange && !isNaN(daysNum) && daysNum > 0 ? daysNum : 0;
+            const primaryUsed = activeTotal !== null
+              ? Math.min(usableDays, activeTotal)
+              : usableDays; // unpaid/other absorb everything
+            const overflowToUnpaid = activeTotal !== null ? Math.max(0, usableDays - activeTotal) : 0;
+            const isUnpaidActive = leaveType === 'Unpaid leave';
+
             return (
               <div className="space-y-5">
-                {/* Clean legend tags above calendar */}
+                {/* Smart legend — tags activate based on calendar selection */}
                 <div className="flex flex-wrap items-center gap-2">
                   {legend.map((b) => {
-                    const isSelected = leaveType === b.type;
-                    const showDeduction = isSelected && hasRange && !isNaN(daysNum) && daysNum > 0 && b.total !== null;
-                    const remaining = b.total !== null ? Math.max(0, b.total - (isSelected && !isNaN(daysNum) ? daysNum : 0)) : null;
+                    const isPrimary = leaveType === b.type;
+                    const isOverflowTarget = b.type === 'Unpaid leave' && overflowToUnpaid > 0 && !isUnpaidActive;
+                    const isActive = isPrimary || isOverflowTarget;
+
+                    // Days being consumed from this bucket right now
+                    let consumed = 0;
+                    if (isPrimary) consumed = primaryUsed;
+                    else if (isOverflowTarget) consumed = overflowToUnpaid;
+
+                    const showConsumption = isActive && consumed > 0;
+                    const remaining = b.total !== null ? Math.max(0, b.total - (isPrimary ? consumed : 0)) : null;
+
                     return (
                       <button
                         key={b.type}
@@ -1219,16 +1250,20 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                         onClick={() => { setLeaveType(b.type); clearError('leave_type'); }}
                         className={cn(
                           'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 transition-all border',
-                          isSelected
-                            ? 'bg-foreground/[0.06] text-foreground border-foreground/15 font-medium'
+                          isActive
+                            ? 'bg-foreground/[0.06] text-foreground border-foreground/20 font-medium shadow-sm'
                             : 'bg-transparent text-muted-foreground border-border/60 hover:border-foreground/20 hover:text-foreground'
                         )}
                       >
-                        <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass)} />
+                        <span className={cn(
+                          'h-1.5 w-1.5 rounded-full transition-transform',
+                          b.dotClass,
+                          isActive && 'ring-2 ring-offset-1 ring-offset-background ring-current scale-110'
+                        )} />
                         <span>{b.short}</span>
-                        {b.total !== null && (
+                        {b.total !== null ? (
                           <span className="tabular-nums text-muted-foreground">
-                            {showDeduction ? (
+                            {isPrimary && showConsumption ? (
                               <>
                                 <span className="line-through opacity-50">{b.total}</span>
                                 <span className="ml-0.5 text-foreground">{remaining}</span>
@@ -1237,15 +1272,45 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                               b.total
                             )}
                           </span>
+                        ) : (
+                          showConsumption && (
+                            <span className="tabular-nums text-foreground">
+                              +{consumed % 1 === 0 ? consumed : consumed.toFixed(1)}
+                            </span>
+                          )
                         )}
                       </button>
                     );
                   })}
-                  <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground rounded-md px-2 py-1 border border-border/40">
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
+                  <span className={cn(
+                    'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 border transition-all',
+                    holidaysInRange > 0
+                      ? 'bg-rose-500/5 text-rose-600 border-rose-500/30 font-medium shadow-sm'
+                      : 'text-muted-foreground border-border/40'
+                  )}>
+                    <span className={cn(
+                      'h-1.5 w-1.5 rounded-full bg-rose-500/70',
+                      holidaysInRange > 0 && 'ring-2 ring-offset-1 ring-offset-background ring-rose-500/40 scale-110'
+                    )} />
                     Holiday
+                    {holidaysInRange > 0 && (
+                      <span className="tabular-nums">{holidaysInRange}</span>
+                    )}
                   </span>
                 </div>
+
+                {/* Overflow hint */}
+                {overflowToUnpaid > 0 && !isUnpaidActive && (
+                  <p className="-mt-3 text-[11px] text-muted-foreground">
+                    {primaryUsed} {primaryUsed === 1 ? 'day' : 'days'} {activeBucket?.short.toLowerCase()} +{' '}
+                    <span className="text-foreground font-medium">{overflowToUnpaid} unpaid</span> — your {activeBucket?.short.toLowerCase()} balance runs out mid-range.
+                  </p>
+                )}
+                {holidaysInRange > 0 && (
+                  <p className="-mt-3 text-[11px] text-muted-foreground">
+                    {holidaysInRange} public {holidaysInRange === 1 ? 'holiday' : 'holidays'} in range — not deducted from your balance.
+                  </p>
+                )}
 
                 {/* Calendar */}
                 <div className={cn(
