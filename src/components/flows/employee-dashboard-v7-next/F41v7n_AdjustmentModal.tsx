@@ -1251,7 +1251,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                         className={cn(
                           'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 transition-all border',
                           isActive
-                            ? 'bg-foreground/[0.06] text-foreground border-foreground/20 font-medium shadow-sm'
+                            ? 'bg-foreground/[0.03] text-foreground border-foreground/15 font-medium shadow-sm'
                             : 'bg-transparent text-muted-foreground border-border/60 hover:border-foreground/20 hover:text-foreground'
                         )}
                       >
