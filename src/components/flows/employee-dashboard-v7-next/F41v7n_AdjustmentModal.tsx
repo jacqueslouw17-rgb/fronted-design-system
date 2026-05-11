@@ -110,6 +110,47 @@ const requestTypeOptions = [
   },
 ];
 
+// Count weekdays (Mon–Fri) inclusive between two dates
+const countWeekdays = (start: Date, end: Date): number => {
+  if (!start || !end || end < start) return 0;
+  let count = 0;
+  const cursor = new Date(start);
+  cursor.setHours(0, 0, 0, 0);
+  const last = new Date(end);
+  last.setHours(0, 0, 0, 0);
+  while (cursor <= last) {
+    const dow = cursor.getDay();
+    if (dow !== 0 && dow !== 6) count++;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return count;
+};
+
+// Demo leave balances (placeholder — admin confirms before payroll)
+const LEAVE_BALANCES: { type: LeaveTypeOption; label: string; dotClass: string }[] = [
+  { type: 'Paid leave', label: '12 days left', dotClass: 'bg-emerald-500' },
+  { type: 'Sick leave', label: '5 days used', dotClass: 'bg-amber-500' },
+  { type: 'Unpaid leave', label: 'No balance', dotClass: 'bg-muted-foreground/60' },
+  { type: 'Maternity / parental leave', label: 'If applicable', dotClass: 'bg-pink-500' },
+  { type: 'Other leave', label: 'Requires review', dotClass: 'bg-sky-500' },
+];
+
+const LEAVE_TYPE_HELPER: Record<LeaveTypeOption, string> = {
+  'Paid leave': 'Paid leave is tracked for approval and payroll visibility.',
+  'Sick leave': 'Sick leave may require documentation depending on country and company rules.',
+  'Unpaid leave': 'Unpaid leave may reduce pay once approved and included in payroll.',
+  'Maternity / parental leave': 'This may require additional review and documentation.',
+  'Other leave': 'This will be reviewed by your admin before payroll.',
+};
+
+const LEAVE_PAYROLL_IMPACT: Record<LeaveTypeOption, string> = {
+  'Paid leave': 'No automatic deduction',
+  'Sick leave': 'Requires review',
+  'Unpaid leave': 'May reduce pay once approved',
+  'Maternity / parental leave': 'Requires review',
+  'Other leave': 'Requires review',
+};
+
 export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v7n_AdjustmentModalProps) => {
   const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v7n_DashboardStore();
 
