@@ -1,5 +1,5 @@
 /**
- * Flow 4.1 — Employee Dashboard v8 (Future)
+ * Flow 4.1 — Employee Dashboard v6
  * Adjustments Section - Shows pending & rejected adjustments only
  * INDEPENDENT: Changes here do NOT affect v5 or any other flow.
  */
@@ -144,7 +144,7 @@ export const F41v8_AdjustmentsSection = ({ onRequestAdjustment }: F41v8_Adjustme
           
           <span className="text-muted-foreground/40 text-xs">·</span>
           
-          <span className="text-xs text-muted-foreground truncate max-w-[220px]">
+          <span className="text-xs text-muted-foreground">
             {adj.label}
           </span>
           

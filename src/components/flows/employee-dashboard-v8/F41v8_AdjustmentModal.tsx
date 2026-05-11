@@ -1,5 +1,5 @@
 /**
- * Flow 4.1 — Employee Dashboard v8 (Future)
+ * Flow 4.1 — Employee Dashboard v6
  * Request Change Drawer with tile-based type selection
  * INDEPENDENT: This is a complete clone - changes here do NOT affect v5 or any other flow.
  */
@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -37,7 +37,7 @@ import { F41v8_TimeInput } from './F41v8_TimeInput';
 import { F41v9_SmartExpenseContent } from './F41v9_SmartExpenseContent';
 
 export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
-export type LeaveTypeOption = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Other leave';
+export type LeaveTypeOption = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Maternity / parental leave' | 'Other leave';
 
 interface F41v8_AdjustmentModalProps {
   open: boolean;
@@ -47,7 +47,7 @@ interface F41v8_AdjustmentModalProps {
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
   initialHours?: number;
-  initialDays?: number;
+  initialDays?: number; // For unpaid leave
   initialDate?: string;
   initialStartTime?: string;
   initialEndTime?: string;
@@ -112,6 +112,47 @@ const requestTypeOptions = [
   },
 ];
 
+// Count weekdays (Mon–Fri) inclusive between two dates
+const countWeekdays = (start: Date, end: Date): number => {
+  if (!start || !end || end < start) return 0;
+  let count = 0;
+  const cursor = new Date(start);
+  cursor.setHours(0, 0, 0, 0);
+  const last = new Date(end);
+  last.setHours(0, 0, 0, 0);
+  while (cursor <= last) {
+    const dow = cursor.getDay();
+    if (dow !== 0 && dow !== 6) count++;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return count;
+};
+
+// Demo leave balances (placeholder — admin confirms before payroll)
+const LEAVE_BALANCES: { type: LeaveTypeOption; label: string; dotClass: string }[] = [
+  { type: 'Paid leave', label: '12 days left', dotClass: 'bg-emerald-500' },
+  { type: 'Sick leave', label: '5 days used', dotClass: 'bg-amber-500' },
+  { type: 'Unpaid leave', label: 'No balance', dotClass: 'bg-muted-foreground/60' },
+  { type: 'Maternity / parental leave', label: 'If applicable', dotClass: 'bg-pink-500' },
+  { type: 'Other leave', label: 'Requires review', dotClass: 'bg-sky-500' },
+];
+
+const LEAVE_TYPE_HELPER: Record<LeaveTypeOption, string> = {
+  'Paid leave': 'Paid leave is tracked for approval and payroll visibility.',
+  'Sick leave': 'Sick leave may require documentation depending on country and company rules.',
+  'Unpaid leave': 'Unpaid leave may reduce pay once approved and included in payroll.',
+  'Maternity / parental leave': 'This may require additional review and documentation.',
+  'Other leave': 'This will be reviewed by your admin before payroll.',
+};
+
+const LEAVE_PAYROLL_IMPACT: Record<LeaveTypeOption, string> = {
+  'Paid leave': 'No automatic deduction',
+  'Sick leave': 'Requires review',
+  'Unpaid leave': 'May reduce pay once approved',
+  'Maternity / parental leave': 'Requires review',
+  'Other leave': 'Requires review',
+};
+
 export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack, localExpenseCurrency = 'NOK' }: F41v8_AdjustmentModalProps) => {
   const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v8_DashboardStore();
 
@@ -135,14 +176,16 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const [bonusItems, setBonusItems] = useState<BonusLineItem[]>([
     { id: crypto.randomUUID(), amount: '', attachment: [] }
   ]);
-  const [leaveType, setLeaveType] = useState<LeaveTypeOption | ''>('');
+  const [leaveType, setLeaveType] = useState<LeaveTypeOption | ''>('Paid leave');
   const [leaveStartDate, setLeaveStartDate] = useState<Date | undefined>(undefined);
   const [leaveEndDate, setLeaveEndDate] = useState<Date | undefined>(undefined);
   const [leaveDays, setLeaveDays] = useState<string>('');
   const [leaveNote, setLeaveNote] = useState<string>('');
   const [leaveAttachments, setLeaveAttachments] = useState<File[]>([]);
-  const [openLeaveStartPopover, setOpenLeaveStartPopover] = useState(false);
-  const [openLeaveEndPopover, setOpenLeaveEndPopover] = useState(false);
+  const [leaveHalfDayStart, setLeaveHalfDayStart] = useState(false);
+  const [leaveHalfDayEnd, setLeaveHalfDayEnd] = useState(false);
+  const [leaveDaysOverridden, setLeaveDaysOverridden] = useState(false);
+  const [openLeaveRangePopover, setOpenLeaveRangePopover] = useState(false);
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const clearError = (key: string) => setErrors(prev => {
@@ -163,12 +206,15 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setExpenseTags([]);
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: [] }]);
-    setLeaveType('');
+    setLeaveType('Paid leave');
     setLeaveStartDate(undefined);
     setLeaveEndDate(undefined);
     setLeaveDays(initialDays?.toString() || '');
     setLeaveNote('');
     setLeaveAttachments([]);
+    setLeaveHalfDayStart(false);
+    setLeaveHalfDayEnd(false);
+    setLeaveDaysOverridden(false);
     setErrors({});
   };
 
@@ -306,6 +352,27 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   useEffect(() => {
     setErrors({});
   }, [selectedType]);
+
+  // Auto-calculate leave duration from selected dates and half-day toggles
+  useEffect(() => {
+    if (leaveDaysOverridden) return;
+    if (!leaveStartDate || !leaveEndDate) {
+      setLeaveDays('');
+      return;
+    }
+    let weekdays = countWeekdays(leaveStartDate, leaveEndDate);
+    if (weekdays <= 0) {
+      setLeaveDays('');
+      return;
+    }
+    if (leaveHalfDayStart) weekdays -= 0.5;
+    if (leaveHalfDayEnd && leaveEndDate.getTime() !== leaveStartDate.getTime()) weekdays -= 0.5;
+    if (leaveHalfDayStart && leaveEndDate.getTime() === leaveStartDate.getTime()) {
+      // single-day half day
+      weekdays = 0.5;
+    }
+    setLeaveDays(weekdays > 0 ? String(weekdays) : '');
+  }, [leaveStartDate, leaveEndDate, leaveHalfDayStart, leaveHalfDayEnd, leaveDaysOverridden]);
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>, 
@@ -635,7 +702,7 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent className="w-[85%] sm:w-full sm:max-w-md overflow-y-auto">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-[32rem] overflow-y-auto">
         <SheetHeader className="pb-4 border-b border-border/40 text-left">
           <div className="flex items-center gap-2">
             {(selectedType || showBackAtSelection) && (
@@ -685,10 +752,7 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
               {requestTypeOptions.map((option) => (
                 <button
                   key={option.id}
-                  onClick={() => {
-                    if (option.disabled) return;
-                    setSelectedType(option.id);
-                  }}
+                  onClick={() => !option.disabled && setSelectedType(option.id)}
                   disabled={option.disabled}
                   className={cn(
                     "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
@@ -902,150 +966,293 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
             </div>
           )}
 
-          {/* Leave Form */}
-          {selectedType === 'leave' && (
-            <div className="space-y-5">
-              <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-4">
-                {/* Leave type */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Leave type</Label>
-                  <Select
-                    value={leaveType}
-                    onValueChange={(value) => {
-                      setLeaveType(value as LeaveTypeOption);
-                      clearError('leave_type');
-                    }}
-                  >
-                    <SelectTrigger
-                      className={cn('h-9', errors['leave_type'] && 'border-destructive')}
-                    >
-                      <SelectValue placeholder="Select leave type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Paid leave">Paid leave</SelectItem>
-                      <SelectItem value="Unpaid leave">Unpaid leave</SelectItem>
-                      <SelectItem value="Sick leave">Sick leave</SelectItem>
-                      <SelectItem value="Other leave">Other leave</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors['leave_type'] ? (
-                    <p className="text-xs text-destructive">{errors['leave_type']}</p>
-                  ) : leaveType === 'Paid leave' ? (
-                    <p className="text-xs text-muted-foreground">Paid leave is tracked for approval and payroll visibility. It does not automatically reduce pay.</p>
-                  ) : leaveType === 'Unpaid leave' ? (
-                    <p className="text-xs text-muted-foreground">Unpaid leave may reduce pay once approved and included in payroll.</p>
-                  ) : leaveType === 'Sick leave' ? (
-                    <p className="text-xs text-muted-foreground">Sick leave may require review depending on country and company rules.</p>
-                  ) : leaveType === 'Other leave' ? (
-                    <p className="text-xs text-muted-foreground">This will be reviewed by your admin before payroll.</p>
-                  ) : null}
+          {/* Leave Form — calendar-first, lean */}
+          {selectedType === 'leave' && (() => {
+            const daysNum = parseFloat(leaveDays);
+            const hasRange = !!(leaveStartDate && leaveEndDate);
+            const sameDay = hasRange && leaveStartDate!.getTime() === leaveEndDate!.getTime();
+            const rangeStr = hasRange
+              ? sameDay
+                ? format(leaveStartDate!, 'd MMM yyyy')
+                : `${format(leaveStartDate!, 'd MMM yyyy')} – ${format(leaveEndDate!, 'd MMM yyyy')}`
+              : '';
+            const canSubmit = !!leaveType && hasRange && !isNaN(daysNum) && daysNum > 0;
+
+            // Public holidays (PH — Maria Santos). Static seed for 2025/2026 demo.
+            const publicHolidays: { date: Date; name: string }[] = [
+              { date: new Date(2025, 11, 25), name: 'Christmas Day' },
+              { date: new Date(2025, 11, 30), name: 'Rizal Day' },
+              { date: new Date(2026, 0, 1), name: "New Year's Day" },
+              { date: new Date(2026, 3, 2), name: 'Maundy Thursday' },
+              { date: new Date(2026, 3, 3), name: 'Good Friday' },
+              { date: new Date(2026, 3, 9), name: 'Araw ng Kagitingan' },
+              { date: new Date(2026, 4, 1), name: 'Labor Day' },
+              { date: new Date(2026, 5, 12), name: 'Independence Day' },
+              { date: new Date(2026, 7, 21), name: 'Ninoy Aquino Day' },
+              { date: new Date(2026, 7, 31), name: 'National Heroes Day' },
+              { date: new Date(2026, 10, 30), name: 'Bonifacio Day' },
+              { date: new Date(2026, 11, 25), name: 'Christmas Day' },
+              { date: new Date(2026, 11, 30), name: 'Rizal Day' },
+            ];
+            const isHoliday = (d: Date) =>
+              publicHolidays.some(h =>
+                h.date.getFullYear() === d.getFullYear() &&
+                h.date.getMonth() === d.getMonth() &&
+                h.date.getDate() === d.getDate()
+              );
+
+            // Count holidays inside the selected range (informational only — already excluded from workdays)
+            let holidaysInRange = 0;
+            if (hasRange) {
+              const cur = new Date(leaveStartDate!);
+              const end = new Date(leaveEndDate!);
+              while (cur <= end) {
+                const dow = cur.getDay();
+                if (dow !== 0 && dow !== 6 && isHoliday(cur)) holidaysInRange += 1;
+                cur.setDate(cur.getDate() + 1);
+              }
+            }
+
+            // Smart split: when selected type has a finite balance and the range exceeds it,
+            // overflow auto-spills into Unpaid. Both tags glow active.
+            const legend: { type: LeaveTypeOption; short: string; total: number | null; dotClass: string }[] = [
+              { type: 'Paid leave', short: 'Paid', total: 12, dotClass: 'bg-emerald-500' },
+              { type: 'Sick leave', short: 'Sick', total: 5, dotClass: 'bg-amber-500' },
+              { type: 'Maternity / parental leave', short: 'Parental', total: 105, dotClass: 'bg-violet-500' },
+              { type: 'Unpaid leave', short: 'Unpaid', total: null, dotClass: 'bg-muted-foreground/60' },
+              
+            ];
+
+            const activeBucket = legend.find(b => b.type === leaveType);
+            const activeTotal = activeBucket?.total ?? null;
+            const usableDays = hasRange && !isNaN(daysNum) && daysNum > 0 ? daysNum : 0;
+            const primaryUsed = activeTotal !== null
+              ? Math.min(usableDays, activeTotal)
+              : usableDays; // unpaid/other absorb everything
+            const overflowToUnpaid = activeTotal !== null ? Math.max(0, usableDays - activeTotal) : 0;
+            const isUnpaidActive = leaveType === 'Unpaid leave';
+
+            return (
+              <div className="space-y-5">
+                {/* Smart legend — tags activate based on calendar selection */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {legend.map((b) => {
+                    const isPrimary = leaveType === b.type;
+                    const isOverflowTarget = b.type === 'Unpaid leave' && overflowToUnpaid > 0 && !isUnpaidActive;
+                    const isActive = isPrimary || isOverflowTarget;
+
+                    // Days being consumed from this bucket right now
+                    let consumed = 0;
+                    if (isPrimary) consumed = primaryUsed;
+                    else if (isOverflowTarget) consumed = overflowToUnpaid;
+
+                    const showConsumption = isActive && consumed > 0;
+                    const remaining = b.total !== null ? Math.max(0, b.total - (isPrimary ? consumed : 0)) : null;
+
+                    return (
+                      <button
+                        key={b.type}
+                        type="button"
+                        onClick={() => { setLeaveType(b.type); clearError('leave_type'); }}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 transition-all border',
+                          isActive
+                            ? 'bg-foreground/[0.03] text-foreground border-foreground/15 font-medium shadow-sm'
+                            : 'bg-transparent text-muted-foreground border-border/60 hover:border-foreground/20 hover:text-foreground'
+                        )}
+                      >
+                        <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass)} />
+                        <span>{b.short}</span>
+                        {b.total !== null ? (
+                          <span className="tabular-nums text-muted-foreground">
+                            {isPrimary && showConsumption ? (
+                              <>
+                                <span className="line-through opacity-50">{b.total}</span>
+                                <span className="ml-0.5 text-foreground">{remaining}</span>
+                              </>
+                            ) : (
+                              b.total
+                            )}
+                          </span>
+                        ) : (
+                          showConsumption && (
+                            <span className="tabular-nums text-foreground">
+                              +{consumed % 1 === 0 ? consumed : consumed.toFixed(1)}
+                            </span>
+                          )
+                        )}
+                      </button>
+                    );
+                  })}
+                  <span className={cn(
+                    'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 border transition-all',
+                    holidaysInRange > 0
+                      ? 'bg-rose-500/5 text-rose-600 border-rose-500/30 font-medium shadow-sm'
+                      : 'text-muted-foreground border-border/40'
+                  )}>
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
+                    Holiday
+                    {holidaysInRange > 0 && (
+                      <span className="tabular-nums">{holidaysInRange}</span>
+                    )}
+                  </span>
                 </div>
 
-                {/* Date range */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Leave start date</Label>
-                    <Popover open={openLeaveStartPopover} onOpenChange={setOpenLeaveStartPopover}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full h-9 justify-start text-left font-normal',
-                            !leaveStartDate && 'text-muted-foreground',
-                            errors['leave_start_date'] && 'border-destructive'
-                          )}
-                        >
-                          {leaveStartDate ? format(leaveStartDate, 'd MMM yyyy') : 'Select date'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={leaveStartDate}
-                          onSelect={(date) => {
-                            setLeaveStartDate(date);
-                            clearError('leave_start_date');
-                            if (date && leaveEndDate && leaveEndDate < date) {
-                              setLeaveEndDate(undefined);
-                            }
-                            setOpenLeaveStartPopover(false);
-                          }}
-                          initialFocus
-                          className={cn('p-3 pointer-events-auto')}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {errors['leave_start_date'] && (
-                      <p className="text-xs text-destructive">{errors['leave_start_date']}</p>
-                    )}
+
+                {/* Calendar */}
+                <div className={cn(
+                  'rounded-xl border bg-card/50',
+                  (errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_type']) ? 'border-destructive/60' : 'border-border/60'
+                )}>
+                  <div className="p-3">
+                    <Calendar
+                      mode="range"
+                      selected={leaveStartDate ? { from: leaveStartDate, to: leaveEndDate } : undefined}
+                      onSelect={(range: any) => {
+                        const from = range?.from as Date | undefined;
+                        const to = (range?.to as Date | undefined) ?? from;
+                        setLeaveStartDate(from);
+                        setLeaveEndDate(to);
+                        setLeaveDaysOverridden(false);
+                        setLeaveHalfDayStart(false);
+                        setLeaveHalfDayEnd(false);
+                        // Auto-default to Paid leave on first date pick
+                        if (from && !leaveType) {
+                          setLeaveType('Paid leave');
+                          clearError('leave_type');
+                        }
+                        clearError('leave_start_date');
+                        clearError('leave_end_date');
+                        clearError('leave_days');
+                      }}
+                      numberOfMonths={1}
+                      modifiers={{
+                        weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
+                        holiday: (date) => isHoliday(date),
+                      }}
+                      modifiersClassNames={{
+                        weekend: 'text-muted-foreground/60',
+                        holiday: 'relative text-rose-600 font-medium aria-selected:text-white after:content-[""] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-rose-500/80',
+                      }}
+                      initialFocus
+                      className="w-full pointer-events-auto p-0"
+                      classNames={{
+                        months: 'w-full',
+                        month: 'w-full space-y-3',
+                        caption: 'flex justify-center pt-1 pb-2 relative items-center',
+                        caption_label: 'text-sm font-medium',
+                        nav_button_previous: 'absolute left-0',
+                        nav_button_next: 'absolute right-0',
+                        table: 'w-full border-collapse',
+                        head_row: 'flex w-full',
+                        head_cell: 'flex-1 text-muted-foreground font-normal text-[0.7rem] uppercase tracking-wide py-1.5',
+                        row: 'flex w-full mt-1',
+                        cell: 'flex-1 h-10 text-center text-sm p-0 relative focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-full last:[&:has([aria-selected])]:rounded-r-full [&:has(.day-range-start)]:rounded-l-full [&:has(.day-range-end)]:rounded-r-full',
+                        day: 'h-10 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted/60 rounded-full inline-flex items-center justify-center text-sm transition-colors',
+                        day_selected: 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
+                        day_range_start: 'day-range-start bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground rounded-full',
+                        day_range_end: 'day-range-end bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground rounded-full',
+                        day_range_middle: 'aria-selected:bg-transparent aria-selected:text-foreground rounded-none',
+                        day_today: 'font-semibold text-foreground',
+                        day_outside: 'text-muted-foreground/40 aria-selected:bg-primary/10 aria-selected:text-muted-foreground/60',
+                        day_disabled: 'text-muted-foreground opacity-40',
+                        day_hidden: 'invisible',
+                      }}
+                    />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Leave end date</Label>
-                    <Popover open={openLeaveEndPopover} onOpenChange={setOpenLeaveEndPopover}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full h-9 justify-start text-left font-normal',
-                            !leaveEndDate && 'text-muted-foreground',
-                            errors['leave_end_date'] && 'border-destructive'
-                          )}
-                        >
-                          {leaveEndDate ? format(leaveEndDate, 'd MMM yyyy') : 'Select date'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={leaveEndDate}
-                          onSelect={(date) => {
-                            setLeaveEndDate(date);
-                            clearError('leave_end_date');
-                            setOpenLeaveEndPopover(false);
-                          }}
-                          disabled={(date) => (leaveStartDate ? date < leaveStartDate : false)}
-                          initialFocus
-                          className={cn('p-3 pointer-events-auto')}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {errors['leave_end_date'] && (
-                      <p className="text-xs text-destructive">{errors['leave_end_date']}</p>
-                    )}
-                  </div>
-                </div>
+                  {/* Summary — embedded at bottom of calendar container */}
+                  {hasRange && !isNaN(daysNum) && daysNum > 0 && (() => {
+                    const fmtNum = (n: number) => (n % 1 === 0 ? String(n) : n.toFixed(1));
+                    const breakdownParts: { label: string; value: number; dotClass: string }[] = [];
+                    if (activeBucket && primaryUsed > 0) {
+                      breakdownParts.push({ label: activeBucket.short, value: primaryUsed, dotClass: activeBucket.dotClass });
+                    }
+                    if (overflowToUnpaid > 0) {
+                      breakdownParts.push({ label: 'Unpaid', value: overflowToUnpaid, dotClass: 'bg-muted-foreground/60' });
+                    }
+                    return (
+                      <div className="border-t border-border/60 bg-muted/30 px-3.5 py-3 text-sm rounded-b-xl">
+                        {/* Row 1: date range + days */}
+                        <div className="flex items-baseline justify-between gap-3">
+                          <span className="text-foreground tabular-nums">{rangeStr}</span>
+                          <span className="text-foreground tabular-nums">
+                            <span className="font-medium">{fmtNum(daysNum)}</span>
+                            <span className="text-muted-foreground ml-1 text-xs">{daysNum === 1 ? 'day' : 'days'}</span>
+                          </span>
+                        </div>
 
-                {/* Number of leave days */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Number of leave days</Label>
-                  <Input
-                    type="number"
-                    min="0.5"
-                    step="0.5"
-                    value={leaveDays}
-                    onChange={(e) => { setLeaveDays(e.target.value); clearError('leave_days'); }}
-                    placeholder="e.g. 2"
-                    className={cn('h-9', errors['leave_days'] && 'border-destructive')}
-                  />
-                  {errors['leave_days'] ? (
-                    <p className="text-xs text-destructive">{errors['leave_days']}</p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">Supports half days, e.g. 0.5 or 1.5</p>
-                  )}
+                        {/* Row 2: breakdown + half-day toggles */}
+                        <div className="mt-2 pt-2 border-t border-border/40 flex items-center justify-between gap-3">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+                            {breakdownParts.map((p, i) => (
+                              <span key={i} className="inline-flex items-center gap-1">
+                                <span className="tabular-nums text-foreground">{fmtNum(p.value)}</span>
+                                <span>{p.label.toLowerCase()}</span>
+                                {i < breakdownParts.length - 1 && <span className="text-border ml-1">·</span>}
+                              </span>
+                            ))}
+                            {holidaysInRange > 0 && (
+                              <>
+                                {breakdownParts.length > 0 && <span className="text-border">·</span>}
+                                <span className="inline-flex items-center gap-1">
+                                  <span className="tabular-nums text-foreground">{holidaysInRange}</span>
+                                  <span>holiday{holidaysInRange === 1 ? '' : 's'} (not counted)</span>
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {sameDay ? (
+                              <button
+                                type="button"
+                                title={`Take a half day on ${format(leaveStartDate!, 'd MMM')}`}
+                                onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
+                                className={cn(
+                                  'text-[11px] transition-colors',
+                                  leaveHalfDayStart
+                                    ? 'text-primary font-medium'
+                                    : 'text-muted-foreground hover:text-foreground'
+                                )}
+                              >
+                                ½ day
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  title={`Take a half day on ${format(leaveStartDate!, 'd MMM')}`}
+                                  onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
+                                  className={cn(
+                                    'text-[11px] transition-colors',
+                                    leaveHalfDayStart
+                                      ? 'text-primary font-medium'
+                                      : 'text-muted-foreground hover:text-foreground'
+                                  )}
+                                >
+                                  ½ first
+                                </button>
+                                <button
+                                  type="button"
+                                  title={`Take a half day on ${format(leaveEndDate!, 'd MMM')}`}
+                                  onClick={() => { setLeaveHalfDayEnd(!leaveHalfDayEnd); setLeaveDaysOverridden(false); }}
+                                  className={cn(
+                                    'text-[11px] transition-colors',
+                                    leaveHalfDayEnd
+                                      ? 'text-primary font-medium'
+                                      : 'text-muted-foreground hover:text-foreground'
+                                  )}
+                                >
+                                  ½ last
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
-
-                {/* Reason / note */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Reason / note (optional)</Label>
-                  <Textarea
-                    value={leaveNote}
-                    onChange={(e) => setLeaveNote(e.target.value)}
-                    placeholder="Add context for your admin, e.g. agreed time off, sick leave, personal leave."
-                    rows={3}
-                  />
-                </div>
-
                 {/* Attachment */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Attachment (optional)</Label>
@@ -1096,15 +1303,20 @@ export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                       />
                     </label>
                   )}
-                  <p className="text-xs text-muted-foreground">Optional for now. Add proof if required by your company or country rules.</p>
                 </div>
-              </div>
 
-              <Button onClick={handleSubmitLeave} className="w-full">
-                Request leave
-              </Button>
-            </div>
-          )}
+                {(errors['leave_type'] || errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_days']) && (
+                  <p className="text-xs text-destructive">
+                    {errors['leave_type'] || errors['leave_end_date'] || errors['leave_start_date'] || errors['leave_days']}
+                  </p>
+                )}
+
+                <Button onClick={handleSubmitLeave} disabled={!canSubmit} className="w-full">
+                  Request leave
+                </Button>
+              </div>
+            );
+          })()}
         </div>
       </SheetContent>
     </Sheet>
