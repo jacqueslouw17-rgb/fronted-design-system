@@ -1176,6 +1176,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
             const legend: { type: LeaveTypeOption; short: string; total: number | null; dotClass: string }[] = [
               { type: 'Paid leave', short: 'Paid', total: 12, dotClass: 'bg-emerald-500' },
               { type: 'Sick leave', short: 'Sick', total: 5, dotClass: 'bg-amber-500' },
+              { type: 'Maternity / parental leave', short: 'Parental', total: 105, dotClass: 'bg-violet-500' },
               { type: 'Unpaid leave', short: 'Unpaid', total: null, dotClass: 'bg-muted-foreground/60' },
               { type: 'Other leave', short: 'Other', total: null, dotClass: 'bg-sky-500' },
             ];
@@ -1205,12 +1206,12 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
 
             return (
               <div className="space-y-5">
-                {/* Calendar with inline legend (top-left) — legend chips select type and show live deduction */}
+                {/* Single-line legend doubles as type selector */}
                 <div className={cn(
                   'rounded-xl border bg-card/50 overflow-hidden',
                   (errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_type']) ? 'border-destructive/60' : 'border-border/60'
                 )}>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-4 pt-3.5">
+                  <div className="flex items-center gap-1 px-3 pt-3 overflow-x-auto no-scrollbar">
                     {legend.map((b) => {
                       const isSelected = leaveType === b.type;
                       const showDeduction = isSelected && hasRange && !isNaN(daysNum) && daysNum > 0 && b.total !== null;
@@ -1221,32 +1222,32 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                           type="button"
                           onClick={() => { setLeaveType(b.type); clearError('leave_type'); }}
                           className={cn(
-                            'flex items-center gap-1.5 text-[11px] tabular-nums transition-colors rounded-md px-1 py-0.5',
-                            isSelected ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                            'shrink-0 flex items-center gap-1.5 text-[11px] tabular-nums rounded-full px-2 py-1 transition-colors',
+                            isSelected
+                              ? 'bg-foreground/5 text-foreground ring-1 ring-foreground/10'
+                              : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
                           )}
                         >
-                          <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass, !isSelected && 'opacity-60')} />
+                          <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass, !isSelected && 'opacity-70')} />
                           <span className={cn(isSelected && 'font-medium')}>{b.short}</span>
-                          {b.total !== null ? (
+                          {b.total !== null && (
                             showDeduction ? (
                               <span className="text-foreground/80">
                                 <span className="line-through text-muted-foreground/70 mr-1">{b.total}</span>{remaining}
                               </span>
                             ) : (
-                              <span>{b.total}</span>
+                              <span className={isSelected ? 'text-foreground/80' : 'text-muted-foreground/80'}>{b.total}</span>
                             )
-                          ) : (
-                            <span className="text-muted-foreground/60">—</span>
                           )}
                         </button>
                       );
                     })}
-                    <span className="ml-auto flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <span className="shrink-0 ml-auto flex items-center gap-1.5 text-[11px] text-muted-foreground pl-2">
                       <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
                       Holiday
                     </span>
                   </div>
-                  <div className="px-2 pb-3 pt-1">
+                  <div className="px-3 pb-3 pt-1">
                     <Calendar
                       mode="range"
                       selected={leaveStartDate ? { from: leaveStartDate, to: leaveEndDate } : undefined}
@@ -1272,17 +1273,26 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                         holiday: 'relative text-rose-600 font-medium after:content-[""] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-rose-500/80',
                       }}
                       initialFocus
-                      className="w-full pointer-events-auto"
+                      className="w-full pointer-events-auto p-0"
                       classNames={{
                         months: 'w-full',
                         month: 'w-full space-y-3',
                         caption: 'flex justify-center pt-1 pb-1 relative items-center',
+                        caption_label: 'text-sm font-medium',
                         table: 'w-full border-collapse',
                         head_row: 'flex w-full',
-                        head_cell: 'flex-1 text-muted-foreground font-normal text-[0.75rem] py-1',
+                        head_cell: 'flex-1 text-muted-foreground font-normal text-[0.7rem] uppercase tracking-wide py-1.5',
                         row: 'flex w-full mt-1',
-                        cell: 'flex-1 h-11 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-primary/20 [&:has([aria-selected])]:bg-primary/20 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
-                        day: 'h-11 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted/60 rounded-md inline-flex items-center justify-center text-sm',
+                        cell: 'flex-1 h-10 text-center text-sm p-0 relative focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary/10 first:[&:has([aria-selected])]:rounded-l-full last:[&:has([aria-selected])]:rounded-r-full [&:has(.day-range-start)]:rounded-l-full [&:has(.day-range-end)]:rounded-r-full',
+                        day: 'h-10 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted/60 rounded-full inline-flex items-center justify-center text-sm transition-colors',
+                        day_selected: 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
+                        day_range_start: 'day-range-start bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground rounded-full',
+                        day_range_end: 'day-range-end bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground rounded-full',
+                        day_range_middle: 'aria-selected:bg-transparent aria-selected:text-foreground rounded-none',
+                        day_today: 'ring-1 ring-inset ring-foreground/20',
+                        day_outside: 'text-muted-foreground/40 aria-selected:bg-primary/10 aria-selected:text-muted-foreground/60',
+                        day_disabled: 'text-muted-foreground opacity-40',
+                        day_hidden: 'invisible',
                       }}
                     />
                   </div>
