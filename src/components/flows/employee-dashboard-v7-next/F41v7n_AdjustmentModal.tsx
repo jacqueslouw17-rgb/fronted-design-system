@@ -1292,18 +1292,6 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                   </span>
                 </div>
 
-                {/* Overflow hint */}
-                {overflowToUnpaid > 0 && !isUnpaidActive && (
-                  <p className="-mt-3 text-[11px] text-muted-foreground">
-                    {primaryUsed} {primaryUsed === 1 ? 'day' : 'days'} {activeBucket?.short.toLowerCase()} +{' '}
-                    <span className="text-foreground font-medium">{overflowToUnpaid} unpaid</span> — your {activeBucket?.short.toLowerCase()} balance runs out mid-range.
-                  </p>
-                )}
-                {holidaysInRange > 0 && (
-                  <p className="-mt-3 text-[11px] text-muted-foreground">
-                    {holidaysInRange} public {holidaysInRange === 1 ? 'holiday' : 'holidays'} in range — not deducted from your balance.
-                  </p>
-                )}
 
                 {/* Calendar */}
                 <div className={cn(
@@ -1352,7 +1340,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                         day_range_start: 'day-range-start bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground rounded-full',
                         day_range_end: 'day-range-end bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground rounded-full',
                         day_range_middle: 'aria-selected:bg-transparent aria-selected:text-foreground rounded-none',
-                        day_today: 'ring-1 ring-inset ring-foreground/20',
+                        day_today: 'font-semibold text-foreground',
                         day_outside: 'text-muted-foreground/40 aria-selected:bg-primary/10 aria-selected:text-muted-foreground/60',
                         day_disabled: 'text-muted-foreground opacity-40',
                         day_hidden: 'invisible',
