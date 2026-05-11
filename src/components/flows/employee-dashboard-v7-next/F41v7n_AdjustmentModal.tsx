@@ -36,7 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { F41v7n_TimeInput } from './F41v7n_TimeInput';
 
 export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
-export type LeaveTypeOption = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Other leave';
+export type LeaveTypeOption = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Maternity / parental leave' | 'Other leave';
 
 interface F41v7n_AdjustmentModalProps {
   open: boolean;
