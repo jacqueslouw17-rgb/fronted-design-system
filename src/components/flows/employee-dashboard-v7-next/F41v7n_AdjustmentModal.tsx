@@ -1255,11 +1255,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                             : 'bg-transparent text-muted-foreground border-border/60 hover:border-foreground/20 hover:text-foreground'
                         )}
                       >
-                        <span className={cn(
-                          'h-1.5 w-1.5 rounded-full transition-transform',
-                          b.dotClass,
-                          isActive && 'ring-2 ring-offset-1 ring-offset-background ring-current scale-110'
-                        )} />
+                        <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass)} />
                         <span>{b.short}</span>
                         {b.total !== null ? (
                           <span className="tabular-nums text-muted-foreground">
@@ -1288,10 +1284,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                       ? 'bg-rose-500/5 text-rose-600 border-rose-500/30 font-medium shadow-sm'
                       : 'text-muted-foreground border-border/40'
                   )}>
-                    <span className={cn(
-                      'h-1.5 w-1.5 rounded-full bg-rose-500/70',
-                      holidaysInRange > 0 && 'ring-2 ring-offset-1 ring-offset-background ring-rose-500/40 scale-110'
-                    )} />
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
                     Holiday
                     {holidaysInRange > 0 && (
                       <span className="tabular-nums">{holidaysInRange}</span>
