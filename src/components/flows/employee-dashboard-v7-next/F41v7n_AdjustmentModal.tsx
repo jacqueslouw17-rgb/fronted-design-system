@@ -1401,19 +1401,9 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                   )}
                 </div>
 
-                {/* Reason / note */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Note (optional)</Label>
-                  <Textarea
-                    value={leaveNote}
-                    onChange={(e) => setLeaveNote(e.target.value)}
-                    placeholder="Add context for your admin."
-                    rows={2}
-                  />
-                </div>
-
                 {/* Attachment */}
                 <div className="space-y-1.5">
+                  <Label className="text-xs">Attachment (optional)</Label>
                   {leaveAttachments.length > 0 && (
                     <div className="space-y-1.5">
                       {leaveAttachments.map((file, idx) => (
@@ -1436,10 +1426,10 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                     </div>
                   )}
                   {leaveAttachments.length < FILE_UPLOAD_MAX_COUNT && (
-                    <label className="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
-                      <Upload className="h-3.5 w-3.5 text-muted-foreground" />
+                    <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
-                        {leaveAttachments.length === 0 ? 'Attach proof (optional)' : 'Add more'}
+                        {leaveAttachments.length === 0 ? 'Upload documents' : 'Add more'}
                       </span>
                       <input
                         type="file"
