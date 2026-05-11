@@ -1414,89 +1414,80 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                     breakdownParts.push({ label: 'Unpaid', value: overflowToUnpaid, dotClass: 'bg-muted-foreground/60' });
                   }
                   return (
-                    <div className="rounded-xl bg-muted/40 border border-border/40 p-4 space-y-3">
-                      {/* Date range */}
+                    <div className="rounded-lg bg-muted/30 px-3.5 py-3 text-sm">
+                      {/* Row 1: date range + days */}
                       <div className="flex items-baseline justify-between gap-3">
-                        <div className="text-sm font-medium text-foreground tabular-nums">
-                          {rangeStr}
-                        </div>
-                        <div className="text-[11px] text-muted-foreground">
-                          {sameDay ? '1 calendar day' : `${Math.round((leaveEndDate!.getTime() - leaveStartDate!.getTime()) / 86400000) + 1} calendar days`}
-                        </div>
+                        <span className="text-foreground tabular-nums">{rangeStr}</span>
+                        <span className="text-foreground tabular-nums">
+                          <span className="font-medium">{fmtNum(daysNum)}</span>
+                          <span className="text-muted-foreground ml-1 text-xs">{daysNum === 1 ? 'day' : 'days'}</span>
+                        </span>
                       </div>
 
-                      {/* Days + half-day toggles */}
-                      <div className="flex items-center justify-between gap-3 pt-1">
-                        <div className="flex items-baseline gap-1.5">
-                          <span className="text-2xl font-semibold text-foreground tabular-nums leading-none">
-                            {fmtNum(daysNum)}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            working {daysNum === 1 ? 'day' : 'days'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {sameDay ? (
-                            <button
-                              type="button"
-                              onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
-                              className={cn(
-                                'text-[11px] rounded-md px-2 py-1 border transition-colors',
-                                leaveHalfDayStart
-                                  ? 'bg-primary/10 text-primary border-primary/30 font-medium'
-                                  : 'bg-transparent text-muted-foreground border-border/60 hover:text-foreground hover:border-foreground/30'
-                              )}
-                            >
-                              Half day
-                            </button>
-                          ) : (
-                            <>
+                      {/* Row 2: breakdown + half-day toggles */}
+                      {(breakdownParts.length > 0 || holidaysInRange > 0 || true) && (
+                        <div className="mt-2 pt-2 border-t border-border/40 flex items-center justify-between gap-3">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+                            {breakdownParts.map((p, i) => (
+                              <span key={i} className="inline-flex items-center gap-1">
+                                <span className="tabular-nums text-foreground">{fmtNum(p.value)}</span>
+                                <span>{p.label.toLowerCase()}</span>
+                                {i < breakdownParts.length - 1 && <span className="text-border ml-1">·</span>}
+                              </span>
+                            ))}
+                            {holidaysInRange > 0 && (
+                              <>
+                                {breakdownParts.length > 0 && <span className="text-border">·</span>}
+                                <span className="inline-flex items-center gap-1">
+                                  <span className="tabular-nums text-foreground">{holidaysInRange}</span>
+                                  <span>holiday{holidaysInRange === 1 ? '' : 's'}</span>
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {sameDay ? (
                               <button
                                 type="button"
                                 onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
                                 className={cn(
-                                  'text-[11px] rounded-md px-2 py-1 border transition-colors',
+                                  'text-[11px] transition-colors',
                                   leaveHalfDayStart
-                                    ? 'bg-primary/10 text-primary border-primary/30 font-medium'
-                                    : 'bg-transparent text-muted-foreground border-border/60 hover:text-foreground hover:border-foreground/30'
+                                    ? 'text-primary font-medium'
+                                    : 'text-muted-foreground hover:text-foreground'
                                 )}
                               >
-                                ½ first
+                                ½ day
                               </button>
-                              <button
-                                type="button"
-                                onClick={() => { setLeaveHalfDayEnd(!leaveHalfDayEnd); setLeaveDaysOverridden(false); }}
-                                className={cn(
-                                  'text-[11px] rounded-md px-2 py-1 border transition-colors',
-                                  leaveHalfDayEnd
-                                    ? 'bg-primary/10 text-primary border-primary/30 font-medium'
-                                    : 'bg-transparent text-muted-foreground border-border/60 hover:text-foreground hover:border-foreground/30'
-                                )}
-                              >
-                                ½ last
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Breakdown */}
-                      {(breakdownParts.length > 0 || holidaysInRange > 0) && (
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 border-t border-border/40">
-                          {breakdownParts.map((p, i) => (
-                            <span key={i} className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                              <span className={cn('h-1.5 w-1.5 rounded-full', p.dotClass)} />
-                              <span className="tabular-nums text-foreground font-medium">{fmtNum(p.value)}</span>
-                              <span>{p.label.toLowerCase()}</span>
-                            </span>
-                          ))}
-                          {holidaysInRange > 0 && (
-                            <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                              <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
-                              <span className="tabular-nums text-foreground font-medium">{holidaysInRange}</span>
-                              <span>holiday{holidaysInRange === 1 ? '' : 's'} (excluded)</span>
-                            </span>
-                          )}
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
+                                  className={cn(
+                                    'text-[11px] transition-colors',
+                                    leaveHalfDayStart
+                                      ? 'text-primary font-medium'
+                                      : 'text-muted-foreground hover:text-foreground'
+                                  )}
+                                >
+                                  ½ first
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => { setLeaveHalfDayEnd(!leaveHalfDayEnd); setLeaveDaysOverridden(false); }}
+                                  className={cn(
+                                    'text-[11px] transition-colors',
+                                    leaveHalfDayEnd
+                                      ? 'text-primary font-medium'
+                                      : 'text-muted-foreground hover:text-foreground'
+                                  )}
+                                >
+                                  ½ last
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
