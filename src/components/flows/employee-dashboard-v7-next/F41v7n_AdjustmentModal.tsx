@@ -1391,7 +1391,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                                 {breakdownParts.length > 0 && <span className="text-border">·</span>}
                                 <span className="inline-flex items-center gap-1">
                                   <span className="tabular-nums text-foreground">{holidaysInRange}</span>
-                                  <span>holiday{holidaysInRange === 1 ? '' : 's'}</span>
+                                  <span>holiday{holidaysInRange === 1 ? '' : 's'} (not counted)</span>
                                 </span>
                               </>
                             )}
@@ -1400,6 +1400,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                             {sameDay ? (
                               <button
                                 type="button"
+                                title={`Take a half day on ${format(leaveStartDate!, 'd MMM')}`}
                                 onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
                                 className={cn(
                                   'text-[11px] transition-colors',
@@ -1414,6 +1415,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                               <>
                                 <button
                                   type="button"
+                                  title={`Take a half day on ${format(leaveStartDate!, 'd MMM')}`}
                                   onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
                                   className={cn(
                                     'text-[11px] transition-colors',
@@ -1426,6 +1428,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                                 </button>
                                 <button
                                   type="button"
+                                  title={`Take a half day on ${format(leaveEndDate!, 'd MMM')}`}
                                   onClick={() => { setLeaveHalfDayEnd(!leaveHalfDayEnd); setLeaveDaysOverridden(false); }}
                                   className={cn(
                                     'text-[11px] transition-colors',
