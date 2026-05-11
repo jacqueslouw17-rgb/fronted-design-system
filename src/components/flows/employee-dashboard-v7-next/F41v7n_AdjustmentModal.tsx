@@ -1326,7 +1326,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                       }}
                       modifiersClassNames={{
                         weekend: 'text-muted-foreground/60',
-                        holiday: 'relative text-rose-600 font-medium after:content-[""] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-rose-500/80',
+                        holiday: 'relative text-rose-600 font-medium aria-selected:text-white after:content-[""] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-rose-500/80',
                       }}
                       initialFocus
                       className="w-full pointer-events-auto p-0"
