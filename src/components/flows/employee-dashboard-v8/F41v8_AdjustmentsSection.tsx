@@ -11,17 +11,17 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { X, Receipt, Sparkles } from 'lucide-react';
 import { TagChips } from '@/components/flows/shared/TagInput';
-import { useF41v7n_DashboardStore, type F41v7n_Adjustment } from '@/stores/F41v7n_DashboardStore';
+import { useF41v8_DashboardStore, type F41v8_Adjustment } from '@/stores/F41v8_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { F41v7n_WithdrawDialog } from './F41v7n_WithdrawDialog';
+import { F41v8_WithdrawDialog } from './F41v8_WithdrawDialog';
 
-interface F41v7n_AdjustmentsSectionProps {
+interface F41v8_AdjustmentsSectionProps {
   onRequestAdjustment: (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string, days?: number) => void;
 }
 
-export const F41v7n_AdjustmentsSection = ({ onRequestAdjustment }: F41v7n_AdjustmentsSectionProps) => {
-  const { adjustments, payrollStatus, withdrawAdjustment, resubmittedRejectionIds } = useF41v7n_DashboardStore();
+export const F41v8_AdjustmentsSection = ({ onRequestAdjustment }: F41v8_AdjustmentsSectionProps) => {
+  const { adjustments, payrollStatus, withdrawAdjustment, resubmittedRejectionIds } = useF41v8_DashboardStore();
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
   
@@ -67,7 +67,7 @@ export const F41v7n_AdjustmentsSection = ({ onRequestAdjustment }: F41v7n_Adjust
   };
 
 
-  const getStatusBadge = (status: F41v7n_Adjustment['status']) => {
+  const getStatusBadge = (status: F41v8_Adjustment['status']) => {
     switch (status) {
       case 'Pending':
         return (
@@ -86,7 +86,7 @@ export const F41v7n_AdjustmentsSection = ({ onRequestAdjustment }: F41v7n_Adjust
     }
   };
 
-  const formatLeaveDateRange = (adj: F41v7n_Adjustment) => {
+  const formatLeaveDateRange = (adj: F41v8_Adjustment) => {
     if (!adj.startDate) return '';
     const start = format(new Date(adj.startDate), 'd MMM yyyy');
     if (!adj.endDate || adj.endDate === adj.startDate) return start;
@@ -94,7 +94,7 @@ export const F41v7n_AdjustmentsSection = ({ onRequestAdjustment }: F41v7n_Adjust
     return `${start} – ${end}`;
   };
 
-  const getTypeLabel = (adj: F41v7n_Adjustment) => {
+  const getTypeLabel = (adj: F41v8_Adjustment) => {
     if (adj.type === 'Expense') {
       if (adj.tags && adj.tags.length > 0) return `${adj.tags.join(', ')} expense`;
       return 'Expense';
@@ -110,7 +110,7 @@ export const F41v7n_AdjustmentsSection = ({ onRequestAdjustment }: F41v7n_Adjust
     }
   };
 
-  const getDisplayValue = (adj: F41v7n_Adjustment) => {
+  const getDisplayValue = (adj: F41v8_Adjustment) => {
     if (adj.type === 'Overtime' && adj.hours) return `${adj.hours}h`;
     if (adj.type === 'Leave') {
       const days = adj.days ?? 0;
@@ -121,7 +121,7 @@ export const F41v7n_AdjustmentsSection = ({ onRequestAdjustment }: F41v7n_Adjust
     return formatAmount(adj.amount);
   };
 
-  const renderAdjustmentRow = (adj: F41v7n_Adjustment) => {
+  const renderAdjustmentRow = (adj: F41v8_Adjustment) => {
     const isPending = adj.status === 'Pending';
     const isRejected = adj.status === 'Admin rejected';
     
@@ -241,7 +241,7 @@ export const F41v7n_AdjustmentsSection = ({ onRequestAdjustment }: F41v7n_Adjust
         </CardContent>
       </Card>
       
-      <F41v7n_WithdrawDialog
+      <F41v8_WithdrawDialog
         open={withdrawDialogOpen}
         onOpenChange={setWithdrawDialogOpen}
         onConfirm={handleConfirmWithdraw}
