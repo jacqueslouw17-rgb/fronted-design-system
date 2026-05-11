@@ -153,7 +153,7 @@ const LEAVE_PAYROLL_IMPACT: Record<LeaveTypeOption, string> = {
   'Other leave': 'Requires review',
 };
 
-export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v8_AdjustmentModalProps) => {
+export const F41v8_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack, localExpenseCurrency = 'NOK' }: F41v8_AdjustmentModalProps) => {
   const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v8_DashboardStore();
 
   const rejectedAdjustment = rejectedId
