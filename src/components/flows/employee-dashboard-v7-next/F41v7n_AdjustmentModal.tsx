@@ -700,7 +700,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent className="w-[85%] sm:w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent className="w-[85%] sm:w-full sm:max-w-[30rem] overflow-y-auto">
         <SheetHeader className="pb-4 border-b border-border/40 text-left">
           <div className="flex items-center gap-2">
             {(selectedType || showBackAtSelection) && (
@@ -1298,7 +1298,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                   'rounded-xl border bg-card/50',
                   (errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_type']) ? 'border-destructive/60' : 'border-border/60'
                 )}>
-                  <div className="px-3 pb-3 pt-1">
+                  <div className="p-3">
                     <Calendar
                       mode="range"
                       selected={leaveStartDate ? { from: leaveStartDate, to: leaveEndDate } : undefined}
@@ -1328,8 +1328,10 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                       classNames={{
                         months: 'w-full',
                         month: 'w-full space-y-3',
-                        caption: 'flex justify-center pt-1 pb-1 relative items-center',
+                        caption: 'flex justify-center pt-1 pb-2 relative items-center',
                         caption_label: 'text-sm font-medium',
+                        nav_button_previous: 'absolute left-0',
+                        nav_button_next: 'absolute right-0',
                         table: 'w-full border-collapse',
                         head_row: 'flex w-full',
                         head_cell: 'flex-1 text-muted-foreground font-normal text-[0.7rem] uppercase tracking-wide py-1.5',
