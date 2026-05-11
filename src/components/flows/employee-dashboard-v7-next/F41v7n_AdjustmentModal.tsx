@@ -1160,7 +1160,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
             </div>
           )}
 
-          {/* Leave Form — calendar-first */}
+          {/* Leave Form — calendar-first, lean */}
           {selectedType === 'leave' && (() => {
             const daysNum = parseFloat(leaveDays);
             const hasRange = !!(leaveStartDate && leaveEndDate);
@@ -1172,70 +1172,54 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
               : '';
             const canSubmit = !!leaveType && hasRange && !isNaN(daysNum) && daysNum > 0;
 
+            // Legend doubles as type selector. Shows live deduction when this type is selected.
+            const legend: { type: LeaveTypeOption; short: string; total: number | null; dotClass: string }[] = [
+              { type: 'Paid leave', short: 'Paid', total: 12, dotClass: 'bg-emerald-500' },
+              { type: 'Sick leave', short: 'Sick', total: 5, dotClass: 'bg-amber-500' },
+              { type: 'Unpaid leave', short: 'Unpaid', total: null, dotClass: 'bg-muted-foreground/60' },
+              { type: 'Other leave', short: 'Other', total: null, dotClass: 'bg-sky-500' },
+            ];
+
             return (
               <div className="space-y-5">
-                {/* Leave overview / legend */}
-                <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-medium text-foreground">Your leave at a glance</p>
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Demo</span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
-                    {LEAVE_BALANCES.map((b) => (
-                      <div key={b.type} className="flex items-center gap-2 text-xs">
-                        <span className={cn('h-2 w-2 rounded-full shrink-0', b.dotClass)} />
-                        <span className="text-foreground/80">{b.type}</span>
-                        <span className="text-muted-foreground ml-auto tabular-nums">{b.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Balances are shown for guidance. Admin will confirm before payroll.
-                  </p>
-                </div>
-
-                {/* Leave type — pill cards */}
-                <div className="space-y-2">
-                  <Label className="text-xs">What type of leave is this?</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(['Paid leave', 'Sick leave', 'Unpaid leave', 'Maternity / parental leave', 'Other leave'] as LeaveTypeOption[]).map((opt) => {
-                      const selected = leaveType === opt;
-                      const dot = LEAVE_BALANCES.find(b => b.type === opt)?.dotClass ?? 'bg-muted-foreground/40';
+                {/* Calendar with inline legend (top-left) — legend chips select type and show live deduction */}
+                <div className={cn(
+                  'rounded-xl border bg-card/50',
+                  (errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_type']) ? 'border-destructive/60' : 'border-border/60'
+                )}>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 pt-3">
+                    {legend.map((b) => {
+                      const isSelected = leaveType === b.type;
+                      const showDeduction = isSelected && hasRange && !isNaN(daysNum) && daysNum > 0 && b.total !== null;
+                      const remaining = b.total !== null ? Math.max(0, b.total - (isSelected && !isNaN(daysNum) ? daysNum : 0)) : null;
                       return (
                         <button
-                          key={opt}
+                          key={b.type}
                           type="button"
-                          onClick={() => { setLeaveType(opt); clearError('leave_type'); }}
+                          onClick={() => { setLeaveType(b.type); clearError('leave_type'); }}
                           className={cn(
-                            'flex items-center gap-2 px-3 py-2.5 rounded-lg border text-left transition-colors',
-                            selected
-                              ? 'border-primary bg-primary/[0.04]'
-                              : 'border-border/60 hover:border-primary/40 hover:bg-primary/[0.02]',
-                            errors['leave_type'] && !selected && 'border-destructive/40'
+                            'flex items-center gap-1.5 text-[11px] tabular-nums transition-colors rounded-md px-1.5 py-0.5 -mx-1.5',
+                            isSelected ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                           )}
                         >
-                          <span className={cn('h-2 w-2 rounded-full shrink-0', dot)} />
-                          <span className={cn('text-xs font-medium', selected ? 'text-foreground' : 'text-foreground/80')}>
-                            {opt}
-                          </span>
+                          <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass, !isSelected && 'opacity-60')} />
+                          <span className={cn(isSelected && 'font-medium')}>{b.short}</span>
+                          {b.total !== null ? (
+                            showDeduction ? (
+                              <span className="text-foreground/80">
+                                <span className="line-through text-muted-foreground/70 mr-1">{b.total}</span>{remaining}
+                              </span>
+                            ) : (
+                              <span>{b.total}</span>
+                            )
+                          ) : (
+                            <span className="text-muted-foreground/60">—</span>
+                          )}
                         </button>
                       );
                     })}
                   </div>
-                  {errors['leave_type'] ? (
-                    <p className="text-xs text-destructive">{errors['leave_type']}</p>
-                  ) : leaveType ? (
-                    <p className="text-xs text-muted-foreground">{LEAVE_TYPE_HELPER[leaveType]}</p>
-                  ) : null}
-                </div>
-
-                {/* Calendar — date range */}
-                <div className="space-y-2">
-                  <Label className="text-xs">When are you away?</Label>
-                  <div className={cn(
-                    'rounded-xl border bg-card/50 p-2 flex justify-center',
-                    (errors['leave_start_date'] || errors['leave_end_date']) ? 'border-destructive' : 'border-border/60'
-                  )}>
+                  <div className="flex justify-center px-2 pb-2">
                     <Calendar
                       mode="range"
                       selected={leaveStartDate ? { from: leaveStartDate, to: leaveEndDate } : undefined}
@@ -1245,6 +1229,8 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                         setLeaveStartDate(from);
                         setLeaveEndDate(to);
                         setLeaveDaysOverridden(false);
+                        setLeaveHalfDayStart(false);
+                        setLeaveHalfDayEnd(false);
                         clearError('leave_start_date');
                         clearError('leave_end_date');
                         clearError('leave_days');
@@ -1257,108 +1243,74 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                         weekend: 'text-muted-foreground/60',
                       }}
                       initialFocus
-                      className={cn('p-2 pointer-events-auto')}
+                      className="p-2 pointer-events-auto"
                     />
                   </div>
-                  {hasRange ? (
-                    <p className="text-[11px] text-muted-foreground">
-                      Selected: <span className="text-foreground/80 tabular-nums">{rangeStr}</span>
-                    </p>
-                  ) : (
-                    <p className="text-[11px] text-muted-foreground">
-                      Pick a single day or click a start and end date.
-                    </p>
+                </div>
+
+                {/* Selection summary input + half-day controls below */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Your leave</Label>
+                  <div className={cn(
+                    'flex items-center justify-between h-10 px-3 rounded-md border bg-background text-sm',
+                    hasRange ? 'border-border' : 'border-border/60'
+                  )}>
+                    <span className={cn('tabular-nums', hasRange ? 'text-foreground' : 'text-muted-foreground')}>
+                      {hasRange ? rangeStr : 'Pick dates on the calendar'}
+                    </span>
+                    {hasRange && !isNaN(daysNum) && daysNum > 0 && (
+                      <span className="text-xs text-muted-foreground tabular-nums">
+                        {daysNum} {daysNum === 1 ? 'day' : 'days'}
+                      </span>
+                    )}
+                  </div>
+                  {hasRange && (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5">
+                      <span className="text-[11px] text-muted-foreground">Half day?</span>
+                      <button
+                        type="button"
+                        onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
+                        className={cn(
+                          'text-[11px] underline-offset-2 transition-colors',
+                          leaveHalfDayStart ? 'text-primary underline font-medium' : 'text-muted-foreground hover:text-foreground hover:underline'
+                        )}
+                      >
+                        {sameDay ? 'Half day' : 'First day'}
+                      </button>
+                      {!sameDay && (
+                        <button
+                          type="button"
+                          onClick={() => { setLeaveHalfDayEnd(!leaveHalfDayEnd); setLeaveDaysOverridden(false); }}
+                          className={cn(
+                            'text-[11px] underline-offset-2 transition-colors',
+                            leaveHalfDayEnd ? 'text-primary underline font-medium' : 'text-muted-foreground hover:text-foreground hover:underline'
+                          )}
+                        >
+                          Last day
+                        </button>
+                      )}
+                    </div>
                   )}
-                  {(errors['leave_start_date'] || errors['leave_end_date']) && (
+                  {(errors['leave_type'] || errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_days']) && (
                     <p className="text-xs text-destructive">
-                      {errors['leave_end_date'] || errors['leave_start_date']}
+                      {errors['leave_type'] || errors['leave_end_date'] || errors['leave_start_date'] || errors['leave_days']}
                     </p>
                   )}
                 </div>
 
-                {/* Auto-calculated duration summary */}
-                {hasRange && (
-                  <div className="p-3 rounded-lg border border-border/60 bg-muted/30 space-y-1">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-xs text-muted-foreground">Estimated duration</span>
-                      <span className="text-sm font-semibold tabular-nums">
-                        {!isNaN(daysNum) && daysNum > 0
-                          ? `${daysNum} working ${daysNum === 1 ? 'day' : 'days'}`
-                          : '—'}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground">
-                      Days are estimated from your selected dates. Admin will confirm before payroll.
-                    </p>
-                  </div>
-                )}
-
-                {/* Adjust duration */}
-                {hasRange && (
-                  <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
-                    <p className="text-xs font-medium text-foreground">Adjust duration if needed</p>
-                    <div className="space-y-2">
-                      <label className="flex items-center gap-2 text-xs cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 accent-primary"
-                          checked={leaveHalfDayStart}
-                          onChange={(e) => { setLeaveHalfDayStart(e.target.checked); setLeaveDaysOverridden(false); }}
-                        />
-                        <span className="text-foreground/80">First day is half day</span>
-                      </label>
-                      {!sameDay && (
-                        <label className="flex items-center gap-2 text-xs cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="h-3.5 w-3.5 accent-primary"
-                            checked={leaveHalfDayEnd}
-                            onChange={(e) => { setLeaveHalfDayEnd(e.target.checked); setLeaveDaysOverridden(false); }}
-                          />
-                          <span className="text-foreground/80">Last day is half day</span>
-                        </label>
-                      )}
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Number of leave days (override)</Label>
-                      <Input
-                        type="number"
-                        min="0.5"
-                        step="0.5"
-                        value={leaveDays}
-                        onChange={(e) => {
-                          setLeaveDays(e.target.value);
-                          setLeaveDaysOverridden(true);
-                          clearError('leave_days');
-                        }}
-                        placeholder="e.g. 2"
-                        className={cn('h-9', errors['leave_days'] && 'border-destructive')}
-                      />
-                      {errors['leave_days'] ? (
-                        <p className="text-xs text-destructive">{errors['leave_days']}</p>
-                      ) : (
-                        <p className="text-[11px] text-muted-foreground">
-                          Use this if the actual leave duration differs from the selected dates. Supports 0.5, 1, 1.5…
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
                 {/* Reason / note */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Reason / note (optional)</Label>
+                  <Label className="text-xs">Note (optional)</Label>
                   <Textarea
                     value={leaveNote}
                     onChange={(e) => setLeaveNote(e.target.value)}
-                    placeholder="Add context for your admin, e.g. agreed time off, sick leave, personal leave."
-                    rows={3}
+                    placeholder="Add context for your admin."
+                    rows={2}
                   />
                 </div>
 
                 {/* Attachment */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Attachment (optional)</Label>
                   {leaveAttachments.length > 0 && (
                     <div className="space-y-1.5">
                       {leaveAttachments.map((file, idx) => (
@@ -1381,10 +1333,10 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                     </div>
                   )}
                   {leaveAttachments.length < FILE_UPLOAD_MAX_COUNT && (
-                    <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
-                      <Upload className="h-4 w-4 text-muted-foreground" />
+                    <label className="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                      <Upload className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
-                        {leaveAttachments.length === 0 ? 'Upload documents' : 'Add more'}
+                        {leaveAttachments.length === 0 ? 'Attach proof (optional)' : 'Add more'}
                       </span>
                       <input
                         type="file"
@@ -1406,39 +1358,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                       />
                     </label>
                   )}
-                  <p className="text-[11px] text-muted-foreground">Optional for now. Add proof if required by your company or country rules.</p>
                 </div>
-
-                {/* Final summary */}
-                {canSubmit && (
-                  <div className="p-4 rounded-xl border border-primary/30 bg-primary/[0.03] space-y-2">
-                    <p className="text-xs font-medium text-foreground">Leave request summary</p>
-                    <div className="space-y-1 text-xs">
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Type</span>
-                        <span className="text-foreground/90">{leaveType}</span>
-                      </div>
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Dates</span>
-                        <span className="text-foreground/90 tabular-nums">{rangeStr}</span>
-                      </div>
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Duration</span>
-                        <span className="text-foreground/90 tabular-nums">
-                          {daysNum} {daysNum === 1 ? 'day' : 'days'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Payroll impact</span>
-                        <span className="text-foreground/90">{LEAVE_PAYROLL_IMPACT[leaveType as LeaveTypeOption]}</span>
-                      </div>
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Status after submit</span>
-                        <span className="text-foreground/90">Pending approval</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 <Button onClick={handleSubmitLeave} disabled={!canSubmit} className="w-full">
                   Request leave
