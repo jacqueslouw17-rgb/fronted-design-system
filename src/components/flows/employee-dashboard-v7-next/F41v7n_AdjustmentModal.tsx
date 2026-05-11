@@ -353,6 +353,27 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
     setErrors({});
   }, [selectedType]);
 
+  // Auto-calculate leave duration from selected dates and half-day toggles
+  useEffect(() => {
+    if (leaveDaysOverridden) return;
+    if (!leaveStartDate || !leaveEndDate) {
+      setLeaveDays('');
+      return;
+    }
+    let weekdays = countWeekdays(leaveStartDate, leaveEndDate);
+    if (weekdays <= 0) {
+      setLeaveDays('');
+      return;
+    }
+    if (leaveHalfDayStart) weekdays -= 0.5;
+    if (leaveHalfDayEnd && leaveEndDate.getTime() !== leaveStartDate.getTime()) weekdays -= 0.5;
+    if (leaveHalfDayStart && leaveEndDate.getTime() === leaveStartDate.getTime()) {
+      // single-day half day
+      weekdays = 0.5;
+    }
+    setLeaveDays(weekdays > 0 ? String(weekdays) : '');
+  }, [leaveStartDate, leaveEndDate, leaveHalfDayStart, leaveHalfDayEnd, leaveDaysOverridden]);
+
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>, 
     setFile: (file: File | null) => void,
