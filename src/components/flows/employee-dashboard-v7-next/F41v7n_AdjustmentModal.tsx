@@ -1206,47 +1206,52 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
 
             return (
               <div className="space-y-5">
-                {/* Single-line legend doubles as type selector */}
+                {/* Clean legend tags above calendar */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {legend.map((b) => {
+                    const isSelected = leaveType === b.type;
+                    const showDeduction = isSelected && hasRange && !isNaN(daysNum) && daysNum > 0 && b.total !== null;
+                    const remaining = b.total !== null ? Math.max(0, b.total - (isSelected && !isNaN(daysNum) ? daysNum : 0)) : null;
+                    return (
+                      <button
+                        key={b.type}
+                        type="button"
+                        onClick={() => { setLeaveType(b.type); clearError('leave_type'); }}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 transition-all border',
+                          isSelected
+                            ? 'bg-foreground/[0.06] text-foreground border-foreground/15 font-medium'
+                            : 'bg-transparent text-muted-foreground border-border/60 hover:border-foreground/20 hover:text-foreground'
+                        )}
+                      >
+                        <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass)} />
+                        <span>{b.short}</span>
+                        {b.total !== null && (
+                          <span className="tabular-nums text-muted-foreground">
+                            {showDeduction ? (
+                              <>
+                                <span className="line-through opacity-50">{b.total}</span>
+                                <span className="ml-0.5 text-foreground">{remaining}</span>
+                              </>
+                            ) : (
+                              b.total
+                            )}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                  <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground rounded-md px-2 py-1 border border-border/40">
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
+                    Holiday
+                  </span>
+                </div>
+
+                {/* Calendar */}
                 <div className={cn(
-                  'rounded-xl border bg-card/50 overflow-hidden',
+                  'rounded-xl border bg-card/50',
                   (errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_type']) ? 'border-destructive/60' : 'border-border/60'
                 )}>
-                  <div className="flex items-center gap-1 px-3 pt-3 overflow-x-auto no-scrollbar">
-                    {legend.map((b) => {
-                      const isSelected = leaveType === b.type;
-                      const showDeduction = isSelected && hasRange && !isNaN(daysNum) && daysNum > 0 && b.total !== null;
-                      const remaining = b.total !== null ? Math.max(0, b.total - (isSelected && !isNaN(daysNum) ? daysNum : 0)) : null;
-                      return (
-                        <button
-                          key={b.type}
-                          type="button"
-                          onClick={() => { setLeaveType(b.type); clearError('leave_type'); }}
-                          className={cn(
-                            'shrink-0 flex items-center gap-1.5 text-[11px] tabular-nums rounded-full px-2 py-1 transition-colors',
-                            isSelected
-                              ? 'bg-foreground/5 text-foreground ring-1 ring-foreground/10'
-                              : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
-                          )}
-                        >
-                          <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass, !isSelected && 'opacity-70')} />
-                          <span className={cn(isSelected && 'font-medium')}>{b.short}</span>
-                          {b.total !== null && (
-                            showDeduction ? (
-                              <span className="text-foreground/80">
-                                <span className="line-through text-muted-foreground/70 mr-1">{b.total}</span>{remaining}
-                              </span>
-                            ) : (
-                              <span className={isSelected ? 'text-foreground/80' : 'text-muted-foreground/80'}>{b.total}</span>
-                            )
-                          )}
-                        </button>
-                      );
-                    })}
-                    <span className="shrink-0 ml-auto flex items-center gap-1.5 text-[11px] text-muted-foreground pl-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
-                      Holiday
-                    </span>
-                  </div>
                   <div className="px-3 pb-3 pt-1">
                     <Calendar
                       mode="range"
