@@ -36,7 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { F41v7n_TimeInput } from './F41v7n_TimeInput';
 
 export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
-export type LeaveTypeOption = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Other leave';
+export type LeaveTypeOption = 'Paid leave' | 'Unpaid leave' | 'Sick leave' | 'Maternity / parental leave' | 'Other leave';
 
 interface F41v7n_AdjustmentModalProps {
   open: boolean;
@@ -110,6 +110,47 @@ const requestTypeOptions = [
   },
 ];
 
+// Count weekdays (Mon–Fri) inclusive between two dates
+const countWeekdays = (start: Date, end: Date): number => {
+  if (!start || !end || end < start) return 0;
+  let count = 0;
+  const cursor = new Date(start);
+  cursor.setHours(0, 0, 0, 0);
+  const last = new Date(end);
+  last.setHours(0, 0, 0, 0);
+  while (cursor <= last) {
+    const dow = cursor.getDay();
+    if (dow !== 0 && dow !== 6) count++;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return count;
+};
+
+// Demo leave balances (placeholder — admin confirms before payroll)
+const LEAVE_BALANCES: { type: LeaveTypeOption; label: string; dotClass: string }[] = [
+  { type: 'Paid leave', label: '12 days left', dotClass: 'bg-emerald-500' },
+  { type: 'Sick leave', label: '5 days used', dotClass: 'bg-amber-500' },
+  { type: 'Unpaid leave', label: 'No balance', dotClass: 'bg-muted-foreground/60' },
+  { type: 'Maternity / parental leave', label: 'If applicable', dotClass: 'bg-pink-500' },
+  { type: 'Other leave', label: 'Requires review', dotClass: 'bg-sky-500' },
+];
+
+const LEAVE_TYPE_HELPER: Record<LeaveTypeOption, string> = {
+  'Paid leave': 'Paid leave is tracked for approval and payroll visibility.',
+  'Sick leave': 'Sick leave may require documentation depending on country and company rules.',
+  'Unpaid leave': 'Unpaid leave may reduce pay once approved and included in payroll.',
+  'Maternity / parental leave': 'This may require additional review and documentation.',
+  'Other leave': 'This will be reviewed by your admin before payroll.',
+};
+
+const LEAVE_PAYROLL_IMPACT: Record<LeaveTypeOption, string> = {
+  'Paid leave': 'No automatic deduction',
+  'Sick leave': 'Requires review',
+  'Unpaid leave': 'May reduce pay once approved',
+  'Maternity / parental leave': 'Requires review',
+  'Other leave': 'Requires review',
+};
+
 export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v7n_AdjustmentModalProps) => {
   const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v7n_DashboardStore();
 
@@ -139,8 +180,10 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
   const [leaveDays, setLeaveDays] = useState<string>('');
   const [leaveNote, setLeaveNote] = useState<string>('');
   const [leaveAttachments, setLeaveAttachments] = useState<File[]>([]);
-  const [openLeaveStartPopover, setOpenLeaveStartPopover] = useState(false);
-  const [openLeaveEndPopover, setOpenLeaveEndPopover] = useState(false);
+  const [leaveHalfDayStart, setLeaveHalfDayStart] = useState(false);
+  const [leaveHalfDayEnd, setLeaveHalfDayEnd] = useState(false);
+  const [leaveDaysOverridden, setLeaveDaysOverridden] = useState(false);
+  const [openLeaveRangePopover, setOpenLeaveRangePopover] = useState(false);
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const clearError = (key: string) => setErrors(prev => {
@@ -167,6 +210,9 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
     setLeaveDays(initialDays?.toString() || '');
     setLeaveNote('');
     setLeaveAttachments([]);
+    setLeaveHalfDayStart(false);
+    setLeaveHalfDayEnd(false);
+    setLeaveDaysOverridden(false);
     setErrors({});
   };
 
@@ -304,6 +350,27 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
   useEffect(() => {
     setErrors({});
   }, [selectedType]);
+
+  // Auto-calculate leave duration from selected dates and half-day toggles
+  useEffect(() => {
+    if (leaveDaysOverridden) return;
+    if (!leaveStartDate || !leaveEndDate) {
+      setLeaveDays('');
+      return;
+    }
+    let weekdays = countWeekdays(leaveStartDate, leaveEndDate);
+    if (weekdays <= 0) {
+      setLeaveDays('');
+      return;
+    }
+    if (leaveHalfDayStart) weekdays -= 0.5;
+    if (leaveHalfDayEnd && leaveEndDate.getTime() !== leaveStartDate.getTime()) weekdays -= 0.5;
+    if (leaveHalfDayStart && leaveEndDate.getTime() === leaveStartDate.getTime()) {
+      // single-day half day
+      weekdays = 0.5;
+    }
+    setLeaveDays(weekdays > 0 ? String(weekdays) : '');
+  }, [leaveStartDate, leaveEndDate, leaveHalfDayStart, leaveHalfDayEnd, leaveDaysOverridden]);
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>, 
@@ -1093,138 +1160,190 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
             </div>
           )}
 
-          {/* Leave Form */}
-          {selectedType === 'leave' && (
-            <div className="space-y-5">
-              <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-4">
-                {/* Leave type */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Leave type</Label>
-                  <Select
-                    value={leaveType}
-                    onValueChange={(value) => {
-                      setLeaveType(value as LeaveTypeOption);
-                      clearError('leave_type');
-                    }}
-                  >
-                    <SelectTrigger
-                      className={cn('h-9', errors['leave_type'] && 'border-destructive')}
-                    >
-                      <SelectValue placeholder="Select leave type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Paid leave">Paid leave</SelectItem>
-                      <SelectItem value="Unpaid leave">Unpaid leave</SelectItem>
-                      <SelectItem value="Sick leave">Sick leave</SelectItem>
-                      <SelectItem value="Other leave">Other leave</SelectItem>
-                    </SelectContent>
-                  </Select>
+          {/* Leave Form — calendar-first */}
+          {selectedType === 'leave' && (() => {
+            const daysNum = parseFloat(leaveDays);
+            const hasRange = !!(leaveStartDate && leaveEndDate);
+            const sameDay = hasRange && leaveStartDate!.getTime() === leaveEndDate!.getTime();
+            const rangeStr = hasRange
+              ? sameDay
+                ? format(leaveStartDate!, 'd MMM yyyy')
+                : `${format(leaveStartDate!, 'd MMM yyyy')} – ${format(leaveEndDate!, 'd MMM yyyy')}`
+              : '';
+            const canSubmit = !!leaveType && hasRange && !isNaN(daysNum) && daysNum > 0;
+
+            return (
+              <div className="space-y-5">
+                {/* Leave overview / legend */}
+                <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium text-foreground">Your leave at a glance</p>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Demo</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+                    {LEAVE_BALANCES.map((b) => (
+                      <div key={b.type} className="flex items-center gap-2 text-xs">
+                        <span className={cn('h-2 w-2 rounded-full shrink-0', b.dotClass)} />
+                        <span className="text-foreground/80">{b.type}</span>
+                        <span className="text-muted-foreground ml-auto tabular-nums">{b.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Balances are shown for guidance. Admin will confirm before payroll.
+                  </p>
+                </div>
+
+                {/* Leave type — pill cards */}
+                <div className="space-y-2">
+                  <Label className="text-xs">What type of leave is this?</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(['Paid leave', 'Sick leave', 'Unpaid leave', 'Maternity / parental leave', 'Other leave'] as LeaveTypeOption[]).map((opt) => {
+                      const selected = leaveType === opt;
+                      const dot = LEAVE_BALANCES.find(b => b.type === opt)?.dotClass ?? 'bg-muted-foreground/40';
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => { setLeaveType(opt); clearError('leave_type'); }}
+                          className={cn(
+                            'flex items-center gap-2 px-3 py-2.5 rounded-lg border text-left transition-colors',
+                            selected
+                              ? 'border-primary bg-primary/[0.04]'
+                              : 'border-border/60 hover:border-primary/40 hover:bg-primary/[0.02]',
+                            errors['leave_type'] && !selected && 'border-destructive/40'
+                          )}
+                        >
+                          <span className={cn('h-2 w-2 rounded-full shrink-0', dot)} />
+                          <span className={cn('text-xs font-medium', selected ? 'text-foreground' : 'text-foreground/80')}>
+                            {opt}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                   {errors['leave_type'] ? (
                     <p className="text-xs text-destructive">{errors['leave_type']}</p>
-                  ) : leaveType === 'Paid leave' ? (
-                    <p className="text-xs text-muted-foreground">Paid leave is tracked for approval and payroll visibility. It does not automatically reduce pay.</p>
-                  ) : leaveType === 'Unpaid leave' ? (
-                    <p className="text-xs text-muted-foreground">Unpaid leave may reduce pay once approved and included in payroll.</p>
-                  ) : leaveType === 'Sick leave' ? (
-                    <p className="text-xs text-muted-foreground">Sick leave may require review depending on country and company rules.</p>
-                  ) : leaveType === 'Other leave' ? (
-                    <p className="text-xs text-muted-foreground">This will be reviewed by your admin before payroll.</p>
+                  ) : leaveType ? (
+                    <p className="text-xs text-muted-foreground">{LEAVE_TYPE_HELPER[leaveType]}</p>
                   ) : null}
                 </div>
 
-                {/* Date range */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Leave start date</Label>
-                    <Popover open={openLeaveStartPopover} onOpenChange={setOpenLeaveStartPopover}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full h-9 justify-start text-left font-normal',
-                            !leaveStartDate && 'text-muted-foreground',
-                            errors['leave_start_date'] && 'border-destructive'
-                          )}
-                        >
-                          {leaveStartDate ? format(leaveStartDate, 'd MMM yyyy') : 'Select date'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={leaveStartDate}
-                          onSelect={(date) => {
-                            setLeaveStartDate(date);
-                            clearError('leave_start_date');
-                            if (date && leaveEndDate && leaveEndDate < date) {
-                              setLeaveEndDate(undefined);
-                            }
-                            setOpenLeaveStartPopover(false);
-                          }}
-                          initialFocus
-                          className={cn('p-3 pointer-events-auto')}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {errors['leave_start_date'] && (
-                      <p className="text-xs text-destructive">{errors['leave_start_date']}</p>
-                    )}
+                {/* Calendar — date range */}
+                <div className="space-y-2">
+                  <Label className="text-xs">When are you away?</Label>
+                  <div className={cn(
+                    'rounded-xl border bg-card/50 p-2 flex justify-center',
+                    (errors['leave_start_date'] || errors['leave_end_date']) ? 'border-destructive' : 'border-border/60'
+                  )}>
+                    <Calendar
+                      mode="range"
+                      selected={leaveStartDate ? { from: leaveStartDate, to: leaveEndDate } : undefined}
+                      onSelect={(range: any) => {
+                        const from = range?.from as Date | undefined;
+                        const to = (range?.to as Date | undefined) ?? from;
+                        setLeaveStartDate(from);
+                        setLeaveEndDate(to);
+                        setLeaveDaysOverridden(false);
+                        clearError('leave_start_date');
+                        clearError('leave_end_date');
+                        clearError('leave_days');
+                      }}
+                      numberOfMonths={1}
+                      modifiers={{
+                        weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
+                      }}
+                      modifiersClassNames={{
+                        weekend: 'text-muted-foreground/60',
+                      }}
+                      initialFocus
+                      className={cn('p-2 pointer-events-auto')}
+                    />
                   </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Leave end date</Label>
-                    <Popover open={openLeaveEndPopover} onOpenChange={setOpenLeaveEndPopover}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full h-9 justify-start text-left font-normal',
-                            !leaveEndDate && 'text-muted-foreground',
-                            errors['leave_end_date'] && 'border-destructive'
-                          )}
-                        >
-                          {leaveEndDate ? format(leaveEndDate, 'd MMM yyyy') : 'Select date'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={leaveEndDate}
-                          onSelect={(date) => {
-                            setLeaveEndDate(date);
-                            clearError('leave_end_date');
-                            setOpenLeaveEndPopover(false);
-                          }}
-                          disabled={(date) => (leaveStartDate ? date < leaveStartDate : false)}
-                          initialFocus
-                          className={cn('p-3 pointer-events-auto')}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {errors['leave_end_date'] && (
-                      <p className="text-xs text-destructive">{errors['leave_end_date']}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Number of leave days */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Number of leave days</Label>
-                  <Input
-                    type="number"
-                    min="0.5"
-                    step="0.5"
-                    value={leaveDays}
-                    onChange={(e) => { setLeaveDays(e.target.value); clearError('leave_days'); }}
-                    placeholder="e.g. 2"
-                    className={cn('h-9', errors['leave_days'] && 'border-destructive')}
-                  />
-                  {errors['leave_days'] ? (
-                    <p className="text-xs text-destructive">{errors['leave_days']}</p>
+                  {hasRange ? (
+                    <p className="text-[11px] text-muted-foreground">
+                      Selected: <span className="text-foreground/80 tabular-nums">{rangeStr}</span>
+                    </p>
                   ) : (
-                    <p className="text-xs text-muted-foreground">Supports half days, e.g. 0.5 or 1.5</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Pick a single day or click a start and end date.
+                    </p>
+                  )}
+                  {(errors['leave_start_date'] || errors['leave_end_date']) && (
+                    <p className="text-xs text-destructive">
+                      {errors['leave_end_date'] || errors['leave_start_date']}
+                    </p>
                   )}
                 </div>
+
+                {/* Auto-calculated duration summary */}
+                {hasRange && (
+                  <div className="p-3 rounded-lg border border-border/60 bg-muted/30 space-y-1">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-xs text-muted-foreground">Estimated duration</span>
+                      <span className="text-sm font-semibold tabular-nums">
+                        {!isNaN(daysNum) && daysNum > 0
+                          ? `${daysNum} working ${daysNum === 1 ? 'day' : 'days'}`
+                          : '—'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Days are estimated from your selected dates. Admin will confirm before payroll.
+                    </p>
+                  </div>
+                )}
+
+                {/* Adjust duration */}
+                {hasRange && (
+                  <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
+                    <p className="text-xs font-medium text-foreground">Adjust duration if needed</p>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 text-xs cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="h-3.5 w-3.5 accent-primary"
+                          checked={leaveHalfDayStart}
+                          onChange={(e) => { setLeaveHalfDayStart(e.target.checked); setLeaveDaysOverridden(false); }}
+                        />
+                        <span className="text-foreground/80">First day is half day</span>
+                      </label>
+                      {!sameDay && (
+                        <label className="flex items-center gap-2 text-xs cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 accent-primary"
+                            checked={leaveHalfDayEnd}
+                            onChange={(e) => { setLeaveHalfDayEnd(e.target.checked); setLeaveDaysOverridden(false); }}
+                          />
+                          <span className="text-foreground/80">Last day is half day</span>
+                        </label>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Number of leave days (override)</Label>
+                      <Input
+                        type="number"
+                        min="0.5"
+                        step="0.5"
+                        value={leaveDays}
+                        onChange={(e) => {
+                          setLeaveDays(e.target.value);
+                          setLeaveDaysOverridden(true);
+                          clearError('leave_days');
+                        }}
+                        placeholder="e.g. 2"
+                        className={cn('h-9', errors['leave_days'] && 'border-destructive')}
+                      />
+                      {errors['leave_days'] ? (
+                        <p className="text-xs text-destructive">{errors['leave_days']}</p>
+                      ) : (
+                        <p className="text-[11px] text-muted-foreground">
+                          Use this if the actual leave duration differs from the selected dates. Supports 0.5, 1, 1.5…
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Reason / note */}
                 <div className="space-y-1.5">
@@ -1287,15 +1406,46 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                       />
                     </label>
                   )}
-                  <p className="text-xs text-muted-foreground">Optional for now. Add proof if required by your company or country rules.</p>
+                  <p className="text-[11px] text-muted-foreground">Optional for now. Add proof if required by your company or country rules.</p>
                 </div>
-              </div>
 
-              <Button onClick={handleSubmitLeave} className="w-full">
-                Request leave
-              </Button>
-            </div>
-          )}
+                {/* Final summary */}
+                {canSubmit && (
+                  <div className="p-4 rounded-xl border border-primary/30 bg-primary/[0.03] space-y-2">
+                    <p className="text-xs font-medium text-foreground">Leave request summary</p>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between gap-3">
+                        <span className="text-muted-foreground">Type</span>
+                        <span className="text-foreground/90">{leaveType}</span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="text-muted-foreground">Dates</span>
+                        <span className="text-foreground/90 tabular-nums">{rangeStr}</span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="text-muted-foreground">Duration</span>
+                        <span className="text-foreground/90 tabular-nums">
+                          {daysNum} {daysNum === 1 ? 'day' : 'days'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="text-muted-foreground">Payroll impact</span>
+                        <span className="text-foreground/90">{LEAVE_PAYROLL_IMPACT[leaveType as LeaveTypeOption]}</span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="text-muted-foreground">Status after submit</span>
+                        <span className="text-foreground/90">Pending approval</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <Button onClick={handleSubmitLeave} disabled={!canSubmit} className="w-full">
+                  Request leave
+                </Button>
+              </div>
+            );
+          })()}
         </div>
       </SheetContent>
     </Sheet>
