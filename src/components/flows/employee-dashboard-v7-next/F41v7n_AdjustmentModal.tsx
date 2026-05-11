@@ -184,8 +184,6 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
   const [leaveHalfDayEnd, setLeaveHalfDayEnd] = useState(false);
   const [leaveDaysOverridden, setLeaveDaysOverridden] = useState(false);
   const [openLeaveRangePopover, setOpenLeaveRangePopover] = useState(false);
-  const [openLeaveStartPopover, setOpenLeaveStartPopover] = useState(false);
-  const [openLeaveEndPopover, setOpenLeaveEndPopover] = useState(false);
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const clearError = (key: string) => setErrors(prev => {
