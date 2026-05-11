@@ -1351,57 +1351,6 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                   </div>
                 </div>
 
-                {/* Attachment */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Attachment (optional)</Label>
-                  {leaveAttachments.length > 0 && (
-                    <div className="space-y-1.5">
-                      {leaveAttachments.map((file, idx) => (
-                        <div key={idx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
-                          {file.type.startsWith('image/') ? (
-                            <Image className="h-4 w-4 text-primary shrink-0" />
-                          ) : (
-                            <FileText className="h-4 w-4 text-primary shrink-0" />
-                          )}
-                          <span className="text-xs flex-1 truncate">{file.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => setLeaveAttachments((prev) => prev.filter((_, i) => i !== idx))}
-                            className="p-0.5 hover:bg-muted rounded shrink-0"
-                          >
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {leaveAttachments.length < FILE_UPLOAD_MAX_COUNT && (
-                    <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
-                      <Upload className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {leaveAttachments.length === 0 ? 'Upload documents' : 'Add more'}
-                      </span>
-                      <input
-                        type="file"
-                        accept={FILE_UPLOAD_ACCEPT}
-                        multiple
-                        className="hidden"
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          if (files.length > 0) {
-                            const { valid, error } = validateFiles(files, leaveAttachments.length);
-                            if (error) {
-                              toast.error(error);
-                            } else if (valid.length > 0) {
-                              setLeaveAttachments((prev) => [...prev, ...valid]);
-                            }
-                          }
-                          e.target.value = '';
-                        }}
-                      />
-                    </label>
-                  )}
-                </div>
 
                 {/* Summary box — date range, days, half-day toggles, breakdown */}
                 {hasRange && !isNaN(daysNum) && daysNum > 0 && (() => {
@@ -1493,6 +1442,57 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                     </div>
                   );
                 })()}
+                {/* Attachment */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Attachment (optional)</Label>
+                  {leaveAttachments.length > 0 && (
+                    <div className="space-y-1.5">
+                      {leaveAttachments.map((file, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                          {file.type.startsWith('image/') ? (
+                            <Image className="h-4 w-4 text-primary shrink-0" />
+                          ) : (
+                            <FileText className="h-4 w-4 text-primary shrink-0" />
+                          )}
+                          <span className="text-xs flex-1 truncate">{file.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setLeaveAttachments((prev) => prev.filter((_, i) => i !== idx))}
+                            className="p-0.5 hover:bg-muted rounded shrink-0"
+                          >
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {leaveAttachments.length < FILE_UPLOAD_MAX_COUNT && (
+                    <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {leaveAttachments.length === 0 ? 'Upload documents' : 'Add more'}
+                      </span>
+                      <input
+                        type="file"
+                        accept={FILE_UPLOAD_ACCEPT}
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (files.length > 0) {
+                            const { valid, error } = validateFiles(files, leaveAttachments.length);
+                            if (error) {
+                              toast.error(error);
+                            } else if (valid.length > 0) {
+                              setLeaveAttachments((prev) => [...prev, ...valid]);
+                            }
+                          }
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
 
                 {(errors['leave_type'] || errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_days']) && (
                   <p className="text-xs text-destructive">
