@@ -204,7 +204,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
     setExpenseTags([]);
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: [] }]);
-    setLeaveType('');
+    setLeaveType('Paid leave');
     setLeaveStartDate(undefined);
     setLeaveEndDate(undefined);
     setLeaveDays(initialDays?.toString() || '');
