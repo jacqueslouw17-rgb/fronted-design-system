@@ -1349,32 +1349,29 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                       }}
                     />
                   </div>
-                </div>
 
+                  {/* Summary — embedded at bottom of calendar container */}
+                  {hasRange && !isNaN(daysNum) && daysNum > 0 && (() => {
+                    const fmtNum = (n: number) => (n % 1 === 0 ? String(n) : n.toFixed(1));
+                    const breakdownParts: { label: string; value: number; dotClass: string }[] = [];
+                    if (activeBucket && primaryUsed > 0) {
+                      breakdownParts.push({ label: activeBucket.short, value: primaryUsed, dotClass: activeBucket.dotClass });
+                    }
+                    if (overflowToUnpaid > 0) {
+                      breakdownParts.push({ label: 'Unpaid', value: overflowToUnpaid, dotClass: 'bg-muted-foreground/60' });
+                    }
+                    return (
+                      <div className="border-t border-border/60 bg-muted/30 px-3.5 py-3 text-sm rounded-b-xl">
+                        {/* Row 1: date range + days */}
+                        <div className="flex items-baseline justify-between gap-3">
+                          <span className="text-foreground tabular-nums">{rangeStr}</span>
+                          <span className="text-foreground tabular-nums">
+                            <span className="font-medium">{fmtNum(daysNum)}</span>
+                            <span className="text-muted-foreground ml-1 text-xs">{daysNum === 1 ? 'day' : 'days'}</span>
+                          </span>
+                        </div>
 
-                {/* Summary box — date range, days, half-day toggles, breakdown */}
-                {hasRange && !isNaN(daysNum) && daysNum > 0 && (() => {
-                  const fmtNum = (n: number) => (n % 1 === 0 ? String(n) : n.toFixed(1));
-                  const breakdownParts: { label: string; value: number; dotClass: string }[] = [];
-                  if (activeBucket && primaryUsed > 0) {
-                    breakdownParts.push({ label: activeBucket.short, value: primaryUsed, dotClass: activeBucket.dotClass });
-                  }
-                  if (overflowToUnpaid > 0) {
-                    breakdownParts.push({ label: 'Unpaid', value: overflowToUnpaid, dotClass: 'bg-muted-foreground/60' });
-                  }
-                  return (
-                    <div className="rounded-lg bg-muted/30 px-3.5 py-3 text-sm">
-                      {/* Row 1: date range + days */}
-                      <div className="flex items-baseline justify-between gap-3">
-                        <span className="text-foreground tabular-nums">{rangeStr}</span>
-                        <span className="text-foreground tabular-nums">
-                          <span className="font-medium">{fmtNum(daysNum)}</span>
-                          <span className="text-muted-foreground ml-1 text-xs">{daysNum === 1 ? 'day' : 'days'}</span>
-                        </span>
-                      </div>
-
-                      {/* Row 2: breakdown + half-day toggles */}
-                      {(breakdownParts.length > 0 || holidaysInRange > 0 || true) && (
+                        {/* Row 2: breakdown + half-day toggles */}
                         <div className="mt-2 pt-2 border-t border-border/40 flex items-center justify-between gap-3">
                           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
                             {breakdownParts.map((p, i) => (
@@ -1438,10 +1435,10 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                             )}
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })()}
+                      </div>
+                    );
+                  })()}
+                </div>
                 {/* Attachment */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Attachment (optional)</Label>
