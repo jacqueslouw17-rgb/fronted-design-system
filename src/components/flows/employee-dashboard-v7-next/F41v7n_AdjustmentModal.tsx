@@ -174,7 +174,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
   const [bonusItems, setBonusItems] = useState<BonusLineItem[]>([
     { id: crypto.randomUUID(), amount: '', attachment: [] }
   ]);
-  const [leaveType, setLeaveType] = useState<LeaveTypeOption | ''>('');
+  const [leaveType, setLeaveType] = useState<LeaveTypeOption | ''>('Paid leave');
   const [leaveStartDate, setLeaveStartDate] = useState<Date | undefined>(undefined);
   const [leaveEndDate, setLeaveEndDate] = useState<Date | undefined>(undefined);
   const [leaveDays, setLeaveDays] = useState<string>('');
@@ -204,7 +204,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
     setExpenseTags([]);
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: [] }]);
-    setLeaveType('');
+    setLeaveType('Paid leave');
     setLeaveStartDate(undefined);
     setLeaveEndDate(undefined);
     setLeaveDays(initialDays?.toString() || '');
@@ -1180,14 +1180,37 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
               { type: 'Other leave', short: 'Other', total: null, dotClass: 'bg-sky-500' },
             ];
 
+            // Public holidays (PH — Maria Santos). Static seed for 2025/2026 demo.
+            const publicHolidays: { date: Date; name: string }[] = [
+              { date: new Date(2025, 11, 25), name: 'Christmas Day' },
+              { date: new Date(2025, 11, 30), name: 'Rizal Day' },
+              { date: new Date(2026, 0, 1), name: "New Year's Day" },
+              { date: new Date(2026, 3, 2), name: 'Maundy Thursday' },
+              { date: new Date(2026, 3, 3), name: 'Good Friday' },
+              { date: new Date(2026, 3, 9), name: 'Araw ng Kagitingan' },
+              { date: new Date(2026, 4, 1), name: 'Labor Day' },
+              { date: new Date(2026, 5, 12), name: 'Independence Day' },
+              { date: new Date(2026, 7, 21), name: 'Ninoy Aquino Day' },
+              { date: new Date(2026, 7, 31), name: 'National Heroes Day' },
+              { date: new Date(2026, 10, 30), name: 'Bonifacio Day' },
+              { date: new Date(2026, 11, 25), name: 'Christmas Day' },
+              { date: new Date(2026, 11, 30), name: 'Rizal Day' },
+            ];
+            const isHoliday = (d: Date) =>
+              publicHolidays.some(h =>
+                h.date.getFullYear() === d.getFullYear() &&
+                h.date.getMonth() === d.getMonth() &&
+                h.date.getDate() === d.getDate()
+              );
+
             return (
               <div className="space-y-5">
                 {/* Calendar with inline legend (top-left) — legend chips select type and show live deduction */}
                 <div className={cn(
-                  'rounded-xl border bg-card/50',
+                  'rounded-xl border bg-card/50 overflow-hidden',
                   (errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_type']) ? 'border-destructive/60' : 'border-border/60'
                 )}>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 pt-3">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-4 pt-3.5">
                     {legend.map((b) => {
                       const isSelected = leaveType === b.type;
                       const showDeduction = isSelected && hasRange && !isNaN(daysNum) && daysNum > 0 && b.total !== null;
@@ -1198,7 +1221,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                           type="button"
                           onClick={() => { setLeaveType(b.type); clearError('leave_type'); }}
                           className={cn(
-                            'flex items-center gap-1.5 text-[11px] tabular-nums transition-colors rounded-md px-1.5 py-0.5 -mx-1.5',
+                            'flex items-center gap-1.5 text-[11px] tabular-nums transition-colors rounded-md px-1 py-0.5',
                             isSelected ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                           )}
                         >
@@ -1218,8 +1241,12 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                         </button>
                       );
                     })}
+                    <span className="ml-auto flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
+                      Holiday
+                    </span>
                   </div>
-                  <div className="flex justify-center px-2 pb-2">
+                  <div className="px-2 pb-3 pt-1">
                     <Calendar
                       mode="range"
                       selected={leaveStartDate ? { from: leaveStartDate, to: leaveEndDate } : undefined}
@@ -1238,12 +1265,25 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                       numberOfMonths={1}
                       modifiers={{
                         weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
+                        holiday: (date) => isHoliday(date),
                       }}
                       modifiersClassNames={{
                         weekend: 'text-muted-foreground/60',
+                        holiday: 'relative text-rose-600 font-medium after:content-[""] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-rose-500/80',
                       }}
                       initialFocus
-                      className="p-2 pointer-events-auto"
+                      className="w-full pointer-events-auto"
+                      classNames={{
+                        months: 'w-full',
+                        month: 'w-full space-y-3',
+                        caption: 'flex justify-center pt-1 pb-1 relative items-center',
+                        table: 'w-full border-collapse',
+                        head_row: 'flex w-full',
+                        head_cell: 'flex-1 text-muted-foreground font-normal text-[0.75rem] py-1',
+                        row: 'flex w-full mt-1',
+                        cell: 'flex-1 h-11 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-primary/20 [&:has([aria-selected])]:bg-primary/20 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
+                        day: 'h-11 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted/60 rounded-md inline-flex items-center justify-center text-sm',
+                      }}
                     />
                   </div>
                 </div>
