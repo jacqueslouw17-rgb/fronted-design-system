@@ -1351,56 +1351,6 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                   </div>
                 </div>
 
-                {/* Selection summary input + half-day controls below */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Your leave</Label>
-                  <div className={cn(
-                    'flex items-center justify-between h-10 px-3 rounded-md border bg-background text-sm',
-                    hasRange ? 'border-border' : 'border-border/60'
-                  )}>
-                    <span className={cn('tabular-nums', hasRange ? 'text-foreground' : 'text-muted-foreground')}>
-                      {hasRange ? rangeStr : 'Pick dates on the calendar'}
-                    </span>
-                    {hasRange && !isNaN(daysNum) && daysNum > 0 && (
-                      <span className="text-xs text-muted-foreground tabular-nums">
-                        {daysNum} {daysNum === 1 ? 'day' : 'days'}
-                      </span>
-                    )}
-                  </div>
-                  {hasRange && (
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5">
-                      <span className="text-[11px] text-muted-foreground">Half day?</span>
-                      <button
-                        type="button"
-                        onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
-                        className={cn(
-                          'text-[11px] underline-offset-2 transition-colors',
-                          leaveHalfDayStart ? 'text-primary underline font-medium' : 'text-muted-foreground hover:text-foreground hover:underline'
-                        )}
-                      >
-                        {sameDay ? 'Half day' : 'First day'}
-                      </button>
-                      {!sameDay && (
-                        <button
-                          type="button"
-                          onClick={() => { setLeaveHalfDayEnd(!leaveHalfDayEnd); setLeaveDaysOverridden(false); }}
-                          className={cn(
-                            'text-[11px] underline-offset-2 transition-colors',
-                            leaveHalfDayEnd ? 'text-primary underline font-medium' : 'text-muted-foreground hover:text-foreground hover:underline'
-                          )}
-                        >
-                          Last day
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {(errors['leave_type'] || errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_days']) && (
-                    <p className="text-xs text-destructive">
-                      {errors['leave_type'] || errors['leave_end_date'] || errors['leave_start_date'] || errors['leave_days']}
-                    </p>
-                  )}
-                </div>
-
                 {/* Attachment */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Attachment (optional)</Label>
@@ -1452,6 +1402,112 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                     </label>
                   )}
                 </div>
+
+                {/* Summary box — date range, days, half-day toggles, breakdown */}
+                {hasRange && !isNaN(daysNum) && daysNum > 0 && (() => {
+                  const fmtNum = (n: number) => (n % 1 === 0 ? String(n) : n.toFixed(1));
+                  const breakdownParts: { label: string; value: number; dotClass: string }[] = [];
+                  if (activeBucket && primaryUsed > 0) {
+                    breakdownParts.push({ label: activeBucket.short, value: primaryUsed, dotClass: activeBucket.dotClass });
+                  }
+                  if (overflowToUnpaid > 0) {
+                    breakdownParts.push({ label: 'Unpaid', value: overflowToUnpaid, dotClass: 'bg-muted-foreground/60' });
+                  }
+                  return (
+                    <div className="rounded-xl bg-muted/40 border border-border/40 p-4 space-y-3">
+                      {/* Date range */}
+                      <div className="flex items-baseline justify-between gap-3">
+                        <div className="text-sm font-medium text-foreground tabular-nums">
+                          {rangeStr}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          {sameDay ? '1 calendar day' : `${Math.round((leaveEndDate!.getTime() - leaveStartDate!.getTime()) / 86400000) + 1} calendar days`}
+                        </div>
+                      </div>
+
+                      {/* Days + half-day toggles */}
+                      <div className="flex items-center justify-between gap-3 pt-1">
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-2xl font-semibold text-foreground tabular-nums leading-none">
+                            {fmtNum(daysNum)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            working {daysNum === 1 ? 'day' : 'days'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {sameDay ? (
+                            <button
+                              type="button"
+                              onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
+                              className={cn(
+                                'text-[11px] rounded-md px-2 py-1 border transition-colors',
+                                leaveHalfDayStart
+                                  ? 'bg-primary/10 text-primary border-primary/30 font-medium'
+                                  : 'bg-transparent text-muted-foreground border-border/60 hover:text-foreground hover:border-foreground/30'
+                              )}
+                            >
+                              Half day
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => { setLeaveHalfDayStart(!leaveHalfDayStart); setLeaveDaysOverridden(false); }}
+                                className={cn(
+                                  'text-[11px] rounded-md px-2 py-1 border transition-colors',
+                                  leaveHalfDayStart
+                                    ? 'bg-primary/10 text-primary border-primary/30 font-medium'
+                                    : 'bg-transparent text-muted-foreground border-border/60 hover:text-foreground hover:border-foreground/30'
+                                )}
+                              >
+                                ½ first
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => { setLeaveHalfDayEnd(!leaveHalfDayEnd); setLeaveDaysOverridden(false); }}
+                                className={cn(
+                                  'text-[11px] rounded-md px-2 py-1 border transition-colors',
+                                  leaveHalfDayEnd
+                                    ? 'bg-primary/10 text-primary border-primary/30 font-medium'
+                                    : 'bg-transparent text-muted-foreground border-border/60 hover:text-foreground hover:border-foreground/30'
+                                )}
+                              >
+                                ½ last
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Breakdown */}
+                      {(breakdownParts.length > 0 || holidaysInRange > 0) && (
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 border-t border-border/40">
+                          {breakdownParts.map((p, i) => (
+                            <span key={i} className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                              <span className={cn('h-1.5 w-1.5 rounded-full', p.dotClass)} />
+                              <span className="tabular-nums text-foreground font-medium">{fmtNum(p.value)}</span>
+                              <span>{p.label.toLowerCase()}</span>
+                            </span>
+                          ))}
+                          {holidaysInRange > 0 && (
+                            <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                              <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
+                              <span className="tabular-nums text-foreground font-medium">{holidaysInRange}</span>
+                              <span>holiday{holidaysInRange === 1 ? '' : 's'} (excluded)</span>
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {(errors['leave_type'] || errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_days']) && (
+                  <p className="text-xs text-destructive">
+                    {errors['leave_type'] || errors['leave_end_date'] || errors['leave_start_date'] || errors['leave_days']}
+                  </p>
+                )}
 
                 <Button onClick={handleSubmitLeave} disabled={!canSubmit} className="w-full">
                   Request leave
