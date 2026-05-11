@@ -1214,7 +1214,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
               { type: 'Sick leave', short: 'Sick', total: 5, dotClass: 'bg-amber-500' },
               { type: 'Maternity / parental leave', short: 'Parental', total: 105, dotClass: 'bg-violet-500' },
               { type: 'Unpaid leave', short: 'Unpaid', total: null, dotClass: 'bg-muted-foreground/60' },
-              { type: 'Other leave', short: 'Other', total: null, dotClass: 'bg-sky-500' },
+              
             ];
 
             const activeBucket = legend.find(b => b.type === leaveType);
