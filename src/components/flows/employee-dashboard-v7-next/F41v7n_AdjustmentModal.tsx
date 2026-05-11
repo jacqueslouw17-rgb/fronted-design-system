@@ -1255,11 +1255,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                             : 'bg-transparent text-muted-foreground border-border/60 hover:border-foreground/20 hover:text-foreground'
                         )}
                       >
-                        <span className={cn(
-                          'h-1.5 w-1.5 rounded-full transition-transform',
-                          b.dotClass,
-                          isActive && 'ring-2 ring-offset-1 ring-offset-background ring-current scale-110'
-                        )} />
+                        <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass)} />
                         <span>{b.short}</span>
                         {b.total !== null ? (
                           <span className="tabular-nums text-muted-foreground">
