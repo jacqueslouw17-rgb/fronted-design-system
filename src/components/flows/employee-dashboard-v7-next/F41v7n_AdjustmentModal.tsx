@@ -1310,6 +1310,11 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                         setLeaveDaysOverridden(false);
                         setLeaveHalfDayStart(false);
                         setLeaveHalfDayEnd(false);
+                        // Auto-default to Paid leave on first date pick
+                        if (from && !leaveType) {
+                          setLeaveType('Paid leave');
+                          clearError('leave_type');
+                        }
                         clearError('leave_start_date');
                         clearError('leave_end_date');
                         clearError('leave_days');
