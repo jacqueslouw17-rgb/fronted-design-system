@@ -51,8 +51,8 @@ const COUNTRY_RULES: Record<string, CountryRule> = {
     probation: { default: 180, max: 180 }, noticePeriod: { default: 30, min: 30 },
     annualLeave: { default: 5, min: 5 }, sickLeave: { default: 5, min: 5 },
     weeklyHours: { default: 48, max: 48 }, payFrequency: { default: "fortnightly", locked: true },
-    mandatoryDocs: ["Identity document (Passport/National ID)", "TIN certificate", "Employment/Contractor agreement"],
-    optionalDocs: ["PhilHealth ID", "SSS ID", "Pag-IBIG ID"],
+    mandatoryDocs: ["Identity document (Passport/National ID)", "Employment/Contractor agreement"],
+    optionalDocs: ["TIN certificate", "PhilHealth ID", "SSS ID", "Pag-IBIG ID"],
   },
   Norway: {
     flag: "🇳🇴", currency: "NOK",
