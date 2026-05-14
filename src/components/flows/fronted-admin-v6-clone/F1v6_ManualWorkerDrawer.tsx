@@ -349,6 +349,26 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     onOpenChange(false);
   };
 
+  const handleAddActiveWorker = () => {
+    if (!canSaveBasic) return;
+    const flag = countryRule?.flag || "🌍";
+    const currencyCode = getCurrencyCode(country, employmentType);
+    onSave({
+      id: `manual-${Date.now()}`,
+      name: name.trim(),
+      country,
+      countryFlag: flag,
+      role: role.trim(),
+      salary: `${currencyCode} ${salary}`,
+      employmentType,
+      status: "CERTIFIED",
+      workerStatus: "active",
+    });
+    toast.success(`${name.trim()} added`, { description: "Worker is active and payroll-ready." });
+    resetForm();
+    onOpenChange(false);
+  };
+
   const resetForm = () => {
     setName(""); setEmail(""); setPhone(""); setDob(""); setNationality(""); setAddress(""); setNationalId("");
     setRole(""); setCountry(""); setEmploymentType("contractor"); setStartDate(""); setSalary(""); setCity("");
