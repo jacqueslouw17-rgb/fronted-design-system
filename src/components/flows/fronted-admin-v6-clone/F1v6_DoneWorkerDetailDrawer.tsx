@@ -46,9 +46,8 @@ import {
   ChevronDown,
   ArrowLeft,
   RefreshCw,
-  Send,
-  Settings,
-  FileEdit,
+  X,
+  Plus,
   Lock,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
