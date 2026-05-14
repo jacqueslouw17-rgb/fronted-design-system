@@ -1011,28 +1011,22 @@ export const F1v4_DoneWorkerDetailDrawer: React.FC<F1v4_DoneWorkerDetailDrawerPr
                     <Button
                       variant="outline"
                       className="flex-1 text-xs h-8 gap-1"
-                      onClick={() => {
-                        toast.success("Changes saved", { description: `${worker.name}'s details have been saved.` });
-                      }}
+                      onClick={() => onOpenChange(false)}
                     >
-                      <Settings className="h-3 w-3" />
-                      Save Changes
+                      <X className="h-3 w-3" />
+                      Cancel
                     </Button>
                     <Button
                       className="flex-1 text-xs h-8 gap-1 bg-gradient-primary hover:opacity-90"
-                      onClick={() => onSendForm?.(worker.id)}
+                      onClick={() => {
+                        onMarkAsActive?.(worker.id);
+                        onOpenChange(false);
+                      }}
                     >
-                      <Send className="h-3 w-3" />
-                      Send Form
+                      <Plus className="h-3 w-3" />
+                      Add
                     </Button>
                   </div>
-                  <button
-                    className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground/70 hover:text-primary py-0.5 transition-colors duration-200"
-                    onClick={() => onMarkAsActive?.(worker.id)}
-                  >
-                    <FileEdit className="h-2.5 w-2.5" />
-                    <span className="underline underline-offset-2 decoration-dotted">I have all details – Mark as active</span>
-                  </button>
                 </div>
               )}
             </div>
