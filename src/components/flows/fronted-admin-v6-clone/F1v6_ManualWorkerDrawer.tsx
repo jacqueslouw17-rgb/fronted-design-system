@@ -369,12 +369,10 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setPanNumber(""); setTaxRegime("new"); setUanNumber(""); setPfContribution("statutory"); setEsiNumber(""); setProfessionalTax("applicable"); setGratuityNominee("");
     setTin(""); setCivilStatus("single"); setNumDependents(""); setSssNumber(""); setPhilHealth(""); setPagibigNumber("");
     setBankCountry(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setSwiftBic(""); setIfscCode(""); setBranch("");
-    setDocuments([]);
+    setContractFile(null);
+    setSupportingFiles([]);
     setWorkerStatus("draft");
   };
-
-  const uploadedMandatoryCount = documents.filter(d => d.mandatory && d.file).length;
-  const totalMandatoryCount = documents.filter(d => d.mandatory).length;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
