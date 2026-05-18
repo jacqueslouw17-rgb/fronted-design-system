@@ -969,12 +969,12 @@ const PipelineFlowBar: React.FC<{
   onOpen: (e: EntityRecord) => void;
 }> = ({ entities, onOpen }) => {
   const stageColors: Record<EntityStage, string> = {
-    intake: CHART.muted,
-    details: CHART.warn,
-    setup: CHART.info,
-    payroll: CHART.primary,
-    compliance: "hsl(290 65% 60%)",
-    active: CHART.ok,
+    intake: BRAND.sand,
+    details: BRAND.pinkDeep,
+    setup: BRAND.pink,
+    payroll: BRAND.mint,
+    compliance: BRAND.mintDeep,
+    active: BRAND.ink,
   };
   const totals = STAGES.map((s) => ({
     ...s,
@@ -983,8 +983,8 @@ const PipelineFlowBar: React.FC<{
   const max = Math.max(1, ...totals.map((t) => t.items.length));
 
   return (
-    <Card className="p-5 bg-background border-border/60">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="ev1-card ev1-tint-cream p-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {totals.map((s, i) => {
           const heightPct = (s.items.length / max) * 100;
           const color = stageColors[s.key];
