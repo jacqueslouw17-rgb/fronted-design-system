@@ -9,7 +9,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   Building2,
@@ -24,6 +24,8 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  TrendingUp,
+  TrendingDown,
   Users,
   Wallet,
   Workflow,
@@ -32,6 +34,22 @@ import {
   AlertCircle,
   Circle,
 } from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -50,6 +68,17 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import frontedLogo from "@/assets/fronted-logo.png";
+
+// Chart palette — soft, executive, Stripe-inspired
+const CHART = {
+  primary: "hsl(252 70% 58%)",
+  primaryFade: "hsl(252 70% 58% / 0.12)",
+  ok: "hsl(152 60% 42%)",
+  warn: "hsl(38 92% 55%)",
+  info: "hsl(210 90% 56%)",
+  muted: "hsl(215 16% 75%)",
+  ink: "hsl(222 25% 18%)",
+};
 
 // ────────────────────────────────────────────────────────────────
 // Types
@@ -607,40 +636,48 @@ const Ev1_EntityDashboard: React.FC = () => {
           </div>
         </section>
 
-        {/* Overview cards */}
+        {/* Overview cards — visual KPI row */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <OverviewCard
-            title="Entity status"
-            rows={[
-              { label: "Active entities", value: "1" },
-              { label: "In setup", value: "2" },
-              { label: "Waiting on client", value: "1" },
+          <EntityStatusCard active={1} setup={2} waiting={1} />
+          <PayrollReadinessCard ready={12} missing={3} target="25 Jan" />
+          <SavingsCard
+            eor={63400}
+            direct={41200}
+            trend={[
+              { m: "Aug", eor: 62, direct: 62 },
+              { m: "Sep", eor: 62.4, direct: 58 },
+              { m: "Oct", eor: 62.8, direct: 52 },
+              { m: "Nov", eor: 63, direct: 47 },
+              { m: "Dec", eor: 63.2, direct: 44 },
+              { m: "Jan", eor: 63.4, direct: 41.2 },
             ]}
           />
-          <OverviewCard
-            title="Payroll readiness"
-            rows={[
-              { label: "Payroll-ready workers", value: "12" },
-              { label: "Missing details", value: "3" },
-              { label: "First payroll target", value: "25 Jan" },
-            ]}
-          />
-          <OverviewCard
-            title="Estimated savings"
-            rows={[
-              { label: "Current EOR cost", value: "$63.4k/mo" },
-              { label: "Direct entity cost", value: "$41.2k/mo" },
-              { label: "Monthly saving", value: "$22.2k", emphasize: true },
-            ]}
-          />
-          <OverviewCard
-            title="Open actions"
-            rows={[
-              { label: "Missing client details", value: "7" },
-              { label: "Documents pending", value: "4" },
-              { label: "Compliance review", value: "1" },
-            ]}
-          />
+          <OpenActionsCard missing={7} docs={4} compliance={1} />
+        </section>
+
+        {/* Entity setup pipeline — moved up, right under overview cards */}
+        <section className="space-y-5">
+          <div className="flex items-end justify-between flex-wrap gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-2">
+                <Workflow className="h-3.5 w-3.5" />
+                Pipeline
+              </div>
+              <h2 className="text-2xl font-semibold tracking-tight">Entity setup pipeline</h2>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+                Company and country-level progress, from intake to active entity.
+              </p>
+            </div>
+            <ViewToggle value={view} onChange={setView} />
+          </div>
+
+          <PipelineFlowBar entities={filtered} onOpen={setActive} />
+
+          {view === "board" ? (
+            <BoardView entities={filtered} onOpen={setActive} />
+          ) : (
+            <ListView entities={filtered} onOpen={setActive} />
+          )}
         </section>
 
         {/* What Fronted handles */}
@@ -663,30 +700,8 @@ const Ev1_EntityDashboard: React.FC = () => {
             ))}
           </div>
         </section>
-
-        {/* Entity setup pipeline */}
-        <section className="space-y-5">
-          <div className="flex items-end justify-between flex-wrap gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-2">
-                <Workflow className="h-3.5 w-3.5" />
-                Pipeline
-              </div>
-              <h2 className="text-2xl font-semibold tracking-tight">Entity setup pipeline</h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-                Company and country-level progress, from intake to active entity.
-              </p>
-            </div>
-            <ViewToggle value={view} onChange={setView} />
-          </div>
-
-          {view === "board" ? (
-            <BoardView entities={filtered} onOpen={setActive} />
-          ) : (
-            <ListView entities={filtered} onOpen={setActive} />
-          )}
-        </section>
       </main>
+
 
       {/* Detail drawer */}
       <Sheet open={!!active} onOpenChange={(o) => !o && setActive(null)}>
@@ -702,29 +717,295 @@ const Ev1_EntityDashboard: React.FC = () => {
 // Sub components
 // ────────────────────────────────────────────────────────────────
 
-const OverviewCard: React.FC<{
+// ────────────────────────────────────────────────────────────────
+// Visual overview cards
+// ────────────────────────────────────────────────────────────────
+
+const KPICard: React.FC<{
   title: string;
-  rows: { label: string; value: string; emphasize?: boolean }[];
-}> = ({ title, rows }) => (
-  <Card className="p-5 bg-gradient-to-br from-background to-muted/30 border-border/60 hover:shadow-sm transition">
-    <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground mb-3">{title}</p>
-    <div className="space-y-2">
-      {rows.map((r) => (
-        <div key={r.label} className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">{r.label}</span>
-          <span
-            className={cn(
-              "font-medium tabular-nums",
-              r.emphasize ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"
-            )}
-          >
-            {r.value}
-          </span>
-        </div>
-      ))}
+  big: React.ReactNode;
+  delta?: { tone: "ok" | "warn"; label: string };
+  children?: React.ReactNode;
+}> = ({ title, big, delta, children }) => (
+  <Card className="p-5 bg-background border-border/60 hover:shadow-[0_8px_30px_-12px_hsl(252_70%_58%/0.18)] hover:border-border transition-all flex flex-col gap-3">
+    <div className="flex items-center justify-between">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-medium">{title}</p>
+      {delta && (
+        <span
+          className={cn(
+            "inline-flex items-center gap-0.5 text-[10.5px] font-semibold tabular-nums",
+            delta.tone === "ok" ? "text-emerald-600" : "text-amber-600"
+          )}
+        >
+          {delta.tone === "ok" ? (
+            <TrendingUp className="h-3 w-3" />
+          ) : (
+            <TrendingDown className="h-3 w-3" />
+          )}
+          {delta.label}
+        </span>
+      )}
     </div>
+    <div className="text-2xl font-semibold tracking-tight text-foreground tabular-nums leading-none">
+      {big}
+    </div>
+    {children}
   </Card>
 );
+
+const EntityStatusCard: React.FC<{ active: number; setup: number; waiting: number }> = ({
+  active,
+  setup,
+  waiting,
+}) => {
+  const data = [
+    { name: "Active", value: active, color: CHART.ok },
+    { name: "In setup", value: setup, color: CHART.primary },
+    { name: "Waiting", value: waiting, color: CHART.warn },
+  ];
+  const total = active + setup + waiting;
+  return (
+    <KPICard title="Entity status" big={`${total}`} delta={{ tone: "ok", label: "+1 this qtr" }}>
+      <div className="flex items-center gap-3 -mt-1">
+        <div className="relative h-[68px] w-[68px] shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                innerRadius={22}
+                outerRadius={32}
+                strokeWidth={0}
+                paddingAngle={2}
+              >
+                {data.map((d) => (
+                  <Cell key={d.name} fill={d.color} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="absolute inset-0 flex items-center justify-center text-[11px] font-semibold tabular-nums">
+            {total}
+          </div>
+        </div>
+        <div className="flex-1 space-y-1.5">
+          {data.map((d) => (
+            <div key={d.name} className="flex items-center justify-between text-[11px]">
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.color }} />
+                {d.name}
+              </span>
+              <span className="font-medium text-foreground tabular-nums">{d.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </KPICard>
+  );
+};
+
+const PayrollReadinessCard: React.FC<{ ready: number; missing: number; target: string }> = ({
+  ready,
+  missing,
+  target,
+}) => {
+  const pct = Math.round((ready / (ready + missing)) * 100);
+  const series = [4, 6, 7, 9, 10, 11, 12].map((v, i) => ({ d: i, v }));
+  return (
+    <KPICard title="Payroll readiness" big={`${pct}%`} delta={{ tone: "ok", label: "+8% MoM" }}>
+      <div className="h-[42px] -mx-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={series} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id="pr-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={CHART.primary} stopOpacity={0.35} />
+                <stop offset="100%" stopColor={CHART.primary} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey="v"
+              stroke={CHART.primary}
+              strokeWidth={1.75}
+              fill="url(#pr-grad)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="flex items-center justify-between text-[11px] text-muted-foreground border-t border-border/40 pt-2">
+        <span>
+          <span className="text-foreground font-medium">{ready}</span> ready · {missing} missing
+        </span>
+        <span>Target {target}</span>
+      </div>
+    </KPICard>
+  );
+};
+
+const SavingsCard: React.FC<{
+  eor: number;
+  direct: number;
+  trend: { m: string; eor: number; direct: number }[];
+}> = ({ eor, direct, trend }) => {
+  const saving = eor - direct;
+  const pct = Math.round((saving / eor) * 100);
+  return (
+    <KPICard
+      title="Estimated savings"
+      big={
+        <span className="text-emerald-600">
+          ${(saving / 1000).toFixed(1)}k
+          <span className="text-xs text-muted-foreground font-normal ml-1">/mo</span>
+        </span>
+      }
+      delta={{ tone: "ok", label: `−${pct}% vs EOR` }}
+    >
+      <div className="h-[44px] -mx-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={trend} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
+            <Line
+              type="monotone"
+              dataKey="eor"
+              stroke={CHART.muted}
+              strokeWidth={1.5}
+              strokeDasharray="3 3"
+              dot={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="direct"
+              stroke={CHART.ok}
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="flex items-center justify-between text-[11px] text-muted-foreground border-t border-border/40 pt-2">
+        <span className="flex items-center gap-1">
+          <span className="h-px w-3 border-t border-dashed border-muted-foreground/60" />
+          EOR ${(eor / 1000).toFixed(0)}k
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="h-[2px] w-3 bg-emerald-600" />
+          Direct ${(direct / 1000).toFixed(0)}k
+        </span>
+      </div>
+    </KPICard>
+  );
+};
+
+const OpenActionsCard: React.FC<{ missing: number; docs: number; compliance: number }> = ({
+  missing,
+  docs,
+  compliance,
+}) => {
+  const data = [
+    { name: "Missing", v: missing, color: CHART.warn },
+    { name: "Docs", v: docs, color: CHART.info },
+    { name: "Compliance", v: compliance, color: CHART.primary },
+  ];
+  const total = missing + docs + compliance;
+  return (
+    <KPICard title="Open actions" big={`${total}`} delta={{ tone: "warn", label: "−3 this week" }}>
+      <div className="h-[52px] -mx-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }} barCategoryGap={10}>
+            <Bar dataKey="v" radius={[4, 4, 0, 0]}>
+              {data.map((d, i) => (
+                <Cell key={i} fill={d.color} />
+              ))}
+            </Bar>
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+              interval={0}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </KPICard>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────
+// Pipeline visual flow bar
+// ────────────────────────────────────────────────────────────────
+
+const PipelineFlowBar: React.FC<{
+  entities: EntityRecord[];
+  onOpen: (e: EntityRecord) => void;
+}> = ({ entities, onOpen }) => {
+  const stageColors: Record<EntityStage, string> = {
+    intake: CHART.muted,
+    details: CHART.warn,
+    setup: CHART.info,
+    payroll: CHART.primary,
+    compliance: "hsl(290 65% 60%)",
+    active: CHART.ok,
+  };
+  const totals = STAGES.map((s) => ({
+    ...s,
+    items: entities.filter((e) => e.stage === s.key),
+  }));
+  const max = Math.max(1, ...totals.map((t) => t.items.length));
+
+  return (
+    <Card className="p-5 bg-background border-border/60">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {totals.map((s, i) => {
+          const heightPct = (s.items.length / max) * 100;
+          const color = stageColors[s.key];
+          return (
+            <div key={s.key} className="relative flex flex-col">
+              <div className="flex items-end h-[68px] mb-2">
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: `${Math.max(heightPct, 6)}%` }}
+                  transition={{ delay: i * 0.06, duration: 0.5, ease: "easeOut" }}
+                  className="w-full rounded-md"
+                  style={{
+                    background: `linear-gradient(180deg, ${color}, ${color}99)`,
+                  }}
+                />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xl font-semibold tabular-nums text-foreground">
+                    {s.items.length}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {i + 1}/{STAGES.length}
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium text-foreground leading-tight">{s.label}</p>
+                <div className="flex flex-wrap gap-0.5 pt-1">
+                  {s.items.slice(0, 3).map((e) => (
+                    <button
+                      key={e.id}
+                      onClick={() => onOpen(e)}
+                      className="text-[11px] leading-none hover:scale-110 transition"
+                      title={`${e.company} · ${e.country}`}
+                    >
+                      {e.flag}
+                    </button>
+                  ))}
+                  {s.items.length > 3 && (
+                    <span className="text-[10px] text-muted-foreground">+{s.items.length - 3}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+};
+
+
 
 const ServiceCard: React.FC<{ service: ServiceArea; onOpen: () => void }> = ({
   service,
