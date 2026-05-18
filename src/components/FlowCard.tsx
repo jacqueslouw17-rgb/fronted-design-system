@@ -708,6 +708,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 3,
       dataModel: null
     },
+    'shared-entity-v1': {
+      path: "/flows/entity-v1",
+      iconColor: "cyan",
+      icon: Workflow,
+      title: "Shared – Entity v1",
+      status: "future" as const,
+      deprecated: false,
+      description: "Isolated clone of Flow 1 Fronted Dashboard v7 (Future). First card under Shared › Entity. Fully independent (entity-v1 namespace) — changes do NOT affect v7.",
+      steps: "7 steps",
+      patterns: "5 patterns",
+      badges: [
+        { label: "Genie-Led Conversational", path: "/onboarding" },
+        { label: "Contract Preview & E-Sign", path: "/contract-preview" }
+      ],
+      additionalCount: 3,
+      dataModel: null
+    },
     'shared-secure-link-error': {
       path: "/secure-link-error",
       iconColor: "amber",

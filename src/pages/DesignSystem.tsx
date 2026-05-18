@@ -324,6 +324,7 @@ const DesignSystem = () => {
     'shared-payslip-template',       // Shared – Payslip Template
     'shared-invoice-template',       // Shared – Invoice Template
     'shared-worker-empty-states',    // Shared – Worker Empty States
+    'shared-entity-v1',              // Shared › Entity – v1 (clone of Flow 1 v7 Future)
   ];
 
   const frontedFlows = flowOrder.filter(id => id.startsWith('flow-1-fronted-admin'));
@@ -343,7 +344,8 @@ const DesignSystem = () => {
     !id.includes('-next')
   );
   
-  const sharedFlows = flowOrder.filter(id => id.startsWith('shared-'));
+  const sharedFlows = flowOrder.filter(id => id.startsWith('shared-') && !id.startsWith('shared-entity'));
+  const sharedEntityFlows = flowOrder.filter(id => id.startsWith('shared-entity'));
 
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
@@ -490,12 +492,26 @@ const DesignSystem = () => {
                 </div>
               </div>
             </CollapsibleFlowGroup>
-            {sharedFlows.length > 0 && (
+            {(sharedFlows.length > 0 || sharedEntityFlows.length > 0) && (
               <CollapsibleFlowGroup label="Shared">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {sharedFlows.map((flowId) => (
-                    <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                  ))}
+                <div className="space-y-6">
+                  {sharedEntityFlows.length > 0 && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-3 ml-0.5">Entity</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {sharedEntityFlows.map((flowId) => (
+                          <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {sharedFlows.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {sharedFlows.map((flowId) => (
+                        <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CollapsibleFlowGroup>
             )}
