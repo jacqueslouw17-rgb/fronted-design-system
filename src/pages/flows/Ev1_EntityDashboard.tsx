@@ -79,6 +79,7 @@ const BRAND = {
   mint: "hsl(120 28% 86%)",
   mintDeep: "hsl(140 30% 62%)",
   sand: "hsl(36 28% 80%)",
+  lavender: "hsl(265 45% 86%)",
 };
 
 const CHART = {
@@ -692,6 +693,7 @@ const Ev1_EntityDashboard: React.FC = () => {
         .ev1-brand .ev1-tint-pink { background: ${BRAND.pink}; }
         .ev1-brand .ev1-tint-mint { background: ${BRAND.mint}; }
         .ev1-brand .ev1-tint-sand { background: ${BRAND.sand}; }
+        .ev1-brand .ev1-tint-lavender { background: ${BRAND.lavender}; }
         .ev1-brand .ev1-tint-cream { background: #fdfcf8; }
         .ev1-brand .ev1-chip { background: #fdfcf8; border: 1px solid ${BRAND.ink}; border-radius: 999px; color: ${BRAND.ink}; }
         .ev1-brand .ev1-muted { color: hsl(0 0% 35%); }
@@ -812,7 +814,7 @@ const KPICard: React.FC<{
   title: string;
   big: React.ReactNode;
   delta?: { tone: "ok" | "warn"; label: string };
-  tint?: "cream" | "pink" | "mint" | "sand";
+  tint?: "cream" | "pink" | "mint" | "sand" | "lavender";
   children?: React.ReactNode;
 }> = ({ title, big, delta, tint = "cream", children }) => (
   <div
@@ -942,7 +944,7 @@ const SavingsCard: React.FC<{
   return (
     <KPICard
       title="Estimated savings"
-      tint="sand"
+      tint="lavender"
       big={
         <span>
           ${(saving / 1000).toFixed(1)}k
@@ -998,7 +1000,7 @@ const OpenActionsCard: React.FC<{ missing: number; docs: number; compliance: num
   ];
   const total = missing + docs + compliance;
   return (
-    <KPICard title="Open actions" big={`${total}`} delta={{ tone: "warn", label: "−3 this week" }} tint="pink">
+    <KPICard title="Open actions" big={`${total}`} delta={{ tone: "warn", label: "−3 this week" }} tint="cream">
       <div className="h-[52px] -mx-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }} barCategoryGap={10}>
