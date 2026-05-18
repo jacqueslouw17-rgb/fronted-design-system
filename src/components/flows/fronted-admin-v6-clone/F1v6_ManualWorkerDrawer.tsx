@@ -253,12 +253,13 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   const [branch, setBranch] = useState("");
 
   // Documents
-  const [documents, setDocuments] = useState<DocUpload[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const [contractFile, setContractFile] = useState<File | null>(null);
+  const [supportingFiles, setSupportingFiles] = useState<File[]>([]);
+  const contractInputRef = useRef<HTMLInputElement>(null);
+  const supportingInputRef = useRef<HTMLInputElement>(null);
+
   // Worker status flow: draft → awaiting → inactive → active
   const [workerStatus, setWorkerStatus] = useState<"draft" | "awaiting" | "inactive" | "active">("draft");
-  const [uploadingDocIndex, setUploadingDocIndex] = useState<number | null>(null);
 
   const countryRule = COUNTRY_RULES[country] || (country ? DEFAULT_RULE : null);
 
@@ -280,48 +281,45 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     // Reset payout fields on country change
     setBankName(""); setAccountHolder(""); setAccountNumber("");
     setSwiftBic(""); setIfscCode(""); setBranch("");
-    // Build document list
-    const docs: DocUpload[] = [
-      ...countryRule.mandatoryDocs.map(d => ({ name: d, mandatory: true, file: null, signed: false })),
-      ...countryRule.optionalDocs.map(d => ({ name: d, mandatory: false, file: null, signed: false })),
-    ];
-    setDocuments(docs);
+    // Reset documents on country change
+    setContractFile(null);
+    setSupportingFiles([]);
   }, [country]);
 
-  const handleFileUpload = (index: number) => {
-    setUploadingDocIndex(index);
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || uploadingDocIndex === null) return;
+  const validateFile = (file: File): boolean => {
     const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
       toast.error("Only JPG, PNG, or PDF accepted.");
-      return;
+      return false;
     }
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File must be under 5 MB.");
-      return;
+      return false;
     }
-    setDocuments(prev => prev.map((d, i) => i === uploadingDocIndex ? { ...d, file } : d));
-    setUploadingDocIndex(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    return true;
   };
 
-  const toggleSigned = (index: number) => {
-    setDocuments(prev => prev.map((d, i) => i === index ? { ...d, signed: !d.signed } : d));
+  const handleContractChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!validateFile(file)) return;
+    setContractFile(file);
+    if (contractInputRef.current) contractInputRef.current.value = "";
   };
 
-  const removeFile = (index: number) => {
-    setDocuments(prev => prev.map((d, i) => i === index ? { ...d, file: null } : d));
+  const handleSupportingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    const accepted = files.filter(validateFile);
+    if (accepted.length) setSupportingFiles(prev => [...prev, ...accepted]);
+    if (supportingInputRef.current) supportingInputRef.current.value = "";
   };
 
-  const mandatoryDocsComplete = documents.filter(d => d.mandatory).every(d => d.file !== null);
-  const agreementSigned = documents.filter(d => d.name.toLowerCase().includes("agreement")).every(d => d.signed);
+  const removeSupporting = (idx: number) => {
+    setSupportingFiles(prev => prev.filter((_, i) => i !== idx));
+  };
+
   const canSaveBasic = name.trim() && country && role.trim() && salary.trim();
-  const canSave = canSaveBasic && mandatoryDocsComplete && agreementSigned;
+  const canSave = canSaveBasic && contractFile !== null;
 
   const handleSaveCandidate = () => {
     if (!canSaveBasic) return;
