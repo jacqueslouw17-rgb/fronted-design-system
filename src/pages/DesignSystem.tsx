@@ -492,26 +492,21 @@ const DesignSystem = () => {
                 </div>
               </div>
             </CollapsibleFlowGroup>
-            {(sharedFlows.length > 0 || sharedEntityFlows.length > 0) && (
+            {sharedFlows.length > 0 && (
               <CollapsibleFlowGroup label="Shared">
-                <div className="space-y-6">
-                  {sharedEntityFlows.length > 0 && (
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-3 ml-0.5">Entity</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {sharedEntityFlows.map((flowId) => (
-                          <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {sharedFlows.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {sharedFlows.map((flowId) => (
-                        <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                      ))}
-                    </div>
-                  )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sharedFlows.map((flowId) => (
+                    <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                  ))}
+                </div>
+              </CollapsibleFlowGroup>
+            )}
+            {sharedEntityFlows.length > 0 && (
+              <CollapsibleFlowGroup label="Entity">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sharedEntityFlows.map((flowId) => (
+                    <FlowCard key={flowId} flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                  ))}
                 </div>
               </CollapsibleFlowGroup>
             )}
