@@ -16,8 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Switch } from "@/components/ui/switch";
-import { ChevronDown, Upload, X, FileText, CheckCircle2, AlertCircle, Plus, Send, Settings, FileEdit, Shield } from "lucide-react";
+import { ChevronDown, Upload, X, FileText, Plus, Send, Settings, FileEdit, Shield, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getCurrencyCode } from "@/utils/currencyUtils";
@@ -195,12 +194,7 @@ const NumberFieldWithUnit: React.FC<{
   </div>
 );
 
-interface DocUpload {
-  name: string;
-  mandatory: boolean;
-  file: File | null;
-  signed: boolean;
-}
+// Documents now use a simple model: one required signed contract + optional supporting files
 
 export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   open,
@@ -259,12 +253,13 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   const [branch, setBranch] = useState("");
 
   // Documents
-  const [documents, setDocuments] = useState<DocUpload[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const [contractFile, setContractFile] = useState<File | null>(null);
+  const [supportingFiles, setSupportingFiles] = useState<File[]>([]);
+  const contractInputRef = useRef<HTMLInputElement>(null);
+  const supportingInputRef = useRef<HTMLInputElement>(null);
+
   // Worker status flow: draft → awaiting → inactive → active
   const [workerStatus, setWorkerStatus] = useState<"draft" | "awaiting" | "inactive" | "active">("draft");
-  const [uploadingDocIndex, setUploadingDocIndex] = useState<number | null>(null);
 
   const countryRule = COUNTRY_RULES[country] || (country ? DEFAULT_RULE : null);
 
@@ -286,48 +281,45 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     // Reset payout fields on country change
     setBankName(""); setAccountHolder(""); setAccountNumber("");
     setSwiftBic(""); setIfscCode(""); setBranch("");
-    // Build document list
-    const docs: DocUpload[] = [
-      ...countryRule.mandatoryDocs.map(d => ({ name: d, mandatory: true, file: null, signed: false })),
-      ...countryRule.optionalDocs.map(d => ({ name: d, mandatory: false, file: null, signed: false })),
-    ];
-    setDocuments(docs);
+    // Reset documents on country change
+    setContractFile(null);
+    setSupportingFiles([]);
   }, [country]);
 
-  const handleFileUpload = (index: number) => {
-    setUploadingDocIndex(index);
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || uploadingDocIndex === null) return;
+  const validateFile = (file: File): boolean => {
     const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
       toast.error("Only JPG, PNG, or PDF accepted.");
-      return;
+      return false;
     }
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File must be under 5 MB.");
-      return;
+      return false;
     }
-    setDocuments(prev => prev.map((d, i) => i === uploadingDocIndex ? { ...d, file } : d));
-    setUploadingDocIndex(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    return true;
   };
 
-  const toggleSigned = (index: number) => {
-    setDocuments(prev => prev.map((d, i) => i === index ? { ...d, signed: !d.signed } : d));
+  const handleContractChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!validateFile(file)) return;
+    setContractFile(file);
+    if (contractInputRef.current) contractInputRef.current.value = "";
   };
 
-  const removeFile = (index: number) => {
-    setDocuments(prev => prev.map((d, i) => i === index ? { ...d, file: null } : d));
+  const handleSupportingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    const accepted = files.filter(validateFile);
+    if (accepted.length) setSupportingFiles(prev => [...prev, ...accepted]);
+    if (supportingInputRef.current) supportingInputRef.current.value = "";
   };
 
-  const mandatoryDocsComplete = documents.filter(d => d.mandatory).every(d => d.file !== null);
-  const agreementSigned = documents.filter(d => d.name.toLowerCase().includes("agreement")).every(d => d.signed);
+  const removeSupporting = (idx: number) => {
+    setSupportingFiles(prev => prev.filter((_, i) => i !== idx));
+  };
+
   const canSaveBasic = name.trim() && country && role.trim() && salary.trim();
-  const canSave = canSaveBasic && mandatoryDocsComplete && agreementSigned;
+  const canSave = canSaveBasic && contractFile !== null;
 
   const handleSaveCandidate = () => {
     if (!canSaveBasic) return;
@@ -357,12 +349,10 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setPanNumber(""); setTaxRegime("new"); setUanNumber(""); setPfContribution("statutory"); setEsiNumber(""); setProfessionalTax("applicable"); setGratuityNominee("");
     setTin(""); setCivilStatus("single"); setNumDependents(""); setSssNumber(""); setPhilHealth(""); setPagibigNumber("");
     setBankCountry(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setSwiftBic(""); setIfscCode(""); setBranch("");
-    setDocuments([]);
+    setContractFile(null);
+    setSupportingFiles([]);
     setWorkerStatus("draft");
   };
-
-  const uploadedMandatoryCount = documents.filter(d => d.mandatory && d.file).length;
-  const totalMandatoryCount = documents.filter(d => d.mandatory).length;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -388,7 +378,8 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
           </div>
         </SheetHeader>
 
-        <input ref={fileInputRef} type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange} />
+        <input ref={contractInputRef} type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={handleContractChange} />
+        <input ref={supportingInputRef} type="file" className="hidden" multiple accept=".jpg,.jpeg,.png,.pdf" onChange={handleSupportingChange} />
 
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
           {/* ── 1) Personal Profile ── */}
@@ -640,86 +631,83 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
           <SectionCard
             title="Documents"
             badge={
-              country ? (
-                <div className="flex items-center gap-1.5">
-                  <Badge variant="secondary" className="text-[10px] px-2 py-0 h-4 font-normal">
-                    {uploadedMandatoryCount}/{totalMandatoryCount} required
-                  </Badge>
-                </div>
-              ) : undefined
+              <Badge variant="secondary" className="text-[10px] px-2 py-0 h-4 font-normal">
+                {contractFile ? "1/1 required" : "0/1 required"}
+              </Badge>
             }
           >
-            {!country ? (
-              <p className="text-xs text-muted-foreground/60 text-center py-4">Select a country first to see required documents</p>
-            ) : (
-              <div className="space-y-2">
-                {documents.map((doc, i) => (
-                  <div key={i} className={cn(
-                    "rounded-lg border p-3 transition-colors",
-                    doc.mandatory && !doc.file ? "border-amber-500/30 bg-amber-500/5" : "border-border/40 bg-card/30",
-                  )}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-medium text-foreground truncate">{doc.name}</p>
-                          {doc.mandatory ? (
-                            <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-amber-500/30 text-amber-600 shrink-0">Required</Badge>
-                          ) : (
-                            <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 shrink-0">Optional</Badge>
-                          )}
-                        </div>
-                        {doc.file ? (
-                          <div className="flex items-center gap-2 mt-1.5">
-                            <FileText className="h-3 w-3 text-primary/70" />
-                            <span className="text-[11px] text-muted-foreground truncate">{doc.file.name}</span>
-                            <button onClick={() => removeFile(i)} className="text-muted-foreground/50 hover:text-destructive transition-colors">
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => handleFileUpload(i)}
-                            className="flex items-center gap-1.5 mt-1.5 text-[11px] text-primary hover:text-primary/80 transition-colors"
-                          >
-                            <Upload className="h-3 w-3" />
-                            Upload file
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Signed toggle for agreements */}
-                    {doc.name.toLowerCase().includes("agreement") && doc.file && (
-                      <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-border/30">
-                        <span className="text-[11px] text-muted-foreground">Signed by both parties?</span>
-                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                          {doc.signed ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
-                          ) : (
-                            <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
-                          )}
-                          <Switch checked={doc.signed} onCheckedChange={(checked) => {
-                            setDocuments(prev => prev.map((d, idx) => idx === i ? { ...d, signed: checked } : d));
-                          }} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+            {/* Signed contract — required */}
+            <div className={cn(
+              "rounded-lg border p-3 transition-colors",
+              !contractFile ? "border-amber-500/30 bg-amber-500/5" : "border-border/40 bg-card/30",
+            )}>
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-medium text-foreground truncate">Signed contract</p>
+                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-amber-500/30 text-amber-600 shrink-0">Required</Badge>
               </div>
-            )}
+              {contractFile ? (
+                <div className="flex items-center gap-2 mt-1.5">
+                  <FileText className="h-3 w-3 text-primary/70" />
+                  <span className="text-[11px] text-muted-foreground truncate">{contractFile.name}</span>
+                  <button onClick={() => setContractFile(null)} className="text-muted-foreground/50 hover:text-destructive transition-colors">
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => contractInputRef.current?.click()}
+                  className="flex items-center gap-1.5 mt-1.5 text-[11px] text-primary hover:text-primary/80 transition-colors"
+                >
+                  <Upload className="h-3 w-3" />
+                  Upload signed contract
+                </button>
+              )}
+            </div>
+
+            {/* Supporting documents — optional, multi-upload */}
+            <div className="rounded-lg border border-border/40 bg-card/30 p-3">
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-medium text-foreground truncate">Supporting documents</p>
+                <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 shrink-0">Optional</Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground/70 mt-0.5">
+                ID, tax, social security or any other supporting files
+              </p>
+
+              {supportingFiles.length > 0 && (
+                <div className="space-y-1.5 mt-2.5">
+                  {supportingFiles.map((file, i) => (
+                    <div key={i} className="flex items-center gap-2 rounded-md border border-border/30 bg-muted/20 px-2.5 py-1.5">
+                      <Paperclip className="h-3 w-3 text-primary/70 shrink-0" />
+                      <span className="text-[11px] text-foreground truncate flex-1">{file.name}</span>
+                      <button onClick={() => removeSupporting(i)} className="text-muted-foreground/50 hover:text-destructive transition-colors shrink-0">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                onClick={() => supportingInputRef.current?.click()}
+                className="flex items-center gap-1.5 mt-2.5 text-[11px] text-primary hover:text-primary/80 transition-colors"
+              >
+                <Upload className="h-3 w-3" />
+                {supportingFiles.length > 0 ? "Add more files" : "Upload files"}
+              </button>
+            </div>
           </SectionCard>
 
           {/* Validation summary */}
-          {country && !canSave && (
+          {!canSave && (
             <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
               <p className="text-[11px] text-amber-700 font-medium mb-1">Before saving:</p>
               <ul className="text-[11px] text-amber-600 space-y-0.5 list-disc list-inside">
                 {!name.trim() && <li>Enter worker's full name</li>}
+                {!country && <li>Select a country</li>}
                 {!role.trim() && <li>Enter job title / role</li>}
                 {!salary.trim() && <li>Enter salary or fee amount</li>}
-                {!mandatoryDocsComplete && <li>Upload all required documents</li>}
-                {!agreementSigned && <li>Confirm agreement is signed by both parties</li>}
+                {!contractFile && <li>Upload signed contract</li>}
               </ul>
             </div>
           )}
