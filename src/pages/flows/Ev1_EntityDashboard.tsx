@@ -944,7 +944,7 @@ const SavingsCard: React.FC<{
   return (
     <KPICard
       title="Estimated savings"
-      tint="sand"
+      tint="lavender"
       big={
         <span>
           ${(saving / 1000).toFixed(1)}k
