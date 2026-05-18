@@ -881,10 +881,11 @@ const SavingsCard: React.FC<{
   return (
     <KPICard
       title="Estimated savings"
+      tint="sand"
       big={
-        <span className="text-emerald-600">
+        <span>
           ${(saving / 1000).toFixed(1)}k
-          <span className="text-xs text-muted-foreground font-normal ml-1">/mo</span>
+          <span className="text-xs font-normal ml-1 ev1-muted">/mo</span>
         </span>
       }
       delta={{ tone: "ok", label: `−${pct}% vs EOR` }}
