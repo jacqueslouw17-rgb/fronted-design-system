@@ -1031,7 +1031,7 @@ const PipelineFlowBar: React.FC<{
           );
         })}
       </div>
-    </Card>
+    </div>
   );
 };
 
