@@ -680,26 +680,6 @@ const Ev1_EntityDashboard: React.FC = () => {
           )}
         </section>
 
-        {/* What Fronted handles */}
-        <section className="space-y-5">
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-2">
-                <Sparkles className="h-3.5 w-3.5" />
-                Service layer
-              </div>
-              <h2 className="text-2xl font-semibold tracking-tight">What Fronted handles</h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-                One operating partner replacing the messy vendor stack — from entity setup to monthly payroll.
-              </p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {SERVICES.map((s) => (
-              <ServiceCard key={s.key} service={s} onOpen={() => setActive(filtered[0] ?? ENTITIES[0])} />
-            ))}
-          </div>
-        </section>
       </main>
 
 
