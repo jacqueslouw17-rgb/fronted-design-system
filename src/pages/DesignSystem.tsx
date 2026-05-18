@@ -324,6 +324,7 @@ const DesignSystem = () => {
     'shared-payslip-template',       // Shared – Payslip Template
     'shared-invoice-template',       // Shared – Invoice Template
     'shared-worker-empty-states',    // Shared – Worker Empty States
+    'shared-entity-v1',              // Shared › Entity – v1 (clone of Flow 1 v7 Future)
   ];
 
   const frontedFlows = flowOrder.filter(id => id.startsWith('flow-1-fronted-admin'));
