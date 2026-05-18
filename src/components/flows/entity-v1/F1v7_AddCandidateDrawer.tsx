@@ -1,0 +1,810 @@
+/**
+ * Flow 1 v7 — Add Candidate Drawer (Enhanced v2)
+ * Progressive disclosure: Personal Details → Contract Details (revealed after country selection)
+ * Features: payroll & payout opt-in toggle, "prepare contract directly" skip link
+ * Premium UI with proper hierarchy, card sections, and no overlap issues.
+ * ISOLATED: Changes here do NOT affect v4, v5, v6, or any other flow.
+ */
+
+import React, { useState, useCallback } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { toast } from "sonner";
+import { User, Sparkles, MapPin, FileText, Check, ChevronsUpDown, Info, ChevronDown, FileSpreadsheet, Bookmark, Trash2, Wallet } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { getWorkerTemplates, deleteWorkerTemplate, type WorkerTemplate } from "./F1v7_WorkerTemplates";
+import { F1v7_CsvBulkUpload } from "./F1v7_CsvBulkUpload";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { getCurrencyCode } from "@/utils/currencyUtils";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { WorkingCountryCombobox } from "@/components/shared/SearchableCountrySelect";
+
+// ─── Nationalities ──────────────────────────────────────────────────────
+const NATIONALITIES = [
+  "Afghan", "Albanian", "Algerian", "American", "Andorran", "Angolan", "Argentine",
+  "Armenian", "Australian", "Austrian", "Azerbaijani", "Bahamian", "Bahraini",
+  "Bangladeshi", "Barbadian", "Belarusian", "Belgian", "Belizean", "Beninese",
+  "Bhutanese", "Bolivian", "Bosnian", "Brazilian", "British", "Bruneian",
+  "Bulgarian", "Burkinabe", "Burmese", "Burundian", "Cambodian", "Cameroonian",
+  "Canadian", "Cape Verdean", "Central African", "Chadian", "Chilean", "Chinese",
+  "Colombian", "Comorian", "Congolese", "Costa Rican", "Croatian", "Cuban",
+  "Cypriot", "Czech", "Danish", "Djiboutian", "Dominican", "Dutch", "Ecuadorian",
+  "Egyptian", "Emirati", "English", "Eritrean", "Estonian", "Ethiopian",
+  "Fijian", "Filipino", "Finnish", "French", "Gabonese", "Gambian", "Georgian",
+  "German", "Ghanaian", "Greek", "Grenadian", "Guatemalan", "Guinean", "Guyanese",
+  "Haitian", "Honduran", "Hungarian", "Icelandic", "Indian", "Indonesian",
+  "Iranian", "Iraqi", "Irish", "Israeli", "Italian", "Ivorian", "Jamaican",
+  "Japanese", "Jordanian", "Kazakh", "Kenyan", "Kosovar", "Kuwaiti", "Kyrgyz",
+  "Lao", "Latvian", "Lebanese", "Liberian", "Libyan", "Lithuanian", "Luxembourgish",
+  "Macedonian", "Malagasy", "Malawian", "Malaysian", "Maldivian", "Malian",
+  "Maltese", "Mauritanian", "Mauritian", "Mexican", "Moldovan", "Mongolian",
+  "Montenegrin", "Moroccan", "Mozambican", "Namibian", "Nepalese", "New Zealander",
+  "Nicaraguan", "Nigerian", "Nigerien", "North Korean", "Norwegian", "Omani",
+  "Pakistani", "Palestinian", "Panamanian", "Paraguayan", "Peruvian", "Polish",
+  "Portuguese", "Qatari", "Romanian", "Russian", "Rwandan", "Saudi", "Scottish",
+  "Senegalese", "Serbian", "Singaporean", "Slovak", "Slovenian", "Somali",
+  "South African", "South Korean", "Spanish", "Sri Lankan", "Sudanese",
+  "Surinamese", "Swedish", "Swiss", "Syrian", "Taiwanese", "Tajik", "Tanzanian",
+  "Thai", "Togolese", "Trinidadian", "Tunisian", "Turkish", "Turkmen",
+  "Ugandan", "Ukrainian", "Uruguayan", "Uzbek", "Venezuelan", "Vietnamese",
+  "Welsh", "Yemeni", "Zambian", "Zimbabwean",
+];
+
+// ─── Country Rules ──────────────────────────────────────────────────────
+interface CountryRule {
+  flag: string;
+  currency: string;
+  employmentTypes: ("contractor" | "employee")[];
+  probation: { default: number; max: number };
+  noticePeriod: { default: number; min: number };
+  annualLeave: { default: number; min: number };
+  sickLeave: { default: number; min: number };
+  weeklyHours: { default: number; max: number };
+  payFrequency: { default: string; locked: boolean };
+  idLabel: string;
+}
+
+const COUNTRY_RULES: Record<string, CountryRule> = {
+  Norway: {
+    flag: "🇳🇴", currency: "NOK",
+    employmentTypes: ["employee", "contractor"],
+    probation: { default: 180, max: 180 },
+    noticePeriod: { default: 30, min: 30 },
+    annualLeave: { default: 25, min: 25 },
+    sickLeave: { default: 365, min: 0 },
+    weeklyHours: { default: 37.5, max: 40 },
+    payFrequency: { default: "monthly", locked: true },
+    idLabel: "National ID (Fødselsnummer)",
+  },
+  Sweden: {
+    flag: "🇸🇪", currency: "SEK",
+    employmentTypes: ["employee", "contractor"],
+    probation: { default: 180, max: 180 },
+    noticePeriod: { default: 30, min: 30 },
+    annualLeave: { default: 25, min: 25 },
+    sickLeave: { default: 365, min: 0 },
+    weeklyHours: { default: 40, max: 40 },
+    payFrequency: { default: "monthly", locked: true },
+    idLabel: "Personal Number (Personnummer)",
+  },
+  Denmark: {
+    flag: "🇩🇰", currency: "DKK",
+    employmentTypes: ["employee", "contractor"],
+    probation: { default: 90, max: 90 },
+    noticePeriod: { default: 30, min: 30 },
+    annualLeave: { default: 25, min: 25 },
+    sickLeave: { default: 365, min: 0 },
+    weeklyHours: { default: 37, max: 37 },
+    payFrequency: { default: "monthly", locked: true },
+    idLabel: "CPR Number",
+  },
+  Philippines: {
+    flag: "🇵🇭", currency: "PHP",
+    employmentTypes: ["contractor"],
+    probation: { default: 180, max: 180 },
+    noticePeriod: { default: 30, min: 30 },
+    annualLeave: { default: 5, min: 5 },
+    sickLeave: { default: 5, min: 5 },
+    weeklyHours: { default: 48, max: 48 },
+    payFrequency: { default: "fortnightly", locked: true },
+    idLabel: "TIN / PhilHealth ID",
+  },
+  India: {
+    flag: "🇮🇳", currency: "INR",
+    employmentTypes: ["contractor"],
+    probation: { default: 90, max: 180 },
+    noticePeriod: { default: 30, min: 30 },
+    annualLeave: { default: 21, min: 21 },
+    sickLeave: { default: 12, min: 12 },
+    weeklyHours: { default: 48, max: 48 },
+    payFrequency: { default: "monthly", locked: true },
+    idLabel: "PAN Number",
+  },
+  Kosovo: {
+    flag: "🇽🇰", currency: "EUR",
+    employmentTypes: ["contractor"],
+    probation: { default: 180, max: 180 },
+    noticePeriod: { default: 30, min: 30 },
+    annualLeave: { default: 20, min: 20 },
+    sickLeave: { default: 20, min: 20 },
+    weeklyHours: { default: 40, max: 40 },
+    payFrequency: { default: "monthly", locked: true },
+    idLabel: "Personal ID Number",
+  },
+};
+
+const COUNTRIES = Object.keys(COUNTRY_RULES);
+
+// ─── ATS Mock Data ──────────────────────────────────────────────────────
+const ATS_CANDIDATES = [
+  { id: "ats-1", name: "Maria Santos", country: "Philippines", role: "Senior Developer", email: "maria.santos@email.com", employmentType: "contractor" as const, hasATSData: true },
+  { id: "ats-2", name: "John Smith", country: "Denmark", role: "Product Manager", email: "john.smith@email.com", employmentType: "employee" as const, hasATSData: true },
+  { id: "ats-3", name: "Sarah Chen", country: "Sweden", role: "UX Designer", email: "sarah.chen@email.com", employmentType: "contractor" as const, hasATSData: true },
+];
+
+// ─── Sub-components ─────────────────────────────────────────────────────
+
+/** Section card wrapper with icon header */
+const SectionCard: React.FC<{
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  badge?: React.ReactNode;
+  defaultOpen?: boolean;
+}> = ({ title, subtitle, children, badge, defaultOpen = true }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="rounded-xl border border-border/60 bg-card/50 overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <button className="flex items-center gap-3 px-5 py-3 bg-muted/30 border-b border-border/40 w-full text-left hover:bg-muted/50 transition-colors cursor-pointer">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-foreground leading-tight">{title}</h3>
+              {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
+            </div>
+            {badge}
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="p-4 pt-3 space-y-3">
+            {children}
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  );
+};
+
+/** Unified field with label, input, and optional hint */
+const Field: React.FC<{
+  label: string;
+  required?: boolean;
+  hint?: string;
+  optionalTooltip?: string;
+  children: React.ReactNode;
+}> = ({ label, required, hint, optionalTooltip, children }) => (
+  <div className="space-y-1.5">
+    <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+      {label}
+      {optionalTooltip && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">Optional</Badge>}
+    </Label>
+    {children}
+    {hint && <p className="text-[11px] text-muted-foreground leading-tight">{hint}</p>}
+  </div>
+);
+
+/** Number field with suffix badge — avoids overlap with spinner arrows */
+const NumberFieldWithUnit: React.FC<{
+  value: string;
+  onChange: (val: string) => void;
+  unit: string;
+  min?: number;
+  max?: number;
+  step?: number;
+}> = ({ value, onChange, unit, min, max, step }) => (
+  <div className="flex items-center gap-2">
+    <Input
+      type="number"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      min={min}
+      max={max}
+      step={step}
+      className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:opacity-100"
+    />
+    <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-2 rounded-md border border-border/40 whitespace-nowrap select-none">
+      {unit}
+    </span>
+  </div>
+);
+
+/** Searchable nationality combobox */
+const NationalityCombobox: React.FC<{ value: string; onChange: (val: string) => void }> = ({ value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between text-sm font-normal h-10"
+        >
+          {value || <span className="text-muted-foreground">Select nationality</span>}
+          <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-background border border-border z-50" align="start">
+        <Command>
+          <CommandInput placeholder="Search nationality..." className="h-10" />
+          <CommandList className="max-h-[200px]">
+            <CommandEmpty>No nationality found.</CommandEmpty>
+            <CommandGroup>
+              {NATIONALITIES.map(n => (
+                <CommandItem
+                  key={n}
+                  value={n}
+                  onSelect={() => { onChange(n); setOpen(false); }}
+                >
+                  <Check className={cn("mr-2 h-3.5 w-3.5", value === n ? "opacity-100" : "opacity-0")} />
+                  {n}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+// ─── Main Component ─────────────────────────────────────────────────────
+interface AddCandidateDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (candidate: any) => void;
+}
+
+export const F1v4_AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
+  open,
+  onOpenChange,
+  onSave,
+}) => {
+  const [selectedAtsId, setSelectedAtsId] = useState("");
+  const [templates, setTemplates] = useState<WorkerTemplate[]>([]);
+  const [formData, setFormData] = useState({
+    name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
+    country: "", role: "",
+    employmentType: "" as "" | "contractor" | "employee",
+    salary: "", startDate: "",
+    probationPeriod: "", noticePeriod: "", annualLeave: "", sickLeave: "",
+    weeklyHours: "", payFrequency: "",
+  });
+
+  // Payroll opt-in state
+  const [payrollOptIn, setPayrollOptIn] = useState(false);
+  const [tin, setTin] = useState("");
+  const [philHealth, setPhilHealth] = useState("");
+  const [bankCountry, setBankCountry] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [swiftBic, setSwiftBic] = useState("");
+
+  const countryRule = formData.country ? COUNTRY_RULES[formData.country] : null;
+  const isContractorOnly = countryRule?.employmentTypes.length === 1 && countryRule.employmentTypes[0] === "contractor";
+
+  // Refresh templates when drawer opens
+  React.useEffect(() => {
+    if (open) setTemplates(getWorkerTemplates());
+  }, [open]);
+
+  const handleATSSelect = (value: string) => {
+    setSelectedAtsId(value);
+    if (value === "manual") {
+      setFormData({
+        name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
+        country: "", role: "", employmentType: "", salary: "", startDate: "",
+        probationPeriod: "", noticePeriod: "", annualLeave: "", sickLeave: "",
+        weeklyHours: "", payFrequency: "",
+      });
+    } else if (value.startsWith("tpl-")) {
+      // Load from saved template — fill engagement fields, leave personal empty
+      const tpl = templates.find(t => t.id === value);
+      if (tpl) {
+        const rule = COUNTRY_RULES[tpl.country];
+        setFormData({
+          name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
+          country: tpl.country, role: tpl.role,
+          employmentType: tpl.employmentType,
+          salary: tpl.salary?.replace(/[^0-9]/g, '') || "",
+          startDate: "",
+          probationPeriod: tpl.probationPeriod || (rule ? String(rule.probation.default) : ""),
+          noticePeriod: tpl.noticePeriod || (rule ? String(rule.noticePeriod.default) : ""),
+          annualLeave: tpl.annualLeave || (rule ? String(rule.annualLeave.default) : ""),
+          sickLeave: tpl.sickLeave || (rule ? String(rule.sickLeave.default) : ""),
+          weeklyHours: tpl.weeklyHours || (rule ? String(rule.weeklyHours.default) : ""),
+          payFrequency: tpl.payFrequency || (rule ? rule.payFrequency.default : ""),
+        });
+      }
+    } else {
+      const candidate = ATS_CANDIDATES.find(c => c.id === value);
+      if (candidate) {
+        const rule = COUNTRY_RULES[candidate.country];
+        setFormData({
+          name: candidate.name, email: candidate.email,
+           nationality: "", city: "", address: "", idNumber: "",
+          country: candidate.country, role: candidate.role,
+          employmentType: candidate.employmentType,
+          salary: "", startDate: "",
+          probationPeriod: rule ? String(rule.probation.default) : "",
+          noticePeriod: rule ? String(rule.noticePeriod.default) : "",
+          annualLeave: rule ? String(rule.annualLeave.default) : "",
+          sickLeave: rule ? String(rule.sickLeave.default) : "",
+          weeklyHours: rule ? String(rule.weeklyHours.default) : "",
+          payFrequency: rule ? rule.payFrequency.default : "",
+        });
+      }
+    }
+  };
+
+  const handleCountryChange = (country: string) => {
+    const rule = COUNTRY_RULES[country];
+    if (!rule) return;
+    const empType = rule.employmentTypes.length === 1
+      ? rule.employmentTypes[0]
+      : (formData.employmentType && rule.employmentTypes.includes(formData.employmentType as any)
+        ? formData.employmentType : "");
+    setFormData(prev => ({
+      ...prev, country, employmentType: empType,
+      probationPeriod: String(rule.probation.default),
+      noticePeriod: String(rule.noticePeriod.default),
+      annualLeave: String(rule.annualLeave.default),
+      sickLeave: String(rule.sickLeave.default),
+      weeklyHours: String(rule.weeklyHours.default),
+      payFrequency: rule.payFrequency.default,
+    }));
+  };
+
+  const handleSave = () => {
+    if (!formData.name || !formData.email || !formData.country || !formData.role || !formData.salary || !formData.startDate || !formData.employmentType) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    const rule = COUNTRY_RULES[formData.country];
+    onSave({
+      id: `candidate-${Date.now()}`,
+      name: formData.name, country: formData.country,
+      countryFlag: rule?.flag || "", role: formData.role,
+      salary: formData.salary, status: "offer-accepted" as const,
+      formSent: false, dataReceived: false,
+      employmentType: formData.employmentType,
+      hasATSData: selectedAtsId !== "manual",
+      email: formData.email, startDate: formData.startDate,
+      probationPeriod: formData.probationPeriod,
+      noticePeriod: formData.noticePeriod,
+      annualLeave: formData.annualLeave,
+      sickLeave: formData.sickLeave,
+      weeklyHours: formData.weeklyHours,
+      payFrequency: formData.payFrequency,
+      payrollIncluded: payrollOptIn,
+    });
+    toast.success(`✅ ${formData.name} added to pipeline`);
+    resetForm();
+    onOpenChange(false);
+  };
+
+  const resetForm = () => {
+    setSelectedAtsId("");
+    setPayrollOptIn(false);
+    setTin(""); setPhilHealth(""); setBankCountry(""); setBankName("");
+    setAccountHolder(""); setAccountNumber(""); setSwiftBic("");
+    setFormData({
+      name: "", email: "", nationality: "", city: "", address: "", idNumber: "",
+      country: "", role: "", employmentType: "", salary: "", startDate: "",
+      probationPeriod: "", noticePeriod: "", annualLeave: "", sickLeave: "",
+      weeklyHours: "", payFrequency: "",
+    });
+  };
+
+  const isATSSelected = selectedAtsId && selectedAtsId !== "manual" && !selectedAtsId.startsWith("tpl-");
+  const showForm = !!selectedAtsId;
+  const showContractFields = !!formData.country && !!countryRule;
+  const isFormValid = formData.name && formData.email && formData.country && formData.role && formData.salary && formData.startDate && formData.employmentType;
+
+  const set = (key: string) => (val: string) => setFormData(p => ({ ...p, [key]: val }));
+
+  return (
+    <Sheet open={open} onOpenChange={(o) => { if (!o) resetForm(); onOpenChange(o); }}>
+      <SheetContent className="sm:max-w-[560px] overflow-y-auto p-0">
+        {/* Sticky header */}
+        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border/50 px-6 py-4">
+          <SheetHeader className="p-0">
+            <SheetTitle className="text-base font-semibold">
+              Add Candidate
+            </SheetTitle>
+          </SheetHeader>
+        </div>
+
+        <div className="px-6 py-5 space-y-3">
+          {/* ── Candidate Source ── */}
+          <div className="space-y-1.5">
+            <Select value={selectedAtsId} onValueChange={handleATSSelect}>
+              <SelectTrigger className="h-10 rounded-xl px-5">
+                <SelectValue placeholder="Choose from ATS, template, CSV, or add manually" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="manual">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span>Enter manually</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="csv-upload">
+                  <div className="flex items-center gap-2">
+                    <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+                    <span>Bulk import from CSV</span>
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                      Bulk
+                    </Badge>
+                  </div>
+                </SelectItem>
+                {templates.length > 0 && (
+                  <>
+                    <div className="px-2 py-1.5 mt-1 border-t border-border/40">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Saved Templates</p>
+                    </div>
+                    {templates.map(tpl => (
+                      <SelectItem key={tpl.id} value={tpl.id}>
+                        <div className="flex items-center gap-2">
+                          <Bookmark className="h-3.5 w-3.5 text-primary fill-primary shrink-0" />
+                          <span className="font-medium truncate">{tpl.name}</span>
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 shrink-0">
+                            Template
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
+                {ATS_CANDIDATES.length > 0 && (
+                  <>
+                    <div className="px-2 py-1.5 mt-1 border-t border-border/40">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">From ATS</p>
+                    </div>
+                    {ATS_CANDIDATES.map(c => (
+                      <SelectItem key={c.id} value={c.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{COUNTRY_RULES[c.country]?.flag}</span>
+                          <span className="font-medium">{c.name}</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                            <Sparkles className="h-2.5 w-2.5 mr-0.5" />ATS
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
+              </SelectContent>
+            </Select>
+            {/* Delete template link shown when a template is active */}
+            {selectedAtsId.startsWith("tpl-") && (
+              <button
+                className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-destructive transition-colors mt-1"
+                onClick={() => {
+                  const tplId = selectedAtsId;
+                  deleteWorkerTemplate(tplId);
+                  setTemplates(getWorkerTemplates());
+                  // Keep form data but switch source to manual
+                  setSelectedAtsId("manual");
+                  toast.info("Template removed");
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+                Remove this template
+              </button>
+            )}
+          </div>
+
+          {/* CSV Bulk Upload Mode */}
+          {selectedAtsId === "csv-upload" && (
+            <F1v7_CsvBulkUpload
+              onImport={(workers) => {
+                workers.forEach((w: any) => onSave(w));
+                toast.success(`✅ ${workers.length} worker${workers.length !== 1 ? "s" : ""} added to pipeline`);
+                resetForm();
+                onOpenChange(false);
+              }}
+              onCancel={() => { resetForm(); onOpenChange(false); }}
+            />
+          )}
+
+
+          <AnimatePresence mode="wait">
+            {showForm && selectedAtsId !== "csv-upload" && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="space-y-1.5"
+              >
+                {/* ── Section 1: Personal Profile ── */}
+                <SectionCard title="Personal Profile">
+                  <Field label="Full Name" required>
+                    <Input value={formData.name} onChange={e => set("name")(e.target.value)} placeholder="e.g., Maria Santos" className="h-10" />
+                  </Field>
+                  <Field label="Email" required>
+                    <Input type="email" value={formData.email} onChange={e => set("email")(e.target.value)} placeholder="email@example.com" className="h-10" />
+                  </Field>
+                  <Field label="Nationality">
+                    <NationalityCombobox value={formData.nationality} onChange={set("nationality")} />
+                  </Field>
+                  <Field label="Address" optionalTooltip="Can be completed by the worker during onboarding">
+                    <Input value={formData.address} onChange={e => set("address")(e.target.value)} placeholder="Residential address" className="h-10" />
+                  </Field>
+                  <Field label={countryRule?.idLabel || "ID Number"} optionalTooltip="Can be completed by the worker during onboarding">
+                    <Input value={formData.idNumber} onChange={e => set("idNumber")(e.target.value)} placeholder="Enter ID" className="h-10" />
+                  </Field>
+                </SectionCard>
+
+                {/* ── Section 2: Working Engagement ── */}
+                <SectionCard
+                  title="Working Engagement"
+                  badge={formData.country && countryRule ? (
+                    <Badge variant="outline" className="text-xs font-medium gap-1">
+                      {countryRule.flag} {formData.country}
+                    </Badge>
+                  ) : undefined}
+                >
+                  <Field label="Role" required>
+                    <Input value={formData.role} onChange={e => set("role")(e.target.value)} placeholder="e.g., Senior Developer" className="h-10" />
+                  </Field>
+
+                  {/* Country — gateway field */}
+                  <Field label="Country" required>
+                    <WorkingCountryCombobox
+                      value={formData.country}
+                      onChange={handleCountryChange}
+                      countries={COUNTRIES.map(c => ({ name: c, flag: COUNTRY_RULES[c].flag }))}
+                      placeholder="Select country to reveal fields..."
+                    />
+                  </Field>
+
+                  {/* Empty state */}
+                  {!showContractFields && (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <div className="h-12 w-12 rounded-full bg-muted/40 flex items-center justify-center mb-3">
+                        <MapPin className="h-5 w-5 text-muted-foreground/60" />
+                      </div>
+                      <p className="text-sm text-muted-foreground/70 max-w-[220px]">
+                        Contract fields will appear once you select a country above
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Revealed fields */}
+                  <AnimatePresence mode="wait">
+                    {showContractFields && countryRule && (
+                      <motion.div
+                        key={formData.country}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-3"
+                      >
+                        <div className="grid grid-cols-2 gap-3">
+                          <Field label="Employment Type" required hint={isContractorOnly ? `Contractor only in ${formData.country}` : undefined}>
+                            <Select
+                              value={formData.employmentType}
+                              onValueChange={(v: "contractor" | "employee") => set("employmentType")(v)}
+                              disabled={isContractorOnly}
+                            >
+                              <SelectTrigger className={`h-10 ${isContractorOnly ? "opacity-60" : ""}`}>
+                                <SelectValue placeholder="Select" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countryRule.employmentTypes.map(t => (
+                                  <SelectItem key={t} value={t}>{t === "employee" ? "Employee" : "Contractor"}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </Field>
+                          <Field label="Start Date" required>
+                            <Input type="date" value={formData.startDate} onChange={e => set("startDate")(e.target.value)} className="h-10" />
+                          </Field>
+                        </div>
+
+                        <Field label={formData.employmentType === "employee" ? "Salary" : "Consultancy Fee"} required>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none select-none">
+                              {formData.employmentType
+                                ? getCurrencyCode(formData.country, formData.employmentType as any)
+                                : countryRule.currency}
+                            </span>
+                            <Input
+                              value={formData.salary}
+                              onChange={e => set("salary")(e.target.value.replace(/[^0-9]/g, ""))}
+                              placeholder="5,000"
+                              className="pl-12 h-10"
+                            />
+                          </div>
+                        </Field>
+
+                        <Field label="Work Location" optionalTooltip="Can be completed by the worker during onboarding">
+                          <Input value={formData.city} onChange={e => set("city")(e.target.value)} placeholder="e.g., Manila, Oslo" className="h-10" />
+                        </Field>
+
+                        {/* Terms fields (part of Working Engagement) */}
+                        <div className="border-t border-border/40 pt-3 mt-1">
+                          <p className="text-[11px] text-muted-foreground mb-3">Country defaults for {formData.country} — adjust as negotiated</p>
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <Field label="Probation Period" hint={`Max: ${countryRule.probation.max} days`}>
+                                <NumberFieldWithUnit value={formData.probationPeriod} onChange={set("probationPeriod")} unit="days" min={0} max={countryRule.probation.max} />
+                              </Field>
+                              <Field label="Notice Period" hint={`Min: ${countryRule.noticePeriod.min} days`}>
+                                <NumberFieldWithUnit value={formData.noticePeriod} onChange={set("noticePeriod")} unit="days" min={countryRule.noticePeriod.min} />
+                              </Field>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <Field label="Annual Leave" hint={`Min: ${countryRule.annualLeave.min} days`}>
+                                <NumberFieldWithUnit value={formData.annualLeave} onChange={set("annualLeave")} unit="days" min={countryRule.annualLeave.min} />
+                              </Field>
+                              <Field label="Sick Leave" hint={`Min: ${countryRule.sickLeave.min} days`}>
+                                <NumberFieldWithUnit value={formData.sickLeave} onChange={set("sickLeave")} unit="days" min={countryRule.sickLeave.min} />
+                              </Field>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <Field label="Weekly Hours" hint={`Max: ${countryRule.weeklyHours.max} hrs`}>
+                                <NumberFieldWithUnit value={formData.weeklyHours} onChange={set("weeklyHours")} unit="hours" max={countryRule.weeklyHours.max} step={0.5} />
+                              </Field>
+                              <Field label="Pay Frequency" hint={countryRule.payFrequency.locked ? `Fixed for ${formData.country}` : undefined}>
+                                <Select value={formData.payFrequency} onValueChange={v => set("payFrequency")(v)} disabled={countryRule.payFrequency.locked}>
+                                  <SelectTrigger className={`h-10 ${countryRule.payFrequency.locked ? "opacity-60" : ""}`}>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="fortnightly">Fortnightly</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </Field>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </SectionCard>
+
+                {/* ── Payroll & Payout Opt-In ── */}
+                {showContractFields && (
+                  <div className={cn(
+                    "rounded-xl border transition-all duration-300",
+                    payrollOptIn 
+                      ? "border-primary/30 bg-primary/[0.03]" 
+                      : "border-dashed border-border/50 bg-muted/10"
+                  )}>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setPayrollOptIn(!payrollOptIn); }}
+                      className="flex items-center gap-3 px-4 py-3 w-full text-left cursor-pointer group"
+                    >
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <Switch 
+                          checked={payrollOptIn} 
+                          onCheckedChange={setPayrollOptIn}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={cn(
+                          "text-xs font-medium transition-colors",
+                          payrollOptIn ? "text-foreground" : "text-muted-foreground/70"
+                        )}>
+                          Include payroll & payout details
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/50 mt-0.5">
+                          {payrollOptIn 
+                            ? "Onboarding step will be skipped after contract signing" 
+                            : "Enable to collect payroll info now and skip onboarding later"}
+                        </p>
+                      </div>
+                      {payrollOptIn && (
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal bg-primary/10 text-primary border-0 shrink-0">
+                          Skips onboarding
+                        </Badge>
+                      )}
+                    </button>
+
+                    <AnimatePresence>
+                      {payrollOptIn && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-4 space-y-3 border-t border-border/30 pt-3">
+                            {/* Payroll Parameters */}
+                            <div className="space-y-3">
+                              <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                                <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
+                                Payroll Parameters
+                              </h4>
+                              <Field label="Pay Frequency">
+                                <Select value={formData.payFrequency || "monthly"} onValueChange={v => set("payFrequency")(v)}>
+                                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="fortnightly">Fortnightly</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </Field>
+                              <Field label="Tax Identification Number (TIN)">
+                                <Input value={tin} onChange={e => setTin(e.target.value)} placeholder="e.g. 123-456-789-000" className="h-10" />
+                              </Field>
+                              {formData.country === "Philippines" && (
+                                <Field label="PhilHealth Number" optionalTooltip="Optional">
+                                  <Input value={philHealth} onChange={e => setPhilHealth(e.target.value)} placeholder="12-345678901-2" className="h-10" />
+                                </Field>
+                              )}
+                            </div>
+
+                            {/* Payout Destination */}
+                            <div className="space-y-3 border-t border-border/30 pt-3">
+                              <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                                <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
+                                Payout Destination
+                              </h4>
+                              <Field label="Bank Country">
+                                <Input value={bankCountry} onChange={e => setBankCountry(e.target.value)} placeholder="Same as working country" className="h-10" />
+                              </Field>
+                              <Field label="Bank Name">
+                                <Input value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. BDO Unibank" className="h-10" />
+                              </Field>
+                              <Field label="Account Holder Name">
+                                <Input value={accountHolder || formData.name} onChange={e => setAccountHolder(e.target.value)} className="h-10" />
+                              </Field>
+                              <Field label="Account Number / IBAN">
+                                <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Account number" className="h-10" />
+                              </Field>
+                              <Field label="SWIFT / BIC" optionalTooltip="Optional">
+                                <Input value={swiftBic} onChange={e => setSwiftBic(e.target.value)} placeholder="e.g. BNORPHMM" className="h-10" />
+                              </Field>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
+
+                {/* ── Sticky Actions ── */}
+                <div className="flex gap-3 pt-2 pb-2">
+                  <Button variant="outline" className="flex-1 h-11" onClick={() => { resetForm(); onOpenChange(false); }}>
+                    Cancel
+                  </Button>
+                  <Button className="flex-1 h-11" onClick={handleSave} disabled={!isFormValid}>
+                    Save Candidate
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};

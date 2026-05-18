@@ -1,0 +1,1070 @@
+/**
+ * F1v4_CompanyPayrollRun - Company-level payroll run controller cockpit
+ * 
+ * Matches CA3_PayrollSection exactly:
+ * - Landing view: KPI card with "Continue to submissions" button
+ * - Workflow: Submissions → Approve → Track with back arrow navigation
+ */
+
+import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
+
+import { motion } from "framer-motion";
+import { ChevronLeft, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Users, Briefcase, X, ArrowLeftRight, Info } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CompanyPayrollData } from "./F1v7_PayrollTab";
+import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v7_SubmissionsView";
+
+import { F1v4_ApproveStep } from "./F1v7_ApproveStep";
+import { F1v4_TrackStep } from "./F1v7_TrackStep";
+import { F1v4_ApproveConfirmationModal } from "./F1v7_ApproveConfirmationModal";
+import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v7_PeriodDropdown";
+import { F1v4_PayrollStepper, F1v4_PayrollStep as StepperStep } from "./F1v7_PayrollStepper";
+import { F1v4_HistoricalTrackingView } from "./F1v7_HistoricalTrackingView";
+export type F1v4_PayrollStep = "submissions" | "approve" | "track";
+
+import { HistoricalWorker } from "./F1v7_HistoricalTrackingView";
+
+// Historical payroll data
+interface HistoricalPayroll {
+  id: string;
+  period: string;
+  paidDate: string;
+  grossPay: string;
+  adjustments: string;
+  fees: string;
+  totalCost: string;
+  employeeCount: number;
+  contractorCount: number;
+  currencyCount: number;
+  workers: HistoricalWorker[];
+}
+
+const HISTORICAL_PAYROLLS: HistoricalPayroll[] = [
+  {
+    id: "dec-2025",
+    period: "December 2025",
+    paidDate: "Dec 28, 2025",
+    grossPay: "€109.7K",
+    adjustments: "€6.3K",
+    fees: "€3,256",
+    totalCost: "€113.0K",
+    employeeCount: 3,
+    contractorCount: 4,
+    currencyCount: 3,
+    workers: [
+      { id: "1", name: "Marcus Chen", country: "Singapore", type: "contractor", amount: 11500, currency: "SGD", status: "paid", providerRef: "PAY-2025-112134", companyName: "Acme Corp" },
+      { id: "2", name: "Sofia Rodriguez", country: "Spain", type: "contractor", amount: 6200, currency: "EUR", status: "paid", providerRef: "PAY-2025-112135", companyName: "Acme Corp" },
+      { id: "3", name: "Maria Santos", country: "Philippines", type: "employee", amount: 275000, currency: "PHP", status: "paid", providerRef: "PAY-2025-112136", companyName: "Globex Inc" },
+      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 64000, currency: "NOK", status: "paid", providerRef: "PAY-2025-112137", companyName: "Globex Inc" },
+      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 70000, currency: "NOK", status: "paid", providerRef: "PAY-2025-112138", companyName: "Waystar Royco" },
+      { id: "6", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4100, currency: "EUR", status: "paid", providerRef: "PAY-2025-112139", companyName: "Initech Ltd" },
+      { id: "7", name: "Jonas Schmidt", country: "Germany", type: "employee", amount: 5700, currency: "EUR", status: "paid", providerRef: "PAY-2025-112140", companyName: "Initech Ltd" },
+    ],
+  },
+  {
+    id: "nov-2025",
+    period: "November 2025",
+    paidDate: "Nov 28, 2025",
+    grossPay: "€106.8K",
+    adjustments: "€5.0K",
+    fees: "€3,133",
+    totalCost: "€109.9K",
+    employeeCount: 3,
+    contractorCount: 3,
+    currencyCount: 3,
+    workers: [
+      { id: "1", name: "Marcus Chen", country: "Singapore", type: "contractor", amount: 11000, currency: "SGD", status: "paid", providerRef: "PAY-2025-111034", companyName: "Acme Corp" },
+      { id: "2", name: "Sofia Rodriguez", country: "Spain", type: "contractor", amount: 6100, currency: "EUR", status: "paid", providerRef: "PAY-2025-111035", companyName: "Acme Corp" },
+      { id: "3", name: "Maria Santos", country: "Philippines", type: "employee", amount: 270000, currency: "PHP", status: "paid", providerRef: "PAY-2025-111036", companyName: "Globex Inc" },
+      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 63000, currency: "NOK", status: "paid", providerRef: "PAY-2025-111037", companyName: "Globex Inc" },
+      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 68000, currency: "NOK", status: "paid", providerRef: "PAY-2025-111038", companyName: "Waystar Royco" },
+      { id: "6", name: "Jonas Schmidt", country: "Germany", type: "employee", amount: 5600, currency: "EUR", status: "paid", providerRef: "PAY-2025-111039", companyName: "Initech Ltd" },
+    ],
+  },
+];
+
+interface F1v4_CompanyPayrollRunProps {
+  company: CompanyPayrollData;
+  initialStep?: number;
+  isAllClients?: boolean;
+  highlightedWorkerId?: string | null;
+  kurtAutoApproveWorkerId?: string | null;
+  onKurtApprovalComplete?: (workerId: string) => void;
+}
+
+// Mock submissions data
+const MOCK_SUBMISSIONS: WorkerSubmission[] = [
+  { 
+    id: "1", 
+    workerId: "1",
+    workerName: "Marcus Chen", 
+    workerType: "contractor", 
+    workerCountry: "Singapore", 
+    currency: "SGD", 
+    status: "ready",
+    basePay: 12000,
+    estimatedNet: 12000,
+    totalImpact: 500,
+    periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-001",
+    lineItems: [
+      { label: "Base Contract Fee", amount: 12000, type: "Earnings" },
+    ],
+    submissions: [],
+    pendingLeaves: [],
+    flags: [
+      { type: "end_date", endDate: "Jan 31, 2026", endReason: "Termination" },
+    ],
+  },
+  { 
+    id: "2", 
+    workerId: "2",
+    workerName: "Sofia Rodriguez", 
+    workerType: "contractor", 
+    workerCountry: "Spain", 
+    currency: "EUR", 
+    status: "ready",
+    basePay: 6500,
+    estimatedNet: 6500,
+    periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-002",
+    lineItems: [
+      { label: "Base Contract Fee", amount: 6500, type: "Earnings" },
+    ],
+    submissions: [],
+    pendingLeaves: [],
+  },
+  { 
+    id: "3", 
+    workerId: "3",
+    workerName: "Maria Santos", 
+    workerType: "employee", 
+    workerCountry: "Philippines", 
+    currency: "PHP", 
+    status: "pending",
+    basePay: 280000,
+    estimatedNet: 238000,
+    totalImpact: 15000,
+    periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-003",
+    lineItems: [
+      { label: "Base Salary", amount: 280000, type: "Earnings" },
+      { label: "Income Tax", amount: -28000, type: "Deduction", locked: true },
+      { label: "Social Security", amount: -14000, type: "Deduction", locked: true },
+    ],
+    healthInsurance: {
+      provider: "PhilHealth Plus",
+      policyId: "pol_ph_003",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 1250, tax: 0 },
+        employee: { premium: 1250, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 2500,
+    },
+    submissions: [
+      { type: "expenses", amount: 5200, description: "Travel", status: "pending",
+        tags: ["NY trip"],
+        attachments: [
+          { id: "att-f1", fileName: "flight_booking.pdf", fileType: "application/pdf", fileSize: "2.1 MB", url: "#", uploadedAt: "Jan 25, 2026", uploadedBy: "Maria Santos" },
+          { id: "att-f1b", fileName: "hotel_confirmation.pdf", fileType: "application/pdf", fileSize: "1.4 MB", url: "#", uploadedAt: "Jan 25, 2026", uploadedBy: "Maria Santos" },
+          { id: "att-f1c", fileName: "boarding_pass.jpg", fileType: "image/jpeg", fileSize: "320 KB", url: "#", uploadedAt: "Jan 26, 2026", uploadedBy: "Maria Santos" },
+        ],
+        attachmentsCount: 3,
+      },
+      { type: "expenses", amount: 3300, description: "Meals", status: "pending",
+        tags: ["NY trip"],
+        attachments: [
+          { id: "att-f2", fileName: "meal_receipts.jpg", fileType: "image/jpeg", fileSize: "156 KB", url: "#", uploadedAt: "Jan 25, 2026", uploadedBy: "Maria Santos" },
+          { id: "att-f2b", fileName: "restaurant_invoice.pdf", fileType: "application/pdf", fileSize: "98 KB", url: "#", uploadedAt: "Jan 25, 2026", uploadedBy: "Maria Santos" },
+        ],
+        attachmentsCount: 2,
+      },
+      { type: "bonus", amount: 6500, description: "Bonus", status: "pending",
+        threadId: "thread-bonus-maria",
+        previousSubmission: {
+          submissionId: "prev-maria-1",
+          threadId: "thread-bonus-maria",
+          versionNumber: 1,
+          submittedAt: "Jan 18, 2026",
+          submittedBy: "Maria Santos",
+          status: "rejected",
+          decision: { decidedAt: "Jan 20, 2026", decidedBy: "Admin", reason: "Amount exceeds pre-approved bonus cap. Please resubmit with manager approval." },
+          payload: { amount: 8000, currency: "PHP", label: "Bonus", type: "bonus" },
+          attachments: [],
+        },
+        attachments: [
+          { id: "att-f3", fileName: "manager_approval.pdf", fileType: "application/pdf", fileSize: "250 KB", url: "#", uploadedAt: "Jan 22, 2026", uploadedBy: "Maria Santos" },
+        ],
+        attachmentsCount: 1,
+      },
+      { type: "expenses", amount: 1200, description: "Taxi receipt", status: "pending",
+        attachments: [
+          { id: "att-f-taxi", fileName: "taxi_receipt.jpg", fileType: "image/jpeg", fileSize: "89 KB", url: "#", uploadedAt: "Jan 26, 2026", uploadedBy: "Maria Santos" },
+        ],
+        attachmentsCount: 1,
+      },
+    ],
+    pendingLeaves: [],
+  },
+  { 
+    id: "4",
+    workerId: "4",
+    workerName: "Alex Hansen", 
+    workerType: "employee", 
+    workerCountry: "Norway", 
+    currency: "NOK", 
+    status: "pending",
+    basePay: 65000,
+    estimatedNet: 52000,
+    totalImpact: 4500,
+    periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-004",
+    lineItems: [
+      { label: "Base Salary", amount: 65000, type: "Earnings" },
+      { label: "Income Tax", amount: -9750, type: "Deduction", locked: true },
+      { label: "Pension", amount: -3250, type: "Deduction", locked: true },
+    ],
+    healthInsurance: {
+      provider: "Allianz",
+      policyId: "pol_no_004",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 2800, tax: 420 },
+        employee: { premium: 1400, tax: 210, taxRelief: 350 },
+      },
+      totalMonthly: 4830,
+    },
+    submissions: [
+      { type: "overtime", amount: 4500, hours: 12, description: "Jan 11 · 09:00–21:00", status: "pending" },
+      { type: "expenses", amount: 750, description: "Parking", status: "pending",
+        attachments: [
+          { id: "att-f5-park", fileName: "parking_receipt.jpg", fileType: "image/jpeg", fileSize: "120 KB", url: "#", uploadedAt: "Jan 22, 2026", uploadedBy: "David Martinez" },
+        ], attachmentsCount: 1,
+      },
+    ],
+    pendingLeaves: [
+      { id: "leave-1", leaveType: "Unpaid", startDate: "2026-01-20", endDate: "2026-01-21", totalDays: 2, daysInThisPeriod: 2, status: "pending", dailyRate: 2955, dateDescription: "20–21 Jan" },
+    ],
+    flags: [
+      { type: "end_date", endDate: "Feb 14, 2026", endReason: "Resignation" },
+    ],
+  },
+  { 
+    id: "5", 
+    workerId: "5",
+    workerName: "David Martinez", 
+    workerType: "contractor", 
+    workerCountry: "Portugal", 
+    currency: "EUR", 
+    status: "ready",
+    basePay: 4200,
+    estimatedNet: 4200,
+    periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-005",
+    
+    lineItems: [
+      { label: "Base Contract Fee", amount: 4200, type: "Earnings" },
+    ],
+    submissions: [],
+    pendingLeaves: [],
+  },
+  { 
+    id: "6", 
+    workerId: "6",
+    workerName: "Emma Wilson", 
+    workerType: "contractor", 
+    workerCountry: "Norway", 
+    currency: "NOK", 
+    status: "pending",
+    basePay: 72000,
+    estimatedNet: 72000,
+    totalImpact: 3200,
+    periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-006",
+    lineItems: [
+      { label: "Base Contract Fee", amount: 72000, type: "Earnings" },
+    ],
+    submissions: [
+      { type: "expenses", amount: 2800, description: "Equipment purchase", status: "pending",
+        attachments: [
+          { id: "att-f4", fileName: "equipment_invoice.pdf", fileType: "application/pdf", fileSize: "890 KB", url: "#", uploadedAt: "Jan 27, 2026", uploadedBy: "Emma Wilson" },
+        ],
+        attachmentsCount: 1,
+      },
+      { type: "timesheet", hours: 160, description: "January 2026", status: "pending" },
+    ],
+    pendingLeaves: [],
+  },
+  { 
+    id: "7", 
+    workerId: "7",
+    workerName: "Jonas Schmidt", 
+    workerType: "employee", 
+    workerCountry: "Germany", 
+    currency: "EUR", 
+    status: "ready",
+    basePay: 5800,
+    estimatedNet: 4350,
+    periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-007",
+    lineItems: [
+      { label: "Base Salary", amount: 5800, type: "Earnings" },
+      { label: "Income Tax", amount: -1160, type: "Deduction", locked: true },
+      { label: "Social Security", amount: -290, type: "Deduction", locked: true },
+    ],
+    healthInsurance: {
+      provider: "Techniker Krankenkasse",
+      policyId: "pol_de_007",
+      status: "finalized" as const,
+      contributions: {
+        employer: { premium: 450, tax: 0 },
+        employee: { premium: 450, tax: 0, taxRelief: 0 },
+      },
+      totalMonthly: 900,
+    },
+    submissions: [],
+    pendingLeaves: [],
+  },
+];
+
+// Additional company submissions for "All Clients" aggregate mode
+const GLOBEX_SUBMISSIONS: WorkerSubmission[] = [
+  {
+    id: "g-1", workerId: "g-1", workerName: "Sarah Park", workerType: "employee",
+    workerCountry: "USA", currency: "USD", status: "pending", basePay: 8500,
+    estimatedNet: 6800, totalImpact: 1200, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-G01", companyName: "Globex Inc",
+    lineItems: [
+      { label: "Base Salary", amount: 8500, type: "Earnings" },
+      { label: "Income Tax", amount: -1275, type: "Deduction", locked: true },
+      { label: "Benefits", amount: -425, type: "Deduction", locked: true },
+    ],
+    submissions: [
+      { type: "expenses", amount: 1200, description: "Client dinner", status: "pending",
+        attachments: [{ id: "att-g1", fileName: "dinner_receipt.pdf", fileType: "application/pdf", fileSize: "180 KB", url: "#", uploadedAt: "Jan 24, 2026", uploadedBy: "Sarah Park" }],
+        attachmentsCount: 1,
+      },
+    ],
+    pendingLeaves: [],
+  },
+  {
+    id: "g-2", workerId: "g-2", workerName: "James Wright", workerType: "contractor",
+    workerCountry: "UK", currency: "GBP", status: "ready", basePay: 5200,
+    estimatedNet: 5200, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-G02", companyName: "Globex Inc",
+    lineItems: [{ label: "Consulting Fee", amount: 5200, type: "Earnings" }],
+    submissions: [], pendingLeaves: [],
+  },
+];
+
+const INITECH_SUBMISSIONS: WorkerSubmission[] = [
+  {
+    id: "i-1", workerId: "i-1", workerName: "Bill Lumbergh", workerType: "employee",
+    workerCountry: "UK", currency: "GBP", status: "pending", basePay: 7200,
+    estimatedNet: 5760, totalImpact: 800, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-I01", companyName: "Initech Ltd",
+    lineItems: [
+      { label: "Base Salary", amount: 7200, type: "Earnings" },
+      { label: "Income Tax", amount: -1080, type: "Deduction", locked: true },
+      { label: "NI", amount: -360, type: "Deduction", locked: true },
+    ],
+    submissions: [
+      { type: "overtime", amount: 800, hours: 6, description: "Jan 18 · 09:00–15:00", status: "pending" },
+    ],
+    pendingLeaves: [],
+  },
+  {
+    id: "i-2", workerId: "i-2", workerName: "Peter Gibbons", workerType: "contractor",
+    workerCountry: "USA", currency: "USD", status: "ready", basePay: 6000,
+    estimatedNet: 6000, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-I02", companyName: "Initech Ltd",
+    lineItems: [{ label: "Development Fee", amount: 6000, type: "Earnings" }],
+    submissions: [], pendingLeaves: [],
+  },
+];
+
+const WAYSTAR_SUBMISSIONS: WorkerSubmission[] = [
+  {
+    id: "w-1", workerId: "w-1", workerName: "Kendall Roy", workerType: "employee",
+    workerCountry: "USA", currency: "USD", status: "pending", basePay: 15000,
+    estimatedNet: 12000, totalImpact: 3500, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "PAY-2026-W01", companyName: "Waystar Royco",
+    lineItems: [
+      { label: "Base Salary", amount: 15000, type: "Earnings" },
+      { label: "Income Tax", amount: -2250, type: "Deduction", locked: true },
+      { label: "401k", amount: -750, type: "Deduction", locked: true },
+    ],
+    submissions: [
+      { type: "bonus", amount: 3500, description: "Q4 performance", status: "pending" },
+    ],
+    pendingLeaves: [],
+  },
+  {
+    id: "w-2", workerId: "w-2", workerName: "Shiv Roy", workerType: "contractor",
+    workerCountry: "UK", currency: "GBP", status: "ready", basePay: 9800,
+    estimatedNet: 9800, periodLabel: "Jan 1 – Jan 31",
+    invoiceNumber: "INV-2026-W02", companyName: "Waystar Royco",
+    lineItems: [{ label: "Advisory Fee", amount: 9800, type: "Earnings" }],
+    submissions: [], pendingLeaves: [],
+  },
+];
+
+// Deduplicate: enforce 1 invoice/payslip per worker per pay period
+// If backend data contains duplicates, keep the most advanced status (ready > pending)
+// Mark extras as hidden — only the primary is shown
+const STATUS_PRIORITY: Record<string, number> = { ready: 3, reviewed: 2, pending: 1 };
+const deduplicateByWorker = (workers: WorkerSubmission[]): WorkerSubmission[] => {
+  const seen = new Map<string, WorkerSubmission>();
+  for (const w of workers) {
+    const existing = seen.get(w.workerId);
+    if (!existing) {
+      seen.set(w.workerId, w);
+    } else {
+      const existingPriority = STATUS_PRIORITY[existing.status] ?? 0;
+      const newPriority = STATUS_PRIORITY[w.status] ?? 0;
+      if (newPriority > existingPriority) {
+        seen.set(w.workerId, w); // keep higher-priority status
+      }
+    }
+  }
+  return Array.from(seen.values());
+};
+
+// Per-run KPI metrics
+const RUN_METRICS: Record<string, { grossPay: string; adjustments: string; fees: string; totalCost: string; employeeCount: number; contractorCount: number; currencyCount: number }> = {
+  "jan-monthly": { grossPay: "€115.7K", adjustments: "€7.6K", fees: "€3,468", totalCost: "€119.2K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
+  "jan-fortnight-2": { grossPay: "€57.8K", adjustments: "€2.9K", fees: "€1,752", totalCost: "€60.7K", employeeCount: 3, contractorCount: 2, currencyCount: 2 },
+  "jan-fortnight-1": { grossPay: "€53.9K", adjustments: "€2.6K", fees: "€1,622", totalCost: "€56.5K", employeeCount: 2, contractorCount: 3, currencyCount: 2 },
+  "dec-monthly": { grossPay: "€109.7K", adjustments: "€6.3K", fees: "€3,256", totalCost: "€113.0K", employeeCount: 4, contractorCount: 5, currencyCount: 3 },
+  "nov-monthly": { grossPay: "€106.8K", adjustments: "€5.0K", fees: "€3,133", totalCost: "€109.9K", employeeCount: 4, contractorCount: 4, currencyCount: 3 },
+};
+
+// Aggregated KPI metrics for "All Clients" mode
+const ALL_CLIENTS_METRICS: Record<string, { grossPay: string; adjustments: string; fees: string; totalCost: string; employeeCount: number; contractorCount: number; currencyCount: number; clientCount: number }> = {
+  "jan-monthly": { grossPay: "€168.4K", adjustments: "€13.1K", fees: "€5,052", totalCost: "€173.5K", employeeCount: 7, contractorCount: 8, currencyCount: 4, clientCount: 4 },
+  "jan-fortnight-2": { grossPay: "€57.8K", adjustments: "€2.9K", fees: "€1,752", totalCost: "€60.7K", employeeCount: 3, contractorCount: 2, currencyCount: 2, clientCount: 1 },
+  "jan-fortnight-1": { grossPay: "€53.9K", adjustments: "€2.6K", fees: "€1,622", totalCost: "€56.5K", employeeCount: 2, contractorCount: 3, currencyCount: 2, clientCount: 1 },
+  "dec-monthly": { grossPay: "€109.7K", adjustments: "€6.3K", fees: "€3,256", totalCost: "€113.0K", employeeCount: 4, contractorCount: 5, currencyCount: 3, clientCount: 1 },
+  "nov-monthly": { grossPay: "€106.8K", adjustments: "€5.0K", fees: "€3,133", totalCost: "€109.9K", employeeCount: 4, contractorCount: 4, currencyCount: 3, clientCount: 1 },
+};
+
+// Per-run worker submissions
+const RUN_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
+  "jan-monthly": MOCK_SUBMISSIONS,
+  "jan-fortnight-2": [
+    {
+      id: "f2-sub-1",
+      workerId: "f2-1",
+      workerName: "Marcus Chen",
+      workerCountry: "Singapore",
+      workerType: "contractor",
+      periodLabel: "Jan 15 – Jan 31",
+      basePay: 8500,
+      estimatedNet: 8500,
+      lineItems: [{ type: "Earnings", label: "Consulting Fee", amount: 8500, locked: false }],
+      submissions: [{ type: "expenses", amount: 320, currency: "SGD", description: "Client meeting expenses", status: "pending",
+        attachments: [
+          { id: "att-f5-mc1", fileName: "meeting_receipt.pdf", fileType: "application/pdf", fileSize: "340 KB", url: "#", uploadedAt: "Jan 20, 2026", uploadedBy: "Marcus Chen" },
+        ], attachmentsCount: 1,
+      }],
+      pendingLeaves: [],
+      status: "pending",
+      totalImpact: 320,
+      currency: "SGD",
+    },
+    {
+      id: "f2-sub-2",
+      workerId: "f2-2",
+      workerName: "Emma Wilson",
+      workerCountry: "UK",
+      workerType: "employee",
+      periodLabel: "Jan 15 – Jan 31",
+      basePay: 3200,
+      estimatedNet: 2450,
+      lineItems: [
+        { type: "Earnings", label: "Base Salary", amount: 3200, locked: false },
+        { type: "Deduction", label: "Income Tax", amount: -480, locked: true },
+        { type: "Deduction", label: "NI", amount: -270, locked: true },
+      ],
+      submissions: [{ type: "overtime", hours: 4, description: "Jan 31 · 17:00–21:00", amount: 280, status: "pending" }],
+      pendingLeaves: [],
+      status: "pending",
+      totalImpact: 280,
+      currency: "GBP",
+    },
+  ],
+  "jan-fortnight-1": [
+    {
+      id: "f1-sub-1",
+      workerId: "f1-1",
+      workerName: "Takeshi Yamamoto",
+      workerCountry: "Japan",
+      workerType: "employee",
+      periodLabel: "Jan 1 – Jan 14",
+      basePay: 420000,
+      estimatedNet: 315000,
+      lineItems: [
+        { type: "Earnings", label: "Base Salary", amount: 420000, locked: false },
+        { type: "Deduction", label: "Income Tax", amount: -63000, locked: true },
+        { type: "Deduction", label: "Social Insurance", amount: -42000, locked: true },
+      ],
+      submissions: [{ type: "bonus", amount: 50000, currency: "JPY", description: "Bonus", status: "pending" }],
+      pendingLeaves: [],
+      status: "pending",
+      totalImpact: 50000,
+      currency: "JPY",
+    },
+    {
+      id: "f1-sub-2",
+      workerId: "f1-2",
+      workerName: "Priya Sharma",
+      workerCountry: "India",
+      workerType: "contractor",
+      periodLabel: "Jan 1 – Jan 14",
+      basePay: 180000,
+      estimatedNet: 180000,
+      lineItems: [{ type: "Earnings", label: "Development Fee", amount: 180000, locked: false }],
+      submissions: [{ type: "expenses", amount: 8500, currency: "INR", description: "Software licenses", status: "pending",
+        attachments: [
+          { id: "att-f5-ps1", fileName: "license_invoice.pdf", fileType: "application/pdf", fileSize: "1.2 MB", url: "#", uploadedAt: "Jan 18, 2026", uploadedBy: "Priya Sharma" },
+        ], attachmentsCount: 1,
+      }],
+      pendingLeaves: [],
+      status: "pending",
+      totalImpact: 8500,
+      currency: "INR",
+    },
+  ],
+};
+
+// "All Clients" aggregated submissions — merges all companies with companyName tags
+const ALL_CLIENTS_SUBMISSIONS: Record<string, WorkerSubmission[]> = {
+  "jan-monthly": [
+    ...MOCK_SUBMISSIONS.map(s => ({ ...s, companyName: "Acme Corp" })),
+    ...GLOBEX_SUBMISSIONS,
+    ...INITECH_SUBMISSIONS,
+    ...WAYSTAR_SUBMISSIONS,
+  ],
+};
+
+// Multiple runs can be "in-review" simultaneously
+const MOCK_PERIODS_BASE: PayrollPeriod[] = [
+  // Current active runs (can have multiple in-review)
+  { 
+    id: "jan-monthly", 
+    frequency: "monthly", 
+    periodLabel: "Jan 2026", 
+    payDate: "30th", 
+    status: "in-review",
+    label: "January 2026"
+  },
+  { 
+    id: "jan-fortnight-2", 
+    frequency: "fortnightly", 
+    periodLabel: "Jan 15–31", 
+    payDate: "30th", 
+    status: "in-review",
+    label: "Jan 15-31 2026"
+  },
+  { 
+    id: "jan-fortnight-1", 
+    frequency: "fortnightly", 
+    periodLabel: "Jan 1–14", 
+    payDate: "15th", 
+    status: "in-review",
+    label: "Jan 1-14 2026"
+  },
+  // Historical paid runs
+  { 
+    id: "dec-monthly", 
+    frequency: "monthly", 
+    periodLabel: "Dec 2025", 
+    payDate: "30th", 
+    status: "paid",
+    label: "December 2025"
+  },
+  { 
+    id: "nov-monthly", 
+    frequency: "monthly", 
+    periodLabel: "Nov 2025", 
+    payDate: "30th", 
+    status: "paid",
+    label: "November 2025"
+  },
+];
+
+export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
+  company,
+  initialStep,
+  isAllClients = false,
+  highlightedWorkerId,
+  kurtAutoApproveWorkerId,
+  onKurtApprovalComplete,
+}) => {
+
+  // Period view state - default to first "in-review" run
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("jan-monthly");
+  
+  // Workflow entered state - start on landing view
+  const [hasEnteredWorkflow, setHasEnteredWorkflow] = useState(false);
+  
+  // Step state
+  const [currentStep, setCurrentStep] = useState<F1v4_PayrollStep>("submissions");
+  const [completedSteps, setCompletedSteps] = useState<F1v4_PayrollStep[]>([]);
+  
+  // Submissions state
+  const [submissions, setSubmissions] = useState<WorkerSubmission[]>(MOCK_SUBMISSIONS);
+  
+  // Submit/Approved state
+  const [isApproved, setIsApproved] = useState(false);
+  const [isHeaderConfirmOpen, setIsHeaderConfirmOpen] = useState(false);
+  const [approveReadyWorkerIds, setApproveReadyWorkerIds] = useState<string[]>([]);
+  const [approveAdjustmentDecisions, setApproveAdjustmentDecisions] = useState<Record<string, {status: string}>>({});
+  const [approveExcludedWorkerIds, setApproveExcludedWorkerIds] = useState<string[]>([]);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isAllPaid, setIsAllPaid] = useState(false);
+
+  // Custom batch state
+  const [customBatches, setCustomBatches] = useState<PayrollPeriod[]>([]);
+
+  // Get current run metrics and submissions - use aggregate data when in All Clients mode
+  const allClientsMetrics = ALL_CLIENTS_METRICS[selectedPeriodId] || ALL_CLIENTS_METRICS["jan-monthly"];
+  const currentRunMetrics = isAllClients ? allClientsMetrics : (RUN_METRICS[selectedPeriodId] || RUN_METRICS["jan-monthly"]);
+  const currentRunSubmissions = isAllClients
+    ? deduplicateByWorker(ALL_CLIENTS_SUBMISSIONS[selectedPeriodId] || ALL_CLIENTS_SUBMISSIONS["jan-monthly"] || MOCK_SUBMISSIONS)
+    : deduplicateByWorker(RUN_SUBMISSIONS[selectedPeriodId] || MOCK_SUBMISSIONS);
+  
+  // Dynamic periods - include custom batches
+  const periods = useMemo(() => {
+    const basePeriods = MOCK_PERIODS_BASE.map(p => {
+      if (p.id === selectedPeriodId && isAllPaid) return { ...p, status: "paid" as const };
+      if (p.id === selectedPeriodId && isApproved) return { ...p, status: "processing" as const };
+      return p;
+    });
+    return [...basePeriods, ...customBatches.map(cb => {
+      if (cb.id === selectedPeriodId && isAllPaid) return { ...cb, status: "paid" as const };
+      if (cb.id === selectedPeriodId && isApproved) return { ...cb, status: "processing" as const };
+      return cb;
+    })];
+  }, [selectedPeriodId, isApproved, isAllPaid, customBatches]);
+
+  // Auto-enter workflow when Kurt is highlighting workers
+  useEffect(() => {
+    if (highlightedWorkerId && !hasEnteredWorkflow) {
+      setHasEnteredWorkflow(true);
+      setCurrentStep("submissions");
+    }
+  }, [highlightedWorkerId, hasEnteredWorkflow]);
+
+  // Determine if viewing historical (paid) run — but NOT if it just got paid in this session
+  const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
+  const isViewingPrevious = selectedPeriodData?.status === "paid" && !isAllPaid;
+  const isCustomBatch = selectedPeriodData?.isCustomBatch === true;
+  const selectedHistoricalPayroll = isViewingPrevious 
+    ? HISTORICAL_PAYROLLS.find(p => p.id.includes(selectedPeriodId.replace("-monthly", "").replace("-fortnight-1", "").replace("-fortnight-2", ""))) 
+    : null;
+
+  // For custom batches: show only workers with pending adjustments, no base salary
+  const customBatchSubmissions = useMemo((): WorkerSubmission[] => {
+    if (!isCustomBatch) return [];
+    return MOCK_SUBMISSIONS
+      .filter(w => w.submissions.some(s => s.status === "pending") || w.pendingLeaves?.some(l => l.status === "pending"))
+      .map(w => {
+        const adjTotal = w.submissions.filter(s => s.status === "pending").reduce((sum, s) => sum + (s.amount || 0), 0);
+        const taxRate = w.workerType === "employee" ? 0.10 : 0;
+        const taxAmount = Math.round(adjTotal * taxRate);
+        return {
+          ...w,
+          id: `custom-${w.id}`,
+          basePay: 0,
+          estimatedNet: adjTotal - taxAmount,
+          totalImpact: adjTotal,
+          periodLabel: "Off-cycle",
+          lineItems: w.workerType === "employee" && taxAmount > 0
+            ? [{ label: "Income Tax (on adjustments)", amount: -taxAmount, type: "Deduction" as const, locked: true }]
+            : [],
+        };
+      });
+  }, [isCustomBatch]);
+
+  const displaySubmissions = isCustomBatch ? customBatchSubmissions : currentRunSubmissions;
+  
+  // For approve step: filter to only ready workers and apply adjustment decisions
+  const approveSubmissions = useMemo(() => {
+    if (!isCustomBatch || approveReadyWorkerIds.length === 0) return displaySubmissions;
+    return displaySubmissions
+      .filter(w => approveReadyWorkerIds.includes(w.id))
+      .map(w => ({
+        ...w,
+        submissions: w.submissions.map((s, idx) => {
+          const key = `${w.id}-${idx}`;
+          const decision = approveAdjustmentDecisions[key];
+          if (decision) return { ...s, status: decision.status as "pending" | "approved" | "rejected" };
+          return s;
+        }),
+      }));
+  }, [displaySubmissions, approveReadyWorkerIds, approveAdjustmentDecisions, isCustomBatch]);
+
+  const pendingWorkerCount = isCustomBatch ? displaySubmissions.length - approveReadyWorkerIds.length - approveExcludedWorkerIds.length : 0;
+  
+  const employees = displaySubmissions.filter(w => w.workerType === "employee");
+  const contractors = displaySubmissions.filter(w => w.workerType === "contractor");
+
+  // Computed values for submissions
+  const pendingSubmissions = useMemo(() => displaySubmissions.filter(s => s.status === "pending").length, [displaySubmissions]);
+
+  // Handle period change
+  const handlePeriodChange = (periodId: string) => {
+    setSelectedPeriodId(periodId);
+    const period = MOCK_PERIODS_BASE.find(p => p.id === periodId) || customBatches.find(p => p.id === periodId);
+    if (period?.status === "paid") {
+      setHasEnteredWorkflow(false);
+    }
+    setCurrentStep("submissions");
+    setCompletedSteps([]);
+    setIsApproved(false);
+    setIsAllPaid(false);
+  };
+
+  // Create custom off-cycle batch
+  const handleCreateCustomBatch = (data: { startDate: string; endDate: string; payDate: string }) => {
+    const start = new Date(data.startDate);
+    const end = new Date(data.endDate);
+    const pay = new Date(data.payDate);
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const fmtShort = (d: Date) => `${monthNames[d.getMonth()]} ${d.getDate()}`;
+    const isSameDay = start.getTime() === end.getTime();
+    const periodLabel = isSameDay ? fmtShort(start) : `${fmtShort(start)} – ${fmtShort(end)}`;
+    const batchId = `custom-${Date.now()}`;
+    
+    const newBatch: PayrollPeriod = {
+      id: batchId,
+      frequency: "custom",
+      periodLabel,
+      payDate: fmtShort(pay),
+      status: "in-review",
+      label: `Off-cycle ${periodLabel}`,
+      isCustomBatch: true,
+      startDate: fmtShort(start),
+      endDate: fmtShort(end),
+    };
+    
+    setCustomBatches(prev => [...prev, newBatch]);
+    setSelectedPeriodId(batchId);
+    setCurrentStep("submissions");
+    setCompletedSteps([]);
+    setIsApproved(false);
+    setIsAllPaid(false);
+    setHasEnteredWorkflow(false);
+    toast.success(`Off-cycle batch created: ${periodLabel}`);
+  };
+
+  // Delete custom off-cycle batch
+  const handleDeleteCustomBatch = (periodId: string) => {
+    setCustomBatches(prev => prev.filter(b => b.id !== periodId));
+    if (selectedPeriodId === periodId) {
+      setSelectedPeriodId("jan-monthly");
+      setCurrentStep("submissions");
+      setCompletedSteps([]);
+      setIsApproved(false);
+      setIsAllPaid(false);
+      setHasEnteredWorkflow(false);
+    }
+    toast.success("Off-cycle batch removed");
+  };
+
+  // Enter workflow
+  const handleEnterWorkflow = () => {
+    setHasEnteredWorkflow(true);
+    setCurrentStep("submissions");
+  };
+
+  // Navigation handlers
+  const goToApprove = (readyWorkerIds?: string[], adjustmentDecisions?: Record<string, {status: string}>, excludedWorkerIds?: string[]) => {
+    setCompletedSteps(prev => [...prev, "submissions"]);
+    setCurrentStep("approve");
+    if (readyWorkerIds) setApproveReadyWorkerIds(readyWorkerIds);
+    if (adjustmentDecisions) setApproveAdjustmentDecisions(adjustmentDecisions);
+    if (excludedWorkerIds) setApproveExcludedWorkerIds(excludedWorkerIds);
+  };
+
+  const goToTrack = () => {
+    setCompletedSteps(prev => {
+      const steps: F1v4_PayrollStep[] = [...prev];
+      if (!steps.includes("submissions")) steps.push("submissions");
+      if (!steps.includes("approve")) steps.push("approve");
+      return steps;
+    });
+    setIsApproved(true);
+    setCurrentStep("track");
+    toast.success("Payroll numbers approved and locked");
+  };
+
+
+  // Back navigation
+  const handleBack = () => {
+    switch (currentStep) {
+      case "submissions":
+        setHasEnteredWorkflow(false);
+        break;
+      case "approve":
+        setCurrentStep("submissions");
+        break;
+      case "track":
+        // No back from track
+        break;
+    }
+  };
+
+  // Get display metrics based on period selection - use per-run metrics
+  const displayMetrics = isViewingPrevious && selectedHistoricalPayroll 
+    ? {
+        grossPay: selectedHistoricalPayroll.grossPay,
+        adjustments: selectedHistoricalPayroll.adjustments,
+        fees: selectedHistoricalPayroll.fees,
+        totalCost: selectedHistoricalPayroll.totalCost,
+        employeeCount: selectedHistoricalPayroll.employeeCount,
+        contractorCount: selectedHistoricalPayroll.contractorCount,
+        currencyCount: selectedHistoricalPayroll.currencyCount,
+      }
+    : currentRunMetrics;
+
+  // Render summary card (landing view)
+   const renderSummaryCard = () => {
+    return (
+      <>
+        {/* Period Selector */}
+        <div className={cn("flex items-center justify-center gap-1.5 pt-2", isCustomBatch ? "pb-0" : "pb-4")}>
+          <F1v4_PeriodDropdown 
+            periods={periods}
+            selectedPeriodId={selectedPeriodId}
+            onPeriodChange={handlePeriodChange}
+            allowCustomBatch={company.id === "company-default"}
+            onCreateCustomBatch={handleCreateCustomBatch}
+            onDeleteCustomBatch={handleDeleteCustomBatch}
+          />
+          {isCustomBatch && !isApproved && (
+            <button
+              onClick={() => handleDeleteCustomBatch(selectedPeriodId)}
+              className="h-6 w-6 rounded-md flex items-center justify-center text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors duration-150"
+              title="Remove batch"
+            >
+              <X className="h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* KPI Metrics Card - hidden for custom batches */}
+        {!isCustomBatch && (
+        <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+          <CardContent className="py-4 px-6">
+            {/* Metrics Grid */}
+            <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 lg:mx-0 lg:px-0 lg:overflow-visible">
+              <div className="flex lg:grid lg:grid-cols-4 gap-3 lg:gap-4 w-max lg:w-auto">
+              {/* Gross Pay */}
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <DollarSign className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Gross Pay</span>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
+                        <Info className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
+                      <p className="font-medium">{isApproved ? "Locked at" : "≈"} USD → EUR 1.0842</p>
+                      <p className="text-muted-foreground text-[10px]">{isApproved ? "FX rate locked upon approval" : "FX rate is an estimate"}</p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{isApproved ? "" : "≈ "}{displayMetrics.grossPay}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Salaries + Contractor fees</p>
+              </div>
+
+              {/* Total Adjustments */}
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <Receipt className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">{isApproved ? "Adj. Approved" : "Adj. Requests"}</span>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button type="button" className="inline-flex items-center justify-center w-4 h-4 text-muted-foreground/50 hover:text-foreground transition-colors rounded-full focus:outline-none">
+                        <Info className="h-3 w-3 lg:h-3.5 lg:w-3.5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent side="top" className="w-auto px-3 py-2 text-xs" align="start">
+                      <p className="font-medium">{isApproved ? "Locked at" : "≈"} USD → EUR 1.0842</p>
+                      <p className="text-muted-foreground text-[10px]">{isApproved ? "FX rate locked upon approval" : "FX rate is an estimate"}</p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{isApproved ? "" : "≈ "}{displayMetrics.adjustments}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Bonuses, overtime & expenses</p>
+              </div>
+
+              {/* Fronted Fees */}
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <Building2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Fronted Fees</span>
+                </div>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Transaction + Service</p>
+              </div>
+
+              {/* Total Cost */}
+              <div className="w-36 lg:w-auto bg-primary/[0.04] rounded-xl p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1 lg:mb-2">
+                  <TrendingUp className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <span className="text-xs lg:text-sm">Total Cost</span>
+                </div>
+                <p className="text-lg lg:text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground mt-1 hidden lg:block">Pay + All Fees</p>
+              </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        )}
+      </>
+    );
+  };
+
+  // Get step title for header
+  const getStepTitle = (): string => {
+    switch (currentStep) {
+      case "submissions": return "Submissions";
+      case "approve": return "Approve";
+      case "track": return "Track & Reconcile";
+      default: return "";
+    }
+  };
+
+  // Render step content
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case "submissions":
+        return (
+          <F1v4_SubmissionsView
+            submissions={displaySubmissions}
+            onContinue={goToApprove}
+            onClose={() => setHasEnteredWorkflow(false)}
+            isCustomBatch={isCustomBatch}
+            highlightedWorkerId={highlightedWorkerId}
+            kurtAutoApproveWorkerId={kurtAutoApproveWorkerId}
+            onKurtApprovalComplete={onKurtApprovalComplete}
+          />
+        );
+      case "approve":
+        return (
+          <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+            <div className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <F1v4_PayrollStepper
+                    currentStep="approve"
+                    completedSteps={completedSteps as StepperStep[]}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline"
+                    size="sm" 
+                    onClick={() => setCurrentStep("submissions")}
+                    className="h-9 text-xs"
+                  >
+                    Back
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={() => setIsHeaderConfirmOpen(true)}
+                    className="h-9 text-xs"
+                  >
+                    Approve & Lock
+                  </Button>
+                  <F1v4_ApproveConfirmationModal
+                    open={isHeaderConfirmOpen}
+                    onOpenChange={setIsHeaderConfirmOpen}
+                    onConfirm={goToTrack}
+                    companyName={company.name}
+                    employeeCount={approveSubmissions.filter(s => s.workerType === "employee").length}
+                    contractorCount={approveSubmissions.filter(s => s.workerType === "contractor").length}
+                    totalAmount={`€${approveSubmissions.reduce((sum, s) => sum + (s.totalImpact || 0), 0).toLocaleString()}`}
+                    isCustomBatch={isCustomBatch}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="p-5">
+              <F1v4_ApproveStep
+                company={company}
+                onApprove={goToTrack}
+                hideHeader
+                isCustomBatch={isCustomBatch}
+                submissions={approveSubmissions}
+                pendingWorkerCount={pendingWorkerCount}
+                excludedWorkerCount={approveExcludedWorkerIds.length}
+              />
+            </div>
+          </Card>
+        );
+      case "track":
+        return (
+          <F1v4_TrackStep
+            company={company}
+            hideSummaryCard
+            onAllPaid={() => setIsAllPaid(true)}
+            isCustomBatch={isCustomBatch}
+            submissions={approveSubmissions}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Historical view for previous periods
+  if (isViewingPrevious) {
+    return (
+      <div className="mx-auto px-4 sm:px-8 pt-3 pb-4">
+        <div className="mb-5">
+          {renderSummaryCard()}
+        </div>
+        <div>
+          {selectedHistoricalPayroll && (
+            <F1v4_HistoricalTrackingView
+              workers={selectedHistoricalPayroll.workers}
+              paidDate={selectedHistoricalPayroll.paidDate}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Summary card + workflow step content below
+  return (
+    <div className="mx-auto px-4 sm:px-8 pt-3 pb-4">
+      <div className="mb-5">
+        {renderSummaryCard()}
+      </div>
+      <motion.div
+        key={currentStep}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        {renderStepContent()}
+      </motion.div>
+    </div>
+  );
+};
+
+export default F1v4_CompanyPayrollRun;
