@@ -357,11 +357,22 @@ const Flows = () => {
       path: "/flows/company-admin-dashboard-v5",
       comingSoon: false,
       locked: false
+    },
+    {
+      id: "shared-entity-v1",
+      title: "Shared — Entity v1",
+      description: "Isolated clone of Flow 1 — Fronted Dashboard v7 (Future). First card under the Shared › Entity section. Fully independent components (entity-v1 namespace) — changes here do NOT affect v7 or any other flow.",
+      steps: 7,
+      patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
+      path: "/flows/entity-v1",
+      comingSoon: false,
+      locked: false
     }
     // Flow 1 Fronted Admin Dashboard v3 hidden from view
   ];
 
-  const frontedFlows = flows.filter(f => !f.comingSoon && f.title.includes('Fronted Admin'));
+  const frontedFlows = flows.filter(f => !f.comingSoon && f.title.includes('Fronted'));
+  const sharedEntityFlows = flows.filter(f => !f.comingSoon && f.title.startsWith('Shared'));
   const endClientFlows = flows.filter(f => !f.comingSoon && (
     f.title.includes('Company Admin') ||
     f.title.includes('Admin Workflow') ||
