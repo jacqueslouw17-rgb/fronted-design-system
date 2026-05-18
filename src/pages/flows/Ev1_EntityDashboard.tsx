@@ -79,6 +79,7 @@ const BRAND = {
   mint: "hsl(120 28% 86%)",
   mintDeep: "hsl(140 30% 62%)",
   sand: "hsl(36 28% 80%)",
+  lavender: "hsl(265 45% 86%)",
 };
 
 const CHART = {
