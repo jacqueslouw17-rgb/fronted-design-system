@@ -603,9 +603,42 @@ const Ev1_EntityDashboard: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-background to-muted/30">
+    <div
+      className="ev1-brand min-h-screen flex flex-col"
+      style={{
+        background: BRAND.cream,
+        fontFamily:
+          "'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
+        color: BRAND.ink,
+      }}
+    >
+      {/* Brand-scoped styles */}
+      <style>{`
+        .ev1-brand { letter-spacing: -0.01em; }
+        .ev1-brand h1, .ev1-brand h2, .ev1-brand h3 { font-family: 'Outfit', sans-serif; letter-spacing: -0.035em; font-weight: 600; }
+        .ev1-brand .ev1-pill { background: ${BRAND.ink}; color: ${BRAND.cream}; border-radius: 999px; transition: transform .15s ease, opacity .15s ease; }
+        .ev1-brand .ev1-pill:hover { transform: translateY(-1px); opacity: .92; }
+        .ev1-brand .ev1-pill-outline { background: transparent; color: ${BRAND.ink}; border: 1px solid ${BRAND.ink}; border-radius: 999px; }
+        .ev1-brand .ev1-pill-outline:hover { background: ${BRAND.ink}; color: ${BRAND.cream}; }
+        .ev1-brand .ev1-card { background: #fdfcf8; border: 1px solid ${BRAND.ink}; border-radius: 22px; box-shadow: 4px 4px 0 ${BRAND.ink}; }
+        .ev1-brand .ev1-card-soft { background: #fdfcf8; border: 1.5px dashed ${BRAND.ink}; border-radius: 22px; }
+        .ev1-brand .ev1-tint-pink { background: ${BRAND.pink}; }
+        .ev1-brand .ev1-tint-mint { background: ${BRAND.mint}; }
+        .ev1-brand .ev1-tint-sand { background: ${BRAND.sand}; }
+        .ev1-brand .ev1-tint-cream { background: #fdfcf8; }
+        .ev1-brand .ev1-chip { background: #fdfcf8; border: 1px solid ${BRAND.ink}; border-radius: 999px; color: ${BRAND.ink}; }
+        .ev1-brand .ev1-muted { color: hsl(0 0% 35%); }
+      `}</style>
+
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-border/40 bg-background/70 backdrop-blur-xl backdrop-saturate-150">
+      <header
+        className="sticky top-0 z-30"
+        style={{
+          background: BRAND.cream + "e6",
+          backdropFilter: "blur(14px)",
+          borderBottom: `1px solid ${BRAND.ink}1a`,
+        }}
+      >
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-4 flex items-center justify-between gap-4">
           <button
             onClick={() => navigate("/?tab=flows")}
@@ -616,27 +649,30 @@ const Ev1_EntityDashboard: React.FC = () => {
           <div className="flex items-center gap-2">
             <Selector value={company} onChange={setCompany} options={COMPANIES} icon={Building2} />
             <Selector value={country} onChange={setCountry} options={COUNTRIES} icon={Globe2} />
-            <Button variant="outline" size="sm" className="h-8 gap-1.5">
+            <button className="ev1-pill-outline h-9 px-4 text-xs font-medium inline-flex items-center gap-1.5">
               <Send className="h-3.5 w-3.5" />
               Request client details
-            </Button>
-            <Button size="sm" className="h-8 gap-1.5">
+            </button>
+            <button className="ev1-pill h-9 px-4 text-xs font-medium inline-flex items-center gap-1.5">
               <Plus className="h-3.5 w-3.5" />
               Add entity
-            </Button>
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-[1400px] w-full mx-auto px-6 lg:px-10 py-10 space-y-12">
+      <main className="flex-1 max-w-[1400px] w-full mx-auto px-6 lg:px-10 py-12 space-y-14">
         {/* Title block */}
-        <section className="space-y-4">
-          <div className="space-y-1.5">
-            <h1 className="text-3xl lg:text-4xl font-semibold tracking-tight text-foreground">
-              Entity Dashboard
+        <section className="space-y-6">
+          <div className="space-y-2 max-w-3xl">
+            <span className="ev1-chip inline-block px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-medium">
+              Entity dashboard
+            </span>
+            <h1 className="text-5xl lg:text-6xl leading-[0.95] font-semibold">
+              Set up, run, and<br/>track local entities.
             </h1>
-            <p className="text-base text-muted-foreground max-w-2xl">
-              Set up, run, and track local entities in one place.
+            <p className="text-base ev1-muted max-w-xl pt-2">
+              One operating layer for company-level setup, payroll, compliance and admin — across countries.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -648,7 +684,7 @@ const Ev1_EntityDashboard: React.FC = () => {
         </section>
 
         {/* Overview cards — visual KPI row */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <EntityStatusCard active={1} setup={2} waiting={1} />
           <PayrollReadinessCard ready={12} missing={3} target="25 Jan" />
           <SavingsCard
@@ -670,12 +706,11 @@ const Ev1_EntityDashboard: React.FC = () => {
         <section className="space-y-5">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-2">
-                <Workflow className="h-3.5 w-3.5" />
+              <span className="ev1-chip inline-block px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-medium mb-3">
                 Pipeline
-              </div>
-              <h2 className="text-2xl font-semibold tracking-tight">Entity setup pipeline</h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+              </span>
+              <h2 className="text-3xl lg:text-4xl">Entity setup pipeline</h2>
+              <p className="text-sm ev1-muted mt-2 max-w-xl">
                 Company and country-level progress, from intake to active entity.
               </p>
             </div>
