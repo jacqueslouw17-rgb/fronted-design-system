@@ -751,17 +751,20 @@ const KPICard: React.FC<{
   title: string;
   big: React.ReactNode;
   delta?: { tone: "ok" | "warn"; label: string };
+  tint?: "cream" | "pink" | "mint" | "sand";
   children?: React.ReactNode;
-}> = ({ title, big, delta, children }) => (
-  <Card className="p-5 bg-background border-border/60 hover:shadow-[0_8px_30px_-12px_hsl(252_70%_58%/0.18)] hover:border-border transition-all flex flex-col gap-3">
+}> = ({ title, big, delta, tint = "cream", children }) => (
+  <div
+    className={cn(
+      "ev1-card p-5 flex flex-col gap-3 transition-transform hover:-translate-y-0.5",
+      `ev1-tint-${tint}`
+    )}
+  >
     <div className="flex items-center justify-between">
-      <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-medium">{title}</p>
+      <p className="text-[11px] uppercase tracking-[0.18em] font-semibold" style={{ color: BRAND.ink }}>{title}</p>
       {delta && (
         <span
-          className={cn(
-            "inline-flex items-center gap-0.5 text-[10.5px] font-semibold tabular-nums",
-            delta.tone === "ok" ? "text-emerald-600" : "text-amber-600"
-          )}
+          className="inline-flex items-center gap-0.5 text-[10.5px] font-semibold tabular-nums ev1-chip px-2 py-0.5"
         >
           {delta.tone === "ok" ? (
             <TrendingUp className="h-3 w-3" />
@@ -772,11 +775,11 @@ const KPICard: React.FC<{
         </span>
       )}
     </div>
-    <div className="text-2xl font-semibold tracking-tight text-foreground tabular-nums leading-none">
+    <div className="text-3xl font-semibold tracking-tight tabular-nums leading-none" style={{ color: BRAND.ink, fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.04em" }}>
       {big}
     </div>
     {children}
-  </Card>
+  </div>
 );
 
 const EntityStatusCard: React.FC<{ active: number; setup: number; waiting: number }> = ({
