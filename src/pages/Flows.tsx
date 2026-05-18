@@ -476,6 +476,13 @@ const Flows = () => {
               </div>
             </CollapsibleFlowGroup>
           )}
+          {sharedEntityFlows.length > 0 && (
+            <CollapsibleFlowGroup label="Shared › Entity">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sharedEntityFlows.map((flow) => renderFlowCard(flow))}
+              </div>
+            </CollapsibleFlowGroup>
+          )}
         </div>
       </div>
 
