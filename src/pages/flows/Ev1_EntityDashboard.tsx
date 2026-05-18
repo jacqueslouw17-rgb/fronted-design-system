@@ -69,15 +69,26 @@ import {
 import { cn } from "@/lib/utils";
 import frontedLogo from "@/assets/fronted-logo.png";
 
-// Chart palette — soft, executive, Stripe-inspired
+// Brand palette — Fronted entity.fronted.com (cream + ink, pastel pink & mint)
+const BRAND = {
+  cream: "hsl(42 22% 93%)",
+  creamDeep: "hsl(40 18% 88%)",
+  ink: "hsl(0 0% 7%)",
+  pink: "hsl(2 55% 90%)",
+  pinkDeep: "hsl(2 60% 78%)",
+  mint: "hsl(120 28% 86%)",
+  mintDeep: "hsl(140 30% 62%)",
+  sand: "hsl(36 28% 80%)",
+};
+
 const CHART = {
-  primary: "hsl(252 70% 58%)",
-  primaryFade: "hsl(252 70% 58% / 0.12)",
-  ok: "hsl(152 60% 42%)",
-  warn: "hsl(38 92% 55%)",
-  info: "hsl(210 90% 56%)",
-  muted: "hsl(215 16% 75%)",
-  ink: "hsl(222 25% 18%)",
+  primary: BRAND.ink,
+  primaryFade: "hsl(0 0% 7% / 0.10)",
+  ok: BRAND.mintDeep,
+  warn: BRAND.pinkDeep,
+  info: "hsl(200 35% 55%)",
+  muted: "hsl(40 10% 72%)",
+  ink: BRAND.ink,
 };
 
 // ────────────────────────────────────────────────────────────────
