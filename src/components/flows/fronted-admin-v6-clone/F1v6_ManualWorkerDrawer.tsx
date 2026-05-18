@@ -465,8 +465,8 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
               <Input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Manila, Oslo" className="h-10" />
             </Field>
 
-            {/* Terms */}
-            {countryRule && (
+            {/* Terms — hide country defaults for contractors */}
+            {countryRule && employmentType === "employee" && (
               <div className="border-t border-border/40 pt-3 mt-1">
                 <p className="text-[11px] text-muted-foreground mb-3">Country defaults for {country} — adjust as negotiated</p>
                 <div className="space-y-3">
