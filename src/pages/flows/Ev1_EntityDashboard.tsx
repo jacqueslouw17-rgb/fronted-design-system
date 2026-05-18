@@ -732,9 +732,6 @@ const Ev1_EntityDashboard: React.FC = () => {
         {/* Title block */}
         <section className="space-y-6">
           <div className="space-y-2 max-w-3xl">
-            <span className="ev1-chip inline-block px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-medium">
-              Entity dashboard
-            </span>
             <h1 className="text-5xl lg:text-6xl leading-[0.95] font-semibold">
               Set up, run, and<br/>track local entities.
             </h1>
