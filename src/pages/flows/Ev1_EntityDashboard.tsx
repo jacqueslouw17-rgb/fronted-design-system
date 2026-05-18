@@ -794,7 +794,7 @@ const EntityStatusCard: React.FC<{ active: number; setup: number; waiting: numbe
   ];
   const total = active + setup + waiting;
   return (
-    <KPICard title="Entity status" big={`${total}`} delta={{ tone: "ok", label: "+1 this qtr" }}>
+    <KPICard title="Entity status" big={`${total}`} delta={{ tone: "ok", label: "+1 this qtr" }} tint="mint">
       <div className="flex items-center gap-3 -mt-1">
         <div className="relative h-[68px] w-[68px] shrink-0">
           <ResponsiveContainer width="100%" height="100%">
@@ -841,7 +841,7 @@ const PayrollReadinessCard: React.FC<{ ready: number; missing: number; target: s
   const pct = Math.round((ready / (ready + missing)) * 100);
   const series = [4, 6, 7, 9, 10, 11, 12].map((v, i) => ({ d: i, v }));
   return (
-    <KPICard title="Payroll readiness" big={`${pct}%`} delta={{ tone: "ok", label: "+8% MoM" }}>
+    <KPICard title="Payroll readiness" big={`${pct}%`} delta={{ tone: "ok", label: "+8% MoM" }} tint="cream">
       <div className="h-[42px] -mx-1">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={series} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
@@ -936,7 +936,7 @@ const OpenActionsCard: React.FC<{ missing: number; docs: number; compliance: num
   ];
   const total = missing + docs + compliance;
   return (
-    <KPICard title="Open actions" big={`${total}`} delta={{ tone: "warn", label: "−3 this week" }}>
+    <KPICard title="Open actions" big={`${total}`} delta={{ tone: "warn", label: "−3 this week" }} tint="pink">
       <div className="h-[52px] -mx-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }} barCategoryGap={10}>
