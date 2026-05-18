@@ -712,7 +712,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/flows/entity-v1",
       iconColor: "cyan",
       icon: Workflow,
-      title: "Flow 7 Entity Dashboard v1 Now",
+      title: "Flow 7 Entity Dashboard v1",
       status: "now" as const,
       deprecated: false,
       description: "Isolated clone of Flow 1 Fronted Dashboard v7 (Future). First card under Shared › Entity. Fully independent (entity-v1 namespace) — changes do NOT affect v7.",
