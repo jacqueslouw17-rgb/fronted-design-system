@@ -520,9 +520,9 @@ const StatusChip: React.FC<{ tone: "ok" | "warn" | "info" | "muted"; children: R
 };
 
 const SummaryChip: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/60 backdrop-blur px-3 py-1 text-xs">
-    <span className="text-muted-foreground">{label}</span>
-    <span className="font-medium text-foreground">{value}</span>
+  <div className="ev1-chip inline-flex items-center gap-1.5 px-3 py-1 text-xs">
+    <span className="ev1-muted">{label}</span>
+    <span className="font-semibold">{value}</span>
   </div>
 );
 
