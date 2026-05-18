@@ -636,40 +636,48 @@ const Ev1_EntityDashboard: React.FC = () => {
           </div>
         </section>
 
-        {/* Overview cards */}
+        {/* Overview cards — visual KPI row */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <OverviewCard
-            title="Entity status"
-            rows={[
-              { label: "Active entities", value: "1" },
-              { label: "In setup", value: "2" },
-              { label: "Waiting on client", value: "1" },
+          <EntityStatusCard active={1} setup={2} waiting={1} />
+          <PayrollReadinessCard ready={12} missing={3} target="25 Jan" />
+          <SavingsCard
+            eor={63400}
+            direct={41200}
+            trend={[
+              { m: "Aug", eor: 62, direct: 62 },
+              { m: "Sep", eor: 62.4, direct: 58 },
+              { m: "Oct", eor: 62.8, direct: 52 },
+              { m: "Nov", eor: 63, direct: 47 },
+              { m: "Dec", eor: 63.2, direct: 44 },
+              { m: "Jan", eor: 63.4, direct: 41.2 },
             ]}
           />
-          <OverviewCard
-            title="Payroll readiness"
-            rows={[
-              { label: "Payroll-ready workers", value: "12" },
-              { label: "Missing details", value: "3" },
-              { label: "First payroll target", value: "25 Jan" },
-            ]}
-          />
-          <OverviewCard
-            title="Estimated savings"
-            rows={[
-              { label: "Current EOR cost", value: "$63.4k/mo" },
-              { label: "Direct entity cost", value: "$41.2k/mo" },
-              { label: "Monthly saving", value: "$22.2k", emphasize: true },
-            ]}
-          />
-          <OverviewCard
-            title="Open actions"
-            rows={[
-              { label: "Missing client details", value: "7" },
-              { label: "Documents pending", value: "4" },
-              { label: "Compliance review", value: "1" },
-            ]}
-          />
+          <OpenActionsCard missing={7} docs={4} compliance={1} />
+        </section>
+
+        {/* Entity setup pipeline — moved up, right under overview cards */}
+        <section className="space-y-5">
+          <div className="flex items-end justify-between flex-wrap gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-2">
+                <Workflow className="h-3.5 w-3.5" />
+                Pipeline
+              </div>
+              <h2 className="text-2xl font-semibold tracking-tight">Entity setup pipeline</h2>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+                Company and country-level progress, from intake to active entity.
+              </p>
+            </div>
+            <ViewToggle value={view} onChange={setView} />
+          </div>
+
+          <PipelineFlowBar entities={filtered} onOpen={setActive} />
+
+          {view === "board" ? (
+            <BoardView entities={filtered} onOpen={setActive} />
+          ) : (
+            <ListView entities={filtered} onOpen={setActive} />
+          )}
         </section>
 
         {/* What Fronted handles */}
@@ -692,30 +700,8 @@ const Ev1_EntityDashboard: React.FC = () => {
             ))}
           </div>
         </section>
-
-        {/* Entity setup pipeline */}
-        <section className="space-y-5">
-          <div className="flex items-end justify-between flex-wrap gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-2">
-                <Workflow className="h-3.5 w-3.5" />
-                Pipeline
-              </div>
-              <h2 className="text-2xl font-semibold tracking-tight">Entity setup pipeline</h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-                Company and country-level progress, from intake to active entity.
-              </p>
-            </div>
-            <ViewToggle value={view} onChange={setView} />
-          </div>
-
-          {view === "board" ? (
-            <BoardView entities={filtered} onOpen={setActive} />
-          ) : (
-            <ListView entities={filtered} onOpen={setActive} />
-          )}
-        </section>
       </main>
+
 
       {/* Detail drawer */}
       <Sheet open={!!active} onOpenChange={(o) => !o && setActive(null)}>
