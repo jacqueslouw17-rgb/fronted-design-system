@@ -1000,7 +1000,7 @@ const OpenActionsCard: React.FC<{ missing: number; docs: number; compliance: num
   ];
   const total = missing + docs + compliance;
   return (
-    <KPICard title="Open actions" big={`${total}`} delta={{ tone: "warn", label: "−3 this week" }} tint="pink">
+    <KPICard title="Open actions" big={`${total}`} delta={{ tone: "warn", label: "−3 this week" }} tint="cream">
       <div className="h-[52px] -mx-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }} barCategoryGap={10}>
