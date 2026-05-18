@@ -4,7 +4,7 @@
  * Templates capture contract/engagement details but NOT personal profile info.
  */
 
-const STORAGE_KEY = "adminflow-v7-worker-templates";
+const STORAGE_KEY = "entity-v1-worker-templates";
 
 export interface WorkerTemplate {
   id: string;
