@@ -9,7 +9,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   Building2,
@@ -24,6 +24,8 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  TrendingUp,
+  TrendingDown,
   Users,
   Wallet,
   Workflow,
@@ -32,6 +34,22 @@ import {
   AlertCircle,
   Circle,
 } from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -50,6 +68,17 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import frontedLogo from "@/assets/fronted-logo.png";
+
+// Chart palette — soft, executive, Stripe-inspired
+const CHART = {
+  primary: "hsl(252 70% 58%)",
+  primaryFade: "hsl(252 70% 58% / 0.12)",
+  ok: "hsl(152 60% 42%)",
+  warn: "hsl(38 92% 55%)",
+  info: "hsl(210 90% 56%)",
+  muted: "hsl(215 16% 75%)",
+  ink: "hsl(222 25% 18%)",
+};
 
 // ────────────────────────────────────────────────────────────────
 // Types
