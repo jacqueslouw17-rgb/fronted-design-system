@@ -693,6 +693,7 @@ const Ev1_EntityDashboard: React.FC = () => {
         .ev1-brand .ev1-tint-pink { background: ${BRAND.pink}; }
         .ev1-brand .ev1-tint-mint { background: ${BRAND.mint}; }
         .ev1-brand .ev1-tint-sand { background: ${BRAND.sand}; }
+        .ev1-brand .ev1-tint-lavender { background: ${BRAND.lavender}; }
         .ev1-brand .ev1-tint-cream { background: #fdfcf8; }
         .ev1-brand .ev1-chip { background: #fdfcf8; border: 1px solid ${BRAND.ink}; border-radius: 999px; color: ${BRAND.ink}; }
         .ev1-brand .ev1-muted { color: hsl(0 0% 35%); }
