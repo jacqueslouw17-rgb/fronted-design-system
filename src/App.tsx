@@ -64,6 +64,8 @@ import F1v4_FrontedAdminDashboard from "./pages/flows/F1v4_FrontedAdminDashboard
 import F1v5_FrontedAdminDashboard from "./pages/flows/F1v5_FrontedAdminDashboard";
 import F1v6_FrontedAdminDashboard from "./pages/flows/F1v6_FrontedAdminDashboard";
 import F1v7_FrontedAdminDashboard from "./pages/flows/F1v7_FrontedAdminDashboard";
+import Ev1_EntityDashboard from "./pages/flows/Ev1_EntityDashboard";
+import Ev1_ProfileSettings from "./pages/flows/Ev1_ProfileSettings";
 import F1v5_ProfileSettings from "./pages/flows/F1v5_ProfileSettings";
 import F1v6_ProfileSettings from "./pages/flows/F1v6_ProfileSettings";
 import F1v7_ProfileSettings from "./pages/flows/F1v7_ProfileSettings";
@@ -205,6 +207,8 @@ const App = () => (
         <Route path="/flows/fronted-admin-dashboard-v5-clone" element={<F1v5_FrontedAdminDashboard />} />
         <Route path="/flows/fronted-admin-dashboard-v6-clone" element={<F1v6_FrontedAdminDashboard />} />
         <Route path="/flows/fronted-admin-dashboard-v7-clone" element={<F1v7_FrontedAdminDashboard />} />
+        <Route path="/flows/entity-v1" element={<Ev1_EntityDashboard />} />
+        <Route path="/entity-v1/profile-settings" element={<Ev1_ProfileSettings />} />
         <Route path="/flow-1-v4/profile-settings" element={<FrontedAdminV4ProfileSettings />} />
         <Route path="/flow-1-v5/profile-settings" element={<F1v5_ProfileSettings />} />
         <Route path="/flow-1-v6/profile-settings" element={<F1v6_ProfileSettings />} />
