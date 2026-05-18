@@ -207,6 +207,8 @@ const App = () => (
         <Route path="/flows/fronted-admin-dashboard-v5-clone" element={<F1v5_FrontedAdminDashboard />} />
         <Route path="/flows/fronted-admin-dashboard-v6-clone" element={<F1v6_FrontedAdminDashboard />} />
         <Route path="/flows/fronted-admin-dashboard-v7-clone" element={<F1v7_FrontedAdminDashboard />} />
+        <Route path="/flows/entity-v1" element={<Ev1_EntityDashboard />} />
+        <Route path="/entity-v1/profile-settings" element={<Ev1_ProfileSettings />} />
         <Route path="/flow-1-v4/profile-settings" element={<FrontedAdminV4ProfileSettings />} />
         <Route path="/flow-1-v5/profile-settings" element={<F1v5_ProfileSettings />} />
         <Route path="/flow-1-v6/profile-settings" element={<F1v6_ProfileSettings />} />
