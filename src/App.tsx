@@ -64,6 +64,8 @@ import F1v4_FrontedAdminDashboard from "./pages/flows/F1v4_FrontedAdminDashboard
 import F1v5_FrontedAdminDashboard from "./pages/flows/F1v5_FrontedAdminDashboard";
 import F1v6_FrontedAdminDashboard from "./pages/flows/F1v6_FrontedAdminDashboard";
 import F1v7_FrontedAdminDashboard from "./pages/flows/F1v7_FrontedAdminDashboard";
+import Ev1_EntityDashboard from "./pages/flows/Ev1_EntityDashboard";
+import Ev1_ProfileSettings from "./pages/flows/Ev1_ProfileSettings";
 import F1v5_ProfileSettings from "./pages/flows/F1v5_ProfileSettings";
 import F1v6_ProfileSettings from "./pages/flows/F1v6_ProfileSettings";
 import F1v7_ProfileSettings from "./pages/flows/F1v7_ProfileSettings";
