@@ -344,7 +344,8 @@ const DesignSystem = () => {
     !id.includes('-next')
   );
   
-  const sharedFlows = flowOrder.filter(id => id.startsWith('shared-'));
+  const sharedFlows = flowOrder.filter(id => id.startsWith('shared-') && !id.startsWith('shared-entity'));
+  const sharedEntityFlows = flowOrder.filter(id => id.startsWith('shared-entity'));
 
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
