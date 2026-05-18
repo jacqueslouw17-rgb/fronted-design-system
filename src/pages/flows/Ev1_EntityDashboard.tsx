@@ -69,15 +69,26 @@ import {
 import { cn } from "@/lib/utils";
 import frontedLogo from "@/assets/fronted-logo.png";
 
-// Chart palette — soft, executive, Stripe-inspired
+// Brand palette — Fronted entity.fronted.com (cream + ink, pastel pink & mint)
+const BRAND = {
+  cream: "hsl(42 22% 93%)",
+  creamDeep: "hsl(40 18% 88%)",
+  ink: "hsl(0 0% 7%)",
+  pink: "hsl(2 55% 90%)",
+  pinkDeep: "hsl(2 60% 78%)",
+  mint: "hsl(120 28% 86%)",
+  mintDeep: "hsl(140 30% 62%)",
+  sand: "hsl(36 28% 80%)",
+};
+
 const CHART = {
-  primary: "hsl(252 70% 58%)",
-  primaryFade: "hsl(252 70% 58% / 0.12)",
-  ok: "hsl(152 60% 42%)",
-  warn: "hsl(38 92% 55%)",
-  info: "hsl(210 90% 56%)",
-  muted: "hsl(215 16% 75%)",
-  ink: "hsl(222 25% 18%)",
+  primary: BRAND.ink,
+  primaryFade: "hsl(0 0% 7% / 0.10)",
+  ok: BRAND.mintDeep,
+  warn: BRAND.pinkDeep,
+  info: "hsl(200 35% 55%)",
+  muted: "hsl(40 10% 72%)",
+  ink: BRAND.ink,
 };
 
 // ────────────────────────────────────────────────────────────────
@@ -509,9 +520,9 @@ const StatusChip: React.FC<{ tone: "ok" | "warn" | "info" | "muted"; children: R
 };
 
 const SummaryChip: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/60 backdrop-blur px-3 py-1 text-xs">
-    <span className="text-muted-foreground">{label}</span>
-    <span className="font-medium text-foreground">{value}</span>
+  <div className="ev1-chip inline-flex items-center gap-1.5 px-3 py-1 text-xs">
+    <span className="ev1-muted">{label}</span>
+    <span className="font-semibold">{value}</span>
   </div>
 );
 
@@ -592,9 +603,42 @@ const Ev1_EntityDashboard: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-background to-muted/30">
+    <div
+      className="ev1-brand min-h-screen flex flex-col"
+      style={{
+        background: BRAND.cream,
+        fontFamily:
+          "'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
+        color: BRAND.ink,
+      }}
+    >
+      {/* Brand-scoped styles */}
+      <style>{`
+        .ev1-brand { letter-spacing: -0.01em; }
+        .ev1-brand h1, .ev1-brand h2, .ev1-brand h3 { font-family: 'Outfit', sans-serif; letter-spacing: -0.035em; font-weight: 600; }
+        .ev1-brand .ev1-pill { background: ${BRAND.ink}; color: ${BRAND.cream}; border-radius: 999px; transition: transform .15s ease, opacity .15s ease; }
+        .ev1-brand .ev1-pill:hover { transform: translateY(-1px); opacity: .92; }
+        .ev1-brand .ev1-pill-outline { background: transparent; color: ${BRAND.ink}; border: 1px solid ${BRAND.ink}; border-radius: 999px; }
+        .ev1-brand .ev1-pill-outline:hover { background: ${BRAND.ink}; color: ${BRAND.cream}; }
+        .ev1-brand .ev1-card { background: #fdfcf8; border: 1px solid ${BRAND.ink}; border-radius: 22px; box-shadow: 4px 4px 0 ${BRAND.ink}; }
+        .ev1-brand .ev1-card-soft { background: #fdfcf8; border: 1.5px dashed ${BRAND.ink}; border-radius: 22px; }
+        .ev1-brand .ev1-tint-pink { background: ${BRAND.pink}; }
+        .ev1-brand .ev1-tint-mint { background: ${BRAND.mint}; }
+        .ev1-brand .ev1-tint-sand { background: ${BRAND.sand}; }
+        .ev1-brand .ev1-tint-cream { background: #fdfcf8; }
+        .ev1-brand .ev1-chip { background: #fdfcf8; border: 1px solid ${BRAND.ink}; border-radius: 999px; color: ${BRAND.ink}; }
+        .ev1-brand .ev1-muted { color: hsl(0 0% 35%); }
+      `}</style>
+
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-border/40 bg-background/70 backdrop-blur-xl backdrop-saturate-150">
+      <header
+        className="sticky top-0 z-30"
+        style={{
+          background: BRAND.cream + "e6",
+          backdropFilter: "blur(14px)",
+          borderBottom: `1px solid ${BRAND.ink}1a`,
+        }}
+      >
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-4 flex items-center justify-between gap-4">
           <button
             onClick={() => navigate("/?tab=flows")}
@@ -605,27 +649,30 @@ const Ev1_EntityDashboard: React.FC = () => {
           <div className="flex items-center gap-2">
             <Selector value={company} onChange={setCompany} options={COMPANIES} icon={Building2} />
             <Selector value={country} onChange={setCountry} options={COUNTRIES} icon={Globe2} />
-            <Button variant="outline" size="sm" className="h-8 gap-1.5">
+            <button className="ev1-pill-outline h-9 px-4 text-xs font-medium inline-flex items-center gap-1.5">
               <Send className="h-3.5 w-3.5" />
               Request client details
-            </Button>
-            <Button size="sm" className="h-8 gap-1.5">
+            </button>
+            <button className="ev1-pill h-9 px-4 text-xs font-medium inline-flex items-center gap-1.5">
               <Plus className="h-3.5 w-3.5" />
               Add entity
-            </Button>
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-[1400px] w-full mx-auto px-6 lg:px-10 py-10 space-y-12">
+      <main className="flex-1 max-w-[1400px] w-full mx-auto px-6 lg:px-10 py-12 space-y-14">
         {/* Title block */}
-        <section className="space-y-4">
-          <div className="space-y-1.5">
-            <h1 className="text-3xl lg:text-4xl font-semibold tracking-tight text-foreground">
-              Entity Dashboard
+        <section className="space-y-6">
+          <div className="space-y-2 max-w-3xl">
+            <span className="ev1-chip inline-block px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-medium">
+              Entity dashboard
+            </span>
+            <h1 className="text-5xl lg:text-6xl leading-[0.95] font-semibold">
+              Set up, run, and<br/>track local entities.
             </h1>
-            <p className="text-base text-muted-foreground max-w-2xl">
-              Set up, run, and track local entities in one place.
+            <p className="text-base ev1-muted max-w-xl pt-2">
+              One operating layer for company-level setup, payroll, compliance and admin — across countries.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -637,7 +684,7 @@ const Ev1_EntityDashboard: React.FC = () => {
         </section>
 
         {/* Overview cards — visual KPI row */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <EntityStatusCard active={1} setup={2} waiting={1} />
           <PayrollReadinessCard ready={12} missing={3} target="25 Jan" />
           <SavingsCard
@@ -659,12 +706,11 @@ const Ev1_EntityDashboard: React.FC = () => {
         <section className="space-y-5">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-2">
-                <Workflow className="h-3.5 w-3.5" />
+              <span className="ev1-chip inline-block px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-medium mb-3">
                 Pipeline
-              </div>
-              <h2 className="text-2xl font-semibold tracking-tight">Entity setup pipeline</h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+              </span>
+              <h2 className="text-3xl lg:text-4xl">Entity setup pipeline</h2>
+              <p className="text-sm ev1-muted mt-2 max-w-xl">
                 Company and country-level progress, from intake to active entity.
               </p>
             </div>
@@ -705,17 +751,20 @@ const KPICard: React.FC<{
   title: string;
   big: React.ReactNode;
   delta?: { tone: "ok" | "warn"; label: string };
+  tint?: "cream" | "pink" | "mint" | "sand";
   children?: React.ReactNode;
-}> = ({ title, big, delta, children }) => (
-  <Card className="p-5 bg-background border-border/60 hover:shadow-[0_8px_30px_-12px_hsl(252_70%_58%/0.18)] hover:border-border transition-all flex flex-col gap-3">
+}> = ({ title, big, delta, tint = "cream", children }) => (
+  <div
+    className={cn(
+      "ev1-card p-5 flex flex-col gap-3 transition-transform hover:-translate-y-0.5",
+      `ev1-tint-${tint}`
+    )}
+  >
     <div className="flex items-center justify-between">
-      <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-medium">{title}</p>
+      <p className="text-[11px] uppercase tracking-[0.18em] font-semibold" style={{ color: BRAND.ink }}>{title}</p>
       {delta && (
         <span
-          className={cn(
-            "inline-flex items-center gap-0.5 text-[10.5px] font-semibold tabular-nums",
-            delta.tone === "ok" ? "text-emerald-600" : "text-amber-600"
-          )}
+          className="inline-flex items-center gap-0.5 text-[10.5px] font-semibold tabular-nums ev1-chip px-2 py-0.5"
         >
           {delta.tone === "ok" ? (
             <TrendingUp className="h-3 w-3" />
@@ -726,11 +775,11 @@ const KPICard: React.FC<{
         </span>
       )}
     </div>
-    <div className="text-2xl font-semibold tracking-tight text-foreground tabular-nums leading-none">
+    <div className="text-3xl font-semibold tracking-tight tabular-nums leading-none" style={{ color: BRAND.ink, fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.04em" }}>
       {big}
     </div>
     {children}
-  </Card>
+  </div>
 );
 
 const EntityStatusCard: React.FC<{ active: number; setup: number; waiting: number }> = ({
@@ -745,7 +794,7 @@ const EntityStatusCard: React.FC<{ active: number; setup: number; waiting: numbe
   ];
   const total = active + setup + waiting;
   return (
-    <KPICard title="Entity status" big={`${total}`} delta={{ tone: "ok", label: "+1 this qtr" }}>
+    <KPICard title="Entity status" big={`${total}`} delta={{ tone: "ok", label: "+1 this qtr" }} tint="mint">
       <div className="flex items-center gap-3 -mt-1">
         <div className="relative h-[68px] w-[68px] shrink-0">
           <ResponsiveContainer width="100%" height="100%">
@@ -792,7 +841,7 @@ const PayrollReadinessCard: React.FC<{ ready: number; missing: number; target: s
   const pct = Math.round((ready / (ready + missing)) * 100);
   const series = [4, 6, 7, 9, 10, 11, 12].map((v, i) => ({ d: i, v }));
   return (
-    <KPICard title="Payroll readiness" big={`${pct}%`} delta={{ tone: "ok", label: "+8% MoM" }}>
+    <KPICard title="Payroll readiness" big={`${pct}%`} delta={{ tone: "ok", label: "+8% MoM" }} tint="cream">
       <div className="h-[42px] -mx-1">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={series} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
@@ -832,10 +881,11 @@ const SavingsCard: React.FC<{
   return (
     <KPICard
       title="Estimated savings"
+      tint="sand"
       big={
-        <span className="text-emerald-600">
+        <span>
           ${(saving / 1000).toFixed(1)}k
-          <span className="text-xs text-muted-foreground font-normal ml-1">/mo</span>
+          <span className="text-xs font-normal ml-1 ev1-muted">/mo</span>
         </span>
       }
       delta={{ tone: "ok", label: `−${pct}% vs EOR` }}
@@ -887,7 +937,7 @@ const OpenActionsCard: React.FC<{ missing: number; docs: number; compliance: num
   ];
   const total = missing + docs + compliance;
   return (
-    <KPICard title="Open actions" big={`${total}`} delta={{ tone: "warn", label: "−3 this week" }}>
+    <KPICard title="Open actions" big={`${total}`} delta={{ tone: "warn", label: "−3 this week" }} tint="pink">
       <div className="h-[52px] -mx-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }} barCategoryGap={10}>
@@ -919,12 +969,12 @@ const PipelineFlowBar: React.FC<{
   onOpen: (e: EntityRecord) => void;
 }> = ({ entities, onOpen }) => {
   const stageColors: Record<EntityStage, string> = {
-    intake: CHART.muted,
-    details: CHART.warn,
-    setup: CHART.info,
-    payroll: CHART.primary,
-    compliance: "hsl(290 65% 60%)",
-    active: CHART.ok,
+    intake: BRAND.sand,
+    details: BRAND.pinkDeep,
+    setup: BRAND.pink,
+    payroll: BRAND.mint,
+    compliance: BRAND.mintDeep,
+    active: BRAND.ink,
   };
   const totals = STAGES.map((s) => ({
     ...s,
@@ -933,8 +983,8 @@ const PipelineFlowBar: React.FC<{
   const max = Math.max(1, ...totals.map((t) => t.items.length));
 
   return (
-    <Card className="p-5 bg-background border-border/60">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="ev1-card ev1-tint-cream p-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {totals.map((s, i) => {
           const heightPct = (s.items.length / max) * 100;
           const color = stageColors[s.key];
@@ -981,7 +1031,7 @@ const PipelineFlowBar: React.FC<{
           );
         })}
       </div>
-    </Card>
+    </div>
   );
 };
 
