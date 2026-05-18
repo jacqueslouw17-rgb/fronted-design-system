@@ -194,12 +194,7 @@ const NumberFieldWithUnit: React.FC<{
   </div>
 );
 
-interface DocUpload {
-  name: string;
-  mandatory: boolean;
-  file: File | null;
-  signed: boolean;
-}
+// Documents now use a simple model: one required signed contract + optional supporting files
 
 export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   open,
