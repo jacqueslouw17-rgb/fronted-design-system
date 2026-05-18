@@ -814,7 +814,7 @@ const KPICard: React.FC<{
   title: string;
   big: React.ReactNode;
   delta?: { tone: "ok" | "warn"; label: string };
-  tint?: "cream" | "pink" | "mint" | "sand";
+  tint?: "cream" | "pink" | "mint" | "sand" | "lavender";
   children?: React.ReactNode;
 }> = ({ title, big, delta, tint = "cream", children }) => (
   <div
