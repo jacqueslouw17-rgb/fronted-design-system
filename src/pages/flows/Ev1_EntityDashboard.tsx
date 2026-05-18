@@ -770,9 +770,6 @@ const Ev1_EntityDashboard: React.FC = () => {
         <section className="space-y-5">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
-              <span className="ev1-chip inline-block px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-medium mb-3">
-                Pipeline
-              </span>
               <h2 className="text-3xl lg:text-4xl">Entity setup pipeline</h2>
               <p className="text-sm ev1-muted mt-2 max-w-xl">
                 Company and country-level progress, from intake to active entity.
