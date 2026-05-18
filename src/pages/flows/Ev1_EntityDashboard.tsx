@@ -401,6 +401,73 @@ const ENTITIES: EntityRecord[] = [
   },
 ];
 
+// Synthetic additions to fill pipeline columns (2 details, 3 setup, 4 payroll, 2 compliance, 2 active, 1 intake)
+const mk = (
+  id: string,
+  company: string,
+  country: string,
+  flag: string,
+  stage: EntityStage,
+  entityStatus: string,
+  workers: number,
+  owner: string,
+  nextAction: string,
+  missing: string[] = [],
+): EntityRecord => ({
+  id,
+  company,
+  country,
+  flag,
+  stage,
+  entityStatus,
+  workers,
+  employeesPlanned: workers + 2,
+  currentEor: true,
+  missingItems: missing,
+  owner,
+  nextAction,
+  lastUpdated: "today",
+  entityType: "Local entity",
+  goLive: "TBC",
+  clientContact: { name: "Client lead", email: "lead@" + company.toLowerCase().replace(/\s+/g, "") + ".com" },
+  intake: {
+    avgSalary: "—",
+    currentEorCost: "—",
+    hiringTimeline: "Within 90 days",
+    alreadyHiring: true,
+    notes: "",
+  },
+  checklist: buildChecklist(),
+  documents: ["Entity registration documents"],
+  timeline: [
+    { label: "Intake received", date: "—", done: stage !== "intake" || true },
+    { label: "Details requested", date: "—", done: ["details","setup","payroll","compliance","active"].includes(stage) },
+    { label: "Setup", date: "—", done: ["setup","payroll","compliance","active"].includes(stage) },
+    { label: "Payroll setup", date: "—", done: ["payroll","compliance","active"].includes(stage) },
+    { label: "Compliance review", date: "—", done: ["compliance","active"].includes(stage) },
+    { label: "Entity activated", date: "—", done: stage === "active" },
+  ],
+});
+
+ENTITIES.push(
+  // intake (1 total)
+  mk("northwind-fr", "Northwind Co", "France", "🇫🇷", "intake", "Intake received", 3, "Maya Lin", "Review intake notes"),
+  // details requested (2 total → +1)
+  mk("umbrella-nl", "Umbrella Ltd", "Netherlands", "🇳🇱", "details", "Waiting on client", 6, "Sam Patel", "Send details request", ["Local signatory info"]),
+  // setup coordination (3 total → +2)
+  mk("hooli-ie", "Hooli Group", "Ireland", "🇮🇪", "setup", "In setup", 4, "Sam Patel", "Confirm registered office"),
+  mk("vandelay-es", "Vandelay Industries", "Spain", "🇪🇸", "setup", "In setup", 9, "Maya Lin", "Notary appointment booked"),
+  // payroll setup (4 total → +3)
+  mk("piedpiper-pt", "Pied Piper", "Portugal", "🇵🇹", "payroll", "Payroll setup", 5, "Sam Patel", "Configure pay cycle"),
+  mk("soylent-pl", "Soylent Corp", "Poland", "🇵🇱", "payroll", "Payroll setup", 7, "Maya Lin", "ZUS registration"),
+  mk("massive-dk", "Massive Dynamic", "Denmark", "🇩🇰", "payroll", "Payroll setup", 4, "Sam Patel", "Tax authority filings"),
+  // compliance (2 total → +2)
+  mk("stark-uk", "Stark Industries", "United Kingdom", "🇬🇧", "compliance", "Compliance review", 11, "Maya Lin", "PAYE sign-off"),
+  mk("wayne-au", "Wayne Enterprises", "Australia", "🇦🇺", "compliance", "Compliance review", 6, "Sam Patel", "Fair Work review"),
+  // active (2 total → +1)
+  mk("oscorp-se", "Oscorp", "Sweden", "🇸🇪", "active", "Active entity", 14, "Maya Lin", "Run monthly payroll"),
+);
+
 const COMPANIES = ["All companies", "Acme Corp", "Globex Inc", "Initech Ltd", "Waystar Royco"];
 const COUNTRIES = ["All countries", "Singapore", "Germany", "Philippines", "Sweden"];
 
