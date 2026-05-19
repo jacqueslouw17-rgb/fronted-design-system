@@ -9,7 +9,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   Building2,
@@ -771,6 +771,9 @@ const Ev1_EntityDashboard: React.FC = () => {
   const [view, setView] = useState<"board" | "list">("board");
   const [active, setActive] = useState<EntityRecord | null>(null);
   const [activeNav, setActiveNav] = useState<NavId>("overview");
+  const [overviewOpen, setOverviewOpen] = useState(true);
+  const [pipelineOpen, setPipelineOpen] = useState(true);
+  const [actionsOpen, setActionsOpen] = useState(true);
 
   const filtered = useMemo(
     () =>
@@ -926,23 +929,28 @@ const Ev1_EntityDashboard: React.FC = () => {
 
         {/* Entity setup pipeline */}
         <section id="pipeline" className="space-y-5 scroll-mt-24">
-          <div className="flex items-end justify-between flex-wrap gap-4">
-            <div>
-              <h2 className="text-3xl lg:text-4xl">Entity setup pipeline</h2>
-              <p className="text-sm ev1-muted mt-2 max-w-xl">
-                Company and country-level progress, from intake to active entity.
-              </p>
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <div>
+                <h2 className="text-3xl lg:text-4xl">Entity setup pipeline</h2>
+                <p className="text-sm ev1-muted mt-2 max-w-xl">
+                  Company and country-level progress, from intake to active entity.
+                </p>
+              </div>
+              <CollapsePill open={pipelineOpen} onToggle={() => setPipelineOpen(!pipelineOpen)} />
             </div>
             <ViewToggle value={view} onChange={setView} />
           </div>
 
-          <PipelineFlowBar entities={filtered} onOpen={setActive} />
+          <CollapsibleContent open={pipelineOpen} className="space-y-5">
+            <PipelineFlowBar entities={filtered} onOpen={setActive} />
 
-          {view === "board" ? (
-            <BoardView entities={filtered} onOpen={setActive} />
-          ) : (
-            <ListView entities={filtered} onOpen={setActive} />
-          )}
+            {view === "board" ? (
+              <BoardView entities={filtered} onOpen={setActive} />
+            ) : (
+              <ListView entities={filtered} onOpen={setActive} />
+            )}
+          </CollapsibleContent>
         </section>
 
         {/* Open actions across the group */}
@@ -963,6 +971,42 @@ const Ev1_EntityDashboard: React.FC = () => {
     </div>
   );
 };
+
+// ────────────────────────────────────────────────────────────────
+// Collapse helpers
+// ────────────────────────────────────────────────────────────────
+
+const CollapsePill: React.FC<{ open: boolean; onToggle: () => void }> = ({ open, onToggle }) => (
+  <button
+    onClick={onToggle}
+    className="ev1-chip-interactive inline-flex items-center justify-center h-8 w-8 shrink-0 mt-1"
+    aria-label={open ? "Collapse section" : "Expand section"}
+  >
+    <motion.div animate={{ rotate: open ? 0 : -90 }} transition={{ duration: 0.15 }}>
+      <ChevronDown className="h-3.5 w-3.5" />
+    </motion.div>
+  </button>
+);
+
+const CollapsibleContent: React.FC<{ open: boolean; children: React.ReactNode; className?: string }> = ({
+  open,
+  children,
+  className,
+}) => (
+  <AnimatePresence initial={false}>
+    {open && (
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: "auto", opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className={cn("overflow-hidden", className)}
+      >
+        {children}
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
 
 // ────────────────────────────────────────────────────────────────
 // Sub components
@@ -996,20 +1040,26 @@ const COST_SPLIT = [
 ];
 
 const GroupFinancialsSection: React.FC = () => {
+  const [open, setOpen] = useState(true);
   return (
     <section className="space-y-5">
-      <div className="flex items-end justify-between flex-wrap gap-4">
-        <div>
-          <h2 className="text-3xl lg:text-4xl">Group overview</h2>
-          <p className="text-sm ev1-muted mt-2 max-w-xl">
-            Year-to-date across all entities — revenue, costs, and net result.
-          </p>
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-3xl lg:text-4xl">Group overview</h2>
+            <p className="text-sm ev1-muted mt-2 max-w-xl">
+              Year-to-date across all entities — revenue, costs, and net result.
+            </p>
+          </div>
+          <CollapsePill open={open} onToggle={() => setOpen(!open)} />
         </div>
         <div className="flex items-center gap-2">
           <SummaryChip label="Period" value="YTD · 2026" />
           <SummaryChip label="Source" value="Synced" />
         </div>
       </div>
+
+      <CollapsibleContent open={open} className="space-y-5">
 
       {/* Headline YTD numbers — three big stats inside one ticket */}
       <div className="ev1-card ev1-tint-cream p-0 overflow-hidden">
@@ -1080,6 +1130,7 @@ const GroupFinancialsSection: React.FC = () => {
           </div>
         </div>
       </div>
+      </CollapsibleContent>
     </section>
   );
 };
@@ -1185,21 +1236,27 @@ const tagBg = (t: GroupActionTone) =>
   ({ payroll: BRAND.sand, filings: BRAND.mint, compliance: BRAND.pink, reporting: BRAND.lavender }[t]);
 
 const OpenActionsAcrossGroup: React.FC = () => {
+  const [open, setOpen] = useState(true);
   const critical = GROUP_ACTIONS.filter((a) => a.status.tone === "warn").length;
   const thisWeek = 5;
   return (
     <section className="space-y-5">
-      <div className="flex items-end justify-between flex-wrap gap-4">
-        <div>
-          <h2 className="text-3xl lg:text-4xl">Open actions across the group</h2>
-          <p className="text-sm ev1-muted mt-2 max-w-xl">
-            {critical} critical · {thisWeek} this week · 5 scheduled later — across all entities.
-          </p>
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-3xl lg:text-4xl">Open actions across the group</h2>
+            <p className="text-sm ev1-muted mt-2 max-w-xl">
+              {critical} critical · {thisWeek} this week · 5 scheduled later — across all entities.
+            </p>
+          </div>
+          <CollapsePill open={open} onToggle={() => setOpen(!open)} />
         </div>
         <div className="flex items-center gap-2">
           <SummaryChip label="Period" value="Jan 2026" />
         </div>
       </div>
+
+      <CollapsibleContent open={open} className="space-y-5">
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {GROUP_ACTIONS.map((a) => (
@@ -1228,6 +1285,7 @@ const OpenActionsAcrossGroup: React.FC = () => {
           </div>
         ))}
       </div>
+      </CollapsibleContent>
     </section>
   );
 };
