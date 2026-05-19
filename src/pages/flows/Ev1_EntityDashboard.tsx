@@ -979,11 +979,12 @@ const Ev1_EntityDashboard: React.FC = () => {
 const CollapsePill: React.FC<{ open: boolean; onToggle: () => void }> = ({ open, onToggle }) => (
   <button
     onClick={onToggle}
-    className="ev1-chip-interactive inline-flex items-center justify-center h-8 w-8 shrink-0 mt-1"
+    className="inline-flex items-center justify-center h-5 w-5 rounded-full border shrink-0 opacity-60 hover:opacity-100 transition"
+    style={{ borderColor: BRAND.ink + "30" }}
     aria-label={open ? "Collapse section" : "Expand section"}
   >
     <motion.div animate={{ rotate: open ? 0 : -90 }} transition={{ duration: 0.15 }}>
-      <ChevronDown className="h-3.5 w-3.5" />
+      <ChevronDown className="h-3 w-3" />
     </motion.div>
   </button>
 );
