@@ -1243,14 +1243,14 @@ const OpenActionsAcrossGroup: React.FC = () => {
   return (
     <section className="space-y-5">
       <div className="flex items-start justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-3">
-          <div>
+        <div>
+          <div className="flex items-center gap-2">
             <h2 className="text-3xl lg:text-4xl">Open actions across the group</h2>
-            <p className="text-sm ev1-muted mt-2 max-w-xl">
-              {critical} critical · {thisWeek} this week · 5 scheduled later — across all entities.
-            </p>
+            <CollapsePill open={open} onToggle={() => setOpen(!open)} />
           </div>
-          <CollapsePill open={open} onToggle={() => setOpen(!open)} />
+          <p className="text-sm ev1-muted mt-2 max-w-xl">
+            {critical} critical · {thisWeek} this week · 5 scheduled later — across all entities.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <SummaryChip label="Period" value="Jan 2026" />
