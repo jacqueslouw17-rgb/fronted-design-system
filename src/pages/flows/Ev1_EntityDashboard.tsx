@@ -1038,18 +1038,23 @@ const GroupFinancialsSection: React.FC = () => {
   const [open, setOpen] = useState(true);
   return (
     <section className="space-y-5">
-      <div className="flex items-end justify-between flex-wrap gap-4">
-        <div>
-          <h2 className="text-3xl lg:text-4xl">Group overview</h2>
-          <p className="text-sm ev1-muted mt-2 max-w-xl">
-            Year-to-date across all entities — revenue, costs, and net result.
-          </p>
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-3xl lg:text-4xl">Group overview</h2>
+            <p className="text-sm ev1-muted mt-2 max-w-xl">
+              Year-to-date across all entities — revenue, costs, and net result.
+            </p>
+          </div>
+          <CollapsePill open={open} onToggle={() => setOpen(!open)} />
         </div>
         <div className="flex items-center gap-2">
           <SummaryChip label="Period" value="YTD · 2026" />
           <SummaryChip label="Source" value="Synced" />
         </div>
       </div>
+
+      <CollapsibleContent open={open} className="space-y-5">
 
       {/* Headline YTD numbers — three big stats inside one ticket */}
       <div className="ev1-card ev1-tint-cream p-0 overflow-hidden">
