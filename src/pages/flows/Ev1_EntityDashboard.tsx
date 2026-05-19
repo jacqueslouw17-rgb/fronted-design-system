@@ -881,7 +881,7 @@ const GroupFinancialsSection: React.FC = () => {
           </div>
           <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={FIN_MONTHS} margin={{ top: 6, right: 8, left: -10, bottom: 0 }} barGap={2}>
+              <ComposedChart data={FIN_MONTHS} margin={{ top: 6, right: 8, left: -10, bottom: 0 }} barGap={2}>
                 <CartesianGrid stroke={BRAND.ink + "12"} vertical={false} />
                 <XAxis dataKey="m" tick={{ fontSize: 11, fill: BRAND.ink, opacity: 0.6 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: BRAND.ink, opacity: 0.6 }} axisLine={false} tickLine={false} width={36} />
