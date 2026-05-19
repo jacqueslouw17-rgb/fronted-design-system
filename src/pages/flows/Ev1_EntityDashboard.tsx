@@ -1285,6 +1285,7 @@ const OpenActionsAcrossGroup: React.FC = () => {
           </div>
         ))}
       </div>
+      </CollapsibleContent>
     </section>
   );
 };
