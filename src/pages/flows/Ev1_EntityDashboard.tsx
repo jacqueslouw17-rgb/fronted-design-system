@@ -1045,14 +1045,14 @@ const GroupFinancialsSection: React.FC = () => {
   return (
     <section className="space-y-5">
       <div className="flex items-start justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-3">
-          <div>
+        <div>
+          <div className="flex items-center gap-2">
             <h2 className="text-3xl lg:text-4xl">Group overview</h2>
-            <p className="text-sm ev1-muted mt-2 max-w-xl">
-              Year-to-date across all entities — revenue, costs, and net result.
-            </p>
+            <CollapsePill open={open} onToggle={() => setOpen(!open)} />
           </div>
-          <CollapsePill open={open} onToggle={() => setOpen(!open)} />
+          <p className="text-sm ev1-muted mt-2 max-w-xl">
+            Year-to-date across all entities — revenue, costs, and net result.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <SummaryChip label="Period" value="YTD · 2026" />
