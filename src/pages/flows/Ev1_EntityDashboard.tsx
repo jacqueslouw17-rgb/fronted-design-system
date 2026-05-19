@@ -929,23 +929,28 @@ const Ev1_EntityDashboard: React.FC = () => {
 
         {/* Entity setup pipeline */}
         <section id="pipeline" className="space-y-5 scroll-mt-24">
-          <div className="flex items-end justify-between flex-wrap gap-4">
-            <div>
-              <h2 className="text-3xl lg:text-4xl">Entity setup pipeline</h2>
-              <p className="text-sm ev1-muted mt-2 max-w-xl">
-                Company and country-level progress, from intake to active entity.
-              </p>
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <div>
+                <h2 className="text-3xl lg:text-4xl">Entity setup pipeline</h2>
+                <p className="text-sm ev1-muted mt-2 max-w-xl">
+                  Company and country-level progress, from intake to active entity.
+                </p>
+              </div>
+              <CollapsePill open={pipelineOpen} onToggle={() => setPipelineOpen(!pipelineOpen)} />
             </div>
             <ViewToggle value={view} onChange={setView} />
           </div>
 
-          <PipelineFlowBar entities={filtered} onOpen={setActive} />
+          <CollapsibleContent open={pipelineOpen} className="space-y-5">
+            <PipelineFlowBar entities={filtered} onOpen={setActive} />
 
-          {view === "board" ? (
-            <BoardView entities={filtered} onOpen={setActive} />
-          ) : (
-            <ListView entities={filtered} onOpen={setActive} />
-          )}
+            {view === "board" ? (
+              <BoardView entities={filtered} onOpen={setActive} />
+            ) : (
+              <ListView entities={filtered} onOpen={setActive} />
+            )}
+          </CollapsibleContent>
         </section>
 
         {/* Open actions across the group */}
