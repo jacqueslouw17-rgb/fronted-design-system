@@ -930,14 +930,14 @@ const Ev1_EntityDashboard: React.FC = () => {
         {/* Entity setup pipeline */}
         <section id="pipeline" className="space-y-5 scroll-mt-24">
           <div className="flex items-start justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-3">
-              <div>
+            <div>
+              <div className="flex items-center gap-2">
                 <h2 className="text-3xl lg:text-4xl">Entity setup pipeline</h2>
-                <p className="text-sm ev1-muted mt-2 max-w-xl">
-                  Company and country-level progress, from intake to active entity.
-                </p>
+                <CollapsePill open={pipelineOpen} onToggle={() => setPipelineOpen(!pipelineOpen)} />
               </div>
-              <CollapsePill open={pipelineOpen} onToggle={() => setPipelineOpen(!pipelineOpen)} />
+              <p className="text-sm ev1-muted mt-2 max-w-xl">
+                Company and country-level progress, from intake to active entity.
+              </p>
             </div>
             <ViewToggle value={view} onChange={setView} />
           </div>
@@ -979,11 +979,12 @@ const Ev1_EntityDashboard: React.FC = () => {
 const CollapsePill: React.FC<{ open: boolean; onToggle: () => void }> = ({ open, onToggle }) => (
   <button
     onClick={onToggle}
-    className="ev1-chip-interactive inline-flex items-center justify-center h-8 w-8 shrink-0 mt-1"
+    className="inline-flex items-center justify-center h-5 w-5 rounded-full border shrink-0 opacity-60 hover:opacity-100 transition"
+    style={{ borderColor: BRAND.ink + "30" }}
     aria-label={open ? "Collapse section" : "Expand section"}
   >
     <motion.div animate={{ rotate: open ? 0 : -90 }} transition={{ duration: 0.15 }}>
-      <ChevronDown className="h-3.5 w-3.5" />
+      <ChevronDown className="h-3 w-3" />
     </motion.div>
   </button>
 );
@@ -1044,14 +1045,14 @@ const GroupFinancialsSection: React.FC = () => {
   return (
     <section className="space-y-5">
       <div className="flex items-start justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-3">
-          <div>
+        <div>
+          <div className="flex items-center gap-2">
             <h2 className="text-3xl lg:text-4xl">Group overview</h2>
-            <p className="text-sm ev1-muted mt-2 max-w-xl">
-              Year-to-date across all entities — revenue, costs, and net result.
-            </p>
+            <CollapsePill open={open} onToggle={() => setOpen(!open)} />
           </div>
-          <CollapsePill open={open} onToggle={() => setOpen(!open)} />
+          <p className="text-sm ev1-muted mt-2 max-w-xl">
+            Year-to-date across all entities — revenue, costs, and net result.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <SummaryChip label="Period" value="YTD · 2026" />
@@ -1242,14 +1243,14 @@ const OpenActionsAcrossGroup: React.FC = () => {
   return (
     <section className="space-y-5">
       <div className="flex items-start justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-3">
-          <div>
+        <div>
+          <div className="flex items-center gap-2">
             <h2 className="text-3xl lg:text-4xl">Open actions across the group</h2>
-            <p className="text-sm ev1-muted mt-2 max-w-xl">
-              {critical} critical · {thisWeek} this week · 5 scheduled later — across all entities.
-            </p>
+            <CollapsePill open={open} onToggle={() => setOpen(!open)} />
           </div>
-          <CollapsePill open={open} onToggle={() => setOpen(!open)} />
+          <p className="text-sm ev1-muted mt-2 max-w-xl">
+            {critical} critical · {thisWeek} this week · 5 scheduled later — across all entities.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <SummaryChip label="Period" value="Jan 2026" />
