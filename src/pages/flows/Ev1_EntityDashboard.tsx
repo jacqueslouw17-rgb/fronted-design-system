@@ -654,12 +654,20 @@ const Selector: React.FC<{
 // Main page
 // ────────────────────────────────────────────────────────────────
 
+const NAV_SECTIONS = [
+  { id: "overview", label: "Overview" },
+  { id: "pipeline", label: "Entity setup pipeline" },
+  { id: "actions", label: "Open actions" },
+] as const;
+type NavId = (typeof NAV_SECTIONS)[number]["id"];
+
 const Ev1_EntityDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [company, setCompany] = useState("All companies");
   const [country, setCountry] = useState("All countries");
   const [view, setView] = useState<"board" | "list">("board");
   const [active, setActive] = useState<EntityRecord | null>(null);
+  const [activeNav, setActiveNav] = useState<NavId>("overview");
 
   const filtered = useMemo(
     () =>
@@ -670,6 +678,34 @@ const Ev1_EntityDashboard: React.FC = () => {
       ),
     [company, country]
   );
+
+  // Scroll-spy: track which section is currently in view
+  useEffect(() => {
+    const els = NAV_SECTIONS
+      .map((s) => document.getElementById(s.id))
+      .filter((el): el is HTMLElement => !!el);
+    if (!els.length) return;
+
+    const onScroll = () => {
+      const probe = 140; // just under sticky header
+      let current: NavId = "overview";
+      for (const el of els) {
+        const top = el.getBoundingClientRect().top;
+        if (top - probe <= 0) current = el.id as NavId;
+      }
+      setActiveNav(current);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const goTo = (id: NavId) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY - 96;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  };
 
   return (
     <div
@@ -697,7 +733,13 @@ const Ev1_EntityDashboard: React.FC = () => {
         .ev1-brand .ev1-tint-lavender { background: ${BRAND.lavender}; }
         .ev1-brand .ev1-tint-cream { background: #fdfcf8; }
         .ev1-brand .ev1-chip { background: #fdfcf8; border: 1px solid ${BRAND.ink}; border-radius: 999px; color: ${BRAND.ink}; }
+        .ev1-brand .ev1-chip-interactive { background: #fdfcf8; border: 1px solid ${BRAND.ink}; border-radius: 999px; color: ${BRAND.ink}; transition: transform .15s ease, background .15s ease; }
+        .ev1-brand .ev1-chip-interactive:hover { transform: translateY(-1px); background: ${BRAND.cream}; }
         .ev1-brand .ev1-muted { color: hsl(0 0% 35%); }
+        .ev1-brand .ev1-nav-link { position: relative; padding: 6px 2px; color: hsl(0 0% 35%); font-size: 13px; font-weight: 500; transition: color .15s ease; }
+        .ev1-brand .ev1-nav-link:hover { color: ${BRAND.ink}; }
+        .ev1-brand .ev1-nav-link[data-active="true"] { color: ${BRAND.ink}; font-weight: 600; }
+        .ev1-brand .ev1-nav-link[data-active="true"]::after { content: ''; position: absolute; left: 0; right: 0; bottom: -14px; height: 2px; background: ${BRAND.ink}; border-radius: 2px; }
       `}</style>
 
       {/* Header */}
@@ -716,18 +758,18 @@ const Ev1_EntityDashboard: React.FC = () => {
           >
             <img src={frontedLogo} alt="Fronted" className="h-5 w-auto" />
           </button>
-          <div className="flex items-center gap-2">
-            <Selector value={company} onChange={setCompany} options={COMPANIES} icon={Building2} />
-            <Selector value={country} onChange={setCountry} options={COUNTRIES} icon={Globe2} />
-            <button className="ev1-pill-outline h-9 px-4 text-xs font-medium inline-flex items-center gap-1.5">
-              <Send className="h-3.5 w-3.5" />
-              Request client details
-            </button>
-            <button className="ev1-pill h-9 px-4 text-xs font-medium inline-flex items-center gap-1.5">
-              <Plus className="h-3.5 w-3.5" />
-              Add entity
-            </button>
-          </div>
+          <nav className="flex items-center gap-7">
+            {NAV_SECTIONS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => goTo(s.id)}
+                data-active={activeNav === s.id}
+                className="ev1-nav-link"
+              >
+                {s.label}
+              </button>
+            ))}
+          </nav>
         </div>
       </header>
 
@@ -743,15 +785,22 @@ const Ev1_EntityDashboard: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <SummaryChip label="Entities" value="3" />
-            <SummaryChip label="In setup" value="2 countries" />
+            <EntitiesChip
+              value={company}
+              options={COMPANIES}
+              onChange={setCompany}
+              onAddEntity={() => {/* placeholder for add-entity action */}}
+            />
+            <CountryChip value={country} options={COUNTRIES} onChange={setCountry} />
             <SummaryChip label="Workers" value="18" />
             <SummaryChip label="Next payroll" value="25 Jan" />
           </div>
         </section>
 
         {/* Group financials — birds-eye, YTD across all entities */}
-        <GroupFinancialsSection />
+        <section id="overview" className="scroll-mt-24">
+          <GroupFinancialsSection />
+        </section>
 
         {/* Overview cards — visual KPI row */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -773,7 +822,7 @@ const Ev1_EntityDashboard: React.FC = () => {
         </section>
 
         {/* Entity setup pipeline */}
-        <section className="space-y-5">
+        <section id="pipeline" className="space-y-5 scroll-mt-24">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
               <h2 className="text-3xl lg:text-4xl">Entity setup pipeline</h2>
@@ -794,9 +843,12 @@ const Ev1_EntityDashboard: React.FC = () => {
         </section>
 
         {/* Open actions across the group */}
-        <OpenActionsAcrossGroup />
+        <section id="actions" className="scroll-mt-24">
+          <OpenActionsAcrossGroup />
+        </section>
 
       </main>
+
 
 
       {/* Detail drawer */}
