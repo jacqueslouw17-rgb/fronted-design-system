@@ -595,6 +595,109 @@ const SummaryChip: React.FC<{ label: string; value: string }> = ({ label, value 
   </div>
 );
 
+const EntitiesChip: React.FC<{
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+  onAddEntity: () => void;
+}> = ({ value, options, onChange, onAddEntity }) => {
+  const [open, setOpen] = useState(false);
+  const isAll = value === "All companies";
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className="ev1-chip-interactive inline-flex items-center gap-1.5 pl-3 pr-1 py-1 text-xs">
+          <Building2 className="h-3 w-3 ev1-muted" />
+          <span className="ev1-muted">Entities</span>
+          <span className="font-semibold">{isAll ? `${options.length - 1}` : "1"}</span>
+          <span className="ev1-muted">·</span>
+          <span className="font-medium truncate max-w-[140px]">{isAll ? "All companies" : value}</span>
+          <span
+            className="ml-1 inline-flex items-center justify-center h-5 w-5 rounded-full"
+            style={{ background: BRAND.ink, color: BRAND.cream }}
+            aria-hidden
+          >
+            <ChevronDown className="h-3 w-3" />
+          </span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-72 p-0 ev1-card-soft" style={{ boxShadow: `4px 4px 0 ${BRAND.ink}` }}>
+        <Command>
+          <CommandInput placeholder="Search companies…" />
+          <CommandList>
+            <CommandEmpty>No company found.</CommandEmpty>
+            <CommandGroup>
+              {options.map((o) => (
+                <CommandItem
+                  key={o}
+                  onSelect={() => { onChange(o); setOpen(false); }}
+                  className="text-sm"
+                >
+                  <span className="flex-1">{o}</span>
+                  {o === value && <CheckCircle2 className="h-3.5 w-3.5" />}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+          <div className="border-t p-2" style={{ borderColor: BRAND.ink + "26" }}>
+            <button
+              onClick={() => { setOpen(false); onAddEntity(); }}
+              className="ev1-pill w-full h-9 px-3 text-xs font-medium inline-flex items-center justify-center gap-1.5"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add entity
+            </button>
+          </div>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+const CountryChip: React.FC<{
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}> = ({ value, options, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const isAll = value === "All countries";
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className="ev1-chip-interactive inline-flex items-center gap-1.5 px-3 py-1 text-xs">
+          <Globe2 className="h-3 w-3 ev1-muted" />
+          <span className="ev1-muted">Countries</span>
+          <span className="font-semibold">{isAll ? `${options.length - 1}` : "1"}</span>
+          <span className="ev1-muted">·</span>
+          <span className="font-medium truncate max-w-[140px]">{isAll ? "All countries" : value}</span>
+          <ChevronDown className="h-3 w-3 ev1-muted ml-0.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64 p-0 ev1-card-soft" style={{ boxShadow: `4px 4px 0 ${BRAND.ink}` }}>
+        <Command>
+          <CommandInput placeholder="Search countries…" />
+          <CommandList>
+            <CommandEmpty>No country found.</CommandEmpty>
+            <CommandGroup>
+              {options.map((o) => (
+                <CommandItem
+                  key={o}
+                  onSelect={() => { onChange(o); setOpen(false); }}
+                  className="text-sm"
+                >
+                  <span className="flex-1">{o}</span>
+                  {o === value && <CheckCircle2 className="h-3.5 w-3.5" />}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+
 const ChecklistStatusIcon: React.FC<{ status: ChecklistStatus }> = ({ status }) => {
   if (status === "done") return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />;
   if (status === "in-progress") return <Clock className="h-3.5 w-3.5 text-sky-600" />;
