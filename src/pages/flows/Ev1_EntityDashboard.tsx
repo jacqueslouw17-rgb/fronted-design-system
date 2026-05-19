@@ -965,6 +965,42 @@ const Ev1_EntityDashboard: React.FC = () => {
 };
 
 // ────────────────────────────────────────────────────────────────
+// Collapse helpers
+// ────────────────────────────────────────────────────────────────
+
+const CollapsePill: React.FC<{ open: boolean; onToggle: () => void }> = ({ open, onToggle }) => (
+  <button
+    onClick={onToggle}
+    className="ev1-chip-interactive inline-flex items-center justify-center h-8 w-8 shrink-0 mt-1"
+    aria-label={open ? "Collapse section" : "Expand section"}
+  >
+    <motion.div animate={{ rotate: open ? 0 : -90 }} transition={{ duration: 0.15 }}>
+      <ChevronDown className="h-3.5 w-3.5" />
+    </motion.div>
+  </button>
+);
+
+const CollapsibleContent: React.FC<{ open: boolean; children: React.ReactNode; className?: string }> = ({
+  open,
+  children,
+  className,
+}) => (
+  <AnimatePresence initial={false}>
+    {open && (
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: "auto", opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className={cn("overflow-hidden", className)}
+      >
+        {children}
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
+// ────────────────────────────────────────────────────────────────
 // Sub components
 // ────────────────────────────────────────────────────────────────
 
