@@ -1035,6 +1035,7 @@ const COST_SPLIT = [
 ];
 
 const GroupFinancialsSection: React.FC = () => {
+  const [open, setOpen] = useState(true);
   return (
     <section className="space-y-5">
       <div className="flex items-end justify-between flex-wrap gap-4">
