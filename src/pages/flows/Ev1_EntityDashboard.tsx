@@ -1236,6 +1236,7 @@ const tagBg = (t: GroupActionTone) =>
   ({ payroll: BRAND.sand, filings: BRAND.mint, compliance: BRAND.pink, reporting: BRAND.lavender }[t]);
 
 const OpenActionsAcrossGroup: React.FC = () => {
+  const [open, setOpen] = useState(true);
   const critical = GROUP_ACTIONS.filter((a) => a.status.tone === "warn").length;
   const thisWeek = 5;
   return (
