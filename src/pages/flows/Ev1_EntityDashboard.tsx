@@ -1125,6 +1125,7 @@ const GroupFinancialsSection: React.FC = () => {
           </div>
         </div>
       </div>
+      </CollapsibleContent>
     </section>
   );
 };
