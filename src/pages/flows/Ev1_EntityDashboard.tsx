@@ -771,6 +771,9 @@ const Ev1_EntityDashboard: React.FC = () => {
   const [view, setView] = useState<"board" | "list">("board");
   const [active, setActive] = useState<EntityRecord | null>(null);
   const [activeNav, setActiveNav] = useState<NavId>("overview");
+  const [overviewOpen, setOverviewOpen] = useState(true);
+  const [pipelineOpen, setPipelineOpen] = useState(true);
+  const [actionsOpen, setActionsOpen] = useState(true);
 
   const filtered = useMemo(
     () =>
