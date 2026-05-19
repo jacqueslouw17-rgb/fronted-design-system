@@ -898,7 +898,7 @@ const GroupFinancialsSection: React.FC = () => {
                 <Bar dataKey="revenue" fill={BRAND.mintDeep} radius={[3, 3, 0, 0]} maxBarSize={14} />
                 <Bar dataKey="costs" fill={BRAND.pinkDeep} radius={[3, 3, 0, 0]} maxBarSize={14} />
                 <Line type="monotone" dataKey="net" stroke={BRAND.ink} strokeWidth={2} dot={{ r: 2.5, fill: BRAND.ink }} />
-              </BarChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
