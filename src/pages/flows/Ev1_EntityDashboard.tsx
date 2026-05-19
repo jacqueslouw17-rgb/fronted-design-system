@@ -813,6 +813,270 @@ const Ev1_EntityDashboard: React.FC = () => {
 // ────────────────────────────────────────────────────────────────
 
 // ────────────────────────────────────────────────────────────────
+// Group financials — birds-eye YTD view across all entities
+// ────────────────────────────────────────────────────────────────
+
+const FIN_MONTHS = [
+  { m: "Jan", revenue: 118, costs: 92, net: 26 },
+  { m: "Feb", revenue: 124, costs: 95, net: 29 },
+  { m: "Mar", revenue: 132, costs: 101, net: 31 },
+  { m: "Apr", revenue: 138, costs: 104, net: 34 },
+  { m: "May", revenue: 145, costs: 108, net: 37 },
+  { m: "Jun", revenue: 0, costs: 0, net: 0 },
+  { m: "Jul", revenue: 0, costs: 0, net: 0 },
+  { m: "Aug", revenue: 0, costs: 0, net: 0 },
+  { m: "Sep", revenue: 0, costs: 0, net: 0 },
+  { m: "Oct", revenue: 0, costs: 0, net: 0 },
+  { m: "Nov", revenue: 0, costs: 0, net: 0 },
+  { m: "Dec", revenue: 0, costs: 0, net: 0 },
+];
+
+const COST_SPLIT = [
+  { name: "Salaries & employer tax", value: 65, color: BRAND.ink },
+  { name: "Pension & insurance", value: 9, color: BRAND.mintDeep },
+  { name: "Office & operations", value: 11, color: BRAND.pinkDeep },
+  { name: "Software & services", value: 8, color: BRAND.lavender },
+  { name: "Other", value: 7, color: BRAND.sand },
+];
+
+const GroupFinancialsSection: React.FC = () => {
+  return (
+    <section className="space-y-5">
+      <div className="flex items-end justify-between flex-wrap gap-4">
+        <div>
+          <h2 className="text-3xl lg:text-4xl">Group overview</h2>
+          <p className="text-sm ev1-muted mt-2 max-w-xl">
+            Year-to-date across all entities — revenue, costs, and net result.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <SummaryChip label="Period" value="YTD · 2026" />
+          <SummaryChip label="Source" value="Synced" />
+        </div>
+      </div>
+
+      {/* Headline YTD numbers — three big stats inside one ticket */}
+      <div className="ev1-card ev1-tint-cream p-0 overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x" style={{ borderColor: BRAND.ink + "26" }}>
+          <FinStat label="Revenue YTD" value="€745k" sub="5 months · €149k/mo avg" tone="ink" />
+          <FinStat label="Costs YTD" value="€580k" sub="€116k/mo · employer all-in" tone="ink" />
+          <FinStat label="Net result YTD" value="€165k" sub="+€17k vs. budget" tone="mint" />
+        </div>
+      </div>
+
+      {/* Chart + cost composition */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="ev1-card ev1-tint-cream p-5 lg:col-span-2">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.18em] font-semibold">Result 2026</p>
+              <p className="text-xs ev1-muted mt-1">Revenue, costs and net result · synced monthly</p>
+            </div>
+            <div className="flex items-center gap-3 text-[11px]">
+              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: BRAND.mintDeep }} />Revenue</span>
+              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: BRAND.pinkDeep }} />Costs</span>
+              <span className="flex items-center gap-1.5"><span className="h-[2px] w-3" style={{ background: BRAND.ink }} />Net</span>
+            </div>
+          </div>
+          <div className="h-[220px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={FIN_MONTHS} margin={{ top: 6, right: 8, left: -10, bottom: 0 }} barGap={2}>
+                <CartesianGrid stroke={BRAND.ink + "12"} vertical={false} />
+                <XAxis dataKey="m" tick={{ fontSize: 11, fill: BRAND.ink, opacity: 0.6 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: BRAND.ink, opacity: 0.6 }} axisLine={false} tickLine={false} width={36} />
+                <Tooltip
+                  cursor={{ fill: BRAND.ink + "08" }}
+                  contentStyle={{
+                    background: "#fdfcf8",
+                    border: `1px solid ${BRAND.ink}`,
+                    borderRadius: 10,
+                    fontSize: 11,
+                  }}
+                  formatter={(v: number) => [`€${v}k`, ""]}
+                />
+                <Bar dataKey="revenue" fill={BRAND.mintDeep} radius={[3, 3, 0, 0]} maxBarSize={14} />
+                <Bar dataKey="costs" fill={BRAND.pinkDeep} radius={[3, 3, 0, 0]} maxBarSize={14} />
+                <Line type="monotone" dataKey="net" stroke={BRAND.ink} strokeWidth={2} dot={{ r: 2.5, fill: BRAND.ink }} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Where costs go */}
+        <div className="ev1-card ev1-tint-cream p-5">
+          <p className="text-[11px] uppercase tracking-[0.18em] font-semibold">Where costs go</p>
+          <p className="text-xs ev1-muted mt-1">YTD · €580k</p>
+          <div className="space-y-2.5 mt-5">
+            {COST_SPLIT.map((c) => (
+              <div key={c.name} className="space-y-1">
+                <div className="flex items-center justify-between text-[12px]">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full" style={{ background: c.color }} />
+                    {c.name}
+                  </span>
+                  <span className="tabular-nums font-medium">{c.value}%</span>
+                </div>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: BRAND.ink + "0f" }}>
+                  <div className="h-full rounded-full" style={{ width: `${c.value}%`, background: c.color }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const FinStat: React.FC<{ label: string; value: string; sub: string; tone?: "ink" | "mint" }> = ({ label, value, sub, tone = "ink" }) => (
+  <div className="p-6 md:p-7">
+    <p className="text-[11px] uppercase tracking-[0.18em] font-semibold ev1-muted">{label}</p>
+    <div
+      className="text-4xl lg:text-5xl font-semibold tabular-nums mt-2"
+      style={{
+        fontFamily: "'Outfit', sans-serif",
+        letterSpacing: "-0.04em",
+        color: tone === "mint" ? BRAND.mintDeep : BRAND.ink,
+      }}
+    >
+      {value}
+    </div>
+    <p className="text-xs ev1-muted mt-2">{sub}</p>
+  </div>
+);
+
+// ────────────────────────────────────────────────────────────────
+// Open actions across the group
+// ────────────────────────────────────────────────────────────────
+
+type GroupActionTone = "payroll" | "filings" | "compliance" | "reporting";
+
+interface GroupAction {
+  tag: string;
+  tone: GroupActionTone;
+  title: string;
+  entity: string;
+  flag: string;
+  meta: string;
+  due: string;
+  status: { label: string; tone: "warn" | "info" | "ok" | "muted" };
+}
+
+const GROUP_ACTIONS: GroupAction[] = [
+  {
+    tag: "Payroll",
+    tone: "payroll",
+    title: "January payroll — approve batch",
+    entity: "Initech Ltd · 8 workers",
+    flag: "🇵🇭",
+    meta: "USD 108k",
+    due: "Due 22 Jan · in 3 days",
+    status: { label: "Approval needed", tone: "warn" },
+  },
+  {
+    tag: "Compliance",
+    tone: "compliance",
+    title: "Yrkesskade insurance renewal",
+    entity: "Waystar Royco · mandatory",
+    flag: "🇸🇪",
+    meta: "Renews annually",
+    due: "Due 31 Jan",
+    status: { label: "Action needed", tone: "warn" },
+  },
+  {
+    tag: "Filings",
+    tone: "filings",
+    title: "MVA Q4 return — review",
+    entity: "Acme Corp · Oct–Dec VAT",
+    flag: "🇸🇬",
+    meta: "NOK 142k",
+    due: "Due 10 Feb",
+    status: { label: "Ready to review", tone: "info" },
+  },
+  {
+    tag: "Filings",
+    tone: "filings",
+    title: "A-skat payroll tax",
+    entity: "Massive Dynamic · approve before submission",
+    flag: "🇩🇰",
+    meta: "DKK 86k",
+    due: "Due 10 Feb",
+    status: { label: "Approval needed", tone: "warn" },
+  },
+  {
+    tag: "Filings",
+    tone: "filings",
+    title: "Lohnsteuer-Anmeldung",
+    entity: "Globex Inc · monthly",
+    flag: "🇩🇪",
+    meta: "EUR 24k",
+    due: "Due 10 Feb",
+    status: { label: "Approval needed", tone: "warn" },
+  },
+  {
+    tag: "Reporting",
+    tone: "reporting",
+    title: "2025 annual accounts",
+    entity: "Oscorp · Årsredovisning to Bolagsverket",
+    flag: "🇸🇪",
+    meta: "Audited",
+    due: "Due 31 Jul",
+    status: { label: "Drafting", tone: "muted" },
+  },
+];
+
+const tagBg = (t: GroupActionTone) =>
+  ({ payroll: BRAND.sand, filings: BRAND.mint, compliance: BRAND.pink, reporting: BRAND.lavender }[t]);
+
+const OpenActionsAcrossGroup: React.FC = () => {
+  const critical = GROUP_ACTIONS.filter((a) => a.status.tone === "warn").length;
+  const thisWeek = 5;
+  return (
+    <section className="space-y-5">
+      <div className="flex items-end justify-between flex-wrap gap-4">
+        <div>
+          <h2 className="text-3xl lg:text-4xl">Open actions across the group</h2>
+          <p className="text-sm ev1-muted mt-2 max-w-xl">
+            {critical} critical · {thisWeek} this week · 5 scheduled later — across all entities.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <SummaryChip label="Period" value="Jan 2026" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {GROUP_ACTIONS.map((a) => (
+          <div
+            key={a.title}
+            className="ev1-card p-5 flex flex-col gap-3 transition-transform hover:-translate-y-0.5 cursor-pointer"
+            style={{ background: "#fdfcf8" }}
+          >
+            <div className="flex items-center justify-between">
+              <span
+                className="text-[10px] uppercase tracking-[0.18em] font-semibold px-2 py-0.5 rounded-full border"
+                style={{ background: tagBg(a.tone), borderColor: BRAND.ink, color: BRAND.ink }}
+              >
+                {a.tag}
+              </span>
+              <span className="text-base leading-none">{a.flag}</span>
+            </div>
+            <div>
+              <h3 className="text-lg leading-tight font-semibold">{a.title}</h3>
+              <p className="text-xs ev1-muted mt-1">{a.entity} · {a.meta}</p>
+            </div>
+            <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: BRAND.ink + "1f" }}>
+              <span className="text-[11px] ev1-muted">{a.due}</span>
+              <StatusChip tone={a.status.tone}>{a.status.label}</StatusChip>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────
 // Visual overview cards
 // ────────────────────────────────────────────────────────────────
 
