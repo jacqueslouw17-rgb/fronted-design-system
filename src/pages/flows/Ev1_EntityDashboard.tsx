@@ -730,7 +730,7 @@ const Ev1_EntityDashboard: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-1 max-w-[1400px] w-full mx-auto px-6 lg:px-10 py-12 space-y-14">
+      <main className="flex-1 max-w-[1400px] w-full mx-auto px-6 lg:px-10 py-12 space-y-16">
         {/* Title block */}
         <section className="space-y-6">
           <div className="space-y-2 max-w-3xl">
@@ -748,6 +748,9 @@ const Ev1_EntityDashboard: React.FC = () => {
             <SummaryChip label="Next payroll" value="25 Jan" />
           </div>
         </section>
+
+        {/* Group financials — birds-eye, YTD across all entities */}
+        <GroupFinancialsSection />
 
         {/* Overview cards — visual KPI row */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -768,7 +771,7 @@ const Ev1_EntityDashboard: React.FC = () => {
           <OpenActionsCard missing={7} docs={4} compliance={1} />
         </section>
 
-        {/* Entity setup pipeline — moved up, right under overview cards */}
+        {/* Entity setup pipeline */}
         <section className="space-y-5">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
@@ -788,6 +791,9 @@ const Ev1_EntityDashboard: React.FC = () => {
             <ListView entities={filtered} onOpen={setActive} />
           )}
         </section>
+
+        {/* Open actions across the group */}
+        <OpenActionsAcrossGroup />
 
       </main>
 
