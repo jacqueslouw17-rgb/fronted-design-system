@@ -64,7 +64,7 @@ export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "
 // Worker-level status: pending = has items needing review, ready = finalized
 export type SubmissionStatus = "pending" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
-type LeaveTypeLocal = "Unpaid";
+type LeaveTypeLocal = "Unpaid" | "Paid";
 
 interface PayLineItem {
   label: string;
@@ -104,6 +104,10 @@ export interface PendingLeaveItem {
   status: AdjustmentItemStatus;
   rejectionReason?: string;
   dailyRate?: number;
+  // For Paid leave: how many of daysInThisPeriod fall within the worker's accrued balance
+  // vs exceed it. Only the exceeded portion deducts from pay.
+  accruedDays?: number;
+  exceededDays?: number;
 }
 
 // Flag types for "Heads up" indicators
@@ -154,6 +158,7 @@ const submissionTypeConfig: Record<SubmissionType, {icon: React.ElementType;labe
 };
 
 const leaveTypeConfig: Record<LeaveTypeLocal, {icon: React.ElementType;label: string;color: string;affectsPay: boolean;}> = {
+  Paid: { icon: Calendar, label: "Paid Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: false },
   Unpaid: { icon: Calendar, label: "Unpaid Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: true }
 };
 
@@ -366,7 +371,18 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
     return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const deductionAmount = config.affectsPay && leave.dailyRate ? leave.daysInThisPeriod * leave.dailyRate : 0;
+  const daysStr = leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`;
+  const isPaid = leave.leaveType === 'Paid';
+  const exceededDays = leave.exceededDays ?? 0;
+  const accruedDays = leave.accruedDays ?? (isPaid ? Math.max(leave.daysInThisPeriod - exceededDays, 0) : 0);
+  const balanceNote = isPaid
+    ? (exceededDays > 0
+        ? `${accruedDays}d covered by accrual · ${exceededDays}d exceeds balance`
+        : 'Covered by accrued balance · no pay impact')
+    : null;
+  const deductionAmount = isPaid
+    ? (exceededDays > 0 && leave.dailyRate ? exceededDays * leave.dailyRate : 0)
+    : (config.affectsPay && leave.dailyRate ? leave.daysInThisPeriod * leave.dailyRate : 0);
 
   // Direct approve - no confirmation dialog (reversible)
   const handleApproveClick = () => {
@@ -394,8 +410,9 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <div className="flex flex-col gap-0 min-w-0">
-            <span className="text-sm text-muted-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+            <span className="text-sm text-muted-foreground">{config.label} ({daysStr})</span>
             {leave.dateDescription && <span className="text-[10px] text-muted-foreground/60">{leave.dateDescription}</span>}
+            {balanceNote && <span className="text-[10px] text-muted-foreground/60">{balanceNote}</span>}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -423,8 +440,9 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
         <div className="flex items-center justify-between py-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="flex flex-col gap-0 min-w-0">
-              <span className="text-sm text-muted-foreground/70 line-through">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+              <span className="text-sm text-muted-foreground/70 line-through">{config.label} ({daysStr})</span>
               {leave.dateDescription && <span className="text-[10px] text-muted-foreground/40 line-through">{leave.dateDescription}</span>}
+              {balanceNote && <span className="text-[10px] text-muted-foreground/40 line-through">{balanceNote}</span>}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -459,10 +477,13 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
       <div className="flex items-start justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+            <span className="text-sm text-foreground">{config.label} ({daysStr})</span>
             <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-orange-100/80 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400">pending</span>
+            {isPaid && exceededDays === 0 && <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-accent-green/15 text-accent-green-text">accrued</span>}
+            {isPaid && exceededDays > 0 && <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-amber-100/80 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400">exceeds balance</span>}
           </div>
           {leave.dateDescription && <span className="text-[10px] text-muted-foreground/70 mt-0.5 block">{leave.dateDescription}</span>}
+          {balanceNote && <span className="text-[10px] text-muted-foreground/70 mt-0.5 block">{balanceNote}</span>}
         </div>
         <span className="text-sm tabular-nums font-mono text-foreground ml-3 shrink-0">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
       </div>

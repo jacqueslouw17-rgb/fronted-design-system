@@ -225,7 +225,9 @@ const MOCK_SUBMISSIONS: WorkerSubmission[] = [
       },
     ],
     pendingLeaves: [
-      { id: "leave-1", leaveType: "Unpaid", startDate: "2026-01-20", endDate: "2026-01-21", totalDays: 2, daysInThisPeriod: 2, status: "pending", dailyRate: 2955, dateDescription: "20–21 Jan" },
+      { id: "leave-1", leaveType: "Paid", startDate: "2026-01-12", endDate: "2026-01-14", totalDays: 3, daysInThisPeriod: 3, status: "pending", dailyRate: 2955, dateDescription: "12–14 Jan", accruedDays: 3, exceededDays: 0 },
+      { id: "leave-2", leaveType: "Paid", startDate: "2026-01-26", endDate: "2026-01-30", totalDays: 5, daysInThisPeriod: 5, status: "pending", dailyRate: 2955, dateDescription: "26–30 Jan", accruedDays: 2, exceededDays: 3 },
+      { id: "leave-3", leaveType: "Unpaid", startDate: "2026-01-20", endDate: "2026-01-21", totalDays: 2, daysInThisPeriod: 2, status: "pending", dailyRate: 2955, dateDescription: "20–21 Jan" },
     ],
     flags: [
       { type: "end_date", endDate: "Feb 14, 2026", endReason: "Resignation" },
