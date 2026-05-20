@@ -733,7 +733,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
                 className="flex items-center gap-1.5 mt-2.5 text-[11px] text-primary hover:text-primary/80 transition-colors"
               >
                 <Upload className="h-3 w-3" />
-                {supportingFiles.length > 0 ? "Add more files" : "Upload files"}
+                {supportingFiles.length > 0 ? "Add more additional files" : "Upload additional files"}
               </button>
             </div>
           </SectionCard>
