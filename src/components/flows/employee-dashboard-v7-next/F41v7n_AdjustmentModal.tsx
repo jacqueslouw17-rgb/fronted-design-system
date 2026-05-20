@@ -1227,7 +1227,7 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
             const isUnpaidActive = leaveType === 'Unpaid leave';
 
             const typeLegend = (
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 {legend.map((b) => {
                   const isPrimary = leaveType === b.type;
                   const isOverflowTarget = b.type === 'Unpaid leave' && overflowToUnpaid > 0 && !isUnpaidActive;
