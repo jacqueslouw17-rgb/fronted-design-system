@@ -410,6 +410,7 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
         </SheetHeader>
 
         <input ref={contractInputRef} type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={handleContractChange} />
+        <input ref={idInputRef} type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={handleIdChange} />
         <input ref={supportingInputRef} type="file" className="hidden" multiple accept=".jpg,.jpeg,.png,.pdf" onChange={handleSupportingChange} />
 
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
