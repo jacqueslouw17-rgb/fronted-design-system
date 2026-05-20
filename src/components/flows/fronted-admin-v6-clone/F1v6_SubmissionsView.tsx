@@ -371,7 +371,18 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
     return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const deductionAmount = config.affectsPay && leave.dailyRate ? leave.daysInThisPeriod * leave.dailyRate : 0;
+  const daysStr = leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`;
+  const isPaid = leave.leaveType === 'Paid';
+  const exceededDays = leave.exceededDays ?? 0;
+  const accruedDays = leave.accruedDays ?? (isPaid ? Math.max(leave.daysInThisPeriod - exceededDays, 0) : 0);
+  const balanceNote = isPaid
+    ? (exceededDays > 0
+        ? `${accruedDays}d covered by accrual · ${exceededDays}d exceeds balance`
+        : 'Covered by accrued balance · no pay impact')
+    : null;
+  const deductionAmount = isPaid
+    ? (exceededDays > 0 && leave.dailyRate ? exceededDays * leave.dailyRate : 0)
+    : (config.affectsPay && leave.dailyRate ? leave.daysInThisPeriod * leave.dailyRate : 0);
 
   // Direct approve - no confirmation dialog (reversible)
   const handleApproveClick = () => {
