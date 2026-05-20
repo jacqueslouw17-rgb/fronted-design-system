@@ -607,7 +607,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         const key = `${submission.id}-leave-${leave.id}`;
         const localState = leaveStates[key];
         const effectiveStatus = localState?.status || leave.status || 'pending';
-        return effectiveStatus === 'pending';
+        const isAuto = leave.leaveType === 'Paid' && (leave.exceededDays ?? 0) === 0;
+        return effectiveStatus === 'pending' && !isAuto;
       }).length;
       const rejectedLeaves = (submission.pendingLeaves || []).filter((leave) => {
         const key = `${submission.id}-leave-${leave.id}`;
