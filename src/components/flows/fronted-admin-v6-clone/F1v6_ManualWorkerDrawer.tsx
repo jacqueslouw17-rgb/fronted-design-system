@@ -329,7 +329,7 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   };
 
   const canSaveBasic = name.trim() && country && role.trim() && salary.trim();
-  const canSave = canSaveBasic && contractFile !== null;
+  const canSave = canSaveBasic && contractFile !== null && idFile !== null;
 
   const handleSaveCandidate = () => {
     if (!canSaveBasic) return;
