@@ -405,7 +405,6 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
     return (
       <div className="flex items-center justify-between py-2 -mx-3 px-3 rounded transition-colors hover:bg-muted">
         <div className="flex items-center gap-2 min-w-0">
-          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
           <div className="flex flex-col gap-0 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">{config.label} ({daysStr})</span>
