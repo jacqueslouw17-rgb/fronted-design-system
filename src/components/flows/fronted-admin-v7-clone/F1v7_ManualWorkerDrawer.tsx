@@ -707,7 +707,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
             {/* Supporting documents — optional, multi-upload */}
             <div className="rounded-lg border border-border/40 bg-card/30 p-3">
               <div className="flex items-center gap-1.5">
-                <p className="text-sm font-medium text-foreground truncate">Supporting documents</p>
+                <p className="text-sm font-medium text-foreground truncate">Additional Supporting documents</p>
                 <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 shrink-0">Optional</Badge>
               </div>
               <p className="text-[11px] text-muted-foreground/70 mt-0.5">
