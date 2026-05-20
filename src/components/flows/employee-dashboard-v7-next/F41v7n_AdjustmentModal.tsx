@@ -1226,74 +1226,73 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
             const overflowToUnpaid = activeTotal !== null ? Math.max(0, usableDays - activeTotal) : 0;
             const isUnpaidActive = leaveType === 'Unpaid leave';
 
+            const typeLegend = (
+              <div className="flex flex-wrap items-center gap-2">
+                {legend.map((b) => {
+                  const isPrimary = leaveType === b.type;
+                  const isOverflowTarget = b.type === 'Unpaid leave' && overflowToUnpaid > 0 && !isUnpaidActive;
+                  const isActive = isPrimary || isOverflowTarget;
+
+                  let consumed = 0;
+                  if (isPrimary) consumed = primaryUsed;
+                  else if (isOverflowTarget) consumed = overflowToUnpaid;
+
+                  const showConsumption = isActive && consumed > 0;
+                  const remaining = b.total !== null ? Math.max(0, b.total - (isPrimary ? consumed : 0)) : null;
+
+                  return (
+                    <button
+                      key={b.type}
+                      type="button"
+                      onClick={() => { setLeaveType(b.type); clearError('leave_type'); }}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 transition-all border',
+                        isActive
+                          ? 'bg-foreground/[0.03] text-foreground border-foreground/15 font-medium shadow-sm'
+                          : 'bg-transparent text-muted-foreground border-border/60 hover:border-foreground/20 hover:text-foreground'
+                      )}
+                    >
+                      <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass)} />
+                      <span>{b.short}</span>
+                      {b.total !== null ? (
+                        <span className="tabular-nums text-muted-foreground">
+                          {isPrimary && showConsumption ? (
+                            <>
+                              <span className="line-through opacity-50">{b.total}</span>
+                              <span className="ml-0.5 text-foreground">{remaining}</span>
+                            </>
+                          ) : (
+                            b.total
+                          )}
+                        </span>
+                      ) : (
+                        showConsumption && (
+                          <span className="tabular-nums text-foreground">
+                            +{consumed % 1 === 0 ? consumed : consumed.toFixed(1)}
+                          </span>
+                        )
+                      )}
+                    </button>
+                  );
+                })}
+                <span className={cn(
+                  'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 border transition-all',
+                  holidaysInRange > 0
+                    ? 'bg-rose-500/5 text-rose-600 border-rose-500/30 font-medium shadow-sm'
+                    : 'text-muted-foreground border-border/40'
+                )}>
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
+                  Holiday
+                  {holidaysInRange > 0 && (
+                    <span className="tabular-nums">{holidaysInRange}</span>
+                  )}
+                </span>
+              </div>
+            );
+
             return (
               <div className="space-y-5">
-                {/* Smart legend — tags activate based on calendar selection */}
-                <div className="flex flex-wrap items-center gap-2">
-                  {legend.map((b) => {
-                    const isPrimary = leaveType === b.type;
-                    const isOverflowTarget = b.type === 'Unpaid leave' && overflowToUnpaid > 0 && !isUnpaidActive;
-                    const isActive = isPrimary || isOverflowTarget;
-
-                    // Days being consumed from this bucket right now
-                    let consumed = 0;
-                    if (isPrimary) consumed = primaryUsed;
-                    else if (isOverflowTarget) consumed = overflowToUnpaid;
-
-                    const showConsumption = isActive && consumed > 0;
-                    const remaining = b.total !== null ? Math.max(0, b.total - (isPrimary ? consumed : 0)) : null;
-
-                    return (
-                      <button
-                        key={b.type}
-                        type="button"
-                        onClick={() => { setLeaveType(b.type); clearError('leave_type'); }}
-                        className={cn(
-                          'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 transition-all border',
-                          isActive
-                            ? 'bg-foreground/[0.03] text-foreground border-foreground/15 font-medium shadow-sm'
-                            : 'bg-transparent text-muted-foreground border-border/60 hover:border-foreground/20 hover:text-foreground'
-                        )}
-                      >
-                        <span className={cn('h-1.5 w-1.5 rounded-full', b.dotClass)} />
-                        <span>{b.short}</span>
-                        {b.total !== null ? (
-                          <span className="tabular-nums text-muted-foreground">
-                            {isPrimary && showConsumption ? (
-                              <>
-                                <span className="line-through opacity-50">{b.total}</span>
-                                <span className="ml-0.5 text-foreground">{remaining}</span>
-                              </>
-                            ) : (
-                              b.total
-                            )}
-                          </span>
-                        ) : (
-                          showConsumption && (
-                            <span className="tabular-nums text-foreground">
-                              +{consumed % 1 === 0 ? consumed : consumed.toFixed(1)}
-                            </span>
-                          )
-                        )}
-                      </button>
-                    );
-                  })}
-                  <span className={cn(
-                    'inline-flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 border transition-all',
-                    holidaysInRange > 0
-                      ? 'bg-rose-500/5 text-rose-600 border-rose-500/30 font-medium shadow-sm'
-                      : 'text-muted-foreground border-border/40'
-                  )}>
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500/70" />
-                    Holiday
-                    {holidaysInRange > 0 && (
-                      <span className="tabular-nums">{holidaysInRange}</span>
-                    )}
-                  </span>
-                </div>
-
-
-                {/* Calendar */}
+                {/* Calendar + type legend in one connected container */}
                 <div className={cn(
                   'rounded-xl border bg-card/50',
                   (errors['leave_start_date'] || errors['leave_end_date'] || errors['leave_type']) ? 'border-destructive/60' : 'border-border/60'
@@ -1354,6 +1353,13 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                       }}
                     />
                   </div>
+
+                  {/* Leave type tags — connected below calendar */}
+                  <div className="border-t border-border/60 px-3 py-2.5">
+                    {typeLegend}
+                  </div>
+
+
 
                   {/* Summary — embedded at bottom of calendar container */}
                   {hasRange && !isNaN(daysNum) && daysNum > 0 && (() => {
