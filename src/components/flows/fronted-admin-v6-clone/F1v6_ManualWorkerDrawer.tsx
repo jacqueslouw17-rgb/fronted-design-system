@@ -320,6 +320,14 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setSupportingFiles(prev => prev.filter((_, i) => i !== idx));
   };
 
+  const handleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!validateFile(file)) return;
+    setIdFile(file);
+    if (idInputRef.current) idInputRef.current.value = "";
+  };
+
   const canSaveBasic = name.trim() && country && role.trim() && salary.trim();
   const canSave = canSaveBasic && contractFile !== null;
 
