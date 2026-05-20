@@ -106,6 +106,10 @@ export interface PendingLeaveItem {
   status: AdjustmentItemStatus;
   rejectionReason?: string;
   dailyRate?: number;
+  // For Paid leave: how many of daysInThisPeriod fall within the worker's accrued balance
+  // vs exceed it. Only the exceeded portion deducts from pay.
+  accruedDays?: number;
+  exceededDays?: number;
 }
 
 // Flag types for "Heads up" indicators
