@@ -711,7 +711,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
                 <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 shrink-0">Optional</Badge>
               </div>
               <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                ID, tax, social security or any other supporting files
+                Tax, social security or any other supporting files
               </p>
 
               {supportingFiles.length > 0 && (
