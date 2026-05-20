@@ -664,7 +664,7 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
             title="Documents"
             badge={
               <Badge variant="secondary" className="text-[10px] px-2 py-0 h-4 font-normal">
-                {contractFile ? "1/1 required" : "0/1 required"}
+                {contractFile && idFile ? "2/2 required" : contractFile || idFile ? "1/2 required" : "0/2 required"}
               </Badge>
             }
           >
