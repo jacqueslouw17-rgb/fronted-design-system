@@ -257,6 +257,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
   const [idFile, setIdFile] = useState<File | null>(null);
   const [supportingFiles, setSupportingFiles] = useState<File[]>([]);
   const contractInputRef = useRef<HTMLInputElement>(null);
+  const idInputRef = useRef<HTMLInputElement>(null);
   const supportingInputRef = useRef<HTMLInputElement>(null);
 
   // Worker status flow: draft → awaiting → inactive → active
