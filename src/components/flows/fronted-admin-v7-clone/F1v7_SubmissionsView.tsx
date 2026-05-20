@@ -459,8 +459,9 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
         <div className="flex items-center justify-between py-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="flex flex-col gap-0 min-w-0">
-              <span className="text-sm text-muted-foreground/70 line-through">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+              <span className="text-sm text-muted-foreground/70 line-through">{config.label} ({daysStr})</span>
               {leave.dateDescription && <span className="text-[10px] text-muted-foreground/40 line-through">{leave.dateDescription}</span>}
+              {balanceNote && <span className="text-[10px] text-muted-foreground/40 line-through">{balanceNote}</span>}
             </div>
           </div>
           <div className="flex items-center gap-2">
