@@ -1354,6 +1354,13 @@ export const F41v7n_AdjustmentModal = ({ open, onOpenChange, currency, initialTy
                     />
                   </div>
 
+                  {/* Leave type tags — connected below calendar */}
+                  <div className="border-t border-border/60 px-3 py-2.5">
+                    {typeLegend}
+                  </div>
+
+
+
                   {/* Summary — embedded at bottom of calendar container */}
                   {hasRange && !isNaN(daysNum) && daysNum > 0 && (() => {
                     const fmtNum = (n: number) => (n % 1 === 0 ? String(n) : n.toFixed(1));
