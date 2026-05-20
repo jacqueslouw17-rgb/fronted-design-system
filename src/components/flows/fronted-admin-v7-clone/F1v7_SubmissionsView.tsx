@@ -177,6 +177,7 @@ const submissionTypeConfig: Record<SubmissionType, {icon: React.ElementType;labe
 };
 
 const leaveTypeConfig: Record<LeaveTypeLocal, {icon: React.ElementType;label: string;color: string;affectsPay: boolean;}> = {
+  Paid: { icon: Calendar, label: "Paid Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: false },
   Unpaid: { icon: Calendar, label: "Unpaid Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: true }
 };
 
