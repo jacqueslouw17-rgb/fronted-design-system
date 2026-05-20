@@ -360,6 +360,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setTin(""); setCivilStatus("single"); setNumDependents(""); setSssNumber(""); setPhilHealth(""); setPagibigNumber("");
     setBankCountry(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setSwiftBic(""); setIfscCode(""); setBranch("");
     setContractFile(null);
+    setIdFile(null);
     setSupportingFiles([]);
     setWorkerStatus("draft");
   };
