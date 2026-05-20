@@ -634,7 +634,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         const key = `${s.id}-leave-${leave.id}`;
         const localState = leaveStates[key];
         const effectiveStatus = localState?.status || leave.status || 'pending';
-        return effectiveStatus === 'pending' || effectiveStatus === 'rejected';
+        const isAuto = leave.leaveType === 'Paid' && (leave.exceededDays ?? 0) === 0;
+        return (effectiveStatus === 'pending' && !isAuto) || effectiveStatus === 'rejected';
       }).length;
       return pendingAdjs + pendingLvs === 0;
     }).length;
