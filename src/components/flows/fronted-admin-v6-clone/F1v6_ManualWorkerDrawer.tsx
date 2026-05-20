@@ -724,10 +724,10 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
               )}
             </div>
 
-            {/* Supporting documents — optional, multi-upload */}
+            {/* Additional Supporting documents — optional, multi-upload */}
             <div className="rounded-lg border border-border/40 bg-card/30 p-3">
               <div className="flex items-center gap-1.5">
-                <p className="text-sm font-medium text-foreground truncate">Supporting documents</p>
+                <p className="text-sm font-medium text-foreground truncate">Additional Supporting documents</p>
                 <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 shrink-0">Optional</Badge>
               </div>
               <p className="text-[11px] text-muted-foreground/70 mt-0.5">
@@ -753,7 +753,7 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
                 className="flex items-center gap-1.5 mt-2.5 text-[11px] text-primary hover:text-primary/80 transition-colors"
               >
                 <Upload className="h-3 w-3" />
-                {supportingFiles.length > 0 ? "Add more files" : "Upload files"}
+                {supportingFiles.length > 0 ? "Add more additional files" : "Upload additional files"}
               </button>
             </div>
           </SectionCard>
