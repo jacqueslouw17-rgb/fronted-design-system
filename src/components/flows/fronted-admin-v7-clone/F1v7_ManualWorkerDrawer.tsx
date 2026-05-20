@@ -254,8 +254,10 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
 
   // Documents
   const [contractFile, setContractFile] = useState<File | null>(null);
+  const [idFile, setIdFile] = useState<File | null>(null);
   const [supportingFiles, setSupportingFiles] = useState<File[]>([]);
   const contractInputRef = useRef<HTMLInputElement>(null);
+  const idInputRef = useRef<HTMLInputElement>(null);
   const supportingInputRef = useRef<HTMLInputElement>(null);
 
   // Worker status flow: draft → awaiting → inactive → active
@@ -318,8 +320,16 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setSupportingFiles(prev => prev.filter((_, i) => i !== idx));
   };
 
+  const handleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!validateFile(file)) return;
+    setIdFile(file);
+    if (idInputRef.current) idInputRef.current.value = "";
+  };
+
   const canSaveBasic = name.trim() && country && role.trim() && salary.trim();
-  const canSave = canSaveBasic && contractFile !== null;
+  const canSave = canSaveBasic && contractFile !== null && idFile !== null;
 
   const handleSaveCandidate = () => {
     if (!canSaveBasic) return;
@@ -350,6 +360,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
     setTin(""); setCivilStatus("single"); setNumDependents(""); setSssNumber(""); setPhilHealth(""); setPagibigNumber("");
     setBankCountry(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setSwiftBic(""); setIfscCode(""); setBranch("");
     setContractFile(null);
+    setIdFile(null);
     setSupportingFiles([]);
     setWorkerStatus("draft");
   };
@@ -379,6 +390,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
         </SheetHeader>
 
         <input ref={contractInputRef} type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={handleContractChange} />
+        <input ref={idInputRef} type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={handleIdChange} />
         <input ref={supportingInputRef} type="file" className="hidden" multiple accept=".jpg,.jpeg,.png,.pdf" onChange={handleSupportingChange} />
 
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
@@ -632,7 +644,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
             title="Documents"
             badge={
               <Badge variant="secondary" className="text-[10px] px-2 py-0 h-4 font-normal">
-                {contractFile ? "1/1 required" : "0/1 required"}
+                {contractFile && idFile ? "2/2 required" : contractFile || idFile ? "1/2 required" : "0/2 required"}
               </Badge>
             }
           >
@@ -664,14 +676,42 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
               )}
             </div>
 
-            {/* Supporting documents — optional, multi-upload */}
+            {/* ID document — required */}
+            <div className={cn(
+              "rounded-lg border p-3 transition-colors",
+              !idFile ? "border-amber-500/30 bg-amber-500/5" : "border-border/40 bg-card/30",
+            )}>
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-medium text-foreground truncate">ID document</p>
+                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-amber-500/30 text-amber-600 shrink-0">Required</Badge>
+              </div>
+              {idFile ? (
+                <div className="flex items-center gap-2 mt-1.5">
+                  <FileText className="h-3 w-3 text-primary/70" />
+                  <span className="text-[11px] text-muted-foreground truncate">{idFile.name}</span>
+                  <button onClick={() => setIdFile(null)} className="text-muted-foreground/50 hover:text-destructive transition-colors">
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => idInputRef.current?.click()}
+                  className="flex items-center gap-1.5 mt-1.5 text-[11px] text-primary hover:text-primary/80 transition-colors"
+                >
+                  <Upload className="h-3 w-3" />
+                  Upload ID document
+                </button>
+              )}
+            </div>
+
+            {/* Additional Supporting documents — optional, multi-upload */}
             <div className="rounded-lg border border-border/40 bg-card/30 p-3">
               <div className="flex items-center gap-1.5">
-                <p className="text-sm font-medium text-foreground truncate">Supporting documents</p>
+                <p className="text-sm font-medium text-foreground truncate">Additional Supporting documents</p>
                 <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 shrink-0">Optional</Badge>
               </div>
               <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                ID, tax, social security or any other supporting files
+                Tax, social security or any other supporting files
               </p>
 
               {supportingFiles.length > 0 && (
@@ -693,7 +733,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
                 className="flex items-center gap-1.5 mt-2.5 text-[11px] text-primary hover:text-primary/80 transition-colors"
               >
                 <Upload className="h-3 w-3" />
-                {supportingFiles.length > 0 ? "Add more files" : "Upload files"}
+                {supportingFiles.length > 0 ? "Add more additional files" : "Upload additional files"}
               </button>
             </div>
           </SectionCard>
@@ -708,6 +748,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
                 {!role.trim() && <li>Enter job title / role</li>}
                 {!salary.trim() && <li>Enter salary or fee amount</li>}
                 {!contractFile && <li>Upload signed contract</li>}
+                {!idFile && <li>Upload ID document</li>}
               </ul>
             </div>
           )}
