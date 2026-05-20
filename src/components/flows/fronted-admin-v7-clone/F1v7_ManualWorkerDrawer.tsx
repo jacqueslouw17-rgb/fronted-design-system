@@ -704,7 +704,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
               )}
             </div>
 
-            {/* Supporting documents — optional, multi-upload */}
+            {/* Additional Supporting documents — optional, multi-upload */}
             <div className="rounded-lg border border-border/40 bg-card/30 p-3">
               <div className="flex items-center gap-1.5">
                 <p className="text-sm font-medium text-foreground truncate">Additional Supporting documents</p>
