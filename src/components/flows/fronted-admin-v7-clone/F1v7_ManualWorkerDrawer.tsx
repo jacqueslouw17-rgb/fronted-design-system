@@ -748,6 +748,7 @@ export const F1v7_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
                 {!role.trim() && <li>Enter job title / role</li>}
                 {!salary.trim() && <li>Enter salary or fee amount</li>}
                 {!contractFile && <li>Upload signed contract</li>}
+                {!idFile && <li>Upload ID document</li>}
               </ul>
             </div>
           )}
