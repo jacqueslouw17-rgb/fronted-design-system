@@ -400,6 +400,26 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
     }
   };
 
+  // Auto-approved (paid leave covered by accrual) - read-only, no admin action needed
+  if (isPaid && exceededDays === 0) {
+    return (
+      <div className="flex items-center justify-between py-2 -mx-3 px-3 rounded transition-colors hover:bg-muted">
+        <div className="flex items-center gap-2 min-w-0">
+          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text shrink-0" />
+          <div className="flex flex-col gap-0 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">{config.label} ({daysStr})</span>
+              <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-accent-green/15 text-accent-green-text">accrued</span>
+            </div>
+            {leave.dateDescription && <span className="text-[10px] text-muted-foreground/60">{leave.dateDescription}</span>}
+            <span className="text-[10px] text-muted-foreground/60">Covered by accrual · no action needed</span>
+          </div>
+        </div>
+        <span className="text-sm tabular-nums font-mono text-muted-foreground">—</span>
+      </div>
+    );
+  }
+
   // Approved state - show with Undo option (unless finalized)
   if (leave.status === 'approved') {
     return (
@@ -471,6 +491,8 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
     );
   }
 
+
+
   // Pending state
   return (
     <div className={cn("-mx-3 px-3 rounded transition-colors", expanded ? "bg-muted border border-border/30" : "hover:bg-muted")}>
@@ -519,11 +541,21 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
 interface AdjustmentState {status: AdjustmentItemStatus;rejectionReason?: string;}
 
 export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
-  submissions,
+  submissions: submissionsProp,
   onContinue,
   onClose,
   isCustomBatch = false,
 }) => {
+  // Auto-approve paid leaves that are fully covered by accrual (no admin action needed)
+  const submissions = useMemo(() => submissionsProp.map((s) => ({
+    ...s,
+    pendingLeaves: (s.pendingLeaves || []).map((leave) => {
+      const isAutoApproved = leave.leaveType === 'Paid' && (leave.exceededDays ?? 0) === 0;
+      return isAutoApproved && (!leave.status || leave.status === 'pending')
+        ? { ...leave, status: 'approved' as AdjustmentItemStatus }
+        : leave;
+    }),
+  })), [submissionsProp]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [selectedSubmission, setSelectedSubmission] = useState<WorkerSubmission | null>(null);
@@ -587,7 +619,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         const key = `${submission.id}-leave-${leave.id}`;
         const localState = leaveStates[key];
         const effectiveStatus = localState?.status || leave.status || 'pending';
-        return effectiveStatus === 'pending';
+        const isAuto = leave.leaveType === 'Paid' && (leave.exceededDays ?? 0) === 0;
+        return effectiveStatus === 'pending' && !isAuto;
       }).length;
       const rejectedLeaves = (submission.pendingLeaves || []).filter((leave) => {
         const key = `${submission.id}-leave-${leave.id}`;
@@ -613,7 +646,8 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         const key = `${s.id}-leave-${leave.id}`;
         const localState = leaveStates[key];
         const effectiveStatus = localState?.status || leave.status || 'pending';
-        return effectiveStatus === 'pending' || effectiveStatus === 'rejected';
+        const isAuto = leave.leaveType === 'Paid' && (leave.exceededDays ?? 0) === 0;
+        return (effectiveStatus === 'pending' && !isAuto) || effectiveStatus === 'rejected';
       }).length;
       return pendingAdjs + pendingLvs === 0;
     }).length;
