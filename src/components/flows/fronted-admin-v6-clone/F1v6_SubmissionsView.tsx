@@ -64,7 +64,7 @@ export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "
 // Worker-level status: pending = has items needing review, ready = finalized
 export type SubmissionStatus = "pending" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
-type LeaveTypeLocal = "Unpaid";
+type LeaveTypeLocal = "Unpaid" | "Paid";
 
 interface PayLineItem {
   label: string;
