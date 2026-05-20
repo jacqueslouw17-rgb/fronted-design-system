@@ -496,10 +496,13 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
       <div className="flex items-start justify-between py-2 cursor-pointer" onClick={(e) => {e.stopPropagation();toggleExpand();}}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-foreground">{config.label} ({leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`})</span>
+            <span className="text-sm text-foreground">{config.label} ({daysStr})</span>
             <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-orange-100/80 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400">pending</span>
+            {isPaid && exceededDays === 0 && <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-accent-green/15 text-accent-green-text">accrued</span>}
+            {isPaid && exceededDays > 0 && <span className="inline-flex items-center h-4 px-1.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-amber-100/80 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400">exceeds balance</span>}
           </div>
           {leave.dateDescription && <span className="text-[10px] text-muted-foreground/70 mt-0.5 block">{leave.dateDescription}</span>}
+          {balanceNote && <span className="text-[10px] text-muted-foreground/70 mt-0.5 block">{balanceNote}</span>}
         </div>
         <span className="text-sm tabular-nums font-mono text-foreground ml-3 shrink-0">{deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : '—'}</span>
       </div>
