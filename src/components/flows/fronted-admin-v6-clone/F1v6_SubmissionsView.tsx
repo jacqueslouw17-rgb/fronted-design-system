@@ -539,11 +539,21 @@ const LeaveRow = ({ leave, currency, onApprove, onReject, onUndo, isExpanded = f
 interface AdjustmentState {status: AdjustmentItemStatus;rejectionReason?: string;}
 
 export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
-  submissions,
+  submissions: submissionsProp,
   onContinue,
   onClose,
   isCustomBatch = false,
 }) => {
+  // Auto-approve paid leaves that are fully covered by accrual (no admin action needed)
+  const submissions = useMemo(() => submissionsProp.map((s) => ({
+    ...s,
+    pendingLeaves: (s.pendingLeaves || []).map((leave) => {
+      const isAutoApproved = leave.leaveType === 'Paid' && (leave.exceededDays ?? 0) === 0;
+      return isAutoApproved && (!leave.status || leave.status === 'pending')
+        ? { ...leave, status: 'approved' as AdjustmentItemStatus }
+        : leave;
+    }),
+  })), [submissionsProp]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [selectedSubmission, setSelectedSubmission] = useState<WorkerSubmission | null>(null);
