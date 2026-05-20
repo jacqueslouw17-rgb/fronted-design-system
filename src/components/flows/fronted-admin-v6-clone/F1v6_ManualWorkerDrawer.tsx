@@ -696,6 +696,34 @@ export const F1v6_ManualWorkerDrawer: React.FC<ManualWorkerDrawerProps> = ({
               )}
             </div>
 
+            {/* ID document — required */}
+            <div className={cn(
+              "rounded-lg border p-3 transition-colors",
+              !idFile ? "border-amber-500/30 bg-amber-500/5" : "border-border/40 bg-card/30",
+            )}>
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-medium text-foreground truncate">ID document</p>
+                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-amber-500/30 text-amber-600 shrink-0">Required</Badge>
+              </div>
+              {idFile ? (
+                <div className="flex items-center gap-2 mt-1.5">
+                  <FileText className="h-3 w-3 text-primary/70" />
+                  <span className="text-[11px] text-muted-foreground truncate">{idFile.name}</span>
+                  <button onClick={() => setIdFile(null)} className="text-muted-foreground/50 hover:text-destructive transition-colors">
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => idInputRef.current?.click()}
+                  className="flex items-center gap-1.5 mt-1.5 text-[11px] text-primary hover:text-primary/80 transition-colors"
+                >
+                  <Upload className="h-3 w-3" />
+                  Upload ID document
+                </button>
+              )}
+            </div>
+
             {/* Supporting documents — optional, multi-upload */}
             <div className="rounded-lg border border-border/40 bg-card/30 p-3">
               <div className="flex items-center gap-1.5">
